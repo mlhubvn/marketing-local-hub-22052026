@@ -1,0 +1,7 @@
+{
+    "name": "AppCouponCampaigns",
+    "providers": [
+        "Modules\\AppCouponCampaigns\\Providers\\AppCouponCampaignsServiceProvider"
+    ],
+    "priority": 24
+}

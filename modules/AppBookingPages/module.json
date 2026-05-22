@@ -1,0 +1,7 @@
+{
+    "name": "AppBookingPages",
+    "providers": [
+        "Modules\\AppBookingPages\\Providers\\AppBookingPagesServiceProvider"
+    ],
+    "priority": 23
+}

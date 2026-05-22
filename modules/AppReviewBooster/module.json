@@ -1,0 +1,7 @@
+{
+    "name": "AppReviewBooster",
+    "providers": [
+        "Modules\\AppReviewBooster\\Providers\\AppReviewBoosterServiceProvider"
+    ],
+    "priority": 22
+}

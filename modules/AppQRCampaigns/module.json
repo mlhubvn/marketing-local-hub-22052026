@@ -1,0 +1,7 @@
+{
+    "name": "AppQRCampaigns",
+    "providers": [
+        "Modules\\AppQRCampaigns\\Providers\\AppQRCampaignsServiceProvider"
+    ],
+    "priority": 21
+}

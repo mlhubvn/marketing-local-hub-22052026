@@ -1,0 +1,1 @@
+{"name":"AppLandingPages","providers":["Modules\\AppLandingPages\\Providers\\AppLandingPagesServiceProvider"],"priority":27}

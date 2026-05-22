@@ -1,0 +1,1 @@
+{"name":"AppFeedbackForms","providers":["Modules\\AppFeedbackForms\\Providers\\AppFeedbackFormsServiceProvider"],"priority":25}

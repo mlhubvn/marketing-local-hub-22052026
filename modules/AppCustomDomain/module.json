@@ -1,0 +1,8 @@
+{
+    "name": "AppCustomDomain",
+    "alias": "appcustomdomain",
+    "description": "Custom domains module for QR redirects.",
+    "providers": [
+        "Modules\\AppCustomDomain\\Providers\\AppCustomDomainServiceProvider"
+    ]
+}

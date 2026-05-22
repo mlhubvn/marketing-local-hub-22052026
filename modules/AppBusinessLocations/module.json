@@ -1,0 +1,1 @@
+{"name":"AppBusinessLocations","providers":["Modules\\AppBusinessLocations\\Providers\\AppBusinessLocationsServiceProvider"],"priority":21}

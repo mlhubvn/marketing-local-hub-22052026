@@ -1,0 +1,7 @@
+{
+    "name": "AppBusinessProfiles",
+    "providers": [
+        "Modules\\AppBusinessProfiles\\Providers\\AppBusinessProfilesServiceProvider"
+    ],
+    "priority": 20
+}

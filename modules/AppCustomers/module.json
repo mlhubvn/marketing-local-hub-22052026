@@ -1,0 +1,1 @@
+{"name":"AppCustomers","providers":["Modules\\AppCustomers\\Providers\\AppCustomersServiceProvider"],"priority":22}

@@ -1,0 +1,10 @@
+{
+    "name": "guest/localboostai",
+    "description": "LocalBoostAI guest theme",
+    "type": "laravel-theme",
+    "extra": {
+        "laravel-theme": {
+            "name": "guest/localboostai"
+        }
+    }
+}
