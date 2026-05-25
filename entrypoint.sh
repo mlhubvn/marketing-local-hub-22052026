@@ -32,7 +32,7 @@ php artisan package:discover --ansi
 
 php artisan storage:link --force 2>/dev/null || true
 
-# php artisan migrate --force --ansi
+php artisan migrate --force --ansi
 
 php artisan optimize:clear --ansi
 php artisan optimize --ansi
