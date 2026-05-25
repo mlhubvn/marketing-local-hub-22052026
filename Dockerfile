@@ -29,10 +29,7 @@ LABEL description="Laravel 13 application — Apache, PHP 8.3, PostgreSQL-ready"
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
 # PHP production defaults (override in Coolify if needed)
-ENV PHP_OPCACHE_ENABLE=1 \
-    PHP_MEMORY_LIMIT=512M \
-    PHP_UPLOAD_MAX_FILESIZE=64M \
-    PHP_POST_MAX_SIZE=64M
+ENV PHP_OPCACHE_ENABLE=1
 
 WORKDIR /var/www/html
 
@@ -49,6 +46,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libjpeg62-turbo-dev \
         libfreetype6-dev \
         libicu-dev \
+        libmagic-dev \
         libonig-dev \
         libxml2-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -88,12 +86,13 @@ RUN { \
         echo 'opcache.max_accelerated_files=20000'; \
         echo 'opcache.validate_timestamps=0'; \
         echo 'opcache.save_comments=1'; \
-    } > /usr/local/etc/php/conf.d/opcache-recommended.ini \
-    && { \
-        echo "memory_limit=${PHP_MEMORY_LIMIT}"; \
-        echo "upload_max_filesize=${PHP_UPLOAD_MAX_FILESIZE}"; \
-        echo "post_max_size=${PHP_POST_MAX_SIZE}"; \
-    } > /usr/local/etc/php/conf.d/laravel.ini
+    } > /usr/local/etc/php/conf.d/opcache-recommended.ini
+
+# Upload limits — tránh file bị cắt (MIME/validation fail) và từ chối ảnh logo
+RUN echo "upload_max_filesize = 50M" > /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "post_max_size = 50M" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && php -r "\$required = ['ctype','curl','fileinfo','filter','gd','hash','json','mbstring','openssl','pdo','pdo_mysql','tokenizer','xml','zip']; foreach (\$required as \$e) { if (! extension_loaded(\$e)) { fwrite(STDERR, \"Missing PHP extension: \$e\\n\"); exit(1); } }"
 
 # Application code
 COPY --chown=www-data:www-data . /var/www/html
