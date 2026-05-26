@@ -1,5 +1,7 @@
 # syntax=docker/dockerfile:1
-# LocalBoost AI — production image for Coolify (Laravel 13, PHP 8.3, Supabase PostgreSQL)
+# LocalBoost AI — production image (Laravel 13, PHP 8.3, Apache, MySQL/PostgreSQL/Redis ready)
+# Designed for Coolify / any Docker host. Composer runs only in the build stage;
+# the runtime image carries the prebuilt vendor/ directory and does NOT run composer.
 
 # -----------------------------------------------------------------------------
 # Stage 1: Composer dependencies (cached layer on composer.json / composer.lock)
@@ -23,7 +25,7 @@ RUN composer install \
 FROM php:8.3-apache-bookworm AS production
 
 LABEL maintainer="LocalBoost AI"
-LABEL description="Laravel 13 application — Apache, PHP 8.3, PostgreSQL-ready"
+LABEL description="Laravel 13 + Livewire 4 application — Apache, PHP 8.3, MySQL/PostgreSQL/Redis ready"
 
 # Apache document root → Laravel public/
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public

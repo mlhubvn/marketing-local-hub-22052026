@@ -1,6 +1,6 @@
 # LocalBoost AI — Frontend Architecture
 
-How UI is built, themed, and compiled—and how to customize appearance **without editing core theme or module view files**.
+How UI is built, themed, and compiled — and exactly **how to customize appearance without editing core theme or module view files**.
 
 ---
 
@@ -8,16 +8,16 @@ How UI is built, themed, and compiled—and how to customize appearance **withou
 
 | Layer | Technology | Notes |
 |-------|------------|-------|
-| Templates | **Blade** | Primary markup; module views + theme layouts |
-| Interactivity | **Livewire 4** | Full-page components via `Route::livewire()` |
-| Sprinkles | **Alpine.js** | Inline `x-data`, `$dispatch`, modals in Blade |
-| CSS | **Tailwind CSS v4** | `@import` + `@theme` in theme `assets/css/app.css` |
-| Icons | **Font Awesome** (`fa-light`) | Loaded from shared theme plugins |
-| Charts / editors | Shared JS | `resources/themes/shared/js/highcharts.js`, `image-editor.js` |
-| Build | **Vite** (Laravel `Illuminate\Foundation\Vite`) | Per-theme entry via `theme_vite()` helper |
-| SPA frameworks | **None** | No React/Vue app shell in this codebase |
+| Templates | **Blade** | Module views + theme layouts |
+| Interactivity | **Livewire 4** | Full-page components via `Route::livewire(...)` |
+| Sprinkles | **Alpine.js** | Inline `x-data`, `$dispatch`, modal triggers |
+| CSS | **Tailwind CSS v4** | `@import "tailwindcss"` + `@theme` block in theme `assets/css/app.css` |
+| Icons | **Font Awesome** (`fa-light`) | Loaded by shared theme plugins |
+| Charts / editors | Shared JS | `resources/themes/shared/js/{highcharts,image-editor,…}.js` |
+| Build | **Vite** via `Illuminate\Foundation\Vite` | Per-theme entry through `theme_vite()` helper |
+| SPA frameworks | **None** | No React/Vue shell. Do not introduce one. |
 
-There is **no root `package.json`** in the distributed tree; theme assets are built with Vite conventions and manifests under `public/build/themes/`. Composer `setup` script references `npm run build`—add a **project-level** `package.json` only in your custom theme workflow if you rebuild assets locally.
+There is **no root `package.json`** in the distributed tree. Each theme owns its own build inputs. The `composer setup` script references `npm run build`, expected to run inside a theme that ships its own `package.json` (e.g. when you clone `app/default` → `app/custom`).
 
 ---
 
@@ -27,126 +27,120 @@ There is **no root `package.json`** in the distributed tree; theme assets are bu
 
 ```
 resources/themes/
-  app/default/              # CORE backend theme (do not edit)
-  guest/localboostai/       # CORE marketing/auth theme (do not edit)
-  shared/                   # CORE shared CSS, JS, plugins (do not edit)
+  app/default/              CORE backend theme — do not edit
+  guest/localboostai/       CORE marketing/auth theme — do not edit
+  shared/                   CORE shared CSS, JS, plugins — do not edit
     css/theme-base.css
-    js/
-    plugins/                # codemirror, fontawesome, flags, …
-    views/components/       # <x-shared.*> namespace
+    js/{highcharts,image-editor,fingerprint,…}.js
+    plugins/{codemirror,fontawesome,flags,…}
+    views/components/       <x-shared.*> namespace
 ```
 
-Each theme folder contains:
+Per-theme contents:
 
 ```
 resources/themes/{area}/{name}/
-  theme.json                # metadata, color settings schema, order
+  theme.json                metadata, color schema, order, supports_dark_mode, default_appearance, custom_css, custom_js
   assets/
-    css/app.css             # Tailwind entry (@import theme-base)
-    js/app.js               # typically imports app.css
+    css/app.css             Tailwind v4 entry
+    js/app.js
   resources/views/
-    layouts/                # app.blade.php, auth.blade.php
-    components/             # x-ui.* anonymous components
-    pages/                  # marketing/auth pages (guest)
-    partials/               # head.blade.php (vite tags)
-    livewire/               # optional Livewire view overrides
+    layouts/                app.blade.php, auth.blade.php
+    components/             ui/, layout/, theme/, ai/ → x-ui.*, x-layout.*, x-theme.*, x-ai.*
+    pages/                  marketing/auth pages (guest area)
+    partials/               head.blade.php (vite tags)
+    livewire/               optional Livewire view overrides
 ```
 
-### 2.2 Theme areas (`config/themes.php`)
+### 2.2 Theme areas
 
-| Area | Fallback | Used for |
-|------|----------|----------|
-| `guest` | `localboostai` | Home, pricing, blogs, login/register (route name based) |
-| `app` | `default` | Portal, admin, settings (`app`, `dashboard`, `settings` prefixes) |
+Defined in `config/themes.php`:
 
-Active theme per area is stored in DB options (`frontend_theme`, `backend_theme`) via **Admin → Themes**.
+| Area | Default theme | Used for |
+|------|---------------|----------|
+| `guest` | `localboostai` | Home, pricing, blogs, faqs, contact, login/register/reset |
+| `app` | `default` | Portal (`/portal/*`), admin (`/admin/*`), settings (`/settings/*`), dashboard |
+
+Active theme per area is stored in `OptionStore` (`frontend_theme`, `backend_theme`) and editable in **Admin → Themes**.
 
 ### 2.3 Runtime resolution
 
-`Modules\AdminThemes\Http\Middleware\SetThemeContext`:
+`Modules\AdminThemes\Http\Middleware\SetThemeContext` runs in the web group and:
 
-1. Resolves area with `ThemeAreaResolver` from current route.
-2. `View::replaceNamespace("theme-{area}", $theme->viewsPath())`.
-3. Registers Blade anonymous component paths for `x-ui`, `x-layout`, `x-theme`, `x-ai`, layouts.
+1. Resolves area with `ThemeAreaResolver` from current route prefix / name.
+2. Calls `View::replaceNamespace("theme-{area}", $theme->viewsPath())`.
+3. Registers Blade anonymous component paths for `ui`, `layout`, `theme`, `ai`.
 4. Shares `$currentTheme` to all views.
 
-**View naming:**
+**Layout extension:**
 
 ```blade
 @extends(theme_view('layouts.app'))
-{{-- resolves to theme-app::layouts.app --}}
+{{-- resolves to theme-app::layouts.app for active app theme --}}
 ```
 
-**Assets:**
+**Asset emission:**
 
 ```blade
-{!! theme_vite('app', ['assets/js/app.js', 'resources/themes/shared/js/highcharts.js']) !!}
+{!! theme_vite('app', [
+    'assets/js/app.js',
+    'resources/themes/shared/js/highcharts.js',
+]) !!}
 ```
 
-Helpers live in `modules/AdminThemes/Support/helpers.php` (`theme_asset`, `theme_setting`, `theme_font_stack`, etc.).
+Helpers in `modules/AdminThemes/Support/helpers.php`: `theme_view`, `theme_vite`, `theme_asset`, `theme_shared_asset`, `theme_setting`, `theme_font_stack`, `theme_color_rgb`.
 
 ### 2.4 Styling model
 
-- Global design tokens exposed as CSS variables: `--theme-accent-rgb`, `--theme-border-color-rgb`, `--theme-muted-text-color`, etc.
-- Module Blade uses inline `style="color: var(--theme-header-text-color)"` for theme-aware colors.
-- Tailwind utility classes (`rounded-[1.35rem]`, `sm:px-5`) mixed with variables.
-- Dark mode: controlled by theme settings (`supports_dark_mode`, `default_appearance`).
-
-Admin **Themes** UI can inject **custom CSS/JS** per active theme (`custom_css`, `custom_js` in `theme.json` schema)—prefer this for minor branding before forking a theme.
+- Design tokens are CSS variables emitted from `theme.json` color settings: `--theme-accent-rgb`, `--theme-header-text-color`, `--theme-border-color-rgb`, `--theme-muted-text-color`, `--theme-card-bg-color-rgb`, …
+- Module Blade mixes Tailwind utilities with inline `style="color: var(--theme-header-text-color)"`.
+- Dark mode driven by theme `supports_dark_mode` + `default_appearance`.
+- Per-active-theme **Custom CSS** and **Custom JS** fields (stored in `OptionStore`) are injected on every page — use this for minor branding before forking.
 
 ---
 
 ## 3. UI component layers
 
-### 3.1 `x-ui.*` (backend shell)
+| Namespace | Source | Registered by |
+|-----------|--------|---------------|
+| `x-ui.*` | `resources/themes/app/default/resources/views/components/ui/` (or active app theme) | `SetThemeContext` middleware (anonymous component path) |
+| `x-layout.*`, `x-theme.*`, `x-ai.*` | active app theme `components/{layout,theme,ai}/` | `SetThemeContext` |
+| `x-shared.*` | `resources/themes/shared/views/components/` | `App\Providers\AppServiceProvider` (anonymous component namespace `shared`) |
+| Module views | `modules/*/Resources/views/` | each module's `loadViewsFrom(..., 'aliaslowercase')` |
 
-Defined under `resources/themes/app/default/resources/views/components/ui/`:
-
-- Examples: `<x-ui.button>`, `<x-ui.card>`, `<x-ui.shell>`, `<x-ui.modal>`, `<x-ui.table>`.
-- Registered as anonymous components from the active **app** theme path.
-- Module views (e.g. `modules/AppBusinessProfiles/Resources/views/index.blade.php`) depend heavily on these.
-
-### 3.2 `x-shared.*`
-
-From `resources/themes/shared/views/components/` (registered in `AppServiceProvider` with prefix `shared`).
-
-### 3.3 `x-layout.*`, `x-theme.*`, `x-ai.*`
-
-Subfolders under theme `components/` registered with namespaces in `SetThemeContext`.
-
-### 3.4 Module views
-
-Loaded via `loadViewsFrom(..., 'appbusinessprofiles')`:
+Module views use their lowercase alias as namespace:
 
 ```blade
-{{-- in Livewire render() --}}
-return view('appbusinessprofiles::index');
+{{-- Livewire render() --}}
+return view('appbusinessprofiles::index', [...]);
 ```
 
-**Namespace:** lowercase module alias from provider (`appsupport`, `adminmarketplace`, …).
+Common building blocks you should reuse (do **not** re-implement):
+
+- `<x-ui.shell>`, `<x-ui.card>`, `<x-ui.modal>`, `<x-ui.table>`, `<x-ui.button>`, `<x-ui.input>`, `<x-ui.select>`, `<x-ui.tab>`, `<x-ui.toast>`, `<x-ui.empty-state>`.
+- `<x-shared.icon>`, `<x-shared.flag>`, `<x-shared.timezone-picker>`, `<x-shared.color-picker>`.
 
 ---
 
 ## 4. Livewire + Blade integration
 
-- Livewire class: `modules/.../Livewire/FooIndex.php`.
-- Default view: `modules/.../Resources/views/...` **or** theme `livewire/` override if same relative path exists in active theme (project-specific).
-- Layout: many pages use `<x-ui.shell>` in `theme-app::layouts.app`.
-- File uploads: CSRF exceptions for `livewire/upload-file` in `bootstrap/app.php`.
-- Demo mode: `App\Livewire\DemoModeActionGuard` component hook blocks mutating actions.
-
-**Browser events:** Livewire `$this->dispatch('event-name')` and Alpine `$dispatch('modal-close')` for local UI—not Laravel domain events.
+- Livewire class lives at `modules/.../Livewire/FooIndex.php`.
+- Default render path: `modules/.../Resources/views/livewire/...` or the matching module-namespaced view.
+- Most pages extend `theme_view('layouts.app')` and wrap content in `<x-ui.shell>`.
+- File uploads: `bootstrap/app.php` excludes `livewire/upload-file` and `livewire-*/upload-file` from CSRF.
+- Demo mode: `App\Livewire\DemoModeActionGuard` is registered as a Livewire component hook in `AppServiceProvider`. Any custom Livewire write action must remain compatible (it inspects method name + arguments).
+- Browser-level events: prefer Livewire `$this->dispatch('event-name')` and Alpine `$dispatch('modal-close')` for UI; do not abuse Laravel events for client coordination.
 
 ---
 
 ## 5. Guest / marketing frontend
 
 - Theme: `resources/themes/guest/localboostai/`.
-- Pages: `resources/views/pages/*.blade.php` inside theme (pricing, blogs, contact).
-- Layout: `layouts/app.blade.php` with `theme_vite('guest/default')` or area-specific entry.
-- Auth: Fortify views pointed to theme auth templates (`resources/themes/guest/.../auth/`).
+- Pages: `resources/views/pages/*.blade.php` *inside the active guest theme* (pricing, blogs, contact, FAQs, home).
+- Layout: `layouts/app.blade.php` with `theme_vite('guest', [...])`.
+- Fortify auth views are bound in `App\Providers\FortifyServiceProvider` to Livewire components which themselves use the guest theme layout.
 
-Customize by cloning to `resources/themes/guest/custom/` and selecting **custom** in admin theme settings (after registering `theme.json`).
+Customize by cloning the entire `guest/localboostai` → `guest/custom`, editing `theme.json` (`name`, `order`), then activating in **Admin → Themes**.
 
 ---
 
@@ -154,25 +148,19 @@ Customize by cloning to `resources/themes/guest/custom/` and selecting **custom*
 
 ### 6.1 Clone a theme (recommended for visual rebrand)
 
-1. Copy `resources/themes/app/default` → `resources/themes/app/custom` (or new name).
-2. Copy `resources/themes/guest/localboostai` → `resources/themes/guest/custom` if needed.
-3. Edit `theme.json` (`name`, `order`, colors).
-4. Set `THEME_BACKEND=custom` / `THEME_FRONTEND=custom` in `.env` or activate in admin UI.
-5. Rebuild Vite manifest into `public/build/themes/{area}/{name}/` for your entry points.
+1. Copy `resources/themes/app/default` → `resources/themes/app/custom` (rename `theme.json` `name`, `order`).
+2. Copy `resources/themes/guest/localboostai` → `resources/themes/guest/custom` if you want the marketing surface.
+3. Run Vite build inside the custom theme. Output must land at `public/build/themes/{area}/custom/`. Match the entry points referenced by the theme's layouts.
+4. Activate in **Admin → Themes** (or set DB option directly).
+5. Never edit `default` or `localboostai` after this — your fork carries forward.
 
-**Never** edit `default` or `localboostai` folders in place.
+### 6.2 Override a single Blade view
 
-### 6.2 Override a single Blade view (module)
+**A. Custom module (preferred when you also need new logic):**
 
-**Option A — Module custom view (isolated feature):**
+Put `Resources/views/index.blade.php` in `modules/CustomFoo/`, render it from a custom Livewire (`return view('customfoo::index')`), and route to that Livewire from `routes/custom.php`.
 
-Put `Resources/views/index.blade.php` in `modules/CustomFoo/` and point Livewire `render()` to `customfoo::index`.
-
-**Option B — Theme override (visual only):**
-
-If Livewire uses `view('appbusinessprofiles::index')`, you cannot override via theme namespace unless you change the Livewire class (custom module). Prefer **copy view to custom module** and swap Livewire binding via custom route.
-
-**Option C — View composer in `CustomServiceProvider`:**
+**B. View composer (augment, not replace):**
 
 ```php
 View::composer('appbusinessprofiles::index', function ($view) {
@@ -180,81 +168,90 @@ View::composer('appbusinessprofiles::index', function ($view) {
 });
 ```
 
-Non-destructive augmentation only.
+**C. Replace a `<x-ui.*>` component:** copy the Blade file into your cloned app theme at `resources/views/components/ui/`. The active theme path is registered first, so it wins.
 
-### 6.3 Override `x-ui` components
+> Module view namespaces (`appbusinessprofiles::*`) are **not** themeable directly — you must either swap the Livewire class via custom route (A) or augment via composer (B).
 
-Copy `components/ui/button.blade.php` (etc.) into **your custom app theme** `resources/views/components/ui/`. Anonymous component path registration picks the active theme directory first.
+### 6.3 Custom CSS / JS without rebuild
 
-### 6.4 Custom CSS/JS without rebuild
+1. **Admin → Themes → Active theme → Custom CSS / Custom JS** fields. Injected via `theme_setting('custom_css')` etc. — no Vite build needed.
+2. If you need a real file: inside your cloned theme, add `assets/css/overrides.css` and import from `app.css`:
+   ```css
+   @import "tailwindcss";
+   @import "../../shared/css/theme-base.css";
+   @import "./overrides.css";
+   ```
+   Then run the theme's Vite build.
 
-1. Admin → Themes → select active theme → **Custom CSS / Custom JS** fields.
-2. Or add `assets/css/overrides.css` in custom theme and import from `app.css`:
+### 6.4 Shared plugins
 
-```css
-@import "../../../../../themes/shared/css/theme-base.css";
-@import "./overrides.css";
-```
-
-### 6.5 Shared plugins
-
-`resources/themes/shared/plugins/` (CodeMirror, Font Awesome, flags) are **core**. Do not modify; reference via `theme_shared_asset('plugins/...')` or add parallel assets under your custom theme `assets/`.
+`resources/themes/shared/plugins/{codemirror,fontawesome,flags,…}` are **core**. Reference via `theme_shared_asset('plugins/...')`. If a plugin needs replacing, add a parallel asset under your custom theme `assets/` and update layouts to load it instead.
 
 ---
 
 ## 7. Vite / asset build notes
 
-- Config reference: `config/themes.php` → `vite.entry_points`, `build_root` = `build/themes`.
-- Helper `theme_vite()` maps entry paths to `resources/themes/{area}/{name}/...`.
-- Hot file: `public/hot` for dev.
-- Manifest example: `public/build/themes/guest/default/manifest.json`.
-- Non-standard docroot: `theme_vite()` adjusts asset prefix when `DOCUMENT_ROOT !== public_path()`.
+- Build root: `public/build/themes/` (`config/themes.php` → `build_root`).
+- `theme_vite($area, $entries)` resolves to the active theme's manifest at `public/build/themes/{area}/{name}/manifest.json`.
+- Hot file: `public/hot` (Vite dev server).
+- Non-standard docroot: `theme_vite()` prefixes asset URLs based on `DOCUMENT_ROOT` vs `public_path()`.
 
 **Avoid compilation conflicts:**
 
-- Do not add a second global Vite config that collides with theme manifests.
-- Keep custom entries **inside your custom theme folder** only.
-- When importing shared JS, use full paths accepted by `theme_vite()` (see `partials/head.blade.php` in default theme).
+- One Vite project per theme. Do not introduce a global `vite.config.js` at project root.
+- Custom entries live inside your custom theme folder only.
+- Manifest paths inside Blade must match the entry keys produced by Vite.
 
 ---
 
 ## 8. Landing pages & public embeds
 
-`AppLandingPages` serves public campaign pages with minimal layouts (`public/templates/*-shell.blade.php`) calling `theme_vite('app', ['assets/js/app.js'])`. Customize shells by:
+`Modules\AppLandingPages` serves public campaign pages with minimal shells (`public/templates/*-shell.blade.php` or theme-supplied shells) loading `theme_vite('app', ['assets/js/app.js'])`. To customize shells:
 
-- Custom module views registered on new routes, or
-- Cloned templates in `modules/CustomLanding/` (do not edit `AppLandingPages` core views).
+- Add a `modules/CustomLanding*` with new shells + new routes.
+- Or supply custom shells through theme override of the relevant Blade partials.
+
+Do not edit `AppLandingPages` views directly.
 
 ---
 
 ## 9. Localization
 
-- JSON translations: `lang/{locale}.json` at project root.
-- Custom strings: add `lang/en.json` keys in a **new** file or `app/Custom/lang/` loaded via provider (do not merge-edit core `lang/ar.json` etc. in place—copy keys you need).
-
-Use `__()` in all custom Blade/Livewire.
+- JSON translations at project root: `lang/{locale}.json` (core — do not edit in place beyond the supplied locales).
+- Custom keys: add `app/Custom/lang/{locale}.json` and load via:
+  ```php
+  $this->loadJsonTranslationsFrom(__DIR__.'/../lang');
+  ```
+  in your `CustomServiceProvider::boot()`. Laravel merges JSON sources — your custom file augments, doesn't replace.
+- Use `__()` / `@lang` everywhere in custom Blade and Livewire.
 
 ---
 
-## 10. What is core vs custom (frontend)
+## 10. Core vs custom — frontend touch matrix
 
-| Core (immutable) | Custom (your work) |
-|------------------|-------------------|
-| `resources/themes/app/default/**` | `resources/themes/app/custom/**` |
-| `resources/themes/guest/localboostai/**` | `resources/themes/guest/custom/**` |
-| `resources/themes/shared/**` | Your theme-only assets (don't patch shared) |
-| `modules/*/Resources/views/**` | `modules/Custom*/Resources/views/**` |
-| `app/Installer/resources/views/**` | — |
-| `public/build/themes/**` (author builds) | `public/build/themes/app/custom/**` after local build |
+| Path | Touch |
+|------|-------|
+| `resources/themes/app/default/**` | ✗ |
+| `resources/themes/guest/localboostai/**` | ✗ |
+| `resources/themes/shared/**` | ✗ |
+| `resources/themes/app/custom/**` | ✓ |
+| `resources/themes/guest/custom/**` | ✓ |
+| `modules/Admin*/Resources/views/**`, `modules/App*/Resources/views/**`, `modules/Payment*/Resources/views/**` | ✗ |
+| `modules/Custom*/Resources/views/**` | ✓ |
+| `app/Custom/resources/views/**` | ✓ |
+| `app/Installer/resources/views/**` | ✗ |
+| `public/build/themes/app/default/**`, `public/build/themes/guest/localboostai/**` | ✗ |
+| `public/build/themes/app/custom/**`, `public/build/themes/guest/custom/**` | ✓ (built artifacts) |
 
 ---
 
 ## 11. Testing UI changes
 
-1. Clear view cache: `php artisan view:clear`.
-2. Confirm active theme in admin (backend + frontend).
-3. Hard-refresh browser (Vite manifest/hot).
-4. Verify both light/dark if enabled.
-5. Check portal + guest routes (different theme areas).
+1. `php artisan view:clear` after Blade edits.
+2. Confirm active theme in **Admin → Themes** (or `OptionStore::get('backend_theme')`).
+3. Hard-refresh browser (Vite manifest / hot reload).
+4. Verify light + dark if `supports_dark_mode`.
+5. Test in all theme areas the change affects: guest (`/`, `/pricing`), portal (`/portal/...`), admin (`/admin/...`), settings (`/settings/...`).
+6. Confirm Livewire actions still respect demo-mode guard.
 
-See **`CHECKLIST.md`** for end-to-end feature workflow. See **`ARCHITECTURE_BACKEND.md`** for routes, Livewire registration, and registries.
+See **`CHECKLIST.md`** for the end-to-end feature workflow. See **`ARCHITECTURE_BACKEND.md`** for routes, Livewire registration, and registries.

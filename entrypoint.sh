@@ -1,8 +1,23 @@
 #!/bin/sh
+# LocalBoost AI — container entrypoint
+# Behavior:
+#   1. Ensure writable storage / cache directories with correct ownership.
+#   2. Publish Livewire JS to public/ (skipped if vendor not yet installed).
+#   3. Run package:discover and storage:link.
+#   4. If APP_INSTALLED=true → wait for DB and run `php artisan migrate --force`.
+#      If APP_INSTALLED is anything else → skip migrate so the web installer
+#      can create the schema itself on first run. This avoids the "database is
+#      not empty" failure that occurs when migrate runs before the installer.
+#   5. Refresh and warm Laravel caches.
+#   6. exec the CMD (apache2-foreground).
+
 set -e
 
 cd /var/www/html
 
+# -----------------------------------------------------------------------------
+# 1. Writable directories
+# -----------------------------------------------------------------------------
 mkdir -p \
     storage/framework/cache/data \
     storage/framework/sessions \
@@ -12,44 +27,65 @@ mkdir -p \
     bootstrap/cache \
     public/livewire
 
-# 1. Cấp quyền sở hữu và quyền ghi cho các thư mục trọng yếu
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Livewire (bỏ qua khi composer --no-scripts trong Docker build)
+# -----------------------------------------------------------------------------
+# 2. Livewire JS (vendor present only after composer install; skip otherwise)
+# -----------------------------------------------------------------------------
 if [ -f vendor/livewire/livewire/dist/livewire.js ]; then
     cp -f vendor/livewire/livewire/dist/livewire.js public/livewire/livewire.js
     chown www-data:www-data public/livewire/livewire.js 2>/dev/null || true
 fi
 
+# -----------------------------------------------------------------------------
+# 3. Laravel housekeeping
+# -----------------------------------------------------------------------------
 php artisan package:discover --ansi
 
-# 2. Tạo symlink để public hình ảnh ra ngoài internet (storage/app/public → public/storage)
 php artisan storage:link --force
 
-# Theme/CSS/JS nằm trong resources/themes — Apache chỉ phục vụ public/
+# Theme assets sit outside public/ — expose via symlink for Apache (DocumentRoot is public/)
 mkdir -p public/resources
 ln -sfn ../../resources/themes public/resources/themes
 
 chown -h www-data:www-data public/storage 2>/dev/null || true
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# 3. Chạy migrate tự động (đợi MySQL Coolify sẵn sàng)
-attempt=0
-max_attempts=30
-until php artisan migrate --force --ansi; do
-    attempt=$((attempt + 1))
-    if [ "$attempt" -ge "$max_attempts" ]; then
-        echo "Database migration failed after ${max_attempts} attempts." >&2
-        exit 1
-    fi
-    echo "Waiting for database... (${attempt}/${max_attempts})"
-    sleep 2
-done
+# -----------------------------------------------------------------------------
+# 4. Database migration (gated on APP_INSTALLED)
+# -----------------------------------------------------------------------------
+APP_INSTALLED_VALUE="${APP_INSTALLED:-false}"
 
-# 4. Xóa cache cũ để nhận cấu hình môi trường mới
+case "$APP_INSTALLED_VALUE" in
+    true|TRUE|1|yes|on)
+        echo "APP_INSTALLED=${APP_INSTALLED_VALUE} → running migrate."
+        attempt=0
+        max_attempts=30
+        until php artisan migrate --force --ansi; do
+            attempt=$((attempt + 1))
+            if [ "$attempt" -ge "$max_attempts" ]; then
+                echo "Database migration failed after ${max_attempts} attempts." >&2
+                exit 1
+            fi
+            echo "Waiting for database... (${attempt}/${max_attempts})"
+            sleep 2
+        done
+        ;;
+    *)
+        echo "APP_INSTALLED=${APP_INSTALLED_VALUE} → skipping migrate."
+        echo "Open the application URL in a browser to run the installer wizard."
+        echo "After install, set APP_INSTALLED=true (and restart) so future deploys auto-migrate."
+        ;;
+esac
+
+# -----------------------------------------------------------------------------
+# 5. Cache refresh
+# -----------------------------------------------------------------------------
 php artisan optimize:clear --ansi
 php artisan optimize --ansi
 
-# 5. Khởi động web server (Apache foreground — từ CMD)
+# -----------------------------------------------------------------------------
+# 6. Hand off to Apache (or whatever CMD was supplied)
+# -----------------------------------------------------------------------------
 exec "$@"

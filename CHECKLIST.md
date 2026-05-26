@@ -2,199 +2,230 @@
 
 Use this checklist for **every** customization so author updates can be applied without merge conflicts.
 
+> **Golden rule:** never edit anything under `app/`, `modules/Admin*`, `modules/App*`, `modules/Payment*`, `routes/web.php`, `bootstrap/app.php`, `bootstrap/providers.php`, `config/*.php`, `database/migrations/<author>`, or the two core themes (`app/default`, `guest/localboostai`). All custom code lives in `modules/Custom*`, `app/Custom/`, `routes/custom.php`, custom themes — wired through **`bootstrap/providers.marketplace.php`** (which the core already requires).
+
 ---
 
 ## Phase 0 — Plan (before writing code)
 
-- [ ] **Name the outcome** (portal page, admin tool, payment tweak, branding, automation).
-- [ ] **Locate core behavior** (grep route name, `register_*` helper, or Livewire class under `modules/`).
-- [ ] **Choose extension type** (fill one):
-  - [ ] Registry hook only (sidebar, header, dashboard, plan, credit, cron, pricing)
-  - [ ] New `modules/Custom{Feature}/` module
-  - [ ] `app/Custom/` + `routes/custom.php`
+- [ ] **Name the outcome.** One sentence: portal page, admin tool, payment tweak, branding, automation, …
+- [ ] **Locate core behavior.** Grep route name, helper (`register_*`), or Livewire class under `modules/`.
+- [ ] **Pick the smallest extension** (in this order):
+  - [ ] Registry hook only (sidebar, header, dashboard, plan, credit, cron, pricing, integration)
+  - [ ] New `modules/Custom{Feature}/` module (auto-discovered)
+  - [ ] `app/Custom/` + provider registered in `bootstrap/providers.marketplace.php`
   - [ ] Container rebind + child class
   - [ ] Theme clone (`resources/themes/{area}/custom/`)
-- [ ] **Confirm**: no files under core paths will be edited (see `.cursorrules`).
+- [ ] **Confirm zero core edits** in the plan.
 
 ---
 
 ## Phase 1 — Check hooks first (mandatory)
 
-Search for existing extension points **before** subclassing or copying views.
+Search for an existing extension point before writing classes:
 
-- [ ] **Navigation**: Can `register_user_sidebar_item` / `register_sidebar_item` expose the feature?
-- [ ] **Header**: Can `register_header_item` inject a Blade partial?
-- [ ] **Dashboard**: Can `register_user_dashboard_item` / `register_admin_dashboard_item` add a widget?
-- [ ] **Settings**: Can `register_setting_item` add an admin settings link?
-- [ ] **Plans**: Can `register_plan_permission` + `\Pricing::add()` express limits?
-- [ ] **Credits** (AI): Can `register_credit_action` define billing?
-- [ ] **Payments**: Can a new `PaymentGatewayDefinition` plugin module suffice?
-- [ ] **Cron**: Can `SystemCronRegistry` + Artisan command replace core edits?
-- [ ] **Options**: Can `OptionStore` / admin settings store config without schema changes?
-- [ ] **Menu Builder**: Can admin UI reorder/hide items instead of Blade changes?
+- [ ] Navigation: `register_user_sidebar_item` / `register_sidebar_item` / `register_*_sidebar_section`
+- [ ] Header: `register_header_item`, `add_to_header`
+- [ ] Dashboard: `register_user_dashboard_item`, `register_admin_dashboard_item`
+- [ ] Settings nav: `register_setting_item`
+- [ ] Plans: `register_plan_permission`, `\Pricing::add()`, `\Pricing::addSubFeatures()`
+- [ ] Credits (AI): `register_credit_action`, `consume_credits`, `credit_service()`
+- [ ] Payments: `PaymentGatewayDefinition` + `PaymentGatewaySettingsRegistry::register()`
+- [ ] Cron: `afterResolving(SystemCronRegistry::class, …)`
+- [ ] Options/settings storage: `Modules\AdminSettings\Support\OptionStore`
+- [ ] Menu Builder (admin UI): label/order changes without touching Blade
+- [ ] Integration cards: `IntegrationCatalog`
+- [ ] Publisher palette: `publishing_provider_tone`, `publishing_provider_chip_style`
 
-If **yes** → implement in `CustomServiceProvider` or `modules/Custom*/Providers/*` only.
+If a hook covers it → implement inside your provider only; skip Phase 2.
 
 ---
 
 ## Phase 2 — Scaffold custom code
 
-### Option A — New module (feature-sized work)
+### Option A — New module (feature-sized work; preferred)
 
-- [ ] Create `modules/Custom{Feature}/` with:
-  - [ ] `module.json` (`providers`, optional `priority` > 0)
+- [ ] Create `modules/Custom{Feature}/`:
+  - [ ] `module.json` — `{ "name": "...", "providers": ["Modules\\Custom{Feature}\\Providers\\Custom{Feature}ServiceProvider"], "priority": 100 }`
   - [ ] `Providers/Custom{Feature}ServiceProvider.php`
   - [ ] `Routes/web.php`
   - [ ] `Livewire/` and/or `Http/Controllers/`
   - [ ] `Resources/views/`
   - [ ] `config/config.php` (route prefix, flags)
   - [ ] `Database/Migrations/` (only tables you own)
-- [ ] Provider `boot()`:
-  - [ ] `loadRoutesFrom`
-  - [ ] `loadViewsFrom(..., 'customfeature')`
-  - [ ] `loadMigrationsFrom`
-  - [ ] `mergeConfigFrom`
-  - [ ] Registry calls (`register_*`)
-- [ ] Run `composer dump-autoload` if autoload issues appear.
-- [ ] Run `php artisan migrate`.
+- [ ] Provider `register()`: `mergeConfigFrom(..., 'modules.custom{feature}')` + container bindings.
+- [ ] Provider `boot()`: `loadRoutesFrom`, `loadViewsFrom(..., 'custom{feature}')`, `loadMigrationsFrom`, optional `loadJsonTranslationsFrom`, registry calls.
+- [ ] `composer dump-autoload` if autoload errors appear.
+- [ ] `php artisan migrate`.
 
-### Option B — `app/Custom/` (smaller patches)
+> The module is auto-discovered by `bootstrap/providers.php` — **no `marketplace.php` edit required** for this option.
 
-- [ ] Create `app/Custom/Providers/CustomServiceProvider.php`
-- [ ] Create `routes/custom.php` and `loadRoutesFrom` in provider
-- [ ] Add `bootstrap/providers.custom.php` returning `[CustomServiceProvider::class]`
-- [ ] User adds **one line** to end of `bootstrap/providers.php`:  
-      `return array_merge(require __DIR__.'/providers.php', require __DIR__.'/providers.custom.php');`  
-      *(Only if not already merged—document for deploy)*
-- [ ] Register bindings in `register()` method.
+### Option B — `app/Custom/` (smaller global tweak)
+
+- [ ] Create `app/Custom/Providers/CustomServiceProvider.php` with `register()` (bindings) + `boot()` (`loadRoutesFrom(base_path('routes/custom.php'))`, view composers, observers, etc.).
+- [ ] Create `routes/custom.php` for any new routes.
+- [ ] Append the provider to `bootstrap/providers.marketplace.php`:
+  ```php
+  <?php
+  return [
+      \App\Custom\Providers\CustomServiceProvider::class,
+  ];
+  ```
+- [ ] **Do NOT** edit `bootstrap/providers.php` — it already `require`s `providers.marketplace.php` and merges the result.
+- [ ] `composer dump-autoload` if you added new namespaces.
 
 ### Option C — Theme-only branding
 
-- [ ] Copy core theme → `resources/themes/app/custom` and/or `guest/custom`
-- [ ] Update `theme.json`
-- [ ] Point `.env` or admin Themes UI to **custom**
-- [ ] Build assets to `public/build/themes/.../custom/`
-- [ ] Test light/dark + mobile layouts
+- [ ] Copy `resources/themes/app/default` → `resources/themes/app/custom` and/or `guest/localboostai` → `guest/custom`.
+- [ ] Update `theme.json` (`name`, `order`, colors, `supports_dark_mode`).
+- [ ] Activate in **Admin → Themes** (or set `OptionStore` keys `backend_theme` / `frontend_theme`).
+- [ ] Build Vite assets into `public/build/themes/{area}/custom/`.
+- [ ] Smoke-test light/dark, mobile, and every area you cloned.
 
 ---
 
 ## Phase 3 — Routes & Livewire
 
-- [ ] Add routes in **`modules/Custom*/Routes/web.php`** or **`routes/custom.php`** only.
-- [ ] Use named routes (`portal.custom-*`, `admin.custom-*`).
-- [ ] Apply correct middleware: `['web','auth','verified']` for portal; admin routes follow sibling `Admin*` modules.
-- [ ] Prefer `Route::livewire(...)` for pages (matches core style).
-- [ ] **Do not** edit `routes/web.php` or module core `Routes/web.php`.
-- [ ] If overriding behavior: prefer **new route name** + sidebar link; avoid stealing existing names.
+- [ ] New routes go in `modules/Custom*/Routes/web.php` **or** `routes/custom.php` — never elsewhere.
+- [ ] Named routes use dot notation: `portal.custom-*`, `admin.custom-*`.
+- [ ] Middleware:
+  - Portal: `['web', 'auth', 'verified']`
+  - Admin: `['web', 'auth', EnsureAdminAccess::class]` (mirror sibling `Admin*` modules)
+- [ ] Pages prefer `Route::livewire('/path', SomeIndex::class)->name('portal....')`.
+- [ ] When overriding behavior, prefer a **new** route name + new sidebar link over hijacking an existing name.
+- [ ] Run `php artisan route:list | grep custom` to verify.
 
 ---
 
-## Phase 4 — Extend classes (when hooks are insufficient)
+## Phase 4 — Extend classes (when registry hooks are not enough)
 
 - [ ] Create child class under `app/Custom/` or `modules/Custom*/`.
-- [ ] Override only methods you must; call `parent::` where possible.
-- [ ] Bind in `CustomServiceProvider::register()`:
+- [ ] Override only the methods you must; call `parent::` to preserve author behavior.
+- [ ] Bind in your provider:
   ```php
-  $this->app->bind(CoreClass::class, CustomClass::class);
+  $this->app->bind(\Modules\X\Service::class, \App\Custom\Services\MyService::class);
   ```
-- [ ] Verify route/controller resolution uses the binding (test with `php artisan route:list`).
-- [ ] Document binding in project README (author updates may rename core classes).
+- [ ] Confirm resolution: `php artisan tinker --execute="dump(get_class(app(\Modules\X\Service::class)));"`.
+- [ ] Document the binding in `README.custom.md` — author class renames will break it silently.
 
 ---
 
 ## Phase 5 — Data & permissions
 
-- [ ] New tables → migrations in **custom** module only.
-- [ ] Avoid altering author tables; if unavoidable, use additive columns + backup plan.
-- [ ] Register `register_plan_permission` when feature is plan-gated.
-- [ ] Enforce limits with `canUsePlanFeature()` / `PlanLimitGuard` patterns from core modules.
-- [ ] Seed data: custom seeder in `app/Custom` or module, not editing `database/seeders/DatabaseSeeder.php` (call seeder from provider if needed).
+- [ ] New tables → migrations in `modules/Custom*/Database/Migrations/` or `app/Custom/database/migrations/`.
+- [ ] **Never** alter author tables. If unavoidable, add a nullable column in a new migration and document the rollback.
+- [ ] Plan-gated features → `register_plan_permission([...])` + `\Pricing::add([...])` inside `$this->app->booted()`.
+- [ ] Enforce limits with `auth()->user()?->canUsePlanFeature('key')` and `PlanLimitGuard`.
+- [ ] Custom seed data → custom seeder in your module, invoked manually (do **not** edit `database/seeders/DatabaseSeeder.php`).
 
 ---
 
 ## Phase 6 — Frontend / views
 
-- [ ] Use `__()` for strings; add lang keys in new JSON files if needed.
-- [ ] Use `<x-ui.*>` components for portal/admin consistency.
+- [ ] All user-visible strings wrapped in `__()` / `@lang`.
+- [ ] Reuse `<x-ui.*>` and `<x-shared.*>` components — do not re-implement.
 - [ ] Module views: `customfeature::view-name`.
 - [ ] Themed layouts: `@extends(theme_view('layouts.app'))`.
-- [ ] **Do not** edit `modules/*/Resources/views` or core themes.
-- [ ] For UI tweaks: try theme **Custom CSS/JS** in admin first.
-- [ ] Livewire: match conventions (`wire:navigate`, demo-safe actions).
+- [ ] **Do not** edit `modules/*/Resources/views` or `resources/themes/{app/default,guest/localboostai,shared}`.
+- [ ] Try **Admin → Themes → Custom CSS / Custom JS** before forking a theme.
+- [ ] Theme-aware colors: `var(--theme-accent-rgb)` etc., not hex codes.
 
 ---
 
 ## Phase 7 — Config & environment
 
-- [ ] Put secrets in `.env`; never commit `.env`.
-- [ ] Merge config from custom provider (`config/custom.php`).
-- [ ] **Do not** edit core `config/*.php` unless deploying env-specific values via `.env` keys already read by core.
-- [ ] Document new env vars for deploy.
+- [ ] Secrets in `.env`; never commit `.env`.
+- [ ] Merge custom config via `mergeConfigFrom(__DIR__.'/../config/config.php', 'modules.{alias}')`.
+- [ ] **Do not** edit `config/*.php`. If you need an env key core doesn't already read, expose it through your custom config.
+- [ ] Document new env vars in `README.custom.md`.
+
+### Production-only notes
+
+- `APP_INSTALLED=true` once installer finishes — otherwise the installer middleware will redirect every request.
+- `APP_DEBUG=false` in production hides stack traces; check `storage/logs/laravel.log` instead.
+- `SESSION_DRIVER` choice matters: with `database`, clearing the `sessions` table mid-request invalidates the current Livewire session; prefer the CLI or session driver `file` if you script this.
 
 ---
 
 ## Phase 8 — Quality gate
 
-- [ ] Run `composer lint` on custom paths (Pint).
-- [ ] Run `php artisan test` if tests exist for your code.
-- [ ] `php artisan route:list` — confirm routes registered.
-- [ ] `php artisan migrate:status` — confirm migrations.
-- [ ] Manual test: guest + portal + admin (if applicable).
-- [ ] Demo mode: verify write actions respect demo guard.
-- [ ] Plan limits: test allowed/denied roles.
+- [ ] `vendor/bin/pint app/Custom modules/Custom*` — lint **custom paths only**.
+- [ ] `php artisan test` for any custom tests you added.
+- [ ] `php artisan route:list` — new routes registered, no duplicates.
+- [ ] `php artisan migrate:status` — clean.
+- [ ] Manual smoke: guest + portal + admin (whichever apply).
+- [ ] Demo mode: verify write actions still respect `DemoModeActionGuard`.
+- [ ] Plan limits: test allowed and denied roles.
 
 ---
 
-## Phase 9 — Update safety review (before merge/deploy)
+## Phase 9 — Update-safety review (before commit / deploy)
 
-- [ ] `git diff` contains **zero** changes under:
-  - `modules/Admin*`, `modules/App*`, `modules/Payment*`
-  - `app/` except `app/Custom/`
-  - `resources/themes/app/default`, `guest/localboostai`, `shared`
-  - `routes/web.php`, `bootstrap/app.php`, `bootstrap/providers.php` (except approved custom merge line)
+- [ ] `git diff --name-only` shows **zero** changes under:
   - `vendor/`
-- [ ] Custom module + `app/Custom` tracked in **your** git branch.
-- [ ] Container bindings & `providers.custom.php` documented for re-application after author update.
-- [ ] Database migrations are backward-compatible.
+  - `modules/Admin*`, `modules/App*`, `modules/Payment*`
+  - `app/` (except `app/Custom/`)
+  - `resources/themes/{app/default, guest/localboostai, shared}`
+  - `routes/web.php`, `routes/console.php`, `routes/settings.php`, `routes/public-storage.php`, `app/Installer/routes/**`
+  - `bootstrap/app.php`, `bootstrap/providers.php`
+  - `config/*.php`
+  - `database/migrations/<author files>`, `database/seeders/`
+  - `Dockerfile`, `entrypoint.sh`, `composer.json`, `composer.lock`, `package.json`, `package-lock.json`, `artisan`, `index.php`
+- [ ] All custom code is committed in `app/Custom/`, `modules/Custom*/`, `routes/custom.php`, `bootstrap/providers.marketplace.php`, custom themes.
+- [ ] Container bindings are listed in `README.custom.md`.
+- [ ] Migrations are additive and reversible.
 
 ---
 
-## Phase 10 — After author releases an update
+## Phase 10 — After the author releases an update
 
-- [ ] Apply author package/files over core paths.
-- [ ] **Do not** overwrite `app/Custom/`, `modules/Custom*/`, `routes/custom.php`, custom themes.
-- [ ] Re-run `composer install`, `php artisan migrate`, `php artisan view:clear`.
-- [ ] Re-verify provider merge line in `bootstrap/providers.php`.
-- [ ] Re-test bindings (class renames in core may break overrides).
-- [ ] Rebuild custom theme assets if Vite entries changed in author docs.
+1. Back up `app/Custom/`, `modules/Custom*/`, `routes/custom.php`, `bootstrap/providers.marketplace.php`, custom themes (or keep them in your own git branch).
+2. Apply the author update over core paths.
+3. Re-run:
+   ```bash
+   composer install --no-dev --optimize-autoloader
+   php artisan migrate --force
+   php artisan optimize:clear
+   php artisan optimize
+   ```
+4. Re-verify container bindings — class renames in core will silently break them.
+5. Re-run Vite build inside any custom theme if entry points changed in the author docs.
+6. Smoke-test demo-mode actions, plan gates, and any rebind targets.
 
 ---
 
 ## Quick decision tree
 
 ```
-Need UI only? → Theme clone or Custom CSS/JS
-Need new page? → Custom module + Route::livewire + register_sidebar_*
-Need to change core service logic? → Child class + app->bind()
-Need new DB table? → Custom module migration
-Need menu label order only? → Admin Menu Builder / OptionStore overrides
+Need UI only?               → Theme clone or Admin Themes Custom CSS/JS
+Need a new page?            → Custom module + Route::livewire + register_sidebar_*
+Need to change core logic?  → Child class + app->bind() in CustomServiceProvider
+Need a new DB table?        → Migration inside your custom module
+Need menu label/order only? → Admin Menu Builder (writes to OptionStore)
+Need a new payment gateway? → modules/CustomPayment{Name}/ with PaymentGatewayDefinition
 ```
 
 ---
 
-## File touch matrix (allowed ✓ / forbidden ✗)
+## File touch matrix
 
-| File / area | Touch |
-|-------------|-------|
+| Path | Touch |
+|------|-------|
 | `modules/Custom*/**` | ✓ |
 | `app/Custom/**` | ✓ |
 | `routes/custom.php` | ✓ |
-| `bootstrap/providers.custom.php` | ✓ |
+| `bootstrap/providers.marketplace.php` | ✓ (append-only) |
 | `resources/themes/*/custom/**` | ✓ |
-| `modules/App*/**` | ✗ |
-| `resources/themes/app/default/**` | ✗ |
-| `app/Providers/AppServiceProvider.php` | ✗ |
+| `config/custom.php` | ✓ (created by you) |
+| `modules/Admin*/**`, `modules/App*/**`, `modules/Payment*/**` | ✗ |
+| `app/**` (everything except `app/Custom/`) | ✗ |
+| `routes/web.php`, `routes/console.php`, `routes/settings.php`, `routes/public-storage.php` | ✗ |
+| `bootstrap/app.php`, `bootstrap/providers.php` | ✗ |
+| `config/*.php` (core) | ✗ |
+| `resources/themes/app/default/**`, `guest/localboostai/**`, `shared/**` | ✗ |
+| `database/migrations/<author>`, `database/seeders/**` | ✗ |
+| `Dockerfile`, `entrypoint.sh`, `composer.*`, `package.*`, `artisan`, `index.php` | ✗ |
 
 ---
 
-Refer to **`.cursorrules`** for agent-enforced rules, **`ARCHITECTURE_BACKEND.md`** for PHP structure, and **`ARCHITECTURE_FRONTEND.md`** for Blade/theme/Vite details.
+See **`.cursorrules`** for agent-enforced rules, **`ARCHITECTURE_BACKEND.md`** for the PHP structure, and **`ARCHITECTURE_FRONTEND.md`** for Blade/theme/Vite details.
