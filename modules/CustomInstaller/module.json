@@ -1,0 +1,7 @@
+{
+    "name": "CustomInstaller",
+    "providers": [
+        "Modules\\CustomInstaller\\Providers\\CustomInstallerServiceProvider"
+    ],
+    "priority": 250
+}
