@@ -92,8 +92,25 @@ esac
 # -----------------------------------------------------------------------------
 # 5. Cache refresh
 # -----------------------------------------------------------------------------
-php artisan optimize:clear --ansi
-php artisan optimize --ansi
+is_app_installed() {
+    case "${1:-false}" in
+        true|TRUE|1|yes|on) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+if is_app_installed "$APP_INSTALLED_VALUE"; then
+    php artisan optimize:clear --ansi
+    php artisan optimize --ansi
+else
+    # DB tables (cache, sessions, jobs) do not exist until the installer runs migrate.
+    # Do not run full optimize:clear — it would DELETE FROM `cache` and crash the container.
+    echo "Pre-install bootstrap: skipping database cache; run optimize after APP_INSTALLED=true."
+    php artisan config:clear --ansi
+    php artisan route:clear --ansi
+    php artisan view:clear --ansi
+    CACHE_STORE=file php artisan cache:clear --ansi
+fi
 
 # -----------------------------------------------------------------------------
 # 6. Hand off to Apache (or whatever CMD was supplied)
