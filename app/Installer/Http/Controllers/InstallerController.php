@@ -114,7 +114,7 @@ class InstallerController extends Controller
             'timezoneOptions' => timezone_select_options(),
             'purchaseRequired' => (bool) config('installer.purchase_code_required', true),
             'validationErrors' => $errors ?? new MessageBag(),
-            'formData' => $formData,
+            'formData' => array_merge($this->installer->defaultFormData(), $formData),
         ];
     }
 }

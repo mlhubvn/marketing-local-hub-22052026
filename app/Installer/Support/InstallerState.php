@@ -43,16 +43,16 @@ class InstallerState
 
         $checks = [
             [
-                'label' => 'PHP version',
+                'label' => 'Phiên bản PHP',
                 'ok' => version_compare(PHP_VERSION, $requiredPhpVersion, '>='),
                 'current' => PHP_VERSION,
                 'expected' => '>= '.$requiredPhpVersion,
             ],
             [
-                'label' => 'Server software',
+                'label' => 'Web server',
                 'ok' => filled((string) request()->server('SERVER_SOFTWARE', '')),
-                'current' => (string) request()->server('SERVER_SOFTWARE', 'Unknown'),
-                'expected' => 'Apache, Nginx, or another supported web server',
+                'current' => (string) request()->server('SERVER_SOFTWARE', 'Không xác định'),
+                'expected' => 'Apache, Nginx hoặc web server được hỗ trợ',
             ],
         ];
 
@@ -60,8 +60,8 @@ class InstallerState
             $checks[] = [
                 'label' => 'PHP extension: '.$extension,
                 'ok' => extension_loaded($extension),
-                'current' => extension_loaded($extension) ? 'Loaded' : 'Missing',
-                'expected' => 'Loaded',
+                'current' => extension_loaded($extension) ? 'Đã bật' : 'Thiếu',
+                'expected' => 'Đã bật',
             ];
         }
 
@@ -71,19 +71,19 @@ class InstallerState
             $writable = $exists ? is_writable($absolutePath) : is_writable(dirname($absolutePath));
 
             $checks[] = [
-                'label' => 'Writable path: '.$path,
+                'label' => 'Quyền ghi: '.$path,
                 'ok' => $writable,
-                'current' => $exists ? 'Writable' : 'Will be created',
-                'expected' => 'Writable',
+                'current' => $exists ? 'Có thể ghi' : 'Sẽ được tạo',
+                'expected' => 'Có thể ghi',
             ];
         }
 
         if ($purchaseRequired) {
             $checks[] = [
-                'label' => 'Purchase verification service',
+                'label' => 'Dịch vụ xác minh license',
                 'ok' => filled($this->purchaseVerificationEndpoint()),
-                'current' => $this->purchaseVerificationEndpoint() ?: 'Not configured',
-                'expected' => 'Configured endpoint',
+                'current' => $this->purchaseVerificationEndpoint() ?: 'Chưa cấu hình',
+                'expected' => 'Đã cấu hình endpoint',
             ];
         }
 

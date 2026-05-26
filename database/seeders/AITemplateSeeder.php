@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Database\Support\IdSequence;
 use Illuminate\Database\Seeder;
 use Modules\AdminAITemplate\Models\AiTemplate;
 use Modules\AdminAITemplateCategories\Models\AiTemplateCategory;
@@ -49,7 +50,7 @@ class AITemplateSeeder extends Seeder
             ]);
 
             if (! $template->exists) {
-                $template->id = $legacyId;
+                $template->id = IdSequence::fromLegacy($legacyId);
             }
 
             $template->cate_id = $this->resolveCategoryIdByName(

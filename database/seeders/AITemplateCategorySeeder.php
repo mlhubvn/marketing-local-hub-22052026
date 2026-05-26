@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Database\Support\IdSequence;
 use Illuminate\Database\Seeder;
 use Modules\AdminAITemplateCategories\Models\AiTemplateCategory;
 
@@ -49,11 +50,14 @@ class AITemplateCategorySeeder extends Seeder
             ['id_secure' => '65a1059f8f4fa', 'name' => 'Fitness Trainers', 'desc' => null, 'icon' => 'fa-light fa-dumbbell', 'color' => 'warning', 'status' => true, 'created' => 0],
         ];
 
-        foreach ($categories as $category) {
-            AiTemplateCategory::query()->updateOrCreate(
-                ['name' => $category['name']],
-                array_merge($category, ['changed' => $changedAt])
-            );
+        foreach ($categories as $index => $category) {
+            $record = AiTemplateCategory::query()->firstOrNew(['id_secure' => $category['id_secure']]);
+
+            if (! $record->exists) {
+                $record->id = IdSequence::at($index);
+            }
+
+            $record->fill(array_merge($category, ['changed' => $changedAt]))->save();
         }
     }
 }

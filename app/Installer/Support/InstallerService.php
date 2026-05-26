@@ -2,6 +2,7 @@
 
 namespace App\Installer\Support;
 
+use Database\Support\IdSequence;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
@@ -53,11 +54,13 @@ class InstallerService
                 '--no-interaction' => true,
             ]);
             $this->seedDefaults();
+            IdSequence::apply();
 
             $user = $this->createAdministrator($data);
             $this->assignAdministratorPlan($user);
             $this->storeOptions($data, $verifiedPurchase);
             $this->syncMarketplaceLicensePackage($data, $request, $verifiedPurchase);
+            IdSequence::apply();
             $this->writeEnvironment($data, $request, $appKey, true);
 
             return $user;
@@ -131,6 +134,8 @@ class InstallerService
             'APP_URL' => $appUrl !== '' ? $appUrl : 'http://127.0.0.1',
             'APP_KEY' => $appKey,
             'APP_TIMEZONE' => (string) $data['admin_timezone'],
+            'APP_LOCALE' => (string) config('installer.default_locale', 'vi'),
+            'APP_FALLBACK_LOCALE' => (string) config('installer.default_locale', 'vi'),
             'APP_INSTALLED' => $installed ? 'true' : 'false',
             'SITE_TITLE' => $title,
             'SITE_DESCRIPTION' => (string) ($data['website_description'] ?? ''),
@@ -208,11 +213,22 @@ class InstallerService
     {
         $tables = DB::select('SHOW TABLES');
 
-        if ($tables !== []) {
+        if ($tables === []) {
+            return;
+        }
+
+        if (! (bool) config('installer.auto_wipe_database', true)) {
             throw ValidationException::withMessages([
                 'installer' => __('The selected database is not empty. Use a fresh database or remove all existing tables before running the installer again.'),
             ]);
         }
+
+        Artisan::call('db:wipe', [
+            '--force' => true,
+            '--drop-views' => true,
+            '--drop-types' => true,
+            '--no-interaction' => true,
+        ]);
     }
 
     protected function createAdministrator(array $data): User
@@ -225,6 +241,7 @@ class InstallerService
                 'email' => strtolower((string) $data['admin_email']),
                 'email_verified_at' => now(),
                 'timezone' => (string) $data['admin_timezone'],
+                'locale' => (string) config('installer.default_locale', 'vi'),
                 'is_super_admin' => true,
                 'password' => (string) $data['admin_password'],
             ]
@@ -270,9 +287,11 @@ class InstallerService
 
     protected function storeOptions(array $data, ?array $verifiedPurchase): void
     {
+        $branding = $this->MLHUBBranding();
+
         $this->optionStore->set('website_title', (string) $data['website_title']);
-        $this->optionStore->set('website_description', (string) ($data['website_description'] ?? ''));
-        $this->optionStore->set('website_keyword', (string) ($data['website_keywords'] ?? ''));
+        $this->optionStore->set('website_description', (string) ($data['website_description'] ?? $branding['tagline'] ?? $branding['description']));
+        $this->optionStore->set('website_keyword', (string) ($data['website_keywords'] ?? $branding['keywords']));
         $this->optionStore->set('website_favicon', 'public/img/favicon.png');
         $this->optionStore->set('website_logo_dark', 'public/img/logo-dark.png');
         $this->optionStore->set('website_logo_light', 'public/img/logo-light.png');
@@ -281,6 +300,7 @@ class InstallerService
         $this->optionStore->set('contact_company_name', (string) $data['website_title']);
         $this->optionStore->set('contact_email', (string) $data['admin_email']);
         $this->optionStore->set('app_timezone', (string) $data['admin_timezone']);
+        $this->optionStore->set('default_locale', (string) config('installer.default_locale', 'vi'));
         $this->optionStore->set(config('themes.areas.guest.option_key', 'frontend_theme'), 'localboostai');
         $this->optionStore->set(config('themes.areas.app.option_key', 'backend_theme'), 'default');
         $this->optionStore->set('theme_settings.guest.localboostai', $this->defaultGuestThemeSettings());
@@ -409,5 +429,34 @@ class InstallerService
         $resolved = $trimmed !== '' ? base_path($trimmed) : base_path();
 
         return str_replace('\\', DIRECTORY_SEPARATOR, $resolved);
+    }
+
+    public function defaultFormData(): array
+    {
+        $branding = $this->MLHUBBranding();
+
+        return [
+            'website_title' => $branding['name'],
+            'website_description' => $branding['tagline'] ?? $branding['description'],
+            'website_keywords' => $branding['keywords'],
+            'admin_timezone' => (string) config('installer.default_timezone', 'Asia/Ho_Chi_Minh'),
+        ];
+    }
+
+    protected function MLHUBBranding(): array
+    {
+        $path = database_path('config/MLHUB.php');
+        $slogan = 'Nền tảng Marketing Automation hỗ trợ tăng đánh giá, đặt lịch, mã ưu đãi, phản hồi & tạo khách hàng tiềm năng.';
+
+        if (! is_file($path)) {
+            return [
+                'name' => 'MLHUB',
+                'tagline' => $slogan,
+                'description' => $slogan,
+                'keywords' => 'MLHUB, Marketing Automation, đánh giá, đặt lịch, mã ưu đãi, phản hồi, khách hàng tiềm năng',
+            ];
+        }
+
+        return (array) (require $path)['branding'];
     }
 }

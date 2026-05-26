@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="vi">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Application Installer</title>
+    <title>Trình cài đặt MLHUB</title>
     <style>
         :root {
             --bg: #f3f4f6;
@@ -369,31 +369,31 @@
     @php($formData = $formData ?? [])
     <div class="shell">
         <section class="hero">
-            <div class="hero-kicker">Setup Wizard</div>
-            <h1>Application Installer</h1>
-            <p>Complete the initial setup in two steps: first validate the environment, then configure website details, database access, and the first administrator account.</p>
+            <div class="hero-kicker">Hướng dẫn cài đặt</div>
+            <h1>Trình cài đặt MLHUB</h1>
+            <p>Hoàn tất cài đặt lần đầu trong hai bước: kiểm tra môi trường máy chủ, sau đó cấu hình thông tin website, cơ sở dữ liệu và tài khoản quản trị viên đầu tiên. MLHUB — Nền tảng Marketing Automation hỗ trợ tăng đánh giá, đặt lịch, mã ưu đãi, phản hồi & tạo khách hàng tiềm năng.</p>
         </section>
 
         <div class="stepper">
             <div class="step-card {{ $currentStep === 'requirements' ? 'active' : '' }} {{ in_array($currentStep, ['setup', 'finish'], true) ? 'done' : '' }}">
                 <span class="step-number">1</span>
                 <div class="step-copy">
-                    <strong>Requirements</strong>
-                    <span>Check PHP, server software, extensions, writable paths, and purchase verification connectivity.</span>
+                    <strong>Yêu cầu hệ thống</strong>
+                    <span>Kiểm tra PHP, web server, extension, quyền ghi thư mục và kết nối xác minh license.</span>
                 </div>
             </div>
             <div class="step-card {{ $currentStep === 'setup' ? 'active' : '' }} {{ $canProceed ? '' : 'locked' }} {{ $currentStep === 'finish' ? 'done' : '' }}">
                 <span class="step-number">2</span>
                 <div class="step-copy">
-                    <strong>Setup</strong>
-                    <span>{{ $canProceed ? 'Environment is ready. You can continue with installation details.' : 'Locked until every requirement passes.' }}</span>
+                    <strong>Cấu hình</strong>
+                    <span>{{ $canProceed ? 'Môi trường đã sẵn sàng. Bạn có thể tiếp tục nhập thông tin cài đặt.' : 'Bị khóa cho đến khi mọi kiểm tra đều đạt.' }}</span>
                 </div>
             </div>
             <div class="step-card {{ $currentStep === 'finish' ? 'active' : '' }} {{ $currentStep === 'finish' ? 'done' : 'locked' }}">
                 <span class="step-number">3</span>
                 <div class="step-copy">
-                    <strong>Finish</strong>
-                    <span>{{ $currentStep === 'finish' ? 'Installation completed. You can continue to the application home page.' : 'Displayed after installation succeeds.' }}</span>
+                    <strong>Hoàn tất</strong>
+                    <span>{{ $currentStep === 'finish' ? 'Cài đặt thành công. Bạn có thể vào trang chủ hoặc đăng nhập.' : 'Hiển thị sau khi cài đặt hoàn tất.' }}</span>
                 </div>
             </div>
         </div>
@@ -401,8 +401,8 @@
         @if ($currentStep === 'requirements')
             <section class="panel">
                 <div class="panel-header">
-                    <h2>Step 1: Environment Checks</h2>
-                    <p class="panel-subtitle">Review every required item below. The next step only becomes available after all checks pass.</p>
+                    <h2>Bước 1: Kiểm tra môi trường</h2>
+                    <p class="panel-subtitle">Xem lại từng mục bên dưới. Bước tiếp theo chỉ mở khi tất cả đều đạt.</p>
                 </div>
 
                 <div class="stack">
@@ -411,21 +411,21 @@
                             <div class="requirement-main">
                                 <strong>{{ $check['label'] }}</strong>
                                 <div class="requirement-meta">
-                                    <small>Current: {{ $check['current'] }}</small>
-                                    <small>Expected: {{ $check['expected'] }}</small>
+                                    <small>Hiện tại: {{ $check['current'] }}</small>
+                                    <small>Yêu cầu: {{ $check['expected'] }}</small>
                                 </div>
                             </div>
-                            <span class="badge {{ $check['ok'] ? 'ok' : 'fail' }}">{{ $check['ok'] ? 'Ready' : 'Fix required' }}</span>
+                            <span class="badge {{ $check['ok'] ? 'ok' : 'fail' }}">{{ $check['ok'] ? 'Đạt' : 'Cần sửa' }}</span>
                         </div>
                     @endforeach
                 </div>
 
                 <div class="actions" style="margin-top: 20px;">
                     @if ($canProceed)
-                        <div class="summary success">All requirements passed. You can continue to the setup step.</div>
-                        <a class="button" href="{{ route('installer.index', ['step' => 'setup']) }}">Next Step</a>
+                        <div class="summary success">Tất cả yêu cầu đã đạt. Bạn có thể chuyển sang bước cấu hình.</div>
+                        <a class="button" href="{{ route('installer.index', ['step' => 'setup']) }}">Bước tiếp theo</a>
                     @else
-                        <div class="summary">One or more requirements are failing. Fix them first, then refresh this page. The next step stays hidden until all checks pass.</div>
+                        <div class="summary">Còn mục chưa đạt. Sửa xong hãy tải lại trang này. Bước cấu hình sẽ ẩn cho đến khi mọi kiểm tra đều đạt.</div>
                     @endif
                 </div>
             </section>
@@ -434,8 +434,8 @@
         @if ($currentStep === 'setup')
             <section class="panel">
                 <div class="panel-header">
-                    <h2>Step 2: Setup Details</h2>
-                    <p class="panel-subtitle">Provide licensing, website, database, and administrator information to complete installation.</p>
+                    <h2>Bước 2: Thông tin cài đặt</h2>
+                    <p class="panel-subtitle">Nhập license, thông tin website, cơ sở dữ liệu và tài khoản quản trị để hoàn tất cài đặt. Nếu database đã có dữ liệu cũ, hệ thống sẽ tự xóa và cài đặt lại từ đầu.</p>
                 </div>
 
                 @if (session('status'))
@@ -451,12 +451,12 @@
 
                     @if ($purchaseRequired)
                         <div class="section">
-                            <h3>License Verification</h3>
+                            <h3>Xác minh license</h3>
                             <div class="fields">
                                 <div class="field full">
-                                    <label for="purchase_code">Purchase code *</label>
-                                    <input id="purchase_code" name="purchase_code" type="text" value="{{ $formData['purchase_code'] ?? '' }}" placeholder="Enter the purchase code used for this product" class="{{ $errorBag->has('purchase_code') ? 'input-error' : '' }}">
-                                    <div class="hint">The installer verifies the purchase code against the configured licensing service before finishing setup.</div>
+                                    <label for="purchase_code">Mã mua hàng *</label>
+                                    <input id="purchase_code" name="purchase_code" type="text" value="{{ $formData['purchase_code'] ?? '' }}" placeholder="Nhập mã purchase code của sản phẩm" class="{{ $errorBag->has('purchase_code') ? 'input-error' : '' }}">
+                                    <div class="hint">Trình cài đặt xác minh mã với dịch vụ licensing trước khi hoàn tất.</div>
                                     @if ($errorBag->has('purchase_code')) <div class="field-error">{{ $errorBag->first('purchase_code') }}</div> @endif
                                 </div>
                             </div>
@@ -464,77 +464,77 @@
                     @endif
 
                     <div class="section">
-                        <h3>Website Settings</h3>
+                        <h3>Thông tin website</h3>
                         <div class="fields">
                             <div class="field full">
-                                <label for="website_title">Website title *</label>
-                                <input id="website_title" name="website_title" type="text" value="{{ $formData['website_title'] ?? '' }}" placeholder="Your application name" class="{{ $errorBag->has('website_title') ? 'input-error' : '' }}">
+                                <label for="website_title">Tên website *</label>
+                                <input id="website_title" name="website_title" type="text" value="{{ $formData['website_title'] ?? '' }}" placeholder="MLHUB" class="{{ $errorBag->has('website_title') ? 'input-error' : '' }}">
                                 @if ($errorBag->has('website_title')) <div class="field-error">{{ $errorBag->first('website_title') }}</div> @endif
                             </div>
                             <div class="field full">
-                                <label for="website_description">Website description</label>
-                                <textarea id="website_description" name="website_description" placeholder="Short description used for meta tags" class="{{ $errorBag->has('website_description') ? 'input-error' : '' }}">{{ $formData['website_description'] ?? '' }}</textarea>
+                                <label for="website_description">Mô tả website</label>
+                                <textarea id="website_description" name="website_description" placeholder="Nền tảng Marketing Automation hỗ trợ tăng đánh giá, đặt lịch, mã ưu đãi, phản hồi & tạo khách hàng tiềm năng." class="{{ $errorBag->has('website_description') ? 'input-error' : '' }}">{{ $formData['website_description'] ?? '' }}</textarea>
                                 @if ($errorBag->has('website_description')) <div class="field-error">{{ $errorBag->first('website_description') }}</div> @endif
                             </div>
                             <div class="field full">
-                                <label for="website_keywords">Website keywords</label>
-                                <textarea id="website_keywords" name="website_keywords" placeholder="keyword one, keyword two, keyword three" class="{{ $errorBag->has('website_keywords') ? 'input-error' : '' }}">{{ $formData['website_keywords'] ?? '' }}</textarea>
+                                <label for="website_keywords">Từ khóa SEO</label>
+                                <textarea id="website_keywords" name="website_keywords" placeholder="MLHUB, Marketing Automation, đánh giá, đặt lịch, mã ưu đãi, phản hồi, khách hàng tiềm năng" class="{{ $errorBag->has('website_keywords') ? 'input-error' : '' }}">{{ $formData['website_keywords'] ?? '' }}</textarea>
                                 @if ($errorBag->has('website_keywords')) <div class="field-error">{{ $errorBag->first('website_keywords') }}</div> @endif
                             </div>
                         </div>
                     </div>
 
                     <div class="section">
-                        <h3>Database Connection</h3>
+                        <h3>Kết nối cơ sở dữ liệu</h3>
                         <div class="fields">
                             <div class="field">
-                                <label for="db_host">Host</label>
+                                <label for="db_host">Máy chủ</label>
                                 <input id="db_host" name="db_host" type="text" value="{{ $formData['db_host'] ?? 'localhost' }}" placeholder="localhost" class="{{ $errorBag->has('db_host') ? 'input-error' : '' }}">
                                 @if ($errorBag->has('db_host')) <div class="field-error">{{ $errorBag->first('db_host') }}</div> @endif
                             </div>
                             <div class="field">
-                                <label for="db_port">Port</label>
+                                <label for="db_port">Cổng</label>
                                 <input id="db_port" name="db_port" type="text" value="{{ $formData['db_port'] ?? '3306' }}" placeholder="3306" class="{{ $errorBag->has('db_port') ? 'input-error' : '' }}">
                                 @if ($errorBag->has('db_port')) <div class="field-error">{{ $errorBag->first('db_port') }}</div> @endif
                             </div>
                             <div class="field">
-                                <label for="db_database">Database name</label>
-                                <input id="db_database" name="db_database" type="text" value="{{ $formData['db_database'] ?? '' }}" placeholder="application_db" class="{{ $errorBag->has('db_database') ? 'input-error' : '' }}">
+                                <label for="db_database">Tên database</label>
+                                <input id="db_database" name="db_database" type="text" value="{{ $formData['db_database'] ?? '' }}" placeholder="MLHUB_db" class="{{ $errorBag->has('db_database') ? 'input-error' : '' }}">
                                 @if ($errorBag->has('db_database')) <div class="field-error">{{ $errorBag->first('db_database') }}</div> @endif
                             </div>
                             <div class="field">
-                                <label for="db_username">Username</label>
+                                <label for="db_username">Tên đăng nhập</label>
                                 <input id="db_username" name="db_username" type="text" value="{{ $formData['db_username'] ?? '' }}" placeholder="root" class="{{ $errorBag->has('db_username') ? 'input-error' : '' }}">
                                 @if ($errorBag->has('db_username')) <div class="field-error">{{ $errorBag->first('db_username') }}</div> @endif
                             </div>
                             <div class="field">
-                                <label for="db_password">Password</label>
-                                <input id="db_password" name="db_password" type="text" value="{{ $formData['db_password'] ?? '' }}" placeholder="Database password" class="{{ $errorBag->has('db_password') ? 'input-error' : '' }}">
+                                <label for="db_password">Mật khẩu</label>
+                                <input id="db_password" name="db_password" type="text" value="{{ $formData['db_password'] ?? '' }}" placeholder="Mật khẩu database" class="{{ $errorBag->has('db_password') ? 'input-error' : '' }}">
                                 @if ($errorBag->has('db_password')) <div class="field-error">{{ $errorBag->first('db_password') }}</div> @endif
                             </div>
                         </div>
                     </div>
 
                     <div class="section">
-                        <h3>Administrator Account</h3>
+                        <h3>Tài khoản quản trị</h3>
                         <div class="fields">
                             <div class="field">
-                                <label for="admin_name">Full name *</label>
-                                <input id="admin_name" name="admin_name" type="text" value="{{ $formData['admin_name'] ?? '' }}" placeholder="Administrator name" class="{{ $errorBag->has('admin_name') ? 'input-error' : '' }}">
+                                <label for="admin_name">Họ và tên *</label>
+                                <input id="admin_name" name="admin_name" type="text" value="{{ $formData['admin_name'] ?? '' }}" placeholder="Nguyễn Văn A" class="{{ $errorBag->has('admin_name') ? 'input-error' : '' }}">
                                 @if ($errorBag->has('admin_name')) <div class="field-error">{{ $errorBag->first('admin_name') }}</div> @endif
                             </div>
                             <div class="field">
-                                <label for="admin_username">Username *</label>
+                                <label for="admin_username">Tên đăng nhập *</label>
                                 <input id="admin_username" name="admin_username" type="text" value="{{ $formData['admin_username'] ?? '' }}" placeholder="admin" class="{{ $errorBag->has('admin_username') ? 'input-error' : '' }}">
                                 @if ($errorBag->has('admin_username')) <div class="field-error">{{ $errorBag->first('admin_username') }}</div> @endif
                             </div>
                             <div class="field">
                                 <label for="admin_email">Email *</label>
-                                <input id="admin_email" name="admin_email" type="email" value="{{ $formData['admin_email'] ?? '' }}" placeholder="admin@example.com" class="{{ $errorBag->has('admin_email') ? 'input-error' : '' }}">
+                                <input id="admin_email" name="admin_email" type="email" value="{{ $formData['admin_email'] ?? '' }}" placeholder="admin@mlhub.vn" class="{{ $errorBag->has('admin_email') ? 'input-error' : '' }}">
                                 @if ($errorBag->has('admin_email')) <div class="field-error">{{ $errorBag->first('admin_email') }}</div> @endif
                             </div>
                             <div class="field">
-                                <label for="admin_timezone">Timezone *</label>
+                                <label for="admin_timezone">Múi giờ *</label>
                                 <select id="admin_timezone" name="admin_timezone" class="{{ $errorBag->has('admin_timezone') ? 'input-error' : '' }}">
                                     @foreach ($timezoneOptions as $timezone)
                                         <option value="{{ $timezone['value'] }}" @selected(($formData['admin_timezone'] ?? config('app.timezone', 'UTC')) === $timezone['value'])>{{ $timezone['label'] }}</option>
@@ -543,23 +543,23 @@
                                 @if ($errorBag->has('admin_timezone')) <div class="field-error">{{ $errorBag->first('admin_timezone') }}</div> @endif
                             </div>
                             <div class="field">
-                                <label for="admin_password">Password *</label>
-                                <input id="admin_password" name="admin_password" type="text" value="{{ $formData['admin_password'] ?? '' }}" placeholder="At least 8 characters" class="{{ $errorBag->has('admin_password') ? 'input-error' : '' }}">
+                                <label for="admin_password">Mật khẩu *</label>
+                                <input id="admin_password" name="admin_password" type="text" value="{{ $formData['admin_password'] ?? '' }}" placeholder="Tối thiểu 8 ký tự" class="{{ $errorBag->has('admin_password') ? 'input-error' : '' }}">
                                 @if ($errorBag->has('admin_password')) <div class="field-error">{{ $errorBag->first('admin_password') }}</div> @endif
                             </div>
                             <div class="field">
-                                <label for="admin_password_confirmation">Confirm password *</label>
-                                <input id="admin_password_confirmation" name="admin_password_confirmation" type="text" value="{{ $formData['admin_password_confirmation'] ?? '' }}" placeholder="Repeat the password">
+                                <label for="admin_password_confirmation">Xác nhận mật khẩu *</label>
+                                <input id="admin_password_confirmation" name="admin_password_confirmation" type="text" value="{{ $formData['admin_password_confirmation'] ?? '' }}" placeholder="Nhập lại mật khẩu">
                             </div>
                         </div>
                     </div>
 
                     <div class="actions">
                         <div class="actions-note">
-                            <div class="status-line">The installer will update the environment file, run migrations, save website metadata, and create the first super administrator.</div>
+                            <div class="status-line">Trình cài đặt sẽ ghi file .env, chạy migration, seed dữ liệu MLHUB (ID bắt đầu từ 147123468), lưu cấu hình website và tạo super admin.</div>
                         </div>
-                        <a class="button-secondary" href="{{ route('installer.index') }}">Back To Requirements</a>
-                        <button class="button" type="submit">Run Installation</button>
+                        <a class="button-secondary" href="{{ route('installer.index') }}">Quay lại kiểm tra</a>
+                        <button class="button" type="submit">Chạy cài đặt</button>
                     </div>
                 </form>
             </section>
@@ -567,15 +567,15 @@
 
         @if ($currentStep === 'finish')
             <section class="panel finish-card">
-                <div class="finish-eyebrow">Setup Completed</div>
+                <div class="finish-eyebrow">Cài đặt hoàn tất</div>
                 <div class="finish-icon">✓</div>
                 <div>
-                    <h2 class="finish-title">Installation Completed</h2>
-                    <p class="finish-copy">The application is ready. Environment variables were saved, the database was migrated, website metadata was stored, and the administrator account was created successfully.</p>
+                    <h2 class="finish-title">MLHUB đã sẵn sàng</h2>
+                    <p class="finish-copy">Cài đặt thành công. File môi trường đã được lưu, cơ sở dữ liệu đã migrate và seed, thông tin website đã được cấu hình, tài khoản quản trị đã được tạo.</p>
                 </div>
                 <div class="finish-actions">
-                    <a class="button" href="{{ route('home') }}">Go To Home</a>
-                    <a class="button-secondary" href="{{ route('login') }}">Go To Login</a>
+                    <a class="button" href="{{ route('home') }}">Về trang chủ</a>
+                    <a class="button-secondary" href="{{ route('login') }}">Đăng nhập</a>
                 </div>
             </section>
         @endif

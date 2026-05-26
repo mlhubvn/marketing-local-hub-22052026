@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Database\Support\IdSequence;
 use Illuminate\Database\Seeder;
 use Modules\AdminPlans\Models\AdminPlan;
 use Modules\AdminPlans\Support\PlanPermissionSchema;
@@ -10,13 +11,16 @@ class PlanSeeder extends Seeder
 {
     public function run(): void
     {
-        foreach ($this->plans() as $plan) {
+        foreach ($this->plans() as $index => $plan) {
             $plan['permissions'] = $this->normalizePermissions($plan['permissions'] ?? $this->fullPermissions());
 
-            AdminPlan::query()->updateOrCreate(
-                ['slug' => $plan['slug']],
-                $plan
-            );
+            $record = AdminPlan::query()->firstOrNew(['slug' => $plan['slug']]);
+
+            if (! $record->exists) {
+                $record->id = IdSequence::at($index);
+            }
+
+            $record->fill($plan)->save();
         }
     }
 
@@ -24,129 +28,129 @@ class PlanSeeder extends Seeder
     {
         return [
             [
-                'name' => 'Starter Monthly',
+                'name' => 'Khởi đầu — Tháng',
                 'slug' => 'starter-monthly',
                 'status' => true,
                 'featured' => false,
-                'currency' => '$',
-                'price' => 19,
+                'currency' => '₫',
+                'price' => 490000,
                 'type' => 1,
                 'free_plan' => false,
                 'trial_day' => 7,
                 'position' => 10,
-                'desc' => 'For solo creators and small brands starting with consistent Facebook and Instagram publishing.',
+                'desc' => 'Dành cho hộ kinh doanh mới bắt đầu tự động hóa đăng bài Facebook và Instagram.',
                 'permissions' => $this->starterPermissions(),
             ],
             [
-                'name' => 'Growth Monthly',
+                'name' => 'Tăng trưởng — Tháng',
                 'slug' => 'growth-monthly',
                 'status' => true,
                 'featured' => true,
-                'currency' => '$',
-                'price' => 39,
+                'currency' => '₫',
+                'price' => 990000,
                 'type' => 1,
                 'free_plan' => false,
                 'trial_day' => 10,
                 'position' => 20,
-                'desc' => 'For teams running recurring campaigns, queues, bulk publishing, and smarter content workflows.',
+                'desc' => 'Cho hộ kinh doanh cần chiến dịch định kỳ, hàng đợi đăng bài và workflow nội dung thông minh.',
                 'permissions' => $this->growthPermissions(),
             ],
             [
-                'name' => 'Agency Monthly',
+                'name' => 'Chuyên nghiệp — Tháng',
                 'slug' => 'agency-monthly',
                 'status' => true,
                 'featured' => false,
-                'currency' => '$',
-                'price' => 79,
+                'currency' => '₫',
+                'price' => 1990000,
                 'type' => 1,
                 'free_plan' => false,
                 'trial_day' => 14,
                 'position' => 30,
-                'desc' => 'For agencies and high-volume operators managing multiple brands, workspaces, and publishing pipelines.',
+                'desc' => 'Cho đơn vị quản lý nhiều thương hiệu, nhiều chiến dịch và pipeline marketing lớn.',
                 'permissions' => $this->agencyPermissions(),
             ],
             [
-                'name' => 'Starter Yearly',
+                'name' => 'Khởi đầu — Năm',
                 'slug' => 'starter-yearly',
                 'status' => true,
                 'featured' => false,
-                'currency' => '$',
-                'price' => 190,
+                'currency' => '₫',
+                'price' => 4900000,
                 'type' => 2,
                 'free_plan' => false,
                 'trial_day' => 14,
                 'position' => 10,
-                'desc' => 'Yearly starter access for predictable publishing with better value and room to grow.',
+                'desc' => 'Gói năm tiết kiệm cho hộ kinh doanh muốn marketing ổn định, chi phí dự đoán được.',
                 'permissions' => $this->starterPermissions(),
             ],
             [
-                'name' => 'Growth Yearly',
+                'name' => 'Tăng trưởng — Năm',
                 'slug' => 'growth-yearly',
                 'status' => true,
                 'featured' => true,
-                'currency' => '$',
-                'price' => 390,
+                'currency' => '₫',
+                'price' => 9900000,
                 'type' => 2,
                 'free_plan' => false,
                 'trial_day' => 21,
                 'position' => 20,
-                'desc' => 'Best for scaling teams that want yearly savings across automation, scheduling, and team workflows.',
+                'desc' => 'Tiết kiệm theo năm cho team đang mở rộng automation, lịch đăng và workflow AI.',
                 'permissions' => $this->growthPermissions(),
             ],
             [
-                'name' => 'Agency Yearly',
+                'name' => 'Chuyên nghiệp — Năm',
                 'slug' => 'agency-yearly',
                 'status' => true,
                 'featured' => false,
-                'currency' => '$',
-                'price' => 790,
+                'currency' => '₫',
+                'price' => 19900000,
                 'type' => 2,
                 'free_plan' => false,
                 'trial_day' => 30,
                 'position' => 30,
-                'desc' => 'Full-year agency capacity for larger workspaces, more channels, and advanced StackPosts operations.',
+                'desc' => 'Năng lực agency trọn năm cho nhiều workspace, nhiều kênh và vận hành marketing quy mô lớn.',
                 'permissions' => $this->agencyPermissions(),
             ],
             [
-                'name' => 'Starter Lifetime',
+                'name' => 'Khởi đầu — Trọn đời',
                 'slug' => 'starter-lifetime',
                 'status' => true,
                 'featured' => false,
-                'currency' => '$',
-                'price' => 149,
+                'currency' => '₫',
+                'price' => 7900000,
                 'type' => 3,
                 'free_plan' => false,
                 'trial_day' => 30,
                 'position' => 10,
-                'desc' => 'One-time access for lean teams that want a durable StackPosts publishing setup.',
+                'desc' => 'Thanh toán một lần cho hộ kinh doanh nhỏ cần nền tảng MLHUB bền vững.',
                 'permissions' => $this->starterPermissions(),
             ],
             [
-                'name' => 'Growth Lifetime',
+                'name' => 'Tăng trưởng — Trọn đời',
                 'slug' => 'growth-lifetime',
                 'status' => true,
                 'featured' => true,
-                'currency' => '$',
-                'price' => 299,
+                'currency' => '₫',
+                'price' => 14900000,
                 'type' => 3,
                 'free_plan' => false,
                 'trial_day' => 45,
                 'position' => 20,
-                'desc' => 'One-time purchase for active teams that need automation, AI workflows, and stronger publishing throughput.',
+                'desc' => 'Trọn đời cho hộ kinh doanh năng động cần AI, automation và throughput đăng bài cao.',
                 'permissions' => $this->growthPermissions(),
             ],
             [
-                'name' => 'Agency Lifetime',
+                'name' => 'Chuyên nghiệp — Trọn đời',
                 'slug' => 'agency-lifetime',
                 'status' => true,
                 'featured' => false,
-                'currency' => '$',
-                'price' => 599,
+                'currency' => '₫',
+                'price' => 29900000,
                 'type' => 3,
                 'free_plan' => false,
                 'trial_day' => 60,
                 'position' => 30,
-                'desc' => 'Lifetime agency tier for heavy publishing teams managing many clients, assets, and automations.',
+                'desc' => 'Gói trọn đời cao cấp cho đơn vị vận hành nhiều khách hàng, tài sản và automation.',
                 'permissions' => $this->agencyPermissions(),
             ],
         ];
