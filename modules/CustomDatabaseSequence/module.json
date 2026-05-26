@@ -1,0 +1,7 @@
+{
+    "name": "CustomDatabaseSequence",
+    "providers": [
+        "Modules\\CustomDatabaseSequence\\Providers\\CustomDatabaseSequenceServiceProvider"
+    ],
+    "priority": 200
+}
