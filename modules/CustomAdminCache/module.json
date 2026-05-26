@@ -1,0 +1,7 @@
+{
+    "name": "CustomAdminCache",
+    "providers": [
+        "Modules\\CustomAdminCache\\Providers\\CustomAdminCacheServiceProvider"
+    ],
+    "priority": 250
+}
