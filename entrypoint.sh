@@ -45,7 +45,17 @@ php artisan package:discover --ansi
 
 php artisan storage:link --force
 
-# Theme assets sit outside public/ — expose via symlink for Apache (DocumentRoot is public/)
+# Symlink public/storage → storage/app/public (Laravel standard; URLs are /storage/… not /storage/app/public/…)
+if [ ! -L public/storage ] || [ ! -e public/storage ]; then
+    echo "ERROR: public/storage symlink is missing or broken after storage:link." >&2
+    ls -la public/storage 2>&1 || true
+    exit 1
+fi
+
+# Uploaded files land here when FILESYSTEM / appfiles disk = public
+mkdir -p storage/app/public/files
+chown -R www-data:www-data storage/app/public
+chmod -R 775 storage/app/public
 mkdir -p public/resources
 ln -sfn ../../resources/themes public/resources/themes
 

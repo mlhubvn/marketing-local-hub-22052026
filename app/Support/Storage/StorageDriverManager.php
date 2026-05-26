@@ -75,13 +75,9 @@ class StorageDriverManager
         }
 
         if ($disk === 'public') {
-            $normalizedPath = ltrim($path, '/');
-            $normalizedPath = Str::replaceStart('storage/app/public/', '', $normalizedPath);
-            $normalizedPath = Str::replaceStart('public/storage/', '', $normalizedPath);
-            $normalizedPath = Str::replaceStart('storage/', '', $normalizedPath);
-            $normalizedPath = Str::replaceStart('public/', '', $normalizedPath);
+            $normalizedPath = $this->normalizePublicDiskPath($path);
 
-            return url('storage/app/public/'.$normalizedPath);
+            return (string) Storage::disk('public')->url($normalizedPath);
         }
 
         try {
@@ -231,6 +227,17 @@ class StorageDriverManager
             }
         } catch (\Throwable) {
         }
+    }
+
+    protected function normalizePublicDiskPath(string $path): string
+    {
+        $normalizedPath = ltrim(str_replace('\\', '/', trim($path)), '/');
+        $normalizedPath = Str::replaceStart('storage/app/public/', '', $normalizedPath);
+        $normalizedPath = Str::replaceStart('public/storage/', '', $normalizedPath);
+        $normalizedPath = Str::replaceStart('storage/', '', $normalizedPath);
+        $normalizedPath = Str::replaceStart('public/', '', $normalizedPath);
+
+        return $normalizedPath;
     }
 
     protected function diskConfig(string $provider, array $defaults): array
