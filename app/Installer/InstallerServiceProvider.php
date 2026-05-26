@@ -2,6 +2,7 @@
 
 namespace App\Installer;
 
+use App\Installer\Support\InstallerState;
 use Illuminate\Support\ServiceProvider;
 
 class InstallerServiceProvider extends ServiceProvider
