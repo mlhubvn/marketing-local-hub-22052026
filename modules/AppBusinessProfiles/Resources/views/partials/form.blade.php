@@ -85,8 +85,9 @@
                             <i class="fa-light fa-briefcase pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm" style="color: var(--theme-muted-text-color);"></i>
                             <input
                                 x-model="search"
+                                wire:model="type"
                                 x-on:focus="open = true"
-                                x-on:input="form.type = search; open = true"
+                                x-on:input="form.type = search; $wire.set('type', search, false); open = true"
                                 x-on:keydown.escape.prevent="open = false"
                                 x-on:keydown.enter.prevent="filtered.length ? choose(filtered[0]) : open = false"
                                 name="type"
@@ -138,7 +139,7 @@
                                         type="button"
                                         class="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium"
                                         style="color: var(--theme-header-text-color); background-color: rgba(var(--theme-accent-rgb),0.08);"
-                                        x-on:click="open = false"
+                                        x-on:click="form.type = search; $wire.set('type', search, false); open = false"
                                     >
                                         <i class="fa-light fa-plus" style="color: var(--theme-accent);"></i>
                                         <span>{{ __('Use custom type') }}: <strong x-text="search"></strong></span>

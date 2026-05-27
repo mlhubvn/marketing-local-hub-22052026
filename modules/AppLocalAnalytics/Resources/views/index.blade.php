@@ -96,12 +96,12 @@
                 'leads' => __('Leads'),
                 'reviews' => __('Reviews'),
             ] as $key => $label)
-                <button type="button" wire:click="setTab('{{ $key }}')" wire:loading.attr="disabled" wire:target="setTab,businessFilter,dateRange,campaignType" class="whitespace-nowrap rounded-xl border px-4 py-2 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-70" style="{{ $tab === $key
+                <a href="{{ route('portal.reports', ['tab' => $key]) }}" wire:click.prevent="setTab('{{ $key }}')" wire:loading.attr="disabled" wire:target="setTab,businessFilter,dateRange,campaignType" class="whitespace-nowrap rounded-xl border px-4 py-2 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-70" style="{{ $tab === $key
                     ? 'border-color: rgba(var(--theme-accent-rgb),0.16); background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);'
                     : 'border-color: transparent; color: var(--theme-muted-text-color);'
                 }}">
                     {{ $label }}
-                </button>
+                </a>
             @endforeach
             <div wire:loading.flex wire:target="setTab,businessFilter,dateRange,campaignType" class="ml-auto hidden items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold" style="border-color: rgba(var(--theme-accent-rgb),0.18); background-color: rgba(var(--theme-accent-rgb),0.08); color: var(--theme-accent);">
                 <i class="fa-light fa-spinner-third animate-spin"></i>

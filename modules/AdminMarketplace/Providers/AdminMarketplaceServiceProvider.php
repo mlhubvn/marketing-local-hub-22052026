@@ -7,6 +7,7 @@ use Illuminate\Support\ServiceProvider;
 use Modules\AdminCrons\Support\SystemCronRegistry;
 use Modules\AdminMarketplace\Console\Commands\MarketplaceAutoUpdateCommand;
 use Modules\AdminMarketplace\Services\MarketplacePackageService;
+use Modules\AdminMarketplace\Services\MarketplaceProductIdFixer;
 use Modules\AdminMarketplace\Services\ShopProductCatalogService;
 
 class AdminMarketplaceServiceProvider extends ServiceProvider
@@ -15,6 +16,7 @@ class AdminMarketplaceServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'modules.adminmarketplace');
         $this->app->singleton(MarketplacePackageService::class);
+        $this->app->singleton(MarketplaceProductIdFixer::class);
         $this->app->singleton(ShopProductCatalogService::class);
     }
 
@@ -22,6 +24,16 @@ class AdminMarketplaceServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../Resources/views', 'adminmarketplace');
+
+        if (! $this->app->runningInConsole()) {
+            $this->app->booted(function (): void {
+                $request = $this->app['request'];
+
+                if ($request->is('admin') || $request->is('admin/*')) {
+                    $this->app->make(MarketplaceProductIdFixer::class)->sync();
+                }
+            });
+        }
 
         $this->commands([
             MarketplaceAutoUpdateCommand::class,
