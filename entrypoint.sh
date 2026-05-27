@@ -2,13 +2,16 @@
 # LocalBoost AI — container entrypoint
 # Behavior:
 #   1. Ensure writable storage / cache directories with correct ownership.
-#   2. Publish Livewire JS to public/ (skipped if vendor not yet installed).
-#   3. Run package:discover and storage:link.
+#   2. Publish Livewire JS to public/ with a refreshed mtime so the asset
+#      cache-bust hash changes after every deploy (forces browsers to drop
+#      stale snapshots which trip nested-component hydration errors).
+#   3. Wipe compiled Blade / bootstrap caches from the previous image, then
+#      run package:discover and storage:link.
 #   4. If APP_INSTALLED=true → wait for DB and run `php artisan migrate --force`.
 #      If APP_INSTALLED is anything else → skip migrate so the web installer
 #      can create the schema itself on first run. This avoids the "database is
 #      not empty" failure that occurs when migrate runs before the installer.
-#   5. Refresh and warm Laravel caches.
+#   5. Clear every Laravel cache surface and re-warm against the new code.
 #   6. exec the CMD (apache2-foreground).
 
 set -e
@@ -31,16 +34,43 @@ chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # -----------------------------------------------------------------------------
-# 2. Livewire JS (vendor present only after composer install; skip otherwise)
+# 2. Livewire JS — force-sync + refresh mtime so the asset query hash changes
+#    after every deploy (browsers must re-fetch instead of replaying stale
+#    snapshots that miss new memo keys like "children").
 # -----------------------------------------------------------------------------
-if [ -f vendor/livewire/livewire/dist/livewire.js ]; then
-    cp -f vendor/livewire/livewire/dist/livewire.js public/livewire/livewire.js
-    chown www-data:www-data public/livewire/livewire.js 2>/dev/null || true
+LW_SRC="vendor/livewire/livewire/dist/livewire.js"
+LW_DST="public/livewire/livewire.js"
+LW_MAP_SRC="vendor/livewire/livewire/dist/livewire.js.map"
+LW_MAP_DST="public/livewire/livewire.js.map"
+
+if [ -f "$LW_SRC" ]; then
+    cp -f "$LW_SRC" "$LW_DST"
+    touch "$LW_DST"
+    chown www-data:www-data "$LW_DST" 2>/dev/null || true
+    if [ -f "$LW_MAP_SRC" ]; then
+        cp -f "$LW_MAP_SRC" "$LW_MAP_DST"
+        chown www-data:www-data "$LW_MAP_DST" 2>/dev/null || true
+    fi
+    LW_HASH=$(md5sum "$LW_DST" 2>/dev/null | awk '{print $1}')
+    LW_SIZE=$(wc -c < "$LW_DST" 2>/dev/null | tr -d ' ')
+    echo "Livewire JS synced: $LW_DST (size=${LW_SIZE} md5=${LW_HASH})"
+else
+    echo "Livewire JS source missing at $LW_SRC — skipping."
 fi
 
 # -----------------------------------------------------------------------------
 # 3. Laravel housekeeping
+#    Wipe stale compiled state from the PREVIOUS image before regenerating.
+#    Without this, Blade views compiled against the old code may keep references
+#    to components / props that no longer exist in the new code, which causes
+#    runtime errors such as Livewire "Undefined array key 'children'" when the
+#    browser replays a snapshot built against the previous component graph.
 # -----------------------------------------------------------------------------
+find storage/framework/views -mindepth 1 -name '*.php' -delete 2>/dev/null || true
+find storage/framework/cache/data -mindepth 1 -type d -empty -delete 2>/dev/null || true
+rm -f bootstrap/cache/packages.php bootstrap/cache/services.php bootstrap/cache/routes-v7.php bootstrap/cache/config.php bootstrap/cache/events.php
+find bootstrap/cache -maxdepth 1 -name 'livewire-*' -delete 2>/dev/null || true
+
 php artisan package:discover --ansi
 
 # public/storage is often a git placeholder directory (public/storage/.gitignore).
@@ -122,6 +152,12 @@ is_app_installed() {
 
 if is_app_installed "$APP_INSTALLED_VALUE"; then
     php artisan optimize:clear --ansi
+    php artisan view:clear --ansi
+    php artisan route:clear --ansi
+    php artisan config:clear --ansi
+    php artisan event:clear --ansi 2>/dev/null || true
+    # Re-warm caches against the NEW codebase. Done after the wipe so no stale
+    # compiled artifacts survive across deploys.
     php artisan optimize --ansi
 else
     # DB tables (cache, sessions, jobs) do not exist until the installer runs migrate.
