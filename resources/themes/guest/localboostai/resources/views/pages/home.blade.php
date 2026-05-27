@@ -16,17 +16,17 @@
             ['fa-chart-line', __('Reports & Analytics'), __('Track visits, leads, reviews, bookings, coupons, feedback, and conversion rate.')],
         ];
         $modules = [
-            ['fa-store', __('Businesses'), __('Profiles, locations and campaign-ready brand details.'), '#fd6b63'],
+            ['fa-store', __('Businesses'), __('Profiles, locations and campaign-ready brand details.'), '#0f766e'],
             ['fa-star', __('Review Booster'), __('Route happy customers to public review sites.'), '#d09100'],
             ['fa-calendar-check', __('Booking Pages'), __('Collect service requests from public booking pages.'), '#2563eb'],
             ['fa-ticket', __('Coupons'), __('Create claimable offers with redemption tracking.'), '#8a5b00'],
-            ['fa-comments', __('Feedback Forms'), __('Capture private ratings, topics and recovery notes.'), '#fd6b63'],
+            ['fa-comments', __('Feedback Forms'), __('Capture private ratings, topics and recovery notes.'), '#0f766e'],
             ['fa-address-card', __('Lead Forms'), __('Turn campaign traffic into customer records.'), '#7c3aed'],
-            ['fa-sparkles', __('AI Campaign Builder'), __('Generate copy, CTAs, FAQs and follow-up content.'), '#fd6b63'],
+            ['fa-sparkles', __('AI Campaign Builder'), __('Generate copy, CTAs, FAQs and follow-up content.'), '#0f766e'],
             ['fa-reply', __('AI Review Reply'), __('Draft on-brand responses for customer reviews.'), '#c2410c'],
             ['fa-browser', __('Landing Pages'), __('Publish focused pages for each growth goal.'), '#0891b2'],
             ['fa-qrcode', __('QR Codes'), __('Share campaigns offline and track scans.'), '#4d7c0f'],
-            ['fa-chart-line', __('Reports'), __('Measure visits, conversions and top campaigns.'), '#fd6b63'],
+            ['fa-chart-line', __('Reports'), __('Measure visits, conversions and top campaigns.'), '#0f766e'],
             ['fa-credit-card', __('Plans & Billing'), __('Manage limits, credits, teams and subscriptions.'), '#64748b'],
         ];
         $productHighlights = [
@@ -49,8 +49,8 @@
             --lb-paper: #f7faf6;
             --lb-soft: #edf5ef;
             --lb-line: #dfe9df;
-            --lb-lime: #ff8c42;
-            --lb-green: #fd6b63;
+            --lb-lime: #b8da16;
+            --lb-green: #0f766e;
             --lb-dark: #10251f;
             background:
                 radial-gradient(circle at 78% 9%, rgba(184, 218, 22, .28), transparent 26rem),
@@ -194,10 +194,10 @@
             width: .55rem;
             height: .55rem;
             border-radius: 999px;
-            background: var(--workflow-dot, #fd6b63);
+            background: var(--workflow-dot, #0f766e);
             box-shadow:
-                0 0 0 4px color-mix(in srgb, var(--workflow-dot, #fd6b63) 13%, transparent),
-                0 0 20px color-mix(in srgb, var(--workflow-dot, #fd6b63) 52%, transparent);
+                0 0 0 4px color-mix(in srgb, var(--workflow-dot, #0f766e) 13%, transparent),
+                0 0 20px color-mix(in srgb, var(--workflow-dot, #0f766e) 52%, transparent);
         }
 
         .lb-reveal {
@@ -423,13 +423,13 @@
             width: 6rem;
             height: 6rem;
             border-radius: 999px;
-            background: color-mix(in srgb, var(--module-color, #fd6b63) 12%, #fff);
+            background: color-mix(in srgb, var(--module-color, #0f766e) 12%, #fff);
         }
 
         .lb-suite-icon {
-            color: var(--module-color, #fd6b63);
-            background: color-mix(in srgb, var(--module-color, #fd6b63) 10%, #fff);
-            box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--module-color, #fd6b63) 18%, transparent);
+            color: var(--module-color, #0f766e);
+            background: color-mix(in srgb, var(--module-color, #0f766e) 10%, #fff);
+            box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--module-color, #0f766e) 18%, transparent);
         }
 
         .lb-feature-showcase {
@@ -650,7 +650,7 @@
             --lb-paper: #07111f;
             --lb-soft: #101d32;
             --lb-line: #25364d;
-            --lb-lime: #ff8c42;
+            --lb-lime: #b8da16;
             --lb-green: #14a399;
             --lb-dark: #e8eef7;
             background:
@@ -848,7 +848,7 @@
                                         @foreach ([['Review Booster', '4.9', 'avg'], ['Booking Page', '8', 'new'], ['Coupon Claims', '23', 'used']] as $item)
                                             <div class="rounded-xl border bg-white p-3" style="border-color: var(--lb-line);">
                                                 <p class="text-xs font-black">{{ __($item[0]) }}</p>
-                                                <p class="mt-2 text-lg font-black" style="color: #fd6b63;">{{ $item[1] }} {{ __($item[2]) }}</p>
+                                                <p class="mt-2 text-lg font-black" style="color: #0f766e;">{{ $item[1] }} {{ __($item[2]) }}</p>
                                             </div>
                                         @endforeach
                                     </div>
@@ -863,7 +863,7 @@
                     </div>
                     <div class="lb-card lb-float absolute -right-4 top-10 z-20 hidden rounded-xl p-4 shadow-xl md:block" style="--lb-delay: 420ms;">
                         <p class="text-xs font-black">{{ __('Coupon Claims') }}</p>
-                        <p class="mt-1 text-xl font-black" style="color: #fd6b63;">+42</p>
+                        <p class="mt-1 text-xl font-black" style="color: #0f766e;">+42</p>
                     </div>
                 </div>
             </div>
@@ -904,8 +904,8 @@
                         ['fa-users', __('Customers'), __('Profiles from every submit')],
                     ];
                     $workflowDotPalettes = [
-                        ['#fd6b63', '#84cc16', '#14b8a6', '#d99b00', '#5b8c04', '#0891b2', '#0d9488', '#a3c30f', '#c08400'],
-                        ['#0891b2', '#fd6b63', '#b4d513', '#65a30d', '#14b8a6', '#c08400', '#4d7c0f', '#0d9488'],
+                        ['#0f766e', '#84cc16', '#14b8a6', '#d99b00', '#5b8c04', '#0891b2', '#0d9488', '#a3c30f', '#c08400'],
+                        ['#0891b2', '#0f766e', '#b4d513', '#65a30d', '#14b8a6', '#c08400', '#4d7c0f', '#0d9488'],
                     ];
                 @endphp
 
@@ -1050,7 +1050,7 @@
                         <div class="relative z-10 grid gap-4 sm:grid-cols-2">
                         @foreach ([['fa-star', __('Review Page')], ['fa-calendar-check', __('Booking Page')], ['fa-ticket', __('Coupon Page')], ['fa-address-card', __('Lead Page')]] as $page)
                             <div class="lb-page-card rounded-xl border bg-white p-5" style="border-color: var(--lb-line); --lb-card-delay: {{ $loop->index * 120 }}ms;">
-                                <span class="lb-page-icon inline-flex h-11 w-11 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-green) 9%, #fff); color: #fd6b63;">
+                                <span class="lb-page-icon inline-flex h-11 w-11 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-green) 9%, #fff); color: #0f766e;">
                                     <i class="fa-light {{ $page[0] }} text-2xl"></i>
                                 </span>
                                 <h3 class="mt-5 text-xl font-black">{{ $page[1] }}</h3>

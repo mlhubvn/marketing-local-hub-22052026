@@ -1,3 +1,5 @@
 <?php
 
-return [];
+return [
+    Modules\AppAdvancedCustomerCrm\Providers\AppAdvancedCustomerCrmServiceProvider::class,
+];

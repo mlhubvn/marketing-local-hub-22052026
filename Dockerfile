@@ -7,6 +7,66 @@
 # Stage 1: Composer dependencies (cached layer on composer.json / composer.lock)
 # -----------------------------------------------------------------------------
 FROM composer:2 AS build
+ARG APP_NAME=MLHUB
+ARG APP_URL=https://mlhub.vn
+ARG APP_KEY=base64:ZsLIT5SiyQFlitofPwZS+/qfEjyOIVDwYOiZXHPrcIA=
+ARG APP_ENV=production
+ARG APP_INSTALLED=true
+ARG APP_DEBUG=false
+ARG APP_FAKER_LOCALE=vi_VN
+ARG BCRYPT_ROUNDS=12
+ARG LOG_CHANNEL=stack
+ARG LOG_STACK=single
+ARG APP_LOCALE=vi
+ARG APP_FALLBACK_LOCALE=vi
+ARG APP_MAINTENANCE_DRIVER=file
+ARG LOG_LEVEL=error
+ARG DB_CONNECTION=mysql
+ARG LOG_DEPRECATIONS_CHANNEL=null
+ARG DB_HOST=ve8ff259t5fopbw4yqxix3jg
+ARG DB_DATABASE=default
+ARG DB_PORT=3306
+ARG SESSION_DRIVER=database
+ARG DB_USERNAME=mysql
+ARG SESSION_LIFETIME=120
+ARG SESSION_ENCRYPT=false
+ARG SESSION_PATH=/
+ARG DB_PASSWORD=GaUP8O3fgvqZE4GX4sqBbgGvql6xwTdGUH9shNvADDpQEjK1vJZ7wZJhd6jnDLXp
+ARG SESSION_DOMAIN=null
+ARG BROADCAST_CONNECTION=log
+ARG QUEUE_CONNECTION=database
+ARG CACHE_STORE=database
+ARG MEMCACHED_HOST=127.0.0.1
+ARG REDIS_CLIENT=phpredis
+ARG REDIS_HOST=127.0.0.1
+ARG SESSION_COOKIE=mlhub_session
+ARG SESSION_SECURE_COOKIE=true
+ARG FILESYSTEM_DISK=public
+ARG REDIS_PASSWORD=null
+ARG REDIS_PORT=6379
+ARG MAIL_MAILER=log
+ARG MAIL_SCHEME=null
+ARG MAIL_HOST=127.0.0.1
+ARG MAIL_PORT=2525
+ARG MAIL_USERNAME=null
+ARG MAIL_PASSWORD=null
+ARG MAIL_FROM_ADDRESS=hello@example.com
+ARG MAIL_FROM_NAME=${APP_NAME}
+ARG SITE_DESCRIPTION=Nền tảng Marketing Automation hỗ trợ tăng đánh giá, đặt lịch, mã ưu đãi, phản hồi & tạo khách hàng tiềm năng.
+ARG AWS_ACCESS_KEY_ID=
+ARG AWS_SECRET_ACCESS_KEY=
+ARG AWS_DEFAULT_REGION=us-east-1
+ARG AWS_BUCKET=
+ARG AWS_USE_PATH_STYLE_ENDPOINT=false
+ARG VITE_APP_NAME=${APP_NAME}
+ARG APP_TIMEZONE=Asia/Ho_Chi_Minh
+ARG SITE_TITLE=MLHUB
+ARG APP_DEMO=false
+ARG SITE_KEYWORDS=MLHUB, Marketing Automation, đánh giá, đặt lịch, mã ưu đãi, phản hồi, khách hàng tiềm năng, hộ kinh doanh
+ARG COOLIFY_URL=https://mlhub.vn,https//www.mlhub.vn
+ARG COOLIFY_FQDN=mlhub.vn,https
+ARG COOLIFY_BRANCH=main
+ARG COOLIFY_RESOURCE_UUID=mggu45o8q8aso8stbepn622j
 
 WORKDIR /app
 
@@ -23,6 +83,66 @@ RUN composer install \
 # Stage 2: Production runtime (Apache + PHP 8.3)
 # -----------------------------------------------------------------------------
 FROM php:8.3-apache-bookworm AS production
+ARG APP_NAME=MLHUB
+ARG APP_URL=https://mlhub.vn
+ARG APP_KEY=base64:ZsLIT5SiyQFlitofPwZS+/qfEjyOIVDwYOiZXHPrcIA=
+ARG APP_ENV=production
+ARG APP_INSTALLED=true
+ARG APP_DEBUG=false
+ARG APP_FAKER_LOCALE=vi_VN
+ARG BCRYPT_ROUNDS=12
+ARG LOG_CHANNEL=stack
+ARG LOG_STACK=single
+ARG APP_LOCALE=vi
+ARG APP_FALLBACK_LOCALE=vi
+ARG APP_MAINTENANCE_DRIVER=file
+ARG LOG_LEVEL=error
+ARG DB_CONNECTION=mysql
+ARG LOG_DEPRECATIONS_CHANNEL=null
+ARG DB_HOST=ve8ff259t5fopbw4yqxix3jg
+ARG DB_DATABASE=default
+ARG DB_PORT=3306
+ARG SESSION_DRIVER=database
+ARG DB_USERNAME=mysql
+ARG SESSION_LIFETIME=120
+ARG SESSION_ENCRYPT=false
+ARG SESSION_PATH=/
+ARG DB_PASSWORD=GaUP8O3fgvqZE4GX4sqBbgGvql6xwTdGUH9shNvADDpQEjK1vJZ7wZJhd6jnDLXp
+ARG SESSION_DOMAIN=null
+ARG BROADCAST_CONNECTION=log
+ARG QUEUE_CONNECTION=database
+ARG CACHE_STORE=database
+ARG MEMCACHED_HOST=127.0.0.1
+ARG REDIS_CLIENT=phpredis
+ARG REDIS_HOST=127.0.0.1
+ARG SESSION_COOKIE=mlhub_session
+ARG SESSION_SECURE_COOKIE=true
+ARG FILESYSTEM_DISK=public
+ARG REDIS_PASSWORD=null
+ARG REDIS_PORT=6379
+ARG MAIL_MAILER=log
+ARG MAIL_SCHEME=null
+ARG MAIL_HOST=127.0.0.1
+ARG MAIL_PORT=2525
+ARG MAIL_USERNAME=null
+ARG MAIL_PASSWORD=null
+ARG MAIL_FROM_ADDRESS=hello@example.com
+ARG MAIL_FROM_NAME=${APP_NAME}
+ARG SITE_DESCRIPTION=Nền tảng Marketing Automation hỗ trợ tăng đánh giá, đặt lịch, mã ưu đãi, phản hồi & tạo khách hàng tiềm năng.
+ARG AWS_ACCESS_KEY_ID=
+ARG AWS_SECRET_ACCESS_KEY=
+ARG AWS_DEFAULT_REGION=us-east-1
+ARG AWS_BUCKET=
+ARG AWS_USE_PATH_STYLE_ENDPOINT=false
+ARG VITE_APP_NAME=${APP_NAME}
+ARG APP_TIMEZONE=Asia/Ho_Chi_Minh
+ARG SITE_TITLE=MLHUB
+ARG APP_DEMO=false
+ARG SITE_KEYWORDS=MLHUB, Marketing Automation, đánh giá, đặt lịch, mã ưu đãi, phản hồi, khách hàng tiềm năng, hộ kinh doanh
+ARG COOLIFY_URL=https://mlhub.vn,https//www.mlhub.vn
+ARG COOLIFY_FQDN=mlhub.vn,https
+ARG COOLIFY_BRANCH=main
+ARG COOLIFY_RESOURCE_UUID=mggu45o8q8aso8stbepn622j
 
 LABEL maintainer="LocalBoost AI"
 LABEL description="Laravel 13 + Livewire 4 application — Apache, PHP 8.3, MySQL/PostgreSQL/Redis ready"

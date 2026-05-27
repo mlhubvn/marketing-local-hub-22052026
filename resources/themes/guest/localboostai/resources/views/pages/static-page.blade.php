@@ -18,7 +18,7 @@
     <style>
         .lb-static-eyebrow {
             border-color: color-mix(in srgb, var(--theme-border-color, #dfe9df) 88%, transparent);
-            background: color-mix(in srgb, #ff8c42 18%, #fff);
+            background: color-mix(in srgb, #b8da16 18%, #fff);
             color: #4f6907;
             box-shadow: 0 12px 34px -28px rgba(15, 118, 110, .45);
         }

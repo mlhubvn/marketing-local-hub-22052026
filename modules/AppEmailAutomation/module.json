@@ -1,0 +1,7 @@
+{
+    "name": "AppEmailAutomation",
+    "alias": "appemailautomation",
+    "providers": [
+        "Modules\\AppEmailAutomation\\Providers\\AppEmailAutomationServiceProvider"
+    ]
+}

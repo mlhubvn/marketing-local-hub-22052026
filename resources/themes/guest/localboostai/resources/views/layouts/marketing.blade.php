@@ -103,7 +103,7 @@
                                     <div x-cloak x-show="openLanguage" x-transition.origin.top.right class="absolute right-0 z-30 mt-3 w-56 overflow-hidden rounded-[1rem] border bg-white p-2 shadow-xl" style="border-color: rgba(var(--theme-border-color-rgb),0.85);">
                                         @foreach ($languages as $language)
                                             @php $isActiveLanguage = app()->getLocale() === $language->code; @endphp
-                                            <a href="{{ route('language.switch', $language->code) }}" class="flex items-center gap-3 rounded-[0.8rem] px-3 py-2.5 text-sm font-semibold transition {{ $isActiveLanguage ? 'text-white' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-950' }}" @if($isActiveLanguage) style="background:#fd6b63;" @endif>
+                                            <a href="{{ route('language.switch', $language->code) }}" class="flex items-center gap-3 rounded-[0.8rem] px-3 py-2.5 text-sm font-semibold transition {{ $isActiveLanguage ? 'text-white' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-950' }}" @if($isActiveLanguage) style="background:#0f766e;" @endif>
                                                 <span class="{{ language_flag_class($language) }} rounded-sm text-[17px]"></span>
                                                 <span class="flex-1">{{ $language->name ?? strtoupper((string) $language->code) }}</span>
                                                 @if ($isActiveLanguage)
@@ -116,10 +116,10 @@
                             @endif
 
                             @auth
-                                <a href="{{ route('portal.dashboard') }}" class="inline-flex h-10 items-center justify-center rounded-full px-5 text-sm font-black text-white shadow-[0_14px_28px_-20px_rgba(15,118,110,0.62)]" style="background:#fd6b63;">{{ __('Dashboard') }}</a>
+                                <a href="{{ route('portal.dashboard') }}" class="inline-flex h-10 items-center justify-center rounded-full px-5 text-sm font-black text-white shadow-[0_14px_28px_-20px_rgba(15,118,110,0.62)]" style="background:#0f766e;">{{ __('Dashboard') }}</a>
                             @else
                                 <a href="{{ route('login') }}" class="inline-flex h-10 items-center justify-center rounded-full px-4 text-sm font-bold text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-950">{{ __('Log in') }}</a>
-                                <a href="{{ $signupEnabled ? route('register') : route('login') }}" class="inline-flex h-10 items-center justify-center rounded-full px-5 text-sm font-black text-white shadow-[0_14px_28px_-20px_rgba(15,118,110,0.62)]" style="background:#fd6b63;">{{ __('Sign up') }}</a>
+                                <a href="{{ $signupEnabled ? route('register') : route('login') }}" class="inline-flex h-10 items-center justify-center rounded-full px-5 text-sm font-black text-white shadow-[0_14px_28px_-20px_rgba(15,118,110,0.62)]" style="background:#0f766e;">{{ __('Sign up') }}</a>
                             @endauth
                         </div>
 
@@ -131,7 +131,7 @@
                     <div x-cloak x-show="open" x-transition class="border-t pb-4 pt-3 lg:hidden" style="border-color: rgba(var(--theme-border-color-rgb),0.75);">
                         <nav class="grid gap-1">
                             @foreach ($navItems as $item)
-                                <a href="{{ $item['href'] }}" class="rounded-[0.95rem] px-3 py-2.5 text-sm font-bold {{ $item['active'] ? 'text-white' : 'text-slate-600 hover:bg-slate-50' }}" @if($item['active']) style="background:#fd6b63;" @endif>{{ $item['label'] }}</a>
+                                <a href="{{ $item['href'] }}" class="rounded-[0.95rem] px-3 py-2.5 text-sm font-bold {{ $item['active'] ? 'text-white' : 'text-slate-600 hover:bg-slate-50' }}" @if($item['active']) style="background:#0f766e;" @endif>{{ $item['label'] }}</a>
                             @endforeach
                         </nav>
                         <div class="mt-3 grid gap-2 sm:grid-cols-2">
@@ -206,14 +206,14 @@
                                 <span class="rounded-full border bg-white px-3 py-1.5 text-[11px] font-bold text-neutral-600 shadow-sm" style="border-color: #e8e5dc;">{{ $badge }}</span>
                             @endforeach
                         </div>
-                        <a href="{{ route('login') }}" class="mt-5 inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-bold text-white shadow-[0_14px_28px_-20px_rgba(15,118,110,0.62)]" style="background:#fd6b63;">
+                        <a href="{{ route('login') }}" class="mt-5 inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-bold text-white shadow-[0_14px_28px_-20px_rgba(15,118,110,0.62)]" style="background:#0f766e;">
                             {{ __('Start Free Trial') }}
                         </a>
                     </div>
                 </div>
             </div>
             <div class="relative border-t overflow-hidden" style="border-color: #e8e5dc;">
-                <div class="pointer-events-none absolute -bottom-20 left-10 select-none font-serif font-black leading-none text-neutral-100" style="font-size: clamp(7rem, 18vw, 15rem);">MLHUB-AI</div>
+                <div class="pointer-events-none absolute -bottom-20 left-10 select-none font-serif font-black leading-none text-neutral-100" style="font-size: clamp(7rem, 18vw, 15rem);">LocalBoost</div>
                 <div class="relative mx-auto flex flex-col gap-3 py-6 text-xs font-bold text-neutral-400 sm:flex-row sm:items-center sm:justify-between" style="width: min(1120px, calc(100% - 40px));">
                     <p>&copy; {{ date('Y') }} {{ $siteTitle }}. {{ __('All rights reserved.') }}</p>
                     <p>{{ __('AI-powered local marketing tools in one SaaS.') }}</p>

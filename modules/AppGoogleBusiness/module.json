@@ -1,0 +1,11 @@
+{
+    "name": "AppGoogleBusiness",
+    "alias": "appgooglebusiness",
+    "description": "Google Business Profile integration addon for LocalBoost AI.",
+    "keywords": ["localboost", "google", "business-profile", "reviews", "locations"],
+    "priority": 0,
+    "providers": [
+        "Modules\\AppGoogleBusiness\\Providers\\AppGoogleBusinessServiceProvider"
+    ],
+    "files": []
+}

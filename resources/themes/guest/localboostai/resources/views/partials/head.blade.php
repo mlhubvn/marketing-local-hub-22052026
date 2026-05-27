@@ -623,7 +623,7 @@
         width: 3rem;
         height: 3rem;
         border-radius: 999px;
-        background: linear-gradient(135deg, #ff5f5f, #ff8c42);
+        background: linear-gradient(135deg, #0f766e, #b8da16);
     }
 
     .localboost-line,
@@ -685,7 +685,7 @@
     .localboost-visual-bar {
         flex: 1;
         border-radius: 999px 999px 0.4rem 0.4rem;
-        background: linear-gradient(180deg, #ff5f5f, #ff8c42);
+        background: linear-gradient(180deg, #0f766e, #b8da16);
         transform-origin: bottom;
         animation: localboost-bar-rise 3.2s ease-in-out infinite;
     }
@@ -871,7 +871,7 @@
         overflow: hidden;
         border: 1px solid rgba(var(--theme-accent-rgb), 0.58);
         background:
-            linear-gradient(135deg, #0f766e 0%, #128a7f 48%, #ff8c42 100%);
+            linear-gradient(135deg, #0f766e 0%, #128a7f 48%, #b8da16 100%);
         color: #ffffff;
         box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.2),
@@ -1187,7 +1187,7 @@
     html[data-theme-resolved='dark'] .localboost-auth-primary {
         border-color: rgba(34, 211, 238, 0.28);
         background:
-            linear-gradient(135deg, #0f766e 0%, #128a7f 52%, #ff8c42 100%) !important;
+            linear-gradient(135deg, #0f766e 0%, #128a7f 52%, #b8da16 100%) !important;
         box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.16),
             0 22px 58px -32px rgba(20, 184, 166, 0.82),
@@ -1437,7 +1437,7 @@
         --lb-paper: #07111f;
         --lb-soft: #101d32;
         --lb-line: #25364d;
-        --lb-lime: #ff8c42;
+        --lb-lime: #b8da16;
         --lb-green: #14a399;
         --lb-moss: #9fc22e;
         background:

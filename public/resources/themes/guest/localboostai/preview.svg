@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" fill="none">
+  <rect width="1200" height="760" fill="#F7FAFC"/>
+  <circle cx="170" cy="90" r="210" fill="#2454E8" opacity="0.10"/>
+  <circle cx="1010" cy="130" r="230" fill="#14B8A6" opacity="0.10"/>
+  <rect x="104" y="62" width="992" height="72" rx="24" fill="white" stroke="#DCE6F3"/>
+  <rect x="132" y="82" width="36" height="36" rx="10" fill="url(#g0)"/>
+  <rect x="420" y="82" width="360" height="36" rx="18" fill="#F1F5F9" stroke="#DCE6F3"/>
+  <rect x="927" y="82" width="120" height="36" rx="14" fill="url(#g0)"/>
+  <text x="132" y="230" fill="#0F172A" font-family="Inter, Arial" font-size="72" font-weight="800" letter-spacing="-5">Grow every link</text>
+  <text x="132" y="306" fill="#2454E8" font-family="Inter, Arial" font-size="72" font-weight="800" letter-spacing="-5">and every scan.</text>
+  <rect x="132" y="356" width="146" height="50" rx="14" fill="url(#g0)"/>
+  <rect x="292" y="356" width="162" height="50" rx="14" fill="white" stroke="#DCE6F3"/>
+  <rect x="660" y="190" width="390" height="390" rx="34" fill="white" stroke="#DCE6F3"/>
+  <rect x="704" y="238" width="150" height="150" rx="24" fill="#0F172A"/>
+  <rect x="736" y="270" width="86" height="86" rx="14" fill="white"/>
+  <rect x="892" y="252" width="102" height="58" rx="16" fill="#EFF6FF"/>
+  <rect x="892" y="326" width="102" height="58" rx="16" fill="#ECFDF5"/>
+  <rect x="704" y="428" width="290" height="28" rx="14" fill="#E2E8F0"/>
+  <rect x="704" y="472" width="240" height="28" rx="14" fill="#E2E8F0"/>
+  <defs>
+    <linearGradient id="g0" x1="132" y1="82" x2="1047" y2="118" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2454E8"/>
+      <stop offset="1" stop-color="#14B8A6"/>
+    </linearGradient>
+  </defs>
+</svg>

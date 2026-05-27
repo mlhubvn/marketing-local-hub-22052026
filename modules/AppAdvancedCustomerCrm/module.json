@@ -1,0 +1,7 @@
+{
+    "name": "AppAdvancedCustomerCrm",
+    "providers": [
+        "Modules\\AppAdvancedCustomerCrm\\Providers\\AppAdvancedCustomerCrmServiceProvider"
+    ],
+    "priority": 31
+}

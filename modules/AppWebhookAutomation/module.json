@@ -1,0 +1,7 @@
+{
+    "name": "AppWebhookAutomation",
+    "alias": "appwebhookautomation",
+    "providers": [
+        "Modules\\AppWebhookAutomation\\Providers\\AppWebhookAutomationServiceProvider"
+    ]
+}

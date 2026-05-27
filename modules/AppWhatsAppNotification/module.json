@@ -1,0 +1,7 @@
+{
+    "name": "AppWhatsAppNotification",
+    "alias": "appwhatsappnotification",
+    "providers": [
+        "Modules\\AppWhatsAppNotification\\Providers\\AppWhatsAppNotificationServiceProvider"
+    ]
+}
