@@ -5,8 +5,8 @@
                 <div class="flex flex-wrap items-center">
                     <div class="w-auto mr-14">
                         <a href="{{ url("") }}">
-                            <img class="theme-logo-dark h-9" src="{{ url(get_option('website_logo_brand_dark', 'public/img/logo-brand-dark.png')) }}" alt="">
-                            <img class="theme-logo-light h-9" src="{{ url(get_option('website_logo_brand_light', 'public/img/logo-brand-light.png')) }}" alt="">
+                            <img class="theme-logo-dark h-9" src="{{ url(get_option('website_logo_brand_dark', 'img/logo-brand-dark.png')) }}" alt="">
+                            <img class="theme-logo-light h-9" src="{{ url(get_option('website_logo_brand_light', 'img/logo-brand-light.png')) }}" alt="">
                         </a>
                     </div>
                 </div>
@@ -134,8 +134,8 @@
                         <div class="flex items-center justify-between -m-2">
                             <div class="w-auto p-2">
                                 <a class="inline-block" href="{{ url("") }}">
-                                    <img class="theme-logo-dark h-9" src="{{ url(get_option('website_logo_brand_dark', 'public/img/logo-brand-dark.png')) }}" alt="">
-                                    <img class="theme-logo-light h-9" src="{{ url(get_option('website_logo_brand_light', 'public/img/logo-brand-light.png')) }}" alt="">
+                                    <img class="theme-logo-dark h-9" src="{{ url(get_option('website_logo_brand_dark', 'img/logo-brand-dark.png')) }}" alt="">
+                                    <img class="theme-logo-light h-9" src="{{ url(get_option('website_logo_brand_light', 'img/logo-brand-light.png')) }}" alt="">
                                 </a>
                             </div>
                             <div class="w-auto p-2">

@@ -5,7 +5,7 @@
     $gaEnabled = (string) $options->get('google_analytics_status', '0') === '1';
     $gaMeasurementId = trim((string) $options->get('google_analytics_measurement_id', ''));
     $gaTrackGuest = (string) $options->get('google_analytics_track_guest', '1') === '1';
-    $siteFavicon = url((string) $options->get('website_favicon', 'public/img/favicon.png'));
+    $siteFavicon = url((string) $options->get('website_favicon', 'img/favicon.png'));
     $siteTitle = trim((string) $options->get('website_title', ''));
     $siteTitle = $siteTitle !== '' ? $siteTitle : 'LocalBoostAI';
     $cardRadius = theme_setting('card_radius', 'guest', 18);

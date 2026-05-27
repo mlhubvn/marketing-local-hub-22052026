@@ -12,11 +12,11 @@
     $siteLogoDark = trim((string) ($options->get('website_logo_brand_dark')
         ?: $options->get('website_logo_dark')
         ?: $options->get('website_logo')
-        ?: 'public/img/logo-brand-dark.png'));
+        ?: 'img/logo-brand-dark.png'));
     $siteLogoLight = trim((string) ($options->get('website_logo_brand_light')
         ?: $options->get('website_logo_light')
         ?: $options->get('website_logo')
-        ?: 'public/img/logo-brand-light.png'));
+        ?: 'img/logo-brand-light.png'));
     $siteLogoDarkUrl = url($siteLogoDark);
     $siteLogoLightUrl = url($siteLogoLight);
     $siteDescription = trim((string) $options->get('website_description', ''));

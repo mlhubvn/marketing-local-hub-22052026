@@ -6,7 +6,7 @@
     $gaEnabled = (string) $gaOptions->get('google_analytics_status', '0') === '1';
     $gaMeasurementId = trim((string) $gaOptions->get('google_analytics_measurement_id', ''));
     $gaTrackApp = (string) $gaOptions->get('google_analytics_track_app', '0') === '1';
-    $siteFavicon = url((string) $gaOptions->get('website_favicon', 'public/img/favicon.png'));
+    $siteFavicon = url((string) $gaOptions->get('website_favicon', 'img/favicon.png'));
 @endphp
 
 <title>

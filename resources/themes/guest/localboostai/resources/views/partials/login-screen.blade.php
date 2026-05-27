@@ -5,8 +5,8 @@
         linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.35) 100%);"></div>
     <div class="relative max-w-2xl mx-auto w-full">
         <a class="inline-flex items-center mb-14" href="{{ url('') }}">
-            <img class="theme-logo-dark h-10" src="{{ url(get_option('website_logo_brand_dark', 'public/img/logo-brand-dark.png')) }}" alt="">
-            <img class="theme-logo-light h-10" src="{{ url(get_option('website_logo_brand_light', 'public/img/logo-brand-light.png')) }}" alt="">
+            <img class="theme-logo-dark h-10" src="{{ url(get_option('website_logo_brand_dark', 'img/logo-brand-dark.png')) }}" alt="">
+            <img class="theme-logo-light h-10" src="{{ url(get_option('website_logo_brand_light', 'img/logo-brand-light.png')) }}" alt="">
         </a>
 
         <div class="max-w-xl">

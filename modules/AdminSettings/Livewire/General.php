@@ -57,11 +57,11 @@ class General extends Component
         $this->website_title = $this->optionOrDefault('website_title', config('site.title', config('app.name', 'Stackposts')));
         $this->website_description = $this->optionOrDefault('website_description', config('site.description', ''));
         $this->website_keyword = $this->optionOrDefault('website_keyword', config('site.keywords', ''));
-        $this->website_favicon = (string) $this->options->get('website_favicon', 'public/img/favicon.png');
-        $this->website_logo_dark = (string) $this->options->get('website_logo_dark', 'public/img/logo-dark.png');
-        $this->website_logo_light = (string) $this->options->get('website_logo_light', 'public/img/logo-light.png');
-        $this->website_logo_brand_dark = (string) $this->options->get('website_logo_brand_dark', 'public/img/logo-brand-dark.png');
-        $this->website_logo_brand_light = (string) $this->options->get('website_logo_brand_light', 'public/img/logo-brand-light.png');
+        $this->website_favicon = (string) $this->options->get('website_favicon', 'img/favicon.png');
+        $this->website_logo_dark = (string) $this->options->get('website_logo_dark', 'img/logo-dark.png');
+        $this->website_logo_light = (string) $this->options->get('website_logo_light', 'img/logo-light.png');
+        $this->website_logo_brand_dark = (string) $this->options->get('website_logo_brand_dark', 'img/logo-brand-dark.png');
+        $this->website_logo_brand_light = (string) $this->options->get('website_logo_brand_light', 'img/logo-brand-light.png');
         $this->format_date = (string) $this->options->get('format_date', 'M d, Y');
         $this->format_datetime = (string) $this->options->get('format_datetime', 'M d, Y H:i');
         $this->app_timezone = (string) $this->options->get('app_timezone', config('app.timezone', 'UTC'));

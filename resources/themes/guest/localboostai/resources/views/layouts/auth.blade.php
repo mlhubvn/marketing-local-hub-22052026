@@ -10,11 +10,11 @@
         $authDarkLogoPath = (string) ($brandOptions->get('website_logo_brand_dark')
             ?: $brandOptions->get('website_logo_dark')
             ?: $brandOptions->get('website_logo')
-            ?: 'public/img/logo-brand-dark.png');
+            ?: 'img/logo-brand-dark.png');
         $authLightLogoPath = (string) ($brandOptions->get('website_logo_brand_light')
             ?: $brandOptions->get('website_logo_light')
             ?: $brandOptions->get('website_logo')
-            ?: 'public/img/logo-brand-light.png');
+            ?: 'img/logo-brand-light.png');
         $resolvedAuthDarkLogo = url($authDarkLogoPath);
         $resolvedAuthLightLogo = url($authLightLogoPath);
     @endphp

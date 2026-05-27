@@ -8,8 +8,8 @@
         <div class="relative w-full max-w-lg mx-auto">
         <div class="show-on-mobile mb-6 text-center">
             <a class="inline-block" href="{{ url('') }}">
-                <img class="theme-logo-dark h-10" src="{{ url(get_option('website_logo_brand_dark', 'public/img/logo-brand-dark.png')) }}" alt="">
-                <img class="theme-logo-light h-10" src="{{ url(get_option('website_logo_brand_light', 'public/img/logo-brand-light.png')) }}" alt="">
+                <img class="theme-logo-dark h-10" src="{{ url(get_option('website_logo_brand_dark', 'img/logo-brand-dark.png')) }}" alt="">
+                <img class="theme-logo-light h-10" src="{{ url(get_option('website_logo_brand_light', 'img/logo-brand-light.png')) }}" alt="">
             </a>
         </div>
         <form class="actionForm relative w-full space-y-5 bg-white rounded-3xl border border-white shadow-2xl p-8 md:p-12" action="{{ module_url('do_signup') }}" method="POST">
