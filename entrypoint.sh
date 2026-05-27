@@ -43,12 +43,33 @@ fi
 # -----------------------------------------------------------------------------
 php artisan package:discover --ansi
 
-php artisan storage:link --force
+# public/storage is often a git placeholder directory (public/storage/.gitignore).
+# storage:link refuses to replace a real directory ("link already exists") — remove it first.
+PUBLIC_STORAGE="public/storage"
+STORAGE_LINK_REL="../storage/app/public"
+
+storage_link_ok() {
+    [ -L "$PUBLIC_STORAGE" ] && [ -e "$PUBLIC_STORAGE" ]
+}
+
+if [ -e "$PUBLIC_STORAGE" ] && ! storage_link_ok; then
+    echo "Removing invalid public/storage (expected symlink, found file or directory)."
+    rm -rf "$PUBLIC_STORAGE"
+fi
+
+if ! storage_link_ok; then
+    php artisan storage:link --force --ansi 2>/dev/null || php artisan storage:link --ansi 2>/dev/null || true
+fi
+
+if ! storage_link_ok; then
+    ln -sfn "$STORAGE_LINK_REL" "$PUBLIC_STORAGE"
+fi
 
 # Symlink public/storage → storage/app/public (Laravel standard; URLs are /storage/… not /storage/app/public/…)
-if [ ! -L public/storage ] || [ ! -e public/storage ]; then
+if ! storage_link_ok; then
     echo "ERROR: public/storage symlink is missing or broken after storage:link." >&2
-    ls -la public/storage 2>&1 || true
+    ls -la public/ 2>&1 || true
+    ls -la "$PUBLIC_STORAGE" 2>&1 || true
     exit 1
 fi
 
