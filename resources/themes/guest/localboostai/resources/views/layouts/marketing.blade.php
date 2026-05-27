@@ -213,7 +213,7 @@
                 </div>
             </div>
             <div class="relative border-t overflow-hidden" style="border-color: #e8e5dc;">
-                <div class="pointer-events-none absolute -bottom-20 left-10 select-none font-serif font-black leading-none text-neutral-100" style="font-size: clamp(7rem, 18vw, 15rem);">LocalBoost</div>
+                <div class="pointer-events-none absolute -bottom-20 left-10 select-none font-serif font-black leading-none text-neutral-100" style="font-size: clamp(7rem, 18vw, 15rem);">MLHUB-AI</div>
                 <div class="relative mx-auto flex flex-col gap-3 py-6 text-xs font-bold text-neutral-400 sm:flex-row sm:items-center sm:justify-between" style="width: min(1120px, calc(100% - 40px));">
                     <p>&copy; {{ date('Y') }} {{ $siteTitle }}. {{ __('All rights reserved.') }}</p>
                     <p>{{ __('AI-powered local marketing tools in one SaaS.') }}</p>
