@@ -1,0 +1,9 @@
+{
+    "name": "CustomAdminCache",
+    "alias": "customadmincache",
+    "description": "Update-safe fix for admin cache session clearing",
+    "priority": 250,
+    "providers": [
+        "Modules\\CustomAdminCache\\Providers\\CustomAdminCacheServiceProvider"
+    ]
+}

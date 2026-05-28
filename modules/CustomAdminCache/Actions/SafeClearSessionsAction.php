@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Custom\Actions\Cache;
+namespace Modules\CustomAdminCache\Actions;
 
 use Illuminate\Cache\RedisStore;
+use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Session\DatabaseSessionHandler;
 use Modules\AdminCache\Actions\ClearSessionsAction;
 use RuntimeException;
 
@@ -24,7 +26,7 @@ class SafeClearSessionsAction extends ClearSessionsAction
             default => throw new RuntimeException(__('Session clear is not supported for the current session driver: :driver', ['driver' => $driver])),
         };
 
-        session()->save();
+        $this->markCurrentSessionAsPersisted();
 
         return __('All sessions cleared successfully. All other users have been logged out.');
     }
@@ -49,12 +51,17 @@ class SafeClearSessionsAction extends ClearSessionsAction
     protected function clearOtherDatabaseSessions(string $currentSessionId): void
     {
         $table = (string) config('session.table', 'sessions');
+        $connection = $this->sessionDatabaseConnection();
 
-        if (! Schema::hasTable($table)) {
+        if (! Schema::connection($connection->getName())->hasTable($table)) {
             throw new RuntimeException(__('The session table [:table] does not exist.', ['table' => $table]));
         }
 
-        DB::table($table)->where('id', '!=', $currentSessionId)->delete();
+        $connection->table($table)->where('id', '!=', $currentSessionId)->delete();
+
+        $connection->table($table)->where('id', $currentSessionId)->update([
+            'last_activity' => now()->getTimestamp(),
+        ]);
     }
 
     protected function clearOtherRedisSessions(string $currentSessionId): void
@@ -63,7 +70,11 @@ class SafeClearSessionsAction extends ClearSessionsAction
         $store = cache()->store($storeName);
 
         if ($store instanceof RedisStore) {
-            $this->clearOtherRedisStoreSessions($store, $currentSessionId);
+            $this->scanDeleteRedisKeys(
+                $store->connection(),
+                $store->getPrefix(),
+                $currentSessionId,
+            );
 
             return;
         }
@@ -75,29 +86,20 @@ class SafeClearSessionsAction extends ClearSessionsAction
         $this->scanDeleteRedisKeys($connection, $prefix, $currentSessionId);
     }
 
-    protected function clearOtherRedisStoreSessions(RedisStore $store, string $currentSessionId): void
-    {
-        $this->scanDeleteRedisKeys(
-            $store->connection(),
-            $store->getPrefix(),
-            $currentSessionId,
-        );
-    }
-
     protected function scanDeleteRedisKeys(mixed $connection, string $prefix, string $currentSessionId): void
     {
         $currentKey = $prefix.$currentSessionId;
         $pattern = $prefix === '' ? '*' : $prefix.'*';
-        $cursor = null;
+        $cursor = 0;
 
         do {
             $result = $connection->scan($cursor, ['match' => $pattern, 'count' => 100]);
 
-            if (! is_array($result)) {
+            if ($result === false || ! is_array($result)) {
                 break;
             }
 
-            $cursor = $result[0] ?? 0;
+            $cursor = (int) ($result[0] ?? 0);
             $keys = $result[1] ?? [];
 
             foreach ($keys as $key) {
@@ -107,6 +109,24 @@ class SafeClearSessionsAction extends ClearSessionsAction
 
                 $connection->del($key);
             }
-        } while ($cursor !== 0 && $cursor !== '0');
+        } while ($cursor !== 0);
+    }
+
+    protected function markCurrentSessionAsPersisted(): void
+    {
+        $handler = session()->getHandler();
+
+        if ($handler instanceof DatabaseSessionHandler) {
+            $handler->setExists(true);
+        }
+    }
+
+    protected function sessionDatabaseConnection(): ConnectionInterface
+    {
+        $connectionName = config('session.connection');
+
+        return $connectionName
+            ? DB::connection($connectionName)
+            : DB::connection();
     }
 }
