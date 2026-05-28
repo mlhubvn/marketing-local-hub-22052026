@@ -29,7 +29,7 @@
 
 <div class="flex flex-col gap-6">
     <div class="space-y-2 text-center">
-        <h1 class="lb-serif text-4xl leading-none">{{ __('Log in to LocalBoost') }}</h1>
+        <h1 class="lb-serif text-4xl leading-none">{{ __('Log in to MLHUB') }}</h1>
         <p class="lb-copy text-sm">{{ __('Continue managing reviews, bookings, leads, coupons, QR pages, and reports.') }}</p>
     </div>
 

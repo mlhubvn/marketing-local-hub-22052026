@@ -4,7 +4,7 @@
 @source "../../resources/views";
 
 @theme {
-    --color-accent: #111827;
-    --color-accent-content: #111827;
+    --color-accent: #ff5f5f;
+    --color-accent-content: #ff5f5f;
     --color-accent-foreground: #ffffff;
 }

@@ -30,7 +30,7 @@
         <div class="localboost-chart-card">
             <div class="flex items-center justify-between">
                 <span class="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">{{ __('Live report') }}</span>
-                <span class="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-700">+18%</span>
+                <span class="rounded-full bg-[#fff0eb] px-2 py-1 text-[10px] font-bold text-[#e84a3a]">+18%</span>
             </div>
             <div class="mt-6 flex h-28 items-end gap-2">
                 @foreach ([42, 76, 55, 88, 66, 94, 72, 84] as $bar)
@@ -61,12 +61,12 @@
         <div class="localboost-domain-visual">
             <div class="localboost-domain-card">
                 <div class="flex items-center gap-2">
-                    <span class="h-3 w-3 rounded-full bg-emerald-500"></span>
+                    <span class="h-3 w-3 rounded-full bg-[#ff8c42]"></span>
                     <div class="h-3 w-36 rounded-full bg-slate-200"></div>
                 </div>
                 <div class="mt-4 grid gap-2">
                     <div class="rounded-xl bg-sky-50 px-3 py-2 text-xs font-extrabold text-sky-700">CNAME go.brand.com</div>
-                    <div class="rounded-xl bg-emerald-50 px-3 py-2 text-xs font-extrabold text-emerald-700">SSL active</div>
+                    <div class="rounded-xl bg-[#fff0eb] px-3 py-2 text-xs font-extrabold text-[#e84a3a]">SSL active</div>
                     <div class="rounded-xl bg-white px-3 py-2 text-xs font-extrabold text-slate-500">TXT verified</div>
                 </div>
             </div>
@@ -114,13 +114,13 @@
                 <div class="flex gap-1.5">
                     <span class="h-2 w-2 rounded-full bg-rose-400"></span>
                     <span class="h-2 w-2 rounded-full bg-amber-300"></span>
-                    <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                    <span class="h-2 w-2 rounded-full bg-[#ffb347]"></span>
                 </div>
                 <div class="mt-5 grid grid-cols-3 gap-2">
                     @foreach ([82, 54, 70] as $value)
                         <div class="rounded-xl bg-slate-100 p-3">
-                            <div class="h-2 rounded-full bg-blue-100"></div>
-                            <div class="mt-3 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-teal-500" style="width: {{ $value }}%;"></div>
+                            <div class="h-2 rounded-full bg-[#fff0eb]"></div>
+                            <div class="mt-3 h-8 rounded-lg bg-gradient-to-r from-[#ff5f5f] to-[#ff8c42]" style="width: {{ $value }}%;"></div>
                         </div>
                     @endforeach
                 </div>
@@ -132,13 +132,13 @@
         </div>
     @endif
 
-    <span class="localboost-glass-badge absolute left-4 top-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-[0.9rem] text-blue-700">
+    <span class="localboost-glass-badge absolute left-4 top-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-[0.9rem] text-[#ff5f5f]">
         <i class="{{ $icon }}"></i>
     </span>
     @if ($title)
         <div class="absolute bottom-4 left-4 right-4 z-10 rounded-[1rem] border bg-white/92 p-4 shadow-[0_18px_44px_-30px_rgba(15,23,42,0.48)] backdrop-blur" style="border-color: rgba(var(--theme-border-color-rgb),0.76);">
             @if ($label)
-                <p class="text-[10px] font-extrabold uppercase tracking-[0.16em] text-blue-700">{{ $label }}</p>
+                <p class="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#ff5f5f]">{{ $label }}</p>
             @endif
             <h3 class="mt-1 text-2xl font-extrabold tracking-[-0.045em] text-slate-950">{{ $title }}</h3>
         </div>

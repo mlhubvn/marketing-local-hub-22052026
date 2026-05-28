@@ -24,7 +24,7 @@
                         <button 
                             type="button"
                             class="px-4 py-1 mx-1 rounded-full font-semibold transition text-gray-600"
-                            :class="type == {{ $typeKey }} ? 'bg-indigo-600 text-white' : 'bg-gray-200 hover:bg-indigo-100'"
+                            :class="type == {{ $typeKey }} ? 'bg-[#ff5f5f] text-white' : 'bg-gray-200 hover:bg-[#fff0eb]'"
                             x-on:click="type={{ $typeKey }}"
                         >
                             {{ __($typeLabel) }}
@@ -58,14 +58,14 @@
                                 @if(!empty($plan['featured']))
                                     <div class="overflow-hidden absolute right-0 w-40 h-40 top-0">
                                         <div class="absolute top-6 -right-10 rotate-45">
-                                            <span class="bg-indigo-600 text-white px-12 py-1 text-xs font-bold shadow-md uppercase">
+                                            <span class="bg-[#ff5f5f] text-white px-12 py-1 text-xs font-bold shadow-md uppercase">
                                                 {{ __('Featured') }}
                                             </span>
                                         </div>
                                     </div>
                                 @endif
 
-                                <span class="mb-3 inline-block text-sm text-indigo-600 font-semibold uppercase tracking-px leading-snug">
+                                <span class="mb-3 inline-block text-sm text-[#ff5f5f] font-semibold uppercase tracking-px leading-snug">
                                     {{ __($plan['name'] ?? '-') }}
                                 </span>
                                 @if(!($plan['free_plan'] ?? false) && (int) ($plan['trial_day'] ?? 0) > 0)
@@ -94,14 +94,14 @@
                                     @php
                                         $planTarget = $plan['model']->slug ?? $plan['id'];
                                     @endphp
-                                    <a href="{{ route('payment.index', $planTarget) }}" class="mb-9 py-4 px-9 w-full font-semibold rounded-xl text-indigo-600 bg-white hover:bg-indigo-200 border border-indigo-600 hover:text-white transition ease-in-out duration-200 text-center block">
+                                    <a href="{{ route('payment.index', $planTarget) }}" class="mb-9 py-4 px-9 w-full font-semibold rounded-xl text-[#ff5f5f] bg-white hover:bg-[#ffe5dc] border border-[#ff5f5f] hover:text-white transition ease-in-out duration-200 text-center block">
 	                                    {{ __("Start for Free") }}
 	                                </a>
                                 @else
                                     @php
                                         $planTarget = $plan['model']->slug ?? $plan['id'];
                                     @endphp
-                                    <a href="{{ route('payment.index', $planTarget) }}" class="mb-9 py-4 px-9 w-full font-semibold rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 transition ease-in-out duration-200 text-center block">
+                                    <a href="{{ route('payment.index', $planTarget) }}" class="mb-9 py-4 px-9 w-full font-semibold rounded-xl text-white bg-[#ff5f5f] hover:bg-[#e84a3a] transition ease-in-out duration-200 text-center block">
 	                                    {{ __("Choose Plan") }}
 	                                </a>
                                 @endif
@@ -233,7 +233,7 @@
                                                 <div class="flex items-center justify-between gap-2 min-w-0">
                                                     <p class="font-semibold leading-normal min-w-0">{{ __($featureLabel) }}</p>
                                                     @if(($feature['display'] ?? null) !== null && ($feature['display'] ?? '') !== '')
-                                                        <span class="shrink-0 inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+                                                        <span class="shrink-0 inline-flex items-center rounded-full bg-[#fff0eb] px-2.5 py-1 text-xs font-semibold text-[#e84a3a]">
                                                             {{ $feature['display'] }}
                                                         </span>
                                                     @endif

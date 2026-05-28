@@ -14,12 +14,12 @@
             "accent_color": {
                 "type": "color",
                 "label": "Accent color",
-                "default": "#2454E8"
+                "default": "#ff5f5f"
             },
             "body_bg_color": {
                 "type": "color",
                 "label": "Body background",
-                "default": "#F7FAFC"
+                "default": "#FFFBF8"
             },
             "surface_bg_color": {
                 "type": "color",
@@ -34,27 +34,27 @@
             "header_text_color": {
                 "type": "color",
                 "label": "Header text color",
-                "default": "#0F172A"
+                "default": "#2D1810"
             },
             "link_color": {
                 "type": "color",
                 "label": "Link color",
-                "default": "#2454E8"
+                "default": "#ff5f5f"
             },
             "link_hover_color": {
                 "type": "color",
                 "label": "Link hover color",
-                "default": "#0F766E"
+                "default": "#e84a3a"
             },
             "border_color": {
                 "type": "color",
                 "label": "Border color",
-                "default": "#DCE6F3"
+                "default": "#FFE5DC"
             },
             "muted_text_color": {
                 "type": "color",
                 "label": "Muted text color",
-                "default": "#64748B"
+                "default": "#8A7068"
             },
             "success_color": {
                 "type": "color",
@@ -64,7 +64,7 @@
             "warning_color": {
                 "type": "color",
                 "label": "Warning color",
-                "default": "#D97706"
+                "default": "#ff8c42"
             },
             "danger_color": {
                 "type": "color",

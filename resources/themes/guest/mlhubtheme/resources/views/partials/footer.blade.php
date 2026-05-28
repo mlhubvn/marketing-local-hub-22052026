@@ -11,7 +11,7 @@
                         {{ __("Experience every feature. No commitment, no credit card required.") }}
                     </h2>
                     <div class="mb-12 md:inline-block">
-                        <a href="{{ route("login") }}" class="py-4 px-6 w-full text-white font-semibold border border-indigo-700 rounded-xl shadow-4xl focus:ring focus:ring-indigo-300 bg-indigo-600 hover:bg-indigo-700 transition ease-in-out duration-200" type="button">
+                        <a href="{{ route("login") }}" class="py-4 px-6 w-full text-white font-semibold border border-[#e84a3a] rounded-xl shadow-4xl focus:ring focus:ring-[#ffb87a] bg-[#ff5f5f] hover:bg-[#e84a3a] transition ease-in-out duration-200" type="button">
                             {{ __("Get Started Now") }}
                         </a>
                     </div>
@@ -52,32 +52,32 @@
 
                 <ul class="flex flex-wrap -m-4 md:-m-9 p-4">
                     <li class="p-4 md:p-9">
-                        <a class="font-medium tracking-tight transition duration-200 text-gray-700 hover:text-gray-600 {{ request()->is('/') ? 'text-indigo-600' : '' }}" href="{{ url('') }}">
+                        <a class="font-medium tracking-tight transition duration-200 text-gray-700 hover:text-gray-600 {{ request()->is('/') ? 'text-[#ff5f5f]' : '' }}" href="{{ url('') }}">
                             {{ __("Home") }}
                         </a>
                     </li>
                     <li class="p-4 md:p-9">
-                        <a class="font-medium tracking-tight transition duration-200 text-gray-700 hover:text-gray-600 {{ (request()->is('/') && str_contains(request()->fullUrl(), '#features')) ? 'text-indigo-600' : '' }}" href="{{ url('') }}#features">
+                        <a class="font-medium tracking-tight transition duration-200 text-gray-700 hover:text-gray-600 {{ (request()->is('/') && str_contains(request()->fullUrl(), '#features')) ? 'text-[#ff5f5f]' : '' }}" href="{{ url('') }}#features">
                             {{ __("Features") }}
                         </a>
                     </li>
                     <li class="p-4 md:p-9">
-                        <a class="font-medium tracking-tight transition duration-200 text-gray-700 hover:text-gray-600 {{ request()->is('pricing*') ? 'text-indigo-600' : '' }}" href="{{ url('pricing') }}">
+                        <a class="font-medium tracking-tight transition duration-200 text-gray-700 hover:text-gray-600 {{ request()->is('pricing*') ? 'text-[#ff5f5f]' : '' }}" href="{{ url('pricing') }}">
                             {{ __("Pricing") }}
                         </a>
                     </li>
                     <li class="p-4 md:p-9">
-                        <a class="font-medium tracking-tight transition duration-200 text-gray-700 hover:text-gray-600 {{ request()->is('faqs*') ? 'text-indigo-600' : '' }}" href="{{ url('faqs') }}">
+                        <a class="font-medium tracking-tight transition duration-200 text-gray-700 hover:text-gray-600 {{ request()->is('faqs*') ? 'text-[#ff5f5f]' : '' }}" href="{{ url('faqs') }}">
                             {{ __("FAQs") }}
                         </a>
                     </li>
                     <li class="p-4 md:p-9">
-                        <a class="font-medium tracking-tight transition duration-200 text-gray-700 hover:text-gray-600 {{ request()->is('blogs*') ? 'text-indigo-600' : '' }}" href="{{ url('blogs') }}">
+                        <a class="font-medium tracking-tight transition duration-200 text-gray-700 hover:text-gray-600 {{ request()->is('blogs*') ? 'text-[#ff5f5f]' : '' }}" href="{{ url('blogs') }}">
                             {{ __("Blog") }}
                         </a>
                     </li>
                     <li class="p-4 md:p-9">
-                        <a class="font-medium tracking-tight transition duration-200 text-gray-700 hover:text-gray-600 {{ request()->is('contact*') ? 'text-indigo-600' : '' }}" href="{{ url('contact') }}">
+                        <a class="font-medium tracking-tight transition duration-200 text-gray-700 hover:text-gray-600 {{ request()->is('contact*') ? 'text-[#ff5f5f]' : '' }}" href="{{ url('contact') }}">
                             {{ __("Contact") }}
                         </a>
                     </li>
@@ -87,7 +87,7 @@
                     <div class="flex flex-wrap items-center -m-4">
                         @if(get_option("social_page_facebook", ""))
                             <div class="w-auto p-4">
-                                <a class="text-gray-800 hover:text-blue-600 transition duration-200" href="{{ get_option('social_page_facebook') }}" title="Facebook" target="_blank" rel="noopener">
+                                <a class="text-gray-800 hover:text-[#ff5f5f] transition duration-200" href="{{ get_option('social_page_facebook') }}" title="Facebook" target="_blank" rel="noopener">
                                     <i class="fab fa-facebook fa-lg"></i>
                                 </a>
                             </div>

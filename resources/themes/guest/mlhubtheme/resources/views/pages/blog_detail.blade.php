@@ -14,7 +14,7 @@
 		    <div class="mb-6">
 		        <div class="flex flex-wrap items-center gap-2 mb-4">
 		            @if($blogDetail->category)
-		                <span class="px-3 py-1 bg-indigo-100 text-indigo-800 text-sm font-medium rounded-lg">
+		                <span class="px-3 py-1 bg-[#fff0eb] text-[#e84a3a] text-sm font-medium rounded-lg">
 		                    {{ $blogDetail->category->name }}
 		                </span>
 		            @endif
@@ -39,13 +39,13 @@
 				    <h6 class="mb-6 text-lg font-bold font-heading leading-snug text-gray-900">{{ __("Categories") }}</h6>
 				    <ul class="space-y-3">
 				    	<li>
-			                <a href="{{ route('blogs') }}" class="text-base text-gray-600 hover:text-indigo-600 transition-colors">
+			                <a href="{{ route('blogs') }}" class="text-base text-gray-600 hover:text-[#ff5f5f] transition-colors">
 			                   {{ __("All Categories") }} ({{ $countPostBlog }})
 			                </a>
 			            </li>
 				        @foreach($categories as $cat)
 				            <li>
-				                <a href="{{ url('blogs/'.$cat->slug) }}" class="text-base text-gray-600 hover:text-indigo-600 transition-colors">
+				                <a href="{{ url('blogs/'.$cat->slug) }}" class="text-base text-gray-600 hover:text-[#ff5f5f] transition-colors">
 				                    {{ $cat->name }} ({{ $cat->articles_count }})
 				                </a>
 				            </li>
@@ -57,7 +57,7 @@
 				    <h3 class="text-xl font-bold text-gray-900 mb-4">{{ __("Popular Tags") }}</h3>
 				    <div class="flex flex-wrap gap-2">
 				        @foreach($tags as $tag)
-				            <a href="{{ url('blogs/tag/'.$tag->slug) }}" class="px-3 py-1 bg-indigo-100 hover:bg-indigo-200 text-indigo-800 text-sm font-medium rounded-lg transition duration-200">
+				            <a href="{{ url('blogs/tag/'.$tag->slug) }}" class="px-3 py-1 bg-[#fff0eb] hover:bg-[#ffe5dc] text-[#e84a3a] text-sm font-medium rounded-lg transition duration-200">
 				                {{ $tag->name }}
 				            </a>
 				        @endforeach
@@ -72,7 +72,7 @@
 				                <div class="flex gap-3">
 				                    <img src="{{ $blog->thumbnail ? Media::url($blog->thumbnail) : 'https://placehold.co/60x60' }}" alt="Post thumbnail" class="w-15 h-15 object-cover rounded-lg flex-shrink-0"/>
 				                    <div>
-				                        <h4 class="text-sm font-medium text-gray-900 group-hover:text-indigo-600 transition duration-200 line-clamp-2">
+				                        <h4 class="text-sm font-medium text-gray-900 group-hover:text-[#ff5f5f] transition duration-200 line-clamp-2">
 				                            {{ $blog->title }}
 				                        </h4>
 				                        <p class="text-xs text-gray-500 mt-1">
@@ -89,7 +89,7 @@
 	        <div class="order-1 lg:col-span-3">
 	            <article class="bg-white rounded-3xl border border-gray-200 shadow-sm p-8 md:p-10 mb-8">
 				    <img src="{{ $blogDetail->thumbnail ? Media::url($blogDetail->thumbnail) : 'https://placehold.co/800x400' }}" alt="Featured Image" class="w-full h-72 object-cover rounded-2xl mb-8"/>
-				    <div class="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-600 prose-li:text-gray-600 prose-a:text-indigo-600">
+				    <div class="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-600 prose-li:text-gray-600 prose-a:text-[#ff5f5f]">
 				        {!! $blogDetail->content !!}
 				    </div>
 				    @if($blogDetail->tags && count($blogDetail->tags))

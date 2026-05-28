@@ -16,17 +16,17 @@
             ['fa-chart-line', __('Reports & Analytics'), __('Track visits, leads, reviews, bookings, coupons, feedback, and conversion rate.')],
         ];
         $modules = [
-            ['fa-store', __('Businesses'), __('Profiles, locations and campaign-ready brand details.'), '#0f766e'],
+            ['fa-store', __('Businesses'), __('Profiles, locations and campaign-ready brand details.'), '#ff5f5f'],
             ['fa-star', __('Review Booster'), __('Route happy customers to public review sites.'), '#d09100'],
-            ['fa-calendar-check', __('Booking Pages'), __('Collect service requests from public booking pages.'), '#2563eb'],
+            ['fa-calendar-check', __('Booking Pages'), __('Collect service requests from public booking pages.'), '#ff5f5f'],
             ['fa-ticket', __('Coupons'), __('Create claimable offers with redemption tracking.'), '#8a5b00'],
-            ['fa-comments', __('Feedback Forms'), __('Capture private ratings, topics and recovery notes.'), '#0f766e'],
-            ['fa-address-card', __('Lead Forms'), __('Turn campaign traffic into customer records.'), '#7c3aed'],
-            ['fa-sparkles', __('AI Campaign Builder'), __('Generate copy, CTAs, FAQs and follow-up content.'), '#0f766e'],
+            ['fa-comments', __('Feedback Forms'), __('Capture private ratings, topics and recovery notes.'), '#ff5f5f'],
+            ['fa-address-card', __('Lead Forms'), __('Turn campaign traffic into customer records.'), '#ff7340'],
+            ['fa-sparkles', __('AI Campaign Builder'), __('Generate copy, CTAs, FAQs and follow-up content.'), '#ff5f5f'],
             ['fa-reply', __('AI Review Reply'), __('Draft on-brand responses for customer reviews.'), '#c2410c'],
-            ['fa-browser', __('Landing Pages'), __('Publish focused pages for each growth goal.'), '#0891b2'],
-            ['fa-qrcode', __('QR Codes'), __('Share campaigns offline and track scans.'), '#4d7c0f'],
-            ['fa-chart-line', __('Reports'), __('Measure visits, conversions and top campaigns.'), '#0f766e'],
+            ['fa-browser', __('Landing Pages'), __('Publish focused pages for each growth goal.'), '#ff8c42'],
+            ['fa-qrcode', __('QR Codes'), __('Share campaigns offline and track scans.'), '#ffb347'],
+            ['fa-chart-line', __('Reports'), __('Measure visits, conversions and top campaigns.'), '#ff5f5f'],
             ['fa-credit-card', __('Plans & Billing'), __('Manage limits, credits, teams and subscriptions.'), '#64748b'],
         ];
         $productHighlights = [
@@ -44,17 +44,17 @@
 
     <style>
         .lb-sales {
-            --lb-ink: #15201b;
-            --lb-muted: #63736b;
-            --lb-paper: #f7faf6;
-            --lb-soft: #edf5ef;
-            --lb-line: #dfe9df;
-            --lb-lime: #b8da16;
-            --lb-green: #0f766e;
-            --lb-dark: #10251f;
+            --lb-ink: #2d1810;
+            --lb-muted: #8a7068;
+            --lb-paper: #fffbf8;
+            --lb-soft: #fff5f0;
+            --lb-line: #ffe5dc;
+            --lb-lime: #ffb347;
+            --lb-green: #ff5f5f;
+            --lb-dark: #2d1810;
             background:
-                radial-gradient(circle at 78% 9%, rgba(184, 218, 22, .28), transparent 26rem),
-                radial-gradient(circle at 7% 18%, rgba(15, 118, 110, .13), transparent 24rem),
+                radial-gradient(circle at 78% 9%, rgba(255, 140, 66, .28), transparent 26rem),
+                radial-gradient(circle at 7% 18%, rgba(255, 95, 95, .13), transparent 24rem),
                 var(--lb-paper);
             color: var(--lb-ink);
             font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -94,16 +94,16 @@
         }
 
         .lb-pill {
-            border: 1px solid rgba(15, 118, 110, .18);
+            border: 1px solid rgba(255, 95, 95, .18);
             background: color-mix(in srgb, var(--lb-lime) 26%, #fff);
-            color: #506807;
+            color: #c43a3a;
         }
 
         .lb-button {
             border-radius: 999px;
-            background: var(--lb-green);
+            background: linear-gradient(135deg, #ff5f5f 0%, #ff8c42 100%);
             color: #fff;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 22px 48px -30px rgba(15,118,110,.9);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 22px 48px -30px rgba(255,95,95,.9);
             transition: transform .22s ease, box-shadow .22s ease;
         }
 
@@ -116,7 +116,7 @@
         .lb-button-soft {
             border-radius: 999px;
             background: color-mix(in srgb, var(--lb-lime) 28%, #fff);
-            color: #314708;
+            color: #a83232;
             transition: transform .22s ease, background .22s ease;
         }
 
@@ -145,8 +145,8 @@
             overflow: hidden;
             padding-block: clamp(4.5rem, 8vw, 7rem);
             background:
-                radial-gradient(circle at 18% 28%, rgba(15, 118, 110, .12), transparent 24rem),
-                radial-gradient(circle at 76% 42%, rgba(184, 218, 22, .2), transparent 22rem);
+                radial-gradient(circle at 18% 28%, rgba(255, 95, 95, .12), transparent 24rem),
+                radial-gradient(circle at 76% 42%, rgba(255, 140, 66, .2), transparent 22rem);
             color: var(--lb-ink);
         }
 
@@ -194,10 +194,10 @@
             width: .55rem;
             height: .55rem;
             border-radius: 999px;
-            background: var(--workflow-dot, #0f766e);
+            background: var(--workflow-dot, #ff5f5f);
             box-shadow:
-                0 0 0 4px color-mix(in srgb, var(--workflow-dot, #0f766e) 13%, transparent),
-                0 0 20px color-mix(in srgb, var(--workflow-dot, #0f766e) 52%, transparent);
+                0 0 0 4px color-mix(in srgb, var(--workflow-dot, #ff5f5f) 13%, transparent),
+                0 0 20px color-mix(in srgb, var(--workflow-dot, #ff5f5f) 52%, transparent);
         }
 
         .lb-reveal {
@@ -221,7 +221,7 @@
             inset: -1.5rem;
             z-index: -1;
             border-radius: 2rem;
-            background: radial-gradient(circle at 50% 0%, rgba(184,218,22,.34), transparent 55%);
+            background: radial-gradient(circle at 50% 0%, rgba(255,140,66,.34), transparent 55%);
             filter: blur(18px);
         }
 
@@ -305,8 +305,8 @@
             z-index: -1;
             border-radius: 1.5rem;
             background:
-                radial-gradient(circle at 18% 22%, rgba(15, 118, 110, .12), transparent 13rem),
-                radial-gradient(circle at 82% 78%, rgba(184, 218, 22, .2), transparent 12rem);
+                radial-gradient(circle at 18% 22%, rgba(255, 95, 95, .12), transparent 13rem),
+                radial-gradient(circle at 82% 78%, rgba(255, 140, 66, .2), transparent 12rem);
             filter: blur(12px);
         }
 
@@ -330,7 +330,7 @@
             position: absolute;
             inset: 0;
             z-index: -1;
-            background: linear-gradient(115deg, transparent 24%, rgba(184, 218, 22, .16) 48%, transparent 68%);
+            background: linear-gradient(115deg, transparent 24%, rgba(255, 140, 66, .16) 48%, transparent 68%);
             transform: translateX(-130%);
             animation: lb-card-sheen 5.4s ease-in-out infinite;
             animation-delay: calc(var(--lb-card-delay, 0ms) + 900ms);
@@ -397,8 +397,8 @@
             z-index: -1;
             border-radius: 2rem;
             background:
-                radial-gradient(circle at 50% 20%, rgba(184, 218, 22, .22), transparent 18rem),
-                radial-gradient(circle at 80% 80%, rgba(15, 118, 110, .12), transparent 16rem);
+                radial-gradient(circle at 50% 20%, rgba(255, 140, 66, .22), transparent 18rem),
+                radial-gradient(circle at 80% 80%, rgba(255, 95, 95, .12), transparent 16rem);
             filter: blur(14px);
         }
 
@@ -423,13 +423,13 @@
             width: 6rem;
             height: 6rem;
             border-radius: 999px;
-            background: color-mix(in srgb, var(--module-color, #0f766e) 12%, #fff);
+            background: color-mix(in srgb, var(--module-color, #ff5f5f) 12%, #fff);
         }
 
         .lb-suite-icon {
-            color: var(--module-color, #0f766e);
-            background: color-mix(in srgb, var(--module-color, #0f766e) 10%, #fff);
-            box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--module-color, #0f766e) 18%, transparent);
+            color: var(--module-color, #ff5f5f);
+            background: color-mix(in srgb, var(--module-color, #ff5f5f) 10%, #fff);
+            box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--module-color, #ff5f5f) 18%, transparent);
         }
 
         .lb-feature-showcase {
@@ -444,15 +444,15 @@
             z-index: -1;
             border-radius: 3rem;
             background:
-                radial-gradient(circle at 20% 18%, rgba(184, 218, 22, .22), transparent 18rem),
-                radial-gradient(circle at 78% 72%, rgba(15, 118, 110, .11), transparent 20rem);
+                radial-gradient(circle at 20% 18%, rgba(255, 140, 66, .22), transparent 18rem),
+                radial-gradient(circle at 78% 72%, rgba(255, 95, 95, .11), transparent 20rem);
             filter: blur(10px);
         }
 
         .lb-feature-hero {
             min-height: 100%;
             background:
-                linear-gradient(145deg, rgba(15, 118, 110, .08), rgba(184, 218, 22, .16)),
+                linear-gradient(145deg, rgba(255, 95, 95, .08), rgba(255, 140, 66, .16)),
                 #fffefb;
         }
 
@@ -498,8 +498,8 @@
             position: relative;
             overflow: hidden;
             background:
-                radial-gradient(circle at 12% 18%, rgba(15, 118, 110, .13), transparent 18rem),
-                radial-gradient(circle at 92% 88%, rgba(184, 218, 22, .28), transparent 16rem),
+                radial-gradient(circle at 12% 18%, rgba(255, 95, 95, .13), transparent 18rem),
+                radial-gradient(circle at 92% 88%, rgba(255, 140, 66, .28), transparent 16rem),
                 rgba(255, 255, 252, .92);
         }
 
@@ -512,7 +512,7 @@
         }
 
         .lb-proof-visual {
-            background: linear-gradient(145deg, rgba(15, 118, 110, .08), rgba(184, 218, 22, .16));
+            background: linear-gradient(145deg, rgba(255, 95, 95, .08), rgba(255, 140, 66, .16));
         }
 
         .lb-proof-node {
@@ -523,18 +523,18 @@
             position: relative;
             overflow: hidden;
             background:
-                radial-gradient(circle at 16% 12%, rgba(15, 118, 110, .14), transparent 18rem),
-                radial-gradient(circle at 84% 70%, rgba(184, 218, 22, .26), transparent 18rem),
+                radial-gradient(circle at 16% 12%, rgba(255, 95, 95, .14), transparent 18rem),
+                radial-gradient(circle at 84% 70%, rgba(255, 140, 66, .26), transparent 18rem),
                 rgba(255, 255, 252, .94);
         }
 
         .lb-final-preview {
-            background: linear-gradient(145deg, rgba(15, 118, 110, .08), rgba(184, 218, 22, .18));
+            background: linear-gradient(145deg, rgba(255, 95, 95, .08), rgba(255, 140, 66, .18));
         }
 
         .lb-mini-page {
             background:
-                radial-gradient(circle at 78% 12%, rgba(184, 218, 22, .24), transparent 8rem),
+                radial-gradient(circle at 78% 12%, rgba(255, 140, 66, .24), transparent 8rem),
                 #fffefb;
         }
 
@@ -650,13 +650,13 @@
             --lb-paper: #07111f;
             --lb-soft: #101d32;
             --lb-line: #25364d;
-            --lb-lime: #b8da16;
-            --lb-green: #14a399;
+            --lb-lime: #ffb347;
+            --lb-green: #ff7340;
             --lb-dark: #e8eef7;
             background:
-                linear-gradient(rgba(96, 165, 250, .05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(96, 165, 250, .05) 1px, transparent 1px),
-                radial-gradient(circle at 78% 9%, rgba(184, 218, 22, .12), transparent 26rem),
+                linear-gradient(rgba(255, 140, 66, .05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 140, 66, .05) 1px, transparent 1px),
+                radial-gradient(circle at 78% 9%, rgba(255, 140, 66, .12), transparent 26rem),
                 radial-gradient(circle at 7% 18%, rgba(20, 163, 153, .18), transparent 24rem),
                 linear-gradient(180deg, #07111f 0%, #0b1526 48%, #07111f 100%) !important;
             background-size: 36px 36px, 36px 36px, auto, auto, auto !important;
@@ -666,7 +666,7 @@
         html[data-theme-resolved='dark'] .lb-workflow-band {
             background:
                 radial-gradient(circle at 18% 28%, rgba(20, 163, 153, .18), transparent 24rem),
-                radial-gradient(circle at 76% 42%, rgba(184, 218, 22, .1), transparent 22rem),
+                radial-gradient(circle at 76% 42%, rgba(255, 140, 66, .1), transparent 22rem),
                 #07111f !important;
             color: var(--lb-ink) !important;
         }
@@ -686,7 +686,7 @@
         html[data-theme-resolved='dark'] .lb-proof-visual,
         html[data-theme-resolved='dark'] .lb-final-preview,
         html[data-theme-resolved='dark'] .lb-mini-page {
-            border-color: rgba(96, 165, 250, .22) !important;
+            border-color: rgba(255, 140, 66, .22) !important;
             background:
                 linear-gradient(180deg, rgba(15, 23, 42, .92), rgba(11, 21, 38, .86)) !important;
             box-shadow: 0 30px 90px -62px rgba(0, 0, 0, .86) !important;
@@ -694,9 +694,9 @@
 
         html[data-theme-resolved='dark'] .lb-pill,
         html[data-theme-resolved='dark'] .lb-button-soft {
-            border-color: rgba(184, 218, 22, .24) !important;
-            background: rgba(184, 218, 22, .14) !important;
-            color: #d9f75d !important;
+            border-color: rgba(255, 140, 66, .24) !important;
+            background: rgba(255, 140, 66, .14) !important;
+            color: #ffb347 !important;
         }
 
         html[data-theme-resolved='dark'] .lb-sales .bg-white,
@@ -708,17 +708,17 @@
         }
 
         html[data-theme-resolved='dark'] .lb-sales [style*="#fff"],
-        html[data-theme-resolved='dark'] .lb-sales [style*="#fbfaf5"],
-        html[data-theme-resolved='dark'] .lb-sales [style*="#f7faf6"],
+        html[data-theme-resolved='dark'] .lb-sales [style*="#fffbf8"],
+        html[data-theme-resolved='dark'] .lb-sales [style*="#fffbf8"],
         html[data-theme-resolved='dark'] .lb-sales [style*="#fffefb"],
         html[data-theme-resolved='dark'] .lb-sales [style*="white"] {
             background: rgba(15, 23, 42, .76) !important;
             border-color: var(--lb-line) !important;
         }
 
-        html[data-theme-resolved='dark'] .lb-sales [style*="color:#5f7f07"],
-        html[data-theme-resolved='dark'] .lb-sales [style*="color: #506807"],
-        html[data-theme-resolved='dark'] .lb-sales [style*="color:#506807"],
+        html[data-theme-resolved='dark'] .lb-sales [style*="color:#d64545"],
+        html[data-theme-resolved='dark'] .lb-sales [style*="color: #c43a3a"],
+        html[data-theme-resolved='dark'] .lb-sales [style*="color:#c43a3a"],
         html[data-theme-resolved='dark'] .lb-sales [style*="color: var(--lb-green)"] {
             color: #5eead4 !important;
         }
@@ -727,8 +727,8 @@
         html[data-theme-resolved='dark'] .lb-feature-row::after,
         html[data-theme-resolved='dark'] .lb-step-card::after {
             background:
-                radial-gradient(circle at 34% 34%, color-mix(in srgb, var(--module-color, var(--lb-green)) 26%, rgba(96, 165, 250, .12)), rgba(15, 23, 42, .72) 68%) !important;
-            border: 1px solid rgba(96, 165, 250, .16);
+                radial-gradient(circle at 34% 34%, color-mix(in srgb, var(--module-color, var(--lb-green)) 26%, rgba(255, 140, 66, .12)), rgba(15, 23, 42, .72) 68%) !important;
+            border: 1px solid rgba(255, 140, 66, .16);
             opacity: .72;
         }
 
@@ -737,7 +737,7 @@
         html[data-theme-resolved='dark'] .lb-page-icon {
             background: color-mix(in srgb, var(--module-color, var(--lb-green)) 18%, rgba(15, 23, 42, .82)) !important;
             color: #5eead4 !important;
-            box-shadow: inset 0 0 0 1px rgba(94, 234, 212, .18);
+            box-shadow: inset 0 0 0 1px rgba(255, 184, 122, .18);
         }
 
         html[data-theme-resolved='dark'] .lb-sales .text-neutral-950,
@@ -777,7 +777,7 @@
                         {{ __('Help local businesses get more reviews, bookings, leads, coupon claims and repeat customers.') }}
                     </h2>
                     <p class="lb-reveal mt-5 max-w-xl text-base leading-8" style="--lb-delay: 210ms; color: var(--lb-muted);">
-                        {{ __('LocalBoost AI helps restaurants, salons, clinics, gyms and local shops publish campaign pages, collect customers, generate AI copy, share QR codes and track real growth from one dashboard.') }}
+                        {{ __('MLHUB helps restaurants, salons, clinics, gyms and local shops publish campaign pages, collect customers, generate AI copy, share QR codes and track real growth from one dashboard.') }}
                     </p>
 
                     <div class="lb-reveal mt-8 flex flex-wrap gap-3" style="--lb-delay: 280ms;">
@@ -800,19 +800,19 @@
 
                 <div class="lb-glow lb-reveal relative" style="--lb-delay: 240ms;">
                     <div class="lb-window relative z-10 overflow-hidden rounded-2xl">
-                        <div class="flex items-center justify-between border-b px-5 py-4" style="border-color: var(--lb-line); background: #fbfaf5;">
+                        <div class="flex items-center justify-between border-b px-5 py-4" style="border-color: var(--lb-line); background: #fffbf8;">
                             <div class="flex items-center gap-1.5">
                                 <span class="lb-dot bg-red-400"></span>
                                 <span class="lb-dot bg-amber-400"></span>
                                 <span class="lb-dot bg-lime-500"></span>
                             </div>
-                            <span class="rounded-full px-3 py-1 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color: #506807;">{{ __('Live dashboard') }}</span>
+                            <span class="rounded-full px-3 py-1 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color: #c43a3a;">{{ __('Live dashboard') }}</span>
                         </div>
                         <div class="grid gap-0 lg:grid-cols-[5.2rem_minmax(0,1fr)]">
                             <aside class="hidden border-r px-4 py-3 lg:block" style="border-color: var(--lb-line); background: var(--lb-soft);">
                                 <div class="grid justify-items-center gap-3">
                                     @foreach (['fa-house', 'fa-store', 'fa-star', 'fa-ticket', 'fa-chart-line'] as $index => $icon)
-                                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl {{ $index === 2 ? 'text-white' : '' }}" style="{{ $index === 2 ? 'background: var(--lb-green);' : 'background:#fff; color:#5f7f07;' }}">
+                                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl {{ $index === 2 ? 'text-white' : '' }}" style="{{ $index === 2 ? 'background: var(--lb-green);' : 'background:#fff; color:#d64545;' }}">
                                             <i class="fa-light {{ $icon }}"></i>
                                         </span>
                                     @endforeach
@@ -824,7 +824,7 @@
                                         <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ __('Growth dashboard') }}</p>
                                         <h3 class="mt-2 text-2xl font-black">{{ __('Campaign Performance') }}</h3>
                                     </div>
-                                    <span class="rounded-full px-3 py-1.5 text-xs font-black" style="background: #dcfce7; color: #047857;">{{ __('Active') }}</span>
+                                    <span class="rounded-full px-3 py-1.5 text-xs font-black" style="background: #fff0eb; color: #e84a3a;">{{ __('Active') }}</span>
                                 </div>
 
                                 <div class="mt-5 grid gap-3 sm:grid-cols-4">
@@ -848,7 +848,7 @@
                                         @foreach ([['Review Booster', '4.9', 'avg'], ['Booking Page', '8', 'new'], ['Coupon Claims', '23', 'used']] as $item)
                                             <div class="rounded-xl border bg-white p-3" style="border-color: var(--lb-line);">
                                                 <p class="text-xs font-black">{{ __($item[0]) }}</p>
-                                                <p class="mt-2 text-lg font-black" style="color: #0f766e;">{{ $item[1] }} {{ __($item[2]) }}</p>
+                                                <p class="mt-2 text-lg font-black" style="color: #ff5f5f;">{{ $item[1] }} {{ __($item[2]) }}</p>
                                             </div>
                                         @endforeach
                                     </div>
@@ -863,7 +863,7 @@
                     </div>
                     <div class="lb-card lb-float absolute -right-4 top-10 z-20 hidden rounded-xl p-4 shadow-xl md:block" style="--lb-delay: 420ms;">
                         <p class="text-xs font-black">{{ __('Coupon Claims') }}</p>
-                        <p class="mt-1 text-xl font-black" style="color: #0f766e;">+42</p>
+                        <p class="mt-1 text-xl font-black" style="color: #ff5f5f;">+42</p>
                     </div>
                 </div>
             </div>
@@ -904,8 +904,8 @@
                         ['fa-users', __('Customers'), __('Profiles from every submit')],
                     ];
                     $workflowDotPalettes = [
-                        ['#0f766e', '#84cc16', '#14b8a6', '#d99b00', '#5b8c04', '#0891b2', '#0d9488', '#a3c30f', '#c08400'],
-                        ['#0891b2', '#0f766e', '#b4d513', '#65a30d', '#14b8a6', '#c08400', '#4d7c0f', '#0d9488'],
+                        ['#ff5f5f', '#84cc16', '#ff8c42', '#d99b00', '#5b8c04', '#ff8c42', '#ff7340', '#a3c30f', '#c08400'],
+                        ['#ff8c42', '#ff5f5f', '#ffb347', '#65a30d', '#ff8c42', '#c08400', '#ffb347', '#ff7340'],
                     ];
                 @endphp
 
@@ -978,7 +978,7 @@
                     @foreach ($coreFeatures as $feature)
                         <article class="lb-card lb-feature-row lb-hover rounded-2xl p-5">
                             <div class="relative z-10 flex items-start gap-4">
-                                <span class="lb-feature-icon inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color:#5f7f07;">
+                                <span class="lb-feature-icon inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color:#d64545;">
                                     <i class="fa-light {{ $feature[0] }} text-xl"></i>
                                 </span>
                                 <div>
@@ -1013,7 +1013,7 @@
                                 </span>
                                 <div class="flex items-center gap-3">
                                     <span class="text-sm font-black" style="color: var(--lb-muted);">{{ __('Step') }}</span>
-                                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full text-sm font-black" style="background: color-mix(in srgb, var(--lb-lime) 34%, #fff); color: #506807;">{{ $step[0] }}</span>
+                                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full text-sm font-black" style="background: color-mix(in srgb, var(--lb-lime) 34%, #fff); color: #c43a3a;">{{ $step[0] }}</span>
                                 </div>
                             </div>
                             <h3 class="relative z-10 mt-6 text-xl font-black">{{ $step[2] }}</h3>
@@ -1050,7 +1050,7 @@
                         <div class="relative z-10 grid gap-4 sm:grid-cols-2">
                         @foreach ([['fa-star', __('Review Page')], ['fa-calendar-check', __('Booking Page')], ['fa-ticket', __('Coupon Page')], ['fa-address-card', __('Lead Page')]] as $page)
                             <div class="lb-page-card rounded-xl border bg-white p-5" style="border-color: var(--lb-line); --lb-card-delay: {{ $loop->index * 120 }}ms;">
-                                <span class="lb-page-icon inline-flex h-11 w-11 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-green) 9%, #fff); color: #0f766e;">
+                                <span class="lb-page-icon inline-flex h-11 w-11 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-green) 9%, #fff); color: #ff5f5f;">
                                     <i class="fa-light {{ $page[0] }} text-2xl"></i>
                                 </span>
                                 <h3 class="mt-5 text-xl font-black">{{ $page[1] }}</h3>
@@ -1090,7 +1090,7 @@
                         </div>
                         <div class="mt-5 grid grid-cols-3 gap-2 text-center">
                             @foreach ([__('Capture'), __('Convert'), __('Track')] as $label)
-                                <span class="rounded-full px-3 py-2 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 22%, #fff); color: #506807;">{{ $label }}</span>
+                                <span class="rounded-full px-3 py-2 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 22%, #fff); color: #c43a3a;">{{ $label }}</span>
                             @endforeach
                         </div>
                     </div>
@@ -1120,7 +1120,7 @@
                     <div class="relative z-10">
                         <span class="lb-pill inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Campaign workflow') }}</span>
                         <h2 class="lb-serif lb-heading">{{ __('One flow from campaign idea to real customer action') }}</h2>
-                        <p class="mt-5 text-base leading-8" style="color: var(--lb-muted);">{{ __('LocalBoost AI turns a local marketing goal into a public campaign page, a QR code, customer capture, AI content and measurable reports in one connected workflow.') }}</p>
+                        <p class="mt-5 text-base leading-8" style="color: var(--lb-muted);">{{ __('MLHUB turns a local marketing goal into a public campaign page, a QR code, customer capture, AI content and measurable reports in one connected workflow.') }}</p>
                         <div class="lb-proof-visual mt-8 rounded-2xl border p-5" style="border-color: var(--lb-line);">
                             <div class="grid gap-3 sm:grid-cols-3">
                                 @foreach ([['fa-bullhorn', __('Campaign')], ['fa-browser', __('Public Page')], ['fa-user-plus', __('Customer')]] as $node)
@@ -1165,7 +1165,7 @@
                     <div>
                         <span class="lb-pill inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Launch your next campaign') }}</span>
                         <h2 class="lb-serif lb-heading mt-5 max-w-3xl">{{ __('Ready to turn local traffic into reviews, bookings and leads?') }}</h2>
-                        <p class="mt-5 max-w-2xl text-base leading-8" style="color: var(--lb-muted);">{{ __('Create campaign pages for reviews, bookings, coupons, leads and feedback, then share them with public links and QR codes while LocalBoost AI tracks every result.') }}</p>
+                        <p class="mt-5 max-w-2xl text-base leading-8" style="color: var(--lb-muted);">{{ __('Create campaign pages for reviews, bookings, coupons, leads and feedback, then share them with public links and QR codes while MLHUB tracks every result.') }}</p>
                         <div class="mt-8 flex flex-wrap gap-3">
                             <a href="{{ $demoHref }}" class="lb-button inline-flex items-center justify-center gap-2 px-6 py-4 text-sm font-black">
                                 <i class="fa-light fa-rocket-launch"></i>
@@ -1200,7 +1200,7 @@
                                         <span class="block h-2.5 w-2/3 rounded-full" style="background: var(--lb-line);"></span>
                                     </div>
                                     <div class="mt-4 flex items-center justify-between gap-3">
-                                        <span class="rounded-full px-4 py-2 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 38%, #fff); color:#506807;">{{ __('Leave a review') }}</span>
+                                        <span class="rounded-full px-4 py-2 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 38%, #fff); color:#c43a3a;">{{ __('Leave a review') }}</span>
                                         <span class="text-xs font-black" style="color: var(--lb-muted);">/r/weekend</span>
                                     </div>
                                 </div>

@@ -6,7 +6,7 @@
         </div>
 
         @if (session('status'))
-            <p class="text-center text-sm font-medium text-emerald-600">{{ session('status') }}</p>
+            <p class="text-center text-sm font-medium text-[#ff8c42]">{{ session('status') }}</p>
         @endif
 
         <form method="POST" action="{{ route('password.confirm.store') }}" class="flex flex-col gap-6">

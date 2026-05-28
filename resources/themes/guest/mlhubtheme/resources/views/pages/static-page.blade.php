@@ -17,14 +17,14 @@
 
     <style>
         .lb-static-eyebrow {
-            border-color: color-mix(in srgb, var(--theme-border-color, #dfe9df) 88%, transparent);
-            background: color-mix(in srgb, #b8da16 18%, #fff);
+            border-color: color-mix(in srgb, var(--theme-border-color, #ffe5dc) 88%, transparent);
+            background: color-mix(in srgb, #ffb347 18%, #fff);
             color: #4f6907;
-            box-shadow: 0 12px 34px -28px rgba(15, 118, 110, .45);
+            box-shadow: 0 12px 34px -28px rgba(255, 95, 95, .45);
         }
 
         .lb-static-tabs {
-            border-color: color-mix(in srgb, var(--theme-border-color, #dfe9df) 88%, transparent);
+            border-color: color-mix(in srgb, var(--theme-border-color, #ffe5dc) 88%, transparent);
             background: rgba(255, 255, 252, .86);
             box-shadow: 0 16px 42px -32px rgba(16, 37, 31, .42);
         }
@@ -34,25 +34,25 @@
         }
 
         .lb-static-tab:hover {
-            background: color-mix(in srgb, #0f766e 8%, #fff);
-            color: #0f766e;
+            background: color-mix(in srgb, #ff5f5f 8%, #fff);
+            color: #ff5f5f;
         }
 
         .lb-static-tab.is-active {
-            background: #0f766e;
+            background: #ff5f5f;
             color: #fff;
-            box-shadow: 0 12px 28px -20px rgba(15, 118, 110, .72);
+            box-shadow: 0 12px 28px -20px rgba(255, 95, 95, .72);
         }
 
         .lb-static-content a,
         .lb-static-content.prose a {
-            color: #0f766e;
+            color: #ff5f5f;
         }
 
         html[data-theme-resolved='dark'] .lb-static-eyebrow {
-            border-color: rgba(184, 218, 22, .22) !important;
-            background: rgba(184, 218, 22, .12) !important;
-            color: #d9f75d !important;
+            border-color: rgba(255, 140, 66, .22) !important;
+            background: rgba(255, 140, 66, .12) !important;
+            color: #ffb347 !important;
         }
 
         html[data-theme-resolved='dark'] .lb-static-tabs,
@@ -60,7 +60,7 @@
         html[data-theme-resolved='dark'] .lb-static-content [class*="bg-white"],
         html[data-theme-resolved='dark'] .guest-static-content [style*="#fff"],
         html[data-theme-resolved='dark'] .guest-static-content [style*="255, 255, 255"] {
-            border-color: rgba(96, 165, 250, .22) !important;
+            border-color: rgba(255, 140, 66, .22) !important;
             background: rgba(15, 23, 42, .82) !important;
             color: #e8eef7 !important;
         }
@@ -70,7 +70,7 @@
         }
 
         html[data-theme-resolved='dark'] .lb-static-tab.is-active {
-            background: #0f766e !important;
+            background: #ff5f5f !important;
             color: #fff !important;
         }
 
@@ -94,7 +94,7 @@
             <h1 class="mt-6 max-w-4xl text-5xl font-extrabold leading-[1.02] tracking-[-0.07em] text-slate-950 md:text-6xl">{{ $pageTitle }}</h1>
             <p class="mt-5 max-w-3xl text-base leading-8 text-slate-600">
                 {{ $pageType === 'social'
-                    ? __('Public destinations connected to the LocalBoostAI brand.')
+                    ? __('Public destinations connected to the MLHUB brand.')
                     : __('Clear public information for customers, buyers, and operators reviewing the platform.') }}
             </p>
 
@@ -121,7 +121,7 @@
                                 @foreach ($socialLinks as $link)
                                     <a href="{{ $link['url'] }}" target="_blank" rel="noopener noreferrer" class="localboost-card localboost-hover-lift rounded-[1.2rem] p-5">
                                         <div class="flex items-center gap-4">
-                                            <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-[0.9rem]" style="background: color-mix(in srgb, #0f766e 9%, #fff); color: #0f766e;">
+                                            <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-[0.9rem]" style="background: color-mix(in srgb, #ff5f5f 9%, #fff); color: #ff5f5f;">
                                                 <i class="{{ $link['icon'] }} text-xl"></i>
                                             </span>
                                             <div class="min-w-0">

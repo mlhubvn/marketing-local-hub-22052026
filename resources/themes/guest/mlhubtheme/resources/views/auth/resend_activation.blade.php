@@ -14,7 +14,7 @@
         </div>
         <form class="actionForm relative w-full space-y-5 bg-white rounded-3xl border border-white shadow-2xl p-8 md:p-12" action="{{ module_url('do_resend_activation') }}" method="POST">
             <div class="mb-10 text-center">
-                <span class="inline-flex items-center px-4 py-2 mb-5 text-xs font-semibold uppercase tracking-widest rounded-full" style="background-color:#eef2ff;color:#4338ca; letter-spacing:0.22em;">
+                <span class="inline-flex items-center px-4 py-2 mb-5 text-xs font-semibold uppercase tracking-widest rounded-full" style="background-color:#fff0eb;color:#e84a3a; letter-spacing:0.22em;">
                     {{ __("Activate account") }}
                 </span>
                 <h1 class="mb-4 font-bold font-heading tracking-tight text-gray-900" style="font-size:2.5rem; line-height:1.1;">{{ __("Resend activation email") }}</h1>
@@ -23,14 +23,14 @@
 
             <div>
                 <label for="email" class="block text-gray-700 font-semibold mb-2">{{ __("Email Address") }}</label>
-                <input type="email" id="email" name="email" class="w-full px-4 py-3.5 text-gray-700 font-medium bg-white border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 outline-none" placeholder="{{ __('Enter your email address') }}" required>
+                <input type="email" id="email" name="email" class="w-full px-4 py-3.5 text-gray-700 font-medium bg-white border border-gray-300 rounded-lg focus:ring focus:ring-[#ffb87a] outline-none" placeholder="{{ __('Enter your email address') }}" required>
             </div>
 
             <div class="flex items-center">
                 <input class="w-4 h-4" id="accept_terms" name="accept_terms" type="checkbox" value="1" required>
                 <label class="ml-2 text-gray-700 font-medium" for="accept_terms">
                     <span>{{ __("I agree to the") }}</span>
-                    <a class="text-indigo-600 hover:text-indigo-700" href="{{ url('terms-of-service') }}">{{ __("Terms & Conditions") }}</a>
+                    <a class="text-[#ff5f5f] hover:text-[#e84a3a]" href="{{ url('terms-of-service') }}">{{ __("Terms & Conditions") }}</a>
                 </label>
             </div>
 
@@ -40,7 +40,7 @@
 
             <div class="msg-error mb-2"></div>
 
-            <button type="submit" class="mb-6 py-4 px-9 w-full text-white text-lg font-semibold border border-indigo-700 rounded-2xl shadow-4xl focus:ring focus:ring-indigo-300 bg-indigo-600 hover:bg-indigo-700 transition ease-in-out duration-200">
+            <button type="submit" class="mb-6 py-4 px-9 w-full text-white text-lg font-semibold border border-[#e84a3a] rounded-2xl shadow-4xl focus:ring focus:ring-[#ffb87a] bg-[#ff5f5f] hover:bg-[#e84a3a] transition ease-in-out duration-200">
                 {{ __("Resend Activation Email") }}
             </button>
         </form>

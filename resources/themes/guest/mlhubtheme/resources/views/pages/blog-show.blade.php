@@ -1,7 +1,7 @@
 @component(theme_view('layouts.marketing', 'guest'), ['pageTitle' => $pageTitle])
     <article class="localboost-shell localboost-section pt-10">
         <div class="mx-auto max-w-5xl">
-            <a href="{{ route('guest.blogs') }}" class="inline-flex items-center rounded-full border bg-white px-4 py-2 text-sm font-bold text-slate-600 transition hover:text-blue-700" style="border-color: rgba(var(--theme-border-color-rgb),0.82);">
+            <a href="{{ route('guest.blogs') }}" class="inline-flex items-center rounded-full border bg-white px-4 py-2 text-sm font-bold text-slate-600 transition hover:text-[#ff5f5f]" style="border-color: rgba(var(--theme-border-color-rgb),0.82);">
                 <i class="fa-light fa-arrow-left mr-2"></i>
                 {{ __('Back to blog') }}
             </a>
@@ -9,7 +9,7 @@
             <header class="mt-8">
                 <div class="flex flex-wrap items-center gap-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
                     @if ($blog->category)
-                        <span class="rounded-full bg-blue-50 px-3 py-1 text-blue-700">{{ $blog->category->nameForLocale() }}</span>
+                        <span class="rounded-full bg-blue-50 px-3 py-1 text-[#ff5f5f]">{{ $blog->category->nameForLocale() }}</span>
                     @endif
                     <span>{{ $blog->publishedAtFormatted('M d, Y') ?: $blog->createdAtFormatted('M d, Y') }}</span>
                 </div>
@@ -37,7 +37,7 @@
 
             <div class="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
                 <div class="localboost-card rounded-[1.5rem] p-6 sm:p-8">
-                    <div class="prose prose-slate max-w-none prose-headings:tracking-[-0.04em] prose-a:text-blue-700">
+                    <div class="prose prose-slate max-w-none prose-headings:tracking-[-0.04em] prose-a:text-[#ff5f5f]">
                         {!! $blog->normalizedContentForLocale() !!}
                     </div>
                 </div>
@@ -52,8 +52,8 @@
                     <div class="localboost-card rounded-[1.25rem] p-5">
                         <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">{{ __('Explore') }}</p>
                         <div class="mt-4 grid gap-2">
-                            <a href="{{ route('guest.faqs') }}" class="rounded-[0.9rem] bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700 hover:text-blue-700">{{ __('FAQs') }}</a>
-                            <a href="{{ route('guest.contact') }}" class="rounded-[0.9rem] bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700 hover:text-blue-700">{{ __('Contact') }}</a>
+                            <a href="{{ route('guest.faqs') }}" class="rounded-[0.9rem] bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700 hover:text-[#ff5f5f]">{{ __('FAQs') }}</a>
+                            <a href="{{ route('guest.contact') }}" class="rounded-[0.9rem] bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700 hover:text-[#ff5f5f]">{{ __('Contact') }}</a>
                         </div>
                     </div>
                 </aside>
@@ -65,7 +65,7 @@
         <section class="localboost-shell pb-14">
             <div class="flex items-end justify-between gap-4">
                 <div>
-                    <p class="text-xs font-bold uppercase tracking-[0.2em] text-blue-700">{{ __('Related') }}</p>
+                    <p class="text-xs font-bold uppercase tracking-[0.2em] text-[#ff5f5f]">{{ __('Related') }}</p>
                     <h2 class="mt-3 text-3xl font-extrabold tracking-[-0.05em] text-slate-950">{{ __('More operating notes') }}</h2>
                 </div>
                 <a href="{{ route('guest.blogs') }}" class="localboost-button-secondary hidden rounded-[var(--theme-button-radius)] px-5 py-3 text-sm font-bold md:inline-flex">{{ __('All posts') }}</a>

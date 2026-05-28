@@ -30,7 +30,7 @@
 
         @for ($i = max(1, $currentPage - $showPages); $i <= min($lastPage, $currentPage + $showPages); $i++)
             @if ($i == $currentPage)
-                <span class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-xl shadow-sm">{{ $i }}</span>
+                <span class="px-4 py-2 bg-[#ff5f5f] text-white font-semibold rounded-xl shadow-sm">{{ $i }}</span>
             @else
                 <a href="{{ $paginator->url($i) }}" class="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-white border border-transparent hover:border-gray-200 rounded-xl transition-colors">
                     {{ $i }}

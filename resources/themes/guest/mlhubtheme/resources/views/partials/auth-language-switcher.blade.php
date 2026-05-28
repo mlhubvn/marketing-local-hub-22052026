@@ -33,7 +33,7 @@
                 @endphp
                 <a
                     href="{{ route('language.switch', $language->code) }}"
-                    class="guest-marketing-language-option no-theme-link flex items-center gap-3 rounded-[1rem] px-3 py-3 text-sm font-medium transition {{ $isActiveLanguage ? 'bg-emerald-500 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]' : '' }}"
+                    class="guest-marketing-language-option no-theme-link flex items-center gap-3 rounded-[1rem] px-3 py-3 text-sm font-medium transition {{ $isActiveLanguage ? 'bg-[#ff8c42] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]' : '' }}"
                     @unless($isActiveLanguage)
                         style="color: var(--theme-header-text-color);"
                     @endunless

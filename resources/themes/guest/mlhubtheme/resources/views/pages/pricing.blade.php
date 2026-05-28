@@ -20,7 +20,7 @@
             width: 28rem;
             height: 28rem;
             border-radius: 999px;
-            background: radial-gradient(circle, rgba(184, 218, 22, .22), transparent 68%);
+            background: radial-gradient(circle, rgba(255, 140, 66, .22), transparent 68%);
             filter: blur(12px);
         }
 
@@ -61,7 +61,7 @@
 
         .lb-feature-value {
             background: color-mix(in srgb, var(--lb-lime) 28%, #fff);
-            color: #506807;
+            color: #c43a3a;
         }
 
         .lb-plan-toggle {
@@ -72,8 +72,8 @@
             position: relative;
             overflow: hidden;
             background:
-                radial-gradient(circle at 12% 18%, rgba(15, 118, 110, .11), transparent 18rem),
-                radial-gradient(circle at 88% 80%, rgba(184, 218, 22, .22), transparent 18rem),
+                radial-gradient(circle at 12% 18%, rgba(255, 95, 95, .11), transparent 18rem),
+                radial-gradient(circle at 88% 80%, rgba(255, 140, 66, .22), transparent 18rem),
                 rgba(255, 255, 252, .92);
         }
 
@@ -122,7 +122,7 @@
         html[data-theme-resolved='dark'] .lb-pricing-card [style*="255, 255, 255"],
         html[data-theme-resolved='dark'] .lb-limit-panel [class*="bg-white"],
         html[data-theme-resolved='dark'] .lb-limit-panel [style*="#fff"] {
-            border-color: rgba(96, 165, 250, .22) !important;
+            border-color: rgba(255, 140, 66, .22) !important;
             background:
                 linear-gradient(180deg, rgba(15, 23, 42, .92), rgba(11, 21, 38, .86)) !important;
             color: #e8eef7 !important;
@@ -130,14 +130,14 @@
         }
 
         html[data-theme-resolved='dark'] .lb-feature-value,
-        html[data-theme-resolved='dark'] .lb-pricing-card [style*="color: #506807"],
-        html[data-theme-resolved='dark'] .lb-pricing-card [style*="color:#506807"] {
-            background: rgba(184, 218, 22, .14) !important;
-            color: #d9f75d !important;
+        html[data-theme-resolved='dark'] .lb-pricing-card [style*="color: #c43a3a"],
+        html[data-theme-resolved='dark'] .lb-pricing-card [style*="color:#c43a3a"] {
+            background: rgba(255, 140, 66, .14) !important;
+            color: #ffb347 !important;
         }
 
         html[data-theme-resolved='dark'] .lb-limit-meter::after {
-            background: linear-gradient(90deg, transparent, rgba(94, 234, 212, .26), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 184, 122, .26), transparent);
         }
     </style>
 
@@ -157,7 +157,7 @@
                     <div class="lb-card lb-plan-toggle lb-reveal w-max max-w-full justify-self-start rounded-full p-1.5 lg:justify-self-end" style="--lb-delay: 120ms;">
                         <div class="inline-flex max-w-full flex-wrap gap-1">
                             @foreach ($planTypes as $typeKey => $typeLabel)
-                                <button type="button" x-on:click="type = {{ $typeKey }}" class="rounded-full px-5 py-3 text-sm font-black transition" x-bind:class="type === {{ $typeKey }} ? 'text-white' : 'text-neutral-500 hover:bg-neutral-100'" x-bind:style="type === {{ $typeKey }} ? 'background:#5f7f07;' : ''">
+                                <button type="button" x-on:click="type = {{ $typeKey }}" class="rounded-full px-5 py-3 text-sm font-black transition" x-bind:class="type === {{ $typeKey }} ? 'text-white' : 'text-neutral-500 hover:bg-neutral-100'" x-bind:style="type === {{ $typeKey }} ? 'background:#d64545;' : ''">
                                     {{ $typeLabel }}
                                 </button>
                             @endforeach
@@ -293,7 +293,7 @@
                                             </div>
                                             <div class="flex items-center gap-2">
                                                 @if(($feature['display'] ?? null) !== null && ($feature['display'] ?? '') !== '')
-                                                    <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-black" style="background: color-mix(in srgb, var(--lb-lime) 28%, #fff); color: #506807;">
+                                                    <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-black" style="background: color-mix(in srgb, var(--lb-lime) 28%, #fff); color: #c43a3a;">
                                                         {{ is_string($feature['display']) ? __($feature['display']) : $feature['display'] }}
                                                     </span>
                                                 @endif

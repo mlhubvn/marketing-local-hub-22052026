@@ -17,37 +17,37 @@
                         <ul class="flex items-center mr-16">
                             <li class="mr-9 font-medium hover:text-gray-700">
                                 <a href="{{ url('') }}"
-                                   class="{{ request()->is('/') ? 'text-indigo-600 font-bold' : '' }}">
+                                   class="{{ request()->is('/') ? 'text-[#ff5f5f] font-bold' : '' }}">
                                     {{ __("Home") }}
                                 </a>
                             </li>
                             <li class="mr-9 font-medium hover:text-gray-700">
                                 <a href="{{ url('') }}#features"
-                                   class="{{ request()->is('/') && str_contains(request()->fullUrl(), '#features') ? 'text-indigo-600' : '' }}">
+                                   class="{{ request()->is('/') && str_contains(request()->fullUrl(), '#features') ? 'text-[#ff5f5f]' : '' }}">
                                     {{ __("Features") }}
                                 </a>
                             </li>
                             <li class="mr-9 font-medium hover:text-gray-700">
                                 <a href="{{ url('pricing') }}"
-                                   class="{{ request()->is('pricing*') ? 'text-indigo-600' : '' }}">
+                                   class="{{ request()->is('pricing*') ? 'text-[#ff5f5f]' : '' }}">
                                     {{ __("Pricing") }}
                                 </a>
                             </li>
                             <li class="mr-9 font-medium hover:text-gray-700">
                                 <a href="{{ url('faqs') }}"
-                                   class="{{ request()->is('faqs*') ? 'text-indigo-600' : '' }}">
+                                   class="{{ request()->is('faqs*') ? 'text-[#ff5f5f]' : '' }}">
                                     {{ __("FAQs") }}
                                 </a>
                             </li>
                             <li class="mr-9 font-medium hover:text-gray-700">
                                 <a href="{{ url('blogs') }}"
-                                   class="{{ request()->is('blogs*') ? 'text-indigo-600' : '' }}">
+                                   class="{{ request()->is('blogs*') ? 'text-[#ff5f5f]' : '' }}">
                                     {{ __("Blog") }}
                                 </a>
                             </li>
                             <li class="mr-9 font-medium hover:text-gray-700">
                                 <a href="{{ url('contact') }}"
-                                   class="{{ request()->is('contact*') ? 'text-indigo-600' : '' }}">
+                                   class="{{ request()->is('contact*') ? 'text-[#ff5f5f]' : '' }}">
                                     {{ __("Contact") }}
                                 </a>
                             </li>
@@ -79,7 +79,7 @@
                                         <li>
                                             <a
                                                 href="{{ url('lang/' . $language->code) }}"
-                                                class="flex items-center gap-2 {{ $currentLang == $language->code ? 'bg-indigo-600 text-white font-semibold' : 'font-medium' }}"
+                                                class="flex items-center gap-2 {{ $currentLang == $language->code ? 'bg-[#ff5f5f] text-white font-semibold' : 'font-medium' }}"
                                             >
                                                 @if($language->icon)
                                                     <span class="size-4 text-center d-block -mt-1"><i class="{{ $language->icon }}"></i></span>
@@ -94,7 +94,7 @@
 
                             @if(Auth::check())
                                 <div class="w-auto mr-5 hidden lg:block">
-                                    <a href="{{ url('app/dashboard') }}" class="py-3 px-5 w-full text-white font-semibold rounded-xl focus:ring focus:ring-indigo-300 bg-indigo-600 hover:bg-indigo-700 transition ease-in-out duration-200">
+                                    <a href="{{ url('app/dashboard') }}" class="py-3 px-5 w-full text-white font-semibold rounded-xl focus:ring focus:ring-[#ffb87a] bg-[#ff5f5f] hover:bg-[#e84a3a] transition ease-in-out duration-200">
                                         {{ __('Dashboard') }}
                                     </a>
                                 </div>
@@ -106,7 +106,7 @@
                                 </div>
                                 @if(get_option("auth_signup_page_status", 1))
                                 <div class="w-auto hidden lg:block">
-                                    <a href="{{ url('auth/signup') }}" class="py-3 px-5 w-full text-white font-semibold rounded-xl focus:ring focus:ring-indigo-300 bg-indigo-600 hover:bg-indigo-700 transition ease-in-out duration-200">
+                                    <a href="{{ url('auth/signup') }}" class="py-3 px-5 w-full text-white font-semibold rounded-xl focus:ring focus:ring-[#ffb87a] bg-[#ff5f5f] hover:bg-[#e84a3a] transition ease-in-out duration-200">
                                         {{ __("Sign Up") }}
                                     </a>
                                 </div>
@@ -116,7 +116,7 @@
                     </div>
                     <div class="w-auto lg:hidden">
                         <button x-on:click="mobileNavOpen = !mobileNavOpen">
-                            <svg class="text-indigo-600" width="51" height="51" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <svg class="text-[#ff5f5f]" width="51" height="51" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <rect width="56" height="56" rx="28" fill="currentColor"></rect>
                                 <path d="M37 32H19M37 24H19" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                             </svg>
@@ -150,37 +150,37 @@
                     <div class="flex flex-col justify-center py-16 w-full">
                         <ul>
                             <li class="mb-12">
-                                <a class="font-medium hover:text-gray-700 {{ request()->is('/') ? 'text-indigo-600' : '' }}"
+                                <a class="font-medium hover:text-gray-700 {{ request()->is('/') ? 'text-[#ff5f5f]' : '' }}"
                                    href="{{ url('') }}">
                                     {{ __("Home") }}
                                 </a>
                             </li>
                             <li class="mb-12">
-                                <a class="font-medium hover:text-gray-700 {{ (request()->is('/') && str_contains(request()->fullUrl(), '#features')) ? 'text-indigo-600' : '' }}"
+                                <a class="font-medium hover:text-gray-700 {{ (request()->is('/') && str_contains(request()->fullUrl(), '#features')) ? 'text-[#ff5f5f]' : '' }}"
                                    href="{{ url('') }}#features">
                                     {{ __("Features") }}
                                 </a>
                             </li>
                             <li class="mb-12">
-                                <a class="font-medium hover:text-gray-700 {{ request()->is('pricing*') ? 'text-indigo-600' : '' }}"
+                                <a class="font-medium hover:text-gray-700 {{ request()->is('pricing*') ? 'text-[#ff5f5f]' : '' }}"
                                    href="{{ url('pricing') }}">
                                     {{ __("Pricing") }}
                                 </a>
                             </li>
                             <li class="mb-12">
-                                <a class="font-medium hover:text-gray-700 {{ request()->is('faqs*') ? 'text-indigo-600' : '' }}"
+                                <a class="font-medium hover:text-gray-700 {{ request()->is('faqs*') ? 'text-[#ff5f5f]' : '' }}"
                                    href="{{ url('faqs') }}">
                                     {{ __("FAQs") }}
                                 </a>
                             </li>
                             <li class="mb-12">
-                                <a class="font-medium hover:text-gray-700 {{ request()->is('blogs*') ? 'text-indigo-600' : '' }}"
+                                <a class="font-medium hover:text-gray-700 {{ request()->is('blogs*') ? 'text-[#ff5f5f]' : '' }}"
                                    href="{{ url('blogs') }}">
                                     {{ __("Blog") }}
                                 </a>
                             </li>
                             <li class="mb-12">
-                                <a class="font-medium hover:text-gray-700 {{ request()->is('contact*') ? 'text-indigo-600' : '' }}"
+                                <a class="font-medium hover:text-gray-700 {{ request()->is('contact*') ? 'text-[#ff5f5f]' : '' }}"
                                    href="{{ url('contact') }}">
                                     {{ __("Contact") }}
                                 </a>
@@ -192,7 +192,7 @@
                             @if(Auth::check())
                                 <div class="w-full mb-3">
                                     <a href="{{ url('app/dashboard') }}"
-                                       class="py-3 px-5 w-full text-white font-semibold rounded-xl focus:ring focus:ring-indigo-300 bg-indigo-600 hover:bg-indigo-700 transition ease-in-out duration-200 block text-center">
+                                       class="py-3 px-5 w-full text-white font-semibold rounded-xl focus:ring focus:ring-[#ffb87a] bg-[#ff5f5f] hover:bg-[#e84a3a] transition ease-in-out duration-200 block text-center">
                                         {{ __('Dashboard') }}
                                     </a>
                                 </div>
@@ -206,7 +206,7 @@
                                 @if(get_option("auth_signup_page_status", 1))
                                     <div class="w-full">
                                         <a href="{{ url('auth/signup') }}"
-                                           class="py-3 px-5 w-full text-white font-semibold rounded-xl focus:ring focus:ring-indigo-300 bg-indigo-600 hover:bg-indigo-700 transition ease-in-out duration-200 block text-center">
+                                           class="py-3 px-5 w-full text-white font-semibold rounded-xl focus:ring focus:ring-[#ffb87a] bg-[#ff5f5f] hover:bg-[#e84a3a] transition ease-in-out duration-200 block text-center">
                                             {{ __("Sign Up") }}
                                         </a>
                                     </div>

@@ -6,7 +6,7 @@
     </head>
     @php
         $brandOptions = app(\Modules\AdminSettings\Support\OptionStore::class);
-        $authSiteTitle = trim((string) $brandOptions->get('website_title', config('app.name', 'LocalBoost AI')));
+        $authSiteTitle = trim((string) $brandOptions->get('website_title', config('app.name', 'MLHUB')));
         $authDarkLogoPath = (string) ($brandOptions->get('website_logo_brand_dark')
             ?: $brandOptions->get('website_logo_dark')
             ?: $brandOptions->get('website_logo')
@@ -21,7 +21,7 @@
     <body class="lb-auth-page min-h-screen antialiased">
         <div class="relative min-h-screen overflow-hidden px-4 py-6 sm:px-6 lg:px-8">
             <div class="pointer-events-none absolute -right-28 top-20 h-80 w-80 rounded-full opacity-40 blur-3xl" style="background: var(--lb-lime);"></div>
-            <div class="pointer-events-none absolute -bottom-32 left-0 select-none font-serif text-[9rem] font-black leading-none text-neutral-100 sm:text-[14rem]">LocalBoost</div>
+            <div class="pointer-events-none absolute -bottom-32 left-0 select-none font-serif text-[9rem] font-black leading-none text-neutral-100 sm:text-[14rem]">MLHUB</div>
 
             <div class="lb-wrap relative grid min-h-[calc(100vh-3rem)] gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
                 <section class="hidden lg:block">
@@ -43,7 +43,7 @@
                         @foreach ([['fa-star', __('Review clicks'), __('Turn happy customers into public reviews.')], ['fa-qrcode', __('QR campaign pages'), __('Share every offer and request offline.' )], ['fa-chart-line', __('Growth reports'), __('Track visits, conversions, leads, and bookings.')]] as $index => $item)
                             <div class="lb-card lb-hover lb-reveal rounded-xl p-4" style="--lb-delay: {{ 120 + ($index * 80) }}ms;">
                                 <div class="flex gap-4">
-                                    <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color:#5f7f07;">
+                                    <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color:#d64545;">
                                         <i class="fa-light {{ $item[0] }}"></i>
                                     </span>
                                     <div>

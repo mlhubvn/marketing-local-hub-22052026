@@ -6,7 +6,7 @@
         <div class="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-full {{ $status ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600' }}">
             <i class="fas {{ $status ? 'fa-check-circle' : 'fa-times-circle' }} text-4xl"></i>
         </div>
-        <span class="inline-flex items-center px-4 py-2 mb-4 text-xs font-semibold uppercase tracking-widest rounded-full" style="background-color:#eef2ff;color:#4338ca; letter-spacing:0.22em;">
+        <span class="inline-flex items-center px-4 py-2 mb-4 text-xs font-semibold uppercase tracking-widest rounded-full" style="background-color:#fff0eb;color:#e84a3a; letter-spacing:0.22em;">
             {{ $status ? __('Account activated') : __('Activation issue') }}
         </span>
         <h2 class="mb-4 font-bold font-heading tracking-tight text-gray-900" style="font-size:2.5rem; line-height:1.1;">
@@ -18,7 +18,7 @@
                 : __('The activation link is invalid, expired or your account was already activated.')) }}
         </p>
         <div class="mt-8">
-            <a href="{{ url('auth/login') }}" class="inline-block py-4 px-9 text-white text-lg font-semibold border border-indigo-700 rounded-2xl shadow-4xl focus:ring focus:ring-indigo-300 bg-indigo-600 hover:bg-indigo-700 transition ease-in-out duration-200 text-center" style="min-width:220px;">
+            <a href="{{ url('auth/login') }}" class="inline-block py-4 px-9 text-white text-lg font-semibold border border-[#e84a3a] rounded-2xl shadow-4xl focus:ring focus:ring-[#ffb87a] bg-[#ff5f5f] hover:bg-[#e84a3a] transition ease-in-out duration-200 text-center" style="min-width:220px;">
                 <i class="fa fa-arrow-left mr-2"></i>
                 {{ __("Back to Login") }}
             </a>

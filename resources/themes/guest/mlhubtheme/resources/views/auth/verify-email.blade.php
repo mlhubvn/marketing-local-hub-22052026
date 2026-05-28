@@ -5,7 +5,7 @@
         </p>
 
         @if (session('status') == 'verification-link-sent')
-            <p class="text-center text-sm font-medium text-emerald-600">
+            <p class="text-center text-sm font-medium text-[#ff8c42]">
                 {{ __('A new verification link has been sent to the email address you provided during registration.') }}
             </p>
         @endif

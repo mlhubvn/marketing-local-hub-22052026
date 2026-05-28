@@ -13,7 +13,7 @@
             width: 30rem;
             height: 30rem;
             border-radius: 999px;
-            background: radial-gradient(circle, rgba(184, 218, 22, .18), transparent 68%);
+            background: radial-gradient(circle, rgba(255, 140, 66, .18), transparent 68%);
             filter: blur(12px);
         }
 
@@ -21,8 +21,8 @@
             position: relative;
             overflow: hidden;
             background:
-                radial-gradient(circle at 20% 20%, rgba(15, 118, 110, .16), transparent 14rem),
-                radial-gradient(circle at 78% 76%, rgba(184, 218, 22, .28), transparent 14rem),
+                radial-gradient(circle at 20% 20%, rgba(255, 95, 95, .16), transparent 14rem),
+                radial-gradient(circle at 78% 76%, rgba(255, 140, 66, .28), transparent 14rem),
                 rgba(255, 255, 252, .92);
         }
 
@@ -32,8 +32,8 @@
 
         .lb-blog-cover {
             background:
-                radial-gradient(circle at 20% 20%, rgba(15, 118, 110, .12), transparent 13rem),
-                radial-gradient(circle at 80% 70%, rgba(184, 218, 22, .22), transparent 12rem),
+                radial-gradient(circle at 20% 20%, rgba(255, 95, 95, .12), transparent 13rem),
+                radial-gradient(circle at 80% 70%, rgba(255, 140, 66, .22), transparent 12rem),
                 rgba(255, 255, 252, .9);
         }
 
@@ -43,8 +43,8 @@
 
         .lb-blog-topic-panel {
             background:
-                radial-gradient(circle at 16% 20%, rgba(15, 118, 110, .1), transparent 12rem),
-                radial-gradient(circle at 88% 82%, rgba(184, 218, 22, .18), transparent 12rem),
+                radial-gradient(circle at 16% 20%, rgba(255, 95, 95, .1), transparent 12rem),
+                radial-gradient(circle at 88% 82%, rgba(255, 140, 66, .18), transparent 12rem),
                 rgba(255, 255, 252, .9);
         }
 
@@ -83,7 +83,7 @@
         html[data-theme-resolved='dark'] .lb-blog-topic-panel [class*="bg-white"],
         html[data-theme-resolved='dark'] .lb-blog-cover [class*="bg-white"],
         html[data-theme-resolved='dark'] .lb-blog-visual [class*="bg-white"] {
-            border-color: rgba(96, 165, 250, .22) !important;
+            border-color: rgba(255, 140, 66, .22) !important;
             background:
                 linear-gradient(180deg, rgba(15, 23, 42, .92), rgba(11, 21, 38, .86)) !important;
             color: #e8eef7 !important;
@@ -91,14 +91,14 @@
         }
 
         html[data-theme-resolved='dark'] .lb-page-link {
-            border-color: rgba(96, 165, 250, .22) !important;
+            border-color: rgba(255, 140, 66, .22) !important;
             background: rgba(15, 23, 42, .82) !important;
             color: #cbd5e1 !important;
         }
 
         html[data-theme-resolved='dark'] .lb-page-link.is-active {
-            border-color: #14a399 !important;
-            background: #0f766e !important;
+            border-color: #ff7340 !important;
+            background: #ff5f5f !important;
             color: #fff !important;
         }
 
@@ -179,7 +179,7 @@
                                 <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ __('Popular topics') }}</p>
                                 <h3 class="lb-serif mt-2 text-3xl leading-none">{{ __('Learn the workflows that move local growth') }}</h3>
                             </div>
-                            <span class="rounded-full px-3 py-1 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color:#506807;">{{ $blogs->total() }} {{ __('posts') }}</span>
+                            <span class="rounded-full px-3 py-1 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color:#c43a3a;">{{ $blogs->total() }} {{ __('posts') }}</span>
                         </div>
                         <div class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                             @foreach ([
@@ -205,7 +205,7 @@
 
             <div class="mt-14 flex items-end justify-between gap-4">
                 <div>
-                    <p class="text-xs font-black uppercase tracking-[0.2em]" style="color:#5f7f07;">{{ __('Latest') }}</p>
+                    <p class="text-xs font-black uppercase tracking-[0.2em]" style="color:#d64545;">{{ __('Latest') }}</p>
                     <h2 class="lb-serif mt-3 text-4xl leading-none">{{ __('Recent articles and operating notes') }}</h2>
                 </div>
                 <span class="hidden rounded-full border bg-white px-4 py-2 text-sm font-bold md:inline-flex" style="border-color: var(--lb-line); color: var(--lb-muted);">{{ $blogs->total() }} {{ __('posts') }}</span>
@@ -224,7 +224,7 @@
                                             <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl" style="background: color-mix(in srgb, var(--lb-green) 9%, #fff); color: var(--lb-green);">
                                                 <i class="fa-light fa-chart-line text-xl"></i>
                                             </span>
-                                            <span class="rounded-full px-3 py-1 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 28%, #fff); color:#506807;">{{ __('Guide') }}</span>
+                                            <span class="rounded-full px-3 py-1 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 28%, #fff); color:#c43a3a;">{{ __('Guide') }}</span>
                                         </div>
                                         <div class="mt-5 grid grid-cols-3 gap-2">
                                             @foreach ([__('Reviews'), __('Leads'), __('Reports')] as $metric)
