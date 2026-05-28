@@ -1,0 +1,9 @@
+{
+    "name": "CustomFont",
+    "alias": "customfont",
+    "description": "Vietnamese-safe font injection for public landing pages",
+    "priority": 250,
+    "providers": [
+        "Modules\\CustomFont\\Providers\\CustomFontServiceProvider"
+    ]
+}

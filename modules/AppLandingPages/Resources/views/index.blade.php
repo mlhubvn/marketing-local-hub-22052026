@@ -418,8 +418,8 @@
                         },
                         get fontFamily() {
                             if (this.fontStyleValue === 'classic') return 'Georgia, Cambria, Times New Roman, serif';
-                            if (this.fontStyleValue === 'elegant') return 'Inter, Segoe UI, Avenir Next, sans-serif';
-                            if (this.fontStyleValue === 'friendly') return 'Inter, Trebuchet MS, system-ui, sans-serif';
+                            if (this.fontStyleValue === 'elegant') return 'Avenir Next, Segoe UI, Inter, sans-serif';
+                            if (this.fontStyleValue === 'friendly') return 'Trebuchet MS, Inter, ui-sans-serif, system-ui';
                             return 'Inter, ui-sans-serif, system-ui';
                         },
                         get previewBackground() {
@@ -936,13 +936,13 @@
                                 $previewBenefits = collect(preg_split('/\r\n|\r|\n/', (string) $benefits))->map(fn ($line) => trim($line))->filter()->values();
                                 $previewBlocks = collect($landing_blocks)->filter(fn ($block) => ($block['visible'] ?? true) !== false)->values();
                                 $previewStructureBlocks = $previewBlocks->reject(fn ($block) => ($block['type'] ?? 'hero') === 'hero')->values();
-                                $previewSlots = collect(preg_split('/\r\n|\r|\n/', (string) $available_slots))->map(fn ($line) => trim($line))->filter()->values();
+                                $previewSlots = collect(preg_split('/\r\n|\r|fif (this.fontStyleValue === 'classic') return 'Georgia, Cambria, Times New Roman, serif';\n/', (string) $available_slots))->map(fn ($line) => trim($line))->filter()->values();
                                 $previewButtonRadius = match ($button_style) { 'square' => '8px', 'rounded' => '14px', default => '999px' };
                                 $previewCardRadius = match ($card_style) { 'flat' => '12px', 'bordered' => '18px', default => '24px' };
                                 $previewFont = match ($font_style) {
                                     'classic' => 'Georgia, Cambria, Times New Roman, serif',
-                                    'elegant' => 'Inter, Avenir Next, Segoe UI, sans-serif',
-                                    'friendly' => 'Inter, Trebuchet MS, ui-sans-serif, system-ui',
+                                    'elegant' => 'Avenir Next, Segoe UI, Inter, sans-serif',
+                                    'friendly' => 'Trebuchet MS, Inter, ui-sans-serif, system-ui',
                                     default => 'Inter, ui-sans-serif, system-ui',
                                 };
                             @endphp

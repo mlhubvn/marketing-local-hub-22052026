@@ -61,7 +61,7 @@
     $fontFamily = match ((string) $design['font_style']) {
         'classic' => 'Georgia, Cambria, "Times New Roman", serif',
         'elegant' => '"Avenir Next", "Segoe UI", Inter, sans-serif',
-        'friendly' => 'Inter, "Trebuchet MS", ui-sans-serif, system-ui',
+        'friendly' => '"Trebuchet MS", Inter, ui-sans-serif, system-ui',
         default => 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     };
     $logoShape = in_array((string) $design['logo_shape'], ['circle', 'square'], true) ? (string) $design['logo_shape'] : 'circle';
