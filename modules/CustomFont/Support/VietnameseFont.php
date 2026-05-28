@@ -28,20 +28,24 @@ class VietnameseFont
             return;
         }
 
-        $content = $response->getContent();
+        try {
+            $content = $response->getContent();
 
-        if (! is_string($content) || ! str_contains($content, '</head>')) {
-            return;
+            if (! is_string($content) || ! str_contains($content, '</head>')) {
+                return;
+            }
+
+            if (str_contains($content, 'id="customfont-vietnamese"')) {
+                return;
+            }
+
+            $markup = view('customfont::partials.vietnamese-font-head')->render();
+
+            $response->setContent(str_replace('</head>', $markup.'</head>', $content));
+            $response->headers->set('X-CustomFont', 'injected');
+        } catch (\Throwable) {
+            // Never break the original response if font injection fails.
         }
-
-        if (str_contains($content, 'id="customfont-vietnamese"')) {
-            return;
-        }
-
-        $markup = view('customfont::partials.vietnamese-font-head')->render();
-
-        $response->setContent(str_replace('</head>', $markup.'</head>', $content));
-        $response->headers->set('X-CustomFont', 'injected');
     }
 
     public static function shouldInject(Request $request, Response $response): bool
@@ -66,13 +70,6 @@ class VietnameseFont
             return true;
         }
 
-        $content = $response->getContent();
-
-        if (! is_string($content)) {
-            return false;
-        }
-
-        return str_contains($content, 'class="shell"')
-            && str_contains($content, 'form-card');
+        return false;
     }
 }

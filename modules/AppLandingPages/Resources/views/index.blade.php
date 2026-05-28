@@ -936,7 +936,7 @@
                                 $previewBenefits = collect(preg_split('/\r\n|\r|\n/', (string) $benefits))->map(fn ($line) => trim($line))->filter()->values();
                                 $previewBlocks = collect($landing_blocks)->filter(fn ($block) => ($block['visible'] ?? true) !== false)->values();
                                 $previewStructureBlocks = $previewBlocks->reject(fn ($block) => ($block['type'] ?? 'hero') === 'hero')->values();
-                                $previewSlots = collect(preg_split('/\r\n|\r|fif (this.fontStyleValue === 'classic') return 'Georgia, Cambria, Times New Roman, serif';\n/', (string) $available_slots))->map(fn ($line) => trim($line))->filter()->values();
+                                $previewSlots = collect(preg_split('/\r\n|\r|\n/', (string) $available_slots))->map(fn ($line) => trim($line))->filter()->values();
                                 $previewButtonRadius = match ($button_style) { 'square' => '8px', 'rounded' => '14px', default => '999px' };
                                 $previewCardRadius = match ($card_style) { 'flat' => '12px', 'bordered' => '18px', default => '24px' };
                                 $previewFont = match ($font_style) {
