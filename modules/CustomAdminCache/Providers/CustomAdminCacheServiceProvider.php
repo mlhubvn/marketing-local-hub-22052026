@@ -3,8 +3,11 @@
 namespace Modules\CustomAdminCache\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 use Modules\AdminCache\Actions\ClearSessionsAction;
+use Modules\AdminCache\Livewire\CacheIndex;
 use Modules\CustomAdminCache\Actions\SafeClearSessionsAction;
+use Modules\CustomAdminCache\Livewire\SafeCacheIndex;
 
 class CustomAdminCacheServiceProvider extends ServiceProvider
 {
@@ -15,6 +18,15 @@ class CustomAdminCacheServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
+        // AdminCache registers the same URI first; override the Livewire class instead of duplicating routes.
+        Livewire::component(
+            'modules.admin-cache.livewire.cache-index',
+            SafeCacheIndex::class,
+        );
+
+        Livewire::component(
+            CacheIndex::class,
+            SafeCacheIndex::class,
+        );
     }
 }
