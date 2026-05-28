@@ -2,9 +2,11 @@
 
 namespace Modules\CustomFont\Providers;
 
-use Illuminate\Routing\Router;
+use Illuminate\Foundation\Http\Events\RequestHandled;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
-use Modules\CustomFont\Http\Middleware\InjectVietnameseFont;
+use Modules\CustomFont\Console\CustomFontStatusCommand;
+use Modules\CustomFont\Support\VietnameseFont;
 
 class CustomFontServiceProvider extends ServiceProvider
 {
@@ -12,8 +14,14 @@ class CustomFontServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__.'/../Resources/views', 'customfont');
 
-        /** @var Router $router */
-        $router = $this->app->make(Router::class);
-        $router->pushMiddlewareToGroup('web', InjectVietnameseFont::class);
+        Event::listen(RequestHandled::class, function (RequestHandled $event): void {
+            VietnameseFont::injectIntoResponse($event->request, $event->response);
+        });
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                CustomFontStatusCommand::class,
+            ]);
+        }
     }
 }
