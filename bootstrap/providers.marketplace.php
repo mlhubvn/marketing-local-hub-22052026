@@ -1,3 +1,5 @@
 <?php
 
-return [];
+return [
+    App\Custom\Providers\CustomServiceProvider::class,
+];
