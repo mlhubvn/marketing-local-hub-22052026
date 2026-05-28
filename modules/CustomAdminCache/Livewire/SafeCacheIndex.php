@@ -21,12 +21,6 @@ class SafeCacheIndex extends CacheIndex
 
     public function runAction(string $action): void
     {
-        if ($action !== 'session') {
-            parent::runAction($action);
-
-            return;
-        }
-
         try {
             $message = $this->actions->run($action);
 
@@ -43,6 +37,7 @@ class SafeCacheIndex extends CacheIndex
             ]);
         }
 
+        // Full reload avoids stale Livewire nesting snapshots after optimize/config/route clears.
         $this->redirectRoute('admin-cache.index', navigate: false);
     }
 }
