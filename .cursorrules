@@ -38,7 +38,8 @@ You are modifying a **modular Laravel 13 + Livewire 4** application (LocalBoost 
 | Custom provider registration | **`bootstrap/providers.marketplace.php`** — already `require`d by `bootstrap/providers.php`; return extra provider class names here |
 | Custom config | `config/custom.php` (load via `mergeConfigFrom` from your provider) |
 | Custom views | `app/Custom/resources/views/`, `modules/Custom*/Resources/views/`, custom theme `resources/views/` |
-| Custom theme | `resources/themes/app/custom/` and/or `resources/themes/guest/custom/` (with `theme.json`) |
+| Custom theme | `resources/themes/app/custom/` and/or `resources/themes/guest/custom/` (with `theme.json`) — e.g. `resources/themes/guest/mlhubtheme/**` |
+| Custom theme public assets (additive only) | `public/resources/themes/{area}/{your-theme}/` — copy **only** files the core serves via `theme_asset()` / `theme_asset_for()` (e.g. `preview.svg`); never replace or symlink the whole `public/resources/themes/` tree |
 | Custom assets | Inside your custom theme: `assets/css/`, `assets/js/` → built by Vite to `public/build/themes/{area}/custom/` |
 | Custom migrations | `app/Custom/database/migrations/` or `modules/Custom*/Database/Migrations/` |
 | Custom translations | `app/Custom/lang/{locale}.json` (loaded via `loadJsonTranslationsFrom` in your provider) |
@@ -141,7 +142,43 @@ Provider order:
 
 ---
 
-## 8. Forbidden without explicit user request
+## 8. Update-safe fixes (bugs, 404s, previews, deploy)
+
+When fixing a bug or missing asset, **default to the narrowest change in a custom zone**. Author updates re-copy or overwrite core files; global patches and new root scripts break on the next merge.
+
+### Prefer (smallest blast radius)
+
+1. **Custom theme / module only** — edit `resources/themes/guest/{your-theme}/**`, `modules/Custom*/**`, or `app/Custom/**`.
+2. **Additive public files for your theme only** — if core builds URLs like `asset('resources/themes/{area}/{name}/…')`, copy the missing file into `public/resources/themes/{area}/{your-theme}/` (e.g. `preview.svg`). One file, one theme, no core edits.
+3. **Admin UI settings** — theme Custom CSS/JS, options, branding uploads when the product already supports them.
+4. **Extension hooks** from §3 — registries, rebinds, `routes/custom.php`, `bootstrap/providers.marketplace.php`.
+
+### Avoid unless the user explicitly approves core changes
+
+- Editing **`entrypoint.sh`**, **`composer.json`**, **`Dockerfile`**, **`package.json`**, or adding **`scripts/`** helpers to change how the whole app deploys or links assets.
+- Replacing **`public/resources/themes/`** with a symlink/junction or bulk-syncing all themes — conflicts with the author’s shipped copy under `public/resources/themes/guest/localboostai/**` and is wiped or duplicated on update.
+- Patching **`modules/**` helpers** (e.g. `theme_asset_for()`) for a single custom theme.
+- “Fixing” by copying an entire theme tree into `public/` when only one static file is 404.
+
+### Decision checklist
+
+| Question | If yes → |
+|----------|----------|
+| Can this be fixed inside our custom theme folder only? | Do it there. |
+| Is it a static URL 404 under `/resources/themes/...`? | Copy **only** that file to `public/resources/themes/{area}/{your-theme}/`. |
+| Does the fix require changing author deploy/bootstrap/composer? | **Stop** — propose the minimal custom-zone alternative first. |
+| Will author `git pull` / marketplace update overwrite this path? | Move the change out of §1 core paths into §2. |
+
+### Example (theme preview 404)
+
+- **Views** load from `resources/themes/guest/mlhubtheme/` (OK — custom theme source).
+- **Preview thumbnail** is served from `public/resources/themes/guest/mlhubtheme/preview.svg` via `theme_asset_for()` (core behavior).
+- **Correct fix:** keep `preview.svg` in the theme source **and** copy it to the matching `public/.../mlhubtheme/` path on deploy.
+- **Wrong fix:** new link script, edit `entrypoint.sh`, or symlink all of `public/resources/themes`.
+
+---
+
+## 9. Forbidden without explicit user request
 
 - Editing `composer.json`, `composer.lock`, `package.json`, `package-lock.json`, `Dockerfile`, `entrypoint.sh`.
 - Editing `bootstrap/app.php` or `bootstrap/providers.php`.
@@ -152,4 +189,6 @@ Provider order:
 - Force-push or rewriting author git history.
 - Committing `.env`, API keys, or any file under `storage/` other than `.gitkeep`.
 
-When unsure: **add** under `app/Custom/` or `modules/Custom*` and register through `bootstrap/providers.marketplace.php`. Never patch core.
+- Adding root-level **`scripts/`** or composer hooks to alter global asset linking (use custom-zone copies or user-approved deploy docs instead).
+
+When unsure: **add** under `app/Custom/`, `modules/Custom*`, or your **custom theme name** (e.g. `mlhubtheme`) and register through `bootstrap/providers.marketplace.php`. Never patch core.
