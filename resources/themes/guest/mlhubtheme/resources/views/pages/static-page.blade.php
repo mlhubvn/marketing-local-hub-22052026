@@ -81,7 +81,7 @@
 
         html[data-theme-resolved='dark'] .lb-static-content a,
         html[data-theme-resolved='dark'] .lb-static-content.prose a {
-            color: #5eead4 !important;
+            color: #ff7340 !important;
         }
     </style>
 

@@ -720,7 +720,7 @@
         html[data-theme-resolved='dark'] .lb-sales [style*="color: #c43a3a"],
         html[data-theme-resolved='dark'] .lb-sales [style*="color:#c43a3a"],
         html[data-theme-resolved='dark'] .lb-sales [style*="color: var(--lb-green)"] {
-            color: #5eead4 !important;
+            color: #ff7340 !important;
         }
 
         html[data-theme-resolved='dark'] .lb-suite-card::after,
@@ -736,7 +736,7 @@
         html[data-theme-resolved='dark'] .lb-feature-icon,
         html[data-theme-resolved='dark'] .lb-page-icon {
             background: color-mix(in srgb, var(--module-color, var(--lb-green)) 18%, rgba(15, 23, 42, .82)) !important;
-            color: #5eead4 !important;
+            color: #ff7340 !important;
             box-shadow: inset 0 0 0 1px rgba(255, 184, 122, .18);
         }
 
