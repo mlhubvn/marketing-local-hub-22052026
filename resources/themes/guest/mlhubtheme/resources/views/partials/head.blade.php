@@ -1422,9 +1422,12 @@
     }
 
     html[data-theme-resolved='dark'] header .text-neutral-400,
-    html[data-theme-resolved='dark'] footer .text-neutral-400,
-    html[data-theme-resolved='dark'] footer .text-neutral-100 {
+    html[data-theme-resolved='dark'] footer .text-neutral-400 {
         color: #64748b !important;
+    }
+
+    html[data-theme-resolved='dark'] footer .text-neutral-100 {
+        color: #1d263b !important;
     }
 
     html[data-theme-resolved='dark'] header a:hover,
