@@ -418,8 +418,8 @@
                         },
                         get fontFamily() {
                             if (this.fontStyleValue === 'classic') return 'Georgia, Cambria, Times New Roman, serif';
-                            if (this.fontStyleValue === 'elegant') return 'Avenir Next, Segoe UI, Inter, sans-serif';
-                            if (this.fontStyleValue === 'friendly') return 'Trebuchet MS, Inter, ui-sans-serif, system-ui';
+                            if (this.fontStyleValue === 'elegant') return 'Inter, Segoe UI, Avenir Next, sans-serif';
+                            if (this.fontStyleValue === 'friendly') return 'Inter, Trebuchet MS, system-ui, sans-serif';
                             return 'Inter, ui-sans-serif, system-ui';
                         },
                         get previewBackground() {
@@ -941,8 +941,8 @@
                                 $previewCardRadius = match ($card_style) { 'flat' => '12px', 'bordered' => '18px', default => '24px' };
                                 $previewFont = match ($font_style) {
                                     'classic' => 'Georgia, Cambria, Times New Roman, serif',
-                                    'elegant' => 'Avenir Next, Segoe UI, Inter, sans-serif',
-                                    'friendly' => 'Trebuchet MS, Inter, ui-sans-serif, system-ui',
+                                    'elegant' => 'Inter, Avenir Next, Segoe UI, sans-serif',
+                                    'friendly' => 'Inter, Trebuchet MS, ui-sans-serif, system-ui',
                                     default => 'Inter, ui-sans-serif, system-ui',
                                 };
                             @endphp
