@@ -2245,40 +2245,46 @@ class AdminFakerService
         ];
 
         foreach ($payments as $index => $item) {
-            $payment = PaymentHistory::query()->create([
-                'id_secure' => Str::random(32),
-                'uid' => $user->id,
-                'plan_id' => $user->plan_id,
-                'from' => 'manual',
-                'transaction_id' => $item['transaction_id'],
-                'currency' => 'USD',
-                'by' => 'admin-faker',
-                'amount' => $item['amount'],
-                'status' => 1,
-                'changed' => time() - $item['created_offset'] + 1200,
-                'created' => time() - $item['created_offset'],
-                'meta' => [
-                    'source' => self::DEMO_MARKER,
+            // Keyed by transaction_id so re-running with --no-clear stays idempotent
+            // instead of violating the unique constraint on payment_history.transaction_id.
+            $payment = PaymentHistory::query()->updateOrCreate(
+                ['transaction_id' => $item['transaction_id']],
+                [
+                    'id_secure' => Str::random(32),
+                    'uid' => $user->id,
+                    'plan_id' => $user->plan_id,
+                    'from' => 'manual',
+                    'currency' => 'USD',
+                    'by' => 'admin-faker',
+                    'amount' => $item['amount'],
+                    'status' => 1,
+                    'changed' => time() - $item['created_offset'] + 1200,
+                    'created' => time() - $item['created_offset'],
+                    'meta' => [
+                        'source' => self::DEMO_MARKER,
+                    ],
                 ],
-            ]);
+            );
 
-            AffiliateCommission::query()->create([
-                'id_secure' => Str::random(32),
-                'affiliate_user_id' => $user->id,
-                'referred_user_id' => $user->id,
-                'payment_history_id' => $payment->id,
-                'amount' => $item['amount'],
-                'commission_rate' => $item['commission_rate'],
-                'commission' => $item['commission'],
-                'status' => $item['status'],
-                'meta' => [
-                    'source' => self::DEMO_MARKER,
-                    'sample' => $index + 1,
+            AffiliateCommission::query()->updateOrCreate(
+                ['payment_history_id' => $payment->id],
+                [
+                    'id_secure' => Str::random(32),
+                    'affiliate_user_id' => $user->id,
+                    'referred_user_id' => $user->id,
+                    'amount' => $item['amount'],
+                    'commission_rate' => $item['commission_rate'],
+                    'commission' => $item['commission'],
+                    'status' => $item['status'],
+                    'meta' => [
+                        'source' => self::DEMO_MARKER,
+                        'sample' => $index + 1,
+                    ],
+                    'approved_at' => $item['status'] === AffiliateCommission::STATUS_APPROVED ? now()->subHours($index + 5) : null,
+                    'created_at' => now()->subSeconds($item['created_offset']),
+                    'updated_at' => now()->subSeconds(max(0, $item['created_offset'] - 1800)),
                 ],
-                'approved_at' => $item['status'] === AffiliateCommission::STATUS_APPROVED ? now()->subHours($index + 5) : null,
-                'created_at' => now()->subSeconds($item['created_offset']),
-                'updated_at' => now()->subSeconds(max(0, $item['created_offset'] - 1800)),
-            ]);
+            );
 
             $counts['affiliate_commissions']++;
         }
