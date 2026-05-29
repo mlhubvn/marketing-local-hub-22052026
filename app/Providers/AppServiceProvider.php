@@ -48,6 +48,12 @@ class AppServiceProvider extends ServiceProvider
     {
         if (app()->environment('production')) {
             URL::forceScheme('https');
+
+            $appUrl = rtrim((string) config('app.url'), '/');
+
+            if ($appUrl !== '') {
+                URL::forceRootUrl($appUrl);
+            }
         }
 
         $this->configureDefaults();

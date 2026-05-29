@@ -20,6 +20,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Behind Traefik/Coolify the app sees HTTP; signed URLs are generated as HTTPS.
+        $trustedProxies = env('TRUSTED_PROXIES');
+
+        if (is_string($trustedProxies) && $trustedProxies !== '') {
+            $middleware->trustProxies(at: $trustedProxies === '*' ? '*' : array_map('trim', explode(',', $trustedProxies)));
+        } elseif (env('APP_ENV') === 'production') {
+            $middleware->trustProxies(at: '*');
+        }
+
         $middleware->validateCsrfTokens(except: [
             'livewire/upload-file',
             'livewire-*/upload-file',
