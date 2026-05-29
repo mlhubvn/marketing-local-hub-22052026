@@ -57,7 +57,7 @@
                 radial-gradient(circle at 7% 18%, rgba(255, 95, 95, .13), transparent 24rem),
                 var(--lb-paper);
             color: var(--lb-ink);
-            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-family: var(--theme-font-sans);
         }
 
         .lb-wrap {
@@ -66,7 +66,7 @@
         }
 
         .lb-serif {
-            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-family: var(--theme-font-sans);
             letter-spacing: -0.045em;
         }
 

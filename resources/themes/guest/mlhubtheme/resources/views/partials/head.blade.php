@@ -139,7 +139,7 @@
     }
 
     .lb-serif {
-        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-family: var(--theme-font-sans);
         letter-spacing: -0.045em;
     }
 
