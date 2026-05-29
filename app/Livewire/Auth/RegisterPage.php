@@ -67,6 +67,7 @@ class RegisterPage extends Component
             'username' => strtolower($validated['username']),
             'email' => strtolower($validated['email']),
             'accept_terms' => $validated['accept_terms'] ? '1' : '0',
+            'password_confirmation' => $this->password_confirmation,
         ]);
 
         if (! auth_activation_email_enabled()) {
