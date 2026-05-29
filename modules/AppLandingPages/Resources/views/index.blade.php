@@ -5,6 +5,8 @@
     x-on:landing-page-editor-ready.window="formDialogLoading = false"
 >
     @once
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=be-vietnam-pro:400,500,600,700,800|manrope:400,500,600,700,800|nunito:400,500,600,700,800|lora:400,500,600,700" rel="stylesheet">
         <script>
             window.localBoostLandingBlockSorter = function (wire) {
                 return {
@@ -417,10 +419,10 @@
                             return this.cardStyleValue === 'flat' ? '12px' : (this.cardStyleValue === 'bordered' ? '18px' : '24px');
                         },
                         get fontFamily() {
-                            if (this.fontStyleValue === 'classic') return 'Georgia, Cambria, Times New Roman, serif';
-                            if (this.fontStyleValue === 'elegant') return 'Avenir Next, Segoe UI, Inter, sans-serif';
-                            if (this.fontStyleValue === 'friendly') return 'Trebuchet MS, Inter, ui-sans-serif, system-ui';
-                            return 'Inter, ui-sans-serif, system-ui';
+                            if (this.fontStyleValue === 'classic') return 'Lora, Georgia, Cambria, Times New Roman, serif';
+                            if (this.fontStyleValue === 'elegant') return 'Manrope, Be Vietnam Pro, ui-sans-serif, system-ui, sans-serif';
+                            if (this.fontStyleValue === 'friendly') return 'Nunito, Be Vietnam Pro, ui-sans-serif, system-ui, sans-serif';
+                            return 'Be Vietnam Pro, Inter, ui-sans-serif, system-ui, sans-serif';
                         },
                         get previewBackground() {
                             if (this.layoutStyleValue === 'centered') {
@@ -940,10 +942,10 @@
                                 $previewButtonRadius = match ($button_style) { 'square' => '8px', 'rounded' => '14px', default => '999px' };
                                 $previewCardRadius = match ($card_style) { 'flat' => '12px', 'bordered' => '18px', default => '24px' };
                                 $previewFont = match ($font_style) {
-                                    'classic' => 'Georgia, Cambria, Times New Roman, serif',
-                                    'elegant' => 'Avenir Next, Segoe UI, Inter, sans-serif',
-                                    'friendly' => 'Trebuchet MS, Inter, ui-sans-serif, system-ui',
-                                    default => 'Inter, ui-sans-serif, system-ui',
+                                    'classic' => 'Lora, Georgia, Cambria, Times New Roman, serif',
+                                    'elegant' => 'Manrope, Be Vietnam Pro, ui-sans-serif, system-ui, sans-serif',
+                                    'friendly' => 'Nunito, Be Vietnam Pro, ui-sans-serif, system-ui, sans-serif',
+                                    default => 'Be Vietnam Pro, Inter, ui-sans-serif, system-ui, sans-serif',
                                 };
                             @endphp
                             <div class="mb-3 flex items-center justify-between gap-3">

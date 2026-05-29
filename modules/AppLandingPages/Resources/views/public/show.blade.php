@@ -59,10 +59,10 @@
         default => '24px',
     };
     $fontFamily = match ((string) $design['font_style']) {
-        'classic' => 'Georgia, Cambria, "Times New Roman", serif',
-        'elegant' => '"Avenir Next", "Segoe UI", Inter, sans-serif',
-        'friendly' => '"Trebuchet MS", Inter, ui-sans-serif, system-ui',
-        default => 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        'classic' => '"Lora", Georgia, Cambria, "Times New Roman", serif',
+        'elegant' => '"Manrope", "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif',
+        'friendly' => '"Nunito", "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif',
+        default => '"Be Vietnam Pro", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     };
     $logoShape = in_array((string) $design['logo_shape'], ['circle', 'square'], true) ? (string) $design['logo_shape'] : 'circle';
     $submitRoute = route('landing-pages.submit', ['landingPage' => $landingPage->slug]);
@@ -103,6 +103,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $landingPage->title }}</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=be-vietnam-pro:400,500,600,700,800|manrope:400,500,600,700,800|nunito:400,500,600,700,800|lora:400,500,600,700" rel="stylesheet">
     {!! theme_vite('app', ['assets/js/app.js']) !!}
     <style>
         :root{--primary:{{ $primary }};--bg:{{ $background }};--accent:{{ $accent }};--button-radius:{{ $buttonRadius }};--card-radius:{{ $cardRadius }};--font:{!! $fontFamily !!};--theme-accent:{{ $primary }};--theme-accent-rgb:{{ $primaryRgb }};--theme-border-color:#dbe1ea;--theme-input-surface:#fff;--theme-input-text:#111827;--theme-input-placeholder:#94a3b8;--theme-header-text-color:#111827;--theme-muted-text-color:#64748b;--theme-input-radius:14px;--theme-button-radius:{{ $buttonRadius }};}
