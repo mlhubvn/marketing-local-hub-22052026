@@ -14,7 +14,7 @@
         $creditUsageLabel = $creditSummary['unlimited']
             ? __('Unlimited')
             : number_format((int) ($creditSummary['remaining'] ?? 0)).' '.__('left');
-        $lifetimeValue = ($plan?->currency_symbol ?? '$').' '.number_format($summary['lifetimeValue'], 2);
+        $lifetimeValue = format_money($summary['lifetimeValue'], $plan?->currency);
     @endphp
 
     <div class="space-y-6">
@@ -59,8 +59,8 @@
 
         @foreach ([
             $activeRecurringSubscription ? ['icon' => 'fa-arrows-rotate', 'title' => __('Active recurring subscription'), 'text' => __('Your account is currently on an auto-renewing subscription for :plan. To change plan, choose a different plan from pricing.', ['plan' => $activeRecurringSubscription->plan?->name ?: __('your current plan')]), 'tone' => 'accent'] : null,
-            $user?->isInPlanTrial() ? ['icon' => 'fa-hourglass-clock', 'title' => __('Trial active'), 'text' => __('Your :plan trial is active until :date.', ['plan' => $plan?->name ?: __('current plan'), 'date' => $user?->trialEndsAt()?->format('Y-m-d H:i') ?: __('the trial end date')]), 'tone' => 'warning'] : null,
-            $user?->nextPlan ? ['icon' => 'fa-calendar-clock', 'title' => __('Scheduled next plan'), 'text' => __('Your account is scheduled to switch to :plan (:cycle) when the current billing period ends on :date.', ['plan' => $user->nextPlan->name, 'cycle' => $nextBillingCycle, 'date' => $user->plan_expires_at?->format('Y-m-d') ?: __('the next billing date')]), 'tone' => 'accent'] : null,
+            $user?->isInPlanTrial() ? ['icon' => 'fa-hourglass-clock', 'title' => __('Trial active'), 'text' => __('Your :plan trial is active until :date.', ['plan' => $plan?->name ?: __('current plan'), 'date' => $user?->trialEndsAt() ? format_date_vn($user->trialEndsAt(), 'd/m/Y H:i') : __('the trial end date')]), 'tone' => 'warning'] : null,
+            $user?->nextPlan ? ['icon' => 'fa-calendar-clock', 'title' => __('Scheduled next plan'), 'text' => __('Your account is scheduled to switch to :plan (:cycle) when the current billing period ends on :date.', ['plan' => $user->nextPlan->name, 'cycle' => $nextBillingCycle, 'date' => $user->plan_expires_at ? format_date_vn($user->plan_expires_at) : __('the next billing date')]), 'tone' => 'accent'] : null,
         ] as $notice)
             @if ($notice)
                 <div class="rounded-[1rem] border p-4" style="border-color: rgba(var(--theme-border-color-rgb), .62); background-color: var(--theme-surface-overlay);">
@@ -77,10 +77,10 @@
 
         <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             @foreach ([
-                ['label' => __('Plan price'), 'value' => $plan ? $plan->currency_symbol.' '.number_format((float) $plan->price, 2) : __('N/A'), 'text' => $billingCycle, 'icon' => 'fa-tag', 'tone' => 'var(--theme-accent)'],
+                ['label' => __('Plan price'), 'value' => $plan ? format_money((float) $plan->price, $plan->currency) : __('N/A'), 'text' => $billingCycle, 'icon' => 'fa-tag', 'tone' => 'var(--theme-accent)'],
                 ['label' => __('Subscription'), 'value' => $latestSubscription?->statusLabel() ?? __('Inactive'), 'text' => $latestSubscription?->source ?: __('No payment source'), 'icon' => 'fa-arrows-rotate', 'tone' => 'var(--theme-success-color)'],
                 ['label' => __('Credits'), 'value' => $creditUsageLabel, 'text' => $creditSummary['unlimited'] ? __('No credit cap on this plan') : __('Plan and top-up balances combined'), 'icon' => 'fa-coins', 'tone' => '#d97706'],
-                ['label' => __('Next date'), 'value' => (($user?->isInPlanTrial() ? $user?->trialEndsAt() : $user?->plan_expires_at)?->format('Y-m-d') ?? __('No expiry')), 'text' => $user?->isInPlanTrial() ? __('Trial ends') : __('Plan expiry'), 'icon' => 'fa-calendar-days', 'tone' => '#0ea5e9'],
+                ['label' => __('Next date'), 'value' => (($d = ($user?->isInPlanTrial() ? $user?->trialEndsAt() : $user?->plan_expires_at)) ? format_date_vn($d) : __('No expiry')), 'text' => $user?->isInPlanTrial() ? __('Trial ends') : __('Plan expiry'), 'icon' => 'fa-calendar-days', 'tone' => '#0ea5e9'],
             ] as $card)
                 <div class="rounded-[1rem] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb), .58); background-color: var(--theme-surface-base);">
                     <div class="flex items-start justify-between gap-3">

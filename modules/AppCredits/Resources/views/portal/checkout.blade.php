@@ -1,6 +1,6 @@
 @php
     $featuredLabel = $pack->featured ? __('Featured') : null;
-    $priceLabel = $pack->currency_symbol.number_format((float) $pack->price, 2);
+    $priceLabel = format_money((float) $pack->price, $pack->currency);
 @endphp
 
 <div class="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 lg:px-8">

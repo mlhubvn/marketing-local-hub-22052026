@@ -30,7 +30,7 @@
         filled($user->timezone ?: config('app.timezone', 'UTC')),
     ])->filter()->count();
     $profileCompletionPercent = (int) round(($profileCompletion / 5) * 100);
-    $memberSince = $user->created_at?->format('M d, Y') ?: __('Unknown');
+    $memberSince = $user->created_at ? format_date_vn($user->created_at) : __('Unknown');
     $emailStatusLabel = $user->email_verified_at ? __('Verified') : __('Verification pending');
     $emailStatusVariant = $user->email_verified_at ? 'success' : 'neutral';
     $canChangeEmail = (bool) data_get($profilePolicies ?? [], 'can_change_email', false);

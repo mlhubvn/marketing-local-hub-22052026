@@ -57,12 +57,12 @@
                     </div>
                     <div class="rounded-[1rem] border p-4" style="border-color: var(--theme-border-color); background: var(--theme-chart-surface);">
                         <p class="text-[11px] font-semibold uppercase tracking-[0.2em]" style="color: var(--theme-muted-text-color);">{{ __('Pricing') }}</p>
-                        <p class="mt-3 text-lg font-semibold" style="color: var(--theme-header-text-color);">{{ $plan ? $plan->currency_symbol.' '.number_format((float) $plan->price, 2) : __('—') }}</p>
+                        <p class="mt-3 text-lg font-semibold" style="color: var(--theme-header-text-color);">{{ $plan ? format_money((float) $plan->price, $plan->currency) : __('—') }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $plan ? match((int) $plan->type) { 2 => __('Yearly'), 3 => __('Lifetime'), default => __('Monthly') } : __('No billing cycle') }}</p>
                     </div>
                     <div class="rounded-[1rem] border p-4" style="border-color: var(--theme-border-color); background: var(--theme-chart-surface);">
                         <p class="text-[11px] font-semibold uppercase tracking-[0.2em]" style="color: var(--theme-muted-text-color);">{{ __('Expires') }}</p>
-                        <p class="mt-3 text-lg font-semibold" style="color: var(--theme-header-text-color);">{{ $user?->plan_expires_at?->format('Y-m-d') ?? __('No expiry') }}</p>
+                        <p class="mt-3 text-lg font-semibold" style="color: var(--theme-header-text-color);">{{ $user?->plan_expires_at ? format_date_vn($user->plan_expires_at) : __('No expiry') }}</p>
                     </div>
                 </div>
             </x-ui.card>

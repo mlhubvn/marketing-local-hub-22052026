@@ -82,7 +82,7 @@
                                     <p class="text-3xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format((int) $pack->credits) }}</p>
                                     <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Credits') }}</p>
                                 </div>
-                                <p class="text-xl font-semibold" style="color: var(--theme-header-text-color);">{{ $pack->currency_symbol }}{{ number_format((float) $pack->price, 2) }}</p>
+                                <p class="text-xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_money((float) $pack->price, $pack->currency) }}</p>
                             </div>
 
                             <div class="mt-5">

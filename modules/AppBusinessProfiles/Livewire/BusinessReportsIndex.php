@@ -102,7 +102,7 @@ class BusinessReportsIndex extends Component
                 'coupons' => $coupons,
                 'feedback' => $feedbacks,
                 'review_clicks' => $reviewClicks,
-                'conversion_rate' => $scans > 0 ? round(($conversions / $scans) * 100, 1) : 0,
+                'conversion_rate' => $scans > 0 ? round(($conversions / $scans) * 100) : 0,
                 'conversions' => $conversions,
             ],
             'funnel' => [
@@ -152,7 +152,7 @@ class BusinessReportsIndex extends Component
                     'coupons' => (int) ($coupons[$campaign->id] ?? 0),
                     'review_clicks' => (int) ($reviews[$campaign->id] ?? 0),
                     'feedback' => (int) ($feedback[$campaign->id] ?? 0),
-                    'conversion_rate' => $campaign->scans_count > 0 ? round(($conversions / $campaign->scans_count) * 100, 1) : 0,
+                    'conversion_rate' => $campaign->scans_count > 0 ? round(($conversions / $campaign->scans_count) * 100) : 0,
                 ];
             })
             ->sortByDesc(fn (array $row): int|float => match ($this->topSort) {
@@ -242,7 +242,7 @@ class BusinessReportsIndex extends Component
             'negative' => $negative,
             'review_clicks' => $reviewClicks,
             'average_rating' => round((float) (clone $ratings)->avg('rating'), 1),
-            'conversion_rate' => $total > 0 ? round(($positive / $total) * 100, 1) : 0,
+            'conversion_rate' => $total > 0 ? round(($positive / $total) * 100) : 0,
         ];
     }
 
@@ -258,7 +258,7 @@ class BusinessReportsIndex extends Component
                 'source' => __('Lead Form'),
                 'campaign' => $campaignNames->get($row->campaign_id)?->name ?: __('Campaign removed'),
                 'leads' => (int) $row->total,
-                'conversion_rate' => $scans > 0 ? round(((int) $row->total / $scans) * 100, 1) : 0,
+                'conversion_rate' => $scans > 0 ? round(((int) $row->total / $scans) * 100) : 0,
                 'last_lead' => $row->last_lead,
             ]);
     }
@@ -274,7 +274,7 @@ class BusinessReportsIndex extends Component
             'confirmed' => (int) ($statuses['confirmed'] ?? 0),
             'cancelled' => (int) ($statuses['cancelled'] ?? 0),
             'completed' => (int) ($statuses['completed'] ?? 0),
-            'conversion_rate' => $scans > 0 ? round(($total / $scans) * 100, 1) : 0,
+            'conversion_rate' => $scans > 0 ? round(($total / $scans) * 100) : 0,
         ];
     }
 
@@ -288,8 +288,8 @@ class BusinessReportsIndex extends Component
             'claims' => $total,
             'used' => $used,
             'expired' => (int) ($statuses['expired'] ?? 0),
-            'redemption_rate' => $total > 0 ? round(($used / $total) * 100, 1) : 0,
-            'conversion_rate' => $scans > 0 ? round(($total / $scans) * 100, 1) : 0,
+            'redemption_rate' => $total > 0 ? round(($used / $total) * 100) : 0,
+            'conversion_rate' => $scans > 0 ? round(($total / $scans) * 100) : 0,
         ];
     }
 

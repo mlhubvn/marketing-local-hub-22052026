@@ -208,7 +208,7 @@ class CouponCampaignIndex extends Component
                 'claims' => $allClaims->count(),
                 'used' => $allClaims->where('status', 'used')->count(),
                 'claimed' => $allClaims->where('status', 'claimed')->count(),
-                'redemption_rate' => $allClaims->count() > 0 ? round(($allClaims->where('status', 'used')->count() / $allClaims->count()) * 100, 1) : 0,
+                'redemption_rate' => $allClaims->count() > 0 ? round(($allClaims->where('status', 'used')->count() / $allClaims->count()) * 100) : 0,
             ],
         ])->layout(theme_view('layouts.app', 'app'), [
             'title' => __('Coupons'),

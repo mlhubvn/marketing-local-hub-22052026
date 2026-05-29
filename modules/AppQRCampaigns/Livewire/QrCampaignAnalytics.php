@@ -45,7 +45,7 @@ class QrCampaignAnalytics extends Component
                 'total_scans' => $totalScans,
                 'unique_visitors' => $uniqueVisitors,
                 'conversions' => $conversions,
-                'conversion_rate' => $totalScans > 0 ? round(($conversions / $totalScans) * 100, 1) : 0,
+                'conversion_rate' => $totalScans > 0 ? round(($conversions / $totalScans) * 100) : 0,
                 'last_scanned' => $lastScanned ? Carbon::parse($lastScanned) : null,
             ],
             'dailyScans' => $this->dailyScans(),

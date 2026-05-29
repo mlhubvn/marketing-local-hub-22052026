@@ -266,7 +266,7 @@
                             <p class="lb-copy lb-plan-desc mt-5 text-sm">{{ $plan['desc'] ?: __('A practical plan for local campaign pages, QR campaigns, AI copy, reports, and team usage.') }}</p>
                             <div class="mt-5">
                                 <span class="lb-serif lb-plan-price text-6xl">
-                                    {{ $isFreePlan ? ($plan['currency_symbol'] ?: '$').'0' : ($plan['currency_symbol'] ?: '$').rtrim(rtrim(number_format((float) ($plan['price'] ?? 0), 2), '0'), '.') }}
+                                    {{ $isFreePlan ? format_money(0, $plan['currency'] ?? null) : format_money((float) ($plan['price'] ?? 0), $plan['currency'] ?? null) }}
                                 </span>
                                 <span class="text-sm font-bold" style="color: var(--lb-muted);">/{{ strtolower($typeLabel) }}</span>
                             </div>

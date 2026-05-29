@@ -418,7 +418,7 @@
                                                 <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $source['type'] }}</p>
                                                 <span class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($source['count']) }}</span>
                                             </div>
-                                            <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Conversion') }} {{ number_format($source['conversion_rate'], 1) }}% - {{ __('Last lead') }} {{ $source['last'] ? \Carbon\Carbon::parse($source['last'])->diffForHumans() : '-' }}</p>
+                                            <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Conversion') }} {{ number_format((float) $source['conversion_rate']) }}% - {{ __('Last lead') }} {{ $source['last'] ? \Carbon\Carbon::parse($source['last'])->diffForHumans() : '-' }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -539,7 +539,7 @@
                                 <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('1-3 star feedback') }}</p>
                             </div>
                             <div class="rounded-2xl border p-4" style="border-color: rgba(var(--theme-border-color-rgb), .62);">
-                                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ $reviewStats['total_ratings'] > 0 ? number_format(($reviewStats['positive_ratings'] / max(1, $reviewStats['total_ratings'])) * 100, 1) : 0 }}%</p>
+                                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ $reviewStats['total_ratings'] > 0 ? number_format(($reviewStats['positive_ratings'] / max(1, $reviewStats['total_ratings'])) * 100) : 0 }}%</p>
                                 <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Positive rate') }}</p>
                                 <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Positive / total ratings') }}</p>
                             </div>

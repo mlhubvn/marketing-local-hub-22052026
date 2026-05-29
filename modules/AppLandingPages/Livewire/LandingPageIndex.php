@@ -531,7 +531,7 @@ class LandingPageIndex extends Component
                 'draft' => $allPages->where('status', 'draft')->count(),
                 'visits' => $visits,
                 'conversions' => $conversions,
-                'conversion_rate' => $visits > 0 ? round(($conversions / $visits) * 100, 1) : 0,
+                'conversion_rate' => $visits > 0 ? round(($conversions / $visits) * 100) : 0,
             ],
         ])->layout(theme_view('layouts.app', 'app'), ['title' => __('Landing Pages')]);
     }

@@ -5,6 +5,23 @@ namespace Modules\AdminPlans\Support;
 class CurrencyCatalog
 {
     /**
+     * Currencies that do not use minor units (no decimal places).
+     *
+     * @var array<int, string>
+     */
+    private const ZERO_DECIMAL = [
+        'VND', 'JPY', 'KRW', 'CLP', 'ISK', 'HUF', 'UGX', 'RWF', 'XAF', 'XOF',
+        'XPF', 'KMF', 'DJF', 'GNF', 'PYG', 'VUV', 'BIF',
+    ];
+
+    /**
+     * Currencies that render the symbol after the amount (e.g. "490.000 ₫").
+     *
+     * @var array<int, string>
+     */
+    private const SUFFIX_SYMBOL = ['VND'];
+
+    /**
      * @return array<string, array{code: string, name: string, symbol: string}>
      */
     public static function all(): array
@@ -261,6 +278,35 @@ class CurrencyCatalog
         $currency = self::find(self::normalizeCode($value));
 
         return $currency['name'] ?? $fallback;
+    }
+
+    /**
+     * Number of decimal places to display for the given currency.
+     */
+    public static function decimalsFor(?string $value): int
+    {
+        return in_array(self::normalizeCode($value), self::ZERO_DECIMAL, true) ? 0 : 2;
+    }
+
+    /**
+     * Format a monetary amount according to the currency's locale conventions.
+     *
+     * Examples:
+     *  - VND: 490.000 ₫   (dot thousands, no decimals, symbol after the amount)
+     *  - USD: $490,000.00 (comma thousands, two decimals, symbol before the amount)
+     */
+    public static function format(float|int|string|null $amount, ?string $value = null): string
+    {
+        $code = self::normalizeCode($value);
+        $symbol = self::symbolFor($code);
+        $decimals = self::decimalsFor($code);
+        $amount = (float) $amount;
+
+        if (in_array($code, self::SUFFIX_SYMBOL, true)) {
+            return number_format($amount, $decimals, ',', '.').' '.$symbol;
+        }
+
+        return $symbol.number_format($amount, $decimals, '.', ',');
     }
 
     /**

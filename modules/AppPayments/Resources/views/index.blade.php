@@ -19,7 +19,7 @@
                 @endif
 
                 <span class="inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] shadow-[0_10px_24px_-20px_rgba(var(--theme-accent-rgb),0.38)]" style="border-color: rgba(var(--theme-accent-rgb), 0.18); color: var(--theme-muted-text-color); background: rgba(var(--theme-accent-rgb), 0.05);">
-                    {{ __('Total today') }} {{ $plan->currency_symbol }}{{ number_format((float) $pricing['total'], 2) }}
+                    {{ __('Total today') }} {{ format_money((float) $pricing['total'], $plan->currency) }}
                 </span>
             </div>
 

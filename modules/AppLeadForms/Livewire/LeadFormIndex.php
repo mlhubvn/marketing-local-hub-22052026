@@ -186,7 +186,7 @@ class LeadFormIndex extends Component
                 'visits' => $visits,
                 'leads' => $filteredLeadCount,
                 'all_leads' => $allLeadCount,
-                'lead_rate' => $visits > 0 ? round(($filteredLeadCount / $visits) * 100, 1) : 0,
+                'lead_rate' => $visits > 0 ? round(($filteredLeadCount / $visits) * 100) : 0,
             ],
         ])->layout(theme_view('layouts.app', 'app'), ['title' => __('Lead Forms')]);
     }

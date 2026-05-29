@@ -2,6 +2,7 @@
 
 use App\Support\TimezoneCatalog;
 use App\Support\Dashboard\AdminDashboardRegistry;
+use Modules\AdminPlans\Support\CurrencyCatalog;
 use App\Support\Dashboard\UserDashboardRegistry;
 use App\Support\Navigation\SidebarRegistry;
 use App\Support\Navigation\HeaderRegistry;
@@ -365,6 +366,36 @@ if (! function_exists('world_languages')) {
     function world_languages(): array
     {
         return WorldLanguageCatalog::all();
+    }
+}
+
+if (! function_exists('format_money')) {
+    /**
+     * Format a monetary amount for display using the currency's conventions.
+     *
+     * @param  string|null  $currency  Currency code (e.g. "VND", "USD") or symbol.
+     */
+    function format_money(float|int|string|null $amount, ?string $currency = null): string
+    {
+        return CurrencyCatalog::format($amount, $currency);
+    }
+}
+
+if (! function_exists('format_date_vn')) {
+    /**
+     * Format a date using the Vietnamese convention (dd/mm/yyyy by default).
+     */
+    function format_date_vn(mixed $date, string $format = 'd/m/Y'): string
+    {
+        if (empty($date)) {
+            return '';
+        }
+
+        $carbon = $date instanceof DateTimeInterface
+            ? Illuminate\Support\Carbon::instance($date)
+            : Illuminate\Support\Carbon::parse($date);
+
+        return $carbon->format($format);
     }
 }
 

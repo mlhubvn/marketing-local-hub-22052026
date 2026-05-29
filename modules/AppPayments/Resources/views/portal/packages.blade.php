@@ -16,7 +16,7 @@
             :items="[
                 ['label' => __('Plans'), 'value' => number_format($summary['total']), 'description' => __('Packages currently available in the subscription catalog.'), 'progress' => 100, 'tone' => 'var(--theme-accent)'],
                 ['label' => __('Featured'), 'value' => number_format($summary['featured']), 'description' => __('Plans highlighted as the recommended upgrade path.'), 'progress' => $summary['total'] > 0 ? (int) round(($summary['featured'] / $summary['total']) * 100) : 0, 'tone' => 'var(--theme-success-color)'],
-                ['label' => __('Starting at'), 'value' => $summary['startingAt'] !== null ? (($user?->plan?->currency_symbol ?: '$').number_format((float) $summary['startingAt'], 2)) : __('N/A'), 'description' => __('Lowest paid package price currently available.'), 'progress' => 100, 'tone' => 'var(--theme-warning-color)'],
+                ['label' => __('Starting at'), 'value' => $summary['startingAt'] !== null ? format_money((float) $summary['startingAt'], $user?->plan?->currency) : __('N/A'), 'description' => __('Lowest paid package price currently available.'), 'progress' => 100, 'tone' => 'var(--theme-warning-color)'],
             ]"
             :show-icons="false"
             columns="md:grid-cols-3"
@@ -97,7 +97,7 @@
 
                                         <div class="mt-8">
                                             <p class="text-[3rem] font-semibold leading-none tracking-[-0.07em]" style="color: var(--theme-header-text-color);">
-                                                {{ $plan['free_plan'] ? ($plan['currency_symbol'] ?: '$').'0' : ($plan['currency_symbol'] ?: '$').rtrim(rtrim(number_format((float) $plan['price'], 2), '0'), '.') }}
+                                                {{ $plan['free_plan'] ? format_money(0, $plan['currency']) : format_money((float) $plan['price'], $plan['currency']) }}
                                                 <span class="text-lg font-semibold tracking-normal" style="color: var(--theme-muted-text-color);">/{{ strtolower($typeLabel) }}</span>
                                             </p>
                                             <p class="mt-2 text-xs font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ $plan['currency'] }} · {{ $plan['currency_name'] }}</p>

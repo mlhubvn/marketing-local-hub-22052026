@@ -149,7 +149,7 @@ class LocalAnalyticsIndex extends Component
                 'bookings' => $bookings,
                 'coupons' => $coupons,
                 'review_clicks' => $reviewClicks,
-                'conversion_rate' => $scans > 0 ? round(($conversions / $scans) * 100, 1) : 0,
+                'conversion_rate' => $scans > 0 ? round(($conversions / $scans) * 100) : 0,
             ],
             'campaigns' => (clone $campaignQuery)
                 ->with('business')
@@ -199,7 +199,7 @@ class LocalAnalyticsIndex extends Component
             'contacted' => 0,
             'converted' => $converted,
             'lost' => 0,
-            'conversion_rate' => $visits > 0 ? round(($total / $visits) * 100, 1) : 0,
+            'conversion_rate' => $visits > 0 ? round(($total / $visits) * 100) : 0,
         ];
     }
 
@@ -212,7 +212,7 @@ class LocalAnalyticsIndex extends Component
             ['type' => __('Feedback Form'), 'icon' => 'fa-light fa-message-lines', 'count' => $dateScope(FeedbackResponse::query()->whereIn('campaign_id', $campaignIds))->count(), 'last' => $dateScope(FeedbackResponse::query()->whereIn('campaign_id', $campaignIds))->latest()->value('created_at')],
         ])->map(fn (array $source): array => [
             ...$source,
-            'conversion_rate' => $visits > 0 ? round(($source['count'] / $visits) * 100, 1) : 0,
+            'conversion_rate' => $visits > 0 ? round(($source['count'] / $visits) * 100) : 0,
         ]);
     }
 
@@ -241,7 +241,7 @@ class LocalAnalyticsIndex extends Component
             'confirmed' => (clone $query)->where('status', 'confirmed')->count(),
             'completed' => (clone $query)->where('status', 'completed')->count(),
             'cancelled' => (clone $query)->whereIn('status', ['cancelled', 'canceled'])->count(),
-            'completion_rate' => $total > 0 ? round(((clone $query)->where('status', 'completed')->count() / $total) * 100, 1) : 0,
+            'completion_rate' => $total > 0 ? round(((clone $query)->where('status', 'completed')->count() / $total) * 100) : 0,
         ];
     }
 
@@ -265,7 +265,7 @@ class LocalAnalyticsIndex extends Component
             'used' => $used,
             'unused' => max(0, $claims - $used),
             'expired_campaigns' => $expiredCampaigns,
-            'redemption_rate' => $claims > 0 ? round(($used / $claims) * 100, 1) : 0,
+            'redemption_rate' => $claims > 0 ? round(($used / $claims) * 100) : 0,
         ];
     }
 
@@ -414,7 +414,7 @@ class LocalAnalyticsIndex extends Component
                     'review_clicks' => $reviewClicks,
                     'bookings' => $bookings,
                     'coupons' => $coupons,
-                    'conversion_rate' => $visits > 0 ? round(($conversions / $visits) * 100, 1) : 0,
+                    'conversion_rate' => $visits > 0 ? round(($conversions / $visits) * 100) : 0,
                 ];
             })
             ->sortByDesc('visits')
@@ -441,7 +441,7 @@ class LocalAnalyticsIndex extends Component
                     'coupons' => (int) ($coupons[$campaign->id] ?? 0),
                     'review_clicks' => (int) ($reviews[$campaign->id] ?? 0),
                     'feedback' => (int) ($feedback[$campaign->id] ?? 0),
-                    'conversion_rate' => $campaign->scans_count > 0 ? round(($conversions / $campaign->scans_count) * 100, 1) : 0,
+                    'conversion_rate' => $campaign->scans_count > 0 ? round(($conversions / $campaign->scans_count) * 100) : 0,
                 ];
             })
             ->sortByDesc(fn (array $row) => $row['campaign']->scans_count)
