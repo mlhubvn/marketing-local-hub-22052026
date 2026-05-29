@@ -37,7 +37,7 @@ class ThemeSettings
             'font_family' => [
                 'type' => 'select',
                 'label' => 'Font family',
-                'default' => 'inter',
+                'default' => 'manrope',
                 'options' => [
                     'inter' => 'Inter',
                     'instrument-sans' => 'Instrument Sans',
@@ -122,9 +122,9 @@ class ThemeSettings
 
     public function fontStack(Theme $theme): string
     {
-        $key = (string) $this->get($theme, 'font_family', 'inter');
+        $key = (string) $this->get($theme, 'font_family', 'manrope');
 
-        return $this->fontStacks[$key] ?? $this->fontStacks['inter'];
+        return $this->fontStacks[$key] ?? $this->fontStacks['manrope'];
     }
 
     public function accentRgb(Theme $theme): string

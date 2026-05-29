@@ -67,6 +67,8 @@
         --theme-page-max-width: {{ $pageMaxWidth }};
         --theme-section-spacing: {{ $sectionSpacing }};
         --theme-font-sans: {!! theme_font_stack('guest') !!};
+        /* Drive Tailwind's base font token so the selected font applies site-wide. */
+        --font-sans: var(--theme-font-sans) !important;
     }
 
     html {
@@ -74,6 +76,16 @@
         color: #0f172a;
         max-width: 100%;
         overflow-x: clip;
+        font-family: var(--theme-font-sans);
+    }
+
+    body,
+    button,
+    input,
+    optgroup,
+    select,
+    textarea {
+        font-family: var(--theme-font-sans);
     }
 
     body {

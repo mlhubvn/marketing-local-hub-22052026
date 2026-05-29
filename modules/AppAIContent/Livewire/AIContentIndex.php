@@ -52,9 +52,9 @@ class AIContentIndex extends Component
         }
 
         $this->content_type = (string) request('type', $this->content_type);
-        $this->goal = trim((string) request('goal', 'Ask customers to take the next local marketing action.'));
+        $this->goal = trim((string) request('goal', __('Ask customers to take the next local marketing action.')));
         $this->offer = trim((string) request('offer', ''));
-        $this->target_customer = trim((string) request('target_customer', 'Local customers'));
+        $this->target_customer = trim((string) request('target_customer', __('Local customers')));
         $this->extra_details = trim((string) request('details', ''));
         $this->source_type = trim((string) request('source_type', ''));
         $this->source_id = trim((string) request('source_id', ''));
@@ -150,13 +150,13 @@ class AIContentIndex extends Component
 
     public function makeShorter(AiContentStudioService $studio): void
     {
-        $this->extra_details = trim($this->extra_details."\n\nMake the content shorter and easier to scan.");
+        $this->extra_details = trim($this->extra_details."\n\n".__('Make the content shorter and easier to scan.'));
         $this->generate($studio);
     }
 
     public function makeLonger(AiContentStudioService $studio): void
     {
-        $this->extra_details = trim($this->extra_details."\n\nExpand the content with more useful detail while keeping it practical.");
+        $this->extra_details = trim($this->extra_details."\n\n".__('Expand the content with more useful detail while keeping it practical.'));
         $this->generate($studio);
     }
 
@@ -302,16 +302,16 @@ class AIContentIndex extends Component
     protected function syncDefaultsForType(): void
     {
         $defaults = [
-            'review_request' => ['goal' => 'Ask customers to leave a Google review after visiting.', 'offer' => '', 'target' => 'Happy recent customers'],
-            'coupon_message' => ['goal' => 'Promote a limited-time coupon offer.', 'offer' => '20% off next visit this weekend', 'target' => 'New and returning local customers'],
-            'booking_reminder' => ['goal' => 'Remind customers about an upcoming appointment.', 'offer' => '', 'target' => 'Booked customers'],
-            'feedback_request' => ['goal' => 'Ask customers to share private feedback after service.', 'offer' => '', 'target' => 'Recent customers'],
-            'lead_follow_up' => ['goal' => 'Follow up with a new lead and invite the next step.', 'offer' => 'Free consultation', 'target' => 'New leads'],
-            'social_post' => ['goal' => 'Promote a local business update or offer on social media.', 'offer' => '', 'target' => 'Local audience'],
-            'whatsapp_sms' => ['goal' => 'Send a short direct message to local customers.', 'offer' => '', 'target' => 'Opted-in customers'],
-            'thank_you' => ['goal' => 'Thank customers after a visit or purchase.', 'offer' => '', 'target' => 'Recent customers'],
-            'business_description' => ['goal' => 'Write a clear description for the business profile.', 'offer' => '', 'target' => 'People discovering the business'],
-            'landing_page_copy' => ['goal' => 'Write concise copy for a public landing page.', 'offer' => '', 'target' => 'Campaign visitors'],
+            'review_request' => ['goal' => __('Ask customers to leave a Google review after visiting.'), 'offer' => '', 'target' => __('Happy recent customers')],
+            'coupon_message' => ['goal' => __('Promote a limited-time coupon offer.'), 'offer' => __('20% off next visit this weekend'), 'target' => __('New and returning local customers')],
+            'booking_reminder' => ['goal' => __('Remind customers about an upcoming appointment.'), 'offer' => '', 'target' => __('Booked customers')],
+            'feedback_request' => ['goal' => __('Ask customers to share private feedback after service.'), 'offer' => '', 'target' => __('Recent customers')],
+            'lead_follow_up' => ['goal' => __('Follow up with a new lead and invite the next step.'), 'offer' => __('Free consultation'), 'target' => __('New leads')],
+            'social_post' => ['goal' => __('Promote a local business update or offer on social media.'), 'offer' => '', 'target' => __('Local audience')],
+            'whatsapp_sms' => ['goal' => __('Send a short direct message to local customers.'), 'offer' => '', 'target' => __('Opted-in customers')],
+            'thank_you' => ['goal' => __('Thank customers after a visit or purchase.'), 'offer' => '', 'target' => __('Recent customers')],
+            'business_description' => ['goal' => __('Write a clear description for the business profile.'), 'offer' => '', 'target' => __('People discovering the business')],
+            'landing_page_copy' => ['goal' => __('Write concise copy for a public landing page.'), 'offer' => '', 'target' => __('Campaign visitors')],
         ];
 
         if (! array_key_exists($this->content_type, $this->contentTypeLabels())) {
@@ -320,7 +320,7 @@ class AIContentIndex extends Component
 
         $preset = $defaults[$this->content_type] ?? $defaults['review_request'];
 
-        if (trim($this->goal) === '' || $this->goal === 'Ask customers to take the next local marketing action.') {
+        if (trim($this->goal) === '' || $this->goal === __('Ask customers to take the next local marketing action.')) {
             $this->goal = $preset['goal'];
         }
 
@@ -328,7 +328,7 @@ class AIContentIndex extends Component
             $this->offer = $preset['offer'];
         }
 
-        if (trim($this->target_customer) === '' || $this->target_customer === 'Local customers') {
+        if (trim($this->target_customer) === '' || $this->target_customer === __('Local customers')) {
             $this->target_customer = $preset['target'];
         }
     }
@@ -371,13 +371,13 @@ class AIContentIndex extends Component
     protected function buildPromptSummary(LocalBusiness $business, array $payload): string
     {
         return trim(implode("\n", array_filter([
-            'Business: '.$business->name,
-            'Content type: '.($this->contentTypeLabels()[$payload['content_type']] ?? $payload['content_type']),
-            'Goal: '.$payload['goal'],
-            $payload['offer'] !== '' ? 'Offer: '.$payload['offer'] : null,
-            $payload['target_customer'] !== '' ? 'Target customer: '.$payload['target_customer'] : null,
-            $payload['extra_details'] !== '' ? 'Extra details: '.$payload['extra_details'] : null,
-            $this->source_type !== '' ? 'Source: '.$this->source_type : null,
+            __('Business: :name', ['name' => $business->name]),
+            __('Content type: :type', ['type' => $this->contentTypeLabels()[$payload['content_type']] ?? $payload['content_type']]),
+            __('Goal: :goal', ['goal' => $payload['goal']]),
+            $payload['offer'] !== '' ? __('Offer: :offer', ['offer' => $payload['offer']]) : null,
+            $payload['target_customer'] !== '' ? __('Target customer: :customer', ['customer' => $payload['target_customer']]) : null,
+            $payload['extra_details'] !== '' ? __('Extra details: :details', ['details' => $payload['extra_details']]) : null,
+            $this->source_type !== '' ? __('Source: :source', ['source' => $this->source_type]) : null,
         ])));
     }
 

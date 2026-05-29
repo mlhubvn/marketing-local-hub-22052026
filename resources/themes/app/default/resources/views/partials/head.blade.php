@@ -139,6 +139,18 @@
         --theme-page-max-width: {{ $pageMaxWidth }};
         --theme-section-spacing: {{ $sectionSpacing }};
         --theme-font-sans: {!! theme_font_stack('app') !!};
+        /* Drive Tailwind's base font token so the selected font applies site-wide. */
+        --font-sans: var(--theme-font-sans) !important;
+    }
+
+    html,
+    body,
+    button,
+    input,
+    optgroup,
+    select,
+    textarea {
+        font-family: var(--theme-font-sans);
     }
 
     button,

@@ -31,7 +31,7 @@
             'success_color' => old('frontend_settings.success_color', $frontendThemeValues['success_color'] ?? ($frontendThemeSchema['success_color']['default'] ?? '#059669')),
             'warning_color' => old('frontend_settings.warning_color', $frontendThemeValues['warning_color'] ?? ($frontendThemeSchema['warning_color']['default'] ?? '#d97706')),
             'danger_color' => old('frontend_settings.danger_color', $frontendThemeValues['danger_color'] ?? ($frontendThemeSchema['danger_color']['default'] ?? '#dc2626')),
-            'font_family' => old('frontend_settings.font_family', $frontendThemeValues['font_family'] ?? ($frontendThemeSchema['font_family']['default'] ?? 'inter')),
+            'font_family' => old('frontend_settings.font_family', $frontendThemeValues['font_family'] ?? ($frontendThemeSchema['font_family']['default'] ?? 'manrope')),
             'layout_width' => old('frontend_settings.layout_width', $frontendThemeValues['layout_width'] ?? ($frontendThemeSchema['layout_width']['default'] ?? 'full')),
             'page_max_width' => old('frontend_settings.page_max_width', $frontendThemeValues['page_max_width'] ?? ($frontendThemeSchema['page_max_width']['default'] ?? '80rem')),
             'supports_dark_mode' => old('frontend_settings.supports_dark_mode', $frontendThemeValues['supports_dark_mode'] ?? ($frontendThemeSchema['supports_dark_mode']['default'] ?? '1')),
@@ -259,7 +259,7 @@
                     return Object.entries(values).every(([key, value]) => String(this.preview[key] ?? '').toLowerCase() === String(value ?? '').toLowerCase());
                 },
                 previewFont() {
-                    return this.fontStacks[this.preview.font_family] || this.fontStacks.inter;
+                    return this.fontStacks[this.preview.font_family] || this.fontStacks.manrope;
                 },
                 submitThemeForm(form, event) {
                     try {

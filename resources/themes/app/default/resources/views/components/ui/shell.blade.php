@@ -57,7 +57,7 @@
             'name' => $sidebarUser?->plan?->name ?: __('No plan assigned'),
             'badge' => $sidebarUser?->isInPlanTrial() ? __('Trial') : ($sidebarUser?->hasActivePlan() ? __('Active') : __('Inactive')),
             'badge_tone' => $sidebarUser?->hasActivePlan() ? 'success' : 'neutral',
-            'expiry' => (($sidebarUser?->isInPlanTrial() ? $sidebarUser?->trialEndsAt() : $sidebarUser?->plan_expires_at)?->format('Y-m-d')) ?: __('Unlimited'),
+            'expiry' => (($sidebarExpiry = ($sidebarUser?->isInPlanTrial() ? $sidebarUser?->trialEndsAt() : $sidebarUser?->plan_expires_at)) ? format_date_vn($sidebarExpiry) : __('Unlimited')),
             'unlimited' => (bool) ($sidebarCreditSummary['unlimited'] ?? false),
             'credits_used_label' => number_format($sidebarCreditsUsed),
             'credits_limit_label' => $sidebarCreditLimit !== null ? number_format($sidebarCreditLimit) : __('Unlimited'),

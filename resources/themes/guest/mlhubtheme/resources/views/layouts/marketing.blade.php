@@ -36,7 +36,7 @@
         ['label' => __('Terms of Use'), 'href' => route('guest.terms-of-use')],
     ];
 @endphp
-<body class="min-h-screen antialiased" style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #2d1810; background: #fffbf8;">
+<body class="min-h-screen antialiased" style="font-family: var(--theme-font-sans); color: #2d1810; background: #fffbf8;">
     <div class="relative isolate min-h-screen overflow-hidden">
         <header
             x-data="{
