@@ -30,11 +30,23 @@ class MlhubResetDemoCommand extends Command
         $this->call('db:wipe', ['--force' => true, '--drop-views' => true]);
         $this->call('migrate', ['--force' => true]);
         $this->call('db:seed', ['--force' => true]);
+
+        $this->warn('Đang seed Admin Faker (blog, FAQ, support, channels, LinkBio, QR, …)...');
+        $fakerExit = $this->call('admin-faker:refresh', ['--no-clear' => true]);
+
+        if ($fakerExit !== self::SUCCESS) {
+            $this->error('admin-faker:refresh thất bại — kiểm tra module AdminFaker đã bật.');
+
+            return self::FAILURE;
+        }
+
+        $this->call('db:seed', ['--class' => \Database\Seeders\MLHUBDemoExtrasSeeder::class, '--force' => true]);
+
         $this->call('optimize:clear');
 
         $this->newLine();
-        $this->info('Hoàn tất. Đăng nhập: demo@mlhub.vn / 123456 (super admin + demo tăng trưởng).');
-        $this->line('Chạy thêm trong container Redis: redis-cli FLUSHALL');
+        $this->info('Hoàn tất. Đăng nhập: demo@mlhub.vn / 123456 (super admin + demo đầy đủ).');
+        $this->line('Chạy thêm trong container Redis: docker exec -it <redis> redis-cli -a \'...\' FLUSHALL');
 
         return self::SUCCESS;
     }

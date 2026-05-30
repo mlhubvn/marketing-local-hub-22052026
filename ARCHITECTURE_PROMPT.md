@@ -182,7 +182,7 @@ php artisan mlhub:reset-demo --force
 redis-cli -h <redis-host> -a '<password>' FLUSHALL
 ```
 
-Lệnh trên: `db:wipe` → `migrate` → `db:seed` (foundation, gói, AI templates, site options + license, marketplace packages, demo VN + volume lớn, bản ghi file logo) → `optimize:clear`.
+Lệnh trên: `db:wipe` → `migrate` → `db:seed` (foundation, license, marketplace, demo VN + volume) → **`admin-faker:refresh`** (blog, FAQ, support, channels, LinkBio, QR, short links, affiliate, …) → `MLHUBDemoExtrasSeeder` (email templates, template packs) → `optimize:clear`. **Không** seed `files` (logo upload tay). Chỉ chạy `db:seed` / reset mà không có bước Admin Faker ≈ dump `mysql-moi.sql` (thiếu ~27 bảng so với `mysql-cu.sql` sau Faker).
 
 #### B. Từng bước (nếu muốn kiểm soát)
 

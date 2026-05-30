@@ -37,7 +37,6 @@ return [
         \Database\Seeders\MLHUBBootstrapSeeder::class,
         \Database\Seeders\MLHUBMarketplaceSeeder::class,
         \Database\Seeders\LocalBoostDemoSeeder::class,
-        \Database\Seeders\MLHUBBrandFilesSeeder::class,
     ],
 
     'backend_theme_settings' => [

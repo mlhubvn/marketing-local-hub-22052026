@@ -22,6 +22,7 @@ use Modules\AdminNotifications\Models\NotificationManual;
 use Modules\AdminNotifications\Models\NotificationManualState;
 use Modules\AdminPaymentHistory\Models\PaymentHistory;
 use Modules\AdminPlans\Models\AdminPlan;
+use Modules\AppAdvancedCustomerCrm\Models\CustomerTag;
 use Modules\AdminSupport\Models\SupportCategory;
 use Modules\AdminSupport\Models\SupportComment;
 use Modules\AdminSupport\Models\SupportLabel;
@@ -531,7 +532,10 @@ class AdminFakerService
 
     protected function resolveFirstUser(): User
     {
-        $user = User::query()->orderBy('id')->first();
+        $demoEmail = (string) ($this->mlhubDemoVn()['user']['email'] ?? config('mlhub.contact_email', 'demo@mlhub.vn'));
+
+        $user = User::query()->where('email', $demoEmail)->first()
+            ?? User::query()->orderBy('id')->first();
 
         abort_if(! $user, 404, __('No user found for Admin Faker.'));
 
@@ -540,17 +544,31 @@ class AdminFakerService
 
     protected function ensurePlan(User $user): void
     {
-        if ($user->plan_id) {
+        $planSlug = trim((string) config('mlhub.admin_plan_slug', 'agency-lifetime'));
+
+        $plan = $planSlug !== ''
+            ? AdminPlan::query()->where('slug', $planSlug)->where('status', true)->first()
+            : null;
+
+        if (! $plan) {
+            $plan = AdminPlan::query()
+                ->where('status', true)
+                ->orderByDesc('default_signup_plan')
+                ->orderBy('position')
+                ->first();
+        }
+
+        if (! $plan) {
             return;
         }
 
-        $plan = AdminPlan::query()
-            ->where('status', true)
-            ->orderByDesc('default_signup_plan')
-            ->orderBy('position')
-            ->first();
+        if ((int) $user->plan_id === (int) $plan->id) {
+            return;
+        }
 
-        if (! $plan) {
+        if (class_exists(\Modules\AppPayments\Support\UserPlanTransitionService::class)) {
+            app(\Modules\AppPayments\Support\UserPlanTransitionService::class)->applyPurchasedPlan($user, $plan);
+
             return;
         }
 
@@ -823,6 +841,44 @@ class AdminFakerService
         $counts['local_recent_activity'] = $totalLeads + $totalBookings + $totalCoupons + $totalReviews + $totalFeedback;
         $counts['local_top_campaigns'] = min(6, $campaigns->count());
         $counts['local_top_businesses'] = $businesses->count();
+
+        $this->seedDemoCustomerTags($user, $customers);
+    }
+
+    protected function seedDemoCustomerTags(User $user, $customers): void
+    {
+        if (! class_exists(CustomerTag::class) || ! Schema::hasTable('lb_customer_tags')) {
+            return;
+        }
+
+        $teamId = $user->ownedTeams()->value('id') ?? $user->id;
+
+        $tags = collect([
+            ['name' => 'VIP', 'slug' => 'vip', 'color' => '#f59e0b'],
+            ['name' => 'Khách mới', 'slug' => 'new-customer', 'color' => '#2563eb'],
+            ['name' => 'Khách quay lại', 'slug' => 'returning-customer', 'color' => '#0f766e'],
+            ['name' => 'Cần follow-up', 'slug' => 'needs-follow-up', 'color' => '#dc2626'],
+            ['name' => 'Đã nhận coupon', 'slug' => 'coupon-claimed', 'color' => '#7c3aed'],
+            ['name' => 'Feedback điểm thấp', 'slug' => 'low-score-feedback', 'color' => '#ef4444'],
+            ['name' => 'Khách thân thiết', 'slug' => 'loyal-customer', 'color' => '#16a34a'],
+            ['name' => 'Giới thiệu', 'slug' => 'referral-customer', 'color' => '#0891b2'],
+            ['name' => 'Không hoạt động', 'slug' => 'inactive', 'color' => '#64748b'],
+        ])->map(fn (array $tag) => CustomerTag::query()->firstOrCreate(
+            ['team_id' => $teamId, 'slug' => $tag['slug']],
+            ['name' => $tag['name'], 'color' => $tag['color'], 'is_system' => true],
+        ));
+
+        foreach ($customers as $index => $customer) {
+            $tag = $tags[$index % $tags->count()];
+
+            $customer->crmTags()->syncWithoutDetaching([
+                $tag->id => [
+                    'team_id' => $teamId,
+                    'created_by' => $user->id,
+                    'created_at' => now(),
+                ],
+            ]);
+        }
     }
 
     protected function clearLocalBoostDemoData(User $user, array &$deleted): void
