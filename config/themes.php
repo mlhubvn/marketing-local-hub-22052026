@@ -15,7 +15,7 @@ return [
 
     'areas' => [
         'guest' => [
-            'fallback' => env('THEME_FRONTEND', 'localboostai'),
+            'fallback' => env('THEME_FRONTEND', 'mlhubtheme'),
             'option_key' => 'frontend_theme',
             'route_prefixes' => [],
             'route_names' => [
@@ -28,7 +28,7 @@ return [
         ],
 
         'app' => [
-            'fallback' => env('THEME_BACKEND', 'default'),
+            'fallback' => env('THEME_BACKEND', 'mlhubtheme'),
             'option_key' => 'backend_theme',
             'route_prefixes' => [
                 'app',

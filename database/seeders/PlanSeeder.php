@@ -198,6 +198,30 @@ class PlanSeeder extends Seeder
             'ai_publishing_generate_images' => false,
             'ai_publishing_user_schedule_time' => false,
             'support' => true,
+            'ai_studio' => true,
+            'ai_studio_caption_generator' => true,
+            'ai_studio_content_planner' => true,
+            'ai_studio_repurpose' => false,
+            'ai_studio_image' => false,
+            'email_automation' => false,
+            'max_email_automations' => 0,
+            'max_email_templates' => 0,
+            'emails_per_month' => 0,
+            'automation_delay' => false,
+            'automation_conditions' => false,
+            'google_business' => false,
+            'max_google_business_connections' => 0,
+            'max_google_business_locations' => 0,
+            'google_review_sync' => false,
+            'google_review_reply' => false,
+            'google_business_insights' => false,
+            'google_business_posts' => false,
+            'advanced_crm' => false,
+            'customer_tags' => 0,
+            'customer_segments' => 0,
+            'customer_tasks' => 0,
+            'crm_automations' => 0,
+            'crm_activity_retention_days' => 90,
             'teams' => true,
             'max_team_members' => 2,
             'affiliate' => false,
@@ -265,6 +289,30 @@ class PlanSeeder extends Seeder
             'ai_publishing_generate_images' => true,
             'ai_publishing_user_schedule_time' => true,
             'support' => true,
+            'ai_studio' => true,
+            'ai_studio_caption_generator' => true,
+            'ai_studio_content_planner' => true,
+            'ai_studio_repurpose' => true,
+            'ai_studio_image' => true,
+            'email_automation' => true,
+            'max_email_automations' => 5,
+            'max_email_templates' => 10,
+            'emails_per_month' => 3000,
+            'automation_delay' => true,
+            'automation_conditions' => false,
+            'google_business' => true,
+            'max_google_business_connections' => 2,
+            'max_google_business_locations' => 5,
+            'google_review_sync' => true,
+            'google_review_reply' => true,
+            'google_business_insights' => true,
+            'google_business_posts' => false,
+            'advanced_crm' => true,
+            'customer_tags' => 25,
+            'customer_segments' => 10,
+            'customer_tasks' => 100,
+            'crm_automations' => 5,
+            'crm_activity_retention_days' => 365,
             'teams' => true,
             'max_team_members' => 5,
             'affiliate' => true,
@@ -332,6 +380,30 @@ class PlanSeeder extends Seeder
             'ai_publishing_generate_images' => true,
             'ai_publishing_user_schedule_time' => true,
             'support' => true,
+            'ai_studio' => true,
+            'ai_studio_caption_generator' => true,
+            'ai_studio_content_planner' => true,
+            'ai_studio_repurpose' => true,
+            'ai_studio_image' => true,
+            'email_automation' => true,
+            'max_email_automations' => -1,
+            'max_email_templates' => -1,
+            'emails_per_month' => -1,
+            'automation_delay' => true,
+            'automation_conditions' => true,
+            'google_business' => true,
+            'max_google_business_connections' => -1,
+            'max_google_business_locations' => -1,
+            'google_review_sync' => true,
+            'google_review_reply' => true,
+            'google_business_insights' => true,
+            'google_business_posts' => true,
+            'advanced_crm' => true,
+            'customer_tags' => -1,
+            'customer_segments' => -1,
+            'customer_tasks' => -1,
+            'crm_automations' => -1,
+            'crm_activity_retention_days' => -1,
             'teams' => true,
             'max_team_members' => 15,
             'affiliate' => true,
@@ -451,6 +523,34 @@ class PlanSeeder extends Seeder
         $permissions['automation'] = $this->truthy($permissions['automation'] ?? false)
             || $this->truthy($permissions['max_automation_api_keys'] ?? 0)
             || $this->truthy($permissions['max_automation_webhooks'] ?? 0);
+
+        $permissions['email_automation'] = $this->truthy($permissions['email_automation'] ?? false)
+            || $this->truthy($permissions['max_email_automations'] ?? 0)
+            || $this->truthy($permissions['emails_per_month'] ?? 0);
+
+        $permissions['google_business'] = $this->truthy($permissions['google_business'] ?? false)
+            || $this->truthy($permissions['max_google_business_connections'] ?? 0)
+            || $this->truthy($permissions['max_google_business_locations'] ?? 0);
+
+        $permissions['advanced_crm'] = $this->truthy($permissions['advanced_crm'] ?? false)
+            || $this->truthy($permissions['customer_tags'] ?? 0)
+            || $this->truthy($permissions['customer_segments'] ?? 0)
+            || $this->truthy($permissions['customer_tasks'] ?? 0)
+            || $this->truthy($permissions['crm_automations'] ?? 0);
+
+        $permissions['whatsapp_notification'] = $this->truthy($permissions['whatsapp_notification'] ?? false)
+            || $this->truthy($permissions['max_whatsapp_notifications'] ?? 0)
+            || $this->truthy($permissions['whatsapp_messages_per_month'] ?? 0);
+
+        $permissions['webhook_automation'] = $this->truthy($permissions['webhook_automation'] ?? false)
+            || $this->truthy($permissions['max_webhook_automations'] ?? 0)
+            || $this->truthy($permissions['webhooks_per_month'] ?? 0);
+
+        $permissions['qr_custom_domains'] = $this->truthy($permissions['qr_custom_domains'] ?? false)
+            || $this->truthy($permissions['max_custom_domains'] ?? 0);
+
+        $permissions['teams'] = $this->truthy($permissions['teams'] ?? false)
+            || $this->truthy($permissions['max_team_members'] ?? 0);
 
         return $permissions;
     }
