@@ -2,6 +2,7 @@
 
 namespace Modules\AppGoogleBusiness\Providers;
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
 use Modules\AdminCrons\Support\SystemCronRegistry;
 
@@ -21,6 +22,20 @@ class AppGoogleBusinessServiceProvider extends ServiceProvider
             \Modules\AppGoogleBusiness\Console\PublishScheduledGoogleBusinessPostsCommand::class,
             \Modules\AppGoogleBusiness\Console\SyncGoogleBusinessReviewsCommand::class,
         ]);
+
+        if ($this->app->runningInConsole()) {
+            $this->app->booted(function (): void {
+                $this->app->make(Schedule::class)
+                    ->command('google-business:sync-reviews')
+                    ->everyFifteenMinutes()
+                    ->withoutOverlapping();
+
+                $this->app->make(Schedule::class)
+                    ->command('google-business:publish-scheduled-posts')
+                    ->everyFiveMinutes()
+                    ->withoutOverlapping();
+            });
+        }
 
         $this->registerAdminIntegrationItem();
         $this->registerCronTask();

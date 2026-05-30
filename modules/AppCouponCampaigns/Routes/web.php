@@ -10,4 +10,4 @@ Route::middleware(['web', 'auth', 'verified'])
         Route::livewire('/', CouponCampaignIndex::class)->name('portal.coupon-campaigns');
     });
 
-Route::middleware('web')->post('/qr/{campaign:slug}/coupon', [CouponClaimController::class, 'store'])->name('coupon-campaigns.claim');
+Route::middleware(['web', 'throttle:10,1'])->post('/qr/{campaign:slug}/coupon', [CouponClaimController::class, 'store'])->name('coupon-campaigns.claim');

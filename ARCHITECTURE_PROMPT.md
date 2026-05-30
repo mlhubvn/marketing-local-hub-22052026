@@ -129,7 +129,7 @@ php artisan test --filter=<Tên>      # chạy 1 nhóm test
 # Dev server (dự án có script gộp)
 composer dev                         # serve + queue:listen + vite cùng lúc
 php artisan serve                    # chỉ web server
-php artisan queue:listen --tries=1   # queue (driver database)
+php artisan queue:listen --tries=1   # queue (driver redis)
 
 # Database (MySQL local)
 php artisan migrate                  # áp migration
@@ -199,16 +199,18 @@ df -h
 ## 5. Tham chiếu nhanh môi trường MLHUB
 
 
-| Hạng mục            | Giá trị                                          |
-| ------------------- | ------------------------------------------------ |
-| Brand / domain      | MLHUB / `mlhub.vn` (+ `www`)                     |
-| Locale / timezone   | `vi` / `Asia/Ho_Chi_Minh`                        |
-| DB                  | MySQL (3306)                                     |
-| Session/Queue/Cache | `database` (cần queue worker + bảng hạ tầng)     |
-| Mail                | `log` (⚠️ chưa gửi thật — đổi SMTP trước khi mở) |
-| Storage             | disk `public` (S3 trống)                         |
-| Theme active        | guest = `mlhubtheme`, backend = `default`        |
-| Deploy              | Coolify + Traefik (HTTP→HTTPS, Let's Encrypt)    |
+| Hạng mục            | Giá trị                                                                                                          |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Brand / domain      | MLHUB / `mlhub.vn` (+ `www`)                                                                                     |
+| Locale / timezone   | `vi` / `Asia/Ho_Chi_Minh`                                                                                        |
+| DB                  | MySQL (3306)                                                                                                     |
+| Session/Queue/Cache | `redis` (phpredis; cần queue worker + Redis sống)                                                                |
+| Mail                | ✅ `smtp` qua Emailit (`smtp.emailit.com:587`, secret trong Coolify env)                                          |
+| Captcha             | Cloudflare Turnstile (mặc định) + reCAPTCHA v2 — Admin → Captcha (OptionStore); gắn ở auth, chưa gắn form public |
+| Rate-limit          | `throttle:10,1` trên 5 form public (booking/coupon/feedback/lead/review)                                         |
+| Storage             | disk `public` (S3 trống)                                                                                         |
+| Theme active        | guest = `mlhubtheme`, backend = `default`                                                                        |
+| Deploy              | Coolify + Traefik (HTTP→HTTPS, Let's Encrypt)                                                                    |
 
 
 ---
@@ -224,4 +226,21 @@ df -h
 - Lệnh đã dùng:
 - Kết quả / lưu ý / cạm bẫy gặp phải:
 - Việc cần làm tiếp:
+
+## 7. Lựa chọn mô hình để vibecode
+
+### 1. Giữ nguyên **Opus 4.8 High (Core)**
+
+- **Khi nào dùng:** Dành cho các tác vụ cốt lõi mà chúng ta vừa bàn tới (Cấu hình luồng Email/SMTP, Viết middleware Rate-limit/Captcha chống Spam, hoặc xử lý Race-condition cho Booking).
+- **Lý do:** Dòng Opus luôn là "nhà vô địch" trong việc đọc hiểu ngữ cảnh dài. Nó sẽ nuốt trọn bộ `ARCHITECTURE_*.md` của bạn, nhớ rất kỹ các quy tắc an toàn (không dùng `migrate:fresh` trên production, luôn scope theo `auth()->id()`), và đưa ra kế hoạch (Plan) cực kỳ sắc bén trước khi code.
+
+### 2. Dùng **Composer 2.5 Fast (Giải pháp)**
+
+- **Khi nào dùng:** Khi bạn đã thảo luận xong giải pháp với Opus và chốt được phương án, hãy dùng tính năng Composer (phím tắt thường là `Cmd/Ctrl + I` hoặc `Cmd/Ctrl + K` trên toàn dự án) để AI tự động áp dụng các thay đổi đó vào nhiều file cùng lúc (ví dụ: chèn throttle vào hàng loạt file `Routes/web.php` của các module).
+- **Lý do:** Tốc độ thực thi cực nhanh và gõ code trực tiếp vào file (surgical edits) rất tốt.
+
+### 3. Dùng **Sonnet 4.6 Medium** hoặc **GPT-5.5 Medium (Theme)**
+
+- **Khi nào dùng:** Dành cho team của bạn khi làm các tác vụ nhẹ nhàng hơn. Ví dụ: Giang nhờ AI căn chỉnh lại CSS Tailwind trên theme `mlhubtheme`, hoặc nhờ AI viết vài đoạn regex để kiểm tra định dạng số điện thoại.
+- **Lý do:** Tiết kiệm "Premium credits" của bạn, tốc độ phản hồi nhanh hơn Opus, và dư sức xử lý các file đơn lẻ.
 

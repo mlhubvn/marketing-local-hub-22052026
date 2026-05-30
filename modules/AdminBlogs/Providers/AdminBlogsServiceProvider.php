@@ -2,6 +2,7 @@
 
 namespace Modules\AdminBlogs\Providers;
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
 use Modules\AdminBlogs\Console\Commands\ImportRssBlogsCommand;
 use Modules\AdminBlogs\Models\Blog;
@@ -78,6 +79,15 @@ class AdminBlogsServiceProvider extends ServiceProvider
         $this->commands([
             ImportRssBlogsCommand::class,
         ]);
+
+        if ($this->app->runningInConsole()) {
+            $this->app->booted(function (): void {
+                $this->app->make(Schedule::class)
+                    ->command('blogs:rss-import')
+                    ->everyMinute()
+                    ->withoutOverlapping();
+            });
+        }
 
         $this->app->afterResolving(SystemCronRegistry::class, function (SystemCronRegistry $registry): void {
             $registry->register([

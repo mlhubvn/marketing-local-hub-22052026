@@ -22,6 +22,10 @@ Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** (LocalBoost AI
 2. **Source of Truth**: Mọi thay đổi **phải** được commit & push lên **GitHub** (nhánh chính). GitHub là nguồn sự thật duy nhất.
 3. **Production/Staging**: **Coolify** tự động nhận webhook từ GitHub, build lại môi trường bằng `docker-compose.yaml` + `.env`, định tuyến qua **Traefik** (HTTP→HTTPS, Let's Encrypt), domain `mlhub.vn` / `www.mlhub.vn`.
 
+> ⚠️ **Dự án ĐÃ CHẠY PRODUCTION (live, có người dùng thật).** Ưu tiên tuyệt đối: an toàn dữ liệu, bảo mật, trải nghiệm người dùng.
+>
+> **Phân chia trách nhiệm:** AI chỉ **sửa code/config tại local** + soạn **commit message gợi ý**. Bước **`git commit` / `git push` / Redeploy là do chủ dự án tự làm thủ công** (để kịp copy log khi lỗi). AI **không** tự commit/push/deploy. Nếu cần cấu hình Coolify, AI hướng dẫn theo từng tab (General, Environment Variables, Scheduled Tasks, …). Khi phát hiện rủi ro bảo mật/UX (kể cả ngoài task) → **báo ngay**.
+
 ### ⛔ Quy tắc bất di bất dịch về hạ tầng
 
 - **TUYỆT ĐỐI KHÔNG** đề xuất can thiệp thủ công bằng dòng lệnh trực tiếp trên server Coolify (SSH, sửa file trên container, chạy lệnh tay…).
@@ -29,7 +33,7 @@ Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** (LocalBoost AI
 - Lệnh artisan cần chạy khi deploy (vd `migrate --force`, `config:cache`) phải nằm trong `entrypoint.sh` / quy trình build, **không** chạy tay trên server.
 - Thay đổi biến môi trường production: cập nhật trong **Coolify UI (env)** đồng thời phản ánh khóa tương ứng vào `.env.example` ở repo để tài liệu hóa — **không** sửa `.env` trực tiếp trên container.
 
-> Tham chiếu môi trường thật: `.env.example` (MLHUB, locale `vi`, MySQL, session/queue/cache = `database`, `MAIL_MAILER=log`, theme `mlhubtheme`/`default`).
+> Tham chiếu môi trường thật: `.env.example` (MLHUB, locale `vi`, MySQL, session/queue/cache = `redis`, mail `smtp` qua Emailit, theme `mlhubtheme`/`default`).
 
 ---
 

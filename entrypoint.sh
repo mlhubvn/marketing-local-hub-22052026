@@ -170,6 +170,27 @@ else
 fi
 
 # -----------------------------------------------------------------------------
+# 5b. Background queue worker (Redis)
+#     QUEUE_CONNECTION=redis → jobs (email, notification, growth-tool notify)
+#     cần một worker xử lý, nếu không job sẽ dồn trong Redis và không bao giờ chạy.
+#     Chạy bằng www-data, có vòng lặp tự khởi động lại nếu worker thoát.
+#     Tắt bằng RUN_QUEUE_WORKER=false (vd khi bạn chạy worker bằng service Coolify riêng).
+# -----------------------------------------------------------------------------
+RUN_QUEUE_WORKER_VALUE="${RUN_QUEUE_WORKER:-true}"
+
+if is_app_installed "$APP_INSTALLED_VALUE" && is_app_installed "$RUN_QUEUE_WORKER_VALUE"; then
+    echo "Starting queue worker (connection=${QUEUE_CONNECTION:-redis})..."
+    su -s /bin/sh -c '
+        while true; do
+            php artisan queue:work --sleep=3 --tries=3 --max-time=3600 --no-interaction || true
+            sleep 2
+        done
+    ' www-data &
+else
+    echo "Queue worker not started (APP_INSTALLED=${APP_INSTALLED_VALUE}, RUN_QUEUE_WORKER=${RUN_QUEUE_WORKER_VALUE})."
+fi
+
+# -----------------------------------------------------------------------------
 # 6. Hand off to Apache (or whatever CMD was supplied)
 # -----------------------------------------------------------------------------
 exec "$@"

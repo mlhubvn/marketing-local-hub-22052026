@@ -8,4 +8,4 @@ Route::middleware(['web', 'auth', 'verified'])
     ->prefix(config('modules.appleadforms.route_prefix', 'portal/lead-forms'))
     ->group(fn () => Route::livewire('/', LeadFormIndex::class)->name('portal.lead-forms'));
 
-Route::middleware('web')->post('/qr/{campaign:slug}/lead', [LeadSubmissionController::class, 'store'])->name('lead-forms.submit');
+Route::middleware(['web', 'throttle:10,1'])->post('/qr/{campaign:slug}/lead', [LeadSubmissionController::class, 'store'])->name('lead-forms.submit');

@@ -15,6 +15,8 @@
 - Tính năng **mới hoàn toàn** thì ưu tiên dùng các điểm mở rộng (extension points, §5) thay vì nhét vào core, để an toàn khi cập nhật từ marketplace.
 - Khi không chắc chắn về phạm vi, kiến trúc, hoặc cách làm có nhiều lựa chọn → **hỏi lại người dùng trước khi code**.
 
+> **CÁCH LÀM VIỆC VỚI CHỦ DỰ ÁN (cố định):** Chủ dự án **không rành dev/bảo mật**. Tuyệt đối **KHÔNG đưa ra nhiều phương án để họ chọn**. Với mỗi vấn đề, **tự quyết định một hướng tốt nhất** (an toàn, đúng chuẩn production), **tự thực thi**, rồi đưa lại **danh sách bước bấm/chạy đơn giản** để họ làm theo. Chỉ hỏi lại khi thật sự thiếu thông tin bắt buộc (vd: bí mật, quyết định nghiệp vụ) — và khi hỏi thì hỏi 1 câu rõ ràng, không bày ma trận lựa chọn kỹ thuật.
+
 ### 0.1 Luồng triển khai (Deployment Pipeline) — ghi nhớ cố định
 
 `Cursor IDE (local)` → commit/push → `GitHub (source of truth)` → webhook → `Coolify (auto build: docker-compose + .env + Traefik HTTP→HTTPS)` tại `mlhub.vn`.
@@ -22,6 +24,17 @@
 - ⛔ **TUYỆT ĐỐI KHÔNG** đề xuất can thiệp thủ công bằng dòng lệnh trên server Coolify (SSH, sửa file/chạy lệnh trên container).
 - Mọi thay đổi hạ tầng phải thể hiện bằng **code/config tại local** (`docker-compose.yaml`, `Dockerfile`, `entrypoint.sh`, `.env.example`, migration) → commit → push → để Coolify tự build.
 - Lệnh deploy (`migrate --force`, `config:cache`…) thuộc `entrypoint.sh`/pipeline, không gõ tay trên server.
+
+### 0.2 Quy ước làm việc với chủ dự án (CỐ ĐỊNH — đọc kỹ)
+
+> ⚠️ **Dự án ĐÃ CHẠY PRODUCTION (live, có người dùng thật).** Mọi thay đổi phải ưu tiên **an toàn dữ liệu, bảo mật và trải nghiệm người dùng**. Không thử nghiệm rủi ro trên code đang chạy.
+
+1. **Chủ dự án ra lệnh, AI tự quyết & xử lý.** Chủ dự án không rành dev/bảo mật → **KHÔNG bày nhiều phương án để chọn**. Tự chọn hướng tốt nhất (an toàn, chuẩn production), tự thực thi, rồi đưa lại **các bước đơn giản để chủ dự án làm theo**. Chỉ hỏi khi thiếu thông tin bắt buộc (bí mật, quyết định nghiệp vụ) — hỏi 1 câu rõ ràng.
+2. **Sau khi xử lý, BẮT BUỘC đồng bộ các file hệ thống liên quan** (chỉ sửa file nào thực sự bị ảnh hưởng, không sửa thừa):
+   `.cursorrules`, `.env.example`, `.htaccess`, `docker-compose.yaml`, `Dockerfile`, `entrypoint.sh`, `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_FEATURE.md`, `ARCHITECTURE_CHECKLIST.md`, `ARCHITECTURE_PROMPT.md`.
+3. **Nếu cần cấu hình trên Coolify → hướng dẫn từng bước theo đúng tab Coolify**: General, Advanced, Environment Variables, Persistent Storage, Git Source, Servers, Scheduled Tasks, Webhooks, Preview Deployments, Healthcheck, Rollback, Resource Limits, Resource Operations, Metrics, Tags, Danger Zone. Nói rõ tab nào, ô nào, giá trị gì.
+4. **Commit GitHub + Deploy do CHỦ DỰ ÁN làm thủ công.** AI **KHÔNG** tự `git commit`/`git push`/deploy. AI chỉ sửa file tại local + soạn sẵn **commit message gợi ý**; chủ dự án tự đẩy để kịp copy log nếu lỗi. Khi xong một cụm việc, tóm tắt "đã đổi file nào" + gợi ý commit message.
+5. **Báo NGAY khi phát hiện vấn đề bảo mật hoặc ảnh hưởng trải nghiệm người dùng** (kể cả ngoài phạm vi task đang làm) — nêu rủi ro bằng lời dễ hiểu + mức độ + cách xử lý đề xuất, để chủ dự án quyết ưu tiên.
 
 ---
 
@@ -56,12 +69,16 @@
 | `APP_LOCALE` / `APP_FALLBACK_LOCALE` | `vi` | **Mặc định Tiếng Việt.** Mọi chuỗi mới vẫn viết key tiếng Anh trong `__()`, rồi dịch trong `lang/vi.json` |
 | `APP_TIMEZONE` | `Asia/Ho_Chi_Minh` | Dùng khi tính giờ hiển thị; vẫn lưu UTC trong DB |
 | `DB_CONNECTION` | **`mysql`** (3306) | Viết migration/raw query theo MySQL (không phải SQLite) |
-| `SESSION_DRIVER` / `QUEUE_CONNECTION` / `CACHE_STORE` | đều **`database`** | Cần migrate bảng `sessions`, `jobs`, `cache`; phải có **queue worker** chạy |
+| `SESSION_DRIVER` / `QUEUE_CONNECTION` / `CACHE_STORE` | đều **`redis`** (phpredis) | Session/cache/queue chạy trên **Redis** (`REDIS_HOST` = service nội bộ Coolify, password trong Coolify env). Vẫn cần **queue worker** chạy. Không cần bảng `sessions`/`cache`/`jobs` trong MySQL; riêng `failed_jobs` (+ `job_batches`) vẫn ở MySQL theo mặc định. `throttle` rate-limit giờ đếm trên Redis (chính xác hơn cho nhiều instance) |
 | `FILESYSTEM_DISK` | `public` (S3 trống) | Upload dùng disk `public`; chưa bật S3 |
-| `MAIL_MAILER` | **`log`** | ⚠️ Email **không gửi thật** — chỉ ghi log. Đổi sang SMTP thật trước khi mở cho người dùng |
+| `MAIL_MAILER` | **`smtp`** (Emailit) | ✅ Đã cấu hình SMTP qua `smtp.emailit.com:587` (user `emailit`, password = API key đặt trong **Coolify env**, KHÔNG commit). Welcome + verify email đã chạy thật |
 | `THEME_FRONTEND` / `THEME_BACKEND` | `mlhubtheme` / `default` | **Theme guest đang active là `mlhubtheme`** (theme tùy biến), backend là `default` |
 | `APP_DEMO` | `false` | Demo mode đã tắt cho production |
 | `GOOGLE_BUSINESS_CLIENT_ID/SECRET` | có dùng | Tích hợp Google Business bật |
+
+**Captcha:** module `AdminCaptcha` hỗ trợ **Google reCAPTCHA v2** và **Cloudflare Turnstile** (mặc định Turnstile). Cấu hình lưu trong **`OptionStore` (Admin → Captcha)**, **KHÔNG phải `.env`** (key: `captcha_type`, `auth_cloudflare_turnstile_*`, `auth_google_recaptcha_*`). Helper dùng lại: `captcha_render()`, `captcha_verify(request())`, `with_captcha_validation($rules)`. Hiện captcha đã gắn vào **trang auth** (login/register/forgot/reset); **chưa** gắn vào 5 form growth-tool công khai (xem backlog trong `ARCHITECTURE_FEATURE.md`).
+
+**Rate-limit:** 5 route POST form công khai (`booking-pages.submit`, `coupon-campaigns.claim`, `feedback-forms.submit`, `lead-forms.submit`, `review-booster.feedback`) đã thêm `throttle:10,1`. Khi tạo endpoint công khai mới → **bắt buộc** kèm `throttle` tương tự.
 
 **Triển khai:** Coolify + Traefik (HTTP→HTTPS, Let's Encrypt), domain `mlhub.vn`/`www.mlhub.vn`, storage gắn volume `mlhub-storage:/var/www/html/storage`. Vì chạy sau proxy nên `TRUSTED_PROXIES` đã được xử lý trong `bootstrap/app.php` — **đừng** hard-code `http://` khi tạo URL, dùng helper sinh URL của Laravel.
 

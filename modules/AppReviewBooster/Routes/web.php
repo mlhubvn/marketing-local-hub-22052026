@@ -10,4 +10,4 @@ Route::middleware(['web', 'auth', 'verified'])
         Route::livewire('/', ReviewBoosterIndex::class)->name('portal.review-booster');
     });
 
-Route::middleware('web')->post('/qr/{campaign:slug}/feedback', [ReviewFeedbackController::class, 'store'])->name('review-booster.feedback');
+Route::middleware(['web', 'throttle:10,1'])->post('/qr/{campaign:slug}/feedback', [ReviewFeedbackController::class, 'store'])->name('review-booster.feedback');

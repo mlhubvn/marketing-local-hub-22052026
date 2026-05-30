@@ -246,15 +246,15 @@ PrepareInstallation
 
 - **Settings hệ thống:** `Modules\AdminSettings\Support\OptionStore` (key/value lưu DB).
 - **Engine campaign dùng chung:** bảng `lb_campaigns` (model `QrCampaign`) phục vụ tất cả growth tool qua cột `type` + JSON `settings`. Các bảng vệ tinh: `lb_review_feedbacks`, `lb_bookings`, `lb_coupon_redemptions`, `lb_feedback_responses`, `lb_lead_submissions`, `lb_qr_scans`…
-- **Engine DB thực tế (từ `.env.example`):** `DB_CONNECTION=mysql` (cổng 3306). Viết migration/raw query theo cú pháp **MySQL**. Ngoài bảng nghiệp vụ `lb_*`, hệ thống còn cần các bảng hạ tầng do `session/queue/cache` đều chạy driver `database`: `sessions`, `jobs`/`job_batches`/`failed_jobs`, `cache`/`cache_locks`.
+- **Engine DB thực tế (từ `.env.example`):** `DB_CONNECTION=mysql` (cổng 3306). Viết migration/raw query theo cú pháp **MySQL**. Bảng nghiệp vụ dùng tiền tố `lb_*`. **Session/cache/queue chạy trên Redis** (không cần bảng `sessions`/`cache`/`cache_locks`/`jobs` trong MySQL); riêng `failed_jobs` và `job_batches` vẫn nằm ở MySQL theo mặc định của Laravel.
 
 ### 6.1 Môi trường runtime & triển khai (chốt từ `.env.example` + `docker-compose.yaml`)
 
 | Khía cạnh | Cấu hình | Tác động |
 |-----------|----------|----------|
 | Locale | `APP_LOCALE=vi`, fallback `vi`, `APP_TIMEZONE=Asia/Ho_Chi_Minh` | App mặc định Tiếng Việt; chuỗi mới vẫn dùng key tiếng Anh trong `__()` rồi dịch ở `lang/vi.json` |
-| Session/Queue/Cache | đều `database` | **Bắt buộc** chạy queue worker; cần migrate bảng hạ tầng ở §6 |
-| Mail | `MAIL_MAILER=log` | ⚠️ Email chỉ ghi log, **chưa gửi thật** → notify Lead/Feedback/Booking không tới khách. Đổi SMTP trước khi mở |
+| Session/Queue/Cache | đều `redis` (phpredis) | Chạy trên Redis (`REDIS_HOST` = service nội bộ Coolify, password trong Coolify env). **Bắt buộc** chạy queue worker + đảm bảo Redis sống |
+| Mail | `MAIL_MAILER=smtp` (Emailit) | ✅ Đã cấu hình `smtp.emailit.com:587`, user `emailit`, password = API key (đặt trong Coolify env). Dùng cho verify email, reset mật khẩu, email automation. **Lưu ý:** thông báo growth-tool (Lead/Feedback/Booking/Coupon) là **in-app** qua `NotificationService`, không phụ thuộc mail |
 | Storage | `FILESYSTEM_DISK=public` (S3 trống) | Upload nằm ở disk `public`; bật S3 nếu cần scale |
 | Cookie | `SESSION_SECURE_COOKIE=true` | Chỉ chạy đúng dưới HTTPS |
 | Triển khai | Coolify + Traefik (HTTP→HTTPS, Let's Encrypt), domain `mlhub.vn` | App thấy HTTP sau proxy → `TRUSTED_PROXIES` đã xử lý trong `bootstrap/app.php`; storage gắn volume `mlhub-storage` |
@@ -285,12 +285,12 @@ PrepareInstallation
 
 ## 9. Lưu ý chuẩn bị production (backend)
 
-Đã cấu hình sẵn trong `.env.example`: `APP_ENV=production`, `APP_DEBUG=false`, `APP_KEY`, `APP_DEMO=false`, MySQL, `SESSION_SECURE_COOKIE=true`. Còn lại cần xử lý:
+Đã cấu hình sẵn trong `.env.example`: `APP_ENV=production`, `APP_DEBUG=false`, `APP_KEY`, `APP_DEMO=false`, MySQL, `SESSION_SECURE_COOKIE=true`. Đã xử lý: ✅ **SMTP qua Emailit** (Coolify env), ✅ **Captcha** (reCAPTCHA v2 + Cloudflare Turnstile, mặc định Turnstile, cấu hình ở Admin → Captcha), ✅ **Rate-limit `throttle:10,1`** trên 5 route form công khai. Còn lại cần xử lý:
 
-- [ ] ⚠️ **Đổi `MAIL_MAILER=log` → SMTP thật** — hiện email chỉ ghi log, khách không nhận được thông báo.
 - [ ] Điền `DB_HOST`/`DB_PASSWORD` thật (đang trống trong mẫu).
-- [ ] Queue worker chạy (`php artisan queue:work`) — driver `database`, nhiều việc (email, notify) đẩy qua queue.
-- [ ] Migrate đủ bảng hạ tầng `sessions`/`jobs`/`cache` (do dùng driver `database`).
+- [ ] (Backlog bảo mật) Gắn captcha vào 5 form growth-tool công khai — xem `ARCHITECTURE_FEATURE.md`.
+- [x] Queue worker chạy — `entrypoint.sh` tự start `php artisan queue:work` (chạy nền, user `www-data`, vòng lặp tự restart) khi `APP_INSTALLED=true`; tắt bằng `RUN_QUEUE_WORKER=false` nếu dùng worker service Coolify riêng.
+- [ ] Redis sống & `REDIS_PASSWORD` đặt đúng trong Coolify; chỉ cần migrate `failed_jobs`/`job_batches` (không cần `sessions`/`cache`/`jobs`).
 - [ ] Scheduler/cron đã bật (xem `AdminCrons` + `routes/console.php`).
 - [ ] Cấu hình cổng thanh toán + webhook URL thật cho từng `Payment*` đang dùng.
 - [ ] Cân nhắc bật S3 (`FILESYSTEM_DISK`/`AWS_*`) nếu cần scale; kiểm tra signed URL hoạt động sau Traefik.

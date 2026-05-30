@@ -18,7 +18,7 @@ class AdminFakerServiceProvider extends ServiceProvider
             RefreshAdminFakerCommand::class,
         ]);
 
-        if ($this->app->runningInConsole()) {
+        if ($this->app->runningInConsole() && (bool) config('app.demo_mode')) {
             $this->app->booted(function (): void {
                 $this->app->make(Schedule::class)
                     ->command('admin-faker:refresh --no-clear')

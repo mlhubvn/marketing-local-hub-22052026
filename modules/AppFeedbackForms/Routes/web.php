@@ -8,4 +8,4 @@ Route::middleware(['web', 'auth', 'verified'])
     ->prefix(config('modules.appfeedbackforms.route_prefix', 'portal/feedback-forms'))
     ->group(fn () => Route::livewire('/', FeedbackFormIndex::class)->name('portal.feedback-forms'));
 
-Route::middleware('web')->post('/qr/{campaign:slug}/feedback-form', [FeedbackSubmissionController::class, 'store'])->name('feedback-forms.submit');
+Route::middleware(['web', 'throttle:10,1'])->post('/qr/{campaign:slug}/feedback-form', [FeedbackSubmissionController::class, 'store'])->name('feedback-forms.submit');

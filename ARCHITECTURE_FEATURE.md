@@ -23,8 +23,9 @@ Review Booster, Booking, Coupons, Feedback, Lead Forms **không độc lập ho�
 - **Thông báo:** `App\Support\GrowthToolNotifier` (`leadCreated`, `couponClaimed`, `feedbackCreated`, `bookingCreated`).
 - **Quản trị:** mỗi tool là một Livewire `*Index` trong portal, đăng ký sidebar nhóm `growth-tools`.
 
-**Rủi ro production chung cho cả 5 tool (ưu tiên cao):**
-- 🟠 **Endpoint submit công khai chưa thấy rate-limit / captcha** → nguy cơ spam, đầy bảng khách hàng và campaign. Cần thêm `throttle` middleware + (tùy chọn) tích hợp `AdminCaptcha`.
+**Rủi ro production chung cho cả 5 tool:**
+- ✅ **Rate-limit ĐÃ THÊM** (`throttle:10,1`) trên cả 5 route POST công khai — chặn flood cơ bản (10 lần/phút/IP).
+- 🟠 **Captcha CHƯA gắn vào 5 form công khai** — captcha (Cloudflare Turnstile mặc định + reCAPTCHA v2) hiện mới bảo vệ trang auth. Đây là lớp chống bot mạnh hơn rate-limit; xem **§10 Backlog bảo mật** để biết cách gắn (đã có helper sẵn).
 - 🟠 **`QrCampaignPublicController::recordScan()` ghi mọi lượt truy cập** (kể cả bot/crawler) → số liệu scan có thể bị thổi phồng. Cần lọc bot hoặc dùng hàng đợi.
 - 🟡 Trang công khai dùng session để chống đếm trùng lượt xem landing page — kiểm tra hành vi khi tắt cookie.
 
@@ -241,12 +242,13 @@ Review Booster, Booking, Coupons, Feedback, Lead Forms **không độc lập ho�
 ## 9. Tổng kết ưu tiên trước khi mở cho người dùng thật
 
 **P0 — Bảo mật/lạm dụng (chặn phát hành):**
-- [ ] Rate-limit + captcha/honeypot cho **tất cả** endpoint submit công khai (Review feedback, Booking, Coupon, Feedback, Lead).
+- [x] ✅ **SMTP qua Emailit** đã cấu hình (Coolify env) — welcome + verify email chạy thật.
+- [x] ✅ **Rate-limit `throttle:10,1`** trên cả 5 endpoint submit công khai.
+- [ ] (Còn lại) Gắn **captcha** vào 5 form công khai để chống bot mạnh hơn — xem §10.
 - [ ] Test cô lập tenant (IDOR) trên mọi `findOrFail`/truy vấn dữ liệu người dùng.
-- [ ] Tắt demo mode; `APP_DEBUG=false`; che giấu thông tin lỗi.
+- [x] ✅ Tắt demo mode (`APP_DEMO=false`); `APP_DEBUG=false`.
 
 **P1 — Tính đúng đắn nghiệp vụ:**
-- [ ] ⚠️ **`MAIL_MAILER=log`** (theo `.env.example`) → mọi thông báo email (Lead/Feedback/Booking qua `GrowthToolNotifier`, welcome user, reset mật khẩu) **không gửi thật**. Đổi sang SMTP và test trước khi mở.
 - [ ] Race condition: double-booking (Booking) và vượt `usage_limit` (Coupon).
 - [ ] Webhook thanh toán thật + xử lý subscription hết hạn/hoàn tiền.
 - [ ] Credit AI trừ đúng; provider AI cấu hình thật.
@@ -255,8 +257,47 @@ Review Booster, Booking, Coupons, Feedback, Lead Forms **không độc lập ho�
 **P2 — Vận hành & chất lượng dữ liệu:**
 - [ ] Lọc bot khỏi QR scan analytics; đẩy notify/scan qua queue.
 - [ ] Chống XSS khi hiển thị nội dung do khách nhập (feedback/review/lead) trong admin.
-- [ ] Cấu hình queue worker (driver `database`) + scheduler + mail SMTP; cân nhắc S3 (đang `FILESYSTEM_DISK=public`).
-- [ ] Điền `DB_HOST`/`DB_PASSWORD` thật; migrate đủ bảng `sessions`/`jobs`/`cache`.
+- [x] ✅ Session/cache/queue dùng **Redis**; mail SMTP đã cấu hình. Cần đảm bảo queue worker (`queue:work redis`) + Redis luôn sống; cân nhắc S3 (đang `FILESYSTEM_DISK=public`).
+- [ ] Điền `DB_HOST`/`DB_PASSWORD` + `REDIS_PASSWORD` thật (Coolify env); migrate `failed_jobs`/`job_batches`.
 - [ ] `php artisan migrate --force` rồi `config:cache route:cache view:cache`.
 
 > Khi sửa các mục trên: bám đúng phong cách module gốc (xem `.cursorrules`), sửa **surgical**, và scope mọi truy vấn theo `auth()->id()`/workspace owner.
+
+---
+
+## 10. Backlog bảo mật (giải thích dễ hiểu — làm dần)
+
+Phần này liệt kê các việc bảo mật còn lại bằng ngôn ngữ dễ hiểu, kèm "phải làm gì". Không gấp như P0 nhưng nên xử lý trước khi mở rộng nhiều khách.
+
+### 10.1 Gắn Captcha vào 5 form công khai 🟠
+- **Vấn đề:** Hiện form Booking/Coupon/Feedback/Lead/Review công khai mới có rate-limit (chặn theo số lần/phút). Bot tinh vi đổi IP vẫn có thể spam. Captcha (bạn đã bật Cloudflare Turnstile) chặn tốt hơn nhưng **chưa được gắn vào các form này** — mới gắn ở trang đăng nhập/đăng ký.
+- **Đã có sẵn gì:** module `AdminCaptcha` cung cấp helper dùng lại ngay:
+  - `captcha_render()` — in widget captcha vào form (Blade).
+  - `with_captcha_validation([...])` / `captcha_verify(request())` — kiểm tra ở phía server.
+- **Phải làm (mỗi form 2 bước nhỏ):**
+  1. Thêm `{!! captcha_render() !!}` vào view công khai (`*::public.show`) — ngay trong thẻ `<form>`.
+  2. Trong controller submit, bọc rule: đổi `$request->validate([...])` thành `$request->validate(with_captcha_validation([...]))`.
+- **Ghi chú:** captcha chỉ kích hoạt khi đã bật trong Admin → Captcha (đã làm). Nếu tắt thì `captcha_verify` tự cho qua → an toàn cho môi trường dev.
+
+### 10.2 Double-booking (Booking) 🟠 — đụng migration, cần plan trước
+- **Vấn đề:** Hai người đặt cùng khung giờ gần như đồng thời có thể cùng được nhận (do code kiểm-tra-rồi-tạo, chưa có khóa).
+- **Phải làm:** bọc trong `DB::transaction` + `lockForUpdate` khi đếm slot; cân nhắc thêm unique index khi `max_bookings_per_slot = 1`. **Theo Checklist §3.1: trình bày kế hoạch + duyệt trước khi viết migration.**
+- **Lợi thế mới:** đã có **Redis** → có thể dùng khóa nguyên tử `Cache::lock("booking:{service_id}:{date}:{time}")->get(...)` để chặn 2 request đồng thời mà không cần khóa hàng DB; đây thường là cách gọn và an toàn nhất cho slot booking.
+
+### 10.3 Giới hạn lượt nhận Coupon (vượt `usage_limit`) 🟡
+- **Vấn đề:** Khi nhiều người nhận cùng lúc gần ngưỡng giới hạn, có thể vượt nhẹ (đếm rồi tạo không nguyên tử). Mã coupon vẫn duy nhất (đã có unique index trên `code`), nên rủi ro chủ yếu là phát dư vài mã.
+- **Phải làm:** đưa bước đếm + tạo vào transaction có khóa, hoặc kiểm tra lại sau khi tạo.
+
+### 10.4 Audit cô lập dữ liệu (IDOR) 🟡
+- **Vấn đề:** Hệ thống dùng chung 1 database, cô lập bằng `where('user_id', ...)`. Hiện code đã làm đúng, nhưng cần **kiểm thử** để chắc chắn không có chỗ rò rỉ.
+- **Phải làm:** thử đăng nhập user A, gọi sửa/xem bản ghi bằng ID của user B → phải bị chặn (404). Viết vài test tự động cho các module growth-tool.
+
+### 10.5 Chống XSS khi hiển thị nội dung khách nhập 🟡
+- **Vấn đề:** Nội dung khách gửi (feedback/review/lead) hiển thị trong trang admin — cần đảm bảo Blade escape (`{{ }}`), không dùng `{!! !!}` cho dữ liệu khách.
+- **Phải làm:** rà các view admin hiển thị các trường này.
+
+### 10.6 Lọc bot khỏi thống kê QR scan 🟡
+- **Vấn đề:** Mọi lượt truy cập (kể cả bot) đều được tính là 1 scan → số liệu phân tích bị thổi phồng.
+- **Phải làm:** lọc user-agent bot trong `recordScan`, hoặc đẩy việc ghi scan qua queue để không làm chậm redirect.
+
+> Thứ tự gợi ý xử lý: **10.1 (captcha) → 10.4 (audit IDOR) → 10.2/10.3 (race condition) → 10.5/10.6**. Mỗi mục là một task riêng — mở `ARCHITECTURE_PROMPT.md` lấy prompt mẫu tương ứng.
