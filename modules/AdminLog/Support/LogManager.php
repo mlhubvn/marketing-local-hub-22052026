@@ -125,6 +125,14 @@ class LogManager
         return $real;
     }
 
+    public function downloadFilename(string $file): string
+    {
+        $name = basename($this->resolve($file));
+        $stem = pathinfo($name, PATHINFO_FILENAME);
+
+        return sprintf('%s-%s.log', $stem, now()->format('d-m-Y-H-i'));
+    }
+
     protected function humanSize(int $bytes): string
     {
         if ($bytes <= 0) {

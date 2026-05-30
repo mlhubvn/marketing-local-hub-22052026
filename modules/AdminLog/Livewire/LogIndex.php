@@ -51,6 +51,7 @@ class LogIndex extends Component
     {
         try {
             $path = $this->logs->resolve($file);
+            $downloadName = $this->logs->downloadFilename($file);
         } catch (Throwable $exception) {
             report($exception);
 
@@ -72,7 +73,7 @@ class LogIndex extends Component
             }
 
             fclose($handle);
-        }, basename($path), ['Content-Type' => 'text/plain']);
+        }, $downloadName, ['Content-Type' => 'text/plain']);
     }
 
     public function clearFile(string $file): void
