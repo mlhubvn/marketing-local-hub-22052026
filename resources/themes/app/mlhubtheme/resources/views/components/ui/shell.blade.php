@@ -741,7 +741,7 @@
                 aria-busy="true"
             >
                 <div class="h-[3px] overflow-hidden bg-transparent shadow-[0_8px_22px_-14px_rgba(var(--theme-accent-rgb),0.85)]">
-                    <div class="h-full w-full animate-pulse bg-[linear-gradient(90deg,transparent_0%,var(--theme-accent)_18%,var(--theme-link-hover)_52%,var(--theme-accent)_84%,transparent_100%)] opacity-95"></div>
+                    <div class="h-full w-full animate-pulse bg-[linear-gradient(90deg,transparent_0%,var(--theme-brand-primary)_18%,var(--theme-brand-highlight)_52%,var(--theme-brand-secondary)_84%,transparent_100%)] opacity-95"></div>
                 </div>
             </div>
 
@@ -823,12 +823,12 @@
                                 x-transition:enter-start="opacity-0 translate-y-1"
                                 x-transition:enter-end="opacity-100 translate-y-0"
                                 class="overflow-hidden rounded-[1rem] border px-3 py-3.5 shadow-[0_20px_44px_-30px_rgba(15,23,42,0.28)]"
-                                style="border-color: color-mix(in srgb, var(--theme-border-color) 74%, transparent 26%); background: linear-gradient(180deg, color-mix(in srgb, var(--theme-accent,#2563eb) 6%, var(--theme-surface-base) 94%) 0%, var(--theme-surface-base) 100%);"
+                                style="border-color: color-mix(in srgb, var(--theme-border-color) 74%, transparent 26%); background: linear-gradient(180deg, color-mix(in srgb, var(--theme-brand-primary) 6%, var(--theme-surface-base) 94%) 0%, var(--theme-surface-base) 100%);"
                             >
                                 <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Your plan') }}</p>
                                 <div class="mt-3 flex items-start justify-between gap-3">
                                     <div class="min-w-0">
-                                        <p class="truncate text-sm font-semibold" style="color: var(--theme-accent, #2563eb);">
+                                        <p class="truncate text-sm font-semibold" style="color: var(--theme-accent, #ff5f5f);">
                                             <i class="fa-solid fa-crown mr-1 text-[11px]"></i>{{ $sidebarPlanCard['name'] }}
                                         </p>
                                         <p class="mt-2 flex items-center gap-1 text-xs whitespace-nowrap" style="color: var(--theme-muted-text-color);">
@@ -836,7 +836,7 @@
                                             <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ $sidebarPlanCard['expiry'] }}</span>
                                         </p>
                                     </div>
-                                    <span class="inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[11px] font-semibold whitespace-nowrap {{ $sidebarPlanCard['badge_tone'] === 'success' ? 'bg-emerald-400/12 text-emerald-500' : 'bg-slate-400/10 text-slate-500 dark:text-slate-300' }}">
+                                    <span class="inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[11px] font-semibold whitespace-nowrap {{ $sidebarPlanCard['badge_tone'] === 'success' ? 'bg-[color-mix(in_srgb,var(--theme-success-color)_12%,transparent)] text-[var(--theme-success-color)]' : 'bg-slate-400/10 text-slate-500 dark:text-slate-300' }}">
                                         {{ $sidebarPlanCard['badge'] }}
                                     </span>
                                 </div>
@@ -849,7 +849,7 @@
                                     <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-200/70 dark:bg-slate-800">
                                         <div
                                             class="h-full rounded-full"
-                                            style="width: {{ $sidebarPlanCard['unlimited'] ? 100 : ($sidebarPlanCard['credits_percent'] ?? 0) }}%; background: linear-gradient(90deg, var(--theme-accent,#2563eb) 0%, color-mix(in srgb, var(--theme-accent,#2563eb) 72%, #8b5cf6 28%) 100%);"
+                                            style="width: {{ $sidebarPlanCard['unlimited'] ? 100 : ($sidebarPlanCard['credits_percent'] ?? 0) }}%; background: linear-gradient(90deg, var(--theme-brand-primary) 0%, var(--theme-brand-highlight) 100%);"
                                         ></div>
                                     </div>
                                 </div>

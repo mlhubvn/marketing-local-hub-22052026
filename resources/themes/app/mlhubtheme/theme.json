@@ -30,7 +30,7 @@
             "header_active_color": {
                 "type": "color",
                 "label": "Light header active color",
-                "default": "#e84a3a"
+                "default": "#ff8c42"
             },
             "link_color": {
                 "type": "color",
@@ -40,7 +40,7 @@
             "link_hover_color": {
                 "type": "color",
                 "label": "Light link hover color",
-                "default": "#e84a3a"
+                "default": "#ff8c42"
             },
             "border_color": {
                 "type": "color",
@@ -65,12 +65,12 @@
             "success_color": {
                 "type": "color",
                 "label": "Light success color",
-                "default": "#059669"
+                "default": "#ff8c42"
             },
             "warning_color": {
                 "type": "color",
-                "label": "Light warning color",
-                "default": "#ff8c42"
+                "label": "Light highlight color",
+                "default": "#ffb347"
             },
             "danger_color": {
                 "type": "color",
@@ -130,12 +130,12 @@
             "dark_success_color": {
                 "type": "color",
                 "label": "Dark success color",
-                "default": "#34d399"
+                "default": "#ff8c42"
             },
             "dark_warning_color": {
                 "type": "color",
-                "label": "Dark warning color",
-                "default": "#ffb366"
+                "label": "Dark highlight color",
+                "default": "#ffb347"
             },
             "dark_danger_color": {
                 "type": "color",

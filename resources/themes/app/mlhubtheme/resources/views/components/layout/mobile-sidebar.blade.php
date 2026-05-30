@@ -90,7 +90,7 @@
                                     </div>
                                 </div>
 
-                                <span class="inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[11px] font-semibold whitespace-nowrap {{ $planCard['badge_tone'] === 'success' ? 'bg-emerald-400/12 text-emerald-500' : 'bg-slate-400/10 text-slate-500 dark:text-slate-300' }}">
+                                <span class="inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[11px] font-semibold whitespace-nowrap {{ $planCard['badge_tone'] === 'success' ? 'bg-[color-mix(in_srgb,var(--theme-success-color)_12%,transparent)] text-[var(--theme-success-color)]' : 'bg-slate-400/10 text-slate-500 dark:text-slate-300' }}">
                                     {{ $planCard['badge'] }}
                                 </span>
                             </div>
@@ -103,7 +103,7 @@
                             <div class="mt-2 h-2 overflow-hidden rounded-full" style="background: color-mix(in srgb, var(--theme-sidebar-bg) 72%, black 28%);">
                                 <div
                                     class="h-full rounded-full"
-                                    style="width: {{ $planCard['unlimited'] ? 100 : ($planCard['credits_percent'] ?? 0) }}%; background: linear-gradient(90deg, var(--theme-accent,#2563eb) 0%, color-mix(in srgb, var(--theme-accent,#2563eb) 72%, #8b5cf6 28%) 100%);"
+                                    style="width: {{ $planCard['unlimited'] ? 100 : ($planCard['credits_percent'] ?? 0) }}%; background: linear-gradient(90deg, var(--theme-brand-primary) 0%, var(--theme-brand-highlight) 100%);"
                                 ></div>
                             </div>
 

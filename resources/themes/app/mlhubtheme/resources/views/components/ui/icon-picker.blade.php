@@ -4,7 +4,7 @@
     'error' => null,
     'name' => null,
     'value' => null,
-    'previewColor' => '#0f766e',
+    'previewColor' => '#ff5f5f',
     'dialogTitle' => null,
     'dialogDescription' => null,
     'placeholder' => 'fa-light fa-hashtag',

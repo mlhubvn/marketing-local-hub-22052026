@@ -73,7 +73,7 @@
                 return this.themedValue('header_active_color', 'dark_header_active_color', '#0f172a');
             },
             successColor() {
-                return this.themedValue('success_color', 'dark_success_color', '#059669');
+                return this.themedValue('success_color', 'dark_success_color', '#ff8c42');
             },
             warningColor() {
                 return this.themedValue('warning_color', 'dark_warning_color', '#d97706');
@@ -130,7 +130,7 @@
                     <div class="flex items-center gap-2">
                         <span class="size-2 rounded-full bg-rose-300/80"></span>
                         <span class="size-2 rounded-full bg-amber-300/80"></span>
-                        <span class="size-2 rounded-full bg-emerald-300/80"></span>
+                        <span class="size-2 rounded-full bg-[#ffb347]/80"></span>
                     </div>
                     <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em]" :style="{ color: previewMuted() }">
                         <span>{{ __('Workspace') }}</span>
@@ -238,12 +238,12 @@
         @else
             <div class="overflow-hidden rounded-[1.15rem] border shadow-[0_24px_56px_-36px_rgba(15,23,42,0.24)]" :style="{ backgroundColor: isDark() ? '#020617' : (preview.body_bg_color || '#f8faff'), borderColor: preview.border_color || '#e2e8f0', fontFamily: previewFont() }">
                 <div class="relative border-b px-5 py-4" :style="{ backgroundColor: preview.header_bg_color || '#ffffff', borderColor: preview.border_color || '#e2e8f0' }">
-                    <div class="absolute inset-x-0 top-0 h-16 opacity-70" :style="{ background: 'linear-gradient(180deg, ' + (preview.accent_color || '#0f766e') + '14 0%, transparent 100%)' }"></div>
+                    <div class="absolute inset-x-0 top-0 h-16 opacity-70" :style="{ background: 'linear-gradient(180deg, ' + (preview.accent_color || '#ff5f5f') + '14 0%, transparent 100%)' }"></div>
                     <div class="relative flex items-center justify-between gap-3">
                         <div class="flex items-center gap-2">
                             <span class="size-2 rounded-full bg-rose-300/80"></span>
                             <span class="size-2 rounded-full bg-amber-300/80"></span>
-                            <span class="size-2 rounded-full bg-emerald-300/80"></span>
+                            <span class="size-2 rounded-full bg-[#ffb347]/80"></span>
                         </div>
                         <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em]" :style="{ color: preview.muted_text_color || '#64748b' }">
                             <span class="rounded-full px-2 py-1" :style="{ color: preview.header_active_color || '#0f172a', backgroundColor: (preview.header_active_color || '#0f172a') + '12' }">{{ __('Home') }}</span>
@@ -262,7 +262,7 @@
                                 <p class="mt-3 max-w-xl text-sm leading-6" :style="{ color: preview.muted_text_color || '#64748b' }">{{ __('Use the guest customizer to compare headline presence, body readability, and CTA contrast before publishing the landing experience.') }}</p>
 
                                 <div class="mt-5 flex flex-wrap items-center gap-3">
-                                    <span class="inline-flex rounded-[0.9rem] px-4 py-2.5 text-sm font-semibold text-white shadow-sm" :style="{ backgroundColor: preview.accent_color || '#0f766e' }">{{ __('Get started') }}</span>
+                                    <span class="inline-flex rounded-[0.9rem] px-4 py-2.5 text-sm font-semibold text-white shadow-sm" :style="{ backgroundColor: preview.accent_color || '#ff5f5f' }">{{ __('Get started') }}</span>
                                     <span class="text-sm font-medium" :style="{ color: preview.link_color || '#4f46e5' }">{{ __('View docs') }}</span>
                                 </div>
                             </div>
@@ -270,10 +270,10 @@
                             <div class="rounded-[1rem] border p-4" :style="{ backgroundColor: isDark() ? '#081120' : '#fbfcff', borderColor: preview.border_color || '#e2e8f0' }">
                                 <div class="flex items-center justify-between">
                                     <span class="text-[11px] font-semibold uppercase tracking-[0.18em]" :style="{ color: preview.muted_text_color || '#64748b' }">{{ __('Status') }}</span>
-                                    <span class="rounded-full px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]" :style="{ color: preview.success_color || '#059669', backgroundColor: (preview.success_color || '#059669') + '14' }">{{ __('Ready') }}</span>
+                                    <span class="rounded-full px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]" :style="{ color: preview.success_color || '#ff8c42', backgroundColor: (preview.success_color || '#ff8c42') + '14' }">{{ __('Ready') }}</span>
                                 </div>
                                 <div class="mt-4 space-y-3">
-                                    <div class="rounded-[0.8rem] p-3" :style="{ backgroundColor: (preview.accent_color || '#0f766e') + '12' }">
+                                    <div class="rounded-[0.8rem] p-3" :style="{ backgroundColor: (preview.accent_color || '#ff5f5f') + '12' }">
                                         <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" :style="{ color: preview.muted_text_color || '#64748b' }">{{ __('Launch score') }}</p>
                                         <p class="mt-2 text-lg font-semibold" :style="{ color: isDark() ? '#f8fafc' : '#0f172a' }">92</p>
                                     </div>
@@ -290,12 +290,12 @@
                         <div class="rounded-[1rem] border p-5 shadow-sm" :style="{ backgroundColor: isDark() ? '#0f172a' : (preview.surface_bg_color || '#ffffff'), borderColor: preview.border_color || '#e2e8f0' }">
                             <div class="flex items-center justify-between">
                                 <span class="text-[11px] font-semibold uppercase tracking-[0.18em]" :style="{ color: preview.muted_text_color || '#64748b' }">{{ __('Reading sample') }}</span>
-                                <span class="h-9 w-9 rounded-full" :style="{ backgroundColor: (preview.accent_color || '#0f766e') + '15' }"></span>
+                                <span class="h-9 w-9 rounded-full" :style="{ backgroundColor: (preview.accent_color || '#ff5f5f') + '15' }"></span>
                             </div>
                             <h5 class="mt-4 text-lg font-semibold tracking-[-0.03em]" :style="{ color: isDark() ? '#f8fafc' : '#0f172a' }">{{ __('Sharper headlines, calmer paragraphs') }}</h5>
                             <p class="mt-3 text-sm leading-7" :style="{ color: preview.muted_text_color || '#64748b' }">{{ __('The best guest themes make pricing, product positioning, and signup prompts easy to scan without feeling cramped.') }}</p>
                             <div class="mt-5 grid gap-3 2xl:grid-cols-3">
-                                <div class="rounded-[0.85rem] p-3" :style="{ backgroundColor: (preview.success_color || '#059669') + '12' }">
+                                <div class="rounded-[0.85rem] p-3" :style="{ backgroundColor: (preview.success_color || '#ff8c42') + '12' }">
                                     <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" :style="{ color: preview.muted_text_color || '#64748b' }">{{ __('Signup') }}</p>
                                     <p class="mt-2 text-base font-semibold" :style="{ color: isDark() ? '#f8fafc' : '#0f172a' }">4.8%</p>
                                 </div>
@@ -318,7 +318,7 @@
                             <div class="space-y-3 pt-3">
                                 <div class="flex items-center justify-between gap-3 text-sm">
                                     <span class="font-medium" :style="{ color: isDark() ? '#f8fafc' : '#0f172a' }">{{ __('Starter plan') }}</span>
-                                    <span :style="{ color: preview.success_color || '#059669' }">{{ __('$19/mo') }}</span>
+                                    <span :style="{ color: preview.success_color || '#ff8c42' }">{{ __('$19/mo') }}</span>
                                 </div>
                                 <div class="flex items-center justify-between gap-3 text-sm">
                                     <span class="font-medium" :style="{ color: isDark() ? '#f8fafc' : '#0f172a' }">{{ __('Growth plan') }}</span>

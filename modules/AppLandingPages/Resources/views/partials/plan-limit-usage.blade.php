@@ -18,7 +18,7 @@
         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div class="min-w-0">
                 <div class="flex flex-wrap items-center gap-2">
-                    <span class="inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em]" style="border-color: rgba(15,118,110,0.22); background: rgba(15,118,110,0.08); color: #0f766e;">
+                    <span class="inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em]" style="border-color: rgba(var(--theme-accent-rgb),0.22); background: rgba(var(--theme-accent-rgb),0.08); color: var(--theme-accent);">
                         <i class="fa-light fa-gauge-high"></i>{{ __('Limits') }}
                     </span>
                     @if ($fullCount > 0)
@@ -70,7 +70,7 @@
     <div class="grid gap-5 px-5 py-5 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-center sm:px-6">
         <div>
             <div class="flex flex-wrap items-center gap-2">
-                <span class="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]" style="border-color: rgba(15,118,110,0.22); background: rgba(15,118,110,0.08); color: #0f766e;">
+                <span class="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]" style="border-color: rgba(var(--theme-accent-rgb),0.22); background: rgba(var(--theme-accent-rgb),0.08); color: var(--theme-accent);">
                     <i class="fa-light fa-gauge-high"></i>
                     {{ __('Plan limits') }}
                 </span>
@@ -97,8 +97,8 @@
                 </div>
                 <p class="text-sm font-semibold" style="color: var(--theme-muted-text-color);">{{ number_format($totalUsed) }}/{{ number_format($totalLimit) }}</p>
             </div>
-            <div class="mt-4 h-2 overflow-hidden rounded-full" style="background-color: rgba(15,118,110,0.12);">
-                <div class="h-full rounded-full transition-all" style="width: {{ max(4, $overallPercent) }}%; background: linear-gradient(90deg, #0f766e, #14b8a6);"></div>
+            <div class="mt-4 h-2 overflow-hidden rounded-full" style="background-color: rgba(var(--theme-accent-rgb),0.12);">
+                <div class="h-full rounded-full transition-all" style="width: {{ max(4, $overallPercent) }}%; background: var(--theme-brand-gradient);"></div>
             </div>
         </div>
     </div>

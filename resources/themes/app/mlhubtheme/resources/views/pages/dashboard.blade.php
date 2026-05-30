@@ -88,7 +88,7 @@
                 x-cloak
                 x-show="saving || saved"
                 class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
-                style="background: rgba(var(--theme-accent-rgb,37,99,235),0.12); color: var(--theme-accent,#2563eb);"
+                style="background: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);"
             >
                 <span x-show="saving">{{ __('Saving layout...') }}</span>
                 <span x-show="saved">{{ __('Layout saved') }}</span>

@@ -12,7 +12,7 @@
     $primaryVariant = match ($buttonStyle) {
         'soft' => 'border border-[color:rgba(var(--theme-accent-rgb),0.16)] bg-[color:rgba(var(--theme-accent-rgb),0.12)] text-[var(--theme-accent)] hover:bg-[color:rgba(var(--theme-accent-rgb),0.18)]',
         'outline' => 'border border-[var(--theme-accent)] bg-transparent text-[var(--theme-accent)] hover:bg-[color:rgba(var(--theme-accent-rgb),0.06)]',
-        default => 'border border-[var(--theme-accent)] bg-[var(--theme-accent)] text-white hover:opacity-95',
+        default => 'border border-[#ff8c42] text-white hover:brightness-[1.03]',
     };
     $primaryShadow = match ($buttonShadow) {
         'none' => 'shadow-none',
@@ -27,7 +27,7 @@
         'secondary' => 'border text-[var(--theme-button-soft-text)] shadow-sm hover:-translate-y-px hover:shadow-[0_14px_28px_-22px_rgba(15,23,42,0.38)]',
         'outline' => 'border bg-transparent shadow-sm hover:-translate-y-px hover:shadow-[0_14px_28px_-22px_rgba(15,23,42,0.3)]',
         'ghost' => 'text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white',
-        'success' => 'border border-emerald-600 bg-emerald-600 text-white shadow-[0_14px_28px_-18px_rgba(16,185,129,0.42)] hover:border-emerald-500 hover:bg-emerald-500 dark:border-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400',
+        'success' => 'border border-[var(--theme-success-color)] bg-[var(--theme-success-color)] text-white shadow-[0_14px_28px_-18px_rgba(var(--theme-success-color-rgb),0.42)] hover:border-[var(--theme-link-hover-color)] hover:bg-[var(--theme-link-hover-color)]',
         'warning' => 'border border-amber-500 bg-amber-500 text-slate-950 shadow-[0_14px_28px_-18px_rgba(245,158,11,0.4)] hover:border-amber-400 hover:bg-amber-400 dark:border-amber-400 dark:bg-amber-400 dark:hover:bg-amber-300',
         'info' => 'border border-sky-600 bg-sky-600 text-white shadow-[0_14px_28px_-18px_rgba(14,165,233,0.42)] hover:border-sky-500 hover:bg-sky-500 dark:border-sky-500 dark:bg-sky-500 dark:hover:bg-sky-400',
         'danger' => 'border border-rose-600 bg-rose-600 text-white shadow-[0_14px_28px_-18px_rgba(225,29,72,0.42)] hover:border-rose-500 hover:bg-rose-500 dark:border-rose-500 dark:bg-rose-500 dark:hover:bg-rose-400',
@@ -47,6 +47,7 @@
     ]);
 
     $styles = match ($variant) {
+        'primary' => 'border-radius: var(--theme-button-radius, 0.75rem); background: var(--theme-brand-gradient); border-color: #ff8c42;',
         'secondary' => 'border-radius: var(--theme-button-radius, 0.75rem); border-color: var(--theme-border-color); background-color: var(--theme-button-soft-bg); color: var(--theme-button-soft-text);',
         'outline' => '--button-outline-text: var(--theme-header-text-color); --button-outline-bg: transparent; --button-outline-hover-bg: var(--theme-button-outline-hover); --button-outline-border: var(--theme-border-color); --button-outline-hover-border: rgba(var(--theme-accent-rgb), 0.35); border-radius: var(--theme-button-radius, 0.75rem); border-color: var(--theme-border-color); color: var(--theme-header-text-color); background-color: transparent;',
         default => 'border-radius: var(--theme-button-radius, 0.75rem);',

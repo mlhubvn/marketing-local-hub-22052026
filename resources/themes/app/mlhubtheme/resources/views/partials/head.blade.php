@@ -36,46 +36,48 @@
     $buttonRadius = theme_setting('button_radius', 'app', 12);
     $pageMaxWidth = theme_setting('page_max_width', 'app', '90rem');
     $sectionSpacing = theme_setting('section_spacing', 'app', '1.5rem');
-    $lightAccent = theme_setting('accent_color', 'app', '#4f46e5');
-    $lightAccentRgb = theme_color_rgb('accent_color', 'app', '#4f46e5');
-    $lightSidebarBg = theme_setting('sidebar_bg_color', 'app', '#f5f7fb');
-    $lightSidebarBgRgb = theme_color_rgb('sidebar_bg_color', 'app', '#f5f7fb');
+    $lightAccent = theme_setting('accent_color', 'app', '#ff5f5f');
+    $lightAccentRgb = theme_color_rgb('accent_color', 'app', '#ff5f5f');
+    $lightSidebarBg = theme_setting('sidebar_bg_color', 'app', '#fffbf8');
+    $lightSidebarBgRgb = theme_color_rgb('sidebar_bg_color', 'app', '#fffbf8');
     $lightHeaderBg = theme_setting('header_bg_color', 'app', '#ffffff');
     $lightHeaderBgRgb = theme_color_rgb('header_bg_color', 'app', '#ffffff');
-    $lightHeaderActive = theme_setting('header_active_color', 'app', '#0f172a');
-    $lightHeaderActiveRgb = theme_color_rgb('header_active_color', 'app', '#0f172a');
-    $lightLink = theme_setting('link_color', 'app', '#4f46e5');
-    $lightLinkHover = theme_setting('link_hover_color', 'app', '#4338ca');
-    $lightBorder = theme_setting('border_color', 'app', '#cbd5e1');
-    $lightBorderRgb = theme_color_rgb('border_color', 'app', '#cbd5e1');
-    $lightMuted = theme_setting('muted_text_color', 'app', '#64748b');
-    $lightSidebarText = theme_setting('sidebar_text_color', 'app', '#475569');
-    $lightHeaderText = theme_setting('header_text_color', 'app', '#0f172a');
-    $lightSuccess = theme_setting('success_color', 'app', '#059669');
-    $lightSuccessRgb = theme_color_rgb('success_color', 'app', '#059669');
-    $lightWarning = theme_setting('warning_color', 'app', '#d97706');
-    $lightWarningRgb = theme_color_rgb('warning_color', 'app', '#d97706');
+    $lightHeaderActive = theme_setting('header_active_color', 'app', '#ff8c42');
+    $lightHeaderActiveRgb = theme_color_rgb('header_active_color', 'app', '#ff8c42');
+    $lightLink = theme_setting('link_color', 'app', '#ff5f5f');
+    $lightLinkHover = theme_setting('link_hover_color', 'app', '#ff8c42');
+    $lightLinkHoverRgb = theme_color_rgb('link_hover_color', 'app', '#ff8c42');
+    $lightBorder = theme_setting('border_color', 'app', '#ffe5dc');
+    $lightBorderRgb = theme_color_rgb('border_color', 'app', '#ffe5dc');
+    $lightMuted = theme_setting('muted_text_color', 'app', '#8a7068');
+    $lightSidebarText = theme_setting('sidebar_text_color', 'app', '#2d1810');
+    $lightHeaderText = theme_setting('header_text_color', 'app', '#2d1810');
+    $lightSuccess = theme_setting('success_color', 'app', '#ff8c42');
+    $lightSuccessRgb = theme_color_rgb('success_color', 'app', '#ff8c42');
+    $lightWarning = theme_setting('warning_color', 'app', '#ffb347');
+    $lightWarningRgb = theme_color_rgb('warning_color', 'app', '#ffb347');
     $lightDanger = theme_setting('danger_color', 'app', '#dc2626');
     $lightDangerRgb = theme_color_rgb('danger_color', 'app', '#dc2626');
     $darkAccent = theme_setting('dark_accent_color', 'app', $lightAccent);
     $darkAccentRgb = theme_color_rgb('dark_accent_color', 'app', $lightAccent);
-    $darkSidebarBg = theme_setting('dark_sidebar_bg_color', 'app', '#0d131c');
-    $darkSidebarBgRgb = theme_color_rgb('dark_sidebar_bg_color', 'app', '#0d131c');
-    $darkHeaderBg = theme_setting('dark_header_bg_color', 'app', '#111827');
-    $darkHeaderBgRgb = theme_color_rgb('dark_header_bg_color', 'app', '#111827');
-    $darkHeaderActive = theme_setting('dark_header_active_color', 'app', '#f8fafc');
-    $darkHeaderActiveRgb = theme_color_rgb('dark_header_active_color', 'app', '#f8fafc');
+    $darkSidebarBg = theme_setting('dark_sidebar_bg_color', 'app', '#1f110c');
+    $darkSidebarBgRgb = theme_color_rgb('dark_sidebar_bg_color', 'app', '#1f110c');
+    $darkHeaderBg = theme_setting('dark_header_bg_color', 'app', '#251610');
+    $darkHeaderBgRgb = theme_color_rgb('dark_header_bg_color', 'app', '#251610');
+    $darkHeaderActive = theme_setting('dark_header_active_color', 'app', '#ff8c42');
+    $darkHeaderActiveRgb = theme_color_rgb('dark_header_active_color', 'app', '#ff8c42');
     $darkLink = theme_setting('dark_link_color', 'app', $darkAccent);
-    $darkLinkHover = theme_setting('dark_link_hover_color', 'app', '#c7d2fe');
-    $darkBorder = theme_setting('dark_border_color', 'app', '#334155');
-    $darkBorderRgb = theme_color_rgb('dark_border_color', 'app', '#334155');
-    $darkMuted = theme_setting('dark_muted_text_color', 'app', '#94a3b8');
-    $darkSidebarText = theme_setting('dark_sidebar_text_color', 'app', '#cbd5e1');
-    $darkHeaderText = theme_setting('dark_header_text_color', 'app', '#f8fafc');
-    $darkSuccess = theme_setting('dark_success_color', 'app', '#34d399');
-    $darkSuccessRgb = theme_color_rgb('dark_success_color', 'app', '#34d399');
-    $darkWarning = theme_setting('dark_warning_color', 'app', '#f59e0b');
-    $darkWarningRgb = theme_color_rgb('dark_warning_color', 'app', '#f59e0b');
+    $darkLinkHover = theme_setting('dark_link_hover_color', 'app', '#ff8c42');
+    $darkLinkHoverRgb = theme_color_rgb('dark_link_hover_color', 'app', '#ff8c42');
+    $darkBorder = theme_setting('dark_border_color', 'app', '#4a3028');
+    $darkBorderRgb = theme_color_rgb('dark_border_color', 'app', '#4a3028');
+    $darkMuted = theme_setting('dark_muted_text_color', 'app', '#b89a90');
+    $darkSidebarText = theme_setting('dark_sidebar_text_color', 'app', '#ffe5dc');
+    $darkHeaderText = theme_setting('dark_header_text_color', 'app', '#fffbf8');
+    $darkSuccess = theme_setting('dark_success_color', 'app', '#ff8c42');
+    $darkSuccessRgb = theme_color_rgb('dark_success_color', 'app', '#ff8c42');
+    $darkWarning = theme_setting('dark_warning_color', 'app', '#ffb347');
+    $darkWarningRgb = theme_color_rgb('dark_warning_color', 'app', '#ffb347');
     $darkDanger = theme_setting('dark_danger_color', 'app', '#f87171');
     $darkDangerRgb = theme_color_rgb('dark_danger_color', 'app', '#f87171');
 @endphp
@@ -83,6 +85,12 @@
     :root {
         --theme-accent: {{ $lightAccent }};
         --theme-accent-rgb: {{ $lightAccentRgb }};
+        --theme-brand-primary: #ff5f5f;
+        --theme-brand-secondary: #ff8c42;
+        --theme-brand-highlight: #ffb347;
+        --theme-brand-highlight-rgb: 255, 179, 71;
+        --theme-brand-gradient: linear-gradient(135deg, #ff5f5f 0%, #ff8c42 100%);
+        --theme-brand-gradient-soft: linear-gradient(135deg, rgba(var(--theme-accent-rgb), 0.14) 0%, rgba(var(--theme-link-hover-rgb), 0.08) 100%);
         --theme-sidebar-bg: {{ $lightSidebarBg }};
         --theme-sidebar-bg-rgb: {{ $lightSidebarBgRgb }};
         --theme-header-bg: {{ $lightHeaderBg }};
@@ -93,6 +101,7 @@
         --theme-header-active-rgb: {{ $lightHeaderActiveRgb }};
         --theme-link-color: {{ $lightLink }};
         --theme-link-hover-color: {{ $lightLinkHover }};
+        --theme-link-hover-rgb: {{ $lightLinkHoverRgb }};
         --theme-border-color-raw: {{ $lightBorder }};
         --theme-border-color-rgb: {{ $lightBorderRgb }};
         --theme-border-color: {{ $lightBorder }};
@@ -111,26 +120,26 @@
         --theme-danger-color-rgb: {{ $lightDangerRgb }};
         --theme-surface-base: #ffffff;
         --theme-surface-base-rgb: 255, 255, 255;
-        --theme-surface-soft: #f8fafc;
-        --theme-surface-soft-rgb: 248, 250, 252;
+        --theme-surface-soft: #fff5f0;
+        --theme-surface-soft-rgb: 255, 245, 240;
         --theme-surface-overlay: #ffffff;
         --theme-surface-overlay-rgb: 255, 255, 255;
-        --theme-surface-subtle: #f3f6fb;
-        --theme-surface-subtle-rgb: 243, 246, 251;
+        --theme-surface-subtle: #fff0eb;
+        --theme-surface-subtle-rgb: 255, 240, 235;
         --theme-input-surface: #ffffff;
         --theme-input-surface-rgb: 255, 255, 255;
-        --theme-input-text: #0f172a;
-        --theme-input-placeholder: #94a3b8;
-        --theme-button-soft-bg: #f1f5f9;
-        --theme-button-soft-hover: #e2e8f0;
-        --theme-button-soft-text: #0f172a;
-        --theme-button-outline-hover: #f8fafc;
-        --theme-table-head-bg: rgba(248, 250, 252, 0.92);
-        --theme-table-row-hover-bg: rgba(248, 250, 252, 0.75);
-        --theme-empty-bg: rgba(248, 250, 252, 0.72);
+        --theme-input-text: #2d1810;
+        --theme-input-placeholder: #b89a90;
+        --theme-button-soft-bg: #fff0eb;
+        --theme-button-soft-hover: #ffe5dc;
+        --theme-button-soft-text: #2d1810;
+        --theme-button-outline-hover: #fff5f0;
+        --theme-table-head-bg: rgba(255, 245, 240, 0.92);
+        --theme-table-row-hover-bg: rgba(255, 245, 240, 0.75);
+        --theme-empty-bg: rgba(255, 245, 240, 0.72);
         --theme-empty-icon-bg: #ffffff;
-        --theme-chart-surface: linear-gradient(180deg, rgba(248,250,255,0.98), rgba(244,247,252,0.95));
-        --theme-chart-grid: rgba(148, 163, 184, 0.22);
+        --theme-chart-surface: linear-gradient(180deg, rgba(255, 251, 248, 0.98), rgba(255, 245, 240, 0.95));
+        --theme-chart-grid: rgba(255, 229, 220, 0.65);
         --theme-card-contrast-bg: #0f172a;
         --theme-card-contrast-text: #ffffff;
         --theme-card-radius: {{ is_numeric($cardRadius) ? $cardRadius.'px' : $cardRadius }};
@@ -172,6 +181,12 @@
     .dark {
         --theme-accent: {{ $darkAccent }};
         --theme-accent-rgb: {{ $darkAccentRgb }};
+        --theme-brand-primary: #ff5f5f;
+        --theme-brand-secondary: #ff8c42;
+        --theme-brand-highlight: #ffb347;
+        --theme-brand-highlight-rgb: 255, 179, 71;
+        --theme-brand-gradient: linear-gradient(135deg, #ff5f5f 0%, #ff8c42 100%);
+        --theme-brand-gradient-soft: linear-gradient(135deg, rgba(var(--theme-accent-rgb), 0.18) 0%, rgba(var(--theme-brand-highlight-rgb), 0.1) 100%);
         --theme-sidebar-bg: {{ $darkSidebarBg }};
         --theme-sidebar-bg-rgb: {{ $darkSidebarBgRgb }};
         --theme-header-bg: {{ $darkHeaderBg }};
@@ -182,6 +197,7 @@
         --theme-header-active-rgb: {{ $darkHeaderActiveRgb }};
         --theme-link-color: {{ $darkLink }};
         --theme-link-hover-color: {{ $darkLinkHover }};
+        --theme-link-hover-rgb: {{ $darkLinkHoverRgb }};
         --theme-border-color-raw: {{ $darkBorder }};
         --theme-border-color-rgb: {{ $darkBorderRgb }};
         --theme-border-color: {{ $darkBorder }};
@@ -198,16 +214,16 @@
         --theme-warning-color-rgb: {{ $darkWarningRgb }};
         --theme-danger-color: {{ $darkDanger }};
         --theme-danger-color-rgb: {{ $darkDangerRgb }};
-        --theme-surface-base: #162033;
-        --theme-surface-base-rgb: 22, 32, 51;
-        --theme-surface-soft: #121b2b;
-        --theme-surface-soft-rgb: 18, 27, 43;
-        --theme-surface-overlay: #182235;
-        --theme-surface-overlay-rgb: 24, 34, 53;
-        --theme-surface-subtle: #10192a;
-        --theme-surface-subtle-rgb: 16, 25, 42;
-        --theme-input-surface: #020617;
-        --theme-input-surface-rgb: 2, 6, 23;
+        --theme-surface-base: #2a1814;
+        --theme-surface-base-rgb: 42, 24, 20;
+        --theme-surface-soft: #1f110c;
+        --theme-surface-soft-rgb: 31, 17, 12;
+        --theme-surface-overlay: #251610;
+        --theme-surface-overlay-rgb: 37, 22, 16;
+        --theme-surface-subtle: #1a0f0b;
+        --theme-surface-subtle-rgb: 26, 15, 11;
+        --theme-input-surface: #1a0f0b;
+        --theme-input-surface-rgb: 26, 15, 11;
         --theme-input-text: #f8fafc;
         --theme-input-placeholder: #64748b;
         --theme-button-soft-bg: #1a2436;
@@ -324,6 +340,17 @@
     html[data-theme-resolved='dark'] .portal-dashboard .shadow-sm,
     html[data-theme-resolved='dark'] .portal-dashboard [class*="shadow-"] {
         box-shadow: 0 22px 70px -52px rgba(0, 0, 0, 0.82) !important;
+    }
+
+    .theme-brand-gradient {
+        background: var(--theme-brand-gradient);
+    }
+
+    .theme-brand-gradient-text {
+        background: var(--theme-brand-gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
     }
 </style>
 @if (filled(theme_setting('custom_css', 'app')))

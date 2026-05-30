@@ -16,7 +16,7 @@
     ];
 
     $statusClasses = [
-        'online' => 'bg-emerald-500',
+        'online' => 'bg-[var(--theme-success-color)]',
         'away' => 'bg-amber-400',
         'busy' => 'bg-rose-500',
         'offline' => 'bg-slate-300 dark:bg-slate-600',
@@ -31,7 +31,7 @@
         'border-[#fed7aa] bg-[#ffedd5] text-[#ea580c]',
         'border-[#fde68a] bg-[#fef3c7] text-[#ca8a04]',
         'border-[#bbf7d0] bg-[#dcfce7] text-[#16a34a]',
-        'border-[#a7f3d0] bg-[#d1fae5] text-[#0f766e]',
+        'border-[color-mix(in_srgb,var(--theme-accent)_28%,transparent)] bg-[color-mix(in_srgb,var(--theme-accent)_12%,transparent)] text-[var(--theme-accent)]',
         'border-[#bae6fd] bg-[#e0f2fe] text-[#0369a1]',
     ];
 

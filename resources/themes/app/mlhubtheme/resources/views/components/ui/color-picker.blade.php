@@ -3,7 +3,7 @@
     'value' => null,
     'error' => null,
     'help' => null,
-    'presets' => ['#2563eb', '#16a34a', '#d97706', '#dc2626', '#7c3aed', '#db2777', '#0f766e', '#0f172a'],
+    'presets' => ['#ff5f5f', '#ff8c42', '#ffb347', '#2d1810', '#ffe5dc', '#fffbf8', '#dc2626', '#8a7068'],
 ])
 
 @php
@@ -18,7 +18,7 @@
         {{ $modelAttributes }}
         x-data="{
             open: false,
-            value: @js(strtolower($value ?: '#2563eb')),
+            value: @js(strtolower($value ?: '#ff5f5f')),
             init() {
                 this.$watch('value', () => this.syncInput());
             },
@@ -26,7 +26,7 @@
                 let next = String(input || '').trim().toLowerCase();
 
                 if (next === '') {
-                    return '#2563eb';
+                    return '#ff5f5f';
                 }
 
                 if (!next.startsWith('#')) {

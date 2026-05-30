@@ -6,7 +6,7 @@
     $variants = [
         'neutral' => 'border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200',
         'primary' => 'border-[color:rgba(var(--theme-accent-rgb),0.24)] bg-[color:rgba(var(--theme-accent-rgb),0.10)] text-[var(--theme-accent)] dark:border-[color:rgba(var(--theme-accent-rgb),0.24)] dark:bg-[color:rgba(var(--theme-accent-rgb),0.16)] dark:text-white',
-        'success' => 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300',
+        'success' => 'border-[color-mix(in_srgb,var(--theme-success-color)_24%,transparent)] bg-[color-mix(in_srgb,var(--theme-success-color)_10%,transparent)] text-[var(--theme-success-color)]',
         'danger' => 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-300',
     ];
 @endphp

@@ -76,7 +76,7 @@
                 <div class="space-y-3">
                     @forelse (collect($plan?->permissions ?? [])->take(8) as $feature => $value)
                         <div class="flex items-center gap-3 rounded-[0.95rem] border p-4" style="border-color: var(--theme-border-color); background: var(--theme-chart-surface);">
-                            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(var(--theme-accent-rgb,37_99_235),0.12)] text-[var(--theme-accent,#2563eb)]">
+                            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(var(--theme-accent-rgb),0.12)] text-[var(--theme-accent)]">
                                 <i class="fa-light fa-check text-sm"></i>
                             </span>
                             <div>
