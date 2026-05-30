@@ -124,8 +124,11 @@ class LogIndex extends Component
             }
         }
 
+        $activeFile = collect($files)->firstWhere('name', $this->selectedFile) ?? ($files[0] ?? null);
+
         return view('adminlog::index', [
             'files' => $files,
+            'activeFile' => $activeFile,
             'content' => $content,
         ])->layout(theme_view('layouts.app', 'app'), [
             'title' => __('Logs'),

@@ -35,6 +35,7 @@
 3. **Nếu cần cấu hình trên Coolify → hướng dẫn từng bước theo đúng tab Coolify**: General, Advanced, Environment Variables, Persistent Storage, Git Source, Servers, Scheduled Tasks, Webhooks, Preview Deployments, Healthcheck, Rollback, Resource Limits, Resource Operations, Metrics, Tags, Danger Zone. Nói rõ tab nào, ô nào, giá trị gì.
 4. **Commit GitHub + Deploy do CHỦ DỰ ÁN làm thủ công.** AI **KHÔNG** tự `git commit`/`git push`/deploy. AI chỉ sửa file tại local + soạn sẵn **commit message gợi ý**; chủ dự án tự đẩy để kịp copy log nếu lỗi. Khi xong một cụm việc, tóm tắt "đã đổi file nào" + gợi ý commit message.
 5. **Báo NGAY khi phát hiện vấn đề bảo mật hoặc ảnh hưởng trải nghiệm người dùng** (kể cả ngoài phạm vi task đang làm) — nêu rủi ro bằng lời dễ hiểu + mức độ + cách xử lý đề xuất, để chủ dự án quyết ưu tiên.
+6. **Khi chủ dự án đưa nội dung log** (`laravel.log` dán vào repo, hoặc xem qua **Admin → Cài đặt → Logs** = module `AdminLog` tại `admin/settings/log`): tự rà mọi dòng `ERROR/CRITICAL`, **fix luôn lỗi code** theo phong cách vibecode; lỗi nào đã vá / chỉ thoáng qua (vd Livewire "children" do snapshot cũ sau deploy) thì nêu rõ trạng thái thay vì sửa thừa. Chủ dự án **không dùng `.gitignore`**, tự loại `laravel.log` thủ công khi commit — đừng tạo `.gitignore` trừ khi được yêu cầu.
 
 ---
 
