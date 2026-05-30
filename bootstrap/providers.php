@@ -1,13 +1,11 @@
 <?php
 
-use App\Installer\InstallerServiceProvider;
 use App\Providers\AppServiceProvider;
 use App\Providers\FortifyServiceProvider;
 
 $baseProviders = [
     AppServiceProvider::class,
     FortifyServiceProvider::class,
-    InstallerServiceProvider::class,
 ];
 
 $moduleProviders = [];

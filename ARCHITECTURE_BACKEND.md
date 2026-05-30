@@ -8,7 +8,7 @@ Tài liệu mô tả cách backend Laravel 13 được tổ chức, các add-on/
 
 LocalBoost AI là một **Modular Monolith** (khối nguyên một process nhưng chia module):
 
-- `app/` — **lớp vỏ (shell) mỏng**: auth, trang marketing khách, installer, các registry toàn cục, middleware.
+- `app/` — **lớp vỏ (shell) mỏng**: auth, trang marketing khách, bootstrap MLHUB (`config/mlhub.php`, `mlhub:reset-demo`), các registry toàn cục, middleware.
 - `modules/` — **~80 module** (`Admin*`, `App*`, `Payment*`) chứa hầu hết Model, Livewire, Route, Service.
 - `resources/themes/` — tầng trình bày (xem `ARCHITECTURE_FRONTEND.md`).
 - `bootstrap/providers.php` — **tự động phát hiện** mọi module và nạp Service Provider của chúng.
@@ -28,7 +28,8 @@ Nguyên tắc cốt lõi:
 |-----------|---------|
 | `app/Providers/AppServiceProvider.php` | Đăng ký singleton: `SidebarRegistry`, `HeaderRegistry`, `AdminDashboardRegistry`, `UserDashboardRegistry`, `PlanPermissionRegistry`, `StorageDriverManager`, `SocialAvatarStore`. Đặt `CarbonImmutable` mặc định, Livewire component hook, đường dẫn Blade component dùng chung, ép HTTPS ở production. |
 | `app/Providers/FortifyServiceProvider.php` | Gắn view của Fortify vào các trang Livewire auth. |
-| `app/Installer/` | Trình cài đặt lần đầu (mount qua middleware `PrepareInstallation` trong `bootstrap/app.php`). |
+| `config/mlhub.php` | Bootstrap MLHUB (seed stack, theme/site mặc định) — **không còn** Web Installer. |
+| `app/Console/Commands/MlhubResetDemoCommand.php` | `php artisan mlhub:reset-demo --force` — wipe + migrate + seed (pilot). |
 | `app/Http/Middleware/EnsureAdminAccess.php` | Cổng kiểm soát truy cập khu admin. |
 | `app/Http/Middleware/ResolveUserPlanState.php` | Nạp ngữ cảnh gói (plan) cho mỗi request. |
 | `app/Http/Middleware/PreventDemoModeWriteOperations.php` | Chặn thao tác ghi khi bật chế độ demo. |
@@ -85,7 +86,7 @@ Mỗi lần boot, file này thực hiện:
 
 ```php
 return array_values(array_unique(array_merge(
-    $baseProviders,        // AppServiceProvider, FortifyServiceProvider, InstallerServiceProvider
+    $baseProviders,        // AppServiceProvider, FortifyServiceProvider
     $moduleProviders,      // tự động từ modules/*
     $marketplaceProviders  // từ providers.marketplace.php (add-on/marketplace)
 )));
@@ -186,7 +187,6 @@ Hệ thống **không** dùng tách database; tenant được cô lập bằng *
 | `routes/console.php` | Tổng hợp scheduler. |
 | `routes/settings.php` | Route phần Cài đặt. |
 | `routes/public-storage.php` | Phân phối file công khai có chữ ký. |
-| `app/Installer/routes/*` | Wizard cài đặt. |
 | `modules/*/Routes/web.php` | **Phần lớn** route admin & portal. |
 
 ### 5.2 Mẫu route portal (Livewire-first)

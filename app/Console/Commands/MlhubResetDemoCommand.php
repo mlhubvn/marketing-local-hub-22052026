@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;
+
+class MlhubResetDemoCommand extends Command
+{
+    protected $signature = 'mlhub:reset-demo
+                            {--force : Xác nhận xóa toàn bộ dữ liệu MySQL và seed lại}';
+
+    protected $description = 'Xóa DB, migrate lại và seed MLHUB (admin demo + dữ liệu mẫu VN). Chỉ dùng pilot/staging.';
+
+    public function handle(): int
+    {
+        if (! $this->option('force')) {
+            $this->error('Lệnh nguy hiểm: thêm --force để xác nhận xóa toàn bộ dữ liệu.');
+
+            return self::FAILURE;
+        }
+
+        if (app()->environment('production') && ! (bool) env('MLHUB_ALLOW_RESET_DEMO', false)) {
+            $this->error('Production: đặt MLHUB_ALLOW_RESET_DEMO=true trong env (pilot) hoặc chạy từng bước thủ công.');
+
+            return self::FAILURE;
+        }
+
+        $this->warn('Đang xóa toàn bộ bảng và seed lại...');
+
+        $this->call('db:wipe', ['--force' => true, '--drop-views' => true]);
+        $this->call('migrate', ['--force' => true]);
+        $this->call('db:seed', ['--force' => true]);
+        $this->call('optimize:clear');
+
+        $this->newLine();
+        $this->info('Hoàn tất. Đăng nhập: demo@mlhub.vn / 123456 (super admin + demo tăng trưởng).');
+        $this->line('Chạy thêm trong container Redis: redis-cli FLUSHALL');
+
+        return self::SUCCESS;
+    }
+}

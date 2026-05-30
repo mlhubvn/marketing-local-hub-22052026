@@ -154,6 +154,71 @@ php artisan tinker
 
 > ⚠️ KHÔNG chạy `migrate:fresh`, `migrate:rollback`, `db:wipe` trên DB có dữ liệu thật.
 
+### 3.1 Reset dữ liệu demo (không còn Web Installer)
+
+> 🔴 **Chỉ pilot/staging/local — chưa có khách thật.** MLHUB **đã gỡ Web Installer**; bootstrap qua **seed** + env Coolify.
+
+**Tài khoản duy nhất cần nhớ:** `demo@mlhub.vn` / `123456` — vừa **super admin**, vừa có **demo tăng trưởng** (gói `agency-lifetime`).
+
+**Coolify (tab Environment Variables) — luôn giữ:**
+
+| Biến | Giá trị |
+|------|---------|
+| `APP_INSTALLED` | `true` (bắt buộc — entrypoint mới chạy `migrate`) |
+| `MLHUB_ADMIN_PLAN_SLUG` | `agency-lifetime` |
+| `MLHUB_ALLOW_RESET_DEMO` | `true` (chỉ khi cần chạy lệnh wipe trên pilot; xong có thể đặt lại `false`) |
+| `MLHUB_LICENSE_PURCHASE_CODE` | Mã mua Stackposts (mặc định trong `config/mlhub.php` nếu không set) |
+| `MLHUB_LICENSE_DOMAIN` | `mlhub.vn` |
+| `MAIL_PASSWORD` | SMTP (không commit vào repo; seed ghi vào `options.smtp_password` nếu có) |
+
+**License / Marketplace sau reset:** không còn Web Installer (`purchase_verify_url`). Seed `MLHUBMarketplaceSeeder` + `license_*` trong `MLHUBBootstrapSeeder` khôi phục `marketplace_packages` và trạng thái license. **Không** import nguyên `mysql-dump-default-*.sql` (chứa SMTP/captcha secret). Logo đã upload: `MLHUBBrandFilesSeeder` tái tạo bản ghi `files` nếu ảnh còn trên disk `storage/app/public`.
+
+#### A. Combo một lệnh (trong container app — khuyến nghị)
+
+```bash
+docker exec -it <container_app> sh
+cd /var/www/html
+php artisan mlhub:reset-demo --force
+redis-cli -h <redis-host> -a '<password>' FLUSHALL
+```
+
+Lệnh trên: `db:wipe` → `migrate` → `db:seed` (foundation, gói, AI templates, site options + license, marketplace packages, demo VN + volume lớn, bản ghi file logo) → `optimize:clear`.
+
+#### B. Từng bước (nếu muốn kiểm soát)
+
+```bash
+cd /var/www/html
+php artisan db:wipe --force --drop-views
+php artisan migrate --force
+php artisan db:seed --force
+php artisan optimize:clear
+```
+
+**Redis (bắt buộc sau reset):** `redis-cli FLUSHALL` — session/cache cũ không còn trỏ user ID đã xóa.
+
+#### C. SQL thủ công (khi không vào được artisan)
+
+```sql
+DROP DATABASE mlhub;
+CREATE DATABASE mlhub CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+Sau đó trong container: `php artisan migrate --force` và `php artisan db:seed --force` (hoặc `mlhub:reset-demo --force`).
+
+#### D. Chỉ seed lại demo (không wipe)
+
+```bash
+php artisan db:seed --class=LocalBoostDemoSeeder --force
+php artisan optimize:clear
+```
+
+#### E. Sau reset — kiểm tra
+
+- Đăng nhập **`demo@mlhub.vn`** / **`123456`** → **Admin** + **Portal** đều được.
+- **Tổng quan tăng trưởng:** visits ~1.2k–4.8k/chiến dịch; tỷ lệ chuyển đổi ~8–10%.
+
+**Cấu hình:** `config/mlhub.php`, `database/seeders/data/mlhub_demo_vn.php` (`campaign_metrics`), `database/Support/MlhubDemoVolume.php`.
+
 ---
 
 ## 4. Cheatsheet Docker / SSH Coolify (CHỈ để CHẨN ĐOÁN — đọc log/kiểm tra)

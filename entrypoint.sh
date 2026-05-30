@@ -8,9 +8,8 @@
 #   3. Wipe compiled Blade / bootstrap caches from the previous image, then
 #      run package:discover and storage:link.
 #   4. If APP_INSTALLED=true → wait for DB and run `php artisan migrate --force`.
-#      If APP_INSTALLED is anything else → skip migrate so the web installer
-#      can create the schema itself on first run. This avoids the "database is
-#      not empty" failure that occurs when migrate runs before the installer.
+#      MLHUB không còn Web Installer — luôn giữ APP_INSTALLED=true trên Coolify.
+#      Seed dữ liệu mẫu: chạy thủ công `php artisan mlhub:reset-demo --force` (pilot).
 #   5. Clear every Laravel cache surface and re-warm against the new code.
 #   6. exec the CMD (apache2-foreground).
 
@@ -135,8 +134,7 @@ case "$APP_INSTALLED_VALUE" in
         ;;
     *)
         echo "APP_INSTALLED=${APP_INSTALLED_VALUE} → skipping migrate."
-        echo "Open the application URL in a browser to run the installer wizard."
-        echo "After install, set APP_INSTALLED=true (and restart) so future deploys auto-migrate."
+        echo "Set APP_INSTALLED=true in Coolify Environment Variables, then redeploy."
         ;;
 esac
 
@@ -160,9 +158,7 @@ if is_app_installed "$APP_INSTALLED_VALUE"; then
     # compiled artifacts survive across deploys.
     php artisan optimize --ansi
 else
-    # DB tables (cache, sessions, jobs) do not exist until the installer runs migrate.
-    # Do not run full optimize:clear — it would DELETE FROM `cache` and crash the container.
-    echo "Pre-install bootstrap: skipping database cache; run optimize after APP_INSTALLED=true."
+    echo "APP_INSTALLED is false: skipping database-backed cache clear. Set APP_INSTALLED=true on Coolify."
     php artisan config:clear --ansi
     php artisan route:clear --ansi
     php artisan view:clear --ansi

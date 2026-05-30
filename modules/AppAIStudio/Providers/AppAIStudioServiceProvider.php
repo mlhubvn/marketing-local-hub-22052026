@@ -91,7 +91,7 @@ class AppAIStudioServiceProvider extends ServiceProvider
         };
 
         register_user_sidebar_item('ai-tools', [
-            'label' => 'Campaign Builder',
+            'label' => __('Campaign Builder'),
             'route_name' => 'portal.ai-studio',
             'active_when' => ['portal.ai-studio', 'portal.ai-content-planner'],
             'icon' => 'fa-light fa-wand-magic-sparkles',

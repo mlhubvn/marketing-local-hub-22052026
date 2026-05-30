@@ -3,6 +3,7 @@
 namespace Modules\AdminFaker\Support;
 
 use App\Support\Storage\StorageDriverManager;
+use Database\Support\MlhubDemoVolume;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -579,6 +580,27 @@ class AdminFakerService
             ->all();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    protected function mlhubDemoVn(): array
+    {
+        static $config;
+
+        return $config ??= require database_path('seeders/data/mlhub_demo_vn.php');
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected function mlhubDemoBusinessNames(): array
+    {
+        return array_values(array_map(
+            static fn (array $business): string => $business['name'],
+            $this->mlhubDemoVn()['businesses'],
+        ));
+    }
+
     protected function createLocalBoostDemoData(User $user, array &$counts): void
     {
         if (! class_exists(LocalBusiness::class) || ! class_exists(QrCampaign::class)) {
@@ -587,21 +609,11 @@ class AdminFakerService
 
         $this->clearLocalBoostDemoData($user, $counts);
 
-        $weeklyHours = [
-            'mon' => ['is_closed' => false, 'open_time' => '09:00', 'close_time' => '18:00'],
-            'tue' => ['is_closed' => false, 'open_time' => '09:00', 'close_time' => '18:00'],
-            'wed' => ['is_closed' => false, 'open_time' => '09:00', 'close_time' => '18:00'],
-            'thu' => ['is_closed' => false, 'open_time' => '09:00', 'close_time' => '18:00'],
-            'fri' => ['is_closed' => false, 'open_time' => '09:00', 'close_time' => '18:00'],
-            'sat' => ['is_closed' => false, 'open_time' => '10:00', 'close_time' => '15:00'],
-            'sun' => ['is_closed' => true, 'open_time' => '09:00', 'close_time' => '18:00'],
-        ];
+        $vn = $this->mlhubDemoVn();
+        $weeklyHours = $vn['weekly_hours'];
+        $messages = $vn['messages'];
 
-        $businesses = collect([
-            'spa' => ['name' => 'Bloom Spa Studio', 'type' => 'spa', 'phone' => '+1 555 0101', 'email' => 'hello@bloomspa.test', 'website' => 'https://bloomspa.test', 'address' => '120 Market Street, San Diego, CA', 'google_maps_url' => 'https://maps.google.com/?q=120+Market+Street+San+Diego+CA'],
-            'bistro' => ['name' => 'Corner Table Bistro', 'type' => 'restaurant', 'phone' => '+1 555 0102', 'email' => 'team@cornertable.test', 'website' => 'https://cornertable.test', 'address' => '42 Main Avenue, Austin, TX', 'google_maps_url' => 'https://maps.google.com/?q=42+Main+Avenue+Austin+TX'],
-            'clinic' => ['name' => 'Clear Smile Clinic', 'type' => 'clinic', 'phone' => '+1 555 0103', 'email' => 'care@clearsmile.test', 'website' => 'https://clearsmile.test', 'address' => '8 Wellness Plaza, Denver, CO', 'google_maps_url' => 'https://maps.google.com/?q=8+Wellness+Plaza+Denver+CO'],
-        ])->mapWithKeys(fn (array $data, string $key): array => [
+        $businesses = collect($vn['businesses'])->mapWithKeys(fn (array $data, string $key): array => [
             $key => LocalBusiness::query()->create([
                 'user_id' => $user->id,
                 'name' => $data['name'],
@@ -611,7 +623,10 @@ class AdminFakerService
                 'website' => $data['website'],
                 'address' => $data['address'],
                 'google_maps_url' => $data['google_maps_url'],
-                'social_links' => ['instagram' => 'https://instagram.com/'.Str::slug($data['name'], '')],
+                'social_links' => [
+                    'facebook' => 'https://facebook.com/'.Str::slug($data['name'], ''),
+                    'zalo' => 'https://zalo.me/'.preg_replace('/\D+/', '', $data['phone']),
+                ],
                 'opening_hours' => $weeklyHours,
             ]),
         ]);
@@ -620,9 +635,9 @@ class AdminFakerService
 
         if (class_exists(BusinessLocation::class)) {
             collect([
-                ['business' => 'spa', 'name' => 'Bloom Spa Studio - La Jolla', 'phone' => '+1 555 0111', 'email' => 'lajolla@bloomspa.test', 'address' => '880 Prospect Street, La Jolla, CA', 'google_maps_url' => 'https://maps.google.com/?q=880+Prospect+Street+La+Jolla+CA', 'template' => 'rounded_gradient'],
-                ['business' => 'bistro', 'name' => 'Corner Table Bistro - Downtown', 'phone' => '+1 555 0112', 'email' => 'downtown@cornertable.test', 'address' => '210 Congress Avenue, Austin, TX', 'google_maps_url' => 'https://maps.google.com/?q=210+Congress+Avenue+Austin+TX', 'template' => 'emerald_ring'],
-                ['business' => 'clinic', 'name' => 'Clear Smile Clinic - Cherry Creek', 'phone' => '+1 555 0113', 'email' => 'cherrycreek@clearsmile.test', 'address' => '255 Detroit Street, Denver, CO', 'google_maps_url' => 'https://maps.google.com/?q=255+Detroit+Street+Denver+CO', 'template' => 'clean_card'],
+                ['business' => 'spa', 'name' => 'Sen Vàng Spa — Thảo Điền', 'phone' => '028 7300 1101', 'email' => 'thaodien@senvangspa.vn', 'address' => '25 Nguyễn Văn Hưởng, Thảo Điền, TP. Hồ Chí Minh', 'google_maps_url' => 'https://maps.google.com/?q=Thao+Dien+District+2+HCMC', 'template' => 'rounded_gradient'],
+                ['business' => 'bistro', 'name' => 'Cơm Nhà Bistro — Hoàn Kiếm', 'phone' => '024 7300 2102', 'email' => 'hoankiem@comnhabistro.vn', 'address' => '88 Hàng Bông, Hoàn Kiếm, Hà Nội', 'google_maps_url' => 'https://maps.google.com/?q=Hang+Bong+Hanoi', 'template' => 'emerald_ring'],
+                ['business' => 'clinic', 'name' => 'Nha Khoa An Nhiên — Hải Châu', 'phone' => '0236 7300 3103', 'email' => 'haichau@nhakhoaannhien.vn', 'address' => '15 Lê Duẩn, Hải Châu, Đà Nẵng', 'google_maps_url' => 'https://maps.google.com/?q=Le+Duan+Da+Nang', 'template' => 'clean_card'],
             ])->each(function (array $location) use ($user, $businesses, $weeklyHours): void {
                 $qrDesign = class_exists(LocationQrStyleCatalog::class)
                     ? LocationQrStyleCatalog::designFor((string) $location['template'])
@@ -667,16 +682,17 @@ class AdminFakerService
         $counts['local_landing_pages'] += $campaigns->count();
         $counts['local_landing_pages'] += $this->createStandaloneLandingPages($user, $businesses);
 
+        $bookingService = $vn['booking_service'];
         $services = collect([
-            ['business' => 'spa', 'name' => '60-minute Relaxation Massage', 'duration' => 60, 'price' => 89],
-            ['business' => 'clinic', 'name' => 'Smile Consultation', 'duration' => 45, 'price' => 0],
+            ['business' => $bookingService['business'], 'name' => $bookingService['name'], 'duration' => $bookingService['duration_minutes'], 'price' => $bookingService['price']],
+            ['business' => 'clinic', 'name' => 'Tư vấn nha khoa miễn phí', 'duration' => 45, 'price' => 0],
         ])->map(fn (array $service) => BookingService::query()->create([
             'user_id' => $user->id,
             'business_id' => $businesses[$service['business']]->id,
             'name' => $service['name'],
             'duration_minutes' => $service['duration'],
             'price' => $service['price'],
-            'description' => 'Admin Faker LocalBoost demo service.',
+            'description' => $bookingService['description'] ?? 'Dịch vụ demo MLHUB.',
             'available_days' => ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'],
             'time_slots' => ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'],
             'use_business_hours' => true,
@@ -687,16 +703,22 @@ class AdminFakerService
             'is_active' => true,
         ]));
 
-        $customers = collect(['Mia Johnson', 'Daniel Lee', 'Priya Patel', 'Noah Smith', 'Olivia Chen', 'Lucas Brown', 'Ava Martinez', 'Ethan Davis', 'Sophia Wilson', 'Liam Garcia', 'Emma Taylor', 'Mason Clark', 'Isabella Lewis', 'James Walker', 'Grace Hall'])
-            ->map(function (string $name, int $index) use ($user, $businesses): Customer {
+        $customerNames = array_merge(
+            array_column($vn['customers'], 'name'),
+            ['Võ Thanh Bình', 'Đặng Thu Hà', 'Bùi Quốc Huy', 'Ngô Kim Ngân', 'Trịnh Văn Long', 'Phan Thị Yến', 'Đinh Hoàng Nam', 'Lý Minh Châu', 'Vũ Gia Hân', 'Cao Đức Anh'],
+        );
+
+        $customers = collect($customerNames)
+            ->map(function (string $name, int $index) use ($user, $businesses, $vn): Customer {
                 $business = $businesses->values()[$index % $businesses->count()];
+                $seedCustomer = $vn['customers'][$index] ?? null;
 
                 return Customer::query()->create([
                     'user_id' => $user->id,
                     'business_id' => $business->id,
                     'name' => $name,
-                    'phone' => '+1 555 20'.str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT),
-                    'email' => 'localboost.demo'.($index + 1).'@example.test',
+                    'phone' => $seedCustomer['phone'] ?? sprintf('09%02d %03d %03d', 10 + ($index % 80), 100 + $index, 200 + $index),
+                    'email' => $seedCustomer['email'] ?? 'khach.demo'.($index + 1).'@mlhub.vn',
                     'tags' => ['admin-faker', 'localboost'],
                     'metadata' => ['source' => self::DEMO_MARKER, 'scope' => 'localboost'],
                     'created_at' => now()->subDays(15 - $index),
@@ -704,121 +726,103 @@ class AdminFakerService
                 ]);
             });
 
-        $scanPlan = [7, 6, 6, 5, 5, 5, 5, 4, 4, 3];
+        $customerPool = $customers->map(fn (Customer $customer): object => (object) [
+            'name' => $customer->name,
+            'phone' => $customer->phone,
+            'email' => $customer->email,
+        ]);
+
+        $totalVisits = 0;
+        $totalLeads = 0;
+        $totalBookings = 0;
+        $totalCoupons = 0;
+        $totalReviews = 0;
+        $totalFeedback = 0;
+
         foreach ($campaigns->values() as $campaignIndex => $campaign) {
-            $scanCount = $scanPlan[$campaignIndex] ?? max(2, 6 - ($campaignIndex % 5));
+            $metrics = MlhubDemoVolume::metricsForSlug($campaign->slug);
+            $totalVisits += $metrics['visits'];
 
-            foreach (range(1, $scanCount) as $scanIndex) {
-                QrScan::query()->create([
-                    'user_id' => $user->id,
-                    'campaign_id' => $campaign->id,
-                    'ip_address' => '10.42.'.($campaignIndex + 1).'.'.$scanIndex,
-                    'user_agent' => $scanIndex % 3 === 0 ? 'AdminFaker Mobile Safari' : 'AdminFaker Chrome Desktop',
-                    'device' => $scanIndex % 3 === 0 ? 'mobile' : 'desktop',
-                    'city' => ['San Diego', 'Austin', 'Denver'][$campaignIndex % 3],
-                    'country' => 'US',
-                    'created_at' => now()->subHours(($campaignIndex * 5) + $scanIndex),
-                ]);
-            }
-        }
-        $counts['local_qr_visits'] = $campaigns->values()
-            ->keys()
-            ->sum(fn (int $index): int => $scanPlan[$index] ?? max(2, 6 - ($index % 5)));
+            MlhubDemoVolume::insertQrScans(
+                $user->id,
+                $campaign->id,
+                $metrics['visits'],
+                $vn['scan_cities'],
+                $vn['scan_country'],
+                $campaignIndex,
+            );
 
-        foreach (range(0, 11) as $index) {
-            $customer = $customers[$index % $customers->count()];
-            $campaign = $index % 2 === 0 ? $campaigns['lead_clinic'] : $campaigns['lead_spa'];
-            LeadSubmission::query()->create([
-                'user_id' => $user->id,
-                'campaign_id' => $campaign->id,
-                'name' => $customer->name,
-                'phone' => $customer->phone,
-                'email' => $customer->email,
-                'message' => 'Interested in a consultation.',
-                'payload' => ['source' => self::DEMO_MARKER],
-                'created_at' => now()->subHours(36 - $index),
-                'updated_at' => now()->subHours(36 - $index),
-            ]);
-        }
-        $counts['local_leads'] = 12;
+            $couponCode = (string) data_get($campaign->settings, 'coupon_code', 'CUOITUAN20');
 
-        foreach (range(0, 7) as $index) {
-            $customer = $customers[($index + 2) % $customers->count()];
-            $campaign = $index % 2 === 0 ? $campaigns['booking_spa'] : $campaigns['booking_clinic'];
-            Booking::query()->create([
-                'user_id' => $user->id,
-                'campaign_id' => $campaign->id,
-                'service_id' => $services[$index % $services->count()]->id,
-                'status' => ['pending', 'confirmed', 'completed', 'cancelled'][$index % 4],
-                'booking_date' => now()->addDays($index + 1)->toDateString(),
-                'booking_time' => ['09:00', '10:00', '14:00', '15:00'][$index % 4],
-                'customer_name' => $customer->name,
-                'customer_phone' => $customer->phone,
-                'customer_email' => $customer->email,
-                'note' => 'Admin Faker LocalBoost booking request.',
-                'created_at' => now()->subHours(28 - $index),
-                'updated_at' => now()->subHours(28 - $index),
-            ]);
+            match ($campaign->type) {
+                'review' => (function () use ($user, $campaign, $metrics, $customerPool, $messages, &$totalReviews): void {
+                    $totalReviews += $metrics['conversions'];
+                    MlhubDemoVolume::insertReviewFeedback(
+                        $user->id,
+                        $campaign->id,
+                        $metrics['conversions'],
+                        $customerPool,
+                        $messages['review_positive'],
+                        $messages['review_negative'],
+                    );
+                })(),
+                'lead' => (function () use ($user, $campaign, $metrics, $customerPool, $messages, &$totalLeads): void {
+                    $totalLeads += $metrics['conversions'];
+                    MlhubDemoVolume::insertLeads(
+                        $user->id,
+                        $campaign->id,
+                        $metrics['conversions'],
+                        $customerPool,
+                        $messages['lead'],
+                        self::DEMO_MARKER,
+                    );
+                })(),
+                'booking' => (function () use ($user, $campaign, $metrics, $customerPool, $messages, $services, &$totalBookings): void {
+                    $totalBookings += $metrics['conversions'];
+                    MlhubDemoVolume::insertBookings(
+                        $user->id,
+                        $campaign->id,
+                        $services->first()->id,
+                        $metrics['conversions'],
+                        $customerPool,
+                        $messages['booking_note'],
+                    );
+                })(),
+                'coupon' => (function () use ($user, $campaign, $metrics, $customerPool, $couponCode, &$totalCoupons): void {
+                    $totalCoupons += $metrics['conversions'];
+                    MlhubDemoVolume::insertCouponRedemptions(
+                        $user->id,
+                        $campaign->id,
+                        $metrics['conversions'],
+                        $customerPool,
+                        $couponCode,
+                    );
+                })(),
+                'feedback' => (function () use ($user, $campaign, $metrics, $customerPool, $messages, &$totalFeedback): void {
+                    $totalFeedback += $metrics['conversions'];
+                    MlhubDemoVolume::insertFeedbackResponses(
+                        $user->id,
+                        $campaign->id,
+                        $metrics['conversions'],
+                        $customerPool,
+                        $messages['feedback_positive'],
+                        $messages['feedback_negative'],
+                        self::DEMO_MARKER,
+                    );
+                })(),
+                default => null,
+            };
         }
-        $counts['local_bookings'] = 8;
 
-        foreach (range(0, 14) as $index) {
-            $customer = $customers[$index % $customers->count()];
-            $campaign = $index % 2 === 0 ? $campaigns['coupon_bistro'] : $campaigns['coupon_spa'];
-            CouponRedemption::query()->create([
-                'user_id' => $user->id,
-                'campaign_id' => $campaign->id,
-                'code' => 'AF'.str_pad((string) ($index + 1), 4, '0', STR_PAD_LEFT).Str::upper(Str::random(4)),
-                'customer_name' => $customer->name,
-                'customer_phone' => $customer->phone,
-                'customer_email' => $customer->email,
-                'status' => $index % 5 === 0 ? 'used' : 'claimed',
-                'used_at' => $index % 5 === 0 ? now()->subHours($index + 1) : null,
-                'created_at' => now()->subHours(24 - $index),
-                'updated_at' => now()->subHours(24 - $index),
-            ]);
-        }
-        $counts['local_coupon_claims'] = 15;
-
-        foreach ([5, 5, 5, 4, 4, 4, 5, 3, 2, 4] as $index => $rating) {
-            $customer = $customers[$index % $customers->count()];
-            $campaign = $index % 2 === 0 ? $campaigns['review_spa'] : $campaigns['review_bistro'];
-            ReviewFeedback::query()->create([
-                'user_id' => $user->id,
-                'campaign_id' => $campaign->id,
-                'rating' => $rating,
-                'customer_name' => $customer->name,
-                'customer_phone' => $customer->phone,
-                'customer_email' => $customer->email,
-                'message' => $rating >= 4 ? 'Great visit and friendly staff.' : 'Wait time was longer than expected.',
-                'status' => $rating <= 3 ? 'new' : 'replied',
-                'created_at' => now()->subHours(20 - $index),
-                'updated_at' => now()->subHours(20 - $index),
-            ]);
-        }
-        $counts['local_review_ratings'] = 10;
-
-        foreach ([2, 3, 1, 3] as $index => $rating) {
-            $customer = $customers[($index + 5) % $customers->count()];
-            $campaign = $index % 2 === 0 ? $campaigns['feedback_bistro'] : $campaigns['feedback_clinic'];
-            FeedbackResponse::query()->create([
-                'user_id' => $user->id,
-                'campaign_id' => $campaign->id,
-                'rating' => $rating,
-                'customer_name' => $customer->name,
-                'customer_phone' => $customer->phone,
-                'customer_email' => $customer->email,
-                'message' => 'Low-score demo feedback for follow-up.',
-                'payload' => ['source' => self::DEMO_MARKER],
-                'status' => 'new',
-                'created_at' => now()->subHours(10 - $index),
-                'updated_at' => now()->subHours(10 - $index),
-            ]);
-        }
-        $counts['local_low_score_feedback'] = 4;
-        $counts['local_recent_activity'] = 99;
-        $counts['local_top_campaigns'] = 5;
-        $counts['local_top_businesses'] = 3;
+        $counts['local_qr_visits'] = $totalVisits;
+        $counts['local_leads'] = $totalLeads;
+        $counts['local_bookings'] = $totalBookings;
+        $counts['local_coupon_claims'] = $totalCoupons;
+        $counts['local_review_ratings'] = $totalReviews;
+        $counts['local_low_score_feedback'] = (int) round($totalFeedback * 0.25);
+        $counts['local_recent_activity'] = $totalLeads + $totalBookings + $totalCoupons + $totalReviews + $totalFeedback;
+        $counts['local_top_campaigns'] = min(6, $campaigns->count());
+        $counts['local_top_businesses'] = $businesses->count();
     }
 
     protected function clearLocalBoostDemoData(User $user, array &$deleted): void
@@ -851,7 +855,7 @@ class AdminFakerService
 
         $businessIds = LocalBusiness::query()
             ->where('user_id', $user->id)
-            ->whereIn('name', ['Bloom Spa Studio', 'Corner Table Bistro', 'Clear Smile Clinic'])
+            ->whereIn('name', $this->mlhubDemoBusinessNames())
             ->pluck('id');
 
         if ($businessIds->isNotEmpty()) {
@@ -932,13 +936,13 @@ class AdminFakerService
             [
                 'business' => 'spa',
                 'slug' => 'admin-faker-lp-review-clean-spa',
-                'title' => 'Bloom Spa Review Flow',
+                'title' => 'Luồng đánh giá Sen Vàng Spa',
                 'type' => 'review',
                 'template' => 'review_clean_request',
-                'headline' => 'How was your spa visit?',
-                'subheadline' => 'Your rating helps the team improve and helps other guests choose confidently.',
-                'cta' => 'Submit feedback',
-                'benefits' => ['Private low-score feedback', 'Public review path', 'Fast local follow-up'],
+                'headline' => 'Buổi spa của bạn thế nào?',
+                'subheadline' => 'Đánh giá giúp đội ngũ cải thiện và giúp khách khác chọn dịch vụ phù hợp.',
+                'cta' => 'Gửi đánh giá',
+                'benefits' => ['Phản hồi riêng khi điểm thấp', 'Chuyển sang Google', 'Theo dõi nhanh tại chỗ'],
                 'settings' => ['review_url' => 'https://g.page/r/bloom-spa-demo/review'],
                 'visits' => 184,
                 'conversions' => 62,
@@ -946,13 +950,13 @@ class AdminFakerService
             [
                 'business' => 'bistro',
                 'slug' => 'admin-faker-lp-review-restaurant-bistro',
-                'title' => 'Corner Table Dinner Reviews',
+                'title' => 'Đánh giá bữa tối Cơm Nhà',
                 'type' => 'review',
                 'template' => 'review_restaurant',
-                'headline' => 'Rate tonight\'s dinner',
-                'subheadline' => 'Happy guests can continue to Google. Private feedback goes straight to the manager.',
-                'cta' => 'Send rating',
-                'benefits' => ['One-tap rating', 'Manager review queue', 'Google review routing'],
+                'headline' => 'Đánh giá bữa tối hôm nay',
+                'subheadline' => 'Khách hài lòng có thể đánh giá Google. Phản hồi riêng gửi thẳng quản lý.',
+                'cta' => 'Gửi điểm',
+                'benefits' => ['Chấm điểm nhanh', 'Hàng đợi quản lý', 'Chuyển Google'],
                 'settings' => ['review_url' => 'https://g.page/r/corner-table-demo/review'],
                 'visits' => 139,
                 'conversions' => 48,
@@ -1097,21 +1101,21 @@ class AdminFakerService
     protected function localBoostCampaignDefinitions(): array
     {
         return [
-            ['key' => 'review_spa', 'business' => 'spa', 'slug' => 'admin-faker-review-spa', 'name' => 'Google Review Booster', 'type' => 'review', 'settings' => ['landing_template' => 'review_google_focus', 'positive_threshold' => 4, 'preferred_destination' => 'google', 'thank_you_message' => 'Thanks for visiting Bloom Spa Studio.', 'negative_feedback_message' => 'Tell us what we can improve before your next visit.']],
-            ['key' => 'review_bistro', 'business' => 'bistro', 'slug' => 'admin-faker-review-bistro', 'name' => 'Dinner Review Request', 'type' => 'review', 'settings' => ['landing_template' => 'review_restaurant', 'positive_threshold' => 4, 'preferred_destination' => 'google', 'thank_you_message' => 'Thanks for dining with us.', 'negative_feedback_message' => 'Tell us what went wrong.']],
-            ['key' => 'review_clinic', 'business' => 'clinic', 'slug' => 'admin-faker-review-clinic', 'name' => 'Patient Review Request', 'type' => 'review', 'settings' => ['landing_template' => 'review_clinic', 'positive_threshold' => 4, 'preferred_destination' => 'google', 'thank_you_message' => 'Thanks for visiting Clear Smile Clinic.', 'negative_feedback_message' => 'Tell our care team what we can improve.']],
-            ['key' => 'lead_clinic', 'business' => 'clinic', 'slug' => 'admin-faker-lead-clinic', 'name' => 'Free Consultation Lead Form', 'type' => 'lead', 'settings' => ['landing_template' => 'lead_quote_request', 'headline' => 'Request a free smile consultation']],
-            ['key' => 'lead_spa', 'business' => 'spa', 'slug' => 'admin-faker-lead-spa', 'name' => 'New Client Inquiry', 'type' => 'lead', 'settings' => ['landing_template' => 'lead_new_customer', 'headline' => 'Plan your first spa visit']],
-            ['key' => 'lead_bistro', 'business' => 'bistro', 'slug' => 'admin-faker-lead-bistro', 'name' => 'Private Event Inquiry', 'type' => 'lead', 'settings' => ['landing_template' => 'lead_event_capture', 'headline' => 'Plan a private dinner event']],
-            ['key' => 'booking_spa', 'business' => 'spa', 'slug' => 'admin-faker-booking-spa', 'name' => 'Massage Booking Page', 'type' => 'booking', 'settings' => ['landing_template' => 'booking_spa', 'headline' => 'Reserve your massage appointment']],
-            ['key' => 'booking_clinic', 'business' => 'clinic', 'slug' => 'admin-faker-booking-clinic', 'name' => 'Dental Consultation Booking', 'type' => 'booking', 'settings' => ['landing_template' => 'booking_clinic', 'headline' => 'Book a consultation time']],
-            ['key' => 'booking_bistro', 'business' => 'bistro', 'slug' => 'admin-faker-booking-bistro', 'name' => 'Table Reservation Page', 'type' => 'booking', 'settings' => ['landing_template' => 'booking_restaurant', 'headline' => 'Reserve a table this week']],
-            ['key' => 'coupon_bistro', 'business' => 'bistro', 'slug' => 'admin-faker-coupon-bistro', 'name' => '20% Off Weekend Dinner', 'type' => 'coupon', 'settings' => ['landing_template' => 'coupon_weekend_deal', 'discount_type' => 'percentage', 'discount_value' => '20', 'coupon_code' => 'WEEKEND20', 'usage_limit' => 200, 'expiry_date' => now()->addDays(21)->toDateString(), 'terms' => 'Valid for dine-in dinner this weekend.']],
-            ['key' => 'coupon_spa', 'business' => 'spa', 'slug' => 'admin-faker-coupon-spa', 'name' => 'Come Back Spa Coupon', 'type' => 'coupon', 'settings' => ['landing_template' => 'coupon_comeback', 'discount_type' => 'percentage', 'discount_value' => '15', 'coupon_code' => 'COMEBACK15', 'usage_limit' => 100, 'expiry_date' => now()->addDays(30)->toDateString(), 'terms' => 'One coupon per customer.']],
-            ['key' => 'coupon_clinic', 'business' => 'clinic', 'slug' => 'admin-faker-coupon-clinic', 'name' => 'New Patient Whitening Offer', 'type' => 'coupon', 'settings' => ['landing_template' => 'coupon_20_off', 'discount_type' => 'fixed', 'discount_value' => '$50', 'coupon_code' => 'SMILE50', 'usage_limit' => 75, 'expiry_date' => now()->addDays(28)->toDateString(), 'terms' => 'Valid for new patient whitening consultation packages.']],
-            ['key' => 'feedback_bistro', 'business' => 'bistro', 'slug' => 'admin-faker-feedback-bistro', 'name' => 'Private Dining Feedback', 'type' => 'feedback', 'settings' => ['landing_template' => 'feedback_private', 'headline' => 'Tell us about your dining experience', 'thank_you_message' => 'Thanks. Your feedback helps our team improve.', 'rating_required' => false, 'contact_required' => false]],
-            ['key' => 'feedback_clinic', 'business' => 'clinic', 'slug' => 'admin-faker-feedback-clinic', 'name' => 'Post Visit Feedback', 'type' => 'feedback', 'settings' => ['landing_template' => 'feedback_quality', 'headline' => 'How did your visit go?', 'thank_you_message' => 'Thank you for helping us improve.', 'rating_required' => false, 'contact_required' => false]],
-            ['key' => 'feedback_spa', 'business' => 'spa', 'slug' => 'admin-faker-feedback-spa', 'name' => 'Spa Experience Check', 'type' => 'feedback', 'settings' => ['landing_template' => 'feedback_satisfaction', 'headline' => 'How relaxing was your visit?', 'thank_you_message' => 'Thank you. Your note helps our spa team improve.', 'rating_required' => false, 'contact_required' => false]],
+            ['key' => 'review_spa', 'business' => 'spa', 'slug' => 'admin-faker-review-spa', 'name' => 'Thu thập đánh giá Google — Spa', 'type' => 'review', 'settings' => ['landing_template' => 'review_google_focus', 'positive_threshold' => 4, 'preferred_destination' => 'google', 'thank_you_message' => 'Cảm ơn bạn đã ghé Sen Vàng Spa.', 'negative_feedback_message' => 'Hãy cho chúng tôi biết điều cần cải thiện trước lần ghé tiếp theo.']],
+            ['key' => 'review_bistro', 'business' => 'bistro', 'slug' => 'admin-faker-review-bistro', 'name' => 'Đánh giá bữa tối — Nhà hàng', 'type' => 'review', 'settings' => ['landing_template' => 'review_restaurant', 'positive_threshold' => 4, 'preferred_destination' => 'google', 'thank_you_message' => 'Cảm ơn bạn đã dùng bữa tại Cơm Nhà Bistro.', 'negative_feedback_message' => 'Hãy cho chúng tôi biết điều chưa hài lòng.']],
+            ['key' => 'review_clinic', 'business' => 'clinic', 'slug' => 'admin-faker-review-clinic', 'name' => 'Đánh giá sau khám — Nha khoa', 'type' => 'review', 'settings' => ['landing_template' => 'review_clinic', 'positive_threshold' => 4, 'preferred_destination' => 'google', 'thank_you_message' => 'Cảm ơn bạn đã tin tưởng Nha Khoa An Nhiên.', 'negative_feedback_message' => 'Hãy góp ý để đội ngũ chăm sóc phục vụ tốt hơn.']],
+            ['key' => 'lead_clinic', 'business' => 'clinic', 'slug' => 'admin-faker-lead-clinic', 'name' => 'Form tư vấn nha khoa miễn phí', 'type' => 'lead', 'settings' => ['landing_template' => 'lead_quote_request', 'headline' => 'Đặt lịch tư vấn nha khoa miễn phí']],
+            ['key' => 'lead_spa', 'business' => 'spa', 'slug' => 'admin-faker-lead-spa', 'name' => 'Khách mới — Spa', 'type' => 'lead', 'settings' => ['landing_template' => 'lead_new_customer', 'headline' => 'Lên lịch lần ghé spa đầu tiên']],
+            ['key' => 'lead_bistro', 'business' => 'bistro', 'slug' => 'admin-faker-lead-bistro', 'name' => 'Đặt tiệc / sự kiện', 'type' => 'lead', 'settings' => ['landing_template' => 'lead_event_capture', 'headline' => 'Đặt tiệc riêng hoặc sự kiện nhỏ']],
+            ['key' => 'booking_spa', 'business' => 'spa', 'slug' => 'admin-faker-booking-spa', 'name' => 'Đặt lịch massage', 'type' => 'booking', 'settings' => ['landing_template' => 'booking_spa', 'headline' => 'Đặt lịch massage thư giãn']],
+            ['key' => 'booking_clinic', 'business' => 'clinic', 'slug' => 'admin-faker-booking-clinic', 'name' => 'Đặt lịch khám nha khoa', 'type' => 'booking', 'settings' => ['landing_template' => 'booking_clinic', 'headline' => 'Chọn khung giờ tư vấn']],
+            ['key' => 'booking_bistro', 'business' => 'bistro', 'slug' => 'admin-faker-booking-bistro', 'name' => 'Đặt bàn nhà hàng', 'type' => 'booking', 'settings' => ['landing_template' => 'booking_restaurant', 'headline' => 'Đặt bàn trong tuần này']],
+            ['key' => 'coupon_bistro', 'business' => 'bistro', 'slug' => 'admin-faker-coupon-bistro', 'name' => 'Giảm 20% bữa tối cuối tuần', 'type' => 'coupon', 'settings' => ['landing_template' => 'coupon_weekend_deal', 'discount_type' => 'percentage', 'discount_value' => '20', 'coupon_code' => 'CUOITUAN20', 'usage_limit' => 200, 'expiry_date' => now()->addDays(21)->toDateString(), 'terms' => 'Áp dụng khi ăn tại chỗ, bữa tối thứ Sáu–Chủ nhật. Không áp dụng ngày lễ.']],
+            ['key' => 'coupon_spa', 'business' => 'spa', 'slug' => 'admin-faker-coupon-spa', 'name' => 'Ưu đãi quay lại spa', 'type' => 'coupon', 'settings' => ['landing_template' => 'coupon_comeback', 'discount_type' => 'percentage', 'discount_value' => '15', 'coupon_code' => 'QUAYLAI15', 'usage_limit' => 100, 'expiry_date' => now()->addDays(30)->toDateString(), 'terms' => 'Mỗi khách một mã. Không cộng dồn ưu đãi khác.']],
+            ['key' => 'coupon_clinic', 'business' => 'clinic', 'slug' => 'admin-faker-coupon-clinic', 'name' => 'Ưu đãi khách mới — Tẩy trắng', 'type' => 'coupon', 'settings' => ['landing_template' => 'coupon_20_off', 'discount_type' => 'fixed', 'discount_value' => '500000', 'coupon_code' => 'NHO500', 'usage_limit' => 75, 'expiry_date' => now()->addDays(28)->toDateString(), 'terms' => 'Áp dụng gói tư vấn tẩy trắng cho khách mới.']],
+            ['key' => 'feedback_bistro', 'business' => 'bistro', 'slug' => 'admin-faker-feedback-bistro', 'name' => 'Phản hồi trải nghiệm ẩm thực', 'type' => 'feedback', 'settings' => ['landing_template' => 'feedback_private', 'headline' => 'Chia sẻ trải nghiệm bữa ăn của bạn', 'thank_you_message' => 'Cảm ơn bạn. Ý kiến giúp đội ngũ Cơm Nhà phục vụ tốt hơn.', 'rating_required' => false, 'contact_required' => false]],
+            ['key' => 'feedback_clinic', 'business' => 'clinic', 'slug' => 'admin-faker-feedback-clinic', 'name' => 'Phản hồi sau khám', 'type' => 'feedback', 'settings' => ['landing_template' => 'feedback_quality', 'headline' => 'Buổi khám của bạn thế nào?', 'thank_you_message' => 'Cảm ơn bạn đã giúp chúng tôi cải thiện dịch vụ.', 'rating_required' => false, 'contact_required' => false]],
+            ['key' => 'feedback_spa', 'business' => 'spa', 'slug' => 'admin-faker-feedback-spa', 'name' => 'Khảo sát trải nghiệm spa', 'type' => 'feedback', 'settings' => ['landing_template' => 'feedback_satisfaction', 'headline' => 'Buổi spa của bạn thư giãn đến mức nào?', 'thank_you_message' => 'Cảm ơn bạn. Góp ý giúp đội ngũ spa phục vụ tốt hơn.', 'rating_required' => false, 'contact_required' => false]],
         ];
     }
 
@@ -2290,8 +2294,8 @@ class AdminFakerService
         }
 
         $withdrawals = [
-            ['amount' => 18.00, 'payment_method' => 'PayPal', 'payment_details' => 'demo-payout@preview.test', 'status' => AffiliateWithdrawal::STATUS_APPROVED, 'offset' => 28800],
-            ['amount' => 25.00, 'payment_method' => 'Bank transfer', 'payment_details' => 'Demo payout review in progress', 'status' => AffiliateWithdrawal::STATUS_PENDING, 'offset' => 10800],
+            ['amount' => 450000, 'payment_method' => 'Chuyển khoản ngân hàng', 'payment_details' => 'Vietcombank – 0123456789 – NGUYEN VAN A', 'status' => AffiliateWithdrawal::STATUS_APPROVED, 'offset' => 28800],
+            ['amount' => 625000, 'payment_method' => 'Chuyển khoản ngân hàng', 'payment_details' => 'Techcombank – đang chờ duyệt chi', 'status' => AffiliateWithdrawal::STATUS_PENDING, 'offset' => 10800],
         ];
 
         foreach ($withdrawals as $withdrawal) {
@@ -2434,29 +2438,29 @@ class AdminFakerService
     {
         foreach ([
             [
-                'slug' => 'demo-preview-how-do-link-bio-pages-work',
-                'title' => 'How do LinkBio pages work?',
-                'content' => '<p>LinkBio pages collect your most important links, products, forms, videos, and contact actions into one branded public profile that can be shared from social bios or QR campaigns.</p>',
+                'slug' => 'demo-preview-trang-linkbio-ho-kinh-doanh',
+                'title' => 'Trang LinkBio giúp hộ kinh doanh Đà Nẵng làm gì?',
+                'content' => '<p>Trang LinkBio gom đặt lịch, phiếu ưu đãi, form khách hàng, đánh giá Google và liên hệ vào một đường dẫn duy nhất — phù hợp bio Facebook, Zalo hoặc tem QR trên quầy.</p>',
             ],
             [
-                'slug' => 'demo-preview-can-i-edit-qr-destinations-after-printing',
-                'title' => 'Can I edit QR destinations after printing?',
-                'content' => '<p>Yes. Dynamic QR codes keep the printed QR stable while the destination, landing page, UTM tracking, and campaign content can be updated later.</p>',
+                'slug' => 'demo-preview-sua-qr-sau-khi-in',
+                'title' => 'In mã QR rồi có đổi trang đích được không?',
+                'content' => '<p>Có. Mã QR động giữ hình in không đổi; bạn vẫn cập nhật landing page, UTM và nội dung chiến dịch sau khi dán trên menu, bảng hiệu hoặc standee tại quán.</p>',
             ],
             [
-                'slug' => 'demo-preview-why-use-first-party-short-links',
-                'title' => 'Why use first-party short links?',
-                'content' => '<p>First-party short links keep traffic under your own application, making it easier to track clicks, apply branded domains, manage redirects, and connect analytics to QR and LinkBio campaigns.</p>',
+                'slug' => 'demo-preview-lien-ket-rut-gon-mlhub',
+                'title' => 'Vì sao nên dùng liên kết rút gọn trên MLHUB?',
+                'content' => '<p>Liên kết rút gọn trên tên miền của bạn giúp đo click, gắn thương hiệu mlhub.vn, quản lý chuyển hướng và nối báo cáo với mã QR cùng trang LinkBio.</p>',
             ],
             [
-                'slug' => 'demo-preview-can-i-route-short-link-clicks',
-                'title' => 'Can I route short-link clicks by device or country?',
-                'content' => '<p>Yes. Short links can use routing rules for A/B tests, weighted rotators, country rules, device targeting, and time-based campaigns.</p>',
+                'slug' => 'demo-preview-chia-luot-click-theo-thiet-bi',
+                'title' => 'Có chia lượt click theo thiết bị hoặc khu vực không?',
+                'content' => '<p>Có. Bạn có thể A/B test landing, xoay vòng theo tỷ trọng, lọc theo quốc gia, thiết bị hoặc khung giờ — hữu ích khi chạy quảng cáo Facebook/Google cho spa, quán ăn tại Đà Nẵng.</p>',
             ],
             [
-                'slug' => 'demo-preview-how-do-linkbio-qr-and-shortlinks-fit-together',
-                'title' => 'How do LinkBio, QR codes, and short links fit together?',
-                'content' => '<p>Use LinkBio as the public campaign hub, QR codes for offline discovery, and short links for measurable redirects across ads, social profiles, packaging, and sales materials.</p>',
+                'slug' => 'demo-preview-linkbio-qr-lien-ket-cung-he-thong',
+                'title' => 'LinkBio, mã QR và liên kết rút gọn dùng chung thế nào?',
+                'content' => '<p>Dùng LinkBio làm trung tâm online, QR cho khách offline (bàn, tờ rơi, biển hiệu), liên kết rút gọn cho quảng cáo và tin nhắn — tất cả về một báo cáo trên MLHUB.</p>',
             ],
         ] as $faq) {
             Faq::query()->create([
@@ -2479,11 +2483,11 @@ class AdminFakerService
     {
         $category = BlogCategory::query()->create([
             'id_secure' => Str::random(32),
-            'name' => 'Smart Link Growth Guides',
-            'name_translations' => ['en' => 'Smart Link Growth Guides', 'vi' => 'Smart Link Growth Guides'],
-            'description' => 'Practical guides for LinkBio pages, QR campaigns, and branded short links.',
-            'description_translations' => ['en' => 'Practical guides for LinkBio pages, QR campaigns, and branded short links.', 'vi' => 'Practical guides for LinkBio pages, QR campaigns, and branded short links.'],
-            'slug' => 'demo-preview-smart-link-guides',
+            'name' => 'Hướng dẫn tăng trưởng cho hộ kinh doanh Đà Nẵng',
+            'name_translations' => ['en' => 'Growth guides for Da Nang small businesses', 'vi' => 'Hướng dẫn tăng trưởng cho hộ kinh doanh Đà Nẵng'],
+            'description' => 'Kiến thức thực tế về trang LinkBio, mã QR và liên kết rút gọn cho spa, quán ăn, nha khoa tại Đà Nẵng.',
+            'description_translations' => ['en' => 'Practical guides for LinkBio, QR and short links for local businesses in Da Nang.', 'vi' => 'Kiến thức thực tế về trang LinkBio, mã QR và liên kết rút gọn cho spa, quán ăn, nha khoa tại Đà Nẵng.'],
+            'slug' => 'demo-preview-huong-dan-ho-kinh-doanh-da-nang',
             'icon' => 'fa-light fa-link-simple',
             'color' => '#2563eb',
             'status' => 1,
@@ -2493,16 +2497,16 @@ class AdminFakerService
         ]);
 
         $tags = collect([
-            ['slug' => 'demo-preview-linkbio', 'name' => 'LinkBio'],
-            ['slug' => 'demo-preview-qr-codes', 'name' => 'QR Codes'],
-            ['slug' => 'demo-preview-shortlinks', 'name' => 'Short Links'],
+            ['slug' => 'demo-preview-trang-lien-ket', 'name' => 'Trang liên kết', 'name_en' => 'LinkBio'],
+            ['slug' => 'demo-preview-ma-qr', 'name' => 'Mã QR', 'name_en' => 'QR Codes'],
+            ['slug' => 'demo-preview-lien-ket-rut-gon', 'name' => 'Liên kết rút gọn', 'name_en' => 'Short Links'],
         ])->map(function (array $tag) {
             return BlogTag::query()->create([
                 'id_secure' => Str::random(32),
                 'name' => $tag['name'],
-                'name_translations' => ['en' => $tag['name'], 'vi' => $tag['name']],
-                'description' => 'Generated by Admin Faker.',
-                'description_translations' => ['en' => 'Generated by Admin Faker.', 'vi' => 'Generated by Admin Faker.'],
+                'name_translations' => ['en' => $tag['name_en'], 'vi' => $tag['name']],
+                'description' => 'Thẻ demo MLHUB – hộ kinh doanh Đà Nẵng.',
+                'description_translations' => ['en' => 'MLHUB demo tag for Da Nang local businesses.', 'vi' => 'Thẻ demo MLHUB – hộ kinh doanh Đà Nẵng.'],
                 'slug' => $tag['slug'],
                 'color' => '#2563eb',
                 'status' => 1,
@@ -2520,58 +2524,58 @@ class AdminFakerService
 
         $blogs = collect([
             [
-                'slug' => 'demo-preview-build-a-high-converting-linkbio-page',
-                'title' => 'Build A High-Converting LinkBio Page',
-                'excerpt' => 'Turn one social bio URL into a branded campaign hub with offers, forms, products, videos, and contact actions.',
+                'slug' => 'demo-preview-trang-linkbio-ho-kinh-doanh-da-nang',
+                'title' => 'Tạo trang LinkBio chuyển đổi cao cho hộ kinh doanh Đà Nẵng',
+                'excerpt' => 'Gom đặt lịch, phiếu giảm giá, form khách hàng và đánh giá Google vào một đường dẫn bio — phù hợp spa, quán ăn, nha khoa.',
             ],
             [
-                'slug' => 'demo-preview-qr-code-campaigns-for-packaging-and-print',
-                'title' => 'QR Code Campaigns For Packaging And Print',
-                'excerpt' => 'Use dynamic QR codes on packaging, menus, flyers, and event badges without locking your destination forever.',
+                'slug' => 'demo-preview-ma-qr-menu-standee',
+                'title' => 'Mã QR trên menu và standee — không khóa trang đích',
+                'excerpt' => 'In QR trên menu, tờ rơi, biển hiệu; sau đó vẫn đổi landing, UTM và ưu đãi mà không in lại.',
             ],
             [
-                'slug' => 'demo-preview-branded-short-links-that-customers-trust',
-                'title' => 'Branded Short Links That Customers Trust',
-                'excerpt' => 'Replace generic redirect URLs with clean branded links that improve trust, analytics, and campaign recall.',
+                'slug' => 'demo-preview-lien-ket-rut-gon-thuong-hieu',
+                'title' => 'Liên kết rút gọn thương hiệu khách hàng tin hơn',
+                'excerpt' => 'Thay link dài bằng mlhub.vn/... — dễ nhớ, đo click và gắn với chiến dịch QR, LinkBio.',
             ],
             [
-                'slug' => 'demo-preview-connect-linkbio-qr-and-shortlink-analytics',
-                'title' => 'Connect LinkBio, QR, And Short-Link Analytics',
-                'excerpt' => 'Read social clicks, offline QR scans, and redirect performance from one campaign workflow.',
+                'slug' => 'demo-preview-bao-cao-linkbio-qr-lien-ket',
+                'title' => 'Một báo cáo cho LinkBio, QR và liên kết rút gọn',
+                'excerpt' => 'Xem click mạng xã hội, lượt quét offline và chuyển hướng trong cùng luồng chiến dịch MLHUB.',
             ],
             [
-                'slug' => 'demo-preview-dynamic-qr-codes-after-printing',
-                'title' => 'Dynamic QR Codes After Printing',
-                'excerpt' => 'Change destinations, update campaign pages, and keep scan analytics alive after the QR is already printed.',
+                'slug' => 'demo-preview-qr-dong-sau-khi-in',
+                'title' => 'Mã QR động sau khi đã in — spa & quán ăn Đà Nẵng',
+                'excerpt' => 'Cập nhật trang đích và nội dung ưu đãi sau khi QR đã dán tại quầy thu ngân.',
             ],
             [
-                'slug' => 'demo-preview-ab-testing-short-links-for-paid-campaigns',
-                'title' => 'A/B Testing Short Links For Paid Campaigns',
-                'excerpt' => 'Route visitors between landing pages by weight, device, country, or schedule without rebuilding the public link.',
+                'slug' => 'demo-preview-ab-test-lien-ket-quang-cao',
+                'title' => 'A/B test liên kết cho quảng cáo Facebook/Google',
+                'excerpt' => 'Chia traffic landing theo tỷ trọng, thiết bị, quốc gia hoặc khung giờ mà không đổi link công khai.',
             ],
             [
-                'slug' => 'demo-preview-linkbio-for-creators-and-small-businesses',
-                'title' => 'LinkBio For Creators And Small Businesses',
-                'excerpt' => 'Show products, bookings, testimonials, downloadable files, and lead forms from one mobile-first page.',
+                'slug' => 'demo-preview-linkbio-spa-quan-an',
+                'title' => 'LinkBio cho spa, quán ăn và nha khoa tại Đà Nẵng',
+                'excerpt' => 'Hiển thị dịch vụ, đặt lịch, đánh giá, tải file và form lead trên một trang mobile-first.',
             ],
             [
-                'slug' => 'demo-preview-utm-presets-for-short-links-and-qr-codes',
-                'title' => 'UTM Presets For Short Links And QR Codes',
-                'excerpt' => 'Standardize campaign tracking across QR scans, social links, email, paid ads, and offline materials.',
+                'slug' => 'demo-preview-utm-qr-va-lien-ket',
+                'title' => 'Preset UTM cho QR và liên kết rút gọn',
+                'excerpt' => 'Chuẩn hóa tracking giữa quét QR, bio mạng xã hội, email và quảng cáo trả phí.',
             ],
             [
-                'slug' => 'demo-preview-retargeting-pixels-on-short-links',
-                'title' => 'Retargeting Pixels On Short Links',
-                'excerpt' => 'Attach tracking pixels to high-intent clicks and build remarketing audiences from shared campaign links.',
+                'slug' => 'demo-preview-pixel-tai-danh-lien-ket',
+                'title' => 'Gắn pixel retargeting trên liên kết rút gọn',
+                'excerpt' => 'Xây audience remarketing từ click có ý định cao trên link chiến dịch.',
             ],
             [
-                'slug' => 'demo-preview-selling-a-smart-link-saas-to-clients',
-                'title' => 'Selling A Smart Link SaaS To Clients',
-                'excerpt' => 'Position LinkBio pages, QR codes, and short links as one measurable campaign system for agencies and local businesses.',
+                'slug' => 'demo-preview-ban-giai-phap-mlhub-cho-dai-ly',
+                'title' => 'Bán gói MLHUB cho đại lý và hộ kinh doanh',
+                'excerpt' => 'Định vị LinkBio, QR và liên kết rút gọn thành một hệ thống đo lường cho khách Đà Nẵng.',
             ],
         ])->values()->map(function (array $blog, int $index) use ($category, $tags, $imageFiles, $now, &$counts) {
             $image = $this->randomDemoImage($imageFiles);
-            $content = '<p>'.$blog['excerpt'].'</p><p>This demo article explains how LinkBio pages, QR codes, and short links work together as a measurable campaign system. Use it to show buyers that the product is ready for creators, local businesses, agencies, and ecommerce teams.</p><p>Customers can launch a public profile, print a dynamic QR code, share a branded short link, and compare the resulting clicks or scans without stitching together separate tools.</p>';
+            $content = '<p>'.$blog['excerpt'].'</p><p>Bài demo MLHUB minh họa cách hộ kinh doanh tại Đà Nẵng kết hợp trang LinkBio, mã QR in tại quầy và liên kết rút gọn cho quảng cáo — tất cả trong một báo cáo, không cần ghép nhiều công cụ.</p><p>Bạn có thể ra mắt trang công khai, in QR động, chia sẻ link thương hiệu và so sánh lượt quét hoặc click ngay trên bảng điều khiển.</p>';
 
             $entry = Blog::query()->create([
                 'id_secure' => Str::random(32),

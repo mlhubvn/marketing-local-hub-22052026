@@ -17,7 +17,7 @@ class AppLocalAnalyticsServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/../Resources/views', 'applocalanalytics');
 
         register_user_sidebar_item('analytics', [
-            'label' => 'All Reports',
+            'label' => __('All Reports'),
             'route_name' => 'portal.reports',
             'active_when' => ['portal.reports'],
             'icon' => 'fa-light fa-chart-line',

@@ -1,6 +1,5 @@
 <?php
 
-use App\Installer\Http\Middleware\PrepareInstallation;
 use App\Exceptions\DemoModeRestrictedException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -34,9 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'livewire-*/upload-file',
         ]);
 
-        $middleware->web(prepend: [
-            PrepareInstallation::class,
-        ], append: [
+        $middleware->web(append: [
             SetLocale::class,
             SetThemeContext::class,
             CaptureAffiliateReferral::class,

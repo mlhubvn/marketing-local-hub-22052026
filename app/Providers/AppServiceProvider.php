@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Console\Commands\MlhubResetDemoCommand;
 use App\Http\Middleware\PreventDemoModeWriteOperations;
 use App\Livewire\DemoModeActionGuard;
+use Database\Support\MLHUBSetIdSequenceCommand;
 use App\Support\Dashboard\AdminDashboardRegistry;
 use App\Support\Dashboard\UserDashboardRegistry;
 use App\Support\Navigation\HeaderRegistry;
@@ -57,6 +59,13 @@ class AppServiceProvider extends ServiceProvider
         $this->configureStorageDisks();
         $this->configureTestingViewPath();
         $this->registerSharedComponents();
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                MLHUBSetIdSequenceCommand::class,
+                MlhubResetDemoCommand::class,
+            ]);
+        }
     }
 
     /**
@@ -67,7 +76,7 @@ class AppServiceProvider extends ServiceProvider
         Date::use(CarbonImmutable::class);
 
         DB::prohibitDestructiveCommands(
-            app()->isProduction(),
+            app()->isProduction() && ! (bool) env('MLHUB_ALLOW_RESET_DEMO', false),
         );
 
         Password::defaults(fn (): ?Password => app()->isProduction()

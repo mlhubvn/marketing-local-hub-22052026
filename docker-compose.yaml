@@ -1,3 +1,5 @@
+# MLHUB / Coolify: giữ APP_INSTALLED=true trong .env (entrypoint chạy migrate).
+# Seed demo (pilot): docker exec → php artisan mlhub:reset-demo --force → redis-cli FLUSHALL
 services:
     mggu45o8q8aso8stbepn622j-091238462513:
         image: 'mggu45o8q8aso8stbepn622j:e416173ead5b53f26d72992da4d4c79cf3f37b88'

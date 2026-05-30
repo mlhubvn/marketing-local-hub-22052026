@@ -14,9 +14,9 @@ class PersonalTeamProvisioner
 
         if (! $team) {
             $team = Team::query()->create([
-                'name' => $user->name."'s Team",
+                'name' => __(':name\'s Team', ['name' => $user->name]),
                 'slug' => $this->uniqueTeamSlug($user->username.'-team'),
-                'description' => 'Default team for '.$user->name,
+                'description' => __('Default team for :name', ['name' => $user->name]),
                 'owner_user_id' => $user->id,
             ]);
         }

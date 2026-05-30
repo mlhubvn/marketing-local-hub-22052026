@@ -8,16 +8,13 @@ use Illuminate\Database\Seeder;
 class DatabaseSeeder extends Seeder
 {
     /**
-     * MLHUB seed stack — used by `php artisan db:seed` and mirrored in installer config.
+     * MLHUB seed stack — `php artisan db:seed` / `php artisan mlhub:reset-demo`.
      */
     public function run(): void
     {
-        $this->call([
-            MLHUBFoundationSeeder::class,
-            PlanSeeder::class,
-            AITemplateCategorySeeder::class,
-            AITemplateSeeder::class,
-        ]);
+        foreach ((array) config('mlhub.default_seeders', []) as $seederClass) {
+            $this->call($seederClass);
+        }
 
         IdSequence::apply();
     }

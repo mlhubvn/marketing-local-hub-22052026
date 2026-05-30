@@ -75,6 +75,10 @@
 | `MAIL_MAILER` | **`smtp`** (Emailit) | ✅ Đã cấu hình SMTP qua `smtp.emailit.com:587` (user `emailit`, password = API key đặt trong **Coolify env**, KHÔNG commit). Welcome + verify email đã chạy thật |
 | `THEME_FRONTEND` / `THEME_BACKEND` | `mlhubtheme` / `default` | **Theme guest đang active là `mlhubtheme`** (theme tùy biến), backend là `default` |
 | `APP_DEMO` | `false` | Demo mode đã tắt cho production |
+| `APP_INSTALLED` | `true` | **Luôn true** trên Coolify — không còn Web Installer |
+| `MLHUB_ALLOW_RESET_DEMO` | `false` | Đặt `true` tạm khi chạy `php artisan mlhub:reset-demo --force` trên pilot |
+
+**Bootstrap lần đầu / reset demo:** `demo@mlhub.vn` / `123456` = super admin + dữ liệu mẫu VN. Một lệnh: `php artisan mlhub:reset-demo --force` (+ `redis-cli FLUSHALL`). Chi tiết: `ARCHITECTURE_PROMPT.md` §3.1, `config/mlhub.php`.
 | `GOOGLE_BUSINESS_CLIENT_ID/SECRET` | có dùng | Tích hợp Google Business bật |
 
 **Captcha:** module `AdminCaptcha` hỗ trợ **Google reCAPTCHA v2** và **Cloudflare Turnstile** (mặc định Turnstile). Cấu hình lưu trong **`OptionStore` (Admin → Captcha)**, **KHÔNG phải `.env`** (key: `captcha_type`, `auth_cloudflare_turnstile_*`, `auth_google_recaptcha_*`). Helper dùng lại: `captcha_render()`, `captcha_verify(request())`, `with_captcha_validation($rules)`. Hiện captcha đã gắn vào **trang auth** (login/register/forgot/reset); **chưa** gắn vào 5 form growth-tool công khai (xem backlog trong `ARCHITECTURE_FEATURE.md`).

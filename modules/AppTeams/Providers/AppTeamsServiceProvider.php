@@ -79,7 +79,7 @@ class AppTeamsServiceProvider extends ServiceProvider
 
         register_user_sidebar_section('team-billing', __('Account'), 600);
         register_user_sidebar_item('team-billing', [
-            'label' => 'Team Members',
+            'label' => __('Team Members'),
             'route_name' => 'portal.teams',
             'active_when' => ['portal.teams', 'portal.teams.*'],
             'icon' => 'fa-light fa-user-group',

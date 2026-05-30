@@ -21,7 +21,7 @@ class MLHUBFoundationSeeder extends Seeder
             [
                 'offset' => 0,
                 'code' => 'vi',
-                'name' => 'Vietnamese',
+                'name' => 'Tiếng Việt',
                 'native_name' => 'Tiếng Việt',
                 'icon' => 'vn',
                 'is_default' => true,
