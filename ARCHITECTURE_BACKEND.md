@@ -48,7 +48,7 @@ Nguyên tắc cốt lõi:
 
 | Tiền tố | Đối tượng | Ví dụ |
 |--------|-----------|-------|
-| `Admin*` | Super-admin / cấu hình | `AdminUser`, `AdminPlans`, `AdminThemes`, `AdminSettings`, `AdminLanguages`, `AdminMarketplace`, `AdminCrons`, `AdminCoupons`, `AdminPayment*`, `AdminCredits`, `AdminAI*` |
+| `Admin*` | Super-admin / cấu hình | `AdminUser`, `AdminPlans`, `AdminThemes`, `AdminSettings`, `AdminLanguages`, `AdminMarketplace`, `AdminCrons`, `AdminCoupons`, `AdminPayment*`, `AdminCredits`, `AdminAI*`, `AdminCache`, `AdminLog` (xem/tải/xoá log tại `admin/settings/log`, route `admin-log.index`, chỉ admin) |
 | `App*` | Portal khách hàng | `AppBusinessProfiles`, `AppQRCampaigns`, `AppReviewBooster`, `AppBookingPages`, `AppCouponCampaigns`, `AppFeedbackForms`, `AppLeadForms`, `AppLandingPages`, `AppCustomers`, `AppTeams`, `AppCredits`, `AppPayments`, `AppAI*` |
 | `Payment*` | Plugin cổng thanh toán | `PaymentStripe`, `PaymentPaypal`, `PaymentRazorpay`, `PaymentPaystack`, `PaymentFlutterwave`, `PaymentInstamojo`, `PaymentIyzico`, `Payment2Checkout`, `PaymentCCAvenue`, `PaymentSslCommerz`, `PaymentYooMoney`, `PaymentPaytm`, `PaymentPayU`, `PaymentPayTR` |
 

@@ -1,0 +1,5 @@
+{
+    "name": "AdminLog",
+    "alias": "adminlog",
+    "description": "Application log viewer and download module"
+}
