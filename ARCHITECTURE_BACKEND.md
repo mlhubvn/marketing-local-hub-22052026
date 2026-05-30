@@ -1,429 +1,300 @@
-# LocalBoost AI — Backend Architecture
+# LocalBoost AI (Stackposts) — Kiến trúc Backend
 
-How the Laravel 13 backend is organized and exactly **where to inject custom logic** without touching core files.
-
----
-
-## 1. High-level shape
-
-LocalBoost AI is a **modular monolith** with a thin shell:
-
-- `app/` — application shell (auth pages, guest marketing, installer, global registries, middleware).
-- `modules/` — ~70 feature modules (`Admin*`, `App*`, `Payment*`) holding the bulk of models, Livewire components, routes, services.
-- `resources/themes/` — presentation (see `ARCHITECTURE_FRONTEND.md`).
-- `bootstrap/providers.php` — auto-discovers every `modules/*/module.json`, sorts providers by `priority`, then merges `bootstrap/providers.marketplace.php`.
-
-There is **no Repository layer**. Data access is via **Eloquent**; orchestration via **`Support/`** (stateless helpers, registries) and **`Services/`** (transactional workflows). Cross-cutting concerns are exposed through **registry singletons** registered in `App\Providers\AppServiceProvider`.
+Tài liệu mô tả cách backend Laravel 13 được tổ chức, các add-on/module tích hợp vào core ra sao, logic SaaS/đa người dùng, và luồng API/middleware. Nội dung dựa trên **mã nguồn thực tế** của dự án.
 
 ---
 
-## 2. Directory map
+## 1. Tổng quan kiến trúc
 
-### 2.1 Core `app/` — protect, do not edit
+LocalBoost AI là một **Modular Monolith** (khối nguyên một process nhưng chia module):
 
-| Path | Role |
-|------|------|
-| `app/Providers/AppServiceProvider.php` | Singletons: `SidebarRegistry`, `HeaderRegistry`, `AdminDashboardRegistry`, `UserDashboardRegistry`, `PlanPermissionRegistry`, `StorageDriverManager`, `SocialAvatarStore`. Also: Livewire hooks, shared Blade component paths, Fortify feature sync, `CarbonImmutable` default, prod URL forcing. |
-| `app/Providers/FortifyServiceProvider.php` | Fortify view bindings → Livewire auth pages. Concrete actions live in `Modules\AdminUser\Actions\Fortify\*`. |
-| `app/Installer/` | First-run installer (mounted as `PrepareInstallation` middleware in `bootstrap/app.php`). |
-| `app/Http/Middleware/EnsureAdminAccess.php` | Admin gate. |
-| `app/Http/Middleware/ResolveUserPlanState.php` | Hydrates plan context per request. |
-| `app/Http/Middleware/PreventDemoModeWriteOperations.php` | Blocks mutations when demo mode on. |
-| `app/Http/Controllers/GuestMarketingController.php`, `GuestStaticPageController.php`, `Auth/SocialLoginController.php` | Public marketing, privacy/terms, social login. |
-| `app/Livewire/Auth/*`, `app/Livewire/Portal/Dashboard.php` | Login/register/reset Livewire pages, portal dashboard stub. |
-| `app/Livewire/DemoModeActionGuard.php` | Component hook (registered via `Livewire::componentHook` in `AppServiceProvider`). |
+- `app/` — **lớp vỏ (shell) mỏng**: auth, trang marketing khách, installer, các registry toàn cục, middleware.
+- `modules/` — **~80 module** (`Admin*`, `App*`, `Payment*`) chứa hầu hết Model, Livewire, Route, Service.
+- `resources/themes/` — tầng trình bày (xem `ARCHITECTURE_FRONTEND.md`).
+- `bootstrap/providers.php` — **tự động phát hiện** mọi module và nạp Service Provider của chúng.
+
+Nguyên tắc cốt lõi:
+- **KHÔNG có tầng Repository.** Truy cập dữ liệu = Eloquent trực tiếp.
+- Điều phối nghiệp vụ chia làm 2 loại thư mục: `Support/` (helper/catalog/registry không trạng thái) và `Services/` (workflow có giao dịch).
+- Các mối quan tâm xuyên suốt (sidebar, dashboard, plan, credit, payment…) được expose qua **Registry singleton**, đăng ký trong `App\Providers\AppServiceProvider`.
+
+---
+
+## 2. Bản đồ thư mục Laravel core
+
+### 2.1 `app/` — lớp vỏ ứng dụng
+
+| Đường dẫn | Vai trò |
+|-----------|---------|
+| `app/Providers/AppServiceProvider.php` | Đăng ký singleton: `SidebarRegistry`, `HeaderRegistry`, `AdminDashboardRegistry`, `UserDashboardRegistry`, `PlanPermissionRegistry`, `StorageDriverManager`, `SocialAvatarStore`. Đặt `CarbonImmutable` mặc định, Livewire component hook, đường dẫn Blade component dùng chung, ép HTTPS ở production. |
+| `app/Providers/FortifyServiceProvider.php` | Gắn view của Fortify vào các trang Livewire auth. |
+| `app/Installer/` | Trình cài đặt lần đầu (mount qua middleware `PrepareInstallation` trong `bootstrap/app.php`). |
+| `app/Http/Middleware/EnsureAdminAccess.php` | Cổng kiểm soát truy cập khu admin. |
+| `app/Http/Middleware/ResolveUserPlanState.php` | Nạp ngữ cảnh gói (plan) cho mỗi request. |
+| `app/Http/Middleware/PreventDemoModeWriteOperations.php` | Chặn thao tác ghi khi bật chế độ demo. |
+| `app/Http/Controllers/GuestMarketingController.php`, `GuestStaticPageController.php`, `Auth/SocialLoginController.php` | Trang marketing công khai, trang tĩnh, đăng nhập mạng xã hội. |
+| `app/Livewire/Auth/*`, `app/Livewire/Portal/Dashboard.php` | Trang login/register/reset, dashboard portal. |
 | `app/Support/Navigation/` | `SidebarRegistry`, `HeaderRegistry`. |
 | `app/Support/Dashboard/` | `AdminDashboardRegistry`, `UserDashboardRegistry`. |
-| `app/Support/Plans/` | `PlanPermissionRegistry`. |
+| `app/Support/Plans/` | `PlanPermissionRegistry`, **`PlanLimitGuard`** (kiểm soát hạn mức tạo bản ghi). |
 | `app/Support/Storage/` | `StorageDriverManager`, `SocialAvatarStore`. |
-| `app/Support/{TimezoneCatalog,GrowthToolNotifier}.php` | Stateless helpers. |
-| `app/Support/helpers.php` | Global helpers (see §4.1 for full list). |
-| `app/Concerns/` | `HasLocalizedAttributes`, `PasswordValidationRules` traits. |
-| `app/Console/Commands/` | Author Artisan commands. |
-| `app/Exceptions/DemoModeRestrictedException.php` | Rendered to JSON/back() by `bootstrap/app.php` exception handler. |
-| `app/Notifications/WelcomeNewUserNotification.php` | Default new-user welcome. |
+| `app/Support/helpers.php` | Helper toàn cục (auto-load qua `composer.json`). |
+| `app/Concerns/` | Trait `HasLocalizedAttributes`, `PasswordValidationRules`. |
+| `app/Exceptions/DemoModeRestrictedException.php` | Được render thành JSON (Livewire/AJAX) hoặc `back()` (web) trong `bootstrap/app.php`. |
 
-### 2.2 Core `modules/` — protect, add sibling `Custom*` instead
+### 2.2 `modules/` — nơi chứa nghiệp vụ chính
 
-**Naming prefixes:**
+**Tiền tố tên module:**
 
-| Prefix | Audience | Examples |
-|--------|----------|----------|
-| `Admin*` | Super-admin / settings | `AdminUser`, `AdminPlans`, `AdminThemes`, `AdminMarketplace`, `AdminLanguages`, `AdminMailServer`, `AdminMenuBuilder`, `AdminSettings`, `AdminBlogs`, `AdminFaqs`, `AdminCoupons`, `AdminCrons`, `AdminCache`, `AdminCaptcha`, `AdminFaker`, `AdminSupport`, `AdminAffiliate`, `AdminAI`, `AdminAITemplate*`, `AdminPayment*`, `AdminCredits`, `AdminDashboard`, `AdminNotifications`, `AdminSystemInformation`. |
-| `App*` | Customer portal | `AppBusinessProfiles`, `AppBusinessLocations`, `AppPayments`, `AppBilling`, `AppCredits`, `AppTeams`, `AppProfile`, `AppSupport`, `AppFiles`, `AppCustomers`, `AppLeadForms`, `AppFeedbackForms`, `AppCouponCampaigns`, `AppQRCampaigns`, `AppReviewBooster`, `AppBookingPages`, `AppLandingPages`, `AppLocalAnalytics`, `AppMarketingTemplates`, `AppCustomDomain`, `AppIntegrations`, `AppAffiliate`, `AppAI*` (Studio, Image, Video, Content, ContentPlanner, Repurpose, Review, BestTime, SemanticSearch). |
-| `Payment*` | Gateway plugins | `PaymentStripe`, `PaymentPaypal`, `PaymentRazorpay`, `PaymentPaystack`, `PaymentPaytm`, `PaymentPayU`, `PaymentPayTR`, `PaymentFlutterwave`, `PaymentInstamojo`, `PaymentIyzico`, `Payment2Checkout`, `PaymentCCAvenue`, `PaymentSslCommerz`, `PaymentYooMoney`. |
+| Tiền tố | Đối tượng | Ví dụ |
+|--------|-----------|-------|
+| `Admin*` | Super-admin / cấu hình | `AdminUser`, `AdminPlans`, `AdminThemes`, `AdminSettings`, `AdminLanguages`, `AdminMarketplace`, `AdminCrons`, `AdminCoupons`, `AdminPayment*`, `AdminCredits`, `AdminAI*` |
+| `App*` | Portal khách hàng | `AppBusinessProfiles`, `AppQRCampaigns`, `AppReviewBooster`, `AppBookingPages`, `AppCouponCampaigns`, `AppFeedbackForms`, `AppLeadForms`, `AppLandingPages`, `AppCustomers`, `AppTeams`, `AppCredits`, `AppPayments`, `AppAI*` |
+| `Payment*` | Plugin cổng thanh toán | `PaymentStripe`, `PaymentPaypal`, `PaymentRazorpay`, `PaymentPaystack`, `PaymentFlutterwave`, `PaymentInstamojo`, `PaymentIyzico`, `Payment2Checkout`, `PaymentCCAvenue`, `PaymentSslCommerz`, `PaymentYooMoney`, `PaymentPaytm`, `PaymentPayU`, `PaymentPayTR` |
 
-**Typical anatomy** (e.g. `modules/AppBusinessProfiles/`):
+**Cấu trúc điển hình một module** (vd `modules/AppReviewBooster/`):
 
 ```
 module.json                         # { name, providers[], priority }
-Providers/AppBusinessProfilesServiceProvider.php
+config/config.php                   # gộp thành config('modules.appreviewbooster.*')
+Providers/AppReviewBoosterServiceProvider.php
 Routes/web.php
-Http/Controllers/                   (only when not pure Livewire)
-Livewire/
-Models/
-Support/                            catalogs, renderers, helpers
-Services/                           transactional workflows (some modules)
-Resources/views/                    loadViewsFrom('appbusinessprofiles')
-config/config.php                   merged as config('modules.appbusinessprofiles.*')
-Database/Migrations/                module-owned tables
+Http/Controllers/                   # chỉ cho public form / webhook / download
+Livewire/                           # các trang full-page
+Models/                             # Eloquent (bảng có tiền tố lb_)
+Support/                            # catalog, helper không trạng thái
+Services/                           # workflow (một số module)
+Resources/views/                    # loadViewsFrom(..., 'appreviewbooster')
+Database/Migrations/                # migration riêng của module
 ```
 
-### 2.3 Auto-discovery (the most important update-safe contract)
+---
 
-`bootstrap/providers.php` does this on every boot:
+## 3. Cách các add-on/module tích hợp vào core (cơ chế quan trọng nhất)
 
-1. Scan `modules/*` directories.
-2. For each, read `module.json` → collect `providers`, optional `files[]`, `priority` (default `0`).
-3. If `providers` empty, fall back to the convention class `Modules\{Name}\Providers\{Name}ServiceProvider`.
-4. `require_once` `Support/helpers.php` if present.
-5. Sort by ascending `priority`, then by name.
-6. Merge `bootstrap/providers.marketplace.php` (returns an array of provider class names).
+### 3.1 Tự động phát hiện qua `bootstrap/providers.php`
 
-> **Two zero-edit injection points are already wired:**
-> 1. Drop a `modules/Custom{Feature}/` directory with `module.json` — auto-loaded.
-> 2. Append a provider class name to `bootstrap/providers.marketplace.php` — already `require`d by core.
->
-> You never edit `bootstrap/providers.php` itself.
+Mỗi lần boot, file này thực hiện:
 
-### 2.4 Routes (core)
-
-| File | Contents |
-|------|----------|
-| `routes/web.php` | `/`, `/pricing`, `/faqs`, `/blogs`, `/contact`, social auth callbacks, `portal/dashboard`. Requires `settings.php` + `public-storage.php`. |
-| `routes/console.php` | Scheduler aggregator. |
-| `routes/settings.php` | Settings routes (mostly delegated to `Modules\AdminSettings`). |
-| `routes/public-storage.php` | Signed public file delivery. |
-| `app/Installer/routes/*` | Installer wizard. |
-| `modules/*/Routes/web.php` | The vast majority of admin & portal routes. |
-
-Portal pattern:
+1. Quét toàn bộ thư mục `modules/*` (`glob` + `sort`).
+2. Với mỗi module, đọc `module.json` → lấy `providers[]`, `files[]` (tùy chọn), `priority` (mặc định `0`).
+3. Nếu `providers` rỗng → fallback theo quy ước `Modules\{Name}\Providers\{Name}ServiceProvider`.
+4. `require_once` `Support/helpers.php` của module nếu tồn tại (auto-load helper).
+5. Sắp xếp theo `priority` tăng dần, rồi theo tên.
+6. Gộp thêm danh sách provider từ `bootstrap/providers.marketplace.php`.
 
 ```php
-Route::middleware(['web', 'auth', 'verified'])
-    ->prefix(config('modules.{alias}.route_prefix', 'portal/...'))
-    ->group(function (): void {
-        Route::livewire('/', SomeIndex::class)->name('portal....');
-    });
+return array_values(array_unique(array_merge(
+    $baseProviders,        // AppServiceProvider, FortifyServiceProvider, InstallerServiceProvider
+    $moduleProviders,      // tự động từ modules/*
+    $marketplaceProviders  // từ providers.marketplace.php (add-on/marketplace)
+)));
 ```
 
-### 2.5 Database
+> **Hệ quả:** Để thêm một add-on, chỉ cần (a) thả thư mục module có `module.json` vào `modules/`, hoặc (b) thêm tên class provider vào `bootstrap/providers.marketplace.php`. **Không bao giờ sửa `bootstrap/providers.php`.**
 
-| Path | Role |
-|------|------|
-| `database/migrations/2026_04_18_110000_create_database.php` | Monolithic baseline schema (~86 tables). |
-| `modules/*/Database/Migrations/` | Per-module incremental migrations. |
-| `database/seeders/` | `DatabaseSeeder`, `LocalBoostDemoSeeder`, `AITemplateCategorySeeder`, `AITemplateSeeder` (file: `database/seeders/data/ai_templates.json` with hard-coded IDs), `PlanSeeder`. |
+### 3.2 Service Provider của module làm gì
 
-**User model:** `Modules\AdminUser\Models\User`. **Settings:** `Modules\AdminSettings\Support\OptionStore` (DB-backed key/value).
-
-### 2.6 Bootstrap & middleware (`bootstrap/app.php`)
-
-Order matters. Web group runs:
-
-```
-PrepareInstallation  →  (Laravel web stack)  →
-SetLocale  →  SetThemeContext  →  CaptureAffiliateReferral  →
-ResolveUserPlanState  →  EnsureAdminAccess  →  PreventDemoModeWriteOperations
-```
-
-CSRF exclusions: `livewire/upload-file`, `livewire-*/upload-file`. Exception handler renders `DemoModeRestrictedException` as JSON for AJAX/Livewire, otherwise `back()->with('warning', …)`.
-
----
-
-## 3. Core vs custom — decision table
-
-| Need | Core (author owns) | Where YOU put it |
-|------|--------------------|------------------|
-| New portal feature | — | `modules/Custom{Feature}/` |
-| Small global tweak | — | `app/Custom/` + provider in `bootstrap/providers.marketplace.php` |
-| Sidebar / menu tweak | — | `register_*_sidebar_*` from your provider, **or** Admin → Menu Builder UI |
-| Override a service or controller | — | Child class in `app/Custom/` + `$this->app->bind()` |
-| New payment gateway | `Payment*` pattern | `modules/CustomPayment{Name}/` with `PaymentGatewayDefinition` + `PaymentGatewaySettingsRegistry` |
-| New admin page | `Admin*` modules | `modules/CustomAdmin*` + `register_sidebar_item` |
-| Add column to author table | Avoid | New migration with nullable column **only** if essential; prefer accessor / JSON column |
-| Custom auth flow | `AdminUser` Fortify actions | Subclass each action, rebind in your provider |
-| Plan-gated feature | `AdminPlans` | `register_plan_permission` + `\Pricing::add()` in `$this->app->booted()` |
-
----
-
-## 4. Design patterns in use
-
-### 4.1 Registry pattern (preferred extension)
-
-Singletons registered in `AppServiceProvider`, populated from module `boot()`:
-
-| Registry | Helper(s) — defined in `app/Support/helpers.php` | Purpose |
-|----------|---------------------------------------------------|---------|
-| `App\Support\Navigation\SidebarRegistry` | `register_sidebar_section`, `register_sidebar_item`, `register_user_sidebar_section`, `register_user_sidebar_item` | Admin & portal nav |
-| `App\Support\Navigation\HeaderRegistry` | `register_header_item`, `add_to_header` | Admin/portal header slots |
-| `App\Support\Dashboard\AdminDashboardRegistry` | `register_admin_dashboard_item` | Admin dashboard widgets |
-| `App\Support\Dashboard\UserDashboardRegistry` | `register_user_dashboard_item` | Portal dashboard widgets |
-| `App\Support\Plans\PlanPermissionRegistry` | `register_plan_permission`, `plan_permissions` | Plan feature matrix |
-| `Modules\AdminPlans\Facades\Pricing` (`PricingService`) | `\Pricing::add([...])`, `\Pricing::addSubFeatures([...])` | Public pricing table rows |
-| `Modules\AppCredits\Support\CreditActionRegistry` | `register_credit_action`, `consume_credits`, `credit_service()`, `credit_settings()`, `credit_topup_service()`, `credit_summary()` | AI credit billing |
-| `Modules\AdminSettings\Support\SettingsPageRegistry` | `register_setting_item` | Settings nav |
-| `Modules\AppPayments\…\PaymentGatewaySettingsRegistry` | `::register('key', [...])` | Gateway config UI |
-| `Modules\AdminCrons\Support\SystemCronRegistry` | `afterResolving(SystemCronRegistry::class, fn ($r) => $r->register([...]))` | Scheduled tasks |
-| `Modules\AppIntegrations\Support\IntegrationCatalog` | per-module register | Integration cards |
-| `Modules\AdminThemes\Support\ThemeRegistry` | per-module register | Theme metadata |
-| `Modules\AppPublishing\Support\PublishingProviderPaletteRegistry` | `publishing_provider_tone`, `publishing_provider_chip_style` | Publisher branding |
-| `Modules\AppAffiliate\Support\AffiliateService` | `affiliate_service()`, `affiliate_enabled()` | Affiliate logic |
-
-> Always call helpers with `function_exists` guard if your code might run before a module boots (priorities differ).
-
-### 4.2 Service / Support classes
-
-- `Support/` — stateless helpers, catalogs, registry backends (e.g. `BusinessQrRenderer`, `PlanLimitGuard`, `TimezoneCatalog`, `OptionStore`, `WorldLanguageCatalog`).
-- `Services/` — transactional workflows (e.g. `MarketplacePackageService`, `PaymentLifecycleService`, `NotificationService`, `AffiliateService`, `CreditTopupService`).
-- **Facades** — `Modules\AdminPlans\Facades\Pricing`, `Modules\AdminNotifications\Facades\*`. Modules call facades inside `$this->app->booted()` to ensure the target singleton is built.
-
-### 4.3 Livewire-first controllers
-
-Most "pages" are Livewire 4 components mounted with `Route::livewire()`. Controllers remain only for downloads (e.g. `BusinessQrController`), webhooks, redirects, and public embeds.
-
-### 4.4 Payment plugin pattern
-
-Each `modules/Payment*/Providers/*ServiceProvider.php` does three things:
-
-1. Registers a `PaymentGatewayDefinition` (key, label, capabilities, currencies).
-2. Binds the concrete gateway implementation to the gateway contract.
-3. Calls `PaymentGatewaySettingsRegistry::register('stripe', [...])` for the admin config UI.
-
-Mirror this triple exactly for any `modules/CustomPayment*`.
-
-### 4.5 Middleware pipeline
-
-Covered in §2.6. Extend via `app('router')->aliasMiddleware(...)` + per-route in `routes/custom.php`. Avoid editing `bootstrap/app.php`.
-
----
-
-## 5. Injecting custom logic — recipes
-
-### 5.1 New feature module (preferred)
-
-```
-modules/CustomReports/
-  module.json              # { "name":"CustomReports", "providers":["Modules\\CustomReports\\Providers\\CustomReportsServiceProvider"], "priority":100 }
-  Providers/CustomReportsServiceProvider.php
-  Routes/web.php
-  Livewire/ReportIndex.php
-  Resources/views/index.blade.php
-  config/config.php        # ['route_prefix' => 'portal/custom-reports']
-  Database/Migrations/2026_..._create_custom_reports_table.php
-```
-
-Provider boot:
+Mẫu chuẩn (trích `AppReviewBoosterServiceProvider`):
 
 ```php
 public function register(): void
 {
-    $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'modules.customreports');
+    $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'modules.appreviewbooster');
 }
 
 public function boot(): void
 {
     $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
-    $this->loadViewsFrom(__DIR__.'/../Resources/views', 'customreports');
+    $this->loadViewsFrom(__DIR__.'/../Resources/views', 'appreviewbooster');
     $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
 
-    register_user_sidebar_item('analytics', [
-        'label' => __('Custom Reports'),
-        'route_name' => 'portal.custom-reports',
-        'active_when' => ['portal.custom-reports*'],
-        'icon' => 'fa-light fa-chart-mixed',
-        'order' => 50,
-        'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('localboost') ?? false,
+    register_user_sidebar_item('growth-tools', [
+        'label'      => 'Review Booster',
+        'route_name' => 'portal.review-booster',
+        'icon'       => 'fa-light fa-star',
+        'order'      => 10,
+        'visible'    => fn (): bool => auth()->user()?->canUsePlanFeature('localboost') ?? true,
     ]);
 }
 ```
 
-The module is **auto-discovered** — no `bootstrap/providers.marketplace.php` edit needed. Run `php artisan migrate` after deploy.
+- `register()` chỉ gộp config + bind container.
+- `boot()` nạp route/view/migration + gọi helper registry để "ghim" mình vào UI/plan/cron.
+- `priority` trong `module.json` quyết định thứ tự — module priority cao boot sau, ghi đè registry sau cùng (vd các growth tool có `priority: 22`).
 
-### 5.2 Override a core controller / service
+### 3.3 Mẫu plugin thanh toán (`Payment*`)
 
-Do **not** edit `modules/AppBusinessProfiles/Http/Controllers/BusinessQrController.php`.
+Mỗi `Payment*ServiceProvider` làm 3 việc:
+1. Khai báo `PaymentGatewayDefinition` (key, nhãn, năng lực, tiền tệ).
+2. Bind class gateway cụ thể vào contract.
+3. Gọi `PaymentGatewaySettingsRegistry::register('key', [...])` để sinh UI cấu hình trong Admin.
+
+Đây là khuôn mẫu cho mọi cổng thanh toán tùy biến mới.
+
+---
+
+## 4. Logic SaaS / Đa người dùng (Multi-tenancy)
+
+Hệ thống **không** dùng tách database; tenant được cô lập bằng **scoping theo `user_id`** + lớp **workspace/team**.
+
+### 4.1 Người dùng & quyền
+
+- Model người dùng: **`Modules\AdminUser\Models\User`** (`extends Authenticatable`, implements `MustVerifyEmail`, `HasLocalePreference`, dùng `TwoFactorAuthenticatable`).
+- Phân biệt 2 thế giới:
+  - **Quản trị**: `is_super_admin` / `role_id` → `canAccessAdmin()`, `hasPermission()` (kiểm tra theo `role->permissions`, hỗ trợ wildcard `*` và `prefix.*`). Cổng: middleware `EnsureAdminAccess`.
+  - **Khách hàng (portal)**: scope theo `user_id`.
+
+### 4.2 Gói dịch vụ (Plan) & hạn mức
+
+- Gói nằm ở `Modules\AdminPlans\Models\AdminPlan`; user gắn `plan_id`, `plan_started_at`, `plan_expires_at`, `next_plan_id`.
+- Kiểm tra quyền tính năng:
+  - `$user->hasActivePlan()` — còn hạn không.
+  - `$user->canUsePlanFeature('localboost')` — gói còn hạn **và** bật cờ tính năng.
+  - `$user->planLimit('max_campaigns', -1)` — hạn mức (-1 = không giới hạn).
+- **`App\Support\Plans\PlanLimitGuard`** là chốt chặn trước khi tạo bản ghi:
+  - `ensureBusinessCanBeCreated`, `ensureCampaignCanBeCreated`, `ensureLandingPageCanBeCreated`, `ensureQrCodeCanBeCreated`, `ensureTemplateCanBeCreated`.
+  - Vượt hạn mức → ném `ValidationException::withMessages(['plan' => ...])` (hiện lên form).
+  - `usageSummary()` tổng hợp mức dùng (businesses, campaigns, landing pages, QR, templates, credits, email, Google…), **dò động** module có tồn tại bằng `class_exists()` + `Schema::hasColumn()` để không vỡ khi thiếu add-on.
+
+### 4.3 Workspace / Team (`AppTeams`)
+
+- `Modules\AppTeams\Support\TeamWorkspaceAccess` quản lý ngữ cảnh team:
+  - `activeTeam($user)` đọc `session('portal_team_id')` rồi xác thực quyền sở hữu/thành viên.
+  - **`workspaceOwnerUserId($user)`** — trả về ID chủ workspace (chủ team nếu đang trong team, ngược lại chính user). Dữ liệu dùng chung của workspace (vd lịch sử AI) scope theo ID này.
+  - `enabledModules`, `teamHasModule`, `permissionsForUser`, `hasPermission`, `managedAccountIds` — phân quyền chi tiết theo từng thành viên team.
+- Chủ team **bỏ qua** mọi giới hạn workspace (`userBypassesWorkspaceRestrictions`).
+
+### 4.4 Thanh toán & đăng ký (Subscription)
+
+- `Modules\AppPayments` (checkout) + `Modules\AdminPaymentSubscriptions` (`PaymentSubscription`, FK `uid` → user).
+- Cổng thanh toán: các module `Payment*` (xem §3.3).
+- Tín dụng AI: `Modules\AppCredits` + `CreditService` (`consume_credits()`, `credit_service()->ensureCanConsume()`).
+
+### 4.5 Tín hiệu cô lập dữ liệu cần lưu ý
+- Hầu hết bảng có cột `user_id`; một số module (Google Business) dùng `team_id`; CustomDomain dùng `owner_user_id`. Khi viết truy vấn mới, **kiểm tra đúng cột chủ sở hữu** của bảng đó.
+
+---
+
+## 5. Cấu trúc Route & luồng Middleware
+
+### 5.1 Route core
+
+| File | Nội dung |
+|------|----------|
+| `routes/web.php` | `/`, `/pricing`, `/faqs`, `/blogs`, `/contact`, callback social auth, `portal/dashboard`. Nạp thêm `settings.php` + `public-storage.php`. |
+| `routes/console.php` | Tổng hợp scheduler. |
+| `routes/settings.php` | Route phần Cài đặt. |
+| `routes/public-storage.php` | Phân phối file công khai có chữ ký. |
+| `app/Installer/routes/*` | Wizard cài đặt. |
+| `modules/*/Routes/web.php` | **Phần lớn** route admin & portal. |
+
+### 5.2 Mẫu route portal (Livewire-first)
 
 ```php
-// app/Custom/Http/Controllers/BusinessQrController.php
-namespace App\Custom\Http\Controllers;
-
-class BusinessQrController extends \Modules\AppBusinessProfiles\Http\Controllers\BusinessQrController
-{
-    public function svg(/* ...args */) {
-        // your changes
-        return parent::svg(/* ... */);
-    }
-}
-```
-
-```php
-// app/Custom/Providers/CustomServiceProvider::register()
-$this->app->bind(
-    \Modules\AppBusinessProfiles\Http\Controllers\BusinessQrController::class,
-    \App\Custom\Http\Controllers\BusinessQrController::class,
-);
-```
-
-Routes resolved through the container (`[Class::class, 'method']`) pick up the binding. For routes that pass an instance directly, define a *new* route with the same name in `routes/custom.php` (later definitions win).
-
-### 5.3 Add custom routes safely
-
-```php
-// app/Custom/Providers/CustomServiceProvider::boot()
-$this->loadRoutesFrom(base_path('routes/custom.php'));
-```
-
-```php
-// routes/custom.php
-use Illuminate\Support\Facades\Route;
-
 Route::middleware(['web', 'auth', 'verified'])
-    ->prefix('portal/custom-reports')
+    ->prefix(config('modules.appreviewbooster.route_prefix', 'portal/review-booster'))
     ->group(function (): void {
-        Route::livewire('/', \App\Custom\Livewire\CustomReportIndex::class)
-            ->name('portal.custom-reports');
+        Route::livewire('/', ReviewBoosterIndex::class)->name('portal.review-booster');
     });
+
+// Endpoint công khai (form submit) — chỉ middleware 'web'
+Route::middleware('web')
+    ->post('/qr/{campaign:slug}/feedback', [ReviewFeedbackController::class, 'store'])
+    ->name('review-booster.feedback');
 ```
 
-Register the provider in `bootstrap/providers.marketplace.php`:
+- Trang đăng nhập = `Route::livewire(...)`; controller chỉ dành cho public form/webhook/download.
+- Route công khai dùng **route model binding theo slug** (`{campaign:slug}`).
 
-```php
-<?php
-return [
-    \App\Custom\Providers\CustomServiceProvider::class,
-];
+### 5.3 Pipeline middleware (web group — `bootstrap/app.php`)
+
+Thứ tự rất quan trọng:
+
+```
+PrepareInstallation
+  → (web stack chuẩn của Laravel)
+  → SetLocale            (Modules\AdminLanguages)
+  → SetThemeContext      (Modules\AdminThemes)
+  → CaptureAffiliateReferral (Modules\AppAffiliate)
+  → ResolveUserPlanState (App\Http\Middleware)
+  → EnsureAdminAccess    (App\Http\Middleware)
+  → PreventDemoModeWriteOperations
 ```
 
-That's the only wiring step — `bootstrap/providers.php` already requires this file.
+- CSRF loại trừ: `livewire/upload-file`, `livewire-*/upload-file`.
+- Trust proxy theo `TRUSTED_PROXIES` env (mặc định `*` ở production) — vì chạy sau Traefik/Coolify, app thấy HTTP nhưng phải sinh signed URL dạng HTTPS.
+- Exception handler render `DemoModeRestrictedException`: JSON 403 cho request `expectsJson()`/`livewire/update`, ngược lại `back()->with('warning', ...)`.
 
-### 5.4 Marketplace / licensed add-ons
+### 5.4 "API" của hệ thống
 
-`bootstrap/providers.marketplace.php` is the official append-only hook (also used by the Admin → Marketplace UI). Keep its contents one provider per line. Append; do not reformat existing entries.
-
-### 5.5 Plans, limits, pricing UI
-
-```php
-register_plan_permission([
-    'key' => 'custom_reports',
-    'label' => __('Custom Reports'),
-    'type' => 'config',
-    'order' => 70,
-    'fields' => [
-        ['key' => 'max_custom_reports', 'label' => __('Reports limit'), 'type' => 'number', 'default' => 5],
-    ],
-]);
-
-$this->app->booted(function (): void {
-    \Pricing::add([[
-        'sort' => 200, 'key' => 'custom_reports', 'label' => __('Custom Reports'),
-        'check' => true, 'type' => 'boolean', 'raw' => 0,
-    ]]);
-});
-```
-
-Enforce via `auth()->user()?->canUsePlanFeature('custom_reports')` and `PlanLimitGuard`.
-
-### 5.6 Cron / scheduled work
-
-```php
-$this->app->afterResolving(
-    \Modules\AdminCrons\Support\SystemCronRegistry::class,
-    function ($registry): void {
-        $registry->register([
-            'key' => 'custom_reports.weekly_email',
-            'label' => __('Weekly Custom Reports email'),
-            'command' => 'custom-reports:email',
-            'expression' => '0 9 * * 1',
-        ]);
-    }
-);
-```
-
-Define the Artisan command in your module's `Console/Commands/` and register through your provider.
-
-### 5.7 Eloquent observers
-
-```php
-// CustomServiceProvider::boot()
-\Modules\AdminUser\Models\User::observe(\App\Custom\Observers\UserObserver::class);
-```
+- Đây là ứng dụng **web-first**: không có `routes/api.php` riêng dạng REST công khai. "API" thực chất là:
+  - **Livewire update endpoint** (`/livewire/update`) — kênh chính cho tương tác động.
+  - **Public form endpoints** (POST trong từng module `Routes/web.php`).
+  - **Webhook thanh toán** (callback của từng `Payment*`).
+- Khi cần API JSON mới → tạo trong module custom, tự thêm middleware xác thực phù hợp.
 
 ---
 
-## 6. `app/Custom/` reference layout
+## 6. Database
 
-```
-app/Custom/
-  Providers/CustomServiceProvider.php
-  Http/Controllers/
-  Livewire/
-  Support/
-  Services/
-  Models/                     (only tables you own)
-  Actions/Fortify/            (when subclassing Fortify actions)
-  Observers/
-  database/migrations/
-  resources/views/
-  lang/
-```
+| Đường dẫn | Vai trò |
+|-----------|---------|
+| `database/migrations/2026_*_create_database.php` | Schema nền (baseline) — **bảng dùng tiền tố `lb_`**. |
+| `modules/*/Database/Migrations/` | Migration tăng dần riêng từng module. |
+| `database/seeders/` | `DatabaseSeeder`, `LocalBoostDemoSeeder`, `PlanSeeder`, `AITemplateCategorySeeder`, `AITemplateSeeder` (data ở `database/seeders/data/`). |
 
-PSR-4 already maps `App\` → `app/`; no `composer.json` change needed.
+- **Settings hệ thống:** `Modules\AdminSettings\Support\OptionStore` (key/value lưu DB).
+- **Engine campaign dùng chung:** bảng `lb_campaigns` (model `QrCampaign`) phục vụ tất cả growth tool qua cột `type` + JSON `settings`. Các bảng vệ tinh: `lb_review_feedbacks`, `lb_bookings`, `lb_coupon_redemptions`, `lb_feedback_responses`, `lb_lead_submissions`, `lb_qr_scans`…
+- **Engine DB thực tế (từ `.env.example`):** `DB_CONNECTION=mysql` (cổng 3306). Viết migration/raw query theo cú pháp **MySQL**. Ngoài bảng nghiệp vụ `lb_*`, hệ thống còn cần các bảng hạ tầng do `session/queue/cache` đều chạy driver `database`: `sessions`, `jobs`/`job_batches`/`failed_jobs`, `cache`/`cache_locks`.
 
----
+### 6.1 Môi trường runtime & triển khai (chốt từ `.env.example` + `docker-compose.yaml`)
 
-## 7. Authentication & authorization
-
-- **Laravel Fortify** + Livewire auth pages (`app/Livewire/Auth/*`).
-- View bindings in `App\Providers\FortifyServiceProvider`.
-- Concrete actions: `Modules\AdminUser\Actions\Fortify\{CreateNewUser, UpdateUserProfileInformation, UpdateUserPassword, ResetUserPassword}`.
-- Admin gate: `App\Http\Middleware\EnsureAdminAccess`.
-- Team scope: `Modules\AppTeams\Support\TeamWorkspaceAccess`.
-
-To override: subclass any action under `App\Custom\Actions\Fortify\…` and rebind in `CustomServiceProvider::register()`:
-
-```php
-\Laravel\Fortify\Fortify::createUsersUsing(\App\Custom\Actions\Fortify\CreateNewUser::class);
-```
+| Khía cạnh | Cấu hình | Tác động |
+|-----------|----------|----------|
+| Locale | `APP_LOCALE=vi`, fallback `vi`, `APP_TIMEZONE=Asia/Ho_Chi_Minh` | App mặc định Tiếng Việt; chuỗi mới vẫn dùng key tiếng Anh trong `__()` rồi dịch ở `lang/vi.json` |
+| Session/Queue/Cache | đều `database` | **Bắt buộc** chạy queue worker; cần migrate bảng hạ tầng ở §6 |
+| Mail | `MAIL_MAILER=log` | ⚠️ Email chỉ ghi log, **chưa gửi thật** → notify Lead/Feedback/Booking không tới khách. Đổi SMTP trước khi mở |
+| Storage | `FILESYSTEM_DISK=public` (S3 trống) | Upload nằm ở disk `public`; bật S3 nếu cần scale |
+| Cookie | `SESSION_SECURE_COOKIE=true` | Chỉ chạy đúng dưới HTTPS |
+| Triển khai | Coolify + Traefik (HTTP→HTTPS, Let's Encrypt), domain `mlhub.vn` | App thấy HTTP sau proxy → `TRUSTED_PROXIES` đã xử lý trong `bootstrap/app.php`; storage gắn volume `mlhub-storage` |
+| Tích hợp | `GOOGLE_BUSINESS_CLIENT_ID/SECRET` | Google Business bật (module `AppGoogleBusiness`) |
 
 ---
 
-## 8. AI & credits
+## 7. Xác thực & phân quyền
 
-- `laravel/ai` package used from `AdminAI`, `AppAI*` modules.
-- Helpers: `credit_service()`, `consume_credits($user, 'action_key', [...])`, `register_credit_action([...])`.
-- New AI features must register a credit action and call `consume_credits()` before invoking the LLM.
-
----
-
-## 9. Update-safety checklist
-
-- [ ] Zero diff under `modules/Admin*`, `modules/App*`, `modules/Payment*`.
-- [ ] Zero diff under `app/` outside `app/Custom/`.
-- [ ] Zero diff under `routes/web.php`, `bootstrap/app.php`, `bootstrap/providers.php`, `config/*.php`.
-- [ ] All custom code lives in `modules/Custom*` or `app/Custom`, registered via `bootstrap/providers.marketplace.php`.
-- [ ] Migrations additive only (no `dropColumn` on author tables).
-- [ ] Container bindings documented in `README.custom.md` — re-verify after every author update (class renames break bindings silently).
-- [ ] `composer dump-autoload` after adding any new namespace.
+- **Laravel Fortify** + trang Livewire (`app/Livewire/Auth/*`), gắn view trong `App\Providers\FortifyServiceProvider`.
+- Action cụ thể: `Modules\AdminUser\Actions\Fortify\{CreateNewUser, UpdateUserProfileInformation, UpdateUserPassword, ResetUserPassword}`.
+- 2FA qua `TwoFactorAuthenticatable` + `pragmarx/google2fa`.
+- Cổng admin: `EnsureAdminAccess`; quyền chi tiết theo `role->permissions` + `AdminPermissionCatalog::permissionForRoute()`.
+- Mạo danh (impersonate): `canImpersonate()` / `isImpersonating()` (session `impersonator_id`).
 
 ---
 
-## 10. Quick reference — important classes
+## 8. AI & Credits
 
-| Concern | Class |
-|---------|-------|
-| Current user | `Modules\AdminUser\Models\User` |
-| Options / settings | `Modules\AdminSettings\Support\OptionStore` |
-| Sidebar registry | `App\Support\Navigation\SidebarRegistry` |
-| Header registry | `App\Support\Navigation\HeaderRegistry` |
-| Dashboard registries | `App\Support\Dashboard\{Admin,User}DashboardRegistry` |
-| Plan permissions | `App\Support\Plans\PlanPermissionRegistry` |
-| Plan service / facade | `Modules\AdminPlans\Support\PlanService`, `Modules\AdminPlans\Facades\Pricing` |
-| Payments | `Modules\AppPayments\Support\PaymentManager`, `PaymentGatewaySettingsRegistry` |
-| Themes | `Modules\AdminThemes\Support\ThemeManager`, `SetThemeContext` middleware |
-| Locale | `Modules\AdminLanguages\Http\Middleware\SetLocale`, `WorldLanguageCatalog` |
-| Demo mode | `App\Http\Middleware\PreventDemoModeWriteOperations`, `App\Livewire\DemoModeActionGuard` |
-| Audit log | `Modules\AdminUser\Models\AuditLog`, helper `log_activity()` |
-| Storage | `App\Support\Storage\StorageDriverManager`, `SocialAvatarStore` |
+- Dùng `laravel/ai` + `prism-php/prism` từ các module `AdminAI`, `AppAI*`.
+- Mọi tính năng AI **bắt buộc**:
+  1. Kiểm tra cờ tính năng/feature gate.
+  2. `credit_service()->ensureCanConsume($planOwner, 'action_key')` trước khi gọi LLM.
+  3. Bọc `try/catch (Throwable)` và **có fallback** (xem `AppAIContent\Livewire\AIContentIndex`).
+  4. `consume_credits($planOwner, 'action_key', [...])` sau khi thành công.
 
-For frontend integration, see **`ARCHITECTURE_FRONTEND.md`**. For step-by-step workflows, see **`CHECKLIST.md`**.
+---
+
+## 9. Lưu ý chuẩn bị production (backend)
+
+Đã cấu hình sẵn trong `.env.example`: `APP_ENV=production`, `APP_DEBUG=false`, `APP_KEY`, `APP_DEMO=false`, MySQL, `SESSION_SECURE_COOKIE=true`. Còn lại cần xử lý:
+
+- [ ] ⚠️ **Đổi `MAIL_MAILER=log` → SMTP thật** — hiện email chỉ ghi log, khách không nhận được thông báo.
+- [ ] Điền `DB_HOST`/`DB_PASSWORD` thật (đang trống trong mẫu).
+- [ ] Queue worker chạy (`php artisan queue:work`) — driver `database`, nhiều việc (email, notify) đẩy qua queue.
+- [ ] Migrate đủ bảng hạ tầng `sessions`/`jobs`/`cache` (do dùng driver `database`).
+- [ ] Scheduler/cron đã bật (xem `AdminCrons` + `routes/console.php`).
+- [ ] Cấu hình cổng thanh toán + webhook URL thật cho từng `Payment*` đang dùng.
+- [ ] Cân nhắc bật S3 (`FILESYSTEM_DISK`/`AWS_*`) nếu cần scale; kiểm tra signed URL hoạt động sau Traefik.
+- [ ] `php artisan migrate --force` (KHÔNG dùng `migrate:fresh` trên production).
+- [ ] `php artisan config:cache route:cache view:cache` sau khi cấu hình ổn định.
+
+Xem `ARCHITECTURE_FRONTEND.md` cho tầng giao diện và `ARCHITECTURE_FEATURE.md` cho đánh giá độ sẵn sàng từng module.

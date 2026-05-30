@@ -1,194 +1,231 @@
-# LocalBoost AI — AI Agent Rules (Update-Safe Customization)
+# LocalBoost AI (Stackposts) — Quy tắc cho AI Agent
 
-You are modifying a **modular Laravel 13 + Livewire 4** application (LocalBoost AI / marketing-local-hub). The author's business logic lives primarily in `modules/`, not a fat `app/`. Treat shipped code as **immutable core**. Always extend; never patch.
+> Tài liệu này được sinh ra bằng cách **quét trực tiếp codebase thực tế**. Mọi quy tắc dưới đây phản ánh đúng phong cách của lập trình viên gốc. Khi bạn (AI) viết hoặc sửa code, **bắt buộc bám sát các mẫu này** — không tự sáng tạo phong cách mới.
 
-> **Stack snapshot** (do not change without explicit user approval):
-> PHP `^8.3` · Laravel `^13.0` · Livewire `^4.1` · Fortify `^1.34` · Laravel AI `^0.4.2` · Stripe PHP `15.0` · AWS SDK `3.322.9` · Tailwind CSS v4 · Vite (per-theme) · Pest `^4.4` · Pint.
-
----
-
-## 1. Strict core protection — NEVER edit these paths
-
-| Zone | Path | Why it is core |
-|------|------|----------------|
-| Vendor | `vendor/**` | Composer-managed |
-| Core modules | `modules/Admin*/**`, `modules/App*/**`, `modules/Payment*/**` | Author feature code (~70 modules) |
-| Core app shell | `app/**` (entire `app/`, including `Providers/`, `Http/`, `Livewire/`, `Support/`, `Installer/`, `Concerns/`, `Console/`, `Exceptions/`, `Notifications/`) | Framework wiring & global registries |
-| Core routes | `routes/web.php`, `routes/console.php`, `routes/settings.php`, `routes/public-storage.php`, `app/Installer/routes/**` | Author route map |
-| Bootstrap | `bootstrap/app.php`, `bootstrap/providers.php` | Middleware pipeline + module auto-discovery |
-| Core config | `config/*.php` | Override only via `.env` keys core already reads |
-| Core themes | `resources/themes/app/default/**`, `resources/themes/guest/localboostai/**`, `resources/themes/shared/**` | Default UI; clone instead |
-| Core DB | `database/migrations/2026_*_create_database.php`, `database/seeders/**` | Schema & demo data owned by author |
-| Core lang | `lang/*.json` at project root | Extend with custom JSON loaded via `loadJsonTranslationsFrom` |
-| Core public build | `public/build/themes/app/default/**`, `public/build/themes/guest/localboostai/**` | Author Vite manifests |
-| Core tests | `tests/**` | Unless explicitly writing custom tests |
-| Build / deploy | `Dockerfile`, `entrypoint.sh`, `composer.json`, `composer.lock`, `package.json`, `package-lock.json`, `artisan`, `index.php`, `public/index.php`, `.htaccess`, `.editorconfig`, `.gitattributes`, `.gitignore` | Touch only with explicit user approval |
-
-**Hard rule:** if a change requires editing anything above, **stop** and re-route through an extension point in §3.
+Đây là một ứng dụng **Laravel 13 + Livewire 4 dạng modular monolith**. Phần lớn nghiệp vụ nằm trong `modules/` (~80 module), `app/` chỉ là lớp vỏ (shell) mỏng.
 
 ---
 
-## 2. Allowed customization zones — ONLY edit here
+## 0. Bối cảnh dự án (RẤT QUAN TRỌNG)
 
-| Purpose | Location |
-|---------|----------|
-| Custom feature module (preferred for page-sized work) | `modules/Custom{Feature}/` (mirror author module layout) |
-| Custom global PHP | `app/Custom/` — `Http/`, `Livewire/`, `Support/`, `Services/`, `Providers/`, `Models/`, `Actions/`, `Observers/`, `database/migrations/`, `resources/views/`, `lang/` |
-| Custom routes | `routes/custom.php` (loaded from your `App\Custom\Providers\CustomServiceProvider::boot()`) |
-| Custom provider registration | **`bootstrap/providers.marketplace.php`** — already `require`d by `bootstrap/providers.php`; return extra provider class names here |
-| Custom config | `config/custom.php` (load via `mergeConfigFrom` from your provider) |
-| Custom views | `app/Custom/resources/views/`, `modules/Custom*/Resources/views/`, custom theme `resources/views/` |
-| Custom theme | `resources/themes/app/custom/` and/or `resources/themes/guest/custom/` (with `theme.json`) — e.g. `resources/themes/guest/mlhubtheme/**` |
-| Custom theme public assets (additive only) | `public/resources/themes/{area}/{your-theme}/` — copy **only** files the core serves via `theme_asset()` / `theme_asset_for()` (e.g. `preview.svg`); never replace or symlink the whole `public/resources/themes/` tree |
-| Custom assets | Inside your custom theme: `assets/css/`, `assets/js/` → built by Vite to `public/build/themes/{area}/custom/` |
-| Custom migrations | `app/Custom/database/migrations/` or `modules/Custom*/Database/Migrations/` |
-| Custom translations | `app/Custom/lang/{locale}.json` (loaded via `loadJsonTranslationsFrom` in your provider) |
+- **BẮT BUỘC:** Luôn đọc lướt qua **`ARCHITECTURE_CHECKLIST.md`** trước khi bắt tay vào thực hiện bất kỳ Task / tính năng mới nào. File đó là quy trình vận hành chuẩn (workflow, quy tắc an toàn, luồng triển khai).
+- Mục tiêu hiện tại: **chuẩn bị phát hành production**. Bạn được phép sửa lỗi (bug) trong `modules/` và `app/` khi cần, nhưng:
+  - Sửa **tối thiểu, đúng trọng tâm** (surgical). Không refactor diện rộng nếu không được yêu cầu.
+  - **Bắt chước y hệt** phong cách file đang sửa (xem §3 "Vibecode").
+- Tính năng **mới hoàn toàn** thì ưu tiên dùng các điểm mở rộng (extension points, §5) thay vì nhét vào core, để an toàn khi cập nhật từ marketplace.
+- Khi không chắc chắn về phạm vi, kiến trúc, hoặc cách làm có nhiều lựa chọn → **hỏi lại người dùng trước khi code**.
 
-> **Critical wiring fact:** `bootstrap/providers.php` already calls `require __DIR__.'/providers.marketplace.php'` and merges its returned array into the provider list. **Never edit `bootstrap/providers.php`** — append your provider class names to `bootstrap/providers.marketplace.php` instead. (The file ships empty `return [];` — safe to append to.)
+### 0.1 Luồng triển khai (Deployment Pipeline) — ghi nhớ cố định
 
----
+`Cursor IDE (local)` → commit/push → `GitHub (source of truth)` → webhook → `Coolify (auto build: docker-compose + .env + Traefik HTTP→HTTPS)` tại `mlhub.vn`.
 
-## 3. Extension strategy (in strict order of preference)
-
-1. **Registry / helper hook** (zero new classes when possible):
-   - Navigation: `register_sidebar_section`, `register_sidebar_item`, `register_user_sidebar_section`, `register_user_sidebar_item`
-   - Header: `register_header_item`, `add_to_header`
-   - Dashboard widgets: `register_admin_dashboard_item`, `register_user_dashboard_item`
-   - Plans & limits: `register_plan_permission`, `\Pricing::add([...])`, `\Pricing::addSubFeatures([...])` inside `$this->app->booted()`
-   - Credits / AI billing: `register_credit_action`, `consume_credits`, `credit_service()`
-   - Settings page: `register_setting_item`
-   - Cron: `afterResolving(SystemCronRegistry::class, fn ($r) => $r->register([...]))`
-   - Payments: `PaymentGatewayDefinition` + `PaymentGatewaySettingsRegistry::register('key', [...])`
-   - Admin menu labels/order: `OptionStore` (`admin_menu_sidebar_overrides`) via the admin **Menu Builder** UI (not Blade)
-2. **New `modules/Custom{Feature}/` module** (auto-discovered by `bootstrap/providers.php` glob). Mirror layout of `modules/AppBusinessProfiles/`. Set `priority > 20` in `module.json` so your provider boots *after* core and last-write-wins for registries.
-3. **Container rebind + child class** in your `CustomServiceProvider::register()`:
-   ```php
-   $this->app->bind(\Modules\X\Service::class, \App\Custom\Services\MyService::class);
-   ```
-4. **Livewire replacement** — custom Livewire class + *new* route in `routes/custom.php` with `Route::livewire(...)`. Do not edit module `Routes/web.php`.
-5. **View augmentation** via `View::composer('vendor::view', fn ($v) => $v->with(...))`. For visual replacement, clone the Blade into a custom module's `Resources/views/` and render via custom Livewire.
-6. **Fortify / auth** — subclass `Modules\AdminUser\Actions\Fortify\*` under `App\Custom\Actions\Fortify\…` and rebind via `Fortify::createUsersUsing(…)` etc. in your provider's `register()`.
-7. **Eloquent observers** — register in `CustomServiceProvider::boot()`; modules expose few domain events.
-
-> **Do NOT** introduce a Repository layer. The codebase uses `Support/` (stateless helpers, catalogs, registries) and `Services/` (transactional workflows). Match this.
+- ⛔ **TUYỆT ĐỐI KHÔNG** đề xuất can thiệp thủ công bằng dòng lệnh trên server Coolify (SSH, sửa file/chạy lệnh trên container).
+- Mọi thay đổi hạ tầng phải thể hiện bằng **code/config tại local** (`docker-compose.yaml`, `Dockerfile`, `entrypoint.sh`, `.env.example`, migration) → commit → push → để Coolify tự build.
+- Lệnh deploy (`migrate --force`, `config:cache`…) thuộc `entrypoint.sh`/pipeline, không gõ tay trên server.
 
 ---
 
-## 4. Coding standards (match the codebase exactly)
+## 1. Stack công nghệ (KHÔNG đổi nếu không được duyệt)
 
-- **PHP**: `^8.3`. Typed properties, return types, constructor property promotion. Use `declare(strict_types=1);` only when surrounding code uses it (most modules do not).
-- **Style**: Laravel **Pint**. Run `vendor/bin/pint app/Custom modules/Custom*` — never reformat core.
-- **Namespaces**: `App\Custom\…` → `app/Custom/`; `Modules\Custom{Feature}\…` → `modules/Custom{Feature}/` (PSR-4 already in `composer.json`).
-- **Controllers**: thin; delegate to `Support/`, `Services/`, or Livewire.
-- **Routes**:
-  - Named, dot notation: `portal.{feature}`, `admin-{feature}.*`.
-  - Portal middleware: `['web', 'auth', 'verified']`.
-  - Pages prefer `Route::livewire('/path', SomeIndex::class)->name('portal....')`.
-  - Read prefix from module config: `config('modules.{alias}.route_prefix', 'portal/...')`.
-- **Config**: per-module `config/config.php` merged with `mergeConfigFrom(..., 'modules.{alias}')`.
-- **Translations**: `__()` / `@lang` for every user-visible string.
-- **Dates**: `CarbonImmutable` (set as default by `App\Providers\AppServiceProvider`).
-- **Auth user**: `Modules\AdminUser\Models\User`.
-- **Plans**: gate features with `auth()->user()?->canUsePlanFeature('localboost')` and `PlanLimitGuard`.
-- **Demo mode**: any mutating Livewire action must remain compatible with `App\Livewire\DemoModeActionGuard` and `App\Http\Middleware\PreventDemoModeWriteOperations`.
-- **Icons**: Font Awesome `fa-light`. Match existing classnames.
-- **Components**: prefer `<x-ui.*>` (themed) and `<x-shared.*>` (cross-theme); never re-implement what exists.
-- **Theme tokens**: use CSS variables (`var(--theme-accent-rgb)`, `var(--theme-header-text-color)`, `var(--theme-border-color-rgb)`, …) instead of hard-coded colors.
+| Thành phần | Phiên bản / Công nghệ |
+|------------|------------------------|
+| PHP | `^8.3` |
+| Laravel Framework | `^13.0` |
+| Livewire | `^4.1` (full-page components qua `Route::livewire`) |
+| Auth | Laravel **Fortify** `^1.34` + 2FA (`TwoFactorAuthenticatable`) |
+| AI | `laravel/ai` `^0.4.2` (kèm `prism-php/prism`) |
+| Thanh toán | `stripe/stripe-php` `15.0` + ~15 cổng `Payment*` module |
+| Lưu trữ | `league/flysystem-aws-s3-v3`, `aws/aws-sdk-php` |
+| PDF | `barryvdh/laravel-dompdf` |
+| Dịch | `stichoza/google-translate-php` |
+| Frontend | **Blade + Livewire 4 + Alpine.js** (KHÔNG có React/Vue SPA) |
+| CSS | **Tailwind CSS v4** (`@import "tailwindcss"` + `@theme`), token qua CSS variables |
+| Icon | **Font Awesome** dạng `fa-light fa-*` |
+| Build asset | **Vite** theo từng theme (qua helper `theme_vite()`), KHÔNG có `package.json`/`vite.config.js` ở gốc dự án |
+| Test | **Pest** `^4.4` (+ pest-plugin-laravel) |
+| Lint / format | **Laravel Pint** (preset `laravel`) |
+| Ngày giờ | **`CarbonImmutable`** (đặt làm mặc định trong `AppServiceProvider`) |
+
+> Mỗi module có thể tự khai báo dependency riêng — luôn kiểm tra `composer.json` trước khi thêm package.
+
+### 1.1 Môi trường runtime thực tế (chốt từ `.env.example` — KHÔNG cần đọc lại dự án)
+
+| Khóa | Giá trị | Ý nghĩa cho vibecode |
+|------|---------|----------------------|
+| `APP_NAME` / `APP_URL` | `MLHUB` / `mlhub.vn` | Brand thật là **MLHUB**, không phải "LocalBoost/Stackposts" khi hiển thị |
+| `APP_LOCALE` / `APP_FALLBACK_LOCALE` | `vi` | **Mặc định Tiếng Việt.** Mọi chuỗi mới vẫn viết key tiếng Anh trong `__()`, rồi dịch trong `lang/vi.json` |
+| `APP_TIMEZONE` | `Asia/Ho_Chi_Minh` | Dùng khi tính giờ hiển thị; vẫn lưu UTC trong DB |
+| `DB_CONNECTION` | **`mysql`** (3306) | Viết migration/raw query theo MySQL (không phải SQLite) |
+| `SESSION_DRIVER` / `QUEUE_CONNECTION` / `CACHE_STORE` | đều **`database`** | Cần migrate bảng `sessions`, `jobs`, `cache`; phải có **queue worker** chạy |
+| `FILESYSTEM_DISK` | `public` (S3 trống) | Upload dùng disk `public`; chưa bật S3 |
+| `MAIL_MAILER` | **`log`** | ⚠️ Email **không gửi thật** — chỉ ghi log. Đổi sang SMTP thật trước khi mở cho người dùng |
+| `THEME_FRONTEND` / `THEME_BACKEND` | `mlhubtheme` / `default` | **Theme guest đang active là `mlhubtheme`** (theme tùy biến), backend là `default` |
+| `APP_DEMO` | `false` | Demo mode đã tắt cho production |
+| `GOOGLE_BUSINESS_CLIENT_ID/SECRET` | có dùng | Tích hợp Google Business bật |
+
+**Triển khai:** Coolify + Traefik (HTTP→HTTPS, Let's Encrypt), domain `mlhub.vn`/`www.mlhub.vn`, storage gắn volume `mlhub-storage:/var/www/html/storage`. Vì chạy sau proxy nên `TRUSTED_PROXIES` đã được xử lý trong `bootstrap/app.php` — **đừng** hard-code `http://` khi tạo URL, dùng helper sinh URL của Laravel.
 
 ---
 
-## 5. Module conventions (when creating `modules/Custom*`)
+## 2. Quy ước đặt tên (trích từ code thực tế)
 
+### 2.1 Module
+- Thư mục module: **PascalCase** có tiền tố cố định:
+  - `Admin*` → khu quản trị/super-admin (`AdminUser`, `AdminPlans`, `AdminThemes`…).
+  - `App*` → khu portal khách hàng (`AppReviewBooster`, `AppBookingPages`, `AppQRCampaigns`…).
+  - `Payment*` → plugin cổng thanh toán (`PaymentStripe`, `PaymentPaypal`…).
+- Namespace PSR-4: `Modules\{TenModule}\...` ↔ `modules/{TenModule}/...` (đã khai báo trong `composer.json`).
+- Mỗi module có `module.json`: `{ "name", "providers": [...], "priority": <int> }`. `priority` cao = boot sau (ghi đè registry sau cùng).
+
+### 2.2 Lớp (class)
+- Service Provider: `{TenModule}ServiceProvider` trong `Providers/`.
+- Livewire: `{Tinhnang}Index`, `{Tinhnang}Analytics`… đặt trong `Livewire/`, có attribute `#[Title('...')]`.
+- Controller: `{Tinhnang}Controller` trong `Http/Controllers/`, **chỉ dùng cho** webhook, submit form công khai, download, redirect.
+- Model: danh từ số ít (`QrCampaign`, `ReviewFeedback`, `Booking`, `LeadSubmission`).
+- `Support/`: helper/catalog/registry **không trạng thái** (`BookingAvailability`, `PageTemplateCatalog`, `PlanLimitGuard`).
+- `Services/`: workflow có giao dịch/side-effect (`LandingPageFactory`, `CreditService`, `NotificationService`).
+
+### 2.3 Database
+- **MỌI bảng đều có tiền tố `lb_`**: `lb_campaigns`, `lb_review_feedbacks`, `lb_bookings`, `lb_coupon_redemptions`…
+- Khai báo bằng `protected $table = 'lb_...';` rõ ràng trong từng model.
+- Khóa ngoại: `user_id`, `business_id`, `campaign_id` (snake_case).
+
+### 2.4 Route & config
+- Tên route: dot notation. Portal: `portal.{tinh-nang}` (vd `portal.review-booster`). Endpoint công khai: `{tinh-nang}.{hanh-dong}` (vd `review-booster.feedback`, `qr-campaigns.public`).
+- Prefix lấy từ config: `config('modules.{alias}.route_prefix', 'portal/...')`.
+- Alias config & view namespace = **tên module viết thường liền** (`modules.appreviewbooster`, `view('appreviewbooster::index')`).
+
+### 2.5 Biến & thuộc tính
+- Thuộc tính Livewire public: **snake_case** khớp tên cột (`$business_id`, `$google_review_url`, `$thank_you_message`).
+- Thuộc tính điều khiển UI: **camelCase** (`$editingId`, `$businessFilter`, `$perPage`, `$statusMessage`).
+- Biến cục bộ / tham số: **camelCase**.
+
+---
+
+## 3. "VIBECODE" — Bắt buộc bắt chước phong cách lập trình viên gốc
+
+> Khi viết mới HOẶC sửa code, bạn PHẢI sao chép phong cách của file/module xung quanh. Đây là quy tắc cứng. Vi phạm = sai.
+
+### 3.1 Định dạng & cú pháp
+- Thụt lề **4 dấu cách**. Dấu `{` cùng dòng với khai báo hàm (chuẩn PSR-12 / Pint Laravel).
+- **KHÔNG** thêm `declare(strict_types=1);` — phần lớn module gốc **không** dùng. Chỉ giữ nếu file đó đã có sẵn.
+- Luôn khai báo **kiểu trả về** (`: void`, `: string`, `: View`, `: array`, `: BelongsTo`…) và **kiểu thuộc tính** (typed properties).
+- Dùng **constructor property promotion** khi inject dependency.
+- Dùng `match (...)` thay cho chuỗi `if/elseif` khi ánh xạ giá trị.
+- Dùng **toán tử spread** để gộp mảng khi tạo bản ghi: `Model::query()->create([... $payload, 'user_id' => auth()->id()])`.
+- Import: theo Pint (preset `laravel`). Một số file gốc nhóm `use App\...` sau `use Illuminate\...` — khi sửa file, **giữ nguyên thứ tự import sẵn có của file đó**, đừng sắp lại toàn bộ.
+
+### 3.2 Bình luận (comment)
+- Lập trình viên gốc viết comment **rất ít**, chỉ giải thích *lý do/ngữ cảnh* khó hiểu (vd ghi chú về dữ liệu legacy trong `TeamWorkspaceAccess`, ghi chú proxy trong `bootstrap/app.php`).
+- **TUYỆT ĐỐI KHÔNG** thêm comment kể lể từng dòng làm gì (`// tạo bản ghi`, `// kiểm tra null`). Code phải tự diễn đạt.
+- Dùng PHPDoc dạng `/** @return array<int, string> */` cho mảng có cấu trúc, đúng như code gốc.
+
+### 3.3 Eloquent & truy vấn
+- Luôn bắt đầu bằng `Model::query()->...` (không gọi static `Model::where(...)` trực tiếp).
+- Model dùng `protected $guarded = [];` (mở mass-assignment). Casts ưu tiên dạng **method** `protected function casts(): array` (mẫu mới); một vài model cũ dùng property `protected $casts = []` — giữ nguyên kiểu của file đang sửa.
+- Truy cập JSON settings bằng `data_get($model->settings, 'key', $default)`, không truy cập mảng trực tiếp.
+- Điều kiện động dùng `->when($cond, fn ($query) => ...)`.
+
+### 3.4 Đa người dùng (tenant scoping) — KHÔNG được quên
+- **Mọi** truy vấn dữ liệu người dùng phải scope theo chủ sở hữu: `->where('user_id', auth()->id())`.
+- Các module AI/workspace scope theo `workspaceOwnerUserId()` (xem `TeamWorkspaceAccess`).
+- Tải bản ghi để sửa/xóa: `Model::query()->where('user_id', auth()->id())->findOrFail($id)` — không bao giờ `findOrFail` trần.
+
+### 3.5 Xử lý lỗi (theo đúng mẫu gốc)
+- **Form công khai (controller):** `abort_unless($campaign->type === 'x', 404)` để chặn sai loại; `$request->validate([...])`; trả `back()->with('key', ...)` hoặc `back()->withErrors([...])->withInput()`.
+- **Giới hạn gói (plan):** ném `Illuminate\Validation\ValidationException::withMessages(['plan' => __('...')])` (xem `PlanLimitGuard`). Gọi `app(PlanLimitGuard::class)->ensureXxxCanBeCreated(auth()->user())` **trước khi** tạo bản ghi.
+- **AI / dịch vụ ngoài:** bọc `try { ... } catch (Throwable $e) { ... }` và **luôn có fallback** (xem `AIContentIndex::generate` — sinh nội dung dự phòng khi AI lỗi, không để vỡ UI).
+- **Phản hồi UI Livewire:** đặt `$this->statusMessage = __('...')` và/hoặc `$this->dispatch('app-toast', type: 'success', message: ...)`.
+- Văn bản hiển thị **luôn** bọc `__()`.
+
+### 3.6 Cấu trúc một Livewire component (mẫu chuẩn)
+```php
+#[Title('...')]
+class FeatureIndex extends Component
+{
+    use WithPagination;            // khi có danh sách phân trang
+
+    public string $field = '';     // public props (snake_case khớp cột)
+    public ?int $editingId = null; // camelCase cho state UI
+    public ?string $statusMessage = null;
+
+    public function mount(): void { /* khởi tạo */ }
+    public function updatedSearch(): void { $this->resetPage(); }
+
+    public function save(): void
+    {
+        $payload = $this->validate([ /* rules inline */ ]);
+        // scope theo auth()->id(), guard plan, tạo/cập nhật
+        $this->dispatch('app-toast', type: 'success', message: __('Saved.'));
+    }
+
+    public function render(): View
+    {
+        return view('alias::index', [ /* data */ ])
+            ->layout(theme_view('layouts.app', 'app'), ['title' => __('...')]);
+    }
+}
 ```
-modules/CustomFoo/
-  module.json                   # { "name": "CustomFoo", "providers": [...], "priority": 100 }
-  Providers/CustomFooServiceProvider.php
-  Routes/web.php
-  Http/Controllers/             # only if not Livewire-only
-  Livewire/
-  Models/
-  Support/                      # optional — helpers.php auto-loaded if present
-  Services/                     # optional
-  Resources/views/
-  config/config.php             # route_prefix, feature flags
-  Database/Migrations/
-```
-
-Provider order:
-1. `register()`: `mergeConfigFrom(__DIR__.'/../config/config.php', 'modules.customfoo')` + container bindings.
-2. `boot()`: `loadRoutesFrom`, `loadViewsFrom(..., 'customfoo')`, `loadMigrationsFrom`, optional `loadJsonTranslationsFrom`, registry calls (`register_*`), and `$this->app->booted(fn () => \Pricing::add([...]))` if plan-gated.
-
-> `bootstrap/providers.php` auto-discovers each `modules/*` and `require_once`s `Support/helpers.php` if present.
 
 ---
 
-## 6. Frontend rules
+## 4. Kiến trúc — các mẫu đang dùng
 
-- Stack: **Blade + Livewire 4 + Alpine.js** (inline `x-data`). **No** React/Vue SPA.
-- CSS: **Tailwind v4** via `@import` in theme `assets/css/app.css`. Use `var(--theme-*)` tokens.
-- Assets: `theme_vite('app', ['assets/js/app.js', 'resources/themes/shared/js/highcharts.js'])` in layouts.
-- **Never** edit `resources/themes/app/default/**`, `resources/themes/guest/localboostai/**`, or `resources/themes/shared/**`. Clone to `resources/themes/{area}/custom/`.
-- Minor branding → Admin → Themes → **Custom CSS / Custom JS** fields (no rebuild needed).
-- Custom Vite output must land in `public/build/themes/{area}/custom/`. Do not collide with core manifests.
-
----
-
-## 7. Before every change
-
-1. Identify the **smallest extension point** (registry > new module > rebind > route override > theme clone).
-2. `git diff --name-only` must show zero entries outside the allowed zones in §2.
-3. List new routes, permissions, migrations, env keys.
-4. Document any container rebinds — these are the only fragile points across author updates.
+- **Modular monolith**: tự động nạp module qua `bootstrap/providers.php` (quét `modules/*`, đọc `module.json`, sắp theo `priority`, gộp `bootstrap/providers.marketplace.php`). **KHÔNG** sửa `bootstrap/providers.php`.
+- **KHÔNG có Repository pattern.** Tầng dữ liệu = Eloquent trực tiếp; điều phối = `Support/` (helper/registry) + `Services/` (workflow). Đừng thêm Repository.
+- **Registry pattern** là điểm mở rộng chính (singleton đăng ký trong `AppServiceProvider`, module gọi helper trong `boot()`):
+  - Sidebar/menu: `register_sidebar_item`, `register_user_sidebar_item`, `register_user_sidebar_section`.
+  - Dashboard widget: `register_admin_dashboard_item`, `register_user_dashboard_item`.
+  - Gói & giới hạn: `register_plan_permission`, `\Pricing::add([...])` (trong `$this->app->booted()`).
+  - Credit AI: `register_credit_action`, `consume_credits()`, `credit_service()`.
+  - Cron: `afterResolving(SystemCronRegistry::class, ...)`.
+  - Thanh toán: `PaymentGatewayDefinition` + `PaymentGatewaySettingsRegistry::register(...)`.
+- **Livewire-first**: trang = Livewire component; Controller chỉ cho public form/webhook/download.
+- **Engine dùng chung `lb_campaigns`**: 5 growth tool (Review Booster, Booking, Coupons, Feedback, Lead) đều lưu vào model `QrCampaign` với cột `type` ('review'|'booking'|'coupon'|'feedback'|'lead'|'url') + JSON `settings`. Public route đi qua `QrCampaignPublicController::show` rồi rẽ nhánh theo `type`. **Khi thêm growth tool mới, theo đúng mẫu này.**
 
 ---
 
-## 8. Update-safe fixes (bugs, 404s, previews, deploy)
+## 5. Điểm mở rộng an toàn (cho TÍNH NĂNG MỚI)
 
-When fixing a bug or missing asset, **default to the narrowest change in a custom zone**. Author updates re-copy or overwrite core files; global patches and new root scripts break on the next merge.
+Ưu tiên theo thứ tự:
+1. **Helper registry** (không tạo class mới): các `register_*` ở §4.
+2. **Module mới** `modules/Custom{Feature}/` — tự động được nạp. Copy layout của `modules/AppReviewBooster/`. Đặt `priority > 20`.
+3. **Rebind container** trong `app/Custom/Providers/CustomServiceProvider::register()`: `$this->app->bind(\Modules\X\Service::class, \App\Custom\...::class)`.
+4. **Route tùy biến** trong `routes/custom.php` (nạp từ provider của bạn), KHÔNG sửa `Routes/web.php` của module core.
+5. **View composer** hoặc clone Blade vào module custom.
 
-### Prefer (smallest blast radius)
-
-1. **Custom theme / module only** — edit `resources/themes/guest/{your-theme}/**`, `modules/Custom*/**`, or `app/Custom/**`.
-2. **Additive public files for your theme only** — if core builds URLs like `asset('resources/themes/{area}/{name}/…')`, copy the missing file into `public/resources/themes/{area}/{your-theme}/` (e.g. `preview.svg`). One file, one theme, no core edits.
-3. **Admin UI settings** — theme Custom CSS/JS, options, branding uploads when the product already supports them.
-4. **Extension hooks** from §3 — registries, rebinds, `routes/custom.php`, `bootstrap/providers.marketplace.php`.
-
-### Avoid unless the user explicitly approves core changes
-
-- Editing **`entrypoint.sh`**, **`composer.json`**, **`Dockerfile`**, **`package.json`**, or adding **`scripts/`** helpers to change how the whole app deploys or links assets.
-- Replacing **`public/resources/themes/`** with a symlink/junction or bulk-syncing all themes — conflicts with the author’s shipped copy under `public/resources/themes/guest/localboostai/**` and is wiped or duplicated on update.
-- Patching **`modules/**` helpers** (e.g. `theme_asset_for()`) for a single custom theme.
-- “Fixing” by copying an entire theme tree into `public/` when only one static file is 404.
-
-### Decision checklist
-
-| Question | If yes → |
-|----------|----------|
-| Can this be fixed inside our custom theme folder only? | Do it there. |
-| Is it a static URL 404 under `/resources/themes/...`? | Copy **only** that file to `public/resources/themes/{area}/{your-theme}/`. |
-| Does the fix require changing author deploy/bootstrap/composer? | **Stop** — propose the minimal custom-zone alternative first. |
-| Will author `git pull` / marketplace update overwrite this path? | Move the change out of §1 core paths into §2. |
-
-### Example (theme preview 404)
-
-- **Views** load from `resources/themes/guest/mlhubtheme/` (OK — custom theme source).
-- **Preview thumbnail** is served from `public/resources/themes/guest/mlhubtheme/preview.svg` via `theme_asset_for()` (core behavior).
-- **Correct fix:** keep `preview.svg` in the theme source **and** copy it to the matching `public/.../mlhubtheme/` path on deploy.
-- **Wrong fix:** new link script, edit `entrypoint.sh`, or symlink all of `public/resources/themes`.
+Đăng ký provider tùy biến bằng cách **thêm** class name vào `bootstrap/providers.marketplace.php` (file này đã được `bootstrap/providers.php` require sẵn). KHÔNG sửa `bootstrap/providers.php`.
 
 ---
 
-## 9. Forbidden without explicit user request
+## 6. Frontend (tóm tắt — chi tiết ở `ARCHITECTURE_FRONTEND.md`)
 
-- Editing `composer.json`, `composer.lock`, `package.json`, `package-lock.json`, `Dockerfile`, `entrypoint.sh`.
-- Editing `bootstrap/app.php` or `bootstrap/providers.php`.
-- Editing core migrations, seeders, or any author route file.
-- Editing `config/*.php` (use `.env` or merge custom config).
-- Editing core themes or `resources/themes/shared/`.
-- Running `migrate:fresh`, `migrate:rollback`, `db:wipe` on production.
-- Force-push or rewriting author git history.
-- Committing `.env`, API keys, or any file under `storage/` other than `.gitkeep`.
+- Blade + Livewire 4 + Alpine (`x-data` inline). KHÔNG thêm framework SPA.
+- Component dùng lại: `<x-ui.*>` (theo theme), `<x-shared.*>` (xuyên theme). KHÔNG dựng lại cái đã có.
+- Màu sắc dùng token CSS: `var(--theme-accent-rgb)`, `var(--theme-header-text-color)`… KHÔNG hard-code màu.
+- Asset nạp qua `theme_vite('app', ['assets/js/app.js', ...])`.
+- White-label / branding nhỏ: Admin → Themes → **Custom CSS / Custom JS** (không cần build lại).
 
-- Adding root-level **`scripts/`** or composer hooks to alter global asset linking (use custom-zone copies or user-approved deploy docs instead).
+---
 
-When unsure: **add** under `app/Custom/`, `modules/Custom*`, or your **custom theme name** (e.g. `mlhubtheme`) and register through `bootstrap/providers.marketplace.php`. Never patch core.
+## 7. Việc CẦN người dùng duyệt trước khi làm
+
+- Sửa `composer.json`, `package.json`, `Dockerfile`, `entrypoint.sh`.
+- Sửa `bootstrap/app.php`, `bootstrap/providers.php`.
+- Chạy `migrate:fresh`, `migrate:rollback`, `db:wipe` (mất dữ liệu).
+- `git push --force` hoặc viết lại lịch sử git.
+- Commit `.env`, khóa API, hay file trong `storage/`.
+- Refactor diện rộng / đổi kiến trúc.
+
+---
+
+## 8. Checklist trước mỗi thay đổi
+
+> Quy trình đầy đủ (theo từng Task, quy tắc an toàn, lệnh) nằm ở **`ARCHITECTURE_CHECKLIST.md`** — đọc lướt trước khi bắt đầu.
+
+1. Đây là **sửa lỗi** (được sửa core, surgical) hay **tính năng mới** (ưu tiên extension point §5)?
+2. Đã scope theo `auth()->id()` / workspace owner chưa?
+3. Đã guard plan limit + credit (nếu là tính năng dùng tài nguyên/AI) chưa?
+4. Mọi chuỗi đã bọc `__()` chưa?
+5. Phong cách (thụt lề, comment, kiểu, xử lý lỗi) có **khớp file xung quanh** không?
+6. Chạy `vendor/bin/pint` trên file đã sửa. Có migration/route/permission/env mới thì liệt kê ra cho người dùng.
