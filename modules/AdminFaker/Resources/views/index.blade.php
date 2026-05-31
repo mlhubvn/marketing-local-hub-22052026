@@ -1,5 +1,5 @@
 <section class="w-full">
-    <x-settings.layout :heading="__('Admin Faker')" :subheading="__('Create a safe preview workspace with demo channels, Link Bio pages, QR campaigns, daily schedules, RSS, blogs, FAQs, AI publishing, and AI logs before a customer buys.')">
+    <x-settings.layout :heading="__('Admin Faker')" :subheading="__('Seed investor demo Đà Nẵng vào demo@mlhub.vn. Pilot: dùng `mlhub:reset-demo --force` trên server — xem ARCHITECTURE_ADMINFAKER.md.')">
         <div class="space-y-6">
             @if ($statusMessage)
                 <x-ui.alert :variant="$statusVariant" :description="$statusMessage" />
@@ -7,7 +7,7 @@
 
             <x-theme.section-card
                 :title="__('Demo Account')"
-                :description="__('Admin Faker now uses the first user in the system as the demo account, typically the main admin account.')"
+                :description="__('Admin Faker seeds demo@mlhub.vn (mặc định sau mlhub:reset-demo). Có thể đổi qua MLHUB_ADMIN_FAKER_USER trong .env.')"
                 body-class="p-6"
             >
                 @if ($previewUser)
@@ -43,7 +43,7 @@
                         value="1"
                         :checked="$clearBeforeSeed"
                         :label="__('Clear old demo data before generating')"
-                        :description="__('Only records tagged by Admin Faker are removed, including demo Link Bio pages and QR campaigns, then fresh demo data is created.')"
+                        :description="__('Only records tagged by Admin Faker are removed (demo campaigns, landing pages, blogs, FAQs, etc.), then fresh MLHUB demo data is created.')"
                     />
                 </div>
 

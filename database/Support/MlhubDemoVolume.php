@@ -45,6 +45,7 @@ class MlhubDemoVolume
         array $cities,
         string $country,
         int $campaignIndex = 0,
+        int $maxDaysAgo = 28,
     ): void {
         if ($count <= 0) {
             return;
@@ -53,8 +54,11 @@ class MlhubDemoVolume
         $chunk = [];
         $chunkSize = 300;
         $now = Carbon::now();
+        $maxDaysAgo = max(7, $maxDaysAgo);
 
         for ($i = 1; $i <= $count; $i++) {
+            $daysAgo = $i % $maxDaysAgo;
+            $monthBucket = (int) floor($daysAgo / 30);
             $chunk[] = [
                 'user_id' => $userId,
                 'campaign_id' => $campaignId,
@@ -63,7 +67,7 @@ class MlhubDemoVolume
                 'device' => $i % 3 === 0 ? 'mobile' : 'desktop',
                 'city' => $cities[$campaignIndex % max(1, count($cities))],
                 'country' => $country,
-                'created_at' => $now->copy()->subDays($i % 28)->subHours($i % 24),
+                'created_at' => $now->copy()->subDays($daysAgo)->subHours($i % 24)->subMinutes($monthBucket * 3),
             ];
 
             if (count($chunk) >= $chunkSize) {
@@ -87,6 +91,7 @@ class MlhubDemoVolume
         Collection $customers,
         string $message,
         string $source = 'mlhub_demo_vn',
+        int $maxDaysAgo = 21,
     ): void {
         self::bulkEngagement('lb_lead_submissions', $count, $userId, $campaignId, $customers, function (object $customer, int $index) use ($message, $source): array {
             return [
@@ -96,7 +101,7 @@ class MlhubDemoVolume
                 'message' => $message,
                 'payload' => json_encode(['source' => $source], JSON_UNESCAPED_UNICODE),
             ];
-        });
+        }, $maxDaysAgo);
     }
 
     /**
@@ -109,6 +114,7 @@ class MlhubDemoVolume
         int $count,
         Collection $customers,
         string $note,
+        int $maxDaysAgo = 21,
     ): void {
         $statuses = ['pending', 'confirmed', 'completed', 'cancelled'];
         $times = ['09:00', '10:00', '14:00', '15:00', '16:00'];
@@ -124,7 +130,7 @@ class MlhubDemoVolume
                 'customer_email' => $customer->email,
                 'note' => $note,
             ];
-        });
+        }, $maxDaysAgo);
     }
 
     /**
@@ -136,6 +142,7 @@ class MlhubDemoVolume
         int $count,
         Collection $customers,
         string $codePrefix,
+        int $maxDaysAgo = 21,
     ): void {
         self::bulkEngagement('lb_coupon_redemptions', $count, $userId, $campaignId, $customers, function (object $customer, int $index) use ($codePrefix, $campaignId): array {
             $used = $index % 5 === 0;
@@ -148,7 +155,7 @@ class MlhubDemoVolume
                 'status' => $used ? 'used' : 'claimed',
                 'used_at' => $used ? Carbon::now()->subHours($index + 1) : null,
             ];
-        });
+        }, $maxDaysAgo);
     }
 
     /**
@@ -161,6 +168,7 @@ class MlhubDemoVolume
         Collection $customers,
         string $positiveMessage,
         string $negativeMessage,
+        int $maxDaysAgo = 21,
     ): void {
         self::bulkEngagement('lb_review_feedbacks', $count, $userId, $campaignId, $customers, function (object $customer, int $index) use ($positiveMessage, $negativeMessage): array {
             $rating = $index % 10 < 8 ? random_int(4, 5) : random_int(2, 3);
@@ -173,7 +181,7 @@ class MlhubDemoVolume
                 'message' => $rating >= 4 ? $positiveMessage : $negativeMessage,
                 'status' => $rating <= 3 ? 'new' : 'replied',
             ];
-        });
+        }, $maxDaysAgo);
     }
 
     /**
@@ -187,6 +195,7 @@ class MlhubDemoVolume
         string $positiveMessage,
         string $negativeMessage,
         string $source = 'mlhub_demo_vn',
+        int $maxDaysAgo = 21,
     ): void {
         self::bulkEngagement('lb_feedback_responses', $count, $userId, $campaignId, $customers, function (object $customer, int $index) use ($positiveMessage, $negativeMessage, $source): array {
             $rating = $index % 10 < 7 ? random_int(4, 5) : random_int(2, 3);
@@ -201,7 +210,7 @@ class MlhubDemoVolume
                 'status' => $rating <= 3 ? 'new' : 'resolved',
                 'resolved_at' => $rating >= 4 ? Carbon::now()->subDays(1) : null,
             ];
-        });
+        }, $maxDaysAgo);
     }
 
     /**
@@ -215,6 +224,7 @@ class MlhubDemoVolume
         int $campaignId,
         Collection $customers,
         callable $extraColumns,
+        int $maxDaysAgo = 21,
     ): void {
         if ($count <= 0 || $customers->isEmpty()) {
             return;
@@ -224,14 +234,16 @@ class MlhubDemoVolume
         $chunkSize = 150;
         $now = Carbon::now();
         $customerList = $customers->values();
+        $maxDaysAgo = max(7, $maxDaysAgo);
 
         for ($index = 0; $index < $count; $index++) {
             $customer = $customerList[$index % $customerList->count()];
+            $daysAgo = $index % $maxDaysAgo;
             $chunk[] = array_merge([
                 'user_id' => $userId,
                 'campaign_id' => $campaignId,
-                'created_at' => $now->copy()->subDays($index % 21)->subHours($index % 24),
-                'updated_at' => $now->copy()->subDays($index % 21)->subHours($index % 24),
+                'created_at' => $now->copy()->subDays($daysAgo)->subHours($index % 24),
+                'updated_at' => $now->copy()->subDays($daysAgo)->subHours($index % 24),
             ], $extraColumns($customer, $index));
 
             if (count($chunk) >= $chunkSize) {

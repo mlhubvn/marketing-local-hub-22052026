@@ -179,7 +179,7 @@
                                 <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ __('Popular topics') }}</p>
                                 <h3 class="lb-serif mt-2 text-3xl leading-none">{{ __('Learn the workflows that move local growth') }}</h3>
                             </div>
-                            <span class="rounded-full px-3 py-1 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color:#506807;">{{ $blogs->total() }} {{ __('posts') }}</span>
+                            <span class="rounded-full px-3 py-1 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color:#ff5f5f;">{{ $blogs->total() }} {{ __('posts') }}</span>
                         </div>
                         <div class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                             @foreach ([
@@ -224,7 +224,7 @@
                                             <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl" style="background: color-mix(in srgb, var(--lb-green) 9%, #fff); color: var(--lb-green);">
                                                 <i class="fa-light fa-chart-line text-xl"></i>
                                             </span>
-                                            <span class="rounded-full px-3 py-1 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 28%, #fff); color:#506807;">{{ __('Guide') }}</span>
+                                            <span class="rounded-full px-3 py-1 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 28%, #fff); color:#ff5f5f;">{{ __('Guide') }}</span>
                                         </div>
                                         <div class="mt-5 grid grid-cols-3 gap-2">
                                             @foreach ([__('Reviews'), __('Leads'), __('Reports')] as $metric)

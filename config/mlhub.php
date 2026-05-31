@@ -10,6 +10,15 @@ return [
 
     'admin_plan_slug' => env('MLHUB_ADMIN_PLAN_SLUG', 'agency-lifetime'),
 
+    /*
+     * Admin Faker gắn dữ liệu investor demo (Đà Nẵng SOHO) vào user này.
+     * Sau `mlhub:reset-demo` user được tạo bởi LocalBoostDemoSeeder: demo@mlhub.vn / 123456.
+     */
+    'admin_faker' => [
+        'preferred_user_email' => env('MLHUB_ADMIN_FAKER_USER', 'demo@mlhub.vn'),
+        'data_file' => 'mlhub_adminfaker_dn_soho.php',
+    ],
+
     'license' => [
         'purchase_code' => env('MLHUB_LICENSE_PURCHASE_CODE', 'd80177d1-4974-4e46-a7f3-564da3bc83f7'),
         'product_id' => (int) env('MLHUB_LICENSE_PRODUCT_ID', 10252026),

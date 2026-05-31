@@ -61,7 +61,7 @@
 
         .lb-feature-value {
             background: color-mix(in srgb, var(--lb-lime) 28%, #fff);
-            color: #506807;
+            color: #ff5f5f;
         }
 
         .lb-plan-toggle {
@@ -130,8 +130,8 @@
         }
 
         html[data-theme-resolved='dark'] .lb-feature-value,
-        html[data-theme-resolved='dark'] .lb-pricing-card [style*="color: #506807"],
-        html[data-theme-resolved='dark'] .lb-pricing-card [style*="color:#506807"] {
+        html[data-theme-resolved='dark'] .lb-pricing-card [style*="color: #ff5f5f"],
+        html[data-theme-resolved='dark'] .lb-pricing-card [style*="color:#ff5f5f"] {
             background: rgba(184, 218, 22, .14) !important;
             color: #d9f75d !important;
         }
@@ -293,7 +293,7 @@
                                             </div>
                                             <div class="flex items-center gap-2">
                                                 @if(($feature['display'] ?? null) !== null && ($feature['display'] ?? '') !== '')
-                                                    <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-black" style="background: color-mix(in srgb, var(--lb-lime) 28%, #fff); color: #506807;">
+                                                    <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-black" style="background: color-mix(in srgb, var(--lb-lime) 28%, #fff); color: #ff5f5f;">
                                                         {{ is_string($feature['display']) ? __($feature['display']) : $feature['display'] }}
                                                     </span>
                                                 @endif

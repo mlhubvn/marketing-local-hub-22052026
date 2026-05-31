@@ -136,7 +136,7 @@
     }
 
     .lb-serif {
-        font-family: Georgia, "Times New Roman", serif;
+        font-family: var(--theme-font-sans);
         letter-spacing: -0.045em;
     }
 
@@ -182,7 +182,7 @@
 
     .lb-button:hover {
         transform: translateY(-2px);
-        background: #0d665f;
+        background: #ffb347;
         box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 22px 52px -28px rgba(255,95,95,0.88);
     }
 
@@ -1495,9 +1495,9 @@
     html[data-theme-resolved='dark'] .lb-button-soft,
     html[data-theme-resolved='dark'] .lb-feature-value,
     html[data-theme-resolved='dark'] .lb-page-link,
-    html[data-theme-resolved='dark'] [style*="color:#506807"],
-    html[data-theme-resolved='dark'] [style*="color: #506807"],
-    html[data-theme-resolved='dark'] [style*="color:#5f7f07"],
+    html[data-theme-resolved='dark'] [style*="color: #ff5f5f"],
+    html[data-theme-resolved='dark'] [style*="color: #ff5f5f"],
+    html[data-theme-resolved='dark'] [style*="color: #5f7f07"],
     html[data-theme-resolved='dark'] [style*="color: #5f7f07"] {
         border-color: rgba(184, 218, 22, 0.22) !important;
         background: rgba(184, 218, 22, 0.12) !important;

@@ -31,7 +31,7 @@ class MlhubResetDemoCommand extends Command
         $this->call('migrate', ['--force' => true]);
         $this->call('db:seed', ['--force' => true]);
 
-        $this->warn('Đang seed Admin Faker (blog, FAQ, support, channels, LinkBio, QR, …)...');
+        $this->warn('Đang seed Admin Faker (demo investor Đà Nẵng: QR, landing, CRM, FAQ, blog, …)...');
         $fakerExit = $this->call('admin-faker:refresh', ['--no-clear' => true]);
 
         if ($fakerExit !== self::SUCCESS) {
@@ -47,7 +47,8 @@ class MlhubResetDemoCommand extends Command
         $this->newLine();
         $this->info('Hoàn tất. Đăng nhập: demo@mlhub.vn / 123456 (super admin + demo đầy đủ).');
         $this->line('Giao diện: frontend = mlhubfrontend, backend = mlhubbackend.');
-        $this->line('Chạy thêm trong container Redis: docker exec -it <redis> redis-cli -a \'...\' FLUSHALL');
+        $this->line('Sau khi thoát container app, xóa cache session/queue trên Redis (mật khẩu từ Coolify REDIS_PASSWORD):');
+        $this->line('  redis-cli -h <REDIS_HOST> -p <REDIS_PORT> -a "<REDIS_PASSWORD>" FLUSHALL');
 
         return self::SUCCESS;
     }

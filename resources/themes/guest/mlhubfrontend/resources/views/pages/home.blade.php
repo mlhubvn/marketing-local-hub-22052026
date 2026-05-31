@@ -66,7 +66,7 @@
         }
 
         .lb-serif {
-            font-family: Georgia, "Times New Roman", serif;
+            font-family: var(--theme-font-sans);
             letter-spacing: -0.045em;
         }
 
@@ -96,7 +96,7 @@
         .lb-pill {
             border: 1px solid rgba(255, 95, 95, .18);
             background: color-mix(in srgb, var(--lb-lime) 26%, #fff);
-            color: #506807;
+            color: #ff5f5f;
         }
 
         .lb-button {
@@ -717,8 +717,8 @@
         }
 
         html[data-theme-resolved='dark'] .lb-sales [style*="color:#5f7f07"],
-        html[data-theme-resolved='dark'] .lb-sales [style*="color: #506807"],
-        html[data-theme-resolved='dark'] .lb-sales [style*="color:#506807"],
+        html[data-theme-resolved='dark'] .lb-sales [style*="color: #ff5f5f"],
+        html[data-theme-resolved='dark'] .lb-sales [style*="color:#ff5f5f"],
         html[data-theme-resolved='dark'] .lb-sales [style*="color: var(--lb-green)"] {
             color: #5eead4 !important;
         }
@@ -806,7 +806,7 @@
                                 <span class="lb-dot bg-amber-400"></span>
                                 <span class="lb-dot bg-lime-500"></span>
                             </div>
-                            <span class="rounded-full px-3 py-1 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color: #506807;">{{ __('Live dashboard') }}</span>
+                            <span class="rounded-full px-3 py-1 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color: #ff5f5f;">{{ __('Live dashboard') }}</span>
                         </div>
                         <div class="grid gap-0 lg:grid-cols-[5.2rem_minmax(0,1fr)]">
                             <aside class="hidden border-r px-4 py-3 lg:block" style="border-color: var(--lb-line); background: var(--lb-soft);">
@@ -1013,7 +1013,7 @@
                                 </span>
                                 <div class="flex items-center gap-3">
                                     <span class="text-sm font-black" style="color: var(--lb-muted);">{{ __('Step') }}</span>
-                                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full text-sm font-black" style="background: color-mix(in srgb, var(--lb-lime) 34%, #fff); color: #506807;">{{ $step[0] }}</span>
+                                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full text-sm font-black" style="background: color-mix(in srgb, var(--lb-lime) 34%, #fff); color: #ff5f5f;">{{ $step[0] }}</span>
                                 </div>
                             </div>
                             <h3 class="relative z-10 mt-6 text-xl font-black">{{ $step[2] }}</h3>
@@ -1090,7 +1090,7 @@
                         </div>
                         <div class="mt-5 grid grid-cols-3 gap-2 text-center">
                             @foreach ([__('Capture'), __('Convert'), __('Track')] as $label)
-                                <span class="rounded-full px-3 py-2 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 22%, #fff); color: #506807;">{{ $label }}</span>
+                                <span class="rounded-full px-3 py-2 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 22%, #fff); color: #ff5f5f;">{{ $label }}</span>
                             @endforeach
                         </div>
                     </div>
@@ -1200,7 +1200,7 @@
                                         <span class="block h-2.5 w-2/3 rounded-full" style="background: var(--lb-line);"></span>
                                     </div>
                                     <div class="mt-4 flex items-center justify-between gap-3">
-                                        <span class="rounded-full px-4 py-2 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 38%, #fff); color:#506807;">{{ __('Leave a review') }}</span>
+                                        <span class="rounded-full px-4 py-2 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 38%, #fff); color:#ff5f5f;">{{ __('Leave a review') }}</span>
                                         <span class="text-xs font-black" style="color: var(--lb-muted);">/r/weekend</span>
                                     </div>
                                 </div>
