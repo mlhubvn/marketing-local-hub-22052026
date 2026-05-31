@@ -194,7 +194,7 @@
                                     </span>
                                     <div class="min-w-0">
                                         <p class="truncate text-base font-semibold" style="color: var(--theme-header-text-color);">{{ $domain['domain'] }}</p>
-                                        <p class="mt-0.5 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Created') }} {{ optional($domain['created_at'])->format('M d, Y') }}</p>
+                                        <p class="mt-0.5 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Created') }} {{ format_date_locale(optional($domain['created_at'])) }}</p>
                                     </div>
                                 </div>
                                 <div class="flex flex-wrap gap-2">

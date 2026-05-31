@@ -49,12 +49,12 @@
                         @if ($isFull)
                             <span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold" style="background-color: rgba(var(--theme-danger-color-rgb), .10); color: var(--theme-danger-color);">{{ __('Full') }}</span>
                         @elseif (! $unlimited)
-                            <span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold" style="background-color: rgba(var(--theme-success-color-rgb), .10); color: var(--theme-success-color);">{{ __(':count left', ['count' => number_format((int) $item['remaining'])]) }}</span>
+                            <span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold" style="background-color: rgba(var(--theme-success-color-rgb), .10); color: var(--theme-success-color);">{{ __(':count left', ['count' => format_number_locale((int) $item['remaining'])]) }}</span>
                         @endif
                     </div>
                     <div class="mt-1 flex items-baseline justify-between gap-2">
-                        <span class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ number_format((int) $item['used']) }}</span>
-                        <span class="text-xs" style="color: var(--theme-muted-text-color);">/ {{ $unlimited ? __('Unlimited') : number_format((int) $item['limit']) }}</span>
+                        <span class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $item['used']) }}</span>
+                        <span class="text-xs" style="color: var(--theme-muted-text-color);">/ {{ $unlimited ? __('Unlimited') : format_number_locale((int) $item['limit']) }}</span>
                     </div>
                     <div class="mt-2 h-1.5 overflow-hidden rounded-full" style="background-color: rgba(var(--theme-border-color-rgb), .35);">
                         <div class="h-full rounded-full" style="width: {{ $unlimited ? 100 : max(3, $percent) }}%; background-color: {{ $isFull ? 'var(--theme-danger-color)' : 'var(--theme-accent)' }};"></div>
@@ -95,7 +95,7 @@
                     <p class="text-xs font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Usage') }}</p>
                     <p class="mt-1 text-3xl font-semibold tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ $overallPercent }}%</p>
                 </div>
-                <p class="text-sm font-semibold" style="color: var(--theme-muted-text-color);">{{ number_format($totalUsed) }}/{{ number_format($totalLimit) }}</p>
+                <p class="text-sm font-semibold" style="color: var(--theme-muted-text-color);">{{ format_number_locale($totalUsed) }}/{{ format_number_locale($totalLimit) }}</p>
             </div>
             <div class="mt-4 h-2 overflow-hidden rounded-full" style="background-color: rgba(var(--theme-accent-rgb),0.12);">
                 <div class="h-full rounded-full transition-all" style="width: {{ max(4, $overallPercent) }}%; background: var(--theme-brand-gradient);"></div>
@@ -115,14 +115,14 @@
                     <div class="min-w-0">
                         <p class="truncate text-xs font-semibold uppercase tracking-[0.12em]" style="color: var(--theme-muted-text-color);">{{ $item['label'] }}</p>
                         <p class="mt-1 text-lg font-semibold tracking-[-0.035em]" style="color: var(--theme-header-text-color);">
-                            {{ number_format((int) $item['used']) }}
-                            <span class="text-xs font-medium" style="color: var(--theme-muted-text-color);">/ {{ $unlimited ? __('Unlimited') : number_format((int) $item['limit']) }}</span>
+                            {{ format_number_locale((int) $item['used']) }}
+                            <span class="text-xs font-medium" style="color: var(--theme-muted-text-color);">/ {{ $unlimited ? __('Unlimited') : format_number_locale((int) $item['limit']) }}</span>
                         </p>
                     </div>
                     @if ($isFull)
                         <span class="inline-flex rounded-full px-2 py-1 text-[10px] font-semibold" style="background-color: rgba(var(--theme-danger-color-rgb), .10); color: var(--theme-danger-color);">{{ __('Full') }}</span>
                     @elseif (! $unlimited)
-                        <span class="inline-flex rounded-full px-2 py-1 text-[10px] font-semibold" style="background-color: rgba(var(--theme-success-color-rgb), .10); color: var(--theme-success-color);">{{ __(':count left', ['count' => number_format((int) $item['remaining'])]) }}</span>
+                        <span class="inline-flex rounded-full px-2 py-1 text-[10px] font-semibold" style="background-color: rgba(var(--theme-success-color-rgb), .10); color: var(--theme-success-color);">{{ __(':count left', ['count' => format_number_locale((int) $item['remaining'])]) }}</span>
                     @endif
                 </div>
                 <div class="mt-3 h-1.5 overflow-hidden rounded-full" style="background-color: rgba(var(--theme-border-color-rgb), .35);">

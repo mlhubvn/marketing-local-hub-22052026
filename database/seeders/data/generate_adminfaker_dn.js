@@ -1,6 +1,15 @@
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+
+/**
+ * Nhân visits/conversions khi seed (meta.metrics_multiplier trong PHP).
+ * 5 = tăng 5× so với baseline; ~80 ≈ ~1M lượt quét tổng (demo ~1 năm).
+ */
+const METRICS_MULTIPLIER = 80;
+/** Số khách CRM (120 × 5). */
+const CUSTOMER_COUNT = 600;
+/** Timeline engagement ~12 tháng. */
+const ENGAGEMENT_MAX_DAYS_AGO = 365;
 
 const weeklyHours = {
   mon: { is_closed: false, open_time: '07:30', close_time: '21:30' },
@@ -137,15 +146,19 @@ const booking_services = [
 const vnNames = ['Nguyễn Thị Mai', 'Trần Văn Đức', 'Lê Thị Hương', 'Phạm Minh Khôi', 'Hoàng Lan Anh', 'Võ Thanh Bình', 'Đặng Thu Hà', 'Bùi Quốc Huy', 'Ngô Kim Ngân', 'Trịnh Văn Long', 'Phan Thị Yến', 'Đinh Hoàng Nam', 'Lý Minh Châu', 'Vũ Gia Hân', 'Cao Đức Anh', 'Huỳnh Quốc Bảo', 'Lương Thị Ngọc', 'Mai Văn Hùng', 'Đỗ Thị Linh', 'Trương Minh Tuấn', 'Võ Ngọc Hà', 'Phùng Văn Kiệt', 'Bùi Thị Thảo', 'Nguyễn Quang Huy', 'Lê Văn Phúc', 'Trần Thị Hồng', 'Phạm Đức Thắng', 'Hoàng Minh Đức', 'Vũ Thị Lan', 'Đặng Văn Sơn', 'Nguyễn Thị Hạnh', 'Lê Hoàng Long', 'Trần Kim Oanh', 'Phạm Thu Trang', 'Võ Đình Khang', 'Bùi Ngọc An', 'Lưu Thanh Tùng', 'Đinh Mỹ Linh', 'Hồ Văn Nam', 'Nguyễn Bảo Châu', 'Trịnh Thị Hoa', 'Cao Văn Đạt', 'Lý Thị Như', 'Mai Quốc Toàn', 'Huỳnh Văn Thịnh', 'Phan Minh Quân', 'Đỗ Thị Bích', 'Vũ Hoàng Anh', 'Trương Thị Mai', 'Ngô Văn Hải', 'Lê Thị Phương', 'Phạm Văn Tài', 'Hoàng Thị Diệu', 'Nguyễn Minh Khoa', 'Trần Văn Bình', 'Bùi Thị Hằng', 'Lương Văn Đạt', 'Đặng Thị Oanh', 'Võ Quốc Hưng', 'Phùng Thị Lan', 'Huỳnh Văn Tú', 'Mai Thị Hương', 'Đinh Quốc Việt', 'Cao Thị Yến', 'Lý Văn Phong', 'Trịnh Ngọc Hiếu', 'Nguyễn Thanh Tâm', 'Hoàng Văn Lộc', 'Phạm Thị Ngọc', 'Trần Đức Anh', 'Lê Văn Hải', 'Vũ Thị Thanh', 'Bùi Minh Đức', 'Đỗ Văn Quyết', 'Ngô Thị Hạnh', 'Phan Văn Sáu', 'Lưu Thị Hồng', 'Trương Văn Phú', 'Huỳnh Thị Nga', 'Mai Văn Dũng', 'Đặng Quốc Bình', 'Võ Thị Hoa', 'Nguyễn Văn Tèo', 'Trần Thị Bé', 'Phạm Hoàng Sơn', 'Lê Thị Cúc', 'Hoàng Văn Em', 'Vũ Minh Tâm', 'Bùi Thị Dung', 'Cao Văn Lâm', 'Lý Thị Sen', 'Trịnh Văn Cường', 'Nguyễn Thị Xuyến', 'Phùng Hoàng Nam', 'Đinh Thị Loan', 'Lương Văn Bé', 'Huỳnh Thị Sương', 'Mai Văn Giàu', 'Đỗ Thị Lành', 'Trương Quốc Huy', 'Ngô Văn Mười', 'Phan Thị Rót', 'Võ Minh Châu', 'Bùi Văn Năm', 'Lê Thị Sáu', 'Trần Hoàng Phúc', 'Nguyễn Thị Bảy', 'Phạm Văn Tám', 'Hoàng Thị Chín', 'Vũ Văn Mười', 'Đặng Thị Một', 'Lý Văn Hai', 'Cao Thị Ba', 'Trịnh Văn Bốn', 'Hồ Thị Năm', 'Nguyễn Văn Sáu', 'Lê Thị Bảy', 'Trần Văn Tám', 'Phạm Thị Chín', 'Võ Đức Mười', 'Bùi Thị Mười Một', 'Lưu Văn Mười Hai', 'Nguyễn Thị Lan', 'Trần Quốc Huy', 'Lê Minh Anh', 'Phạm Thị Hoa', 'Hoàng Văn Đạt', 'Vũ Thị Ngọc', 'Bùi Văn Long'];
 
 const businessKeys = Object.keys(businesses);
-const customers = vnNames.slice(0, 120).map((name, i) => ({
-  name,
-  phone: `09${String(10 + (i % 80)).padStart(2, '0')} ${String(100 + (i % 900)).padStart(3, '0')} ${String(200 + (i % 800)).padStart(3, '0')}`,
-  email: `khach.dn.${i + 1}@demo.mlhub.vn`,
-  business: businessKeys[i % businessKeys.length],
-  created_days_ago: 5 + (i % 400),
-}));
+const customers = Array.from({ length: CUSTOMER_COUNT }, (_, i) => {
+  const baseName = vnNames[i % vnNames.length];
+  const suffix = i >= vnNames.length ? ` ${Math.floor(i / vnNames.length) + 1}` : '';
+  return {
+    name: baseName + suffix,
+    phone: `09${String(10 + (i % 80)).padStart(2, '0')} ${String(100 + (i % 900)).padStart(3, '0')} ${String(200 + (i % 800)).padStart(3, '0')}`,
+    email: `khach.dn.${i + 1}@demo.mlhub.vn`,
+    business: businessKeys[i % businessKeys.length],
+    created_days_ago: 5 + (i % ENGAGEMENT_MAX_DAYS_AGO),
+  };
+});
 
-const standalone_landing_pages = [
+const standaloneLandingTemplates = [
   { business: 'mi_quang_1a', slug: 'admin-faker-lp-mq1a-review', title: 'Đánh giá Mì Quảng 1A', type: 'review', template: 'review_restaurant', headline: 'Bát mì quảng hôm nay thế nào?', subheadline: 'Góp ý giúp quán phục vụ khách Đà Nẵng tốt hơn.', cta: 'Gửi đánh giá', benefits: ['Nhanh', 'Riêng tư khi điểm thấp', 'Chuyển Google'], age_days: 120, visits: 220, conversions: 68 },
   { business: 'be_man_seafood', slug: 'admin-faker-lp-beman-coupon', title: 'Coupon hải sản tối', type: 'coupon', template: 'coupon_weekend_deal', headline: 'Giảm 20% bữa tối hải sản', subheadline: 'Claim mã tại bàn — áp dụng Sơn Trà.', cta: 'Nhận ưu đãi', benefits: ['Cuối tuần', 'Mã tức thì', 'Theo dõi redemption'], age_days: 90, visits: 310, conversions: 95 },
   { business: 'vanda_spa', slug: 'admin-faker-lp-vanda-booking', title: 'Đặt lịch Vanda Spa', type: 'booking', template: 'booking_spa', headline: 'Đặt massage tại Vanda', subheadline: 'Chọn khung giờ — lễ tân xác nhận qua Zalo.', cta: 'Đặt lịch', benefits: ['60–90 phút', 'Combo cuối tuần', 'Xác nhận nhanh'], age_days: 60, visits: 185, conversions: 52 },
@@ -165,6 +178,8 @@ const standalone_landing_pages = [
   { business: 'chuong_duong_tour', slug: 'admin-faker-lp-cd-booking', title: 'Giữ chỗ tour', type: 'booking', template: 'booking_clinic', headline: 'Chọn ngày tour Bà Nà', subheadline: 'Xác nhận qua hotline 0236 3777 777.', cta: 'Giữ chỗ', benefits: ['Sáng/chiều', 'Nhóm nhỏ', 'Xe đón'], age_days: 25, visits: 112, conversions: 31 },
   { business: 'california_gym', slug: 'admin-faker-lp-gym-coupon', title: 'Gói tháng đầu -30%', type: 'coupon', template: 'coupon_20_off', headline: 'Ưu đãi thành viên mới', subheadline: 'Chi nhánh Hùng Vương & Nguyễn Văn Linh.', cta: 'Nhận mã', benefits: ['30%', 'PT tư vấn', 'Không phí ẩn'], age_days: 20, visits: 198, conversions: 57 },
 ];
+
+const standalone_landing_pages = standaloneLandingTemplates;
 
 const marketing = {
   faqs: [
@@ -202,7 +217,7 @@ const marketing = {
     { title: '[DEMO] Thiết lập 10 hồ sơ Đà Nẵng cho pitch', content: 'Cần workspace demo với Mì Quảng, spa, nha khoa, tour — analytics đầy đủ.', status: 1, user_read: true, admin_read: false, offset: 86400, comments: [{ comment: '<p>Ưu tiên chi nhánh Hải Châu và Sơn Trà.</p>', offset: 72000 }] },
     { title: '[DEMO] QR in trên menu — đổi landing sau Tết', content: 'Đã in QR Tết, muốn đổi sang campaign coupon sau khi hết lễ.', status: 2, user_read: false, admin_read: true, offset: 172800, comments: [{ comment: '<p>QR động giữ nguyên — chỉ đổi trang đích.</p>', offset: 150000 }] },
     { title: '[DEMO] Báo cáo trống sau migrate', content: 'Sau migrate cần seed lại lượt quét 6–12 tháng.', status: 1, user_read: true, admin_read: true, offset: 259200, comments: [{ comment: '<p>Chạy admin-faker:refresh trên user demo.</p>', offset: 240000 }] },
-    { title: '[DEMO] Đồng bộ tên khách CRM', content: 'Lead từ QR có tự tạo customer không?', status: 2, user_read: true, admin_read: false, offset: 345600, comments: [{ comment: '<p>Demo đã có 120 khách mẫu gắn business.</p>', offset: 320000 }] },
+    { title: '[DEMO] Đồng bộ tên khách CRM', content: 'Lead từ QR có tự tạo customer không?', status: 2, user_read: true, admin_read: false, offset: 345600, comments: [{ comment: '<p>Demo đã có 600 khách mẫu gắn business.</p>', offset: 320000 }] },
     { title: '[DEMO] Affiliate snapshot cho slide', content: 'Cần số commission mẫu trên admin.', status: 1, user_read: false, admin_read: true, offset: 432000, comments: [] },
     { title: '[DEMO] Blog tiếng Việt cho landing SEO', content: 'Thêm bài Đà Nẵng + QR cho guest site.', status: 2, user_read: true, admin_read: true, offset: 518400, comments: [{ comment: '<p>12 bài demo-preview đã publish.</p>', offset: 500000 }] },
   ],
@@ -211,8 +226,8 @@ const marketing = {
     { title: '[DEMO] 10 hồ sơ kinh doanh SOHO', message: 'F&B, spa, nha khoa, café, homestay, tour, gym — cùng một workspace.', url_route: 'portal.dashboard', url_fallback: 'portal/dashboard', type: 'info' },
     { title: '[DEMO] 20 chi nhánh + QR design', message: 'Mỗi chi nhánh có địa chỉ và template QR riêng.', url_route: 'portal.business-locations', url_fallback: 'portal/business-locations', type: 'tip' },
     { title: '[DEMO] 18 landing page độc lập', message: 'Trang landing không gắn campaign — dùng cho A/B và sự kiện.', url_route: 'portal.landing-pages', url_fallback: 'portal/landing-pages', type: 'info' },
-    { title: '[DEMO] 120 khách hàng CRM mẫu', message: 'Tag VIP, khách quay lại — sẵn sàng cho demo CRM.', url_route: 'portal.customers', url_fallback: 'portal/customers', type: 'tip' },
-    { title: '[DEMO] Dữ liệu 12–18 tháng', message: 'Timeline engagement trải theo mùa — phù hợp slide tăng trưởng.', url_route: 'portal.dashboard', url_fallback: 'portal/dashboard', type: 'news' },
+    { title: '[DEMO] 600 khách hàng CRM mẫu', message: 'Tag VIP, khách quay lại — sẵn sàng cho demo CRM.', url_route: 'portal.customers', url_fallback: 'portal/customers', type: 'tip' },
+    { title: '[DEMO] ~1M+ lượt quét demo', message: 'Volume faker mô phỏng ~12 tháng — chỉnh meta.metrics_multiplier nếu cần nhẹ hơn.', url_route: 'portal.dashboard', url_fallback: 'portal/dashboard', type: 'news' },
     { title: '[DEMO] Chạy lại seed an toàn', message: 'Admin → Admin Faker hoặc php artisan admin-faker:refresh', url_route: 'admin-faker.index', url_fallback: 'admin/admin-faker', type: 'tip' },
   ],
 };
@@ -221,13 +236,14 @@ const data = {
   meta: {
     region: 'Đà Nẵng',
     persona: 'SOHO / hộ kinh doanh / kinh tế cá thể',
-    timeline_months: { min: 6, max: 18 },
+    timeline_months: { min: 12, max: 18 },
+    metrics_multiplier: METRICS_MULTIPLIER,
     disclaimer: 'Tên thương hiệu chỉ minh họa sản phẩm MLHUB — không liên kết vận hành thực tế.',
   },
   weekly_hours: weeklyHours,
   scan_cities: ['Đà Nẵng', 'Hội An', 'Huế', 'Quảng Nam'],
   scan_country: 'VN',
-  engagement_max_days_ago: 540,
+  engagement_max_days_ago: ENGAGEMENT_MAX_DAYS_AGO,
   businesses,
   locations,
   campaigns,

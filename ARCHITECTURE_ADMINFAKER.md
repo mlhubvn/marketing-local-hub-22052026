@@ -156,7 +156,7 @@ Sửa tên/địa chỉ/SĐT tại `businesses` + `locations` trong `mlhub_admin
 5. **Chiến dịch QR** — 32 campaign, đủ 5 loại.
 6. Mở **analytics** 1 campaign review + 1 coupon (volume cao).
 7. **Landing pages** — campaign sync + 18 trang độc lập.
-8. **Khách hàng** — 120 CRM + tag.
+8. **Khách hàng** — 600 CRM + tag (5× volume).
 9. Mở **1 funnel live** (URL public campaign) — form review/lead.
 10. (Tuỳ chọn) Guest site: FAQ/blog; Admin: support + notification.
 
@@ -165,11 +165,14 @@ Sửa tên/địa chỉ/SĐT tại `businesses` + `locations` trong `mlhub_admin
 ## 9. Chỉnh volume (không sửa Blade/PHP service)
 
 1. Sửa `database/seeders/data/mlhub_adminfaker_dn_soho.php`:
-   - `campaign_metrics` → `visits` / `conversions`
-   - `engagement_max_days_ago` (mặc định **540** ≈ 18 tháng)
-   - Thêm/xóa mục trong `campaigns`, `customers`, `standalone_landing_pages`
-2. Tái tạo file từ script (tuỳ chọn): `node database/seeders/data/generate_adminfaker_dn.js`
-3. Chạy: `php artisan admin-faker:refresh`
+   - `meta.metrics_multiplier` — nhân **mọi** visits/conversions khi seed (mặc định **80** ≈ ~1M lượt quét tổng; đặt **5** cho demo nhẹ ~65k)
+   - `campaign_metrics` — visits/conversions **baseline** (trước khi nhân)
+   - `engagement_max_days_ago` (mặc định **365** ≈ 12 tháng)
+   - `customers` — 600 bản ghi (hoặc chỉnh `CUSTOMER_COUNT` trong `generate_adminfaker_dn.js`)
+2. Tái tạo file từ script (tuỳ chọn): `node database/seeders/data/generate_adminfaker_dn.js` (sửa `METRICS_MULTIPLIER` / `CUSTOMER_COUNT` đầu file)
+3. Chạy: `php artisan admin-faker:refresh` hoặc `php artisan mlhub:reset-demo --force`
+
+**Lưu ý:** Seed ~1M dòng `lb_qr_scans` có thể mất vài phút; tăng `max_execution_time` nếu timeout.
 
 ---
 

@@ -117,7 +117,7 @@
                                 <td class="max-w-[16rem] px-5 py-4"><p class="truncate" style="color: var(--theme-muted-text-color);">{{ $lead['campaign'] }}</p></td>
                                 <td class="px-5 py-4"><x-ui.badge variant="success">{{ str($lead['status'])->headline() }}</x-ui.badge></td>
                                 <td class="max-w-[22rem] px-5 py-4"><p class="line-clamp-2" style="color: var(--theme-muted-text-color);">{{ $lead['note'] ?: __('No note') }}</p></td>
-                                <td class="px-5 py-4 text-xs" style="color: var(--theme-muted-text-color);">{{ $lead['created_at']?->format('M d, Y') }}</td>
+                                <td class="px-5 py-4 text-xs" style="color: var(--theme-muted-text-color);">{{ format_date_locale($lead['created_at']) }}</td>
                             </tr>
                         @endforeach
                     </tbody>

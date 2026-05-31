@@ -445,7 +445,7 @@
                                             {{ $service->name }}
                                             - {{ $service->duration_minutes }} {{ __('min') }}
                                             @if($service->price !== null)
-                                                - {{ number_format((float) $service->price, 2) }}
+                                                - {{ format_price_locale((float) $service->price) }}
                                             @endif
                                         </option>
                                     @endforeach

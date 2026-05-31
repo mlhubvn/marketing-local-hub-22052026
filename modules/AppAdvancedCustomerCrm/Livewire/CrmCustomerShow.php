@@ -373,7 +373,7 @@ class CrmCustomerShow extends Component
             'color' => $tag->color ?: '#0f766e',
             'is_system' => (bool) $tag->is_system,
             'created_at' => $tag->pivot?->created_at,
-            'created_at_label' => $tag->pivot?->created_at ? \Illuminate\Support\Carbon::parse($tag->pivot->created_at)->format('M d, Y H:i') : null,
+            'created_at_label' => $tag->pivot?->created_at ? format_datetime_locale(\Illuminate\Support\Carbon::parse($tag->pivot->created_at)) : null,
             'created_by' => $tag->pivot?->created_by,
             'created_by_name' => $tag->pivot?->created_by ? $tagCreatorNames->get($tag->pivot->created_by) : null,
         ]);

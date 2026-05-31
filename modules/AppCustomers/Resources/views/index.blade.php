@@ -158,8 +158,8 @@
                                     <x-ui.badge variant="success">{{ str($status)->headline() }}</x-ui.badge>
                                 </td>
                                 <td class="px-5 py-4">
-                                    <p class="text-sm" style="color: var(--theme-header-text-color);">{{ $customer->updated_at?->format('M d, Y') }}</p>
-                                    <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Created') }} {{ $customer->created_at?->format('M d, Y') }}</p>
+                                    <p class="text-sm" style="color: var(--theme-header-text-color);">{{ format_date_locale($customer->updated_at) }}</p>
+                                    <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Created') }} {{ format_date_locale($customer->created_at) }}</p>
                                 </td>
                                 <td class="px-5 py-4 text-right">
                                     <div class="inline-flex items-center gap-2">

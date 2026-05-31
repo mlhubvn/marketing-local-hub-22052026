@@ -181,7 +181,7 @@
                                         'business_id' => $service->business_id,
                                         'type' => 'social_post',
                                         'goal' => 'Promote this booking service and drive appointment requests.',
-                                        'offer' => $service->price !== null ? 'Service price: '.number_format((float) $service->price, 2) : '',
+                                        'offer' => $service->price !== null ? 'Service price: '.format_price_locale((float) $service->price) : '',
                                         'target_customer' => 'Local customers ready to book',
                                         'details' => trim(implode("\n", array_filter([
                                             'Service: '.$service->name,
@@ -199,7 +199,7 @@
                                     </td>
                                     <td class="px-5 py-4" style="color: var(--theme-muted-text-color);">{{ $businessNames[$service->business_id] ?? __('Business removed') }}</td>
                                     <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ $service->duration_minutes }} {{ __('min') }}</td>
-                                    <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ $service->price !== null ? number_format((float) $service->price, 2) : __('Free') }}</td>
+                                    <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ $service->price !== null ? format_price_locale((float) $service->price) : __('Free') }}</td>
                                     <td class="px-5 py-4"><x-ui.badge :variant="$service->is_active ? 'success' : 'neutral'">{{ $service->is_active ? __('Active') : __('Paused') }}</x-ui.badge></td>
                                     <td class="px-5 py-4 text-right">
                                         <div class="inline-flex items-center gap-2">
@@ -321,7 +321,7 @@
                             @foreach ($bookings as $booking)
                                 <tr>
                                     <td class="px-5 py-4"><p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $booking->customer_name }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $booking->note ?: __('No note') }}</p></td>
-                                    <td class="px-5 py-4"><p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $booking->booking_date?->format('M d, Y') }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $booking->booking_time }}</p></td>
+                                    <td class="px-5 py-4"><p class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_date_locale($booking->booking_date) }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $booking->booking_time }}</p></td>
                                     <td class="px-5 py-4"><p>{{ $booking->customer_phone ?: __('No phone') }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $booking->customer_email ?: __('No email') }}</p></td>
                                     <td class="px-5 py-4"><x-ui.badge :variant="$booking->status === 'confirmed' || $booking->status === 'completed' ? 'success' : ($booking->status === 'cancelled' ? 'danger' : 'warning')">{{ str($booking->status)->headline() }}</x-ui.badge></td>
                                     <td class="px-5 py-4 text-right">

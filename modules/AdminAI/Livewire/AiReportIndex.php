@@ -259,7 +259,7 @@ class AiReportIndex extends Component
         ];
 
         return view('adminai::livewire.report-index', [
-            'rangeLabel' => $startDate->format('M d, Y').' - '.$endDate->format('M d, Y'),
+            'rangeLabel' => format_date_locale($startDate).' - '.format_date_locale($endDate),
             'metrics' => [
                 'total_requests' => $totalRequests,
                 'success_rate' => $totalRequests > 0 ? (int) round(($successfulRequests / $totalRequests) * 100) : 0,
@@ -274,7 +274,7 @@ class AiReportIndex extends Component
                 'avg_daily_requests' => (float) $avgDailyRequests,
             ],
             'summaryCards' => [
-                ['title' => __('Reporting range'), 'description' => $startDate->format('M d').' - '.$endDate->format('M d, Y'), 'variant' => 'info', 'icon' => 'fa-light fa-calendar-range'],
+                ['title' => __('Reporting range'), 'description' => format_date_locale($startDate).' - '.format_date_locale($endDate), 'variant' => 'info', 'icon' => 'fa-light fa-calendar-range'],
                 ['title' => __('Active users'), 'description' => number_format($activeUsers).' '.__('accounts generated AI traffic'), 'variant' => 'success', 'icon' => 'fa-light fa-users-viewfinder'],
                 ['title' => __('Average daily requests'), 'description' => number_format((float) $avgDailyRequests, 1).' '.__('requests per day'), 'variant' => 'warning', 'icon' => 'fa-light fa-chart-line-up'],
                 ['title' => __('Peak day'), 'description' => (($peakDay['label'] ?? __('N/A')).' - '.number_format((int) ($peakDay['requests'] ?? 0)).' '.__('requests')), 'variant' => 'danger', 'icon' => 'fa-light fa-bolt'],

@@ -160,7 +160,7 @@
                                     <td class="px-5 py-4">
                                         <x-ui.badge :variant="$statusVariant">{{ $statusLabel }}</x-ui.badge>
                                     </td>
-                                    <td class="px-5 py-4 text-xs" style="color: var(--theme-muted-text-color);">{{ $feedback->created_at?->format('M d, Y') }}</td>
+                                    <td class="px-5 py-4 text-xs" style="color: var(--theme-muted-text-color);">{{ format_date_locale($feedback->created_at) }}</td>
                                     <td class="px-5 py-4">
                                         <div class="flex items-center justify-end gap-2">
                                             <x-ui.button

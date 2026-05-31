@@ -2351,7 +2351,7 @@
 
                                         <div class="text-sm" style="color: var(--theme-muted-text-color);">
                                             <span class="mr-2 inline lg:hidden">{{ __('Updated:') }}</span>
-                                            {{ $item->updated_at?->format('M d, Y') }}
+                                            {{ format_date_locale($item->updated_at) }}
                                         </div>
 
                                         <div class="flex items-center justify-end gap-2">

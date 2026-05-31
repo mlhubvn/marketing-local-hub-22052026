@@ -438,7 +438,7 @@
                                         <p class="text-sm leading-7" style="color: var(--theme-muted-text-color);">{!! nl2br(e($log['content'] ?? '')) !!}</p>
                                     </div>
                                     <div class="shrink-0 text-sm" style="color: var(--theme-muted-text-color);">
-                                        {{ !empty($log['published_at']) ? \Illuminate\Support\Carbon::parse($log['published_at'])->format('M d, Y') : __('Unknown date') }}
+                                        {{ !empty($log['published_at']) ? format_date_locale(\Illuminate\Support\Carbon::parse($log['published_at'])) : __('Unknown date') }}
                                     </div>
                                 </div>
                             </div>

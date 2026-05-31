@@ -41,7 +41,7 @@ class PaymentReportIndex extends Component
         [$startDate, $endDate] = $this->syncResolvedRange();
 
         return view('adminpaymentreport::livewire.index', [
-            'rangeLabel' => $startDate->format('M d, Y').' - '.$endDate->format('M d, Y'),
+            'rangeLabel' => format_date_locale($startDate).' - '.format_date_locale($endDate),
             'info' => $this->paymentReport->paymentInfo($startDate, $endDate),
             'gatewayBreakdown' => $this->paymentReport->paymentByGateway($startDate, $endDate),
             'statusMix' => $this->paymentReport->paymentStatusMix($startDate, $endDate),

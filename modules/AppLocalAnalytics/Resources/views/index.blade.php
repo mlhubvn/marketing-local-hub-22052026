@@ -459,7 +459,7 @@
                                                 <td class="py-4 pr-4">
                                                     <x-ui.badge :variant="strtolower($lead['status']) === 'completed' || strtolower($lead['status']) === 'used' ? 'success' : 'neutral'">{{ $lead['status'] }}</x-ui.badge>
                                                 </td>
-                                                <td class="py-4 text-xs" style="color: var(--theme-muted-text-color);">{{ $lead['created_at']?->format('M d, Y') }}</td>
+                                                <td class="py-4 text-xs" style="color: var(--theme-muted-text-color);">{{ format_date_locale($lead['created_at']) }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -632,7 +632,7 @@
                                             <td class="py-4 pr-4">
                                                 <x-ui.badge :variant="$feedback->rating <= 3 ? 'warning' : 'success'">{{ $feedback->rating <= 3 ? __('Needs reply') : __('Positive') }}</x-ui.badge>
                                             </td>
-                                            <td class="py-4 pr-4 text-xs" style="color: var(--theme-muted-text-color);">{{ $feedback->created_at?->format('M d, Y') }}</td>
+                                            <td class="py-4 pr-4 text-xs" style="color: var(--theme-muted-text-color);">{{ format_date_locale($feedback->created_at) }}</td>
                                             <td class="py-4 text-right">
                                                 <x-ui.button
                                                     href="{{ route('portal.ai-studio.review-reply', ['feedback_id' => $feedback->id]) }}"

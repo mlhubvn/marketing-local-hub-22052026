@@ -19,7 +19,7 @@
             <div class="grid gap-3 sm:grid-cols-3">
                 <div class="rounded-xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .58);"><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ __('Score') }}</p><p class="mt-1 text-2xl font-semibold">{{ (int) $customer->score }}</p><p class="text-xs" style="color: var(--theme-accent);">{{ $scoreLabel }}</p></div>
                 <div class="rounded-xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .58);"><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ __('Status') }}</p><p class="mt-1 text-lg font-semibold">{{ str($customer->status ?: 'active')->headline() }}</p></div>
-                <div class="rounded-xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .58);"><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ __('Last activity') }}</p><p class="mt-1 text-sm font-semibold">{{ $customer->last_activity_at?->format('M d, Y H:i') ?: __('No activity') }}</p></div>
+                <div class="rounded-xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .58);"><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ __('Last activity') }}</p><p class="mt-1 text-sm font-semibold">{{ format_datetime_locale($customer->last_activity_at) ?: __('No activity') }}</p></div>
             </div>
         </div>
     </section>
@@ -44,9 +44,9 @@
                         </div>
                         <div class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
                             <div><p class="text-xs font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('Business') }}</p><p class="mt-1 font-semibold">{{ $customer->business?->name ?: __('No business') }}</p></div>
-                            <div><p class="text-xs font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('First seen') }}</p><p class="mt-1 font-semibold">{{ $customer->first_seen_at?->format('M d, Y') ?: $customer->created_at?->format('M d, Y') }}</p></div>
+                            <div><p class="text-xs font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('First seen') }}</p><p class="mt-1 font-semibold">{{ format_date_locale($customer->first_seen_at) ?: format_date_locale($customer->created_at) }}</p></div>
                             <div><p class="text-xs font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('Source') }}</p><p class="mt-1 font-semibold">{{ $customer->source_type ? str($customer->source_type)->headline() : __('Manual / unknown') }}</p></div>
-                            <div><p class="text-xs font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('Last activity') }}</p><p class="mt-1 font-semibold">{{ $customer->last_activity_at?->format('M d, Y H:i') ?: __('No activity') }}</p></div>
+                            <div><p class="text-xs font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('Last activity') }}</p><p class="mt-1 font-semibold">{{ format_datetime_locale($customer->last_activity_at) ?: __('No activity') }}</p></div>
                         </div>
                     </div>
 
@@ -109,7 +109,7 @@
                                 <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl" style="background-color: {{ $activity->color ?: '#0f766e' }}1a; color: {{ $activity->color ?: '#0f766e' }};"><i class="{{ $activity->icon ?: 'fa-light fa-timeline' }}"></i></span>
                                 <div class="min-w-0">
                                     <p class="truncate text-sm font-semibold">{{ $activity->title }}</p>
-                                    <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $activity->occurred_at?->format('M d, Y H:i') ?: $activity->created_at?->format('M d, Y H:i') }}</p>
+                                    <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ format_datetime_locale($activity->occurred_at) ?: format_datetime_locale($activity->created_at) }}</p>
                                 </div>
                             </div>
                         @empty
@@ -128,7 +128,7 @@
                             @php
                                 $isOverdue = $task->due_at && $task->due_at->isPast() && ! $task->due_at->isToday();
                                 $dueLabel = $task->due_at
-                                    ? ($task->due_at->isToday() ? __('Due today') : ($task->due_at->isTomorrow() ? __('Due tomorrow') : ($isOverdue ? __('Overdue by :days days', ['days' => $task->due_at->diffInDays(now())]) : __('Due: :date', ['date' => $task->due_at->format('M d, Y')]))))
+                                    ? ($task->due_at->isToday() ? __('Due today') : ($task->due_at->isTomorrow() ? __('Due tomorrow') : ($isOverdue ? __('Overdue by :days days', ['days' => $task->due_at->diffInDays(now())]) : __('Due: :date', ['date' => format_date_locale($task->due_at)]))))
                                     : __('No due date');
                             @endphp
                             <div class="flex items-center justify-between gap-3 rounded-xl border p-3" style="border-color: rgba(var(--theme-border-color-rgb), .52);">
@@ -189,7 +189,7 @@
                                     @endif
                                 </div>
                                 <div class="shrink-0 text-left sm:text-right">
-                                    <p class="text-xs font-semibold" style="color: var(--theme-muted-text-color);">{{ $activity->occurred_at?->format('M d, Y H:i') ?: $activity->created_at?->format('M d, Y H:i') }}</p>
+                                    <p class="text-xs font-semibold" style="color: var(--theme-muted-text-color);">{{ format_datetime_locale($activity->occurred_at) ?: format_datetime_locale($activity->created_at) }}</p>
                                     <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $activity->occurred_at?->diffForHumans() }}</p>
                                 </div>
                             </div>
@@ -227,7 +227,7 @@
                                         @if ($item->pinned)
                                             <span class="rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em]" style="border-color: rgba(var(--theme-accent-rgb), .28); background-color: rgba(var(--theme-accent-rgb), .10); color: var(--theme-accent);">{{ __('Pinned') }}</span>
                                         @endif
-                                        <span class="text-xs" style="color: var(--theme-muted-text-color);">{{ __('Added by :name', ['name' => $item->user?->name ?: __('Unknown')]) }} &middot; {{ $item->created_at?->format('M d, Y H:i') }}</span>
+                                        <span class="text-xs" style="color: var(--theme-muted-text-color);">{{ __('Added by :name', ['name' => $item->user?->name ?: __('Unknown')]) }} &middot; {{ format_datetime_locale($item->created_at) }}</span>
                                     </div>
                                     <p class="whitespace-pre-line leading-7" style="color: var(--theme-header-text-color);">{{ $item->note }}</p>
                                 </div>
@@ -257,7 +257,7 @@
                         $isOverdue = $task->due_at && $task->due_at->isPast() && ! $task->due_at->isToday() && ! in_array($task->status, ['done', 'cancelled'], true);
                         $statusText = $isOverdue ? __('Overdue') : str($task->status)->headline();
                         $dueText = $task->due_at
-                            ? ($task->due_at->isToday() ? __('Due today') : ($task->due_at->isTomorrow() ? __('Due tomorrow') : ($isOverdue ? __('Overdue by :days days', ['days' => $task->due_at->diffInDays(now())]) : __('Due: :date', ['date' => $task->due_at->format('M d, Y')]))))
+                            ? ($task->due_at->isToday() ? __('Due today') : ($task->due_at->isTomorrow() ? __('Due tomorrow') : ($isOverdue ? __('Overdue by :days days', ['days' => $task->due_at->diffInDays(now())]) : __('Due: :date', ['date' => format_date_locale($task->due_at)]))))
                             : __('No due date');
                         $statusColor = $isOverdue ? 'var(--theme-danger-color)' : ($task->status === 'done' ? 'var(--theme-success-color)' : 'var(--theme-accent)');
                     @endphp

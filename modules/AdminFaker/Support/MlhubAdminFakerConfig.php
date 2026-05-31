@@ -57,25 +57,44 @@ final class MlhubAdminFakerConfig
         ));
     }
 
+    public static function metricsMultiplier(): int
+    {
+        $multiplier = (int) (self::load()['meta']['metrics_multiplier'] ?? 5);
+
+        return max(1, min(200, $multiplier));
+    }
+
     /**
      * @return array{visits: int, conversions: int}
      */
     public static function metricsForSlug(string $slug): array
     {
+        $multiplier = self::metricsMultiplier();
         $configured = self::load()['campaign_metrics'][$slug] ?? null;
 
         if (is_array($configured)) {
-            return [
-                'visits' => (int) ($configured['visits'] ?? 2000),
-                'conversions' => (int) ($configured['conversions'] ?? (int) round(($configured['visits'] ?? 2000) * 0.09)),
-            ];
+            $visits = (int) ($configured['visits'] ?? 2000);
+            $conversions = (int) ($configured['conversions'] ?? (int) round($visits * 0.09));
+
+            return self::scaleMetrics($visits, $conversions, $multiplier);
         }
 
         $visits = 1400 + (abs(crc32($slug)) % 3201);
+        $conversions = (int) round($visits * (0.07 + (abs(crc32($slug.'-c')) % 4) / 100));
+
+        return self::scaleMetrics($visits, $conversions, $multiplier);
+    }
+
+    /**
+     * @return array{visits: int, conversions: int}
+     */
+    public static function scaleMetrics(int $visits, int $conversions, ?int $multiplier = null): array
+    {
+        $multiplier ??= self::metricsMultiplier();
 
         return [
-            'visits' => $visits,
-            'conversions' => (int) round($visits * (0.07 + (abs(crc32($slug.'-c')) % 4) / 100)),
+            'visits' => max(0, (int) round($visits * $multiplier)),
+            'conversions' => max(0, (int) round($conversions * $multiplier)),
         ];
     }
 }

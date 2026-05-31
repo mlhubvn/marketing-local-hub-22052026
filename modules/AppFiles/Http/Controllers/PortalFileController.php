@@ -259,7 +259,7 @@ class PortalFileController extends Controller
                     'isEditableImage' => $file->isEditableImage(),
                     'typeLabel' => $this->cleanUtf8($file->typeLabel()),
                     'updatedShortLabel' => $file->updated_at?->format('M d'),
-                    'updatedLabel' => $file->updated_at?->format('M d, Y'),
+                    'updatedLabel' => format_date_locale($file->updated_at),
                     'editImageUrl' => $editImageUrl,
                 ];
             });

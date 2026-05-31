@@ -29,9 +29,9 @@ class General extends Component
 
     public string $website_logo_brand_light = '';
 
-    public string $format_date = 'M d, Y';
+    public string $format_date = 'd/m/Y';
 
-    public string $format_datetime = 'M d, Y H:i';
+    public string $format_datetime = 'd/m/Y H:i';
 
     public string $app_timezone = 'UTC';
 
@@ -62,8 +62,8 @@ class General extends Component
         $this->website_logo_light = (string) $this->options->get('website_logo_light', 'img/logo-light.png');
         $this->website_logo_brand_dark = (string) $this->options->get('website_logo_brand_dark', 'img/logo-brand-dark.png');
         $this->website_logo_brand_light = (string) $this->options->get('website_logo_brand_light', 'img/logo-brand-light.png');
-        $this->format_date = (string) $this->options->get('format_date', 'M d, Y');
-        $this->format_datetime = (string) $this->options->get('format_datetime', 'M d, Y H:i');
+        $this->format_date = (string) $this->options->get('format_date', 'd/m/Y');
+        $this->format_datetime = (string) $this->options->get('format_datetime', 'd/m/Y H:i');
         $this->app_timezone = (string) $this->options->get('app_timezone', config('app.timezone', 'UTC'));
         $this->contact_company_name = (string) $this->options->get('contact_company_name', 'Your Company Name');
         $this->contact_company_website = (string) $this->options->get('contact_company_website', 'https://yourcompany.com');
@@ -108,8 +108,8 @@ class General extends Component
     protected function dateFormatOptions(): array
     {
         return [
+            ['value' => 'd/m/Y', 'label' => format_date_locale(now()).' (d/m/Y)'],
             ['value' => 'M d, Y', 'label' => now()->format('M d, Y').' (M d, Y)'],
-            ['value' => 'd/m/Y', 'label' => now()->format('d/m/Y').' (d/m/Y)'],
             ['value' => 'm/d/Y', 'label' => now()->format('m/d/Y').' (m/d/Y)'],
             ['value' => 'Y-m-d', 'label' => now()->format('Y-m-d').' (Y-m-d)'],
             ['value' => 'd M Y', 'label' => now()->format('d M Y').' (d M Y)'],
@@ -122,8 +122,8 @@ class General extends Component
     protected function dateTimeFormatOptions(): array
     {
         return [
+            ['value' => 'd/m/Y H:i', 'label' => format_datetime_locale(now()).' (d/m/Y H:i)'],
             ['value' => 'M d, Y H:i', 'label' => now()->format('M d, Y H:i').' (M d, Y H:i)'],
-            ['value' => 'd/m/Y H:i', 'label' => now()->format('d/m/Y H:i').' (d/m/Y H:i)'],
             ['value' => 'm/d/Y h:i A', 'label' => now()->format('m/d/Y h:i A').' (m/d/Y h:i A)'],
             ['value' => 'Y-m-d H:i:s', 'label' => now()->format('Y-m-d H:i:s').' (Y-m-d H:i:s)'],
             ['value' => 'd M Y H:i', 'label' => now()->format('d M Y H:i').' (d M Y H:i)'],

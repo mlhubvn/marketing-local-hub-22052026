@@ -83,8 +83,8 @@
     }"
 >
     <section class="overflow-hidden rounded-[1.35rem] border" style="border-color: rgba(var(--theme-border-color-rgb),0.68); background:
-        linear-gradient(135deg, rgba(15,118,110,0.12), transparent 36%),
-        linear-gradient(35deg, rgba(217,119,6,0.07), transparent 44%),
+        linear-gradient(135deg, rgba(var(--theme-accent-rgb),0.12), transparent 36%),
+        linear-gradient(35deg, rgba(var(--theme-warning-color-rgb),0.10), transparent 44%),
         color-mix(in srgb, var(--theme-surface-overlay) 98%, transparent);">
         <div class="grid gap-7 px-5 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-center xl:px-7">
             <div>
@@ -116,7 +116,7 @@
                         <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Growth health') }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Captured from public campaign pages') }}</p>
                     </div>
-                    <div class="flex h-11 w-11 items-center justify-center rounded-2xl" style="background-color: rgba(15,118,110,0.12); color: #0f766e;">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-2xl" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">
                         <i class="fa-light fa-bullseye-pointer"></i>
                     </div>
                 </div>
@@ -128,7 +128,7 @@
                         [__('Feedback'), $growthMetrics['feedback'] ?? 0],
                     ] as $summary)
                         <div class="rounded-2xl border px-3 py-3" style="border-color: rgba(var(--theme-border-color-rgb),0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                            <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format((int) $summary[1]) }}</p>
+                            <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $summary[1]) }}</p>
                             <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $summary[0] }}</p>
                         </div>
                     @endforeach
@@ -157,12 +157,12 @@
         <div class="grid gap-5 px-5 py-5 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-center sm:px-6">
             <div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <span class="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]" style="border-color: rgba(15,118,110,0.22); background: rgba(15,118,110,0.08); color: #0f766e;">
+                    <span class="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]" style="border-color: rgba(var(--theme-accent-rgb),0.22); background: rgba(var(--theme-accent-rgb),0.08); color: var(--theme-accent);">
                         <i class="fa-light fa-route"></i>
                         {{ __('Onboarding') }}
                     </span>
                     @if ($onboardingComplete)
-                        <span class="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]" style="border-color: rgba(16,185,129,0.25); background: rgba(16,185,129,0.09); color: #047857;">
+                        <span class="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]" style="border-color: rgba(var(--theme-warning-color-rgb),0.28); background: rgba(var(--theme-warning-color-rgb),0.12); color: var(--theme-link-hover-color);">
                             <i class="fa-light fa-check"></i>
                             {{ __('Ready') }}
                         </span>
@@ -183,8 +183,8 @@
                     </div>
                     <p class="text-sm font-semibold" style="color: var(--theme-muted-text-color);">{{ (int) ($onboarding['completed'] ?? 0) }}/{{ (int) ($onboarding['total'] ?? count($onboardingSteps)) }}</p>
                 </div>
-                <div class="mt-4 h-2 overflow-hidden rounded-full" style="background-color: rgba(15,118,110,0.12);">
-                    <div class="h-full rounded-full transition-all" style="width: {{ max(4, $onboardingPercent) }}%; background: linear-gradient(90deg, #0f766e, #14b8a6);"></div>
+                <div class="mt-4 h-2 overflow-hidden rounded-full" style="background-color: rgba(var(--theme-accent-rgb),0.12);">
+                    <div class="h-full rounded-full transition-all" style="width: {{ max(4, $onboardingPercent) }}%; background: var(--theme-brand-gradient);"></div>
                 </div>
             </div>
         </div>
@@ -194,10 +194,10 @@
                 <article class="relative flex min-h-[12rem] flex-col justify-between gap-5 border-b p-5 sm:border-r xl:border-b-0" style="border-color: rgba(var(--theme-border-color-rgb),0.62);">
                     <div>
                         <div class="flex items-start justify-between gap-3">
-                            <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl" style="background: {{ $step['complete'] ? 'rgba(15,118,110,0.12)' : 'rgba(var(--theme-surface-bg-rgb),0.86)' }}; color: {{ $step['complete'] ? '#0f766e' : 'var(--theme-muted-text-color)' }};">
+                            <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl" style="background: {{ $step['complete'] ? 'rgba(var(--theme-accent-rgb),0.12)' : 'rgba(var(--theme-surface-bg-rgb),0.86)' }}; color: {{ $step['complete'] ? 'var(--theme-accent)' : 'var(--theme-muted-text-color)' }};">
                                 <i class="{{ $step['icon'] }}"></i>
                             </span>
-                            <span class="inline-flex h-7 min-w-7 items-center justify-center rounded-full border px-2 text-xs font-semibold" style="border-color: {{ $step['complete'] ? 'rgba(15,118,110,0.26)' : 'rgba(var(--theme-border-color-rgb),0.7)' }}; background: {{ $step['complete'] ? 'rgba(15,118,110,0.08)' : '#fff' }}; color: {{ $step['complete'] ? '#0f766e' : 'var(--theme-muted-text-color)' }};">
+                            <span class="inline-flex h-7 min-w-7 items-center justify-center rounded-full border px-2 text-xs font-semibold" style="border-color: {{ $step['complete'] ? 'rgba(var(--theme-accent-rgb),0.26)' : 'rgba(var(--theme-border-color-rgb),0.7)' }}; background: {{ $step['complete'] ? 'rgba(var(--theme-accent-rgb),0.08)' : '#fff' }}; color: {{ $step['complete'] ? 'var(--theme-accent)' : 'var(--theme-muted-text-color)' }};">
                                 @if ($step['complete'])
                                     <i class="fa-light fa-check"></i>
                                 @else
@@ -219,25 +219,33 @@
 
     <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         @foreach ([
-            ['label' => __('Businesses'), 'value' => $growthMetrics['businesses'] ?? 0, 'description' => __('Local profiles'), 'icon' => 'fa-light fa-store', 'accent' => '#0f766e'],
-            ['label' => __('Active Campaigns'), 'value' => $growthMetrics['active_campaigns'] ?? 0, 'description' => __('Published funnels'), 'icon' => 'fa-light fa-bullhorn', 'accent' => '#0f766e'],
-            ['label' => __('Visits'), 'value' => $growthMetrics['visits'] ?? 0, 'description' => __('Tracked page views'), 'icon' => 'fa-light fa-eye', 'accent' => '#0f766e'],
-            ['label' => __('Review Clicks'), 'value' => $growthMetrics['review_clicks'] ?? 0, 'description' => __('Public review actions'), 'icon' => 'fa-light fa-star', 'accent' => '#d97706'],
-            ['label' => __('Conversion Rate'), 'value' => ($growthMetrics['conversion_rate'] ?? 0).'%', 'description' => __('Conversions / visits'), 'icon' => 'fa-light fa-chart-simple', 'accent' => '#0f766e'],
-            ['label' => __('Leads'), 'value' => $growthMetrics['leads'] ?? 0, 'description' => __('Lead forms'), 'icon' => 'fa-light fa-user-plus', 'accent' => '#0f766e'],
-            ['label' => __('Bookings'), 'value' => $growthMetrics['bookings'] ?? 0, 'description' => __('Appointment requests'), 'icon' => 'fa-light fa-calendar-check', 'accent' => '#0f766e'],
-            ['label' => __('Coupon Claims'), 'value' => $growthMetrics['coupon_claims'] ?? 0, 'description' => __('Claimed offers'), 'icon' => 'fa-light fa-ticket', 'accent' => '#d97706'],
-            ['label' => __('Feedback'), 'value' => $growthMetrics['feedback'] ?? 0, 'description' => __('Private responses'), 'icon' => 'fa-light fa-message-lines', 'accent' => '#d97706'],
-            ['label' => __('Recent Activity'), 'value' => $recentActivity->count(), 'description' => __('Latest signals'), 'icon' => 'fa-light fa-clock-rotate-left', 'accent' => '#0f766e'],
+            ['label' => __('Businesses'), 'value' => $growthMetrics['businesses'] ?? 0, 'description' => __('Local profiles'), 'icon' => 'fa-light fa-store', 'accent' => 'var(--theme-accent)', 'format' => 'number'],
+            ['label' => __('Active Campaigns'), 'value' => $growthMetrics['active_campaigns'] ?? 0, 'description' => __('Published funnels'), 'icon' => 'fa-light fa-bullhorn', 'accent' => 'var(--theme-accent)', 'format' => 'number'],
+            ['label' => __('Visits'), 'value' => $growthMetrics['visits'] ?? 0, 'description' => __('Tracked page views'), 'icon' => 'fa-light fa-eye', 'accent' => 'var(--theme-accent)', 'format' => 'number'],
+            ['label' => __('Review Clicks'), 'value' => $growthMetrics['review_clicks'] ?? 0, 'description' => __('Public review actions'), 'icon' => 'fa-light fa-star', 'accent' => 'var(--theme-link-hover-color)', 'format' => 'number'],
+            ['label' => __('Conversion Rate'), 'value' => $growthMetrics['conversion_rate'] ?? 0, 'description' => __('Conversions / visits'), 'icon' => 'fa-light fa-chart-simple', 'accent' => 'var(--theme-accent)', 'format' => 'percent'],
+            ['label' => __('Leads'), 'value' => $growthMetrics['leads'] ?? 0, 'description' => __('Lead forms'), 'icon' => 'fa-light fa-user-plus', 'accent' => 'var(--theme-accent)', 'format' => 'number'],
+            ['label' => __('Bookings'), 'value' => $growthMetrics['bookings'] ?? 0, 'description' => __('Appointment requests'), 'icon' => 'fa-light fa-calendar-check', 'accent' => 'var(--theme-accent)', 'format' => 'number'],
+            ['label' => __('Coupon Claims'), 'value' => $growthMetrics['coupon_claims'] ?? 0, 'description' => __('Claimed offers'), 'icon' => 'fa-light fa-ticket', 'accent' => 'var(--theme-warning-color)', 'format' => 'number'],
+            ['label' => __('Feedback'), 'value' => $growthMetrics['feedback'] ?? 0, 'description' => __('Private responses'), 'icon' => 'fa-light fa-message-lines', 'accent' => 'var(--theme-link-hover-color)', 'format' => 'number'],
+            ['label' => __('Recent Activity'), 'value' => $recentActivity->count(), 'description' => __('Latest signals'), 'icon' => 'fa-light fa-clock-rotate-left', 'accent' => 'var(--theme-accent)', 'format' => 'number'],
         ] as $metric)
             <article class="rounded-[1rem] border bg-white p-4 shadow-sm" style="border-color: rgba(var(--theme-border-color-rgb),0.72); border-top: 4px solid {{ $metric['accent'] }};">
                 <div class="flex items-start justify-between gap-4">
                     <div class="min-w-0">
-                        <p class="text-2xl font-semibold tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ is_numeric($metric['value']) ? number_format((float) $metric['value']) : $metric['value'] }}</p>
+                        <p class="text-2xl font-semibold tracking-[-0.055em]" style="color: var(--theme-header-text-color);">
+                            @if (($metric['format'] ?? '') === 'percent')
+                                {{ format_percent_locale((float) $metric['value']) }}
+                            @elseif (is_numeric($metric['value']))
+                                {{ format_number_locale((float) $metric['value']) }}
+                            @else
+                                {{ $metric['value'] }}
+                            @endif
+                        </p>
                         <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                         <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                     </div>
-                    <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl" style="background-color: {{ $metric['accent'] }}14; color: {{ $metric['accent'] }};">
+                    <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl" style="background-color: rgba(var(--theme-accent-rgb),0.08); color: {{ $metric['accent'] }};">
                         <i class="{{ $metric['icon'] }}"></i>
                     </span>
                 </div>
@@ -274,9 +282,9 @@
                                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ str($row['campaign']->type)->headline() }}</p>
                                     </td>
                                     <td class="px-5 py-4" style="color: var(--theme-muted-text-color);">{{ $row['campaign']->business?->name ?: __('No business') }}</td>
-                                    <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($row['visits']) }}</td>
-                                    <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($row['conversions']) }}</td>
-                                    <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ $row['conversion_rate'] }}%</td>
+                                    <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($row['visits']) }}</td>
+                                    <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($row['conversions']) }}</td>
+                                    <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_percent_locale($row['conversion_rate']) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -297,7 +305,7 @@
             <div class="grid gap-3 p-5">
                 @forelse ($recentActivity as $item)
                     <div class="flex gap-3 rounded-xl border p-3" style="border-color: rgba(var(--theme-border-color-rgb),0.62); background: rgba(var(--theme-surface-bg-rgb),0.55);">
-                        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background: rgba(15,118,110,0.1); color: #0f766e;">
+                        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background: rgba(var(--theme-accent-rgb),0.1); color: var(--theme-accent);">
                             <i class="fa-light {{ $item['icon'] }}"></i>
                         </span>
                         <div class="min-w-0">

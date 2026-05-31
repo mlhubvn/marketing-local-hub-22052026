@@ -101,7 +101,7 @@
                                 </td>
                                 <td class="px-5 py-4">{{ number_format($customer->open_tasks_count) }}</td>
                                 <td class="px-5 py-4">
-                                    <p>{{ $customer->last_activity_at?->format('M d, Y H:i') ?: $customer->updated_at?->format('M d, Y') }}</p>
+                                    <p>{{ format_datetime_locale($customer->last_activity_at) ?: format_date_locale($customer->updated_at) }}</p>
                                     <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ optional($customer->activities->first())->title ?: __('No recent activity') }}</p>
                                 </td>
                                 <td class="px-5 py-4 text-right">

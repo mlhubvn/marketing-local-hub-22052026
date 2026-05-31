@@ -202,7 +202,7 @@
 
                 <div class="flex items-center justify-between gap-4 border-t pt-4" style="border-color: var(--theme-border-color);">
                     <div class="text-xs" style="color: var(--theme-muted-text-color);">
-                        {{ __('Updated') }}: {{ optional($plan->updated_at)->format('M d, Y') ?: __('N/A') }}
+                        {{ __('Updated') }}: {{ format_date_locale(optional($plan->updated_at)) ?: __('N/A') }}
                     </div>
                     <div class="flex items-center gap-2">
                         <x-ui.button

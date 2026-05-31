@@ -381,11 +381,11 @@ if (! function_exists('format_money')) {
     }
 }
 
-if (! function_exists('format_date_vn')) {
+if (! function_exists('format_date_locale')) {
     /**
-     * Format a date using the Vietnamese convention (dd/mm/yyyy by default).
+     * Ngày hiển thị theo locale: Việt Nam mặc định dd/mm/yyyy (19/05/2026).
      */
-    function format_date_vn(mixed $date, string $format = 'd/m/Y'): string
+    function format_date_locale(mixed $date, ?string $format = null): string
     {
         if (empty($date)) {
             return '';
@@ -395,7 +395,67 @@ if (! function_exists('format_date_vn')) {
             ? Illuminate\Support\Carbon::instance($date)
             : Illuminate\Support\Carbon::parse($date);
 
-        return $carbon->format($format);
+        $carbon = $carbon->timezone((string) config('app.timezone', 'UTC'));
+
+        if ($format === null) {
+            if (uses_vietnamese_number_format()) {
+                $format = 'd/m/Y';
+            } elseif (class_exists(OptionStore::class)) {
+                $format = (string) app(OptionStore::class)->get('format_date', 'd/m/Y');
+            } else {
+                $format = 'd/m/Y';
+            }
+        }
+
+        if (uses_vietnamese_number_format() && preg_match('/\bM\b/', $format)) {
+            $format = 'd/m/Y';
+        }
+
+        return $carbon->locale(app()->getLocale())->translatedFormat($format);
+    }
+}
+
+if (! function_exists('format_datetime_locale')) {
+    /**
+     * Ngày giờ hiển thị: Việt Nam mặc định dd/mm/yyyy HH:mm.
+     */
+    function format_datetime_locale(mixed $date, ?string $format = null): string
+    {
+        if (empty($date)) {
+            return '';
+        }
+
+        $carbon = $date instanceof DateTimeInterface
+            ? Illuminate\Support\Carbon::instance($date)
+            : Illuminate\Support\Carbon::parse($date);
+
+        $carbon = $carbon->timezone((string) config('app.timezone', 'UTC'));
+
+        if ($format === null) {
+            if (uses_vietnamese_number_format()) {
+                $format = 'd/m/Y H:i';
+            } elseif (class_exists(OptionStore::class)) {
+                $format = (string) app(OptionStore::class)->get('format_datetime', 'd/m/Y H:i');
+            } else {
+                $format = 'd/m/Y H:i';
+            }
+        }
+
+        if (uses_vietnamese_number_format() && preg_match('/\bM\b/', $format)) {
+            $format = 'd/m/Y H:i';
+        }
+
+        return $carbon->locale(app()->getLocale())->translatedFormat($format);
+    }
+}
+
+if (! function_exists('format_date_vn')) {
+    /**
+     * @deprecated Use format_date_locale()
+     */
+    function format_date_vn(mixed $date, string $format = 'd/m/Y'): string
+    {
+        return format_date_locale($date, $format);
     }
 }
 
@@ -423,5 +483,58 @@ if (! function_exists('publishing_provider_chip_style')) {
             (string) ($tone['surface'] ?? 'rgba(99, 102, 241, 0.12)'),
             (string) ($tone['text'] ?? '#4f46e5')
         );
+    }
+}
+
+if (! function_exists('uses_vietnamese_number_format')) {
+    function uses_vietnamese_number_format(): bool
+    {
+        $locale = (string) app()->getLocale();
+
+        return $locale === 'vi' || str_starts_with($locale, 'vi_');
+    }
+}
+
+if (! function_exists('format_number_locale')) {
+    /**
+     * Việt Nam: 1.234.567 (dấu chấm phân hàng nghìn, phẩy thập phân).
+     */
+    function format_number_locale(int|float $value, int $decimals = 0): string
+    {
+        if (uses_vietnamese_number_format()) {
+            return number_format((float) $value, $decimals, ',', '.');
+        }
+
+        return number_format((float) $value, $decimals);
+    }
+}
+
+if (! function_exists('format_price_locale')) {
+    /**
+     * Giá hiển thị: Việt Nam 550.000 (không thập phân); có currency thì dùng format_money.
+     */
+    function format_price_locale(int|float|string|null $amount, ?string $currency = null): string
+    {
+        if ($amount === null || $amount === '') {
+            return '';
+        }
+
+        if (filled($currency)) {
+            return format_money($amount, $currency);
+        }
+
+        $decimals = uses_vietnamese_number_format() ? 0 : 2;
+
+        return format_number_locale((float) $amount, $decimals);
+    }
+}
+
+if (! function_exists('format_percent_locale')) {
+    /**
+     * Tỷ lệ % làm tròn số nguyên không âm (vd. 8,7% → 9%).
+     */
+    function format_percent_locale(int|float $value): string
+    {
+        return format_number_locale(max(0, (int) round((float) $value)), 0).'%';
     }
 }

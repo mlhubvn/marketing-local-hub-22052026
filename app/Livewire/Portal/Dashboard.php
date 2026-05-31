@@ -83,7 +83,7 @@ class Dashboard extends Component
                 'bookings' => $bookings,
                 'coupon_claims' => $couponClaims,
                 'feedback' => $feedback,
-                'conversion_rate' => $visits > 0 ? round(($conversions / $visits) * 100, 1) : 0,
+                'conversion_rate' => $visits > 0 ? max(0, (int) round(($conversions / $visits) * 100)) : 0,
             ],
             'recentActivity' => $this->recentActivity($campaignIds),
             'topCampaigns' => $this->topCampaigns($userId, $campaignIds),
@@ -143,7 +143,7 @@ class Dashboard extends Component
                     'campaign' => $campaign,
                     'visits' => (int) $campaign->scans_count,
                     'conversions' => $conversions,
-                    'conversion_rate' => $campaign->scans_count > 0 ? round(($conversions / $campaign->scans_count) * 100, 1) : 0,
+                    'conversion_rate' => $campaign->scans_count > 0 ? max(0, (int) round(($conversions / $campaign->scans_count) * 100)) : 0,
                 ];
             })
             ->sortByDesc(fn (array $row): int|float => $row['conversions'] + $row['visits'])

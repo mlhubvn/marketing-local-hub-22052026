@@ -324,7 +324,7 @@
                                             <span class="rounded-lg border px-2.5 py-1.5 font-semibold tracking-[0.08em]" style="border-color: rgba(var(--theme-border-color-rgb), .62); color: var(--theme-header-text-color);">{{ $claim->code }}</span>
                                         </td>
                                         <td class="px-5 py-4">{{ $campaign?->name ?: __('Campaign removed') }}</td>
-                                        <td class="px-5 py-4" style="color: var(--theme-muted-text-color);">{{ $claim->created_at?->format('M d, Y') }}</td>
+                                        <td class="px-5 py-4" style="color: var(--theme-muted-text-color);">{{ format_date_locale($claim->created_at) }}</td>
                                         <td class="px-5 py-4"><x-ui.badge :variant="$claim->status === 'used' ? 'success' : ($claim->status === 'cancelled' ? 'danger' : 'warning')">{{ str($claim->status)->headline() }}</x-ui.badge></td>
                                         <td class="px-5 py-4 text-right">
                                             <div class="inline-flex items-center gap-2">

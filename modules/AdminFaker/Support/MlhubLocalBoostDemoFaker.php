@@ -36,7 +36,7 @@ class MlhubLocalBoostDemoFaker
     $config = MlhubAdminFakerConfig::load();
     $weeklyHours = $config['weekly_hours'];
     $messages = $config['messages'];
-    $maxDaysAgo = (int) ($config['engagement_max_days_ago'] ?? 540);
+    $maxDaysAgo = (int) ($config['engagement_max_days_ago'] ?? 365);
 
     $businesses = collect($config['businesses'])->mapWithKeys(function (array $data, string $key) use ($user, $weeklyHours): array {
       $createdAt = now()->subDays(120 + (abs(crc32($key)) % 240));
@@ -413,6 +413,11 @@ class MlhubLocalBoostDemoFaker
           'demo_scope' => 'localboost-dn-soho-landing',
         ], (array) ($data['settings'] ?? []));
 
+        $scaledLandingMetrics = MlhubAdminFakerConfig::scaleMetrics(
+          (int) ($data['visits'] ?? 0),
+          (int) ($data['conversions'] ?? 0),
+        );
+
         return LandingPage::query()->updateOrCreate(
           ['user_id' => $user->id, 'slug' => $data['slug']],
           [
@@ -424,8 +429,8 @@ class MlhubLocalBoostDemoFaker
             'status' => 'published',
             'content' => $content,
             'settings' => $settings,
-            'visits_count' => $data['visits'] ?? 0,
-            'conversions_count' => $data['conversions'] ?? 0,
+            'visits_count' => $scaledLandingMetrics['visits'],
+            'conversions_count' => $scaledLandingMetrics['conversions'],
             'published_at' => now()->subDays($ageDays),
             'created_at' => now()->subDays($ageDays),
             'updated_at' => now()->subDays(1),
