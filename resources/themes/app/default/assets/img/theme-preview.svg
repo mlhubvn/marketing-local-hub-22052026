@@ -8,7 +8,7 @@
   <rect x="830" y="48" width="56" height="34" rx="17" fill="#0F172A"/>
   <rect x="36" y="124" width="178" height="476" rx="24" fill="#F5F8FD"/>
   <rect x="62" y="156" width="126" height="40" rx="16" fill="#FFFFFF"/>
-  <rect x="78" y="168" width="20" height="16" rx="8" fill="#FD6B63"/>
+  <rect x="78" y="168" width="20" height="16" rx="8" fill="#4F46E5"/>
   <rect x="110" y="169" width="54" height="14" rx="7" fill="#0F172A"/>
   <rect x="62" y="224" width="96" height="14" rx="7" fill="#CDD9EA"/>
   <rect x="62" y="264" width="96" height="14" rx="7" fill="#CDD9EA"/>
@@ -43,5 +43,5 @@
   <rect x="620" y="468" width="272" height="1" stroke="#E8EEF8" stroke-dasharray="4 4"/>
   <rect x="620" y="506" width="272" height="1" stroke="#E8EEF8" stroke-dasharray="4 4"/>
   <rect x="620" y="544" width="272" height="1" stroke="#E8EEF8" stroke-dasharray="4 4"/>
-  <path d="M656 520C680 488 704 476 728 476C752 476 776 548 800 548C824 548 848 436 872 450" stroke="#FD6B63" stroke-width="8" stroke-linecap="round"/>
+  <path d="M656 520C680 488 704 476 728 476C752 476 776 548 800 548C824 548 848 436 872 450" stroke="#5B5BF7" stroke-width="8" stroke-linecap="round"/>
 </svg>
