@@ -56,8 +56,8 @@ class MLHUBBootstrapSeeder extends Seeder
         $options = app(OptionStore::class);
 
         $title = (string) ($site['title'] ?? 'MLHUB');
-        $guestTheme = (string) ($site['guest_theme'] ?? 'mlhubtheme');
-        $backendTheme = (string) ($site['backend_theme'] ?? 'mlhubtheme');
+        $guestTheme = (string) ($site['guest_theme'] ?? 'mlhubfrontend');
+        $backendTheme = (string) ($site['backend_theme'] ?? 'mlhubbackend');
 
         $options->set('website_title', $title);
         $options->set('website_description', (string) ($site['description'] ?? ''));

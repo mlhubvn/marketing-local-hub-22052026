@@ -29,7 +29,7 @@ Tài liệu mô tả tầng giao diện & tương tác: stack frontend, luồng 
 resources/themes/
   app/default/              THEME backend core — KHÔNG sửa
   guest/localboostai/       THEME marketing/auth core — KHÔNG sửa
-  guest/mlhubtheme/          theme guest tùy biến (ví dụ sẵn có)
+  guest/mlhubfrontend/       theme guest MLHUB (fork localboostai)
   shared/                   CSS/JS/plugin dùng chung — KHÔNG sửa
     css/theme-base.css
     js/{highcharts,image-editor,fingerprint,…}.js
@@ -59,12 +59,12 @@ resources/themes/{area}/{name}/
 
 | Area | Theme mặc định (code) | **Theme đang ACTIVE (env)** | Dùng cho |
 |------|----------------|------------------------------|----------|
-| `guest` | `localboostai` | **`mlhubtheme`** (`THEME_FRONTEND`) | Home, pricing, blogs, faqs, contact, login/register/reset |
+| `guest` | `localboostai` | **`mlhubfrontend`** (`THEME_FRONTEND`) | Home, pricing, blogs, faqs, contact, login/register/reset |
 | `app` | `default` | `default` (`THEME_BACKEND`) | Portal (`/portal/*`), admin (`/admin/*`), settings (`/settings/*`), dashboard |
 
 Theme đang dùng của mỗi area lưu trong `OptionStore` (`frontend_theme`, `backend_theme`), chỉnh ở **Admin → Themes**, và được khởi tạo từ env `THEME_FRONTEND` / `THEME_BACKEND`.
 
-> **Quan trọng cho vibecode:** khu guest đang dùng theme tùy biến **`mlhubtheme`** (`resources/themes/guest/mlhubtheme/`), KHÔNG phải `localboostai`. Khi chỉnh giao diện marketing/auth, sửa trong `mlhubtheme`; khi chỉnh portal/admin, đây mới là theme `default`. App là **MLHUB** (`mlhub.vn`), locale mặc định **`vi`**.
+> **Quan trọng cho vibecode:** khu guest đang dùng **`mlhubfrontend`** (`resources/themes/guest/mlhubfrontend/`, fork `localboostai`). Backend portal dùng **`mlhubbackend`** (fork `default`). Gốc upstream vẫn là `localboostai` / `default` để merge update tác giả. App là **MLHUB** (`mlhub.vn`), locale mặc định **`vi`**.
 
 ### 2.3 Giải quyết theme khi runtime
 
@@ -161,7 +161,7 @@ Theo thứ tự "ít rủi ro nhất → nhiều nhất":
 
 ### 7.3 Clone theme (rebrand toàn diện — khuyến nghị)
 1. Copy `resources/themes/app/default` → `resources/themes/app/custom` (đổi `name`, `order` trong `theme.json`).
-2. Copy `resources/themes/guest/localboostai` → `resources/themes/guest/custom` nếu cần đổi cả marketing (mẫu sẵn có: `guest/mlhubtheme`).
+2. Copy `resources/themes/guest/localboostai` → `resources/themes/guest/custom` nếu cần đổi cả marketing (mẫu sẵn có: `guest/mlhubfrontend`).
 3. Chạy Vite build trong theme custom → output phải vào `public/build/themes/{area}/custom/`.
 4. Kích hoạt ở **Admin → Themes**.
 5. **Không** sửa `default`/`localboostai` sau khi fork — bản fork tự mang theo thay đổi.
@@ -199,7 +199,7 @@ Theo thứ tự "ít rủi ro nhất → nhiều nhất":
 | `resources/themes/app/default/**` | ✗ |
 | `resources/themes/guest/localboostai/**` | ✗ |
 | `resources/themes/shared/**` | ✗ |
-| `resources/themes/app/custom/**`, `resources/themes/guest/custom/**` (hoặc `mlhubtheme`) | ✓ |
+| `resources/themes/app/custom/**`, `resources/themes/guest/custom/**` (hoặc `mlhubfrontend` / `mlhubbackend`) | ✓ |
 | `modules/{Admin,App,Payment}*/Resources/views/**` | ✗ (trừ sửa lỗi production, surgical) |
 | `modules/Custom*/Resources/views/**`, `app/Custom/resources/views/**` | ✓ |
 | `public/build/themes/app/default/**`, `.../guest/localboostai/**` | ✗ |

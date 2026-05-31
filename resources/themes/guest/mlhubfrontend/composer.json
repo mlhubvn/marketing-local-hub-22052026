@@ -1,0 +1,10 @@
+{
+    "name": "guest/mlhubfrontend",
+    "description": "MLHUB guest theme (fork of LocalBoostAI)",
+    "type": "laravel-theme",
+    "extra": {
+        "laravel-theme": {
+            "name": "guest/mlhubfrontend"
+        }
+    }
+}

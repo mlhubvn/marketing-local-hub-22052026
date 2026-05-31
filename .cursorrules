@@ -73,7 +73,7 @@
 | `SESSION_DRIVER` / `QUEUE_CONNECTION` / `CACHE_STORE` | đều **`redis`** (phpredis) | Session/cache/queue chạy trên **Redis** (`REDIS_HOST` = service nội bộ Coolify, password trong Coolify env). Vẫn cần **queue worker** chạy. Không cần bảng `sessions`/`cache`/`jobs` trong MySQL; riêng `failed_jobs` (+ `job_batches`) vẫn ở MySQL theo mặc định. `throttle` rate-limit giờ đếm trên Redis (chính xác hơn cho nhiều instance) |
 | `FILESYSTEM_DISK` | `public` (S3 trống) | Upload dùng disk `public`; chưa bật S3 |
 | `MAIL_MAILER` | **`smtp`** (Emailit) | ✅ Đã cấu hình SMTP qua `smtp.emailit.com:587` (user `emailit`, password = API key đặt trong **Coolify env**, KHÔNG commit). Welcome + verify email đã chạy thật |
-| `THEME_FRONTEND` / `THEME_BACKEND` | `mlhubtheme` / `default` | **Theme guest đang active là `mlhubtheme`** (theme tùy biến), backend là `default` |
+| `THEME_FRONTEND` / `THEME_BACKEND` | `mlhubfrontend` / `mlhubbackend` | Fork `localboostai` + `default`, chỉ phối màu MLHUB |
 | `APP_DEMO` | `false` | Demo mode đã tắt cho production |
 | `APP_INSTALLED` | `true` | **Luôn true** trên Coolify — không còn Web Installer |
 | `MLHUB_ALLOW_RESET_DEMO` | `false` | Đặt `true` tạm khi chạy `php artisan mlhub:reset-demo --force` trên pilot |

@@ -46,7 +46,7 @@ class MlhubResetDemoCommand extends Command
 
         $this->newLine();
         $this->info('Hoàn tất. Đăng nhập: demo@mlhub.vn / 123456 (super admin + demo đầy đủ).');
-        $this->line('Giao diện: frontend + backend theme slug = mlhubtheme (App MLHUB / guest MLHUB).');
+        $this->line('Giao diện: frontend = mlhubfrontend, backend = mlhubbackend.');
         $this->line('Chạy thêm trong container Redis: docker exec -it <redis> redis-cli -a \'...\' FLUSHALL');
 
         return self::SUCCESS;
