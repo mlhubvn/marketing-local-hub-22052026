@@ -60,7 +60,7 @@ resources/themes/{area}/{name}/
 | Area | Theme mặc định (code) | **Theme đang ACTIVE (env)** | Dùng cho |
 |------|----------------|------------------------------|----------|
 | `guest` | `localboostai` | **`mlhubfrontend`** (`THEME_FRONTEND`) | Home, pricing, blogs, faqs, contact, login/register/reset |
-| `app` | `default` | `default` (`THEME_BACKEND`) | Portal (`/portal/*`), admin (`/admin/*`), settings (`/settings/*`), dashboard |
+| `app` | `default` | **`mlhubbackend`** (`THEME_BACKEND`) | Portal (`/portal/*`), admin (`/admin/*`), settings (`/settings/*`), dashboard |
 
 Theme đang dùng của mỗi area lưu trong `OptionStore` (`frontend_theme`, `backend_theme`), chỉnh ở **Admin → Themes**, và được khởi tạo từ env `THEME_FRONTEND` / `THEME_BACKEND`.
 

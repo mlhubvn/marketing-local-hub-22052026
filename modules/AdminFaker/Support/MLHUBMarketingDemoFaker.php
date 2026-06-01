@@ -37,8 +37,8 @@ class MLHUBMarketingDemoFaker
         $this->createSupportInbox($user, $team, $counts);
         $this->createAffiliateSnapshot($user, $counts);
         $this->createFaqs($counts);
-        [$category, $tags] = $this->createBlogTaxonomy();
-        $this->createBlogs($user, $category, $tags, $imageFiles, $counts);
+        [$categories, $tags] = $this->createBlogTaxonomy();
+        $this->createBlogs($user, $categories, $tags, $imageFiles, $counts);
         $this->createGlobalNotifications($user, $counts);
     }
 
@@ -95,8 +95,9 @@ class MLHUBMarketingDemoFaker
 
         if ($demoCommissions->isNotEmpty() || $demoWithdrawals->isNotEmpty()) {
             $profile = app(AffiliateService::class)->ensureProfile($user);
+            $volumeScale = MLHUBAdminFakerConfig::volumeScale();
             $profile->forceFill([
-                'clicks' => max(0, (int) $profile->clicks - 184),
+                'clicks' => max(0, (int) $profile->clicks - (184 * $volumeScale)),
                 'conversions' => max(0, (int) $profile->conversions - $demoCommissions->count()),
                 'total_approved' => max(0, (float) $profile->total_approved - $approvedCommissionTotal),
                 'total_withdrawal' => max(0, (float) $profile->total_withdrawal - $approvedWithdrawalTotal),
@@ -239,6 +240,7 @@ class MLHUBMarketingDemoFaker
         $affiliate->ensureReferralCode($user);
 
         $profile = $affiliate->ensureProfile($user);
+        $volumeScale = MLHUBAdminFakerConfig::volumeScale();
 
         $payments = [
             ['transaction_id' => 'DEMO-AFF-001-'.$user->id, 'amount' => 8_000_000, 'commission_rate' => 15.00, 'commission' => 1_200_000, 'status' => AffiliateCommission::STATUS_APPROVED, 'created_offset' => 172800],
@@ -312,9 +314,9 @@ class MLHUBMarketingDemoFaker
         }
 
         $profile->forceFill([
-            'clicks' => (int) $profile->clicks + 184,
-            'conversions' => (int) $profile->conversions + count($payments),
-            'total_approved' => (float) $profile->total_approved + 75.00,
+            'clicks' => (int) $profile->clicks + (184 * $volumeScale),
+            'conversions' => (int) $profile->conversions + (count($payments) * $volumeScale),
+            'total_approved' => (float) $profile->total_approved + (75.00 * $volumeScale),
             'total_withdrawal' => (float) $profile->total_withdrawal + 18.00,
             'total_balance' => (float) $profile->total_balance + 32.00,
         ])->save();
@@ -322,7 +324,10 @@ class MLHUBMarketingDemoFaker
 
     protected function createFaqs(array &$counts): void
     {
-        $faqs = MLHUBAdminFakerConfig::load()['marketing']['faqs'] ?? [];
+        $static = MLHUBAdminFakerConfig::load()['marketing']['faqs'] ?? [];
+        $target = MLHUBAdminFakerConfig::marketingFaqTarget();
+        $generated = MLHUBMarketingContentGenerator::faqs(max(0, $target - count($static)));
+        $faqs = array_merge($static, $generated);
 
         foreach ($faqs as $faq) {
             Faq::query()->updateOrCreate(
@@ -344,85 +349,105 @@ class MLHUBMarketingDemoFaker
     }
 
     /**
-     * @return array{0: BlogCategory, 1: \Illuminate\Support\Collection<int, BlogTag>}
+     * @return array{0: \Illuminate\Support\Collection<int, BlogCategory>, 1: \Illuminate\Support\Collection<int, BlogTag>}
      */
     protected function createBlogTaxonomy(): array
     {
-        $category = BlogCategory::query()->create([
-            'id_secure' => Str::random(32),
-            'name' => 'Hướng dẫn tăng trưởng cho hộ kinh doanh Đà Nẵng',
-            'name_translations' => ['en' => 'Growth guides for Da Nang small businesses', 'vi' => 'Hướng dẫn tăng trưởng cho hộ kinh doanh Đà Nẵng'],
-            'description' => 'Kiến thức thực tế về chiến dịch QR, landing page và chuyển đổi khách tại chỗ cho spa, quán ăn, nha khoa.',
-            'description_translations' => ['en' => 'Practical guides for QR campaigns and local landing pages.', 'vi' => 'Kiến thức thực tế về chiến dịch QR, landing page và chuyển đổi khách tại chỗ.'],
-            'slug' => 'demo-preview-huong-dan-ho-kinh-doanh-da-nang',
-            'icon' => 'fa-light fa-qrcode',
-            'color' => '#ff5f5f',
-            'status' => 1,
-            'sort_order' => 10,
-            'changed' => time(),
-            'created' => time(),
-        ]);
+        $now = time();
+        $sort = 10;
 
-        $tags = collect([
-            ['slug' => 'demo-preview-chien-dich-qr', 'name' => 'Chiến dịch QR', 'name_en' => 'QR Campaigns'],
-            ['slug' => 'demo-preview-landing-page', 'name' => 'Landing page', 'name_en' => 'Landing Pages'],
-            ['slug' => 'demo-preview-danh-gia-google', 'name' => 'Đánh giá Google', 'name_en' => 'Google Reviews'],
-        ])->map(function (array $tag) {
+        $categories = collect(MLHUBMarketingContentGenerator::blogCategories())->map(function (array $row) use (&$sort, $now): BlogCategory {
+            return BlogCategory::query()->create([
+                'id_secure' => Str::random(32),
+                'name' => $row['name'],
+                'name_translations' => ['en' => $row['name_en'], 'vi' => $row['name']],
+                'description' => $row['description'],
+                'description_translations' => ['en' => $row['description'], 'vi' => $row['description']],
+                'slug' => $row['slug'],
+                'icon' => 'fa-light fa-qrcode',
+                'color' => '#ff5f5f',
+                'status' => 1,
+                'sort_order' => $sort,
+                'changed' => $now,
+                'created' => $now,
+            ]);
+        });
+
+        $tags = collect(MLHUBMarketingContentGenerator::blogTags())->map(function (array $tag) use ($now): BlogTag {
             return BlogTag::query()->create([
                 'id_secure' => Str::random(32),
                 'name' => $tag['name'],
                 'name_translations' => ['en' => $tag['name_en'], 'vi' => $tag['name']],
-                'description' => 'Thẻ demo MLHUB – hộ kinh doanh Đà Nẵng.',
-                'description_translations' => ['en' => 'MLHUB demo tag for Da Nang local businesses.', 'vi' => 'Thẻ demo MLHUB – hộ kinh doanh Đà Nẵng.'],
+                'description' => 'Thẻ demo MLHUB — SaaS marketing cho hộ kinh doanh & SOHO Đà Nẵng.',
+                'description_translations' => ['en' => 'MLHUB demo tag — SOHO Da Nang.', 'vi' => 'Thẻ demo MLHUB — SaaS marketing cho hộ kinh doanh & SOHO Đà Nẵng.'],
                 'slug' => $tag['slug'],
                 'color' => '#ff8c42',
                 'status' => 1,
-                'changed' => time(),
-                'created' => time(),
+                'changed' => $now,
+                'created' => $now,
             ]);
         });
 
-        return [$category, $tags];
+        return [$categories, $tags];
     }
 
     /**
+     * @param  \Illuminate\Support\Collection<int, BlogCategory>  $categories
+     * @param  \Illuminate\Support\Collection<int, BlogTag>  $tags
      * @param  array<int, AppFile>  $imageFiles
      */
-    protected function createBlogs(User $user, BlogCategory $category, $tags, array $imageFiles, array &$counts): void
+    protected function createBlogs(User $user, $categories, $tags, array $imageFiles, array &$counts): void
     {
         $now = time();
         $imageResolver = app(MLHUBDemoImageResolver::class);
+        $static = MLHUBAdminFakerConfig::load()['marketing']['blogs'] ?? [];
+        $target = MLHUBAdminFakerConfig::marketingBlogTarget();
+        $generated = MLHUBMarketingContentGenerator::blogs(max(0, $target - count($static)));
 
-        $blogs = MLHUBAdminFakerConfig::load()['marketing']['blogs'] ?? [];
-
-        foreach ($blogs as $index => $blog) {
+        foreach (array_merge($static, $generated) as $index => $blog) {
             $image = $imageResolver->random($imageFiles);
-            $content = '<p>'.$blog['excerpt'].'</p><p>Bài demo MLHUB minh họa cách hộ kinh doanh kết hợp chiến dịch QR, landing page và báo cáo trên một nền tảng — không cần ghép nhiều công cụ rời.</p>';
+            $categoryIndex = (int) ($blog['category_index'] ?? ($index % max(1, $categories->count())));
+            $category = $categories->values()[$categoryIndex % $categories->count()];
+            $content = $blog['content'] ?? (
+                '<p>'.$blog['excerpt'].'</p><p>Bài demo MLHUB minh họa cách hộ kinh doanh kết hợp chiến dịch QR, landing page và báo cáo trên một nền tảng.</p>'
+            );
+            $publishedAt = $now - (($index % 720) * 86400);
 
             $entry = Blog::query()->updateOrCreate(
                 ['slug' => $blog['slug']],
                 [
-                'id_secure' => Str::random(32),
-                'blog_category_id' => $category->id,
-                'title' => $blog['title'],
-                'title_translations' => ['en' => $blog['title'], 'vi' => $blog['title']],
-                'excerpt' => $blog['excerpt'],
-                'excerpt_translations' => ['en' => $blog['excerpt'], 'vi' => $blog['excerpt']],
-                'content' => $content,
-                'content_translations' => ['en' => $content, 'vi' => $content],
+                    'id_secure' => Str::random(32),
+                    'blog_category_id' => $category->id,
+                    'title' => $blog['title'],
+                    'title_translations' => ['en' => $blog['title'], 'vi' => $blog['title']],
+                    'excerpt' => $blog['excerpt'],
+                    'excerpt_translations' => ['en' => $blog['excerpt'], 'vi' => $blog['excerpt']],
+                    'content' => $content,
+                    'content_translations' => ['en' => $content, 'vi' => $content],
                     'meta_title' => $blog['title'],
                     'meta_description' => $blog['excerpt'],
                     'canonical_url' => null,
                     'og_image' => $imageResolver->url($image),
                     'thumbnail' => $imageResolver->url($image),
                     'status' => 1,
-                    'published_at' => $now - ($index * 86400),
+                    'published_at' => $publishedAt,
                     'changed' => $now,
                     'created' => $now,
                 ],
             );
 
-            $entry->tags()->syncWithoutDetaching($tags->pluck('id')->take(2)->all());
+            $tagIndexes = $blog['tag_indexes'] ?? [$index % max(1, $tags->count()), ($index + 2) % max(1, $tags->count())];
+            $tagIds = collect($tagIndexes)
+                ->map(fn (int $tagIndex): ?int => $tags->values()[$tagIndex % $tags->count()]->id ?? null)
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+
+            if ($tagIds !== []) {
+                $entry->tags()->syncWithoutDetaching($tagIds);
+            }
+
             $counts['blogs']++;
         }
     }

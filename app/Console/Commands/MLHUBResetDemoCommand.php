@@ -31,7 +31,8 @@ class MLHUBResetDemoCommand extends Command
         $this->call('migrate', ['--force' => true]);
         $this->call('db:seed', ['--force' => true]);
 
-        $this->warn('Đang seed Admin Faker (demo investor Đà Nẵng: QR, landing, CRM, FAQ, blog, …)...');
+        $this->warn('Đang seed Admin Faker enterprise (~10M QR, 11 cơ sở, 11k khách) — có thể 20–60 phút.');
+        $this->line('Gợi ý pilot: max_execution_time ≥ 3600, memory_limit ≥ 1024M, MySQL innodb_buffer_pool lớn.');
         $fakerExit = $this->call('admin-faker:refresh', ['--no-clear' => true]);
 
         if ($fakerExit !== self::SUCCESS) {

@@ -2,7 +2,7 @@
 
 > Tài liệu này được sinh ra bằng cách **quét trực tiếp codebase thực tế**. Mọi quy tắc dưới đây phản ánh đúng phong cách của lập trình viên gốc. Khi bạn (AI) viết hoặc sửa code, **bắt buộc bám sát các mẫu này** — không tự sáng tạo phong cách mới.
 
-Đây là một ứng dụng **Laravel 13 + Livewire 4 dạng modular monolith**. Phần lớn nghiệp vụ nằm trong `modules/` (~80 module), `app/` chỉ là lớp vỏ (shell) mỏng.
+Đây là một ứng dụng **Laravel 13 + Livewire 4 dạng modular monolith**. Phần lớn nghiệp vụ nằm trong `modules/` (**79 module**: 29 `Admin*`, 36 `App*`, 14 `Payment*`), `app/` chỉ là lớp vỏ (shell) mỏng.
 
 ---
 
@@ -59,7 +59,7 @@
 | Livewire | `^4.1` (full-page components qua `Route::livewire`) |
 | Auth | Laravel **Fortify** `^1.34` + 2FA (`TwoFactorAuthenticatable`) |
 | AI | `laravel/ai` `^0.4.2` (kèm `prism-php/prism`) |
-| Thanh toán | `stripe/stripe-php` `15.0` + ~15 cổng `Payment*` module |
+| Thanh toán | `stripe/stripe-php` `15.0` + **14** cổng `Payment*` module |
 | Lưu trữ | `league/flysystem-aws-s3-v3`, `aws/aws-sdk-php` |
 | PDF | `barryvdh/laravel-dompdf` |
 | Dịch | `stichoza/google-translate-php` |
@@ -94,7 +94,7 @@
 
 **Captcha:** module `AdminCaptcha` hỗ trợ **Google reCAPTCHA v2** và **Cloudflare Turnstile** (mặc định Turnstile). Cấu hình lưu trong **`OptionStore` (Admin → Captcha)**, **KHÔNG phải `.env`** (key: `captcha_type`, `auth_cloudflare_turnstile_*`, `auth_google_recaptcha_*`). Helper dùng lại: `captcha_render()`, `captcha_verify(request())`, `with_captcha_validation($rules)`. Hiện captcha đã gắn vào **trang auth** (login/register/forgot/reset); **chưa** gắn vào 5 form growth-tool công khai (xem backlog trong `ARCHITECTURE_FEATURE.md`).
 
-**Rate-limit:** 5 route POST form công khai (`booking-pages.submit`, `coupon-campaigns.claim`, `feedback-forms.submit`, `lead-forms.submit`, `review-booster.feedback`) đã thêm `throttle:10,1`. Khi tạo endpoint công khai mới → **bắt buộc** kèm `throttle` tương tự.
+**Rate-limit:** 5 route POST growth-tool (`booking-pages.submit`, `coupon-campaigns.claim`, `feedback-forms.submit`, `lead-forms.submit`, `review-booster.feedback`) đã có `throttle:10,1`. Route public Loyalty/Referral (`loyalty-cards.stamp`, `referral-campaigns.link`, `referral-links.convert`) **chưa** có throttle — xem backlog `ARCHITECTURE_FEATURE.md`. Endpoint công khai mới → **bắt buộc** kèm `throttle` tương tự.
 
 **Triển khai:** Coolify + Traefik (HTTP→HTTPS, Let's Encrypt), domain `mlhub.vn`/`www.mlhub.vn`, storage gắn volume `mlhub-storage:/var/www/html/storage`. Vì chạy sau proxy nên `TRUSTED_PROXIES` đã được xử lý trong `bootstrap/app.php` — **đừng** hard-code `http://` khi tạo URL, dùng helper sinh URL của Laravel.
 
@@ -215,6 +215,7 @@ class FeatureIndex extends Component
   - Thanh toán: `PaymentGatewayDefinition` + `PaymentGatewaySettingsRegistry::register(...)`.
 - **Livewire-first**: trang = Livewire component; Controller chỉ cho public form/webhook/download.
 - **Engine dùng chung `lb_campaigns`**: 5 growth tool (Review Booster, Booking, Coupons, Feedback, Lead) đều lưu vào model `QrCampaign` với cột `type` ('review'|'booking'|'coupon'|'feedback'|'lead'|'url') + JSON `settings`. Public route đi qua `QrCampaignPublicController::show` rồi rẽ nhánh theo `type`. **Khi thêm growth tool mới, theo đúng mẫu này.**
+- **Module portal mở rộng (upstream mới, không dùng `lb_campaigns`)**: `AppAdvancedCustomerCrm` (`portal/crm`), `AppEmailAutomation` (`portal/email-automation`), `AppLoyaltyStampCards` (`portal/loyalty-cards` + public `/loyalty/*`, `/referral/*`, `/r/*`), `AppLocalAnalytics` (`portal/reports`). `AppLoyaltyStampCards` còn đăng ký thêm trong `bootstrap/providers.marketplace.php`.
 
 ---
 

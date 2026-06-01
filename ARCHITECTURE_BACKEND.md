@@ -9,7 +9,7 @@ Tài liệu mô tả cách backend Laravel 13 được tổ chức, các add-on/
 LocalBoost AI là một **Modular Monolith** (khối nguyên một process nhưng chia module):
 
 - `app/` — **lớp vỏ (shell) mỏng**: auth, trang marketing khách, bootstrap MLHUB (`config/mlhub.php`, `mlhub:reset-demo`), các registry toàn cục, middleware.
-- `modules/` — **~80 module** (`Admin*`, `App*`, `Payment*`) chứa hầu hết Model, Livewire, Route, Service.
+- `modules/` — **79 module** (29 `Admin*`, 36 `App*`, 14 `Payment*`) chứa hầu hết Model, Livewire, Route, Service.
 - `resources/themes/` — tầng trình bày (xem `ARCHITECTURE_FRONTEND.md`).
 - `bootstrap/providers.php` — **tự động phát hiện** mọi module và nạp Service Provider của chúng.
 
@@ -50,8 +50,8 @@ Nguyên tắc cốt lõi:
 | Tiền tố | Đối tượng | Ví dụ |
 |--------|-----------|-------|
 | `Admin*` | Super-admin / cấu hình | `AdminUser`, `AdminPlans`, `AdminThemes`, `AdminSettings`, `AdminLanguages`, `AdminMarketplace`, `AdminCrons`, `AdminCoupons`, `AdminPayment*`, `AdminCredits`, `AdminAI*`, `AdminCache`, `AdminLog` (xem/tải/xoá log tại `admin/settings/log`, route `admin-log.index`, chỉ admin) |
-| `App*` | Portal khách hàng | `AppBusinessProfiles`, `AppQRCampaigns`, `AppReviewBooster`, `AppBookingPages`, `AppCouponCampaigns`, `AppFeedbackForms`, `AppLeadForms`, `AppLandingPages`, `AppCustomers`, `AppTeams`, `AppCredits`, `AppPayments`, `AppAI*` |
-| `Payment*` | Plugin cổng thanh toán | `PaymentStripe`, `PaymentPaypal`, `PaymentRazorpay`, `PaymentPaystack`, `PaymentFlutterwave`, `PaymentInstamojo`, `PaymentIyzico`, `Payment2Checkout`, `PaymentCCAvenue`, `PaymentSslCommerz`, `PaymentYooMoney`, `PaymentPaytm`, `PaymentPayU`, `PaymentPayTR` |
+| `App*` | Portal khách hàng | Growth: `AppQRCampaigns`, `AppReviewBooster`, `AppBookingPages`, `AppCouponCampaigns`, `AppFeedbackForms`, `AppLeadForms`. Mở rộng: `AppAdvancedCustomerCrm`, `AppEmailAutomation`, `AppLoyaltyStampCards`, `AppLocalAnalytics`. Core: `AppBusinessProfiles`, `AppCustomers`, `AppLandingPages`, `AppTeams`, `AppCredits`, `AppPayments`, `AppBilling`, `AppAI*`, `AppGoogleBusiness`, `AppIntegrations`, … |
+| `Payment*` | Plugin cổng thanh toán (**14**) | `PaymentStripe`, `PaymentPaypal`, `PaymentRazorpay`, `PaymentPaystack`, `PaymentFlutterwave`, `PaymentInstamojo`, `PaymentIyzico`, `Payment2Checkout`, `PaymentCCAvenue`, `PaymentSslCommerz`, `PaymentYooMoney`, `PaymentPaytm`, `PaymentPayU`, `PaymentPayTR` |
 
 **Cấu trúc điển hình một module** (vd `modules/AppReviewBooster/`):
 
@@ -82,7 +82,7 @@ Mỗi lần boot, file này thực hiện:
 3. Nếu `providers` rỗng → fallback theo quy ước `Modules\{Name}\Providers\{Name}ServiceProvider`.
 4. `require_once` `Support/helpers.php` của module nếu tồn tại (auto-load helper).
 5. Sắp xếp theo `priority` tăng dần, rồi theo tên.
-6. Gộp thêm danh sách provider từ `bootstrap/providers.marketplace.php`.
+6. Gộp thêm danh sách provider từ `bootstrap/providers.marketplace.php` (hiện: `AppLoyaltyStampCards`).
 
 ```php
 return array_values(array_unique(array_merge(
@@ -92,7 +92,7 @@ return array_values(array_unique(array_merge(
 )));
 ```
 
-> **Hệ quả:** Để thêm một add-on, chỉ cần (a) thả thư mục module có `module.json` vào `modules/`, hoặc (b) thêm tên class provider vào `bootstrap/providers.marketplace.php`. **Không bao giờ sửa `bootstrap/providers.php`.**
+> **Hệ quả:** Để thêm một add-on, chỉ cần (a) thả thư mục module có `module.json` vào `modules/` (tự nạp), hoặc (b) thêm provider vào `bootstrap/providers.marketplace.php` nếu marketplace yêu cầu. **Không bao giờ sửa `bootstrap/providers.php`.** Sau cập nhật upstream: chạy deploy → `migrate --force` trong `entrypoint.sh` áp migration module mới (`lb_email_*`, `lb_loyalty_*`, `lb_crm_*`, …).
 
 ### 3.2 Service Provider của module làm gì
 
@@ -291,7 +291,7 @@ PrepareInstallation
 - [ ] (Backlog bảo mật) Gắn captcha vào 5 form growth-tool công khai — xem `ARCHITECTURE_FEATURE.md`.
 - [x] Queue worker chạy — `entrypoint.sh` tự start `php artisan queue:work` (chạy nền, user `www-data`, vòng lặp tự restart) khi `APP_INSTALLED=true`; tắt bằng `RUN_QUEUE_WORKER=false` nếu dùng worker service Coolify riêng.
 - [ ] Redis sống & `REDIS_PASSWORD` đặt đúng trong Coolify; chỉ cần migrate `failed_jobs`/`job_batches` (không cần `sessions`/`cache`/`jobs`).
-- [ ] Scheduler/cron đã bật (xem `AdminCrons` + `routes/console.php`).
+- [ ] Scheduler/cron đã bật (xem `AdminCrons` + `routes/console.php`). CRM: cân nhắc lịch `crm:process-automations`, `crm:cleanup-activities`, `crm:lifecycle` (module `AppAdvancedCustomerCrm`).
 - [ ] Cấu hình cổng thanh toán + webhook URL thật cho từng `Payment*` đang dùng.
 - [ ] Cân nhắc bật S3 (`FILESYSTEM_DISK`/`AWS_*`) nếu cần scale; kiểm tra signed URL hoạt động sau Traefik.
 - [ ] `php artisan migrate --force` (KHÔNG dùng `migrate:fresh` trên production).

@@ -43,7 +43,16 @@ Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** (LocalBoost AI
 - Lệnh artisan cần chạy khi deploy (vd `migrate --force`, `config:cache`) phải nằm trong `entrypoint.sh` / quy trình build, **không** chạy tay trên server.
 - Thay đổi biến môi trường production: cập nhật trong **Coolify UI (env)** đồng thời phản ánh khóa tương ứng vào `.env.example` ở repo để tài liệu hóa — **không** sửa `.env` trực tiếp trên container.
 
-> Tham chiếu môi trường thật: `.env.example` (MLHUB, locale `vi`, MySQL, session/queue/cache = `redis`, mail `smtp` qua Emailit, theme `mlhubtheme`/`default`).
+> Tham chiếu môi trường thật: `.env.example` (MLHUB, locale `vi`, MySQL, session/queue/cache = `redis`, mail `smtp` qua Emailit, theme `mlhubfrontend` / `mlhubbackend`, **79 module**).
+
+### 1.2 Sau khi cập nhật phiên bản tác giả / cài module mới
+
+- [ ] Commit/push → Coolify redeploy (để `entrypoint.sh` chạy `migrate --force` — gồm migration trong `modules/*/Database/Migrations`).
+- [ ] Kiểm tra log deploy: không lỗi migration (`lb_email_*`, `lb_loyalty_*`, `lb_crm_*`, …).
+- [ ] Admin → Marketplace / Modules: module mới hiển thị và bật (vd `AppLoyaltyStampCards` qua `providers.marketplace.php`).
+- [ ] Portal: vào menu CRM, Email automation, Loyalty cards, Reports — không 500.
+- [ ] Cập nhật `ARCHITECTURE_*.md` + `.cursorrules` nếu thêm module/env (đã quét trong lần sync gần nhất).
+- [ ] Pilot: `MLHUB_ALLOW_RESET_DEMO=true` → `php artisan mlhub:reset-demo --force` + Redis `FLUSHALL` nếu cần làm mới demo.
 
 ---
 
@@ -72,7 +81,7 @@ Thực hiện tuần tự cho **mỗi** task. Bước nào không áp dụng th�
 - [ ] **Gói & tài nguyên:** gọi `PlanLimitGuard::ensureXxxCanBeCreated()` trước khi tạo; tính năng AI gọi `credit_service()->ensureCanConsume()` → `consume_credits()`.
 - [ ] **Xử lý lỗi đúng mẫu:** `abort_unless(...,404)` cho public; `ValidationException::withMessages(['plan'=>...])` cho limit; `try/catch (Throwable)` + fallback cho dịch vụ ngoài/AI.
 - [ ] **Đa ngôn ngữ:** mọi chuỗi hiển thị bọc `__()`; bổ sung bản dịch vào `lang/vi.json` (app mặc định locale `vi`).
-- [ ] **Giao diện:** dùng lại `<x-ui.*>` / `<x-shared.*>`; màu dùng token `var(--theme-*)`; theme guest đang active là `mlhubtheme`.
+- [ ] **Giao diện:** dùng lại `<x-ui.*>` / `<x-shared.*>`; màu dùng token `var(--theme-*)`; theme guest `mlhubfrontend`, backend `mlhubbackend`.
 - [ ] **Tính năng mới** thì ưu tiên điểm mở rộng: `modules/Custom*` + `bootstrap/providers.marketplace.php` (không sửa core nếu không cần).
 
 ### Giai đoạn C — Định dạng & Kiểm thử

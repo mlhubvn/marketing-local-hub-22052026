@@ -10,11 +10,20 @@ return [
     'meta' => [
         'region' => 'Đà Nẵng',
         'persona' => 'SOHO / hộ kinh doanh / kinh tế cá thể',
+        'profile' => 'enterprise_11_sites',
+        'site_count' => 11,
+        'min_campaigns_per_site' => 5,
         'timeline_months' => [
             'min' => 12,
-            'max' => 18,
+            'max' => 24,
         ],
-        'metrics_multiplier' => 80,
+        'target_qr_visits' => 10000000,
+        'metrics_multiplier' => 975,
+        'metrics_multiplier_max' => 1500,
+        'volume_scale' => 20,
+        'customer_target' => 11000,
+        'marketing_faq_target' => 250,
+        'marketing_blog_target' => 250,
         'disclaimer' => 'Tên thương hiệu chỉ minh họa sản phẩm MLHUB — không liên kết vận hành thực tế.',
     ],
     'weekly_hours' => [
@@ -61,7 +70,7 @@ return [
         'Quảng Nam',
     ],
     'scan_country' => 'VN',
-    'engagement_max_days_ago' => 365,
+    'engagement_max_days_ago' => 730,
     'businesses' => [
         'mi_quang_1a' => [
             'slug' => 'admin-faker-mi-quang-1a',
@@ -5903,7 +5912,7 @@ return [
                 'offset' => 345600,
                 'comments' => [
                     [
-                        'comment' => '<p>Demo đã có 600 khách mẫu gắn business.</p>',
+                        'comment' => '<p>Demo enterprise: 11 cơ sở, 11.000 khách SOHO Đà Nẵng.</p>',
                         'offset' => 320000,
                     ],
                 ],
@@ -5962,15 +5971,15 @@ return [
                 'type' => 'info',
             ],
             [
-                'title' => '[DEMO] 600 khách hàng CRM mẫu',
-                'message' => 'Tag VIP, khách quay lại — sẵn sàng cho demo CRM.',
+                'title' => '[DEMO] 11.000 khách hàng SOHO (11 cơ sở)',
+                'message' => 'Mô phỏng 1–2 năm vận hành — hộ kinh doanh Đà Nẵng, CRM & loyalty đầy đủ.',
                 'url_route' => 'portal.customers',
                 'url_fallback' => 'portal/customers',
                 'type' => 'tip',
             ],
             [
-                'title' => '[DEMO] ~1M+ lượt quét demo',
-                'message' => 'Volume faker mô phỏng ~12 tháng — chỉnh meta.metrics_multiplier nếu cần nhẹ hơn.',
+                'title' => '[DEMO] ~10M lượt quét QR (12–24 tháng)',
+                'message' => 'Load-test máy chủ — 11 cơ sở, chiến dịch & landing đủ loại. Chỉnh meta.target_qr_visits nếu cần.',
                 'url_route' => 'portal.dashboard',
                 'url_fallback' => 'portal/dashboard',
                 'type' => 'news',

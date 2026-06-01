@@ -1,3 +1,5 @@
 <?php
 
-return [];
+return [
+    Modules\AppLoyaltyStampCards\Providers\AppLoyaltyStampCardsServiceProvider::class,
+];

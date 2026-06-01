@@ -1,6 +1,5 @@
 # MLHUB — production image (Laravel 13, PHP 8.3, Apache).
-# Env thật (DB, Redis, APP_KEY, …) chỉ cấu hình Runtime trên Coolify — không ghi vào Dockerfile.
-# Composer chạy ở build stage; runtime dùng vendor/ đã build sẵn.
+# Biến môi trường thật (DB, Redis, APP_KEY, mail, license…) chỉ cấu hình trên Coolify — KHÔNG ghi secret vào Dockerfile.
 
 # -----------------------------------------------------------------------------
 # Stage 1: Composer dependencies (cached layer on composer.json / composer.lock)
@@ -24,22 +23,19 @@ RUN composer install \
 FROM php:8.3-apache-bookworm AS production
 
 LABEL maintainer="MLHUB"
-LABEL description="Laravel 13 + Livewire 4 application — Apache, PHP 8.3, MySQL/PostgreSQL/Redis ready"
+LABEL description="Laravel 13 + Livewire 4 application — Apache, PHP 8.3, MySQL/Redis ready"
 
-# Apache document root → Laravel public/
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
-
-# PHP production defaults (override in Coolify if needed)
 ENV PHP_OPCACHE_ENABLE=1
 
 WORKDIR /var/www/html
 
-# System libraries + PHP extensions (Laravel + dompdf + AWS + MySQL + PostgreSQL)
 RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
         git \
         unzip \
+        zip \
         default-libmysqlclient-dev \
         libpq-dev \
         libzip-dev \
@@ -79,7 +75,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get purge -y --auto-remove git unzip \
     && rm -rf /var/lib/apt/lists/* /tmp/pear
 
-# Optional: tuned opcache for production
 RUN { \
         echo 'opcache.enable=1'; \
         echo 'opcache.memory_consumption=256'; \
@@ -89,20 +84,16 @@ RUN { \
         echo 'opcache.save_comments=1'; \
     } > /usr/local/etc/php/conf.d/opcache-recommended.ini
 
-# Upload limits — tránh file bị cắt (MIME/validation fail) và từ chối ảnh logo
 RUN echo "upload_max_filesize = 50M" > /usr/local/etc/php/conf.d/uploads.ini \
     && echo "post_max_size = 50M" >> /usr/local/etc/php/conf.d/uploads.ini \
     && echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/uploads.ini \
     && php -r "\$required = ['ctype','curl','fileinfo','filter','gd','hash','json','mbstring','openssl','pdo','pdo_mysql','tokenizer','xml','zip']; foreach (\$required as \$e) { if (! extension_loaded(\$e)) { fwrite(STDERR, \"Missing PHP extension: \$e\\n\"); exit(1); } }"
 
-# Application code
 COPY --chown=www-data:www-data . /var/www/html
 COPY --from=build --chown=www-data:www-data /app/vendor /var/www/html/vendor
 
-# Entrypoint
 COPY --chmod=755 entrypoint.sh /usr/local/bin/entrypoint.sh
 
-# Writable Laravel paths
 RUN mkdir -p \
         storage/framework/cache/data \
         storage/framework/sessions \

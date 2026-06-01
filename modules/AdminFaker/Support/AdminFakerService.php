@@ -21,6 +21,7 @@ class AdminFakerService
         protected MLHUBDemoImageResolver $imageResolver,
         protected MLHUBLocalBoostDemoFaker $localBoostDemoFaker,
         protected MLHUBMarketingDemoFaker $marketingDemoFaker,
+        protected MLHUBExtendedModulesDemoFaker $extendedModulesDemoFaker,
     ) {}
 
     /**
@@ -110,6 +111,7 @@ class AdminFakerService
 
         $this->localBoostDemoFaker->seed($user, $counts);
         $this->marketingDemoFaker->seed($user, $team, $imageFiles, $counts);
+        $this->extendedModulesDemoFaker->seed($user, $team, $counts);
 
         return [
             'user' => [
@@ -149,6 +151,7 @@ class AdminFakerService
             ->where('path', 'like', 'files/demo-faker/%')
             ->delete();
 
+        $this->extendedModulesDemoFaker->clear($user, $deleted);
         $this->localBoostDemoFaker->clear($user, $deleted);
         $this->marketingDemoFaker->clear($user, $deleted);
 
@@ -189,6 +192,19 @@ class AdminFakerService
             'local_recent_activity' => 0,
             'local_top_campaigns' => 0,
             'local_top_businesses' => 0,
+            'email_automations' => 0,
+            'email_automation_logs' => 0,
+            'crm_segments' => 0,
+            'crm_automations' => 0,
+            'crm_automation_logs' => 0,
+            'crm_activities' => 0,
+            'crm_tasks' => 0,
+            'crm_notes' => 0,
+            'loyalty_cards' => 0,
+            'loyalty_stamps' => 0,
+            'referral_campaigns' => 0,
+            'referral_links' => 0,
+            'referral_records' => 0,
         ];
     }
 

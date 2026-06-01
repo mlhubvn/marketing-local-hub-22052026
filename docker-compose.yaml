@@ -1,16 +1,18 @@
-# MLHUB / Coolify: giữ APP_INSTALLED=true trong .env (entrypoint chạy migrate).
-# Seed demo (pilot): docker exec → php artisan mlhub:reset-demo --force → redis-cli FLUSHALL
+# MLHUB production stack (Coolify export — tham chiếu, không chỉnh tay trên server).
+# App: Laravel 13 + Apache :80, volume mlhub-storage → /var/www/html/storage
+# Domain: mlhub.vn + www.mlhub.vn (Traefik HTTP→HTTPS, Let's Encrypt)
+# Env thật: tab Environment Variables trên Coolify (đồng bộ khóa với .env.example)
 services:
-    mggu45o8q8aso8stbepn622j-091238462513:
-        image: 'mggu45o8q8aso8stbepn622j:e416173ead5b53f26d72992da4d4c79cf3f37b88'
-        container_name: mggu45o8q8aso8stbepn622j-091238462513
+    mggu45o8q8aso8stbepn622j-101335356762:
+        image: 'mggu45o8q8aso8stbepn622j:be877a35809a74d1af357bba9a0fa713954887aa'
+        container_name: mggu45o8q8aso8stbepn622j-101335356762
         restart: unless-stopped
         expose:
             - '80'
         networks:
             coolify:
                 aliases:
-                    - mggu45o8q8aso8stbepn622j-091238462513
+                    - mggu45o8q8aso8stbepn622j-101335356762
         mem_limit: '0'
         memswap_limit: '0'
         mem_swappiness: 60
@@ -61,7 +63,7 @@ services:
             - 'caddy_1=https://www.mlhub.vn'
             - caddy_ingress_network=coolify
             - coolify.managed=true
-            - coolify.version=4.1.0
+            - coolify.version=4.1.1
             - coolify.applicationId=17
             - coolify.type=application
             - coolify.name=mggu45o8q8aso8stbepn622j

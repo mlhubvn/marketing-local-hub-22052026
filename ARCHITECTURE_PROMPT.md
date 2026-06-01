@@ -60,7 +60,7 @@ public qua QrCampaignPublicController, PlanLimitGuard, CustomerUpserter, GrowthT
 
 ```
 Chỉnh giao diện <mô tả> ở khu <guest/portal/admin>. 
-Lưu ý theme guest đang active là mlhubtheme, backend là default (ARCHITECTURE_FRONTEND.md §2.2). 
+Lưu ý theme guest `mlhubfrontend`, backend `mlhubbackend` (ARCHITECTURE_FRONTEND.md §2.2). 
 Dùng lại <x-ui.*>/<x-shared.*>, màu dùng token var(--theme-*), không hard-code màu. 
 Nếu chỉ là branding nhỏ, gợi ý dùng Admin → Themes → Custom CSS/JS thay vì sửa file.
 ```
@@ -100,7 +100,13 @@ Kiểm tra: IDOR (scope tenant), thiếu rate-limit/captcha ở endpoint public,
 race condition, và xử lý lỗi. Liệt kê rủi ro theo mức P0/P1/P2 + đề xuất fix, CHƯA sửa.
 ```
 
-### 2.10 Cập nhật tài liệu
+### 2.10 Cập nhật tài liệu / sau khi nâng cấp upstream
+
+```
+Tôi vừa cập nhật phiên bản tác giả và/hoặc cài module mới. Hãy quét lại codebase (đếm modules/*, 
+migration module mới, routes public, env) rồi cập nhật surgical: .cursorrules, Dockerfile, 
+docker-compose.yaml, entrypoint.sh, .env.example, ARCHITECTURE_*.md — khớp số liệu thực tế (79 module, 14 Payment*).
+```
 
 ```
 Tôi vừa thay đổi <mô tả>. Hãy cập nhật các file ARCHITECTURE_*.md / .cursorrules liên quan 
@@ -168,8 +174,9 @@ php artisan tinker
 | `APP_INSTALLED`               | `true` (bắt buộc — entrypoint mới chạy `migrate`)                           |
 | `MLHUB_ADMIN_PLAN_SLUG`       | `agency-lifetime`                                                           |
 | `MLHUB_ALLOW_RESET_DEMO`      | `true` (chỉ khi cần chạy lệnh wipe trên pilot; xong có thể đặt lại `false`) |
-| `MLHUB_LICENSE_PURCHASE_CODE` | Mã mua Stackposts (mặc định trong `config/mlhub.php` nếu không set)         |
+| `MLHUB_LICENSE_PURCHASE_CODE` | Mã license Stackposts (Coolify — không commit)                              |
 | `MLHUB_LICENSE_DOMAIN`        | `mlhub.vn`                                                                  |
+| `RUN_QUEUE_WORKER`            | `true` (entrypoint start worker; `false` nếu worker Coolify riêng)           |
 | `MAIL_PASSWORD`               | SMTP (không commit vào repo; seed ghi vào `options.smtp_password` nếu có)   |
 
 
@@ -219,88 +226,78 @@ php artisan optimize:clear
 - Đăng nhập `**demo@mlhub.vn**` / `**123456**` → **Admin** + **Portal** đều được.
 - **Tổng quan tăng trưởng:** visits ~1.2k–4.8k/chiến dịch; tỷ lệ chuyển đổi ~8–10%.
 
-**Cấu hình:** `config/mlhub.php`, `database/seeders/data/mlhub_demo_vn.php` (`campaign_metrics`), `database/Support/MLHUBDemoVolume.php`.
+**Cấu hình:** `database/seeders/data/mlhub_adminfaker_dn_soho.php` — enterprise: **11** cơ sở, `target_qr_visits` **10M**, `customer_target` **11000**, `volume_scale` **20**, timeline **730** ngày; expander `MLHUBEnterpriseDemoExpander.php`.
 
 > Quy ước repo: không giữ script one-off/generator trong `database/seeders/scripts` hoặc `database/seeders/data` nếu không cần runtime seed. Ưu tiên chỉnh trực tiếp file data runtime để dễ compare với upstream.
 
 ### 3.2 Tải full source từ server (`fullcode.zip`) — pilot / backup
 
-> Dùng khi cần tải **bản code đang chạy trên Coolify** về máy (so sánh, backup tạm). **Source of truth vẫn là GitHub** — không thay thế quy trình commit/push.
+> Dùng khi cần tải **toàn bộ thư mục app đang chạy** trên Coolify (`/var/www/html`) về máy — gồm code, `vendor/`, `modules/`, `storage/` (upload/cache/log trên container), theme, v.v. **Source of truth vẫn là GitHub** — zip chỉ để backup/so sánh tạm, không thay commit/push.
 
-> 🔴 **Bảo mật:** File đặt trong `public/` = **URL công khai**. Ai biết link `https://mlhub.vn/fullcode.zip` đều tải được. **Tạo → tải xong → xóa ngay** (xem bước 5). Không để qua đêm trên production.
+> 🔴 **Bảo mật:** File đặt trong `public/` = **URL công khai**. Ai biết link `https://mlhub.vn/fullcode.zip` đều tải được. **Tạo → tải xong → xóa ngay** (bước 4). Không để qua đêm trên production.
 
-**Bước 1 — SSH vào container app (Coolify → Terminal hoặc `docker exec`):**
+**“Full” nghĩa là gì:** Nén **gần như mọi thứ** trong `/var/www/html`. Chỉ **không** đưa vào zip: (1) chính file `public/fullcode.zip` đang tạo, (2) file `.env` (chứa mật khẩu — bí mật thật nằm tab Environment Variables của Coolify). Các file khác (`vendor`, `storage`, `bootstrap/cache`, `.env.example`, …) **đều nằm trong zip**.
+
+Mỗi lần container khởi động, `entrypoint.sh` đã tạo symlink `public/resources/themes` → `../../resources/themes`. Lệnh zip dùng cờ **`-y`** để không đi theo symlink lặp vô hạn (tránh zip phình 500MB+ vì `themes/themes/...`).
+
+**Bước 1 — Vào container app (Coolify → Terminal hoặc `docker exec`):**
 
 ```bash
 docker exec -it <container_app> sh
 cd /var/www/html
 ```
 
-Nếu báo `zip: not found`, cài một lần trong container (mất sau khi rebuild image — bình thường):
+Nếu báo `zip: not found`:
 
 ```bash
 apt-get update && apt-get install -y zip
 ```
 
-**Bước 2 — Chuẩn hóa symlink theme (tránh zip phình 500MB+):**
+**Bước 2 — Nén full (một lệnh):**
 
-`public/resources/themes` trên server **phải là symlink** tới `resources/themes/` (tạo trong `entrypoint.sh`). Nếu lỡ là thư mục thật hoặc có `themes/themes/...` lặp vô hạn, `zip -r` sẽ nhân bản cùng file hàng chục nghìn lần.
+```bash
+zip -ry public/fullcode.zip . -x "public/fullcode.zip" -x ".env"
+```
+
+- **`-r`**: nén đệ quy toàn bộ thư mục hiện tại.
+- **`-y`**: bỏ qua symlink khi ghi zip (theme vẫn đủ vì có `resources/themes/`).
+- Kích thước thường **~200MB–1GB+** (có `vendor` + `storage`), tạo **vài phút** — đợi đến khi shell trả về prompt, không thoát giữa chừng.
+- Sau khi xong, kiểm tra nhanh:
+
+```bash
+ls -lh public/fullcode.zip
+```
+
+**Bước 3 — Tải bằng trình duyệt:**
+
+`https://mlhub.vn/fullcode.zip` (hoặc `https://www.mlhub.vn/fullcode.zip`)
+
+**Bước 4 — Xóa file ngay sau khi tải xong (bắt buộc):**
+
+```bash
+rm -f /var/www/html/public/fullcode.zip
+ls -la /var/www/html/public/fullcode.zip
+# phải báo: No such file or directory
+```
+
+**Khắc phục khi zip quá lớn bất thường (hàng GB, log có `themes/themes/themes/...`):**
+
+Container lỗi symlink (hiếm nếu đã deploy bản có `entrypoint.sh` mới). **Redeploy** Coolify rồi chạy lại bước 2, hoặc sửa tay:
 
 ```bash
 rm -rf public/resources/themes
 mkdir -p public/resources
 ln -sfn ../../resources/themes public/resources/themes
-ls -la public/resources/themes
-# phải thấy: public/resources/themes -> ../../resources/themes
-```
-
-**Bước 3 — Tạo file zip trong `public/`:**
-
-Dùng **`-y`** để zip **không** đi theo symlink (chỉ lưu link; nội dung theme lấy một lần từ `resources/themes/`):
-
-```bash
-zip -ry public/fullcode.zip . \
-  -x "public/fullcode.zip" \
-  -x ".git/*" \
-  -x "node_modules/*" \
-  -x "vendor/*" \
-  -x "storage/logs/*" \
-  -x "storage/framework/cache/*" \
-  -x "storage/framework/sessions/*" \
-  -x "storage/framework/views/*" \
-  -x ".env" \
-  -x ".env.*"
-```
-
-- Bỏ dòng `-x "vendor/*"` nếu cần zip **đủ nặng** kèm `vendor/` (file có thể vài trăm MB–GB, tạo lâu).
-- **Không** đưa `.env` vào zip (secret nằm trên Coolify env). Giữ `.env.example` trong repo GitHub.
-- Zip bình thường ~**80–120MB** (không `vendor`). Nếu >200MB hoặc thấy đường dẫn `themes/themes/themes/...` → dừng (`Ctrl+C`), chạy lại **bước 2** rồi zip với **`-y`**.
-
-**Bước 4 — Tải bằng trình duyệt:**
-
-`https://mlhub.vn/fullcode.zip`
-
-(hoặc `https://www.mlhub.vn/fullcode.zip`)
-
-**Bước 5 — Xóa file ngay sau khi tải xong (bắt buộc):**
-
-```bash
-rm -f /var/www/html/public/fullcode.zip
-```
-
-Kiểm tra đã xóa (trình duyệt hoặc):
-
-```bash
-ls -la /var/www/html/public/fullcode.zip
-# phải báo: No such file or directory
+zip -ry public/fullcode.zip . -x "public/fullcode.zip" -x ".env"
 ```
 
 **Lưu ý:**
 
-- Máy local nếu Git báo hàng chục nghìn file `public/resources/themes/themes/...`: **đừng commit** — chạy `rm -rf public/resources/themes` rồi `git restore public/resources/themes` (hoặc deploy lại để entrypoint tạo symlink).
+- Giải nén trên Windows: chuột phải `fullcode.zip` → Extract All (hoặc 7-Zip). Trên máy dev: `unzip fullcode.zip -d thu-muc-moi`.
+- Máy local nếu Git báo hàng chục nghìn file `public/resources/themes/themes/...` sau khi giải nén: **đừng commit** — xóa thư mục lỗi đó; so sánh code dùng bản từ GitHub.
 - Không commit `public/fullcode.zip` lên GitHub.
-- Uploads thật của khách nằm ở volume `storage/` — zip trên thường **không** gồm toàn bộ `storage/app` nếu mount volume riêng; cần backup storage thì dùng snapshot volume Coolify.
-- So sánh code với bản gốc marketplace: ưu tiên `git diff` trên máy local từ repo GitHub, không dựa vào zip server làm nguồn chính.
+- `storage/` trên Coolify gắn volume `mlhub-storage` — khi zip **trong container** tại `/var/www/html`, phần `storage/` đang mount **vẫn được nén** (upload khách, log, cache…). Backup volume riêng: snapshot Persistent Storage trên Coolify.
+- Production thường **không có** `.git/` trong image — zip vẫn đủ để chạy/so sánh; lịch sử git lấy từ repo GitHub.
 
 ---
 

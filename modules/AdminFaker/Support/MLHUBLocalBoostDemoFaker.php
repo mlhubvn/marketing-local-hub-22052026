@@ -3,6 +3,7 @@
 namespace Modules\AdminFaker\Support;
 
 use Database\Support\MLHUBDemoVolume;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Modules\AdminUser\Models\User;
@@ -36,7 +37,7 @@ class MLHUBLocalBoostDemoFaker
     $config = MLHUBAdminFakerConfig::load();
     $weeklyHours = $config['weekly_hours'];
     $messages = $config['messages'];
-    $maxDaysAgo = (int) ($config['engagement_max_days_ago'] ?? 365);
+    $maxDaysAgo = MLHUBAdminFakerConfig::engagementMaxDaysAgo();
 
     $businesses = collect($config['businesses'])->mapWithKeys(function (array $data, string $key) use ($user, $weeklyHours): array {
       $createdAt = now()->subDays(120 + (abs(crc32($key)) % 240));
@@ -165,13 +166,15 @@ class MLHUBLocalBoostDemoFaker
         [
           'name' => $row['name'],
           'email' => $row['email'],
-          'tags' => ['admin-faker', 'localboost', 'da-nang'],
+          'tags' => ['admin-faker', 'localboost', 'da-nang', 'soho', 'ho-kinh-doanh'],
           'metadata' => ['source' => DemoMarker::SOURCE, 'scope' => 'localboost-dn-soho'],
           'created_at' => now()->subDays($daysAgo),
           'updated_at' => now()->subDays(max(0, $daysAgo - 1)),
         ],
       );
     });
+
+    $customers = $this->expandCustomerPool($user, $businesses, $config, $customers);
 
     $customerPool = $customers->map(fn (Customer $customer): object => (object) [
       'name' => $customer->name,
@@ -379,6 +382,75 @@ class MLHUBLocalBoostDemoFaker
       Customer::query()->where('user_id', $user->id)->whereIn('business_id', $businessIds)->delete();
       $deleted['local_businesses'] += LocalBusiness::query()->whereIn('id', $businessIds)->delete();
     }
+  }
+
+  /**
+   * @param  \Illuminate\Support\Collection<int, Customer>  $seeded
+   * @return \Illuminate\Support\Collection<int, Customer>
+   */
+  protected function expandCustomerPool(User $user, $businesses, array $config, $seeded)
+  {
+    $target = MLHUBAdminFakerConfig::customerTarget();
+    $businessKeys = array_keys($config['businesses'] ?? []);
+
+    if ($businessKeys === [] || $seeded->count() >= $target) {
+      return $seeded;
+    }
+
+    $familyNames = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Huỳnh', 'Võ', 'Đặng', 'Bùi', 'Đỗ'];
+    $givenNames = [
+      'Văn An', 'Thị Mai', 'Minh Đức', 'Thu Hà', 'Quốc Bảo', 'Thị Lan', 'Hoài Nam', 'Kim Anh',
+      'Đức Thành', 'Ngọc Hân', 'Xuân Phúc', 'Bảo Châu', 'Gia Huy', 'Thanh Tâm', 'Hữu Nghĩa',
+    ];
+    $districts = ['Hải Châu', 'Sơn Trà', 'Thanh Khê', 'Ngũ Hành Sơn', 'Liên Chiểu', 'Cẩm Lệ'];
+    $maxDaysAgo = MLHUBAdminFakerConfig::engagementMaxDaysAgo();
+    $startIndex = $seeded->count();
+    $chunk = [];
+    $chunkSize = 500;
+    $now = now();
+
+    for ($i = $startIndex; $i < $target; $i++) {
+      $businessKey = $businessKeys[$i % count($businessKeys)];
+      $business = $businesses[$businessKey] ?? $businesses->first();
+      $daysAgo = 3 + ($i % $maxDaysAgo);
+      $phone = sprintf('09%02d%03d%03d', 10 + ($i % 80), 100 + ($i % 900), 100 + (($i * 7) % 900));
+      $name = $familyNames[$i % count($familyNames)].' '.$givenNames[($i * 3) % count($givenNames)];
+      $district = $districts[$i % count($districts)];
+      $createdAt = $now->copy()->subDays($daysAgo);
+      $updatedAt = $now->copy()->subDays(max(0, $daysAgo - 2));
+
+      $chunk[] = [
+        'user_id' => $user->id,
+        'business_id' => $business->id,
+        'name' => $name,
+        'phone' => $phone,
+        'email' => 'khach.dn.'.($i + 1).'@demo.mlhub.vn',
+        'tags' => json_encode(['admin-faker', 'soho', 'ho-kinh-doanh', 'da-nang', $district], JSON_UNESCAPED_UNICODE),
+        'metadata' => json_encode([
+          'source' => DemoMarker::SOURCE,
+          'scope' => 'localboost-dn-soho',
+          'persona' => 'SOHO',
+          'market' => 'Đà Nẵng',
+        ], JSON_UNESCAPED_UNICODE),
+        'created_at' => $createdAt,
+        'updated_at' => $updatedAt,
+      ];
+
+      if (count($chunk) >= $chunkSize) {
+        DB::table('lb_customers')->insert($chunk);
+        $chunk = [];
+      }
+    }
+
+    if ($chunk !== []) {
+      DB::table('lb_customers')->insert($chunk);
+    }
+
+    return Customer::query()
+      ->where('user_id', $user->id)
+      ->orderBy('id')
+      ->limit($target)
+      ->get();
   }
 
   protected function createStandaloneLandingPages(User $user, $businesses, array $config): int

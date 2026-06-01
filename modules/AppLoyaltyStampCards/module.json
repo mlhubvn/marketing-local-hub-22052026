@@ -1,0 +1,7 @@
+{
+    "name": "AppLoyaltyStampCards",
+    "providers": [
+        "Modules\\AppLoyaltyStampCards\\Providers\\AppLoyaltyStampCardsServiceProvider"
+    ],
+    "priority": 29
+}

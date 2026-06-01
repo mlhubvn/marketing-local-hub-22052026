@@ -52,7 +52,7 @@ class MLHUBDemoVolume
         }
 
         $chunk = [];
-        $chunkSize = 1000;
+        $chunkSize = 5000;
         $now = Carbon::now();
         $maxDaysAgo = max(7, $maxDaysAgo);
 
@@ -231,7 +231,7 @@ class MLHUBDemoVolume
         }
 
         $chunk = [];
-        $chunkSize = 500;
+        $chunkSize = 1000;
         $now = Carbon::now();
         $customerList = $customers->values();
         $maxDaysAgo = max(7, $maxDaysAgo);

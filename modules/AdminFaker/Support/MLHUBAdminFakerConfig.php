@@ -13,7 +13,29 @@ final class MLHUBAdminFakerConfig
     {
         static $config;
 
-        return $config ??= require database_path('seeders/data/'.self::DATA_FILENAME);
+        if ($config !== null) {
+            return $config;
+        }
+
+        $raw = require database_path('seeders/data/'.self::DATA_FILENAME);
+
+        return $config = MLHUBEnterpriseDemoExpander::expand($raw);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function extensions(): array
+    {
+        static $extensions;
+
+        if (isset($extensions)) {
+            return $extensions;
+        }
+
+        $path = database_path('seeders/data/mlhub_adminfaker_extensions.php');
+
+        return $extensions = is_file($path) ? require $path : [];
     }
 
     /**
@@ -57,11 +79,94 @@ final class MLHUBAdminFakerConfig
         ));
     }
 
+    public static function metricsMultiplierMax(): int
+    {
+        return max(1, (int) (self::load()['meta']['metrics_multiplier_max'] ?? 1500));
+    }
+
+    public static function targetQrVisits(): int
+    {
+        return max(0, (int) (self::load()['meta']['target_qr_visits'] ?? 0));
+    }
+
+    public static function baselineQrVisitsTotal(): int
+    {
+        $total = 0;
+
+        foreach (self::load()['campaign_metrics'] ?? [] as $metric) {
+            if (! is_array($metric)) {
+                continue;
+            }
+
+            $total += (int) ($metric['visits'] ?? 0);
+        }
+
+        return max(0, $total);
+    }
+
     public static function metricsMultiplier(): int
     {
-        $multiplier = (int) (self::load()['meta']['metrics_multiplier'] ?? 5);
+        $meta = self::load()['meta'] ?? [];
+        $max = self::metricsMultiplierMax();
+        $target = self::targetQrVisits();
 
-        return max(1, min(200, $multiplier));
+        if ($target > 0) {
+            $baseline = self::baselineQrVisitsTotal();
+
+            if ($baseline > 0) {
+                return max(1, min($max, (int) round($target / $baseline)));
+            }
+        }
+
+        $multiplier = (int) ($meta['metrics_multiplier'] ?? 5);
+
+        return max(1, min($max, $multiplier));
+    }
+
+    public static function volumeScale(): int
+    {
+        $scale = (int) (self::load()['meta']['volume_scale'] ?? 1);
+
+        return max(1, min(50, $scale));
+    }
+
+    public static function customerTarget(): int
+    {
+        $target = (int) (self::load()['meta']['customer_target'] ?? 120);
+
+        return max(1, min(20000, $target));
+    }
+
+    public static function engagementMaxDaysAgo(): int
+    {
+        $days = (int) (self::load()['engagement_max_days_ago'] ?? 365);
+
+        return max(30, min(730, $days));
+    }
+
+    public static function siteCount(): int
+    {
+        $configured = (int) (self::load()['meta']['site_count'] ?? 0);
+
+        if ($configured > 0) {
+            return $configured;
+        }
+
+        return count(self::load()['businesses'] ?? []);
+    }
+
+    public static function marketingFaqTarget(): int
+    {
+        $target = (int) (self::load()['meta']['marketing_faq_target'] ?? 250);
+
+        return max(50, min(500, $target));
+    }
+
+    public static function marketingBlogTarget(): int
+    {
+        $target = (int) (self::load()['meta']['marketing_blog_target'] ?? 250);
+
+        return max(50, min(500, $target));
     }
 
     /**

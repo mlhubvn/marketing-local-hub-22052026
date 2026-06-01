@@ -1,5 +1,5 @@
 #!/bin/sh
-# LocalBoost AI — container entrypoint
+# MLHUB — container entrypoint
 # Behavior:
 #   1. Ensure writable storage / cache directories with correct ownership.
 #   2. Publish Livewire JS to public/ with a refreshed mtime so the asset
@@ -8,8 +8,9 @@
 #   3. Wipe compiled Blade / bootstrap caches from the previous image, then
 #      run package:discover and storage:link.
 #   4. If APP_INSTALLED=true → wait for DB and run `php artisan migrate --force`.
+#      Gồm migration trong modules/* (CRM, Email automation, Loyalty, …) sau khi cập nhật upstream.
 #      MLHUB không còn Web Installer — luôn giữ APP_INSTALLED=true trên Coolify.
-#      Seed dữ liệu mẫu: chạy thủ công `php artisan mlhub:reset-demo --force` (pilot).
+#      Seed demo: chạy thủ công `php artisan mlhub:reset-demo --force` (pilot).
 #   5. Clear every Laravel cache surface and re-warm against the new code.
 #   6. exec the CMD (apache2-foreground).
 

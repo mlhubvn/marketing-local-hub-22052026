@@ -59,7 +59,9 @@ flowchart TB
     SVC[AdminFakerService]
     LB[MLHUBLocalBoostDemoFaker]
     MK[MLHUBMarketingDemoFaker]
+    EXT[MLHUBExtendedModulesDemoFaker]
     CFG[mlhub_adminfaker_dn_soho.php]
+    EXTDATA[mlhub_adminfaker_extensions.php]
     VOL[MLHUBDemoVolume]
     IMG[MLHUBDemoImageResolver]
 
@@ -67,10 +69,13 @@ flowchart TB
     UI --> SVC
     SVC --> LB
     SVC --> MK
+    SVC --> EXT
     SVC --> IMG
     LB --> CFG
     LB --> VOL
     MK --> CFG
+    EXT --> CFG
+    EXT --> EXTDATA
 ```
 
 ---
@@ -93,13 +98,21 @@ flowchart TB
 | ✓ | Coupon | `lb_coupon_redemptions` | ↑ | ↑ | ~900+ | ✓ |
 | ✓ | Review | `lb_review_feedbacks` | ↑ | ↑ | ~1k+ | ✓ |
 | ✓ | Feedback | `lb_feedback_responses` | ↑ | ↑ | ~600+ | ✓ |
-| ✓ | FAQ | `faqs` | `MLHUBMarketingDemoFaker` | `marketing.faqs` | **15** | ✓ `demo-preview-*` |
-| ✓ | Blog | `blogs` | ↑ | `marketing.blogs` | **12** | ✓ |
+| ✓ | FAQ | `faqs` | `MLHUBMarketingDemoFaker` | `marketing.faqs` + generator | **250** | ✓ `demo-preview-*` |
+| ✓ | Blog | `blogs` | ↑ | `marketing.blogs` + generator | **250** (6 danh mục, 8 tag) | ✓ |
 | ✓ | Support | `support_tickets` + comments | ↑ | `marketing.support_tickets` | **6** | ✓ `[DEMO]%` |
 | ✓ | Affiliate | commissions / withdrawals | ↑ | (code) | 3 + 2 | ✓ marker |
 | ✓ | Thông báo global | `notification_manuals` | ↑ | `marketing.global_notifications` | **7** | ✓ `[DEMO]%` |
+| ✓ | Email automation | `lb_email_automations` + logs | `MLHUBExtendedModulesDemoFaker` | `mlhub_adminfaker_extensions.php` | **6** + logs | ✓ tên `[DEMO]%` |
+| ✓ | CRM nâng cao | activities, tasks, notes, segments, automations | ↑ | ↑ `crm_*` | **~80** KH + 4 segment + 4 automation | ✓ marker / `[DEMO]%` |
+| ✓ | Loyalty stamp cards | `lb_loyalty_*` | ↑ | `loyalty_cards` | **4** thẻ + stamps | ✓ slug `admin-faker-%` |
+| ✓ | Referral | `lb_referral_*` | ↑ | `referral_campaigns` | **2** chiến dịch + links | ✓ slug `admin-faker-%` |
+| ✓ | Template packs | `MarketingTemplate` (system) | ↑ | `TemplatePackService` | system packs | — |
+| ✓ | Báo cáo (`AppLocalAnalytics`) | — | (đọc số liệu trên) | — | dashboard đủ số | — |
 
 **Marker:** `DemoMarker::SOURCE` = `admin-faker` trong `settings` / `metadata` / payload engagement.
+
+**Thứ tự seed:** `MLHUBLocalBoostDemoFaker` → `MLHUBMarketingDemoFaker` → `MLHUBExtendedModulesDemoFaker` (cần khách hàng & doanh nghiệp đã có).
 
 ---
 
@@ -109,10 +122,10 @@ flowchart TB
 |-----------|---------|
 | LinkBio, Short links | Không seed (StackPosts legacy) |
 | Social publishing / channels | Không có trong MLHUB fork |
-| AI Studio / AI publishing | Module có thể tồn tại nhưng không faker |
-| Email automation sequences | `MLHUBDemoExtrasSeeder` riêng |
+| AI Studio / lịch sử AI | Module có; không seed prompt history (tốn credit/API) |
 | Google Business Profile sync | Chỉ link review tùy chỉnh trên campaign |
 | Upload ảnh mới | `MLHUBDemoImageResolver` tái dùng ảnh user có sẵn |
+| Webhook automation / Custom domain | Cấu hình thật theo tenant — không faker |
 
 ---
 
@@ -153,12 +166,12 @@ Sửa tên/địa chỉ/SĐT tại `businesses` + `locations` trong `mlhub_admin
 
 1. Đăng nhập portal user demo (user #1 hoặc `MLHUB_ADMIN_FAKER_USER`).
 2. **Dashboard** — tổng visit, lead, hoạt động gần đây.
-3. **Hồ sơ kinh doanh** — 10 persona Đà Nẵng.
-4. **Chi nhánh** — 21 location, QR design khác nhau.
-5. **Chiến dịch QR** — 32 campaign, đủ 5 loại.
-6. Mở **analytics** 1 campaign review + 1 coupon (volume cao).
-7. **Landing pages** — campaign sync + 18 trang độc lập.
-8. **Khách hàng** — 600 CRM + tag (5× volume).
+3. **Hồ sơ kinh doanh** — **11** cơ sở SOHO / hộ kinh doanh Đà Nẵng.
+4. **Chi nhánh** — mỗi cơ sở có location; QR design khác nhau.
+5. **Chiến dịch QR** — tối thiểu **5** growth-tool / cơ sở (review, lead, coupon, feedback, booking/url).
+6. Mở **analytics** 1 campaign review + 1 coupon (volume ~10M tổng).
+7. **Landing pages** — sync từ campaign + trang độc lập theo cơ sở.
+8. **Khách hàng** — **11.000** CRM (mô phỏng 1–2 năm; ~1.000 khách/cơ sở).
 9. Mở **1 funnel live** (URL public campaign) — form review/lead.
 10. (Tuỳ chọn) Guest site: FAQ/blog; Admin: support + notification.
 
@@ -166,15 +179,18 @@ Sửa tên/địa chỉ/SĐT tại `businesses` + `locations` trong `mlhub_admin
 
 ## 9. Chỉnh volume (không sửa Blade/PHP service)
 
-1. Sửa trực tiếp `database/seeders/data/mlhub_adminfaker_dn_soho.php`:
-   - `meta.metrics_multiplier` — nhân **mọi** visits/conversions khi seed (mặc định **80** ≈ ~1M lượt quét tổng; đặt **5** cho demo nhẹ ~65k)
-   - `campaign_metrics` — visits/conversions **baseline** (trước khi nhân)
-   - `engagement_max_days_ago` (mặc định **365** ≈ 12 tháng)
-   - `customers` — 600 bản ghi (chỉnh trực tiếp trong mảng `customers`)
-2. Không giữ script generator tạm trong repo để dễ so sánh upstream (giữ diff gọn theo file runtime).
-3. Chạy: `php artisan admin-faker:refresh` hoặc `php artisan mlhub:reset-demo --force`
+1. Sửa `database/seeders/data/mlhub_adminfaker_dn_soho.php` (`meta`):
+   - `target_qr_visits` — **10000000** (~10M quét; hệ số nhân tự tính từ tổng baseline campaign)
+   - `site_count` — **11** cơ sở; `min_campaigns_per_site` — **5**
+   - `customer_target` — **11000** (~1k khách/cơ sở, 1–2 năm)
+   - `volume_scale` — **20** (CRM, loyalty, affiliate)
+   - `engagement_max_days_ago` — **730** (24 tháng timeline)
+   - `marketing_faq_target` / `marketing_blog_target` — **250** FAQ + **250** blog (nội dung MLHUB, SOHO, Đà Nẵng)
+   - `metrics_multiplier` — fallback nếu `target_qr_visits` = 0
+2. Mở rộng runtime: `modules/AdminFaker/Support/MLHUBEnterpriseDemoExpander.php` (thêm cơ sở/campaign/landing thiếu).
+3. Chạy: `php artisan admin-faker:refresh` hoặc `php artisan mlhub:reset-demo --force` (chỉ pilot; `MLHUB_ALLOW_RESET_DEMO=true`).
 
-**Lưu ý:** Seed ~1M dòng `lb_qr_scans` có thể mất vài phút; tăng `max_execution_time` nếu timeout.
+**Lưu ý load-test:** ~**10M** `lb_qr_scans` + hàng triệu lead/booking/review/feedback — seed **20–60 phút**. Pilot: `max_execution_time` ≥ **3600**, `memory_limit` ≥ **1024M**, MySQL buffer pool lớn, disk đủ.
 
 ---
 
@@ -197,6 +213,8 @@ modules/AdminFaker/Support/
   MLHUBLocalBoostDemoFaker.php   # portal LocalBoost
   MLHUBMarketingDemoFaker.php    # FAQ, blog, support, affiliate
   MLHUBAdminFakerConfig.php      # load data + slug helpers
+  MLHUBEnterpriseDemoExpander.php # 11 cơ sở, ≥5 campaign/cơ sở, target QR
+  MLHUBMarketingContentGenerator.php # 200–300 FAQ/blog MLHUB SOHO Đà Nẵng
   MLHUBDemoImageResolver.php
   DemoMarker.php
 
