@@ -82,7 +82,7 @@
                         ['label' => __('Cancelled'), 'value' => $stats['cancelled']],
                     ] as $item)
                         <div class="rounded-lg border px-3 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                            <p class="text-xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($item['value']) }}</p>
+                            <p class="text-xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($item['value']) }}</p>
                             <p class="mt-1 truncate text-xs" style="color: var(--theme-muted-text-color);">{{ $item['label'] }}</p>
                         </div>
                     @endforeach
@@ -104,7 +104,7 @@
                 <span class="absolute inset-x-0 top-0 h-1" style="background-color: var(--theme-accent);"></span>
                 <div class="flex items-start justify-between gap-3">
                     <div>
-                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($metric['value']) }}</p>
+                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
                         <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                         <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                     </div>
@@ -142,7 +142,7 @@
                 <button type="button" x-on:click="bookingTab = '{{ $tab['key'] }}'" class="rounded-[0.8rem] px-4 py-2 text-sm font-semibold transition" x-bind:style="bookingTab === '{{ $tab['key'] }}' ? 'background-color: rgba(var(--theme-accent-rgb), .14); color: var(--theme-accent); border: 1px solid rgba(var(--theme-accent-rgb), .28);' : 'color: var(--theme-muted-text-color); border: 1px solid transparent;'">
                     {{ $tab['label'] }}
                     @if ($tab['count'] !== null)
-                        <span class="ml-2 rounded-full px-2 py-0.5 text-xs" style="background-color: rgba(var(--theme-accent-rgb), .10);">{{ number_format($tab['count']) }}</span>
+                        <span class="ml-2 rounded-full px-2 py-0.5 text-xs" style="background-color: rgba(var(--theme-accent-rgb), .10);">{{ format_number_locale($tab['count']) }}</span>
                     @endif
                 </button>
             @endforeach
@@ -225,7 +225,7 @@
                     </table>
                 </div>
                 <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
-                    <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($services->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($services->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($services->total()) }}</span> {{ __('services') }}</p>
+                    <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($services->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($services->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($services->total()) }}</span> {{ __('services') }}</p>
                     <div class="flex items-center gap-2">
                         <x-ui.button type="button" variant="outline" wire:click="previousPage('servicesPage')" :disabled="$services->onFirstPage()"><i class="fa-light fa-arrow-left"></i>{{ __('Previous') }}</x-ui.button>
                         <span class="rounded-[0.8rem] border px-4 py-2 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .28); color: var(--theme-accent); background-color: rgba(var(--theme-accent-rgb), .10);">{{ __('Page :page / :pages', ['page' => $services->currentPage(), 'pages' => max(1, $services->lastPage())]) }}</span>
@@ -266,7 +266,7 @@
                                 <tr>
                                     <td class="px-5 py-4"><p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $campaign->name }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $campaign->slug }}</p></td>
                                     <td class="px-5 py-4" style="color: var(--theme-muted-text-color);">{{ $campaign->business?->name ?: __('Business removed') }}</td>
-                                    <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($campaign->scans_count) }}</td>
+                                    <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($campaign->scans_count) }}</td>
                                     <td class="px-5 py-4"><x-ui.badge :variant="$campaign->published_at ? 'success' : 'neutral'">{{ $campaign->published_at ? __('Live') : __('Paused') }}</x-ui.badge></td>
                                     <td class="px-5 py-4 text-right">
                                         <div class="inline-flex items-center gap-2">
@@ -296,7 +296,7 @@
                     </table>
                 </div>
                 <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
-                    <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($bookingCampaigns->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($bookingCampaigns->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($bookingCampaigns->total()) }}</span> {{ __('booking pages') }}</p>
+                    <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($bookingCampaigns->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($bookingCampaigns->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($bookingCampaigns->total()) }}</span> {{ __('booking pages') }}</p>
                     <div class="flex items-center gap-2">
                         <x-ui.button type="button" variant="outline" wire:click="previousPage('bookingPagesPage')" :disabled="$bookingCampaigns->onFirstPage()"><i class="fa-light fa-arrow-left"></i>{{ __('Previous') }}</x-ui.button>
                         <span class="rounded-[0.8rem] border px-4 py-2 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .28); color: var(--theme-accent); background-color: rgba(var(--theme-accent-rgb), .10);">{{ __('Page :page / :pages', ['page' => $bookingCampaigns->currentPage(), 'pages' => max(1, $bookingCampaigns->lastPage())]) }}</span>
@@ -350,7 +350,7 @@
                     </table>
                 </div>
                 <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
-                    <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($bookings->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($bookings->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($bookings->total()) }}</span> {{ __('bookings') }}</p>
+                    <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($bookings->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($bookings->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($bookings->total()) }}</span> {{ __('bookings') }}</p>
                     <div class="flex items-center gap-2"><x-ui.button type="button" variant="outline" wire:click="previousPage('bookingsPage')" :disabled="$bookings->onFirstPage()"><i class="fa-light fa-arrow-left"></i>{{ __('Previous') }}</x-ui.button><span class="rounded-[0.8rem] border px-4 py-2 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .28); color: var(--theme-accent); background-color: rgba(var(--theme-accent-rgb), .10);">{{ __('Page :page / :pages', ['page' => $bookings->currentPage(), 'pages' => max(1, $bookings->lastPage())]) }}</span><x-ui.button type="button" variant="outline" wire:click="nextPage('bookingsPage')" :disabled="! $bookings->hasMorePages()">{{ __('Next') }}<i class="fa-light fa-arrow-right"></i></x-ui.button></div>
                 </div>
             @else

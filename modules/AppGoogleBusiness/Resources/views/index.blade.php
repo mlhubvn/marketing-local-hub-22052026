@@ -522,7 +522,7 @@
                                 style="{{ $postStatus === $statusTab['key'] ? 'background-color: rgba(var(--theme-accent-rgb), .14); color: var(--theme-accent); border-color: rgba(var(--theme-accent-rgb), .28);' : 'color: var(--theme-muted-text-color); border-color: transparent;' }}"
                             >
                                 {{ $statusTab['label'] }}
-                                <span class="ml-2 rounded-full px-2 py-0.5 text-xs" style="background-color: rgba(var(--theme-accent-rgb), .10);">{{ number_format($statusTab['count']) }}</span>
+                                <span class="ml-2 rounded-full px-2 py-0.5 text-xs" style="background-color: rgba(var(--theme-accent-rgb), .10);">{{ format_number_locale($statusTab['count']) }}</span>
                             </button>
                         @endforeach
                     </div>
@@ -627,7 +627,7 @@
                             </table>
                         </div>
                         <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
-                            <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($googlePosts->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($googlePosts->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($googlePosts->total()) }}</span> {{ __('posts') }}</p>
+                            <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($googlePosts->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($googlePosts->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($googlePosts->total()) }}</span> {{ __('posts') }}</p>
                             <div class="flex items-center gap-2">
                                 <x-ui.button type="button" variant="outline" wire:click="previousPage('googlePostsPage')" wire:loading.attr="disabled" wire:target="previousPage,nextPage" :disabled="$googlePosts->onFirstPage()">
                                     <i class="fa-light fa-arrow-left" wire:loading.remove wire:target="previousPage('googlePostsPage')"></i>
@@ -894,7 +894,7 @@
                                 style="{{ $autoReplyRuleStatus === $stat['key'] ? 'background-color: rgba(var(--theme-accent-rgb), .14); color: var(--theme-accent); border-color: rgba(var(--theme-accent-rgb), .28);' : 'color: var(--theme-muted-text-color); border-color: transparent;' }}"
                             >
                                 {{ $stat['label'] }}
-                                <span class="ml-2 rounded-full px-2 py-0.5 text-xs" style="background-color: rgba(var(--theme-accent-rgb), .10);">{{ number_format($stat['count']) }}</span>
+                                <span class="ml-2 rounded-full px-2 py-0.5 text-xs" style="background-color: rgba(var(--theme-accent-rgb), .10);">{{ format_number_locale($stat['count']) }}</span>
                             </button>
                         @endforeach
                         <button
@@ -904,7 +904,7 @@
                             style="color: var(--theme-muted-text-color); border-color: transparent;"
                         >
                             {{ __('Logs') }}
-                            <span class="ml-2 rounded-full px-2 py-0.5 text-xs" style="background-color: rgba(var(--theme-accent-rgb), .10);">{{ number_format($autoReplyLogs->count()) }}</span>
+                            <span class="ml-2 rounded-full px-2 py-0.5 text-xs" style="background-color: rgba(var(--theme-accent-rgb), .10);">{{ format_number_locale($autoReplyLogs->count()) }}</span>
                         </button>
                     </div>
 

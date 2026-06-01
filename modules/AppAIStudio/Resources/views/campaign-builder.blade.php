@@ -457,10 +457,10 @@
                     <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .58);">
                         <p class="text-sm" style="color: var(--theme-muted-text-color);">
                             {{ __('Showing') }}
-                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($drafts->firstItem()) }}</span> -
-                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($drafts->lastItem()) }}</span>
+                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($drafts->firstItem()) }}</span> -
+                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($drafts->lastItem()) }}</span>
                             {{ __('of') }}
-                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($drafts->total()) }}</span>
+                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($drafts->total()) }}</span>
                             {{ __('drafts') }}
                         </p>
                         <div class="flex items-center gap-2">

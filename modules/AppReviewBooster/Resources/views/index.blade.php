@@ -69,15 +69,15 @@
 
                 <div class="mt-5 grid grid-cols-3 gap-3">
                     <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($totalCampaigns) }}</p>
+                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($totalCampaigns) }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Boosters') }}</p>
                     </div>
                     <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($totalScans) }}</p>
+                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($totalScans) }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Visits') }}</p>
                     </div>
                     <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($feedbackCount) }}</p>
+                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($feedbackCount) }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Feedback') }}</p>
                     </div>
                 </div>
@@ -112,7 +112,7 @@
                     <div class="min-w-0 flex-1">
                         <div class="flex items-baseline justify-between gap-3">
                             <p class="truncate text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
-                            <p class="text-[1.75rem] font-semibold leading-none tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($metric['value']) }}</p>
+                            <p class="text-[1.75rem] font-semibold leading-none tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
                         </div>
                         <p class="mt-2 truncate text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                         <div class="mt-3 h-1.5 overflow-hidden rounded-full" style="background-color: rgba(var(--theme-border-color-rgb), 0.35);">
@@ -203,7 +203,7 @@
                                     <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Send to :destination first', ['destination' => str($destination)->headline()]) }}</p>
                                 </td>
                                 <td class="px-5 py-4">
-                                    <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($campaign->scans_count) }}</p>
+                                    <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($campaign->scans_count) }}</p>
                                     <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Public visits') }}</p>
                                 </td>
                                 <td class="px-5 py-4">
@@ -289,16 +289,16 @@
             <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
                 <p class="text-sm" style="color: var(--theme-muted-text-color);">
                     {{ __('Showing') }}
-                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($campaigns->firstItem()) }}</span>
+                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($campaigns->firstItem()) }}</span>
                     -
-                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($campaigns->lastItem()) }}</span>
+                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($campaigns->lastItem()) }}</span>
                     {{ __('of') }}
-                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($campaigns->total()) }}</span>
+                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($campaigns->total()) }}</span>
                     {{ __('review boosters') }}
                 </p>
                 <div class="flex items-center gap-2">
                     <button type="button" wire:click="previousPage" @disabled($campaigns->onFirstPage()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);"><i class="fa-light fa-arrow-left"></i>{{ __('Previous') }}</button>
-                    <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ number_format($campaigns->currentPage()) }} / {{ number_format($campaigns->lastPage()) }}</span>
+                    <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ format_number_locale($campaigns->currentPage()) }} / {{ format_number_locale($campaigns->lastPage()) }}</span>
                     <button type="button" wire:click="nextPage" @disabled(! $campaigns->hasMorePages()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);">{{ __('Next') }}<i class="fa-light fa-arrow-right"></i></button>
                 </div>
             </div>

@@ -110,7 +110,7 @@ class TeamConversationStreamController
                 'id' => (int) $conversation->id,
                 'title' => $conversation->title ?: __('Untitled room'),
                 'messages_count' => (int) $conversation->messages_count,
-                'messages_label' => number_format((int) $conversation->messages_count).' '.__('messages'),
+                'messages_label' => format_number_locale((int) $conversation->messages_count).' '.__('messages'),
                 'last_message_label' => $conversation->last_message_at?->diffForHumans() ?: __('new'),
                 'href' => route('portal.teams', ['team' => $team->id, 'conversation' => $conversation->id]),
                 'active' => (int) ($activeConversation?->id ?? 0) === (int) $conversation->id,

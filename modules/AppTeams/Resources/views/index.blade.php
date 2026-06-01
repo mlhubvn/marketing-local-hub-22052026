@@ -12,7 +12,7 @@
             'id' => (int) $conversation->id,
             'title' => $conversation->title ?: __('Untitled room'),
             'messages_count' => (int) $conversation->messages_count,
-            'messages_label' => number_format((int) $conversation->messages_count).' '.__('messages'),
+            'messages_label' => format_number_locale((int) $conversation->messages_count).' '.__('messages'),
             'last_message_label' => $conversation->last_message_at?->diffForHumans() ?: __('new'),
             'href' => $team ? route('portal.teams', ['team' => $team->id, 'conversation' => $conversation->id]) : '#',
             'active' => (int) ($activeConversation?->id ?? 0) === (int) $conversation->id,
@@ -150,24 +150,24 @@
         <div class="grid gap-4 sm:grid-cols-2 {{ ($canManageInvites || ($approvalsEnabled && $canApprovePosts) || $chatEnabled) ? 'xl:grid-cols-4' : 'xl:grid-cols-2' }}">
             <div class="rounded-[1.15rem] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb), 0.68); background-color: color-mix(in srgb, var(--theme-surface-overlay) 96%, transparent);">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Members') }}</p>
-                <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($memberCount) }}</p>
+                <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($memberCount) }}</p>
             </div>
             @if ($canManageInvites)
                 <div class="rounded-[1.15rem] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb), 0.68); background-color: rgba(59,130,246,0.05);">
                     <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Pending invites') }}</p>
-                    <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($inviteCount) }}</p>
+                    <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($inviteCount) }}</p>
                 </div>
             @endif
             @if ($approvalsEnabled && $canApprovePosts)
                 <div class="rounded-[1.15rem] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb), 0.68); background-color: rgba(245,158,11,0.05);">
                     <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Awaiting approval') }}</p>
-                    <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($reviewCount) }}</p>
+                    <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($reviewCount) }}</p>
                 </div>
             @endif
             @if ($chatEnabled)
                 <div class="rounded-[1.15rem] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb), 0.68); background-color: rgba(16,185,129,0.05);">
                     <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Conversations') }}</p>
-                    <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($conversationCount) }}</p>
+                    <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($conversationCount) }}</p>
                 </div>
             @endif
         </div>
@@ -368,7 +368,7 @@
                                 <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Jump between owned teams and joined workspaces from here.') }}</p>
                             </div>
                             <span class="rounded-full px-2.5 py-1 text-[11px] font-medium" style="background-color: rgba(59,130,246,0.09); color: var(--theme-header-text-color);">
-                                {{ number_format(($accessibleTeams ?? collect())->count()) }} {{ __('teams') }}
+                                {{ format_number_locale(($accessibleTeams ?? collect())->count()) }} {{ __('teams') }}
                             </span>
                         </div>
                         <div class="mt-4">
@@ -573,7 +573,7 @@
                                 <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Share code-based invites, track expiry dates, and remove access before they are redeemed.') }}</p>
                             </div>
                             <span class="rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]" style="background-color: rgba(59,130,246,0.10); color: var(--theme-header-text-color);">
-                                {{ number_format($pendingInvites->count()) }} {{ __('active') }}
+                                {{ format_number_locale($pendingInvites->count()) }} {{ __('active') }}
                             </span>
                         </div>
                         <div class="space-y-4 px-5 py-5">
@@ -1011,7 +1011,7 @@
         <div class="grid gap-4 sm:grid-cols-2 {{ $chatEnabled ? 'xl:grid-cols-3' : 'xl:grid-cols-2' }}">
             <div class="rounded-[1.15rem] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb), 0.68); background-color: color-mix(in srgb, var(--theme-surface-overlay) 96%, transparent);">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Members') }}</p>
-                <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($memberCount) }}</p>
+                <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($memberCount) }}</p>
             </div>
             <div class="rounded-[1.15rem] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb), 0.68); background-color: color-mix(in srgb, var(--theme-surface-overlay) 96%, transparent);">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('My role') }}</p>
@@ -1020,7 +1020,7 @@
             @if ($chatEnabled)
                 <div class="rounded-[1.15rem] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb), 0.68); background-color: rgba(16,185,129,0.05);">
                     <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Conversations') }}</p>
-                    <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($conversationCount) }}</p>
+                    <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($conversationCount) }}</p>
                 </div>
             @endif
         </div>

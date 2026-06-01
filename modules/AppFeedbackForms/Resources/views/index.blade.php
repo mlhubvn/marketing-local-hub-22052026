@@ -95,7 +95,7 @@
                 <span class="absolute inset-x-0 top-0 h-1" style="background-color: var(--theme-accent);"></span>
                 <div class="flex items-start justify-between gap-3">
                     <div class="min-w-0">
-                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($metric['value']) }}</p>
+                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
                         <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                         <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                     </div>
@@ -133,7 +133,7 @@
             </button>
             <button type="button" x-on:click="feedbackTab = 'responses'" class="rounded-[0.8rem] px-4 py-2 text-sm font-semibold transition" x-bind:style="feedbackTab === 'responses' ? 'background-color: rgba(var(--theme-accent-rgb), .14); color: var(--theme-accent); border: 1px solid rgba(var(--theme-accent-rgb), .28);' : 'color: var(--theme-muted-text-color); border: 1px solid transparent;'">
                 {{ __('Responses') }}
-                <span class="ml-2 rounded-full px-2 py-0.5 text-xs" style="background-color: rgba(var(--theme-accent-rgb), .10);">{{ number_format($filteredResponseCount) }}</span>
+                <span class="ml-2 rounded-full px-2 py-0.5 text-xs" style="background-color: rgba(var(--theme-accent-rgb), .10);">{{ format_number_locale($filteredResponseCount) }}</span>
             </button>
         </div>
 
@@ -186,7 +186,7 @@
                                             <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ data_get($campaign->settings, 'headline', __('Tell us about your experience')) }}</p>
                                         </td>
                                         <td class="px-3 py-4" style="color: var(--theme-muted-text-color);">{{ $campaign->business?->name ?: __('Business removed') }}</td>
-                                        <td class="px-3 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($campaign->scans_count) }}</td>
+                                        <td class="px-3 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($campaign->scans_count) }}</td>
                                         <td class="px-3 py-4 text-xs" style="color: var(--theme-muted-text-color);">
                                             {{ data_get($campaign->settings, 'rating_required') ? __('Rating required') : __('Rating optional') }}
                                             <span class="mx-1">/</span>
@@ -259,10 +259,10 @@
                 <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
                     <p class="text-sm" style="color: var(--theme-muted-text-color);">
                         {{ __('Showing') }}
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($campaigns->firstItem()) }}</span> -
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($campaigns->lastItem()) }}</span>
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($campaigns->firstItem()) }}</span> -
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($campaigns->lastItem()) }}</span>
                         {{ __('of') }}
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($campaigns->total()) }}</span>
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($campaigns->total()) }}</span>
                         {{ __('feedback forms') }}
                     </p>
                     <div class="flex items-center gap-2">
@@ -312,7 +312,7 @@
                         <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Recent responses') }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Rating, message, contact details, and resolution status.') }}</p>
                     </div>
-                    <x-ui.badge variant="neutral">{{ number_format($filteredResponseCount) }}</x-ui.badge>
+                    <x-ui.badge variant="neutral">{{ format_number_locale($filteredResponseCount) }}</x-ui.badge>
                 </div>
 
                 <div class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -386,10 +386,10 @@
                     <div class="mt-5 flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
                         <p class="text-sm" style="color: var(--theme-muted-text-color);">
                             {{ __('Showing') }}
-                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($responses->firstItem()) }}</span> -
-                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($responses->lastItem()) }}</span>
+                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($responses->firstItem()) }}</span> -
+                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($responses->lastItem()) }}</span>
                             {{ __('of') }}
-                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($responses->total()) }}</span>
+                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($responses->total()) }}</span>
                             {{ __('responses') }}
                         </p>
                         <div class="flex items-center gap-2">

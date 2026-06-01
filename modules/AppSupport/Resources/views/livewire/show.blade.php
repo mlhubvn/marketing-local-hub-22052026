@@ -231,7 +231,7 @@
                         </div>
                         <div class="flex items-start justify-between gap-4">
                             <span style="color: var(--theme-muted-text-color);">{{ __('Replies') }}</span>
-                            <span class="text-right" style="color: var(--theme-header-text-color);">{{ number_format($commentCount) }}</span>
+                            <span class="text-right" style="color: var(--theme-header-text-color);">{{ format_number_locale($commentCount) }}</span>
                         </div>
                     </div>
                 </div>

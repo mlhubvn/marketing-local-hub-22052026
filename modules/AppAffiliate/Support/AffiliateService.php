@@ -273,7 +273,7 @@ class AffiliateService
         $minimum = $this->minimumWithdrawal();
 
         if ($amount < $minimum) {
-            throw new \RuntimeException(__('The amount must be greater than or equal to :amount.', ['amount' => number_format($minimum, 2)]));
+            throw new \RuntimeException(__('The amount must be greater than or equal to :amount.', ['amount' => format_number_locale($minimum, 2)]));
         }
 
         if ($amount > (float) $profile->total_balance) {

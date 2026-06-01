@@ -297,6 +297,10 @@ class CurrencyCatalog
      */
     public static function format(float|int|string|null $amount, ?string $value = null): string
     {
+        if (function_exists('format_money')) {
+            return format_money($amount, $value);
+        }
+
         $code = self::normalizeCode($value);
         $symbol = self::symbolFor($code);
         $decimals = self::decimalsFor($code);

@@ -21,9 +21,9 @@
             <div class="rounded-[1.2rem] border p-4" style="border-color: rgba(var(--theme-border-color-rgb), .62); background-color: color-mix(in srgb, var(--theme-surface-base) 88%, transparent);">
                 <div class="flex items-center justify-between gap-3"><div><p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Customer health') }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Profiles ready for follow-up') }}</p></div><div class="flex h-11 w-11 items-center justify-center rounded-2xl" style="background-color: rgba(var(--theme-accent-rgb),.12); color: var(--theme-accent);"><i class="fa-light fa-sparkles"></i></div></div>
                 <div class="mt-5 grid grid-cols-3 gap-3">
-                    <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);"><p class="text-2xl font-semibold tracking-[-0.045em]">{{ number_format($stats['total']) }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Customers') }}</p></div>
-                    <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);"><p class="text-2xl font-semibold tracking-[-0.045em]">{{ number_format($stats['vip']) }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('VIP') }}</p></div>
-                    <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);"><p class="text-2xl font-semibold tracking-[-0.045em]">{{ number_format($stats['needs_follow_up']) }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Tasks') }}</p></div>
+                    <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);"><p class="text-2xl font-semibold tracking-[-0.045em]">{{ format_number_locale($stats['total']) }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Customers') }}</p></div>
+                    <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);"><p class="text-2xl font-semibold tracking-[-0.045em]">{{ format_number_locale($stats['vip']) }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('VIP') }}</p></div>
+                    <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);"><p class="text-2xl font-semibold tracking-[-0.045em]">{{ format_number_locale($stats['needs_follow_up']) }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Tasks') }}</p></div>
                 </div>
             </div>
         </div>
@@ -36,7 +36,7 @@
                     <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" style="background-color: rgba(var(--theme-accent-rgb),.11); color: var(--theme-accent);"><i class="{{ $metric['icon'] }}"></i></span>
                     <div class="min-w-0 flex-1">
                         <p class="text-sm font-semibold" style="color: var(--theme-muted-text-color);">{{ $metric['label'] }}</p>
-                        <p class="mt-2 text-3xl font-semibold leading-none tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($metric['value']) }}</p>
+                        <p class="mt-2 text-3xl font-semibold leading-none tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
                     </div>
                 </article>
             @endforeach
@@ -99,7 +99,7 @@
                                     <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ (int) $customer->score }}<span class="text-xs font-semibold" style="color: var(--theme-muted-text-color);">/100</span></p>
                                     <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ str($customer->status ?: 'active')->headline() }}</p>
                                 </td>
-                                <td class="px-5 py-4">{{ number_format($customer->open_tasks_count) }}</td>
+                                <td class="px-5 py-4">{{ format_number_locale($customer->open_tasks_count) }}</td>
                                 <td class="px-5 py-4">
                                     <p>{{ format_datetime_locale($customer->last_activity_at) ?: format_date_locale($customer->updated_at) }}</p>
                                     <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ optional($customer->activities->first())->title ?: __('No recent activity') }}</p>
@@ -120,7 +120,7 @@
                 </table>
             </div>
             <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
-                <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($customers->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($customers->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($customers->total()) }}</span> {{ __('customers') }}</p>
+                <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($customers->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($customers->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($customers->total()) }}</span> {{ __('customers') }}</p>
                 <div class="flex items-center gap-2">{{ $customers->links() }}</div>
             </div>
         @else

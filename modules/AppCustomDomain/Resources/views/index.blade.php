@@ -3,7 +3,7 @@
     $verifiedDomains = $domains->where('status', 'verified')->count();
     $pendingDomains = max(0, $totalDomains - $verifiedDomains);
     $domainLimit = (int) ($domainLimit ?? -1);
-    $domainLimitLabel = $domainLimit < 0 ? __('Unlimited') : number_format($domainLimit);
+    $domainLimitLabel = $domainLimit < 0 ? __('Unlimited') : format_number_locale($domainLimit);
     $routingHost = parse_url((string) config('app.url'), PHP_URL_HOST) ?: request()->getHost();
     $routingHost = in_array($routingHost, ['127.0.0.1', 'localhost', ''], true) ? request()->getHost() : $routingHost;
 @endphp
@@ -42,7 +42,7 @@
                                         <i class="fa-light {{ $stat['icon'] }}"></i>
                                     </span>
                                 </div>
-                                <p class="mt-3 text-3xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($stat['value']) }}</p>
+                                <p class="mt-3 text-3xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($stat['value']) }}</p>
                             </div>
                         @endforeach
                     </div>

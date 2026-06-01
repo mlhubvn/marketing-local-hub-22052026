@@ -1,6 +1,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="csrf-token" content="{{ csrf_token() }}" />
+@if (function_exists('platform_format_config'))
+    <script>window.MLHUB_FORMAT = @json(platform_format_config());</script>
+@endif
 @php
     $gaOptions = app(\Modules\AdminSettings\Support\OptionStore::class);
     $gaEnabled = (string) $gaOptions->get('google_analytics_status', '0') === '1';

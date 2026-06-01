@@ -89,7 +89,7 @@
                 <span class="absolute inset-x-0 top-0 h-1" style="background-color: {{ $toneColor }};"></span>
                 <div class="flex items-start justify-between gap-3">
                     <div>
-                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($metric['value']) }}</p>
+                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
                         <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                         <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                     </div>
@@ -179,7 +179,7 @@
                             <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $campaign->name }}</p>
                             <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ str($campaign->type)->headline() }}</p>
                         </div>
-                        <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ number_format($campaign->scans_count) }} {{ __('scans') }}</p>
+                        <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ format_number_locale($campaign->scans_count) }} {{ __('scans') }}</p>
                         <a href="{{ $campaign->publicUrl() }}" target="_blank" class="text-sm font-semibold" style="color: var(--theme-accent);">{{ __('Open') }}</a>
                     </div>
                 @empty

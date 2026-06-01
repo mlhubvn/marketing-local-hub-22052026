@@ -430,7 +430,7 @@
                         @elseif($landingPage->type === 'booking')
                             <div class="meta">
                                 @if($bookingServices->isNotEmpty())
-                                    <div><strong>{{ number_format($bookingServices->count()) }}</strong>{{ __('services available') }}</div>
+                                    <div><strong>{{ format_number_locale($bookingServices->count()) }}</strong>{{ __('services available') }}</div>
                                     <div><strong>{{ __('Price') }}</strong>{{ $bookingServices->whereNotNull('price')->isNotEmpty() ? __('Shown per service') : __('Ask us') }}</div>
                                 @else
                                     <div><strong>{{ data_get($settings, 'service', __('Appointment')) }}</strong>{{ data_get($settings, 'duration', __('Duration varies')) }}</div>

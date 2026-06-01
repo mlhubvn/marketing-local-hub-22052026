@@ -9,7 +9,7 @@
         $businessFilterOptions = [[
             'value' => 'all',
             'label' => __('All businesses'),
-            'meta' => trans_choice('{0} No locations|{1} :count location|[2,*] :count locations', $totalLocations, ['count' => number_format($totalLocations)]),
+            'meta' => trans_choice('{0} No locations|{1} :count location|[2,*] :count locations', $totalLocations, ['count' => format_number_locale($totalLocations)]),
             'icon' => 'fa-layer-group',
         ]];
 
@@ -18,7 +18,7 @@
             $businessFilterOptions[] = [
                 'value' => (string) $business->id,
                 'label' => $business->name,
-                'meta' => trans_choice('{0} No locations|{1} :count location|[2,*] :count locations', $businessLocationCount, ['count' => number_format($businessLocationCount)]),
+                'meta' => trans_choice('{0} No locations|{1} :count location|[2,*] :count locations', $businessLocationCount, ['count' => format_number_locale($businessLocationCount)]),
                 'icon' => 'fa-store',
             ];
         }
@@ -175,11 +175,11 @@
 
                 <div class="mt-5 grid grid-cols-2 gap-3">
                     <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($totalLocations) }}</p>
+                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($totalLocations) }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Locations') }}</p>
                     </div>
                     <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($isScoped ? 1 : $businesses->count()) }}</p>
+                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($isScoped ? 1 : $businesses->count()) }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $isScoped ? __('Business') : __('Businesses') }}</p>
                     </div>
                 </div>
@@ -324,11 +324,11 @@
             <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
                 <p class="text-sm" style="color: var(--theme-muted-text-color);">
                     {{ __('Showing') }}
-                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($locations->firstItem()) }}</span>
+                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($locations->firstItem()) }}</span>
                     -
-                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($locations->lastItem()) }}</span>
+                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($locations->lastItem()) }}</span>
                     {{ __('of') }}
-                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($locations->total()) }}</span>
+                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($locations->total()) }}</span>
                     {{ __('locations') }}
                 </p>
 
@@ -345,7 +345,7 @@
                     </button>
 
                     <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">
-                        {{ __('Page') }} {{ number_format($locations->currentPage()) }} / {{ number_format($locations->lastPage()) }}
+                        {{ __('Page') }} {{ format_number_locale($locations->currentPage()) }} / {{ format_number_locale($locations->lastPage()) }}
                     </span>
 
                     <button

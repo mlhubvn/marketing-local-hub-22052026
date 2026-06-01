@@ -7,17 +7,17 @@
 
     $formatBytes = static function (int $bytes): string {
         return $bytes >= 1073741824
-            ? number_format($bytes / 1073741824, 2).' GB'
+            ? format_number_locale($bytes / 1073741824, 2).' GB'
             : ($bytes >= 1048576
-                ? number_format($bytes / 1048576, 2).' MB'
+                ? format_number_locale($bytes / 1048576, 2).' MB'
                 : ($bytes >= 1024
-                    ? number_format($bytes / 1024, 2).' KB'
+                    ? format_number_locale($bytes / 1024, 2).' KB'
                     : $bytes.' B'));
     };
 
     $storageLabel = $formatBytes($storageBytes);
     $averageFileLabel = $formatBytes($averageFileBytes);
-    $limitLabel = $limitMb > 0 ? number_format($limitMb).' MB' : __('No storage limit');
+    $limitLabel = $limitMb > 0 ? format_number_locale($limitMb).' MB' : __('No storage limit');
     $categoryPalette = [
         'image' => '#0f766e',
         'video' => '#16a34a',
@@ -113,9 +113,9 @@
 
             <div class="mt-5 grid border sm:grid-cols-4" style="border-color: rgba(var(--theme-border-color-rgb),0.62);">
                 @foreach ([
-                    [__('All entries'), number_format((int) ($metrics['total'] ?? 0))],
-                    [__('Images'), number_format((int) ($metrics['images'] ?? 0))],
-                    [__('Folders'), number_format((int) ($metrics['folders'] ?? 0))],
+                    [__('All entries'), format_number_locale((int) ($metrics['total'] ?? 0))],
+                    [__('Images'), format_number_locale((int) ($metrics['images'] ?? 0))],
+                    [__('Folders'), format_number_locale((int) ($metrics['folders'] ?? 0))],
                     [__('Avg file size'), $averageFileLabel],
                 ] as $stat)
                     <div class="border-b p-4 sm:border-r sm:border-b-0" style="border-color: rgba(var(--theme-border-color-rgb),0.62);">
@@ -161,8 +161,8 @@
 
     <div class="grid border-t sm:grid-cols-3" style="border-color: rgba(var(--theme-border-color-rgb),0.62);">
         @foreach ([
-            [__('File assets'), number_format((int) ($metrics['files'] ?? 0)), __('Uploaded assets excluding folders.')],
-            [__('Non-image assets'), number_format((int) ($metrics['other_assets'] ?? 0)), __('Documents, videos, archives, and other stored files.')],
+            [__('File assets'), format_number_locale((int) ($metrics['files'] ?? 0)), __('Uploaded assets excluding folders.')],
+            [__('Non-image assets'), format_number_locale((int) ($metrics['other_assets'] ?? 0)), __('Documents, videos, archives, and other stored files.')],
             [__('Storage footprint'), $storageLabel, __('Current occupied space across all stored assets.')],
         ] as $metric)
             <div class="min-h-[8.5rem] border-b p-5 sm:border-r sm:border-b-0" style="border-color: rgba(var(--theme-border-color-rgb),0.62);">

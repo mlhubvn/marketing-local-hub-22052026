@@ -16,7 +16,7 @@
                 <div class="mt-5 grid grid-cols-3 gap-3">
                     @foreach(array_slice($metrics, 0, 3) as $metric)
                         <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                            <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($metric['value']) }}<span class="text-sm font-semibold tracking-normal" style="color: var(--theme-muted-text-color);">{{ $metric['suffix'] ?? '' }}</span></p>
+                            <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}<span class="text-sm font-semibold tracking-normal" style="color: var(--theme-muted-text-color);">{{ $metric['suffix'] ?? '' }}</span></p>
                             <p class="mt-1 truncate text-xs" style="color: var(--theme-muted-text-color);">{{ $metric['label'] }}</p>
                         </div>
                     @endforeach
@@ -54,7 +54,7 @@
                 <article class="group flex min-h-[8.25rem] items-center gap-4 px-5 py-4 transition hover:bg-[color:rgba(var(--theme-accent-rgb),0.035)]">
                     <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition group-hover:scale-[1.03]" style="background-color: rgba(var(--theme-accent-rgb),.11); color: var(--theme-accent);"><i class="{{ $metric['icon'] }}"></i></span>
                     <div class="min-w-0 flex-1">
-                        <div class="flex items-baseline justify-between gap-3"><p class="truncate text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p><p class="text-[1.75rem] font-semibold leading-none tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($metric['value']) }}<span class="text-sm font-semibold tracking-normal" style="color: var(--theme-muted-text-color);">{{ $metric['suffix'] ?? '' }}</span></p></div>
+                        <div class="flex items-baseline justify-between gap-3"><p class="truncate text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p><p class="text-[1.75rem] font-semibold leading-none tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}<span class="text-sm font-semibold tracking-normal" style="color: var(--theme-muted-text-color);">{{ $metric['suffix'] ?? '' }}</span></p></div>
                         <div class="mt-3 h-1.5 overflow-hidden rounded-full" style="background-color: rgba(var(--theme-border-color-rgb), .35);"><div class="h-full rounded-full" style="width: {{ min(100, max(8, (int) $metric['value'])) }}%; background-color: var(--theme-accent);"></div></div>
                     </div>
                 </article>
@@ -76,7 +76,7 @@
                 @forelse($tags as $tag)
                     <a href="{{ route('portal.crm.customers', ['tag' => $tag->id]) }}" wire:navigate class="rounded-xl border p-4 transition hover:-translate-y-0.5" style="border-color: rgba(var(--theme-border-color-rgb), .58);">
                         <div class="flex items-center gap-2"><span class="h-3 w-3 rounded-full" style="background-color: {{ $tag->color }}"></span><p class="font-semibold">{{ $tag->name }}</p></div>
-                        <p class="mt-2 text-2xl font-semibold">{{ number_format($tag->customers_count) }}</p>
+                        <p class="mt-2 text-2xl font-semibold">{{ format_number_locale($tag->customers_count) }}</p>
                     </a>
                 @empty
                     <x-ui.empty icon="fa-light fa-tags" :title="__('No tags yet')" />

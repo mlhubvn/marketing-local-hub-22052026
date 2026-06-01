@@ -109,15 +109,15 @@
 
                 <div class="mt-5 grid grid-cols-3 gap-3">
                     <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($summary['system']) }}</p>
+                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['system']) }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('System') }}</p>
                     </div>
                     <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($summary['custom']) }}</p>
+                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['custom']) }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Custom') }}</p>
                     </div>
                     <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($summary['active']) }}</p>
+                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['active']) }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Active') }}</p>
                     </div>
                 </div>
@@ -148,7 +148,7 @@
                 <span class="absolute inset-x-0 top-0 h-1" style="background-color: {{ $toneColor }};"></span>
                 <div class="flex items-start justify-between gap-3">
                     <div class="min-w-0">
-                        <p class="text-[1.75rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($metric['value']) }}</p>
+                        <p class="text-[1.75rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
                         <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                         <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                     </div>
@@ -252,7 +252,7 @@
                             </div>
                             <div class="mt-4 flex items-center justify-between gap-3 text-xs" style="color: var(--theme-muted-text-color);">
                                 <span>{{ __('Version :version', ['version' => $pack->version]) }}</span>
-                                <span>{{ __(':templates templates | Installed :count times', ['templates' => number_format($pack->templates_count ?? 0), 'count' => number_format($pack->install_count)]) }}</span>
+                                <span>{{ __(':templates templates | Installed :count times', ['templates' => format_number_locale($pack->templates_count ?? 0), 'count' => format_number_locale($pack->install_count)]) }}</span>
                             </div>
                             <div class="mt-4 flex justify-end gap-2">
                                 <x-ui.button type="button" size="sm" variant="outline" wire:click="previewPack({{ $pack->id }})" wire:loading.attr="disabled" wire:target="previewPack({{ $pack->id }})">
@@ -338,14 +338,14 @@
                                     @if ($template->rating_count > 0)
                                         <span class="rounded-full border px-3 py-1 font-semibold" style="border-color: rgba(var(--theme-border-color-rgb),.58);">
                                             <i class="fa-solid fa-star" style="color: var(--theme-warning-color);"></i>
-                                            {{ number_format($template->ratingAverage(), 1) }} / 5 · {{ trans_choice(':count rating|:count ratings', $template->rating_count, ['count' => number_format($template->rating_count)]) }}
+                                            {{ format_number_locale($template->ratingAverage(), 1) }} / 5 · {{ trans_choice(':count rating|:count ratings', $template->rating_count, ['count' => format_number_locale($template->rating_count)]) }}
                                         </span>
                                     @endif
                                 </div>
                             @endif
 
                             <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
-                                <p class="text-xs" style="color: var(--theme-muted-text-color);">{{ __(':origin | :visibility | Used :count times', ['origin' => $template->originLabel(), 'visibility' => $template->visibilityLabel(), 'count' => number_format($template->usage_count)]) }}</p>
+                                <p class="text-xs" style="color: var(--theme-muted-text-color);">{{ __(':origin | :visibility | Used :count times', ['origin' => $template->originLabel(), 'visibility' => $template->visibilityLabel(), 'count' => format_number_locale($template->usage_count)]) }}</p>
                                 <div class="flex flex-wrap gap-2">
                                     <x-ui.button type="button" size="sm" wire:click="useTemplate({{ $template->id }})" wire:loading.attr="disabled" wire:target="useTemplate({{ $template->id }})">
                                         <i class="fa-light fa-spinner-third fa-spin" wire:loading wire:target="useTemplate({{ $template->id }})"></i>

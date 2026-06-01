@@ -55,11 +55,11 @@
 
                 <div class="mt-5 grid grid-cols-2 gap-3">
                     <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($totalCustomers) }}</p>
+                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($totalCustomers) }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Customers') }}</p>
                     </div>
                     <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($isScoped ? 1 : $businesses->count()) }}</p>
+                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($isScoped ? 1 : $businesses->count()) }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $isScoped ? __('Current business') : __('Businesses') }}</p>
                     </div>
                 </div>
@@ -211,11 +211,11 @@
             <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
                 <p class="text-sm" style="color: var(--theme-muted-text-color);">
                     {{ __('Showing') }}
-                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($customers->firstItem()) }}</span>
+                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($customers->firstItem()) }}</span>
                     -
-                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($customers->lastItem()) }}</span>
+                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($customers->lastItem()) }}</span>
                     {{ __('of') }}
-                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($customers->total()) }}</span>
+                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($customers->total()) }}</span>
                     {{ __('customers') }}
                 </p>
                 <div class="flex items-center gap-2">
@@ -223,7 +223,7 @@
                         <i class="fa-light fa-arrow-left"></i>{{ __('Previous') }}
                     </button>
                     <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">
-                        {{ __('Page') }} {{ number_format($customers->currentPage()) }} / {{ number_format($customers->lastPage()) }}
+                        {{ __('Page') }} {{ format_number_locale($customers->currentPage()) }} / {{ format_number_locale($customers->lastPage()) }}
                     </span>
                     <button type="button" wire:click="nextPage" @disabled(! $customers->hasMorePages()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);">
                         {{ __('Next') }}<i class="fa-light fa-arrow-right"></i>

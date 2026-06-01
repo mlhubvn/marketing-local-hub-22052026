@@ -71,7 +71,7 @@
                 <span class="absolute inset-x-0 top-0 h-1" style="background-color: {{ $toneColor }};"></span>
                 <div class="flex items-start justify-between gap-3">
                     <div>
-                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($metric['value']) }}</p>
+                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
                         <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                         <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                     </div>
@@ -137,7 +137,7 @@
                                 <div>
                                     <p class="text-xs font-semibold" style="color: var(--theme-header-text-color);">{{ __('Workspace readiness') }}</p>
                                     <p class="mt-1 text-[11px]" style="color: var(--theme-muted-text-color);">
-                                        {{ trans_choice('{0} No campaigns yet|{1} :count campaign|[2,*] :count campaigns', $business->campaigns_count, ['count' => number_format($business->campaigns_count)]) }}
+                                        {{ trans_choice('{0} No campaigns yet|{1} :count campaign|[2,*] :count campaigns', $business->campaigns_count, ['count' => format_number_locale($business->campaigns_count)]) }}
                                     </p>
                                 </div>
                                 <span class="rounded-full px-2.5 py-1 text-xs font-semibold" style="background-color: rgba(var(--theme-success-color-rgb),0.12); color: var(--theme-success-color);">{{ $readyPercent }}%</span>

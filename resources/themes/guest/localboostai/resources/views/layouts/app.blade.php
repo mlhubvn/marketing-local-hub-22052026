@@ -23,6 +23,9 @@
     <meta name="keywords" content="{{ $siteKeywords }}">
     <meta name="description" content="{{ $siteDescription }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @if (function_exists('platform_format_config'))
+        <script>window.MLHUB_FORMAT = @json(platform_format_config());</script>
+    @endif
     <link rel="icon" type="image/x-icon" href="{{ url(get_option('website_favicon', 'img/favicon.png')) }}">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.cdnfonts.com/css/general-sans?styles=135312,135310,135313,135303" rel="stylesheet">

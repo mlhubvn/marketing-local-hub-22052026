@@ -32,9 +32,9 @@
     };
 
     $storageFormatter = static function (int $bytes): string {
-        if ($bytes >= 1073741824) return number_format($bytes / 1073741824, 2).' GB';
-        if ($bytes >= 1048576) return number_format($bytes / 1048576, 2).' MB';
-        if ($bytes >= 1024) return number_format($bytes / 1024, 2).' KB';
+        if ($bytes >= 1073741824) return format_number_locale($bytes / 1073741824, 2).' GB';
+        if ($bytes >= 1048576) return format_number_locale($bytes / 1048576, 2).' MB';
+        if ($bytes >= 1024) return format_number_locale($bytes / 1024, 2).' KB';
         return $bytes.' B';
     };
 
@@ -1192,7 +1192,7 @@
                             :class="compactHeader ? 'text-[1.3rem]' : 'text-[1.5rem]'"
                             style="color: var(--theme-header-text-color);"
                         >{{ __('Admin Files') }}</h1>
-                        <span class="text-[13px] font-medium" style="color: var(--theme-muted-text-color);">({{ number_format($summary['total']) }} {{ __('records') }})</span>
+                        <span class="text-[13px] font-medium" style="color: var(--theme-muted-text-color);">({{ format_number_locale($summary['total']) }} {{ __('records') }})</span>
                     </div>
                     <p
                         class="hidden max-w-3xl overflow-hidden text-sm leading-7 transition-all duration-[35ms] ease-linear sm:block"
@@ -1511,7 +1511,7 @@
                                         @endif
                                     </div>
                                     <span class="inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em]" style="border-color: {{ $softBorder }}; background: var(--theme-surface-soft); color: var(--theme-header-text-color);">
-                                        {{ number_format($summary['total']) }} {{ __('items') }}
+                                        {{ format_number_locale($summary['total']) }} {{ __('items') }}
                                     </span>
                                 </div>
 
@@ -1524,11 +1524,11 @@
                                     <div class="mt-4 grid grid-cols-2 gap-3">
                                         <div class="rounded-[1rem] px-4 py-4" style="background: var(--theme-surface-soft);">
                                             <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Files') }}</p>
-                                            <p class="mt-3 text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($summary['files']) }}</p>
+                                            <p class="mt-3 text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['files']) }}</p>
                                         </div>
                                         <div class="rounded-[1rem] px-4 py-4" style="background: var(--theme-surface-soft);">
                                             <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Folders') }}</p>
-                                            <p class="mt-3 text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($summary['folders']) }}</p>
+                                            <p class="mt-3 text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['folders']) }}</p>
                                         </div>
                                     </div>
 
@@ -1862,7 +1862,7 @@
                                                         <div class="flex items-start justify-between gap-3">
                                                             <div class="min-w-0">
                                                                 <p class="truncate text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $upload->getClientOriginalName() }}</p>
-                                                                <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ number_format(($upload->getSize() ?? 0) / 1024, 0) }} KB</p>
+                                                                <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ format_number_locale(($upload->getSize() ?? 0) / 1024, 0) }} KB</p>
                                                             </div>
                                                             <div class="text-right">
                                                                 <p class="text-sm font-semibold tabular-nums" style="color: var(--theme-header-text-color);" x-show="uploading" x-text="`${progress}%`"></p>
@@ -1928,7 +1928,7 @@
                             @endif
                         </div>
                         <span class="inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]" style="border-color: {{ $softBorder }}; color: var(--theme-header-text-color); background: var(--theme-surface-soft);">
-                            {{ number_format($summary['total']) }} {{ __('items') }}
+                            {{ format_number_locale($summary['total']) }} {{ __('items') }}
                         </span>
                     </div>
 
@@ -1947,11 +1947,11 @@
                     <div class="mt-4 grid grid-cols-2 gap-3">
                         <div class="rounded-[1rem] px-4 py-4" style="background: var(--theme-surface-soft);">
                             <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Files') }}</p>
-                            <p class="mt-3 text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($summary['files']) }}</p>
+                            <p class="mt-3 text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['files']) }}</p>
                         </div>
                         <div class="rounded-[1rem] px-4 py-4" style="background: var(--theme-surface-soft);">
                             <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Folders') }}</p>
-                            <p class="mt-3 text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($summary['folders']) }}</p>
+                            <p class="mt-3 text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['folders']) }}</p>
                         </div>
                     </div>
 
@@ -2049,7 +2049,7 @@
                                 <p class="text-[11px] font-semibold uppercase tracking-[0.22em]" style="color: var(--theme-muted-text-color);">{{ __('Folder layer') }}</p>
                                 <h2 class="mt-1 text-[1.7rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ __('Folders') }}</h2>
                             </div>
-                            <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ number_format($folderItems->count()) }} {{ __('items') }}</p>
+                            <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ format_number_locale($folderItems->count()) }} {{ __('items') }}</p>
                         </div>
 
                         <div class="grid gap-4 [grid-template-columns:repeat(1,minmax(0,1fr))] sm:[grid-template-columns:repeat(auto-fit,minmax(320px,30rem))]">
@@ -2128,7 +2128,7 @@
                                         {{ __('List') }}
                                     </button>
                                 </div>
-                                <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ number_format($fileItems->count()) }} {{ __('items') }}</p>
+                                <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ format_number_locale($fileItems->count()) }} {{ __('items') }}</p>
                             </div>
                         </div>
                     @endif

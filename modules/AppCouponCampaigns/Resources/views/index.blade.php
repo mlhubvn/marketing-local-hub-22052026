@@ -86,7 +86,7 @@
                 <span class="absolute inset-x-0 top-0 h-1" style="background-color: var(--theme-accent);"></span>
                 <div class="flex items-start justify-between gap-3">
                     <div>
-                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ is_numeric($metric['value']) ? number_format((float) $metric['value']) : $metric['value'] }}</p>
+                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ is_numeric($metric['value']) ? format_number_locale((float) $metric['value']) : $metric['value'] }}</p>
                         <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                         <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                     </div>
@@ -264,11 +264,11 @@
                 <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
                     <p class="text-sm" style="color: var(--theme-muted-text-color);">
                         {{ __('Showing') }}
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($campaigns->firstItem()) }}</span>
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($campaigns->firstItem()) }}</span>
                         -
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($campaigns->lastItem()) }}</span>
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($campaigns->lastItem()) }}</span>
                         {{ __('of') }}
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($campaigns->total()) }}</span>
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($campaigns->total()) }}</span>
                         {{ __('coupon campaigns') }}
                     </p>
                     <div class="flex items-center gap-2">
@@ -346,11 +346,11 @@
                     <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
                         <p class="text-sm" style="color: var(--theme-muted-text-color);">
                             {{ __('Showing') }}
-                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($claims->firstItem()) }}</span>
+                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($claims->firstItem()) }}</span>
                             -
-                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($claims->lastItem()) }}</span>
+                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($claims->lastItem()) }}</span>
                             {{ __('of') }}
-                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($claims->total()) }}</span>
+                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($claims->total()) }}</span>
                             {{ __('coupon claims') }}
                         </p>
                         <div class="flex items-center gap-2">

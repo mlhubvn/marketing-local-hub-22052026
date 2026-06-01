@@ -13,7 +13,7 @@
                     </div>
                     <div class="mt-4 flex flex-wrap items-center gap-3">
                         <h1 class="text-[2.35rem] font-semibold leading-tight tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ __('Invoices') }}</h1>
-                        <x-ui.badge variant="neutral">{{ number_format($invoices->total()) }} {{ __('records') }}</x-ui.badge>
+                        <x-ui.badge variant="neutral">{{ format_number_locale($invoices->total()) }} {{ __('records') }}</x-ui.badge>
                     </div>
                     <p class="mt-3 max-w-2xl text-sm leading-7" style="color: var(--theme-muted-text-color);">{{ __('Browse payment references, transaction IDs, status, and downloadable PDF invoices for this account.') }}</p>
                 </div>
@@ -21,11 +21,11 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="rounded-xl border p-4" style="border-color: rgba(var(--theme-border-color-rgb), .58); background-color: var(--theme-surface-base);">
                         <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Paid visible') }}</p>
-                        <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($paidCount) }}</p>
+                        <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($paidCount) }}</p>
                     </div>
                     <div class="rounded-xl border p-4" style="border-color: rgba(var(--theme-border-color-rgb), .58); background-color: var(--theme-surface-base);">
                         <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Page total') }}</p>
-                        <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($visibleTotal, 2) }}</p>
+                        <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($visibleTotal, 2) }}</p>
                     </div>
                     <x-ui.button href="{{ route('portal.billing') }}" variant="outline" class="col-span-2" wire:navigate><i class="fa-light fa-arrow-left"></i>{{ __('Back to billing') }}</x-ui.button>
                 </div>
@@ -66,7 +66,7 @@
                                 <td class="px-5 py-4"><span class="font-mono text-xs" style="color: var(--theme-muted-text-color);">{{ $invoice->transaction_id ?: __('N/A') }}</span></td>
                                 <td class="px-5 py-4">{{ $invoice->plan?->name ?: __('N/A') }}</td>
                                 <td class="px-5 py-4">{{ $invoice->from ?: __('N/A') }}</td>
-                                <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ ($invoice->currency ?: 'USD').' '.number_format((float) $invoice->amount, 2) }}</td>
+                                <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ ($invoice->currency ?: 'USD').' '.format_number_locale((float) $invoice->amount, 2) }}</td>
                                 <td class="px-5 py-4"><x-ui.badge :variant="$invoice->statusVariant()">{{ $invoice->statusLabel() }}</x-ui.badge></td>
                                 <td class="px-5 py-4">{{ $invoice->createdAtFormatted('Y-m-d H:i') ?: __('N/A') }}</td>
                                 <td class="px-5 py-4 text-right">

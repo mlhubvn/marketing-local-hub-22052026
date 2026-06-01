@@ -300,11 +300,11 @@
                     <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <p class="text-sm" style="color: var(--theme-muted-text-color);">
                             {{ __('Showing') }}
-                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($savedReplies->firstItem()) }}</span>
+                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($savedReplies->firstItem()) }}</span>
                             -
-                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($savedReplies->lastItem()) }}</span>
+                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($savedReplies->lastItem()) }}</span>
                             {{ __('of') }}
-                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($savedReplies->total()) }}</span>
+                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($savedReplies->total()) }}</span>
                             {{ __('saved replies') }}
                         </p>
                         <div class="flex items-center gap-2">

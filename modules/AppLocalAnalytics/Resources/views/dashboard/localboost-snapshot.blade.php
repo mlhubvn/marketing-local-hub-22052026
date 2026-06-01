@@ -50,7 +50,7 @@
                             <i class="fa-light {{ $tile['icon'] }}"></i>
                         </span>
                     </div>
-                    <p class="mt-3 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ number_format((int) $tile['value']) }}</p>
+                    <p class="mt-3 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $tile['value']) }}</p>
                     <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $tile['description'] }}</p>
                 </div>
             @endforeach
@@ -72,7 +72,7 @@
                         <p class="truncate text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $campaign->name }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $campaign->business?->name ?: __('No business') }} · {{ \Illuminate\Support\Str::headline($campaign->type) }}</p>
                     </div>
-                    <span class="rounded-full px-3 py-1 text-xs font-semibold" style="background: rgba(var(--theme-accent-rgb),0.1); color: var(--theme-accent);">{{ number_format((int) $campaign->scans_count) }} {{ __('visits') }}</span>
+                    <span class="rounded-full px-3 py-1 text-xs font-semibold" style="background: rgba(var(--theme-accent-rgb),0.1); color: var(--theme-accent);">{{ format_number_locale((int) $campaign->scans_count) }} {{ __('visits') }}</span>
                 </div>
             @empty
                 <p class="rounded-[0.9rem] border px-4 py-3 text-sm" style="border-color: rgba(var(--theme-border-color-rgb),0.72); color: var(--theme-muted-text-color);">{{ __('No LocalBoost campaigns yet.') }}</p>

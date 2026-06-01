@@ -20,11 +20,11 @@
                 </x-ui.button>
                 <div class="mt-4 grid grid-cols-2 gap-3">
                     <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($totalCampaigns) }}</p>
+                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($totalCampaigns) }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Campaigns') }}</p>
                     </div>
                     <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($totalScans) }}</p>
+                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($totalScans) }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Scans') }}</p>
                     </div>
                 </div>
@@ -86,8 +86,8 @@
                                 <td class="px-5 py-4">
                                     <img src="{{ route('qr-campaigns.svg', ['campaign' => $campaign->slug]) }}" alt="" class="h-12 w-12 rounded-lg border bg-white p-1" style="border-color: rgba(var(--theme-border-color-rgb), 0.68);">
                                 </td>
-                                <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($campaign->scans_count) }}</td>
-                                <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($conversionCounts[$campaign->id] ?? 0) }}</td>
+                                <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($campaign->scans_count) }}</td>
+                                <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($conversionCounts[$campaign->id] ?? 0) }}</td>
                                 <td class="px-5 py-4 text-right">
                                     <div class="inline-flex items-center gap-2">
                                         <a href="{{ route('portal.businesses.campaigns.show', [$business, $campaign]) }}" target="_blank" class="inline-flex h-10 w-10 items-center justify-center rounded-xl border" style="border-color: rgba(var(--theme-border-color-rgb), .7); color: var(--theme-header-text-color);" title="{{ __('View') }}"><i class="fa-light fa-arrow-up-right"></i></a>
@@ -104,11 +104,11 @@
 
             <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
                 <p class="text-sm" style="color: var(--theme-muted-text-color);">
-                    {{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($campaigns->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($campaigns->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($campaigns->total()) }}</span>
+                    {{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($campaigns->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($campaigns->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($campaigns->total()) }}</span>
                 </p>
                 <div class="flex items-center gap-2">
                     <button type="button" wire:click="previousPage" @disabled($campaigns->onFirstPage()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);"><i class="fa-light fa-arrow-left"></i>{{ __('Previous') }}</button>
-                    <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ number_format($campaigns->currentPage()) }} / {{ number_format($campaigns->lastPage()) }}</span>
+                    <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ format_number_locale($campaigns->currentPage()) }} / {{ format_number_locale($campaigns->lastPage()) }}</span>
                     <button type="button" wire:click="nextPage" @disabled(! $campaigns->hasMorePages()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);">{{ __('Next') }}<i class="fa-light fa-arrow-right"></i></button>
                 </div>
             </div>

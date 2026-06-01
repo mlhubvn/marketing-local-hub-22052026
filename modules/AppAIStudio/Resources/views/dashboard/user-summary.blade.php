@@ -2,7 +2,7 @@
     $creditSummary = $creditSummary ?? ['remaining' => null, 'used' => 0, 'unlimited' => true, 'usage_percent' => 0];
     $creditRemainingLabel = ($creditSummary['unlimited'] ?? false)
         ? __('Unlimited')
-        : number_format((int) ($creditSummary['remaining'] ?? 0));
+        : format_number_locale((int) ($creditSummary['remaining'] ?? 0));
     $creditUsagePercent = (int) ($creditSummary['usage_percent'] ?? 0);
 @endphp
 

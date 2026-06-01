@@ -369,15 +369,152 @@ if (! function_exists('world_languages')) {
     }
 }
 
+if (! function_exists('reset_platform_format_settings')) {
+    function reset_platform_format_settings(): void
+    {
+        $store = &platform_format_settings_store();
+        $store = [];
+    }
+}
+
+if (! function_exists('platform_format_settings_store')) {
+    /** @return array<string, mixed> */
+    function &platform_format_settings_store(): array
+    {
+        static $settings = [];
+
+        return $settings;
+    }
+}
+
+if (! function_exists('platform_format_separators_for_style')) {
+    /**
+     * @return array{0: string, 1: string}
+     */
+    function platform_format_separators_for_style(string $style): array
+    {
+        return $style === 'en_US' ? ['.', ','] : [',', '.'];
+    }
+}
+
+if (! function_exists('platform_format_money_decimals')) {
+    function platform_format_money_decimals(mixed $configured, ?string $currencyCode): int
+    {
+        if ($configured !== null && $configured !== '') {
+            return max(0, min(4, (int) $configured));
+        }
+
+        return CurrencyCatalog::decimalsFor($currencyCode);
+    }
+}
+
+if (! function_exists('platform_format_settings')) {
+    /**
+     * Cấu hình định dạng từ Admin → General (bảng options).
+     *
+     * @return array<string, mixed>
+     */
+    function platform_format_settings(): array
+    {
+        $store = &platform_format_settings_store();
+
+        if ($store !== []) {
+            return $store;
+        }
+
+        if (! class_exists(OptionStore::class)) {
+            return $store = [
+                'format_date' => 'd/m/Y',
+                'format_datetime' => 'd/m/Y H:i',
+                'app_timezone' => (string) config('app.timezone', 'UTC'),
+                'number_style' => 'vi_VN',
+                'decimal_separator' => ',',
+                'thousands_separator' => '.',
+                'default_currency' => 'VND',
+                'money_decimals' => 0,
+            ];
+        }
+
+        $options = app(OptionStore::class);
+        $numberStyle = (string) $options->get('format_number_style', 'vi_VN');
+        [$decimalSeparator, $thousandsSeparator] = platform_format_separators_for_style($numberStyle);
+
+        return $store = [
+            'format_date' => (string) $options->get('format_date', 'd/m/Y'),
+            'format_datetime' => (string) $options->get('format_datetime', 'd/m/Y H:i'),
+            'app_timezone' => (string) $options->get('app_timezone', config('app.timezone', 'UTC')),
+            'number_style' => $numberStyle,
+            'decimal_separator' => (string) $options->get('format_decimal_separator', $decimalSeparator),
+            'thousands_separator' => (string) $options->get('format_thousands_separator', $thousandsSeparator),
+            'default_currency' => strtoupper((string) $options->get('default_currency', 'VND')),
+            'money_decimals' => platform_format_money_decimals(
+                $options->get('format_money_decimals'),
+                (string) $options->get('default_currency', 'VND'),
+            ),
+        ];
+    }
+}
+
+if (! function_exists('platform_format_config')) {
+    /**
+     * Cấu hình định dạng cho frontend (window.MLHUB_FORMAT).
+     *
+     * @return array<string, mixed>
+     */
+    function platform_format_config(): array
+    {
+        $settings = platform_format_settings();
+
+        return [
+            'date' => $settings['format_date'],
+            'datetime' => $settings['format_datetime'],
+            'timezone' => $settings['app_timezone'],
+            'numberStyle' => $settings['number_style'],
+            'decimalSeparator' => $settings['decimal_separator'],
+            'thousandsSeparator' => $settings['thousands_separator'],
+            'defaultCurrency' => $settings['default_currency'],
+            'moneyDecimals' => $settings['money_decimals'],
+            'samples' => [
+                'date' => format_date_locale(now()),
+                'datetime' => format_datetime_locale(now()),
+                'number' => format_number_locale(1234567),
+                'money' => format_money(550000),
+            ],
+        ];
+    }
+}
+
 if (! function_exists('format_money')) {
     /**
-     * Format a monetary amount for display using the currency's conventions.
+     * Format a monetary amount for display using Admin settings + currency rules.
      *
      * @param  string|null  $currency  Currency code (e.g. "VND", "USD") or symbol.
      */
     function format_money(float|int|string|null $amount, ?string $currency = null): string
     {
-        return CurrencyCatalog::format($amount, $currency);
+        if ($amount === null || $amount === '') {
+            return '';
+        }
+
+        $settings = platform_format_settings();
+        $code = CurrencyCatalog::normalizeCode($currency ?? $settings['default_currency']);
+        $symbol = CurrencyCatalog::symbolFor($code);
+        $decimals = $currency !== null
+            ? CurrencyCatalog::decimalsFor($code)
+            : (int) $settings['money_decimals'];
+
+        $formatted = number_format(
+            (float) $amount,
+            max(0, $decimals),
+            (string) $settings['decimal_separator'],
+            (string) $settings['thousands_separator'],
+        );
+
+        if ($code === 'VND') {
+            return $formatted.' '.$symbol;
+        }
+
+        return $symbol.$formatted;
     }
 }
 
@@ -395,23 +532,13 @@ if (! function_exists('format_date_locale')) {
             ? Illuminate\Support\Carbon::instance($date)
             : Illuminate\Support\Carbon::parse($date);
 
-        $carbon = $carbon->timezone((string) config('app.timezone', 'UTC'));
+        $settings = platform_format_settings();
+        $format ??= (string) $settings['format_date'];
 
-        if ($format === null) {
-            if (uses_vietnamese_number_format()) {
-                $format = 'd/m/Y';
-            } elseif (class_exists(OptionStore::class)) {
-                $format = (string) app(OptionStore::class)->get('format_date', 'd/m/Y');
-            } else {
-                $format = 'd/m/Y';
-            }
-        }
-
-        if (uses_vietnamese_number_format() && preg_match('/\bM\b/', $format)) {
-            $format = 'd/m/Y';
-        }
-
-        return $carbon->locale(app()->getLocale())->translatedFormat($format);
+        return $carbon
+            ->timezone((string) $settings['app_timezone'])
+            ->locale(app()->getLocale())
+            ->translatedFormat($format);
     }
 }
 
@@ -429,23 +556,13 @@ if (! function_exists('format_datetime_locale')) {
             ? Illuminate\Support\Carbon::instance($date)
             : Illuminate\Support\Carbon::parse($date);
 
-        $carbon = $carbon->timezone((string) config('app.timezone', 'UTC'));
+        $settings = platform_format_settings();
+        $format ??= (string) $settings['format_datetime'];
 
-        if ($format === null) {
-            if (uses_vietnamese_number_format()) {
-                $format = 'd/m/Y H:i';
-            } elseif (class_exists(OptionStore::class)) {
-                $format = (string) app(OptionStore::class)->get('format_datetime', 'd/m/Y H:i');
-            } else {
-                $format = 'd/m/Y H:i';
-            }
-        }
-
-        if (uses_vietnamese_number_format() && preg_match('/\bM\b/', $format)) {
-            $format = 'd/m/Y H:i';
-        }
-
-        return $carbon->locale(app()->getLocale())->translatedFormat($format);
+        return $carbon
+            ->timezone((string) $settings['app_timezone'])
+            ->locale(app()->getLocale())
+            ->translatedFormat($format);
     }
 }
 
@@ -489,23 +606,24 @@ if (! function_exists('publishing_provider_chip_style')) {
 if (! function_exists('uses_vietnamese_number_format')) {
     function uses_vietnamese_number_format(): bool
     {
-        $locale = (string) app()->getLocale();
-
-        return $locale === 'vi' || str_starts_with($locale, 'vi_');
+        return (platform_format_settings()['number_style'] ?? 'vi_VN') === 'vi_VN';
     }
 }
 
 if (! function_exists('format_number_locale')) {
     /**
-     * Việt Nam: 1.234.567 (dấu chấm phân hàng nghìn, phẩy thập phân).
+     * Số hiển thị theo Admin → General (dấu chấm nghìn, phẩy thập phân cho Việt Nam).
      */
     function format_number_locale(int|float $value, int $decimals = 0): string
     {
-        if (uses_vietnamese_number_format()) {
-            return number_format((float) $value, $decimals, ',', '.');
-        }
+        $settings = platform_format_settings();
 
-        return number_format((float) $value, $decimals);
+        return number_format(
+            (float) $value,
+            max(0, $decimals),
+            (string) $settings['decimal_separator'],
+            (string) $settings['thousands_separator'],
+        );
     }
 }
 
@@ -519,13 +637,9 @@ if (! function_exists('format_price_locale')) {
             return '';
         }
 
-        if (filled($currency)) {
-            return format_money($amount, $currency);
-        }
+        $currencyCode = $currency ?? platform_format_settings()['default_currency'] ?? null;
 
-        $decimals = uses_vietnamese_number_format() ? 0 : 2;
-
-        return format_number_locale((float) $amount, $decimals);
+        return format_money($amount, $currencyCode);
     }
 }
 

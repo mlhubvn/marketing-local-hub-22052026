@@ -142,7 +142,7 @@ class AppBillingController extends Controller
         $user = $request->user();
         $appName = (string) config('app.name', 'Stackposts');
         $createdAt = $invoice->createdAtFormatted('Y-m-d H:i') ?: 'N/A';
-        $amount = ($invoice->currency ?: 'USD').' '.number_format((float) $invoice->amount, 2);
+        $amount = ($invoice->currency ?: 'USD').' '.format_number_locale((float) $invoice->amount, 2);
 
         $pdf = $pdfBuilder->make([
             'app_name' => $appName,

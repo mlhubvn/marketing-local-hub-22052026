@@ -32,7 +32,7 @@
         ],
         [
             'label' => __('Amount'),
-            'value' => strtoupper($checkout->currency).' '.number_format((float) $checkout->amount, 2),
+            'value' => strtoupper($checkout->currency).' '.format_number_locale((float) $checkout->amount, 2),
             'muted' => __('Captured for this checkout'),
         ],
         [
@@ -169,7 +169,7 @@
                                     {{ __('Charged total') }}
                                 </p>
                                 <p class="mt-3 text-[2.15rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">
-                                    {{ strtoupper($checkout->currency) }} {{ number_format((float) $checkout->amount, 2) }}
+                                    {{ strtoupper($checkout->currency) }} {{ format_number_locale((float) $checkout->amount, 2) }}
                                 </p>
                             </div>
                         </div>

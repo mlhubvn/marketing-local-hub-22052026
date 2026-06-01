@@ -30,8 +30,8 @@
                     <div class="flex h-11 w-11 items-center justify-center rounded-2xl" style="background-color: rgba(var(--theme-accent-rgb),.12); color: var(--theme-accent);"><i class="fa-light fa-layer-group"></i></div>
                 </div>
                 <div class="mt-5 grid grid-cols-3 gap-3">
-                    <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);"><p class="text-2xl font-semibold tracking-[-0.045em]">{{ number_format($savedSegments->count()) }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Saved') }}</p></div>
-                    <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);"><p class="text-2xl font-semibold tracking-[-0.045em]">{{ number_format(count($segments)) }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('System') }}</p></div>
+                    <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);"><p class="text-2xl font-semibold tracking-[-0.045em]">{{ format_number_locale($savedSegments->count()) }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Saved') }}</p></div>
+                    <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);"><p class="text-2xl font-semibold tracking-[-0.045em]">{{ format_number_locale(count($segments)) }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('System') }}</p></div>
                     <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);"><p class="text-2xl font-semibold tracking-[-0.045em]">{{ strtoupper($match) }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Match') }}</p></div>
                 </div>
             </div>
@@ -71,7 +71,7 @@
                                         <div class="min-w-0"><p class="truncate font-semibold" style="color: var(--theme-header-text-color);">{{ $segment['name'] }}</p><p class="mt-1 truncate text-xs" style="color: var(--theme-muted-text-color);">{{ $segment['description'] ?: __('Dynamic CRM segment') }}</p></div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4">{{ number_format($segment['count']) }}</td>
+                                <td class="px-6 py-4">{{ format_number_locale($segment['count']) }}</td>
                                 <td class="px-6 py-4"><x-ui.badge variant="info">{{ __('Dynamic') }}</x-ui.badge></td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="inline-flex items-center gap-2">
@@ -113,7 +113,7 @@
             <a href="{{ route('portal.crm.customers', ['segment' => $segment['key']]) }}" wire:navigate class="group rounded-[1.15rem] border p-5 transition hover:-translate-y-0.5 hover:shadow-[0_18px_46px_-32px_rgba(15,23,42,.42)]" style="border-color: rgba(var(--theme-border-color-rgb), .68); background-color: color-mix(in srgb, var(--theme-surface-overlay) 98%, transparent);">
                 <div class="flex items-start justify-between gap-4">
                     <span class="flex h-11 w-11 items-center justify-center rounded-xl" style="background-color: {{ $segment['color'] }}1a; color: {{ $segment['color'] }};"><i class="fa-light fa-chart-pie-simple"></i></span>
-                    <span class="text-3xl font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($segment['count']) }}</span>
+                    <span class="text-3xl font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($segment['count']) }}</span>
                 </div>
                 <div class="mt-4 flex items-center justify-between gap-3">
                     <h2 class="text-lg font-semibold" style="color: var(--theme-header-text-color);">{{ $segment['name'] }}</h2>
@@ -157,7 +157,7 @@
                                 <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Preview matched customers') }}</p>
                                 <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Live estimate based on current business, match mode, and rules.') }}</p>
                             </div>
-                            <span class="shrink-0 rounded-2xl px-4 py-2 text-2xl font-semibold tracking-[-0.04em]" style="background-color: color-mix(in srgb, var(--theme-surface-overlay) 84%, transparent); color: var(--theme-accent);">{{ number_format($previewCount) }}</span>
+                            <span class="shrink-0 rounded-2xl px-4 py-2 text-2xl font-semibold tracking-[-0.04em]" style="background-color: color-mix(in srgb, var(--theme-surface-overlay) 84%, transparent); color: var(--theme-accent);">{{ format_number_locale($previewCount) }}</span>
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 border-t px-5 py-4 sm:px-6" style="border-color: color-mix(in srgb, var(--theme-border-color) 52%, transparent); background-color: color-mix(in srgb, var(--theme-surface-soft) 88%, transparent);">

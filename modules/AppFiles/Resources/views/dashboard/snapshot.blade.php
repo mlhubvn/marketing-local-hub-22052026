@@ -1,9 +1,9 @@
 @php
     $storageLabel = $metrics['storage_bytes'] >= 1073741824
-        ? number_format($metrics['storage_bytes'] / 1073741824, 2).' GB'
+        ? format_number_locale($metrics['storage_bytes'] / 1073741824, 2).' GB'
         : ($metrics['storage_bytes'] >= 1048576
-            ? number_format($metrics['storage_bytes'] / 1048576, 2).' MB'
-            : number_format($metrics['storage_bytes'] / 1024, 2).' KB');
+            ? format_number_locale($metrics['storage_bytes'] / 1048576, 2).' MB'
+            : format_number_locale($metrics['storage_bytes'] / 1024, 2).' KB');
 
     $otherFiles = max(0, (int) $metrics['total'] - (int) $metrics['folders'] - (int) $metrics['images']);
     $fileSeries = [[
@@ -57,24 +57,24 @@
                 </div>
                 <div class="rounded-[var(--theme-card-radius,1.15rem)] border px-4 py-3 text-right" style="border-color: rgba(var(--theme-border-color-rgb),0.52); background: color-mix(in srgb, var(--theme-surface-base) 88%, rgba(var(--theme-accent-rgb),0.04));">
                     <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Images') }}</p>
-                    <p class="mt-2 text-[1.7rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format((int) $metrics['images']) }}</p>
+                    <p class="mt-2 text-[1.7rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $metrics['images']) }}</p>
                 </div>
             </div>
 
             <div class="grid gap-3 sm:grid-cols-3">
                 <div class="rounded-[var(--theme-card-radius,1.15rem)] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.48); background: linear-gradient(180deg, color-mix(in srgb, var(--theme-surface-overlay) 94%, rgba(var(--theme-accent-rgb),0.04)), color-mix(in srgb, var(--theme-surface-base) 96%, rgba(var(--theme-accent-rgb),0.02)));">
                     <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('All entries') }}</p>
-                    <p class="mt-2 text-[1.65rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format((int) $metrics['total']) }}</p>
+                    <p class="mt-2 text-[1.65rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $metrics['total']) }}</p>
                     <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Files and folders') }}</p>
                 </div>
                 <div class="rounded-[var(--theme-card-radius,1.15rem)] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.48); background: linear-gradient(180deg, color-mix(in srgb, var(--theme-surface-overlay) 94%, rgba(var(--theme-accent-rgb),0.04)), color-mix(in srgb, var(--theme-surface-base) 96%, rgba(var(--theme-accent-rgb),0.02)));">
                     <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Folders') }}</p>
-                    <p class="mt-2 text-[1.65rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format((int) $metrics['folders']) }}</p>
+                    <p class="mt-2 text-[1.65rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $metrics['folders']) }}</p>
                     <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Directory containers') }}</p>
                 </div>
                 <div class="rounded-[var(--theme-card-radius,1.15rem)] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.48); background: linear-gradient(180deg, color-mix(in srgb, var(--theme-surface-overlay) 94%, rgba(var(--theme-success-color-rgb),0.06)), color-mix(in srgb, var(--theme-surface-base) 96%, rgba(var(--theme-success-color-rgb),0.03)));">
                     <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Other assets') }}</p>
-                    <p class="mt-2 text-[1.65rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($otherFiles) }}</p>
+                    <p class="mt-2 text-[1.65rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($otherFiles) }}</p>
                     <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Video, docs, and misc files') }}</p>
                 </div>
             </div>

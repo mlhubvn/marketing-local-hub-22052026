@@ -27,7 +27,7 @@
                             </span>
                             <span class="min-w-0 flex-1">
                                 <span class="block truncate text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $category->name }}</span>
-                                <span class="mt-1 block text-xs" style="color: var(--theme-muted-text-color);">{{ number_format((int) $category->templates_count) }} {{ __('templates') }}</span>
+                                <span class="mt-1 block text-xs" style="color: var(--theme-muted-text-color);">{{ format_number_locale((int) $category->templates_count) }} {{ __('templates') }}</span>
                             </span>
                         </button>
                     @endforeach

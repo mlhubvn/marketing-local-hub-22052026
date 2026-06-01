@@ -14,8 +14,8 @@
 
         <x-ui.metric-strip
             :items="[
-                ['label' => __('Plans'), 'value' => number_format($summary['total']), 'description' => __('Packages currently available in the subscription catalog.'), 'progress' => 100, 'tone' => 'var(--theme-accent)'],
-                ['label' => __('Featured'), 'value' => number_format($summary['featured']), 'description' => __('Plans highlighted as the recommended upgrade path.'), 'progress' => $summary['total'] > 0 ? (int) round(($summary['featured'] / $summary['total']) * 100) : 0, 'tone' => 'var(--theme-success-color)'],
+                ['label' => __('Plans'), 'value' => format_number_locale($summary['total']), 'description' => __('Packages currently available in the subscription catalog.'), 'progress' => 100, 'tone' => 'var(--theme-accent)'],
+                ['label' => __('Featured'), 'value' => format_number_locale($summary['featured']), 'description' => __('Plans highlighted as the recommended upgrade path.'), 'progress' => $summary['total'] > 0 ? (int) round(($summary['featured'] / $summary['total']) * 100) : 0, 'tone' => 'var(--theme-success-color)'],
                 ['label' => __('Starting at'), 'value' => $summary['startingAt'] !== null ? format_money((float) $summary['startingAt'], $user?->plan?->currency) : __('N/A'), 'description' => __('Lowest paid package price currently available.'), 'progress' => 100, 'tone' => 'var(--theme-warning-color)'],
             ]"
             :show-icons="false"

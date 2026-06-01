@@ -1,10 +1,10 @@
 @component(theme_view('layouts.app', 'app'), ['title' => __('Affiliate')])
     @php
         $metricCards = [
-            ['label' => __('Clicks'), 'value' => number_format($profile->clicks), 'description' => __('Referral link visits captured from your code.'), 'icon' => 'fa-light fa-arrow-pointer', 'tone' => 'var(--theme-accent)', 'progress' => $profile->clicks > 0 ? 100 : 0],
-            ['label' => __('Conversions'), 'value' => number_format($profile->conversions), 'description' => __('Successful commission events attributed to you.'), 'icon' => 'fa-light fa-badge-check', 'tone' => 'rgb(5 150 105)', 'progress' => $profile->conversions > 0 ? 100 : 0],
-            ['label' => __('Available Balance'), 'value' => number_format((float) $profile->total_balance, 2), 'description' => __('Current balance available for withdrawal.'), 'icon' => 'fa-light fa-wallet', 'tone' => 'rgb(217 119 6)', 'progress' => (float) $profile->total_balance > 0 ? 100 : 0],
-            ['label' => __('Approved Total'), 'value' => number_format((float) $profile->total_approved, 2), 'description' => __('Lifetime approved affiliate earnings.'), 'icon' => 'fa-light fa-sack-dollar', 'tone' => 'rgb(99 102 241)', 'progress' => (float) $profile->total_approved > 0 ? 100 : 0],
+            ['label' => __('Clicks'), 'value' => format_number_locale($profile->clicks), 'description' => __('Referral link visits captured from your code.'), 'icon' => 'fa-light fa-arrow-pointer', 'tone' => 'var(--theme-accent)', 'progress' => $profile->clicks > 0 ? 100 : 0],
+            ['label' => __('Conversions'), 'value' => format_number_locale($profile->conversions), 'description' => __('Successful commission events attributed to you.'), 'icon' => 'fa-light fa-badge-check', 'tone' => 'rgb(5 150 105)', 'progress' => $profile->conversions > 0 ? 100 : 0],
+            ['label' => __('Available Balance'), 'value' => format_number_locale((float) $profile->total_balance, 2), 'description' => __('Current balance available for withdrawal.'), 'icon' => 'fa-light fa-wallet', 'tone' => 'rgb(217 119 6)', 'progress' => (float) $profile->total_balance > 0 ? 100 : 0],
+            ['label' => __('Approved Total'), 'value' => format_number_locale((float) $profile->total_approved, 2), 'description' => __('Lifetime approved affiliate earnings.'), 'icon' => 'fa-light fa-sack-dollar', 'tone' => 'rgb(99 102 241)', 'progress' => (float) $profile->total_approved > 0 ? 100 : 0],
         ];
     @endphp
 
@@ -41,7 +41,7 @@
                 <div class="flex flex-wrap items-center gap-3 lg:justify-end">
                     <span class="inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-medium" style="border-color: rgba(var(--theme-border-color-rgb), 0.62); background-color: rgba(var(--theme-surface-base-rgb,255,255,255),0.76); color: var(--theme-header-text-color); box-shadow: 0 12px 30px -24px rgba(15,23,42,0.28);">
                         <i class="fa-light fa-wallet"></i>
-                        {{ __('Balance: :amount', ['amount' => number_format((float) $profile->total_balance, 2)]) }}
+                        {{ __('Balance: :amount', ['amount' => format_number_locale((float) $profile->total_balance, 2)]) }}
                     </span>
                 </div>
             </div>
@@ -70,7 +70,7 @@
             <x-ui.card class="flex h-full flex-col space-y-5">
                 <div>
                     <h3 class="text-lg font-semibold" style="color: var(--theme-header-text-color);">{{ __('Request withdrawal') }}</h3>
-                    <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Minimum withdrawal: :amount', ['amount' => number_format($minimumWithdrawal, 2)]) }}</p>
+                    <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Minimum withdrawal: :amount', ['amount' => format_number_locale($minimumWithdrawal, 2)]) }}</p>
                 </div>
 
                 <form method="POST" action="{{ route('portal.affiliate.withdraw') }}" class="flex h-full flex-col space-y-4">
@@ -99,7 +99,7 @@
                             <x-ui.table-row>
                                 <x-ui.table-cell><div class="space-y-1"><p class="font-medium" style="color: var(--theme-header-text-color);">{{ $commission->referredUser?->name ?: __('Unknown user') }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $commission->referredUser?->email ?: __('No email') }}</p></div></x-ui.table-cell>
                                 <x-ui.table-cell><div class="space-y-1"><p class="text-sm" style="color: var(--theme-header-text-color);">{{ $commission->paymentHistory?->transaction_id ?: __('N/A') }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ strtoupper((string) ($commission->paymentHistory?->currency ?: 'USD')) }} Â· {{ $commission->paymentHistory?->from ?: __('Unknown') }}</p></div></x-ui.table-cell>
-                                <x-ui.table-cell><div class="space-y-1"><p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ number_format((float) $commission->commission, 2) }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ number_format((float) $commission->commission_rate, 2) }}%</p></div></x-ui.table-cell>
+                                <x-ui.table-cell><div class="space-y-1"><p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale((float) $commission->commission, 2) }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ format_number_locale((float) $commission->commission_rate, 2) }}%</p></div></x-ui.table-cell>
                                 <x-ui.table-cell><x-ui.badge :variant="$commission->statusVariant()">{{ $commission->statusLabel() }}</x-ui.badge></x-ui.table-cell>
                             </x-ui.table-row>
                         @empty
@@ -126,7 +126,7 @@
                             <x-ui.table-row>
                                 <x-ui.table-cell><div class="space-y-1"><p class="font-medium" style="color: var(--theme-header-text-color);">{{ $withdrawal->id_secure }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $withdrawal->createdAtFormatted() ?: __('N/A') }}</p></div></x-ui.table-cell>
                                 <x-ui.table-cell><div class="space-y-1"><p class="text-sm" style="color: var(--theme-header-text-color);">{{ $withdrawal->payment_method }}</p><p class="line-clamp-2 text-xs" style="color: var(--theme-muted-text-color);">{{ $withdrawal->payment_details }}</p></div></x-ui.table-cell>
-                                <x-ui.table-cell><span class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ number_format((float) $withdrawal->amount, 2) }}</span></x-ui.table-cell>
+                                <x-ui.table-cell><span class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale((float) $withdrawal->amount, 2) }}</span></x-ui.table-cell>
                                 <x-ui.table-cell><x-ui.badge :variant="$withdrawal->statusVariant()">{{ $withdrawal->statusLabel() }}</x-ui.badge></x-ui.table-cell>
                             </x-ui.table-row>
                         @empty

@@ -75,8 +75,8 @@
             </x-theme.section-card>
 
             <x-theme.section-card
-                :title="__('Date and time formats')"
-                :description="__('Use platform-wide defaults so new modules inherit consistent timestamps and timezone rules.')"
+                :title="__('Locale & regional formats')"
+                :description="__('Platform-wide defaults for dates, numbers, and currency. Modules should use format_date_locale(), format_number_locale(), and format_money() so changes apply everywhere.')"
                 body-class="space-y-5 p-6"
             >
                 <div class="grid gap-5 md:grid-cols-2">
@@ -101,6 +101,36 @@
                         <option value="{{ $timezone['value'] }}">{{ $timezone['label'] }}</option>
                     @endforeach
                 </x-ui.select>
+
+                <div class="grid gap-5 md:grid-cols-3">
+                    <x-ui.select wire:model="format_number_style" :label="__('Number format')" :error="$errors->first('format_number_style')">
+                        @foreach ($numberStyleOptions as $option)
+                            <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
+                        @endforeach
+                    </x-ui.select>
+
+                    <x-ui.select wire:model="default_currency" :label="__('Default currency')" :error="$errors->first('default_currency')">
+                        @foreach ($currencyOptions as $option)
+                            <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
+                        @endforeach
+                    </x-ui.select>
+
+                    <x-ui.select wire:model="format_money_decimals" :label="__('Money decimals')" :error="$errors->first('format_money_decimals')">
+                        @foreach ($moneyDecimalOptions as $option)
+                            <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
+                        @endforeach
+                    </x-ui.select>
+                </div>
+
+                <div class="rounded-2xl border px-4 py-3 text-sm" style="border-color: rgba(var(--theme-border-color-rgb, 148, 163, 184), .45); color: var(--theme-muted-text-color);">
+                    <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ __('Preview after save') }}</p>
+                    <ul class="mt-2 space-y-1">
+                        <li>{{ __('Date') }}: {{ format_date_locale(now()) }}</li>
+                        <li>{{ __('Date & time') }}: {{ format_datetime_locale(now()) }}</li>
+                        <li>{{ __('Number') }}: {{ format_number_locale(1234567) }}</li>
+                        <li>{{ __('Money') }}: {{ format_money(550000) }}</li>
+                    </ul>
+                </div>
             </x-theme.section-card>
 
             <x-theme.section-card

@@ -1,7 +1,7 @@
 @php
     $creditRemainingLabel = $credits['unlimited']
         ? __('Unlimited')
-        : number_format((int) ($credits['remaining'] ?? 0));
+        : format_number_locale((int) ($credits['remaining'] ?? 0));
     $usagePercent = (int) ($credits['usage_percent'] ?? 0);
     $displayName = $user?->name ?: $user?->username ?: __('there');
 @endphp
@@ -78,7 +78,7 @@
                     <div class="flex items-center justify-between gap-3">
                         <div>
                             <p class="text-xs font-semibold uppercase" style="color: var(--theme-muted-text-color);">{{ __('Used') }}</p>
-                            <p class="mt-1 text-xl font-semibold" style="color: var(--theme-header-text-color);">{{ number_format((int) $credits['used']) }}</p>
+                            <p class="mt-1 text-xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $credits['used']) }}</p>
                         </div>
                         <div class="text-right">
                             <p class="text-xs font-semibold uppercase" style="color: var(--theme-muted-text-color);">{{ __('Usage') }}</p>

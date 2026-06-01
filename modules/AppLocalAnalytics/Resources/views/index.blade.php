@@ -27,11 +27,11 @@
 
                 <div class="mt-5 grid grid-cols-2 gap-3">
                     <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($totals['businesses']) }}</p>
+                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($totals['businesses']) }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Businesses') }}</p>
                     </div>
                     <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($totals['campaigns']) }}</p>
+                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($totals['campaigns']) }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Campaigns') }}</p>
                     </div>
                 </div>
@@ -144,7 +144,7 @@
                             color-mix(in srgb, var(--theme-surface-overlay) 98%, transparent);">
                             <div class="flex items-start justify-between gap-3">
                                 <div class="min-w-0">
-                                    <p class="text-[2rem] font-semibold tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ is_numeric($metric['value']) ? number_format((float) $metric['value'], ($metric['suffix'] ?? '') === '%' ? 1 : 0) : $metric['value'] }}{{ $metric['suffix'] ?? '' }}</p>
+                                    <p class="text-[2rem] font-semibold tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ is_numeric($metric['value']) ? format_number_locale((float) $metric['value'], ($metric['suffix'] ?? '') === '%' ? 1 : 0) : $metric['value'] }}{{ $metric['suffix'] ?? '' }}</p>
                                     <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                                     <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                                 </div>
@@ -166,7 +166,7 @@
                                 __('Cancelled') => $bookingStats['cancelled'],
                             ] as $label => $value)
                                 <div class="rounded-2xl border p-3" style="border-color: rgba(var(--theme-border-color-rgb), .58); background-color: color-mix(in srgb, var(--theme-surface-base) 90%, transparent);">
-                                    <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($value) }}</p>
+                                    <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($value) }}</p>
                                     <p class="mt-1 text-xs font-semibold" style="color: var(--theme-muted-text-color);">{{ $label }}</p>
                                 </div>
                             @endforeach
@@ -174,7 +174,7 @@
                         <div class="mt-4 rounded-2xl border p-4" style="border-color: rgba(var(--theme-accent-rgb), .2); background-color: rgba(var(--theme-accent-rgb), .07);">
                             <div class="flex items-center justify-between gap-3">
                                 <span class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Completion rate') }}</span>
-                                <span class="text-lg font-semibold" style="color: var(--theme-accent);">{{ number_format($bookingStats['completion_rate'], 1) }}%</span>
+                                <span class="text-lg font-semibold" style="color: var(--theme-accent);">{{ format_number_locale($bookingStats['completion_rate'], 1) }}%</span>
                             </div>
                         </div>
                     </x-report-card>
@@ -188,7 +188,7 @@
                                 __('Expired campaigns') => $couponStats['expired_campaigns'],
                             ] as $label => $value)
                                 <div class="rounded-2xl border p-3" style="border-color: rgba(var(--theme-border-color-rgb), .58); background-color: color-mix(in srgb, var(--theme-surface-base) 90%, transparent);">
-                                    <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($value) }}</p>
+                                    <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($value) }}</p>
                                     <p class="mt-1 text-xs font-semibold" style="color: var(--theme-muted-text-color);">{{ $label }}</p>
                                 </div>
                             @endforeach
@@ -196,7 +196,7 @@
                         <div class="mt-4 rounded-2xl border p-4" style="border-color: rgba(var(--theme-accent-rgb), .2); background-color: rgba(var(--theme-accent-rgb), .07);">
                             <div class="flex items-center justify-between gap-3">
                                 <span class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Redemption rate') }}</span>
-                                <span class="text-lg font-semibold" style="color: var(--theme-accent);">{{ number_format($couponStats['redemption_rate'], 1) }}%</span>
+                                <span class="text-lg font-semibold" style="color: var(--theme-accent);">{{ format_number_locale($couponStats['redemption_rate'], 1) }}%</span>
                             </div>
                         </div>
                     </x-report-card>
@@ -204,19 +204,19 @@
                     <x-report-card :title="__('Review quality')" :subtitle="__('Positive routing versus private recovery demand.')">
                         <div class="grid grid-cols-2 gap-3">
                             <div class="rounded-2xl border p-3" style="border-color: rgba(var(--theme-border-color-rgb), .58); background-color: color-mix(in srgb, var(--theme-surface-base) 90%, transparent);">
-                                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($reviewStats['avg_rating'], 1) }}/5</p>
+                                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($reviewStats['avg_rating'], 1) }}/5</p>
                                 <p class="mt-1 text-xs font-semibold" style="color: var(--theme-muted-text-color);">{{ __('Average rating') }}</p>
                             </div>
                             <div class="rounded-2xl border p-3" style="border-color: rgba(var(--theme-border-color-rgb), .58); background-color: color-mix(in srgb, var(--theme-surface-base) 90%, transparent);">
-                                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($reviewStats['total_ratings']) }}</p>
+                                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($reviewStats['total_ratings']) }}</p>
                                 <p class="mt-1 text-xs font-semibold" style="color: var(--theme-muted-text-color);">{{ __('Ratings') }}</p>
                             </div>
                             <div class="rounded-2xl border p-3" style="border-color: rgba(var(--theme-success-color-rgb), .2); background-color: rgba(var(--theme-success-color-rgb), .07);">
-                                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($reviewStats['positive_ratings']) }}</p>
+                                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($reviewStats['positive_ratings']) }}</p>
                                 <p class="mt-1 text-xs font-semibold" style="color: var(--theme-muted-text-color);">{{ __('4-5 star') }}</p>
                             </div>
                             <div class="rounded-2xl border p-3" style="border-color: rgba(var(--theme-warning-color-rgb), .24); background-color: rgba(var(--theme-warning-color-rgb), .08);">
-                                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($reviewStats['low_score_feedback']) }}</p>
+                                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($reviewStats['low_score_feedback']) }}</p>
                                 <p class="mt-1 text-xs font-semibold" style="color: var(--theme-muted-text-color);">{{ __('Low-score') }}</p>
                             </div>
                         </div>
@@ -289,12 +289,12 @@
                                             <tr>
                                                 <td class="py-3 pr-4">
                                                     <a href="{{ route('portal.businesses.show', $row['business']) }}" wire:navigate class="font-semibold" style="color: var(--theme-header-text-color);">{{ $row['business']->name }}</a>
-                                                    <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ number_format($row['campaigns']) }} {{ __('campaigns') }}</p>
+                                                    <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ format_number_locale($row['campaigns']) }} {{ __('campaigns') }}</p>
                                                 </td>
-                                                <td class="py-3 pr-4">{{ number_format($row['visits']) }}</td>
-                                                <td class="py-3 pr-4">{{ number_format($row['leads']) }}</td>
-                                                <td class="py-3 pr-4">{{ number_format($row['review_clicks']) }}</td>
-                                                <td class="py-3 pr-4">{{ number_format($row['bookings']) }}</td>
+                                                <td class="py-3 pr-4">{{ format_number_locale($row['visits']) }}</td>
+                                                <td class="py-3 pr-4">{{ format_number_locale($row['leads']) }}</td>
+                                                <td class="py-3 pr-4">{{ format_number_locale($row['review_clicks']) }}</td>
+                                                <td class="py-3 pr-4">{{ format_number_locale($row['bookings']) }}</td>
                                                 <td class="py-3">{{ $row['conversion_rate'] }}%</td>
                                             </tr>
                                         @endforeach
@@ -345,9 +345,9 @@
                                                     <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ str($row['campaign']->type)->headline() }}</p>
                                                 </td>
                                                 <td class="py-3 pr-4">{{ $row['campaign']->business?->name ?: __('No business') }}</td>
-                                                <td class="py-3 pr-4">{{ number_format($row['campaign']->scans_count) }}</td>
-                                                <td class="py-3 pr-4">{{ number_format($row['leads']) }}</td>
-                                                <td class="py-3 pr-4">{{ number_format($row['review_clicks']) }}</td>
+                                                <td class="py-3 pr-4">{{ format_number_locale($row['campaign']->scans_count) }}</td>
+                                                <td class="py-3 pr-4">{{ format_number_locale($row['leads']) }}</td>
+                                                <td class="py-3 pr-4">{{ format_number_locale($row['review_clicks']) }}</td>
                                                 <td class="py-3">{{ $row['conversion_rate'] }}%</td>
                                             </tr>
                                         @endforeach
@@ -392,7 +392,7 @@
                         <article class="rounded-[1.1rem] border p-4" style="border-color: rgba(var(--theme-border-color-rgb), 0.62); background: linear-gradient(145deg, rgba(var(--theme-accent-rgb),0.07), transparent 44%), color-mix(in srgb, var(--theme-surface-overlay) 98%, transparent);">
                             <div class="flex items-start justify-between gap-3">
                                 <div class="min-w-0">
-                                    <p class="text-[1.75rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ is_numeric($metric['value']) ? number_format((float) $metric['value'], ($metric['suffix'] ?? '') === '%' ? 1 : 0) : $metric['value'] }}{{ $metric['suffix'] ?? '' }}</p>
+                                    <p class="text-[1.75rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ is_numeric($metric['value']) ? format_number_locale((float) $metric['value'], ($metric['suffix'] ?? '') === '%' ? 1 : 0) : $metric['value'] }}{{ $metric['suffix'] ?? '' }}</p>
                                     <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                                     <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                                 </div>
@@ -416,9 +416,9 @@
                                         <div class="min-w-0 flex-1">
                                             <div class="flex items-center justify-between gap-3">
                                                 <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $source['type'] }}</p>
-                                                <span class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($source['count']) }}</span>
+                                                <span class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($source['count']) }}</span>
                                             </div>
-                                            <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Conversion') }} {{ number_format((float) $source['conversion_rate']) }}% - {{ __('Last lead') }} {{ $source['last'] ? \Carbon\Carbon::parse($source['last'])->diffForHumans() : '-' }}</p>
+                                            <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Conversion') }} {{ format_number_locale((float) $source['conversion_rate']) }}% - {{ __('Last lead') }} {{ $source['last'] ? \Carbon\Carbon::parse($source['last'])->diffForHumans() : '-' }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -497,7 +497,7 @@
                         <article class="rounded-[1.1rem] border p-4" style="border-color: rgba(var(--theme-border-color-rgb), 0.62); background: linear-gradient(145deg, rgba(var(--theme-accent-rgb),0.07), transparent 44%), color-mix(in srgb, var(--theme-surface-overlay) 98%, transparent);">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
-                                    <p class="text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ is_numeric($metric['value']) ? number_format((float) $metric['value'], ($metric['label'] === __('Avg Rating')) ? 1 : 0) : $metric['value'] }}{{ $metric['suffix'] ?? '' }}</p>
+                                    <p class="text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ is_numeric($metric['value']) ? format_number_locale((float) $metric['value'], ($metric['label'] === __('Avg Rating')) ? 1 : 0) : $metric['value'] }}{{ $metric['suffix'] ?? '' }}</p>
                                     <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                                     <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                                 </div>
@@ -516,7 +516,7 @@
                                 <div>
                                     <div class="mb-2 flex items-center justify-between text-sm">
                                         <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ $row['rating'] }} {{ __('stars') }}</span>
-                                        <span style="color: var(--theme-muted-text-color);">{{ number_format($row['total']) }}</span>
+                                        <span style="color: var(--theme-muted-text-color);">{{ format_number_locale($row['total']) }}</span>
                                     </div>
                                     <div class="h-2 rounded-full" style="background-color: rgba(var(--theme-border-color-rgb),0.45);">
                                         <div class="h-2 rounded-full" style="width: {{ $row['percent'] }}%; background-color: var(--theme-accent);"></div>
@@ -529,17 +529,17 @@
                     <x-report-card :title="__('Review health')" :subtitle="__('Positive routing versus private recovery workload.')">
                         <div class="grid gap-3 md:grid-cols-3">
                             <div class="rounded-2xl border p-4" style="border-color: rgba(var(--theme-border-color-rgb), .62); background-color: rgba(var(--theme-accent-rgb), .06);">
-                                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($reviewStats['positive_ratings']) }}</p>
+                                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($reviewStats['positive_ratings']) }}</p>
                                 <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Positive ratings') }}</p>
                                 <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('4-5 star responses') }}</p>
                             </div>
                             <div class="rounded-2xl border p-4" style="border-color: rgba(var(--theme-warning-color-rgb), .24); background-color: rgba(var(--theme-warning-color-rgb), .08);">
-                                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($reviewStats['negative_ratings']) }}</p>
+                                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($reviewStats['negative_ratings']) }}</p>
                                 <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Low-score ratings') }}</p>
                                 <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('1-3 star feedback') }}</p>
                             </div>
                             <div class="rounded-2xl border p-4" style="border-color: rgba(var(--theme-border-color-rgb), .62);">
-                                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ $reviewStats['total_ratings'] > 0 ? number_format(($reviewStats['positive_ratings'] / max(1, $reviewStats['total_ratings'])) * 100) : 0 }}%</p>
+                                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ $reviewStats['total_ratings'] > 0 ? format_number_locale(($reviewStats['positive_ratings'] / max(1, $reviewStats['total_ratings'])) * 100) : 0 }}%</p>
                                 <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Positive rate') }}</p>
                                 <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Positive / total ratings') }}</p>
                             </div>
@@ -587,10 +587,10 @@
                                         @foreach ($topReviewBusinesses as $row)
                                             <tr>
                                                 <td class="py-3 pr-4 font-semibold" style="color: var(--theme-header-text-color);">{{ $row['business']->name }}</td>
-                                                <td class="py-3 pr-4">{{ number_format($row['ratings']) }}</td>
-                                                <td class="py-3 pr-4">{{ number_format($row['avg_rating'], 1) }}/5</td>
-                                                <td class="py-3 pr-4">{{ number_format($row['google_clicks']) }}</td>
-                                                <td class="py-3">{{ number_format($row['low_score']) }}</td>
+                                                <td class="py-3 pr-4">{{ format_number_locale($row['ratings']) }}</td>
+                                                <td class="py-3 pr-4">{{ format_number_locale($row['avg_rating'], 1) }}/5</td>
+                                                <td class="py-3 pr-4">{{ format_number_locale($row['google_clicks']) }}</td>
+                                                <td class="py-3">{{ format_number_locale($row['low_score']) }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>

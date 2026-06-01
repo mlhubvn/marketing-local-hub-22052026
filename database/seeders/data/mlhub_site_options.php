@@ -7,6 +7,12 @@
 return [
     'format_date' => 'd/m/Y',
     'format_datetime' => 'd/m/Y H:i',
+    'format_number_style' => 'vi_VN',
+    'format_decimal_separator' => ',',
+    'format_thousands_separator' => '.',
+    'default_currency' => 'VND',
+    'format_money_decimals' => '0',
+    'app_timezone' => 'Asia/Ho_Chi_Minh',
     'contact_company_website' => 'https://mlhub.vn',
     'contact_phone_number' => '0899789225',
     'contact_working_hours' => 'Thứ 2 - Thứ 6: 09:00 - 18:00',

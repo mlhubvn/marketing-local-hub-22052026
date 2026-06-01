@@ -73,7 +73,7 @@ class PaymentNotificationService
             'username' => (string) ($user->username ?: ''),
             'email' => (string) ($user->email ?: ''),
             'plan' => (string) ($plan?->name ?: $paymentHistory?->plan?->name ?: $subscription?->plan?->name ?: __('your plan')),
-            'amount' => $amount !== null ? number_format((float) $amount, 2) : '0.00',
+            'amount' => $amount !== null ? format_number_locale((float) $amount, 2) : '0.00',
             'currency' => (string) ($currency ?: 'USD'),
             'gateway' => (string) ($paymentHistory?->from ?: $subscription?->service ?: ($extra['gateway'] ?? 'payment gateway')),
             'transaction_id' => (string) ($paymentHistory?->transaction_id ?: $result?->transactionId ?: ($extra['transaction_id'] ?? 'N/A')),

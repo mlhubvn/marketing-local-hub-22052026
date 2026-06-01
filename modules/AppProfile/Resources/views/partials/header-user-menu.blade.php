@@ -83,7 +83,7 @@
                         {{ $creditSummary['unlimited']
                             ? __('Unlimited')
                             : ($creditsRemaining !== null
-                                ? __(':credits credits left', ['credits' => number_format((int) $creditsRemaining)])
+                                ? __(':credits credits left', ['credits' => format_number_locale((int) $creditsRemaining)])
                                 : __('Credits unavailable')) }}
                     </p>
                 </div>
@@ -103,7 +103,7 @@
                         <div class="h-full rounded-full" style="width: {{ $creditsUsedPercent }}%; background: linear-gradient(90deg, var(--theme-accent,#2563eb) 0%, color-mix(in srgb, var(--theme-accent,#2563eb) 72%, #8b5cf6 28%) 100%);"></div>
                     </div>
                     <p class="text-xs leading-5" style="color: var(--theme-muted-text-color);">
-                        {{ __('You have :credits credits left in this quota period.', ['credits' => number_format((int) $creditsRemaining)]) }}
+                        {{ __('You have :credits credits left in this quota period.', ['credits' => format_number_locale((int) $creditsRemaining)]) }}
                     </p>
                 </div>
             @elseif ($creditSummary['unlimited'])

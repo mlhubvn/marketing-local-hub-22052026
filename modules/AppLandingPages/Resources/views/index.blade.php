@@ -117,7 +117,7 @@
                 </div>
                 <div class="mt-4 grid grid-cols-2 gap-2">
                     <div class="border px-3 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                        <p class="text-xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($stats['published']) }}</p>
+                        <p class="text-xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($stats['published']) }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Published') }}</p>
                     </div>
                     <div class="border px-3 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
@@ -142,7 +142,7 @@
                 <span class="absolute inset-x-0 top-0 h-1" style="background-color: var(--theme-accent);"></span>
                 <div class="flex items-start justify-between gap-3">
                     <div class="min-w-0">
-                        <p class="text-[1.75rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ is_numeric($metric['value']) ? number_format($metric['value']) : $metric['value'] }}</p>
+                        <p class="text-[1.75rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ is_numeric($metric['value']) ? format_number_locale($metric['value']) : $metric['value'] }}</p>
                         <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                         <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                     </div>
@@ -218,8 +218,8 @@
                                         {{ __('Standalone') }}
                                     @endif
                                 </td>
-                                <td class="px-3 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($page->visits_count) }}</td>
-                                <td class="px-3 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($page->conversions_count) }}</td>
+                                <td class="px-3 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($page->visits_count) }}</td>
+                                <td class="px-3 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($page->conversions_count) }}</td>
                                 <td class="px-3 py-4">
                                     <x-ui.badge :variant="$page->status === 'published' ? 'success' : 'neutral'">{{ str($page->status)->headline() }}</x-ui.badge>
                                 </td>
@@ -279,11 +279,11 @@
             <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
                 <p class="text-sm" style="color: var(--theme-muted-text-color);">
                     {{ __('Showing') }}
-                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($pages->firstItem()) }}</span>
+                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($pages->firstItem()) }}</span>
                     -
-                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($pages->lastItem()) }}</span>
+                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($pages->lastItem()) }}</span>
                     {{ __('of') }}
-                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($pages->total()) }}</span>
+                    <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($pages->total()) }}</span>
                     {{ __('landing pages') }}
                 </p>
                 <div class="flex items-center gap-2">
@@ -291,7 +291,7 @@
                         <i class="fa-light fa-arrow-left"></i>{{ __('Previous') }}
                     </button>
                     <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">
-                        {{ __('Page') }} {{ number_format($pages->currentPage()) }} / {{ number_format($pages->lastPage()) }}
+                        {{ __('Page') }} {{ format_number_locale($pages->currentPage()) }} / {{ format_number_locale($pages->lastPage()) }}
                     </span>
                     <button type="button" wire:click="nextPage" @disabled(! $pages->hasMorePages()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);">
                         {{ __('Next') }}<i class="fa-light fa-arrow-right"></i>
@@ -1072,7 +1072,7 @@
                                                 <div class="border border-slate-200 bg-white/95 p-5 shadow-sm" x-bind:style="`border-radius: ${cardRadius};`" style="border-radius: {{ $previewCardRadius }};">
                                                     <div class="mb-4 flex items-center justify-between gap-3">
                                                         <h3 class="text-xl font-semibold tracking-[-0.035em] text-slate-950">{{ __('Page sections') }}</h3>
-                                                        <span class="rounded-full px-3 py-1 text-xs font-bold" x-bind:style="`background-color: ${primaryColorValue}14; color: ${primaryColorValue};`" style="background-color: {{ $primary_color }}14; color: {{ $primary_color }};">{{ number_format($previewStructureBlocks->count()) }}</span>
+                                                        <span class="rounded-full px-3 py-1 text-xs font-bold" x-bind:style="`background-color: ${primaryColorValue}14; color: ${primaryColorValue};`" style="background-color: {{ $primary_color }}14; color: {{ $primary_color }};">{{ format_number_locale($previewStructureBlocks->count()) }}</span>
                                                     </div>
                                                     <div class="grid gap-3">
                                                         @foreach($previewStructureBlocks as $block)

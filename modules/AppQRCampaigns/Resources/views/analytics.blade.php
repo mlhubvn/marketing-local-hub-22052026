@@ -46,7 +46,7 @@
 
                 <div class="mt-5 grid grid-cols-2 gap-3">
                     <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($metrics['total_scans']) }}</p>
+                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metrics['total_scans']) }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Scans') }}</p>
                     </div>
                     <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
@@ -60,9 +60,9 @@
 
     <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         @foreach ([
-            ['label' => __('Total scans'), 'value' => number_format($metrics['total_scans']), 'description' => __('All tracked QR opens'), 'icon' => 'fa-light fa-qrcode', 'tone' => 'accent'],
-            ['label' => __('Unique visitors'), 'value' => number_format($metrics['unique_visitors']), 'description' => __('Distinct IP addresses'), 'icon' => 'fa-light fa-users', 'tone' => 'success'],
-            ['label' => __('Conversions'), 'value' => number_format($metrics['conversions']), 'description' => __('Submitted actions from this QR'), 'icon' => 'fa-light fa-bullseye-pointer', 'tone' => 'warning'],
+            ['label' => __('Total scans'), 'value' => format_number_locale($metrics['total_scans']), 'description' => __('All tracked QR opens'), 'icon' => 'fa-light fa-qrcode', 'tone' => 'accent'],
+            ['label' => __('Unique visitors'), 'value' => format_number_locale($metrics['unique_visitors']), 'description' => __('Distinct IP addresses'), 'icon' => 'fa-light fa-users', 'tone' => 'success'],
+            ['label' => __('Conversions'), 'value' => format_number_locale($metrics['conversions']), 'description' => __('Submitted actions from this QR'), 'icon' => 'fa-light fa-bullseye-pointer', 'tone' => 'warning'],
             ['label' => __('Conversion rate'), 'value' => $metrics['conversion_rate'].'%', 'description' => __('Conversions divided by scans'), 'icon' => 'fa-light fa-percent', 'tone' => 'accent'],
         ] as $metric)
             @php
@@ -121,7 +121,7 @@
                         @forelse ($rows as $row)
                             <div class="flex items-center justify-between gap-3 text-sm">
                                 <span class="truncate" style="color: var(--theme-muted-text-color);">{{ str($row->label)->headline() }}</span>
-                                <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format((int) $row->total) }}</span>
+                                <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $row->total) }}</span>
                             </div>
                         @empty
                             <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('No data yet.') }}</p>

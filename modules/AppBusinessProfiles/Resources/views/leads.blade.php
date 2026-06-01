@@ -40,7 +40,7 @@
                                 <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg" style="background-color: rgba(var(--theme-accent-rgb),0.09); color: var(--theme-accent);"><i class="{{ $source['icon'] }} text-[11px]"></i></span>
                                 <p class="truncate text-xs font-semibold" style="color: var(--theme-header-text-color);">{{ __($source['label']) }}</p>
                             </div>
-                            <p class="text-sm font-semibold tracking-[-0.02em]" style="color: var(--theme-header-text-color);">{{ number_format($sourceCounts[$source['label']] ?? 0) }}</p>
+                            <p class="text-sm font-semibold tracking-[-0.02em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($sourceCounts[$source['label']] ?? 0) }}</p>
                         </div>
                     @endforeach
                 </div>
@@ -60,7 +60,7 @@
                 <span class="absolute inset-x-0 top-0 h-1 opacity-80" style="background-color: var(--theme-accent);"></span>
                 <div class="flex items-start justify-between gap-3">
                     <div>
-                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($metric['value']) }}</p>
+                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
                         <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                         <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                     </div>
@@ -124,10 +124,10 @@
                 </table>
             </div>
             <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
-                <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($leads->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($leads->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($leads->total()) }}</span></p>
+                <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($leads->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($leads->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($leads->total()) }}</span></p>
                 <div class="flex items-center gap-2">
                     <button type="button" wire:click="previousPage" @disabled($leads->onFirstPage()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);"><i class="fa-light fa-arrow-left"></i>{{ __('Previous') }}</button>
-                    <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ number_format($leads->currentPage()) }} / {{ number_format($leads->lastPage()) }}</span>
+                    <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ format_number_locale($leads->currentPage()) }} / {{ format_number_locale($leads->lastPage()) }}</span>
                     <button type="button" wire:click="nextPage" @disabled(! $leads->hasMorePages()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);">{{ __('Next') }}<i class="fa-light fa-arrow-right"></i></button>
                 </div>
             </div>

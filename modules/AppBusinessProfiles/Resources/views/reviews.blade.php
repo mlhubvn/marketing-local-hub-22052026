@@ -18,7 +18,7 @@
                 <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Review health') }}</p>
                 <div class="mt-4 grid grid-cols-2 gap-3">
                     <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($totalReviews) }}</p>
+                        <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($totalReviews) }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Responses') }}</p>
                     </div>
                     <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
@@ -61,7 +61,7 @@
                 color-mix(in srgb, var(--theme-surface-overlay) 98%, transparent);">
                 <div class="flex items-start justify-between gap-3">
                     <div>
-                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($metric['value']) }}</p>
+                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
                         <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $metric['hint'] }}</p>
                     </div>
@@ -200,10 +200,10 @@
                     </table>
                     </div>
                     <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
-                    <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($feedbacks->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($feedbacks->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($feedbacks->total()) }}</span></p>
+                    <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($feedbacks->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($feedbacks->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($feedbacks->total()) }}</span></p>
                     <div class="flex items-center gap-2">
                         <button type="button" wire:click="previousPage" @disabled($feedbacks->onFirstPage()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);"><i class="fa-light fa-arrow-left"></i>{{ __('Previous') }}</button>
-                        <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ number_format($feedbacks->currentPage()) }} / {{ number_format($feedbacks->lastPage()) }}</span>
+                        <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ format_number_locale($feedbacks->currentPage()) }} / {{ format_number_locale($feedbacks->lastPage()) }}</span>
                         <button type="button" wire:click="nextPage" @disabled(! $feedbacks->hasMorePages()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);">{{ __('Next') }}<i class="fa-light fa-arrow-right"></i></button>
                     </div>
                     </div>
@@ -262,7 +262,7 @@
                             <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Average score') }}</p>
                         </div>
                         <div class="text-right text-xs font-semibold" style="color: var(--theme-muted-text-color);">
-                            {{ number_format($totalReviews) }} {{ __('responses') }}
+                            {{ format_number_locale($totalReviews) }} {{ __('responses') }}
                         </div>
                     </div>
                 </div>
@@ -276,7 +276,7 @@
                         <div>
                             <div class="mb-1.5 flex items-center justify-between text-xs font-semibold" style="color: var(--theme-muted-text-color);">
                                 <span class="inline-flex items-center gap-1.5"><i class="fa-solid fa-star text-[10px]" style="color: {{ $rating >= 4 ? 'var(--theme-success-color)' : ($rating === 3 ? 'var(--theme-warning-color)' : 'var(--theme-danger-color)') }};"></i>{{ $rating }}</span>
-                                <span>{{ number_format($count) }}</span>
+                                <span>{{ format_number_locale($count) }}</span>
                             </div>
                             <div class="h-2.5 overflow-hidden rounded-full" style="background-color: rgba(var(--theme-border-color-rgb),0.34);">
                                 <div class="h-full rounded-full" style="width: {{ $percent }}%; background-color: {{ $rating >= 4 ? 'var(--theme-success-color)' : ($rating === 3 ? 'var(--theme-warning-color)' : 'var(--theme-danger-color)') }};"></div>

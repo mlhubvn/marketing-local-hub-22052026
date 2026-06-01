@@ -27,9 +27,9 @@
                     <div class="flex h-11 w-11 items-center justify-center rounded-2xl" style="background-color: rgba(var(--theme-accent-rgb),.12); color: var(--theme-accent);"><i class="fa-light fa-tag"></i></div>
                 </div>
                 <div class="mt-5 grid grid-cols-3 gap-3">
-                    <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);"><p class="text-2xl font-semibold tracking-[-0.045em]">{{ number_format($tags->total()) }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Tags') }}</p></div>
-                    <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);"><p class="text-2xl font-semibold tracking-[-0.045em]">{{ number_format($tags->where('is_system', true)->count()) }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('System') }}</p></div>
-                    <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);"><p class="text-2xl font-semibold tracking-[-0.045em]">{{ number_format($tags->where('is_system', false)->count()) }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Custom') }}</p></div>
+                    <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);"><p class="text-2xl font-semibold tracking-[-0.045em]">{{ format_number_locale($tags->total()) }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Tags') }}</p></div>
+                    <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);"><p class="text-2xl font-semibold tracking-[-0.045em]">{{ format_number_locale($tags->where('is_system', true)->count()) }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('System') }}</p></div>
+                    <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);"><p class="text-2xl font-semibold tracking-[-0.045em]">{{ format_number_locale($tags->where('is_system', false)->count()) }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Custom') }}</p></div>
                 </div>
             </div>
         </div>
@@ -43,7 +43,7 @@
                     <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('System tags stay locked. Custom tags remain editable.') }}</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
-                    <span class="rounded-full border px-3 py-1 text-xs font-semibold" style="border-color: rgba(var(--theme-border-color-rgb), .58); color: var(--theme-muted-text-color);">{{ number_format($tags->total()) }} {{ __('tags') }}</span>
+                    <span class="rounded-full border px-3 py-1 text-xs font-semibold" style="border-color: rgba(var(--theme-border-color-rgb), .58); color: var(--theme-muted-text-color);">{{ format_number_locale($tags->total()) }} {{ __('tags') }}</span>
                     <x-ui.select wire:model.live="perPage">
                         <option value="10">{{ __('10 / page') }}</option>
                         <option value="25">{{ __('25 / page') }}</option>
@@ -71,7 +71,7 @@
                         @foreach($tags as $tag)
                             <tr class="transition hover:bg-[color:rgba(var(--theme-accent-rgb),0.035)]">
                                 <td class="px-6 py-4"><div class="flex items-center gap-3"><span class="h-3 w-3 shrink-0 rounded-full" style="background-color: {{ $tag->color }}"></span><div class="min-w-0"><p class="truncate font-semibold" style="color: var(--theme-header-text-color);">{{ $tag->name }}</p><p class="mt-1 truncate text-xs" style="color: var(--theme-muted-text-color);">{{ $tag->description ?: $tag->slug }}</p></div></div></td>
-                                <td class="px-6 py-4">{{ number_format($tag->customers_count) }}</td>
+                                <td class="px-6 py-4">{{ format_number_locale($tag->customers_count) }}</td>
                                 <td class="px-6 py-4"><x-ui.badge :variant="$tag->is_system ? 'info' : 'neutral'">{{ $tag->is_system ? __('System') : __('Custom') }}</x-ui.badge></td>
                                 <td class="px-6 py-4 text-right">
                                     @if(! $tag->is_system)
@@ -89,10 +89,10 @@
                 </table>
             </div>
             <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
-                <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($tags->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($tags->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($tags->total()) }}</span> {{ __('tags') }}</p>
+                <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($tags->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($tags->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($tags->total()) }}</span> {{ __('tags') }}</p>
                 <div class="flex items-center gap-2">
                     <button type="button" wire:click="previousPage" @disabled($tags->onFirstPage()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);"><i class="fa-light fa-arrow-left"></i>{{ __('Previous') }}</button>
-                    <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ number_format($tags->currentPage()) }} / {{ number_format($tags->lastPage()) }}</span>
+                    <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ format_number_locale($tags->currentPage()) }} / {{ format_number_locale($tags->lastPage()) }}</span>
                     <button type="button" wire:click="nextPage" @disabled(! $tags->hasMorePages()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);">{{ __('Next') }}<i class="fa-light fa-arrow-right"></i></button>
                 </div>
             </div>

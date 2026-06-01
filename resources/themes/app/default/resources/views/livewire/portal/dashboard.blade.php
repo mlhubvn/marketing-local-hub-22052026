@@ -128,7 +128,7 @@
                         [__('Feedback'), $growthMetrics['feedback'] ?? 0],
                     ] as $summary)
                         <div class="rounded-2xl border px-3 py-3" style="border-color: rgba(var(--theme-border-color-rgb),0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                            <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format((int) $summary[1]) }}</p>
+                            <p class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $summary[1]) }}</p>
                             <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $summary[0] }}</p>
                         </div>
                     @endforeach
@@ -233,7 +233,7 @@
             <article class="rounded-[1rem] border bg-white p-4 shadow-sm" style="border-color: rgba(var(--theme-border-color-rgb),0.72); border-top: 4px solid {{ $metric['accent'] }};">
                 <div class="flex items-start justify-between gap-4">
                     <div class="min-w-0">
-                        <p class="text-2xl font-semibold tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ is_numeric($metric['value']) ? number_format((float) $metric['value']) : $metric['value'] }}</p>
+                        <p class="text-2xl font-semibold tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ is_numeric($metric['value']) ? format_number_locale((float) $metric['value']) : $metric['value'] }}</p>
                         <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                         <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                     </div>
@@ -274,8 +274,8 @@
                                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ str($row['campaign']->type)->headline() }}</p>
                                     </td>
                                     <td class="px-5 py-4" style="color: var(--theme-muted-text-color);">{{ $row['campaign']->business?->name ?: __('No business') }}</td>
-                                    <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($row['visits']) }}</td>
-                                    <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($row['conversions']) }}</td>
+                                    <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($row['visits']) }}</td>
+                                    <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($row['conversions']) }}</td>
                                     <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ $row['conversion_rate'] }}%</td>
                                 </tr>
                             @endforeach

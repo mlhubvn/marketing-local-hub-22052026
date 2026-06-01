@@ -26,22 +26,22 @@
         <section class="grid gap-5 md:grid-cols-4">
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{{ __('Entries') }}</p>
-                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($entriesCount) }}</p>
+                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($entriesCount) }}</p>
                 <p class="text-sm leading-6 text-slate-500 dark:text-slate-400">{{ __('Logged AI Studio credit events.') }}</p>
             </x-ui.card>
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{{ __('Credits used') }}</p>
-                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($creditsUsed) }}</p>
+                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($creditsUsed) }}</p>
                 <p class="text-sm leading-6 text-slate-500 dark:text-slate-400">{{ __('Total credits consumed by AI Studio actions.') }}</p>
             </x-ui.card>
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{{ __('Actions used') }}</p>
-                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($actionsCount) }}</p>
+                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($actionsCount) }}</p>
                 <p class="text-sm leading-6 text-slate-500 dark:text-slate-400">{{ __('Distinct AI Studio actions that consumed credits.') }}</p>
             </x-ui.card>
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{{ __('Remaining') }}</p>
-                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ ($creditSummary['unlimited'] ?? false) ? __('Unlimited') : number_format((int) ($creditSummary['remaining'] ?? 0)) }}</p>
+                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ ($creditSummary['unlimited'] ?? false) ? __('Unlimited') : format_number_locale((int) ($creditSummary['remaining'] ?? 0)) }}</p>
                 <p class="text-sm leading-6 text-slate-500 dark:text-slate-400">{{ __('Credits still available for the current plan period.') }}</p>
             </x-ui.card>
         </section>
@@ -58,7 +58,7 @@
                     </div>
                     <div class="rounded-[1rem] border px-4 py-3" style="border-color: var(--theme-border-color); background: var(--theme-surface-soft);">
                         <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Top-up balance') }}</p>
-                        <p class="mt-2 text-xl font-semibold" style="color: var(--theme-header-text-color);">{{ number_format((int) $creditTopupRemaining) }}</p>
+                        <p class="mt-2 text-xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $creditTopupRemaining) }}</p>
                     </div>
                 </div>
 
@@ -79,7 +79,7 @@
 
                             <div class="mt-4 flex items-end justify-between gap-4">
                                 <div>
-                                    <p class="text-3xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format((int) $pack->credits) }}</p>
+                                    <p class="text-3xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $pack->credits) }}</p>
                                     <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Credits') }}</p>
                                 </div>
                                 <p class="text-xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_money((float) $pack->price, $pack->currency) }}</p>
@@ -131,10 +131,10 @@
                                 </x-ui.table-cell>
                                 <x-ui.table-cell>
                                     <span class="font-semibold" style="color: var(--theme-header-text-color);">
-                                        {{ $entry->amount > 0 ? '+' : '' }}{{ number_format((int) $entry->amount) }}
+                                        {{ $entry->amount > 0 ? '+' : '' }}{{ format_number_locale((int) $entry->amount) }}
                                     </span>
                                 </x-ui.table-cell>
-                                <x-ui.table-cell>{{ number_format((int) $entry->remaining) }}</x-ui.table-cell>
+                                <x-ui.table-cell>{{ format_number_locale((int) $entry->remaining) }}</x-ui.table-cell>
                                 <x-ui.table-cell>{{ $entry->creditPack?->name ?: __('Manual adjustment') }}</x-ui.table-cell>
                                 <x-ui.table-cell>{{ $entry->created_at?->format('Y-m-d H:i:s') }}</x-ui.table-cell>
                             </x-ui.table-row>
@@ -165,15 +165,15 @@
                                     @endif
                                 </div>
                             </x-ui.table-cell>
-                            <x-ui.table-cell><span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format((int) $log->amount) }}</span></x-ui.table-cell>
-                            <x-ui.table-cell>{{ number_format((int) $log->quantity) }}</x-ui.table-cell>
+                            <x-ui.table-cell><span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $log->amount) }}</span></x-ui.table-cell>
+                            <x-ui.table-cell>{{ format_number_locale((int) $log->quantity) }}</x-ui.table-cell>
                             <x-ui.table-cell>
                                 @if ($log->is_unlimited)
                                     <x-ui.badge variant="success">{{ __('Unlimited') }}</x-ui.badge>
                                 @else
                                     <div class="space-y-1 text-sm">
-                                        <p style="color: var(--theme-header-text-color);">{{ __('Before: :value', ['value' => number_format((int) $log->credits_before)]) }}</p>
-                                        <p style="color: var(--theme-muted-text-color);">{{ __('After: :value', ['value' => number_format((int) $log->credits_after)]) }}</p>
+                                        <p style="color: var(--theme-header-text-color);">{{ __('Before: :value', ['value' => format_number_locale((int) $log->credits_before)]) }}</p>
+                                        <p style="color: var(--theme-muted-text-color);">{{ __('After: :value', ['value' => format_number_locale((int) $log->credits_after)]) }}</p>
                                     </div>
                                 @endif
                             </x-ui.table-cell>

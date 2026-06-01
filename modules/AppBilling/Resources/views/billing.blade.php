@@ -13,7 +13,7 @@
         $planStatus = $user?->isInPlanTrial() ? __('Trial active') : ($user?->hasActivePlan() ? __('Active') : __('Inactive'));
         $creditUsageLabel = $creditSummary['unlimited']
             ? __('Unlimited')
-            : number_format((int) ($creditSummary['remaining'] ?? 0)).' '.__('left');
+            : format_number_locale((int) ($creditSummary['remaining'] ?? 0)).' '.__('left');
         $lifetimeValue = format_money($summary['lifetimeValue'], $plan?->currency);
     @endphp
 
@@ -46,7 +46,7 @@
                     <div class="mt-5 grid grid-cols-2 gap-3">
                         <div class="rounded-xl border px-3 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .52); background-color: var(--theme-surface-base);">
                             <p class="text-[10px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Invoices paid') }}</p>
-                            <p class="mt-2 text-xl font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($summary['paidInvoices']) }}</p>
+                            <p class="mt-2 text-xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['paidInvoices']) }}</p>
                         </div>
                         <div class="rounded-xl border px-3 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .52); background-color: var(--theme-surface-base);">
                             <p class="text-[10px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Lifetime value') }}</p>
@@ -116,7 +116,7 @@
                         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                             <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Credit coverage') }}</p>
                             <p class="text-sm" style="color: var(--theme-muted-text-color);">
-                                {{ $creditSummary['unlimited'] ? __('This plan does not enforce a credit cap.') : __('Plan left: :plan / Top-up left: :topup', ['plan' => number_format((int) ($creditSummary['plan_remaining'] ?? 0)), 'topup' => number_format((int) ($creditSummary['topup_remaining'] ?? 0))]) }}
+                                {{ $creditSummary['unlimited'] ? __('This plan does not enforce a credit cap.') : __('Plan left: :plan / Top-up left: :topup', ['plan' => format_number_locale((int) ($creditSummary['plan_remaining'] ?? 0)), 'topup' => format_number_locale((int) ($creditSummary['topup_remaining'] ?? 0))]) }}
                             </p>
                         </div>
                     </div>
@@ -177,7 +177,7 @@
                                 <td class="px-5 py-4"><p class="font-semibold uppercase" style="color: var(--theme-header-text-color);">{{ $payment->id_secure ?: __('N/A') }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $payment->transaction_id }}</p></td>
                                 <td class="px-5 py-4">{{ $payment->plan?->name ?: __('N/A') }}</td>
                                 <td class="px-5 py-4">{{ $payment->from ?: __('N/A') }}</td>
-                                <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ ($payment->currency ?: 'USD').' '.number_format((float) $payment->amount, 2) }}</td>
+                                <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ ($payment->currency ?: 'USD').' '.format_number_locale((float) $payment->amount, 2) }}</td>
                                 <td class="px-5 py-4"><x-ui.badge :variant="$payment->statusVariant()">{{ $payment->statusLabel() }}</x-ui.badge></td>
                                 <td class="px-5 py-4">{{ $payment->createdAtFormatted('Y-m-d H:i') ?: __('N/A') }}</td>
                             </tr>

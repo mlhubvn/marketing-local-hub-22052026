@@ -61,7 +61,7 @@
                             <article class="rounded-xl border p-4" style="border-color: rgba(var(--theme-border-color-rgb), .58); background-color: color-mix(in srgb, var(--theme-surface-base) 72%, transparent);">
                                 <div class="flex items-center justify-between gap-3">
                                     <span class="flex h-9 w-9 items-center justify-center rounded-xl" style="background-color: rgba(var(--theme-accent-rgb),.10); color: var(--theme-accent);"><i class="{{ $metric['icon'] }}"></i></span>
-                                    <span class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($metric['value']) }}</span>
+                                    <span class="text-2xl font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</span>
                                 </div>
                                 <p class="mt-3 text-sm font-semibold" style="color: var(--theme-muted-text-color);">{{ $metric['label'] }}</p>
                             </article>
@@ -347,7 +347,7 @@
                             <p class="font-semibold">{{ __('Current tags') }}</p>
                             <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Labels currently attached to this customer profile.') }}</p>
                         </div>
-                        <span class="rounded-full border px-2.5 py-1 text-xs font-semibold" style="border-color: rgba(var(--theme-border-color-rgb), .62); color: var(--theme-muted-text-color);">{{ number_format($currentTags->count()) }} {{ __('tags') }}</span>
+                        <span class="rounded-full border px-2.5 py-1 text-xs font-semibold" style="border-color: rgba(var(--theme-border-color-rgb), .62); color: var(--theme-muted-text-color);">{{ format_number_locale($currentTags->count()) }} {{ __('tags') }}</span>
                     </div>
                     <div class="mt-4 flex flex-wrap gap-2">
                         @forelse ($currentTags as $tag)

@@ -75,11 +75,11 @@
         </div>
         <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
             <p class="text-sm" style="color: var(--theme-muted-text-color);">
-                {{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($logs->firstItem() ?? 0) }}</span>
+                {{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($logs->firstItem() ?? 0) }}</span>
                 -
-                <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($logs->lastItem() ?? 0) }}</span>
+                <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($logs->lastItem() ?? 0) }}</span>
                 {{ __('of') }}
-                <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($logs->total()) }}</span>
+                <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($logs->total()) }}</span>
                 {{ __('logs') }}
             </p>
             <div>{{ $logs->links() }}</div>

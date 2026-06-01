@@ -26,19 +26,19 @@
         <section class="grid gap-5 md:grid-cols-3">
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{{ __('Stored prompts') }}</p>
-                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($histories->total()) }}</p>
+                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($histories->total()) }}</p>
                 <p class="text-sm leading-6 text-slate-500 dark:text-slate-400">{{ __('Saved prompts available to reopen and reuse.') }}</p>
             </x-ui.card>
 
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{{ __('Modules') }}</p>
-                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format(count($modules)) }}</p>
+                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale(count($modules)) }}</p>
                 <p class="text-sm leading-6 text-slate-500 dark:text-slate-400">{{ __('Caption, planner, review, media, and rewrite tools share one prompt archive.') }}</p>
             </x-ui.card>
 
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{{ __('Credits left') }}</p>
-                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ ($creditSummary['unlimited'] ?? false) ? __('Unlimited') : number_format((int) ($creditSummary['remaining'] ?? 0)) }}</p>
+                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ ($creditSummary['unlimited'] ?? false) ? __('Unlimited') : format_number_locale((int) ($creditSummary['remaining'] ?? 0)) }}</p>
                 <p class="text-sm leading-6 text-slate-500 dark:text-slate-400">{{ __('Current workspace credit balance for AI Studio actions.') }}</p>
             </x-ui.card>
         </section>

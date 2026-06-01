@@ -71,11 +71,11 @@
                 </div>
                 <div class="mt-4 grid grid-cols-2 gap-2">
                     <div class="border px-3 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                        <p class="text-xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($stats['published']) }}</p>
+                        <p class="text-xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($stats['published']) }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Published') }}</p>
                     </div>
                     <div class="border px-3 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                        <p class="text-xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($stats['all_leads']) }}</p>
+                        <p class="text-xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($stats['all_leads']) }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Captured leads') }}</p>
                     </div>
                 </div>
@@ -95,7 +95,7 @@
                 <span class="absolute inset-x-0 top-0 h-1" style="background-color: var(--theme-accent);"></span>
                 <div class="flex items-start justify-between gap-3">
                     <div class="min-w-0">
-                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ is_numeric($metric['value']) ? number_format($metric['value']) : $metric['value'] }}</p>
+                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ is_numeric($metric['value']) ? format_number_locale($metric['value']) : $metric['value'] }}</p>
                         <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                         <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                     </div>
@@ -133,7 +133,7 @@
             </button>
             <button type="button" x-on:click="leadTab = 'leads'" class="rounded-[0.8rem] px-4 py-2 text-sm font-semibold transition" x-bind:style="leadTab === 'leads' ? 'background-color: rgba(var(--theme-accent-rgb), .14); color: var(--theme-accent); border: 1px solid rgba(var(--theme-accent-rgb), .28);' : 'color: var(--theme-muted-text-color); border: 1px solid transparent;'">
                 {{ __('Leads') }}
-                <span class="ml-2 rounded-full px-2 py-0.5 text-xs" style="background-color: rgba(var(--theme-accent-rgb), .10);">{{ number_format($filteredLeadCount) }}</span>
+                <span class="ml-2 rounded-full px-2 py-0.5 text-xs" style="background-color: rgba(var(--theme-accent-rgb), .10);">{{ format_number_locale($filteredLeadCount) }}</span>
             </button>
         </div>
 
@@ -186,7 +186,7 @@
                                             <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ data_get($campaign->settings, 'headline', __('Request a callback')) }}</p>
                                         </td>
                                         <td class="px-3 py-4" style="color: var(--theme-muted-text-color);">{{ $campaign->business?->name ?: __('Business removed') }}</td>
-                                        <td class="px-3 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($campaign->scans_count) }}</td>
+                                        <td class="px-3 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($campaign->scans_count) }}</td>
                                         <td class="px-3 py-4">
                                             <x-ui.badge :variant="$campaign->published_at ? 'success' : 'neutral'">{{ $campaign->published_at ? __('Live') : __('Paused') }}</x-ui.badge>
                                         </td>
@@ -254,10 +254,10 @@
                 <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
                     <p class="text-sm" style="color: var(--theme-muted-text-color);">
                         {{ __('Showing') }}
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($campaigns->firstItem()) }}</span> -
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($campaigns->lastItem()) }}</span>
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($campaigns->firstItem()) }}</span> -
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($campaigns->lastItem()) }}</span>
                         {{ __('of') }}
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($campaigns->total()) }}</span>
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($campaigns->total()) }}</span>
                         {{ __('lead forms') }}
                     </p>
                     <div class="flex items-center gap-2">
@@ -307,7 +307,7 @@
                         <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Recent leads') }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Name, contact, source form, and submit time.') }}</p>
                     </div>
-                    <x-ui.badge variant="neutral">{{ number_format($filteredLeadCount) }}</x-ui.badge>
+                    <x-ui.badge variant="neutral">{{ format_number_locale($filteredLeadCount) }}</x-ui.badge>
                 </div>
 
                 <div class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -340,10 +340,10 @@
                     <div class="mt-5 flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
                         <p class="text-sm" style="color: var(--theme-muted-text-color);">
                             {{ __('Showing') }}
-                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($leads->firstItem()) }}</span> -
-                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($leads->lastItem()) }}</span>
+                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($leads->firstItem()) }}</span> -
+                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($leads->lastItem()) }}</span>
                             {{ __('of') }}
-                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($leads->total()) }}</span>
+                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($leads->total()) }}</span>
                             {{ __('leads') }}
                         </p>
                         <div class="flex items-center gap-2">

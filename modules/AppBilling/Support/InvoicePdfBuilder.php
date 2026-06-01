@@ -213,7 +213,7 @@ class InvoicePdfBuilder
     protected function color(array $rgb): string
     {
         return implode(' ', array_map(
-            fn (int $channel): string => number_format(max(0, min(255, $channel)) / 255, 3, '.', ''),
+            fn (int $channel): string => format_number_locale(max(0, min(255, $channel)) / 255, 3, '.', ''),
             $rgb
         ));
     }

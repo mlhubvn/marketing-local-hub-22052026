@@ -65,7 +65,7 @@
                 color-mix(in srgb, var(--theme-surface-overlay) 98%, transparent);">
                 <div class="flex items-start justify-between gap-3">
                     <div class="min-w-0">
-                        <p class="text-[1.85rem] font-semibold tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ is_numeric($metric['value']) ? number_format($metric['value']) : $metric['value'] }}</p>
+                        <p class="text-[1.85rem] font-semibold tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ is_numeric($metric['value']) ? format_number_locale($metric['value']) : $metric['value'] }}</p>
                         <p class="mt-2 text-sm font-semibold leading-5" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                     </div>
                     <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">
@@ -205,12 +205,12 @@
                                                     <p class="truncate font-semibold" style="color: var(--theme-header-text-color);">{{ $row['campaign']->name }}</p>
                                                     <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ str($row['campaign']->type)->headline() }}</p>
                                                 </td>
-                                                <td class="py-3 pr-4">{{ number_format($row['campaign']->scans_count) }}</td>
-                                                <td class="py-3 pr-4">{{ number_format($row['leads']) }}</td>
-                                                <td class="py-3 pr-4">{{ number_format($row['bookings']) }}</td>
-                                                <td class="py-3 pr-4">{{ number_format($row['coupons']) }}</td>
-                                                <td class="py-3 pr-4">{{ number_format($row['review_clicks']) }}</td>
-                                                <td class="py-3 pr-4">{{ number_format($row['feedback']) }}</td>
+                                                <td class="py-3 pr-4">{{ format_number_locale($row['campaign']->scans_count) }}</td>
+                                                <td class="py-3 pr-4">{{ format_number_locale($row['leads']) }}</td>
+                                                <td class="py-3 pr-4">{{ format_number_locale($row['bookings']) }}</td>
+                                                <td class="py-3 pr-4">{{ format_number_locale($row['coupons']) }}</td>
+                                                <td class="py-3 pr-4">{{ format_number_locale($row['review_clicks']) }}</td>
+                                                <td class="py-3 pr-4">{{ format_number_locale($row['feedback']) }}</td>
                                                 <td class="py-3">{{ $row['conversion_rate'] }}%</td>
                                             </tr>
                                         @endforeach
@@ -272,7 +272,7 @@
                                         <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $source['campaign'] }}</p>
                                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $source['source'] }}</p>
                                     </div>
-                                    <p>{{ number_format($source['leads']) }} {{ __('leads') }}</p>
+                                    <p>{{ format_number_locale($source['leads']) }} {{ __('leads') }}</p>
                                     <p>{{ $source['conversion_rate'] }}%</p>
                                     <p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $source['last_lead'] ? \Carbon\Carbon::parse($source['last_lead'])->diffForHumans() : __('No lead') }}</p>
                                 </div>

@@ -705,7 +705,7 @@
 
                 <div class="hidden gap-3 sm:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
                     <div class="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-                        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1">{{ __('Original') }}: {{ number_format((int) $file->width) }} x {{ number_format((int) $file->height) }}</span>
+                        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1">{{ __('Original') }}: {{ format_number_locale((int) $file->width) }} x {{ format_number_locale((int) $file->height) }}</span>
                         <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1">{{ strtoupper((string) $file->extension) }}</span>
                         <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1">{{ $file->humanSize() }}</span>
                     </div>
@@ -1125,7 +1125,7 @@
                 <section data-editor-stage class="flex min-h-0 flex-col overflow-hidden bg-[#161c24]">
                     <div data-editor-stage-bar class="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-white/8 bg-[#1a212a] px-5 py-3">
                         <div class="flex items-center gap-2 text-xs text-slate-400">
-                            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1" data-editor-dimensions>{{ __('Output') }}: {{ number_format((int) $file->width) }} x {{ number_format((int) $file->height) }}</span>
+                            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1" data-editor-dimensions>{{ __('Output') }}: {{ format_number_locale((int) $file->width) }} x {{ format_number_locale((int) $file->height) }}</span>
                             <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1" data-editor-rotation>{{ __('Rotation') }}: 0°</span>
                         </div>
                         <div class="flex items-center gap-2">

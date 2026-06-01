@@ -7,6 +7,7 @@ use Illuminate\Validation\Rule;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Modules\AdminSettings\Support\OptionStore;
+use Modules\AdminPlans\Support\CurrencyCatalog;
 
 #[Title('General settings')]
 class General extends Component
@@ -32,6 +33,12 @@ class General extends Component
     public string $format_date = 'd/m/Y';
 
     public string $format_datetime = 'd/m/Y H:i';
+
+    public string $format_number_style = 'vi_VN';
+
+    public string $default_currency = 'VND';
+
+    public string $format_money_decimals = '0';
 
     public string $app_timezone = 'UTC';
 
@@ -64,6 +71,9 @@ class General extends Component
         $this->website_logo_brand_light = (string) $this->options->get('website_logo_brand_light', 'img/logo-brand-light.png');
         $this->format_date = (string) $this->options->get('format_date', 'd/m/Y');
         $this->format_datetime = (string) $this->options->get('format_datetime', 'd/m/Y H:i');
+        $this->format_number_style = (string) $this->options->get('format_number_style', 'vi_VN');
+        $this->default_currency = strtoupper((string) $this->options->get('default_currency', 'VND'));
+        $this->format_money_decimals = (string) $this->options->get('format_money_decimals', '0');
         $this->app_timezone = (string) $this->options->get('app_timezone', config('app.timezone', 'UTC'));
         $this->contact_company_name = (string) $this->options->get('contact_company_name', 'Your Company Name');
         $this->contact_company_website = (string) $this->options->get('contact_company_website', 'https://yourcompany.com');
@@ -86,6 +96,9 @@ class General extends Component
             'website_logo_brand_light' => ['nullable', 'string', 'max:2048'],
             'format_date' => ['required', 'string', 'max:100'],
             'format_datetime' => ['required', 'string', 'max:100'],
+            'format_number_style' => ['required', 'string', Rule::in(['vi_VN', 'en_US'])],
+            'default_currency' => ['required', 'string', 'max:10'],
+            'format_money_decimals' => ['required', 'string', Rule::in(['0', '1', '2', '3', '4'])],
             'app_timezone' => ['required', 'timezone:all', Rule::in(timezone_options())],
             'contact_company_name' => ['nullable', 'string', 'max:255'],
             'contact_company_website' => ['nullable', 'url', 'max:255'],
@@ -99,6 +112,12 @@ class General extends Component
             $this->options->set($key, $value);
         }
 
+        [$decimalSeparator, $thousandsSeparator] = platform_format_separators_for_style($validated['format_number_style']);
+        $this->options->set('format_decimal_separator', $decimalSeparator);
+        $this->options->set('format_thousands_separator', $thousandsSeparator);
+
+        reset_platform_format_settings();
+
         $this->dispatch('settings-saved');
     }
 
@@ -107,13 +126,16 @@ class General extends Component
      */
     protected function dateFormatOptions(): array
     {
-        return [
-            ['value' => 'd/m/Y', 'label' => format_date_locale(now()).' (d/m/Y)'],
-            ['value' => 'M d, Y', 'label' => now()->format('M d, Y').' (M d, Y)'],
-            ['value' => 'm/d/Y', 'label' => now()->format('m/d/Y').' (m/d/Y)'],
-            ['value' => 'Y-m-d', 'label' => now()->format('Y-m-d').' (Y-m-d)'],
-            ['value' => 'd M Y', 'label' => now()->format('d M Y').' (d M Y)'],
-        ];
+        return collect([
+            'd/m/Y',
+            'M d, Y',
+            'm/d/Y',
+            'Y-m-d',
+            'd M Y',
+        ])->map(fn (string $format): array => [
+            'value' => $format,
+            'label' => now()->timezone($this->app_timezone ?: config('app.timezone', 'UTC'))->locale(app()->getLocale())->translatedFormat($format).' ('.$format.')',
+        ])->all();
     }
 
     /**
@@ -121,13 +143,59 @@ class General extends Component
      */
     protected function dateTimeFormatOptions(): array
     {
+        return collect([
+            'd/m/Y H:i',
+            'M d, Y H:i',
+            'm/d/Y h:i A',
+            'Y-m-d H:i:s',
+            'd M Y H:i',
+        ])->map(fn (string $format): array => [
+            'value' => $format,
+            'label' => now()->timezone($this->app_timezone ?: config('app.timezone', 'UTC'))->locale(app()->getLocale())->translatedFormat($format).' ('.$format.')',
+        ])->all();
+    }
+
+    /**
+     * @return array<int, array{value:string,label:string}>
+     */
+    protected function numberStyleOptions(): array
+    {
+        $sample = 1234567;
+
         return [
-            ['value' => 'd/m/Y H:i', 'label' => format_datetime_locale(now()).' (d/m/Y H:i)'],
-            ['value' => 'M d, Y H:i', 'label' => now()->format('M d, Y H:i').' (M d, Y H:i)'],
-            ['value' => 'm/d/Y h:i A', 'label' => now()->format('m/d/Y h:i A').' (m/d/Y h:i A)'],
-            ['value' => 'Y-m-d H:i:s', 'label' => now()->format('Y-m-d H:i:s').' (Y-m-d H:i:s)'],
-            ['value' => 'd M Y H:i', 'label' => now()->format('d M Y H:i').' (d M Y H:i)'],
+            [
+                'value' => 'vi_VN',
+                'label' => number_format($sample, 0, ',', '.').' ('.__('Vietnamese').')',
+            ],
+            [
+                'value' => 'en_US',
+                'label' => number_format($sample, 0, '.', ',').' ('.__('US / International').')',
+            ],
         ];
+    }
+
+    /**
+     * @return array<int, array{value:string,label:string}>
+     */
+    protected function moneyDecimalOptions(): array
+    {
+        return [
+            ['value' => '0', 'label' => __('Whole numbers (550.000)')],
+            ['value' => '2', 'label' => __('Two decimals (550.000,00)')],
+        ];
+    }
+
+    /**
+     * @return array<int, array{value:string,label:string}>
+     */
+    protected function currencyOptions(): array
+    {
+        return collect(['VND', 'USD', 'EUR', 'GBP', 'JPY', 'SGD', 'THB', 'AUD', 'CNY'])
+            ->map(fn (string $code): array => [
+                'value' => $code,
+                'label' => trim($code.' — '.CurrencyCatalog::nameFor($code).' ('.CurrencyCatalog::symbolFor($code).')'),
+            ])
+            ->all();
     }
 
     protected function optionOrDefault(string $key, string $default = ''): string
@@ -148,6 +216,9 @@ class General extends Component
         return view('adminsettings::livewire.general', [
             'dateFormatOptions' => $this->dateFormatOptions(),
             'dateTimeFormatOptions' => $this->dateTimeFormatOptions(),
+            'numberStyleOptions' => $this->numberStyleOptions(),
+            'currencyOptions' => $this->currencyOptions(),
+            'moneyDecimalOptions' => $this->moneyDecimalOptions(),
             'timezoneOptions' => timezone_select_options(),
         ])->layout(theme_view('layouts.app', 'app'), [
             'title' => __('General settings'),
