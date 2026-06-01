@@ -151,7 +151,8 @@ class AdminFakerService
             ->where('path', 'like', 'files/demo-faker/%')
             ->delete();
 
-        $this->extendedModulesDemoFaker->clear($user, $deleted);
+        $team = $this->teamProvisioner->ensureForUser($user);
+        $this->extendedModulesDemoFaker->clear($user, $deleted, $team);
         $this->localBoostDemoFaker->clear($user, $deleted);
         $this->marketingDemoFaker->clear($user, $deleted);
 

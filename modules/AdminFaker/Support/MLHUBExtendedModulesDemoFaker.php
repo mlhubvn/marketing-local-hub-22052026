@@ -32,7 +32,7 @@ class MLHUBExtendedModulesDemoFaker
 {
     public function seed(User $user, Team $team, array &$counts): void
     {
-        $this->clear($user, $counts);
+        $this->clear($user, $counts, $team);
 
         $this->seedMarketingExtras();
         $this->seedEmailAutomation($user, $counts);
@@ -40,7 +40,7 @@ class MLHUBExtendedModulesDemoFaker
         $this->seedLoyaltyAndReferral($user, $team, $counts);
     }
 
-    public function clear(User $user, array &$deleted): void
+    public function clear(User $user, array &$deleted, ?Team $team = null): void
     {
         if (class_exists(ReferralCampaign::class) && Schema::hasTable('lb_referral_campaigns')) {
             $campaignIds = ReferralCampaign::query()
@@ -583,8 +583,12 @@ class MLHUBExtendedModulesDemoFaker
         return $map;
     }
 
-    protected function teamId(User $user, Team $team): int
+    protected function teamId(User $user, ?Team $team = null): int
     {
-        return (int) ($team->id ?: $user->ownedTeams()->value('id') ?: $user->id);
+        if ($team !== null && $team->id) {
+            return (int) $team->id;
+        }
+
+        return (int) ($user->ownedTeams()->value('id') ?: $user->id);
     }
 }
