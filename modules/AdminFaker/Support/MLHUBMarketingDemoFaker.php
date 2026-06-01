@@ -241,9 +241,9 @@ class MLHUBMarketingDemoFaker
         $profile = $affiliate->ensureProfile($user);
 
         $payments = [
-            ['transaction_id' => 'DEMO-AFF-001-'.$user->id, 'amount' => 320.00, 'commission_rate' => 15.00, 'commission' => 48.00, 'status' => AffiliateCommission::STATUS_APPROVED, 'created_offset' => 172800],
-            ['transaction_id' => 'DEMO-AFF-002-'.$user->id, 'amount' => 220.00, 'commission_rate' => 15.00, 'commission' => 33.00, 'status' => AffiliateCommission::STATUS_PENDING, 'created_offset' => 86400],
-            ['transaction_id' => 'DEMO-AFF-003-'.$user->id, 'amount' => 180.00, 'commission_rate' => 15.00, 'commission' => 27.00, 'status' => AffiliateCommission::STATUS_APPROVED, 'created_offset' => 43200],
+            ['transaction_id' => 'DEMO-AFF-001-'.$user->id, 'amount' => 8_000_000, 'commission_rate' => 15.00, 'commission' => 1_200_000, 'status' => AffiliateCommission::STATUS_APPROVED, 'created_offset' => 172800],
+            ['transaction_id' => 'DEMO-AFF-002-'.$user->id, 'amount' => 5_500_000, 'commission_rate' => 15.00, 'commission' => 825_000, 'status' => AffiliateCommission::STATUS_PENDING, 'created_offset' => 86400],
+            ['transaction_id' => 'DEMO-AFF-003-'.$user->id, 'amount' => 4_500_000, 'commission_rate' => 15.00, 'commission' => 675_000, 'status' => AffiliateCommission::STATUS_APPROVED, 'created_offset' => 43200],
         ];
 
         foreach ($payments as $index => $item) {
@@ -254,7 +254,7 @@ class MLHUBMarketingDemoFaker
                     'uid' => $user->id,
                     'plan_id' => $user->plan_id,
                     'from' => 'manual',
-                    'currency' => 'USD',
+                    'currency' => 'VND',
                     'by' => 'admin-faker',
                     'amount' => $item['amount'],
                     'status' => 1,

@@ -1,9 +1,13 @@
 @php
+    use Modules\AdminPlans\Support\CurrencyCatalog;
+
+    $defaultCurrency = CurrencyCatalog::normalizeCode(platform_format_settings()['default_currency'] ?? 'VND');
+
     $metricCards = [
-        ['label' => __('Transactions'), 'value' => number_format($summary['total']), 'description' => __('Total payment records in the ledger.'), 'tone' => 'var(--theme-accent)', 'progress' => 100],
-        ['label' => __('Success'), 'value' => number_format($summary['success']), 'description' => __('Successfully completed transactions.'), 'tone' => '#10b981', 'progress' => max(8, $summary['total'] > 0 ? (int) round(($summary['success'] / max($summary['total'], 1)) * 100) : 8)],
-        ['label' => __('Refunded'), 'value' => number_format($summary['refunded']), 'description' => __('Transactions marked as refunded.'), 'tone' => '#f43f5e', 'progress' => max(8, $summary['total'] > 0 ? (int) round(($summary['refunded'] / max($summary['total'], 1)) * 100) : 8)],
-        ['label' => __('Gross'), 'value' => number_format($summary['gross'], 2), 'description' => __('Sum of successful transaction amounts.'), 'tone' => '#64748b', 'progress' => $summary['gross'] > 0 ? 100 : 8],
+        ['label' => __('Transactions'), 'value' => format_number_locale((int) $summary['total']), 'description' => __('Total payment records in the ledger.'), 'tone' => 'var(--theme-accent)', 'progress' => 100],
+        ['label' => __('Success'), 'value' => format_number_locale((int) $summary['success']), 'description' => __('Successfully completed transactions.'), 'tone' => '#10b981', 'progress' => max(8, $summary['total'] > 0 ? (int) round(($summary['success'] / max($summary['total'], 1)) * 100) : 8)],
+        ['label' => __('Refunded'), 'value' => format_number_locale((int) $summary['refunded']), 'description' => __('Transactions marked as refunded.'), 'tone' => '#f43f5e', 'progress' => max(8, $summary['total'] > 0 ? (int) round(($summary['refunded'] / max($summary['total'], 1)) * 100) : 8)],
+        ['label' => __('Gross'), 'value' => format_money((float) $summary['gross'], $defaultCurrency), 'description' => __('Sum of successful transaction amounts.'), 'tone' => '#64748b', 'progress' => $summary['gross'] > 0 ? 100 : 8],
     ];
 
     $statusLabels = [
@@ -91,7 +95,7 @@
                         <x-ui.table-cell><div class="space-y-1"><p class="font-medium" style="color: var(--theme-header-text-color);">{{ $payment->plan?->name ?: __('No plan') }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $payment->by ?: __('N/A') }}</p></div></x-ui.table-cell>
                         <x-ui.table-cell>{{ $payment->from ?: __('N/A') }}</x-ui.table-cell>
                         <x-ui.table-cell><p class="max-w-[12rem] truncate text-sm" style="color: var(--theme-header-text-color);" title="{{ $payment->transaction_id }}">{{ $payment->transaction_id ?: __('N/A') }}</p></x-ui.table-cell>
-                        <x-ui.table-cell><p class="font-medium" style="color: var(--theme-header-text-color);">{{ $payment->currency ?: 'USD' }} {{ number_format((float) $payment->amount, 2) }}</p></x-ui.table-cell>
+                        <x-ui.table-cell><p class="font-medium" style="color: var(--theme-header-text-color);">{{ format_money((float) $payment->amount, CurrencyCatalog::normalizeCode($payment->currency ?: $defaultCurrency)) }}</p></x-ui.table-cell>
                         <x-ui.table-cell><p class="text-sm" style="color: var(--theme-muted-text-color);">{{ $payment->createdAtFormatted() ?: __('N/A') }}</p></x-ui.table-cell>
                         <x-ui.table-cell><x-ui.badge :variant="$payment->statusVariant()">{{ $payment->statusLabel() }}</x-ui.badge></x-ui.table-cell>
                         <x-ui.table-cell>

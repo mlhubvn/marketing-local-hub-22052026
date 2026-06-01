@@ -280,7 +280,7 @@
                                 <p class="mt-2 text-xs" style="color: var(--theme-muted-text-color);">{{ $payment->plan?->name ?: __('No plan') }} / {{ $payment->from ?: __('Unknown gateway') }}</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ format_money((float) $payment->amount, $payment->currency ?: $defaultCurrency) }}</p>
+                                <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ format_money((float) $payment->amount, CurrencyCatalog::normalizeCode($payment->currency ?: $defaultCurrency)) }}</p>
                                 <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $payment->createdAtFormatted() ?: __('N/A') }}</p>
                             </div>
                         </div>
