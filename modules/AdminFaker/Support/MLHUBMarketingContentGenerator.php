@@ -193,7 +193,7 @@ final class MLHUBMarketingContentGenerator
             .'<p>Trong '.$season.' tại Đà Nẵng, nhiều cửa hàng in QR trên menu, bàn hoặc standee Mỹ Khê/Hải Châu. '
             .$feature['tip'].' Landing page đồng bộ từ campaign giúp đổi ưu đãi sau Tết mà không in lại mã (QR động).</p>'
             .'<p>Nếu bạn mới bắt đầu: tạo một chiến dịch thử (vd review Google hoặc coupon) → gắn đúng chi nhánh → theo dõi 14 ngày → mở CRM gắn tag <em>khách quay lại</em>. '
-            'Các module nâng cao (email automation, loyalty tem, referral) có thể bật sau khi lượng khách ổn định.</p>'
+            .'Các module nâng cao (email automation, loyalty tem, referral) có thể bật sau khi lượng khách ổn định.</p>'
             .'<p><strong>Kết luận:</strong> MLHUB không thay thế chất lượng dịch vụ tại chỗ, nhưng giúp '.$persona['short'].' tại '.$district.' biết funnel nào mang khách thật — phù hợp mô hình SaaS self-service cho thị trường Việt Nam.</p>';
     }
 
