@@ -69,7 +69,7 @@
                 };
             @endphp
             <article class="relative overflow-hidden rounded-[1rem] border p-4" style="border-color: rgba(var(--theme-border-color-rgb), 0.62); background: linear-gradient(145deg, rgba({{ $toneRgb }},0.07), transparent 44%), color-mix(in srgb, var(--theme-surface-overlay) 98%, transparent);">
-                <span class="absolute inset-x-0 top-0 h-1" style="background-color: {{ $toneColor }};"></span>
+                <span class="absolute inset-x-0 top-0 h-1" style="background-color: var(--theme-warning-color);"></span>
                 <div class="flex items-start justify-between gap-3">
                     <div class="min-w-0">
                         <p class="text-[1.75rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $metric['value']) }}</p>

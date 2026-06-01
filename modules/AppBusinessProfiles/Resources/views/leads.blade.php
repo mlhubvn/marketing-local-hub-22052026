@@ -57,7 +57,7 @@
             ['label' => __('Other Source Leads'), 'value' => $totalLeads - ($sourceCounts['Lead Form'] ?? 0), 'description' => __('Bookings, coupons & feedback'), 'icon' => 'fa-light fa-bolt'],
         ] as $metric)
             <article class="group relative overflow-hidden rounded-[1.15rem] border p-4 transition hover:-translate-y-0.5 hover:shadow-[0_22px_60px_-42px_rgba(15,23,42,0.42)]" style="border-color: rgba(var(--theme-border-color-rgb), 0.62); background: linear-gradient(145deg, rgba(var(--theme-accent-rgb),0.075), transparent 44%), color-mix(in srgb, var(--theme-surface-overlay) 98%, transparent);">
-                <span class="absolute inset-x-0 top-0 h-1 opacity-80" style="background-color: var(--theme-accent);"></span>
+                <span class="absolute inset-x-0 top-0 h-1 opacity-80" style="background-color: var(--theme-warning-color);"></span>
                 <div class="flex items-start justify-between gap-3">
                     <div>
                         <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>

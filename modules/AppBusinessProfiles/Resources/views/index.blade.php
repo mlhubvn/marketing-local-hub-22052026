@@ -68,7 +68,7 @@
                 };
             @endphp
             <article class="relative overflow-hidden rounded-[1.15rem] border p-4" style="border-color: rgba(var(--theme-border-color-rgb), 0.62); background-color: color-mix(in srgb, var(--theme-surface-overlay) 98%, transparent);">
-                <span class="absolute inset-x-0 top-0 h-1" style="background-color: {{ $toneColor }};"></span>
+                <span class="absolute inset-x-0 top-0 h-1" style="background-color: var(--theme-warning-color);"></span>
                 <div class="flex items-start justify-between gap-3">
                     <div>
                         <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
@@ -143,7 +143,7 @@
                                 <span class="rounded-full px-2.5 py-1 text-xs font-semibold" style="background-color: rgba(var(--theme-success-color-rgb),0.12); color: var(--theme-success-color);">{{ $readyPercent }}%</span>
                             </div>
                             <div class="mt-3 h-2 overflow-hidden rounded-full" style="background-color: rgba(var(--theme-border-color-rgb),0.26);">
-                                <div class="h-full rounded-full transition-all" style="width: {{ $readyPercent }}%; background: linear-gradient(90deg, var(--theme-accent), var(--theme-success-color));"></div>
+                                <div class="h-full rounded-full transition-all" style="width: {{ $readyPercent }}%; background: linear-gradient(90deg, var(--theme-accent), var(--theme-warning-color));"></div>
                             </div>
                         </div>
                     </div>
