@@ -222,12 +222,12 @@
             ['label' => __('Businesses'), 'value' => $growthMetrics['businesses'] ?? 0, 'description' => __('Local profiles'), 'icon' => 'fa-light fa-store', 'accent' => 'var(--theme-accent)', 'format' => 'number'],
             ['label' => __('Active Campaigns'), 'value' => $growthMetrics['active_campaigns'] ?? 0, 'description' => __('Published funnels'), 'icon' => 'fa-light fa-bullhorn', 'accent' => 'var(--theme-accent)', 'format' => 'number'],
             ['label' => __('Visits'), 'value' => $growthMetrics['visits'] ?? 0, 'description' => __('Tracked page views'), 'icon' => 'fa-light fa-eye', 'accent' => 'var(--theme-accent)', 'format' => 'number'],
-            ['label' => __('Review Clicks'), 'value' => $growthMetrics['review_clicks'] ?? 0, 'description' => __('Public review actions'), 'icon' => 'fa-light fa-star', 'accent' => 'var(--theme-link-hover-color)', 'format' => 'number'],
+            ['label' => __('Review Clicks'), 'value' => $growthMetrics['review_clicks'] ?? 0, 'description' => __('Public review actions'), 'icon' => 'fa-light fa-star', 'accent' => 'var(--theme-accent)', 'format' => 'number'],
             ['label' => __('Conversion Rate'), 'value' => $growthMetrics['conversion_rate'] ?? 0, 'description' => __('Conversions / visits'), 'icon' => 'fa-light fa-chart-simple', 'accent' => 'var(--theme-accent)', 'format' => 'percent'],
             ['label' => __('Leads'), 'value' => $growthMetrics['leads'] ?? 0, 'description' => __('Lead forms'), 'icon' => 'fa-light fa-user-plus', 'accent' => 'var(--theme-accent)', 'format' => 'number'],
             ['label' => __('Bookings'), 'value' => $growthMetrics['bookings'] ?? 0, 'description' => __('Appointment requests'), 'icon' => 'fa-light fa-calendar-check', 'accent' => 'var(--theme-accent)', 'format' => 'number'],
-            ['label' => __('Coupon Claims'), 'value' => $growthMetrics['coupon_claims'] ?? 0, 'description' => __('Claimed offers'), 'icon' => 'fa-light fa-ticket', 'accent' => 'var(--theme-warning-color)', 'format' => 'number'],
-            ['label' => __('Feedback'), 'value' => $growthMetrics['feedback'] ?? 0, 'description' => __('Private responses'), 'icon' => 'fa-light fa-message-lines', 'accent' => 'var(--theme-link-hover-color)', 'format' => 'number'],
+            ['label' => __('Coupon Claims'), 'value' => $growthMetrics['coupon_claims'] ?? 0, 'description' => __('Claimed offers'), 'icon' => 'fa-light fa-ticket', 'accent' => 'var(--theme-accent)', 'format' => 'number'],
+            ['label' => __('Feedback'), 'value' => $growthMetrics['feedback'] ?? 0, 'description' => __('Private responses'), 'icon' => 'fa-light fa-message-lines', 'accent' => 'var(--theme-accent)', 'format' => 'number'],
             ['label' => __('Recent Activity'), 'value' => $recentActivity->count(), 'description' => __('Latest signals'), 'icon' => 'fa-light fa-clock-rotate-left', 'accent' => 'var(--theme-accent)', 'format' => 'number'],
         ] as $metric)
             <article class="rounded-[1rem] border bg-white p-4 shadow-sm" style="border-color: rgba(var(--theme-border-color-rgb),0.72); border-top: 4px solid {{ $metric['accent'] }};">

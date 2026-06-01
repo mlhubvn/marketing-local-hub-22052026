@@ -82,7 +82,7 @@
                 <p class="text-sm font-semibold" style="color: var(--theme-muted-text-color);">{{ $storageLabel }}</p>
             </div>
             <div class="mt-4 h-2 overflow-hidden rounded-full" style="background-color: rgba(15,118,110,0.12);">
-                <div class="h-full rounded-full transition-all" style="width: {{ max(4, $usagePercent) }}%; background: linear-gradient(90deg, #0f766e, #14b8a6);"></div>
+                <div class="h-full rounded-full transition-all" style="width: {{ max(4, $usagePercent) }}%; background: var(--theme-brand-gradient);"></div>
             </div>
             <x-ui.button :href="$item['route'] ?? route('portal.files.index')" size="sm" class="mt-4 w-full justify-center" wire:navigate>
                 {{ __('Open files') }}
@@ -108,7 +108,7 @@
             </div>
 
             <div class="mt-5 h-2 overflow-hidden rounded-full" style="background-color: rgba(var(--theme-border-color-rgb),0.35);">
-                <div class="h-full rounded-full transition-all" style="width: {{ max(4, $usagePercent) }}%; background: linear-gradient(90deg, #0f766e, #14b8a6);"></div>
+                <div class="h-full rounded-full transition-all" style="width: {{ max(4, $usagePercent) }}%; background: var(--theme-brand-gradient);"></div>
             </div>
 
             <div class="mt-5 grid border sm:grid-cols-4" style="border-color: rgba(var(--theme-border-color-rgb),0.62);">

@@ -184,7 +184,7 @@
                     <p class="text-sm font-semibold" style="color: var(--theme-muted-text-color);">{{ (int) ($onboarding['completed'] ?? 0) }}/{{ (int) ($onboarding['total'] ?? count($onboardingSteps)) }}</p>
                 </div>
                 <div class="mt-4 h-2 overflow-hidden rounded-full" style="background-color: rgba(15,118,110,0.12);">
-                    <div class="h-full rounded-full transition-all" style="width: {{ max(4, $onboardingPercent) }}%; background: linear-gradient(90deg, #0f766e, #14b8a6);"></div>
+                    <div class="h-full rounded-full transition-all" style="width: {{ max(4, $onboardingPercent) }}%; background: var(--theme-brand-gradient);"></div>
                 </div>
             </div>
         </div>

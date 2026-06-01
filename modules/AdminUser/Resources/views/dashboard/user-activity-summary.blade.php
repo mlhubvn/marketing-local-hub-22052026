@@ -21,7 +21,7 @@
                     <p class="text-xs font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Entries loaded') }}</p>
                     <p class="mt-1 text-3xl font-semibold tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ number_format($metrics['loaded'] ?? 0) }}</p>
                 </div>
-                <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl" style="background: rgba(15,118,110,0.10); color: #0f766e;">
+                <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">
                     <i class="fa-light fa-list-timeline"></i>
                 </span>
             </div>

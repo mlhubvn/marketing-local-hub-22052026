@@ -143,7 +143,7 @@
                                 <span class="rounded-full px-2.5 py-1 text-xs font-semibold" style="background-color: rgba(var(--theme-success-color-rgb),0.12); color: var(--theme-success-color);">{{ $readyPercent }}%</span>
                             </div>
                             <div class="mt-3 h-2 overflow-hidden rounded-full" style="background-color: rgba(var(--theme-border-color-rgb),0.26);">
-                                <div class="h-full rounded-full transition-all" style="width: {{ $readyPercent }}%; background: linear-gradient(90deg, var(--theme-accent), var(--theme-warning-color));"></div>
+                                <div class="h-full rounded-full transition-all" style="width: {{ $readyPercent }}%; background: var(--theme-brand-gradient);"></div>
                             </div>
                         </div>
                     </div>

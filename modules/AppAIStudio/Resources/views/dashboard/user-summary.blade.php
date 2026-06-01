@@ -29,13 +29,13 @@
                     <p class="text-xs font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Credits left') }}</p>
                     <p class="mt-1 text-3xl font-semibold tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ $creditRemainingLabel }}</p>
                 </div>
-                <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl" style="background: rgba(15,118,110,0.10); color: #0f766e;">
+                <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">
                     <i class="fa-light fa-coins"></i>
                 </span>
             </div>
             @unless ($creditSummary['unlimited'] ?? false)
                 <div class="mt-4 h-2 overflow-hidden rounded-full" style="background-color: rgba(15,118,110,0.12);">
-                    <div class="h-full rounded-full transition-all" style="width: {{ max(4, $creditUsagePercent) }}%; background: linear-gradient(90deg, #0f766e, #14b8a6);"></div>
+                    <div class="h-full rounded-full transition-all" style="width: {{ max(4, $creditUsagePercent) }}%; background: var(--theme-brand-gradient);"></div>
                 </div>
             @endunless
             <x-ui.button :href="$item['route'] ?? route('portal.ai-studio')" size="sm" class="mt-4 w-full justify-center" wire:navigate>
