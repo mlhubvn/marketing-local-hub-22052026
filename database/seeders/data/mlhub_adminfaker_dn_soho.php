@@ -24,6 +24,7 @@ return [
         'customer_target' => 11000,
         'marketing_faq_target' => 250,
         'marketing_blog_target' => 250,
+        'engagement_insert_cap' => 4000,
         'disclaimer' => 'Tên thương hiệu chỉ minh họa sản phẩm MLHUB — không liên kết vận hành thực tế.',
     ],
     'weekly_hours' => [

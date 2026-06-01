@@ -32,9 +32,11 @@ class MLHUBLocalBoostDemoFaker
       return;
     }
 
+    MLHUBDemoSeedProgress::step('LocalBoost: xóa dữ liệu demo cũ…');
     $this->clear($user, $counts);
 
     $config = MLHUBAdminFakerConfig::load();
+    MLHUBDemoSeedProgress::step('LocalBoost: tạo hồ sơ kinh doanh & chiến dịch…');
     $weeklyHours = $config['weekly_hours'];
     $messages = $config['messages'];
     $maxDaysAgo = MLHUBAdminFakerConfig::engagementMaxDaysAgo();
@@ -174,6 +176,7 @@ class MLHUBLocalBoostDemoFaker
       );
     });
 
+    MLHUBDemoSeedProgress::step('LocalBoost: sinh '.number_format(MLHUBAdminFakerConfig::customerTarget()).' khách hàng SOHO…');
     $customers = $this->expandCustomerPool($user, $businesses, $config, $customers);
 
     $customerPool = $customers->map(fn (Customer $customer): object => (object) [
@@ -189,8 +192,12 @@ class MLHUBLocalBoostDemoFaker
     $totalReviews = 0;
     $totalFeedback = 0;
 
+    $campaignTotal = $campaigns->count();
+    MLHUBDemoSeedProgress::step('LocalBoost: seed QR scans (~'.number_format(MLHUBAdminFakerConfig::targetQrVisits() ?: 0).' mục tiêu) — có thể 15–40 phút…');
+
     foreach ($campaigns->values() as $campaignIndex => $campaign) {
       $metrics = MLHUBAdminFakerConfig::metricsForSlug($campaign->slug);
+      $insertConversions = MLHUBAdminFakerConfig::cappedConversions($metrics['conversions']);
       $totalVisits += $metrics['visits'];
 
       MLHUBDemoVolume::insertQrScans(
@@ -201,6 +208,7 @@ class MLHUBLocalBoostDemoFaker
         $config['scan_country'],
         $campaignIndex,
         $maxDaysAgo,
+        'QR ['.($campaignIndex + 1).'/'.$campaignTotal.'] '.$campaign->slug,
       );
 
       $couponCode = (string) data_get($campaign->settings, 'coupon_code', 'DNDEMO');
@@ -209,62 +217,62 @@ class MLHUBLocalBoostDemoFaker
         ?? $servicesByBusiness->flatten()->first()?->id;
 
       match ($campaign->type) {
-        'review' => (function () use ($user, $campaign, $metrics, $customerPool, $messages, $maxDaysAgo, &$totalReviews): void {
-          $totalReviews += $metrics['conversions'];
+        'review' => (function () use ($user, $campaign, $insertConversions, $customerPool, $messages, $maxDaysAgo, &$totalReviews): void {
+          $totalReviews += $insertConversions;
           MLHUBDemoVolume::insertReviewFeedback(
             $user->id,
             $campaign->id,
-            $metrics['conversions'],
+            $insertConversions,
             $customerPool,
             $messages['review_positive'],
             $messages['review_negative'],
             $maxDaysAgo,
           );
         })(),
-        'lead' => (function () use ($user, $campaign, $metrics, $customerPool, $messages, $maxDaysAgo, &$totalLeads): void {
-          $totalLeads += $metrics['conversions'];
+        'lead' => (function () use ($user, $campaign, $insertConversions, $customerPool, $messages, $maxDaysAgo, &$totalLeads): void {
+          $totalLeads += $insertConversions;
           MLHUBDemoVolume::insertLeads(
             $user->id,
             $campaign->id,
-            $metrics['conversions'],
+            $insertConversions,
             $customerPool,
             $messages['lead'],
             DemoMarker::SOURCE,
             $maxDaysAgo,
           );
         })(),
-        'booking' => (function () use ($user, $campaign, $metrics, $customerPool, $messages, $bookingServiceId, $maxDaysAgo, &$totalBookings): void {
+        'booking' => (function () use ($user, $campaign, $insertConversions, $customerPool, $messages, $bookingServiceId, $maxDaysAgo, &$totalBookings): void {
           if (! $bookingServiceId) {
             return;
           }
-          $totalBookings += $metrics['conversions'];
+          $totalBookings += $insertConversions;
           MLHUBDemoVolume::insertBookings(
             $user->id,
             $campaign->id,
             $bookingServiceId,
-            $metrics['conversions'],
+            $insertConversions,
             $customerPool,
             $messages['booking_note'],
             $maxDaysAgo,
           );
         })(),
-        'coupon' => (function () use ($user, $campaign, $metrics, $customerPool, $couponCode, $maxDaysAgo, &$totalCoupons): void {
-          $totalCoupons += $metrics['conversions'];
+        'coupon' => (function () use ($user, $campaign, $insertConversions, $customerPool, $couponCode, $maxDaysAgo, &$totalCoupons): void {
+          $totalCoupons += $insertConversions;
           MLHUBDemoVolume::insertCouponRedemptions(
             $user->id,
             $campaign->id,
-            $metrics['conversions'],
+            $insertConversions,
             $customerPool,
             $couponCode,
             $maxDaysAgo,
           );
         })(),
-        'feedback' => (function () use ($user, $campaign, $metrics, $customerPool, $messages, $maxDaysAgo, &$totalFeedback): void {
-          $totalFeedback += $metrics['conversions'];
+        'feedback' => (function () use ($user, $campaign, $insertConversions, $customerPool, $messages, $maxDaysAgo, &$totalFeedback): void {
+          $totalFeedback += $insertConversions;
           MLHUBDemoVolume::insertFeedbackResponses(
             $user->id,
             $campaign->id,
-            $metrics['conversions'],
+            $insertConversions,
             $customerPool,
             $messages['feedback_positive'],
             $messages['feedback_negative'],

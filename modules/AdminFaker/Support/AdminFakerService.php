@@ -109,9 +109,13 @@ class AdminFakerService
         $imageFiles = $this->imageResolver->usableImagesForUser($user);
         $counts['media_images'] = count($imageFiles);
 
+        MLHUBDemoSeedProgress::step('Bước 1/3: LocalBoost (QR, CRM, landing)…');
         $this->localBoostDemoFaker->seed($user, $counts);
+        MLHUBDemoSeedProgress::step('Bước 2/3: Marketing (FAQ, blog, support)…');
         $this->marketingDemoFaker->seed($user, $team, $imageFiles, $counts);
+        MLHUBDemoSeedProgress::step('Bước 3/3: CRM nâng cao, email, loyalty…');
         $this->extendedModulesDemoFaker->seed($user, $team, $counts);
+        MLHUBDemoSeedProgress::step('Hoàn tất seed.');
 
         return [
             'user' => [

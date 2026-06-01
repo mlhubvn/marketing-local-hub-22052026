@@ -32,6 +32,7 @@ class MLHUBExtendedModulesDemoFaker
 {
     public function seed(User $user, Team $team, array &$counts): void
     {
+        MLHUBDemoSeedProgress::step('Extended: xóa & seed CRM / loyalty…');
         $this->clear($user, $counts, $team);
 
         $this->seedMarketingExtras();
@@ -233,7 +234,7 @@ class MLHUBExtendedModulesDemoFaker
         }
 
         $teamId = $this->teamId($user, $team);
-        $crmLimit = min(MLHUBAdminFakerConfig::customerTarget(), 150 * MLHUBAdminFakerConfig::volumeScale());
+        $crmLimit = min(MLHUBAdminFakerConfig::customerTarget(), 600);
         $customers = Customer::query()
             ->where('user_id', $user->id)
             ->with('business')
@@ -436,7 +437,7 @@ class MLHUBExtendedModulesDemoFaker
 
             $counts['loyalty_cards'] = ($counts['loyalty_cards'] ?? 0) + 1;
 
-            $enrollCap = min(1500, 75 * MLHUBAdminFakerConfig::volumeScale());
+            $enrollCap = min(120, 12 * MLHUBAdminFakerConfig::volumeScale());
             $enrolled = $customers->where('business_id', $business->id)->take($enrollCap);
 
             if ($enrolled->isEmpty()) {
@@ -455,7 +456,7 @@ class MLHUBExtendedModulesDemoFaker
                     ],
                 );
 
-                for ($s = 0; $s < $stampCount; $s++) {
+                for ($s = 0; $s < min($stampCount, 6); $s++) {
                     LoyaltyStamp::query()->firstOrCreate(
                         [
                             'card_id' => $card->id,

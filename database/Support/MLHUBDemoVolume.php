@@ -2,10 +2,9 @@
 
 namespace Database\Support;
 
-use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use Modules\AdminFaker\Support\MLHUBDemoSeedProgress;
 
 class MLHUBDemoVolume
 {
@@ -46,38 +45,48 @@ class MLHUBDemoVolume
         string $country,
         int $campaignIndex = 0,
         int $maxDaysAgo = 28,
+        ?string $progressLabel = null,
     ): void {
         if ($count <= 0) {
             return;
         }
 
-        $chunk = [];
-        $chunkSize = 5000;
-        $now = Carbon::now();
+        $chunkSize = 10000;
         $maxDaysAgo = max(7, $maxDaysAgo);
+        $city = $cities[$campaignIndex % max(1, count($cities))];
+        $ipSecond = ($campaignId % 200) + 1;
+        $now = time();
+        $inserted = 0;
+        $reportEvery = 100000;
 
-        for ($i = 1; $i <= $count; $i++) {
-            $daysAgo = $i % $maxDaysAgo;
-            $monthBucket = (int) floor($daysAgo / 30);
-            $chunk[] = [
-                'user_id' => $userId,
-                'campaign_id' => $campaignId,
-                'ip_address' => sprintf('103.%d.%d.%d', ($campaignId % 200) + 1, ($i % 250) + 1, ($i % 200) + 10),
-                'user_agent' => $i % 3 === 0 ? 'Mobile Safari Demo' : 'Chrome Desktop Demo',
-                'device' => $i % 3 === 0 ? 'mobile' : 'desktop',
-                'city' => $cities[$campaignIndex % max(1, count($cities))],
-                'country' => $country,
-                'created_at' => $now->copy()->subDays($daysAgo)->subHours($i % 24)->subMinutes($monthBucket * 3),
-            ];
+        for ($offset = 1; $offset <= $count; $offset += $chunkSize) {
+            $chunk = [];
+            $end = min($count, $offset + $chunkSize - 1);
 
-            if (count($chunk) >= $chunkSize) {
-                DB::table('lb_qr_scans')->insert($chunk);
-                $chunk = [];
+            for ($i = $offset; $i <= $end; $i++) {
+                $daysAgo = $i % $maxDaysAgo;
+                $hours = $i % 24;
+                $minutes = ((int) floor($daysAgo / 30)) * 3;
+                $createdAt = date('Y-m-d H:i:s', $now - ($daysAgo * 86400) - ($hours * 3600) - ($minutes * 60));
+
+                $chunk[] = [
+                    'user_id' => $userId,
+                    'campaign_id' => $campaignId,
+                    'ip_address' => sprintf('103.%d.%d.%d', $ipSecond, ($i % 250) + 1, ($i % 200) + 10),
+                    'user_agent' => $i % 3 === 0 ? 'Mobile Safari Demo' : 'Chrome Desktop Demo',
+                    'device' => $i % 3 === 0 ? 'mobile' : 'desktop',
+                    'city' => $city,
+                    'country' => $country,
+                    'created_at' => $createdAt,
+                ];
             }
-        }
 
-        if ($chunk !== []) {
             DB::table('lb_qr_scans')->insert($chunk);
+            $inserted = $end;
+
+            if ($progressLabel !== null && ($inserted % $reportEvery === 0 || $inserted === $count)) {
+                MLHUBDemoSeedProgress::line($progressLabel.' — '.number_format($inserted).'/'.number_format($count).' quét');
+            }
         }
     }
 
@@ -123,7 +132,7 @@ class MLHUBDemoVolume
             return [
                 'service_id' => $serviceId,
                 'status' => $statuses[$index % count($statuses)],
-                'booking_date' => Carbon::now()->addDays(($index % 14) + 1)->toDateString(),
+                'booking_date' => date('Y-m-d', time() + (($index % 14) + 1) * 86400),
                 'booking_time' => $times[$index % count($times)],
                 'customer_name' => $customer->name,
                 'customer_phone' => $customer->phone,
@@ -153,7 +162,7 @@ class MLHUBDemoVolume
                 'customer_phone' => $customer->phone,
                 'customer_email' => $customer->email,
                 'status' => $used ? 'used' : 'claimed',
-                'used_at' => $used ? Carbon::now()->subHours($index + 1) : null,
+                'used_at' => $used ? date('Y-m-d H:i:s', time() - (($index + 1) * 3600)) : null,
             ];
         }, $maxDaysAgo);
     }
@@ -171,7 +180,7 @@ class MLHUBDemoVolume
         int $maxDaysAgo = 21,
     ): void {
         self::bulkEngagement('lb_review_feedbacks', $count, $userId, $campaignId, $customers, function (object $customer, int $index) use ($positiveMessage, $negativeMessage): array {
-            $rating = $index % 10 < 8 ? random_int(4, 5) : random_int(2, 3);
+            $rating = $index % 10 < 8 ? 4 + ($index % 2) : 2 + ($index % 2);
 
             return [
                 'rating' => $rating,
@@ -198,7 +207,7 @@ class MLHUBDemoVolume
         int $maxDaysAgo = 21,
     ): void {
         self::bulkEngagement('lb_feedback_responses', $count, $userId, $campaignId, $customers, function (object $customer, int $index) use ($positiveMessage, $negativeMessage, $source): array {
-            $rating = $index % 10 < 7 ? random_int(4, 5) : random_int(2, 3);
+            $rating = $index % 10 < 7 ? 4 + ($index % 2) : 2 + ($index % 2);
 
             return [
                 'rating' => $rating,
@@ -208,7 +217,7 @@ class MLHUBDemoVolume
                 'message' => $rating >= 4 ? $positiveMessage : $negativeMessage,
                 'payload' => json_encode(['source' => $source], JSON_UNESCAPED_UNICODE),
                 'status' => $rating <= 3 ? 'new' : 'resolved',
-                'resolved_at' => $rating >= 4 ? Carbon::now()->subDays(1) : null,
+                'resolved_at' => $rating >= 4 ? date('Y-m-d H:i:s', time() - 86400) : null,
             ];
         }, $maxDaysAgo);
     }
@@ -231,19 +240,22 @@ class MLHUBDemoVolume
         }
 
         $chunk = [];
-        $chunkSize = 1000;
-        $now = Carbon::now();
+        $chunkSize = 2000;
+        $now = time();
         $customerList = $customers->values();
         $maxDaysAgo = max(7, $maxDaysAgo);
+        $customerTotal = $customerList->count();
 
         for ($index = 0; $index < $count; $index++) {
-            $customer = $customerList[$index % $customerList->count()];
+            $customer = $customerList[$index % $customerTotal];
             $daysAgo = $index % $maxDaysAgo;
+            $timestamp = date('Y-m-d H:i:s', $now - ($daysAgo * 86400) - (($index % 24) * 3600));
+
             $chunk[] = array_merge([
                 'user_id' => $userId,
                 'campaign_id' => $campaignId,
-                'created_at' => $now->copy()->subDays($daysAgo)->subHours($index % 24),
-                'updated_at' => $now->copy()->subDays($daysAgo)->subHours($index % 24),
+                'created_at' => $timestamp,
+                'updated_at' => $timestamp,
             ], $extraColumns($customer, $index));
 
             if (count($chunk) >= $chunkSize) {

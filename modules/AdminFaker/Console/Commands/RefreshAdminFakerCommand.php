@@ -3,7 +3,9 @@
 namespace Modules\AdminFaker\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Modules\AdminFaker\Support\AdminFakerService;
+use Modules\AdminFaker\Support\MLHUBDemoSeedProgress;
 
 class RefreshAdminFakerCommand extends Command
 {
@@ -13,6 +15,15 @@ class RefreshAdminFakerCommand extends Command
 
     public function handle(AdminFakerService $faker): int
     {
+        @ini_set('memory_limit', '1024M');
+        @set_time_limit(0);
+
+        DB::connection()->disableQueryLog();
+        MLHUBDemoSeedProgress::bind($this->output);
+
+        $this->info('Bắt đầu Admin Faker (enterprise có thể chạy 20–40 phút — xem dòng log bên dưới).');
+        $this->newLine();
+
         $result = $faker->seedForFirstUser(! $this->option('no-clear'));
 
         $user = (array) ($result['user'] ?? []);

@@ -329,7 +329,11 @@ class MLHUBMarketingDemoFaker
         $generated = MLHUBMarketingContentGenerator::faqs(max(0, $target - count($static)));
         $faqs = array_merge($static, $generated);
 
-        foreach ($faqs as $faq) {
+        foreach ($faqs as $index => $faq) {
+            if ($index > 0 && $index % 50 === 0) {
+                MLHUBDemoSeedProgress::line('FAQ: '.number_format($index).'/'.number_format(count($faqs)));
+            }
+
             Faq::query()->updateOrCreate(
                 ['slug' => $faq['slug']],
                 [
@@ -404,7 +408,13 @@ class MLHUBMarketingDemoFaker
         $target = MLHUBAdminFakerConfig::marketingBlogTarget();
         $generated = MLHUBMarketingContentGenerator::blogs(max(0, $target - count($static)));
 
-        foreach (array_merge($static, $generated) as $index => $blog) {
+        $blogs = array_merge($static, $generated);
+
+        foreach ($blogs as $index => $blog) {
+            if ($index > 0 && $index % 50 === 0) {
+                MLHUBDemoSeedProgress::line('Blog: '.number_format($index).'/'.number_format(count($blogs)));
+            }
+
             $image = $imageResolver->random($imageFiles);
             $categoryIndex = (int) ($blog['category_index'] ?? ($index % max(1, $categories->count())));
             $category = $categories->values()[$categoryIndex % $categories->count()];

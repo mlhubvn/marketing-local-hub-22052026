@@ -169,6 +169,22 @@ final class MLHUBAdminFakerConfig
         return max(50, min(500, $target));
     }
 
+    public static function engagementInsertCap(): int
+    {
+        $cap = (int) (self::load()['meta']['engagement_insert_cap'] ?? 4000);
+
+        return max(200, min(50000, $cap));
+    }
+
+    public static function cappedConversions(int $conversions): int
+    {
+        if ($conversions <= 0) {
+            return 0;
+        }
+
+        return min($conversions, self::engagementInsertCap());
+    }
+
     /**
      * @return array{visits: int, conversions: int}
      */
