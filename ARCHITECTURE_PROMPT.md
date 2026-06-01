@@ -217,7 +217,9 @@ php artisan optimize:clear
 - Đăng nhập **`demo@mlhub.vn`** / **`123456`** → **Admin** + **Portal** đều được.
 - **Tổng quan tăng trưởng:** visits ~1.2k–4.8k/chiến dịch; tỷ lệ chuyển đổi ~8–10%.
 
-**Cấu hình:** `config/mlhub.php`, `database/seeders/data/mlhub_demo_vn.php` (`campaign_metrics`), `database/Support/MlhubDemoVolume.php`.
+**Cấu hình:** `config/mlhub.php`, `database/seeders/data/mlhub_demo_vn.php` (`campaign_metrics`), `database/Support/MLHUBDemoVolume.php`.
+
+> Quy ước repo: không giữ script one-off/generator trong `database/seeders/scripts` hoặc `database/seeders/data` nếu không cần runtime seed. Ưu tiên chỉnh trực tiếp file data runtime để dễ compare với upstream.
 
 ---
 

@@ -18,9 +18,9 @@ class AdminFakerService
 {
     public function __construct(
         protected PersonalTeamProvisioner $teamProvisioner,
-        protected MlhubDemoImageResolver $imageResolver,
-        protected MlhubLocalBoostDemoFaker $localBoostDemoFaker,
-        protected MlhubMarketingDemoFaker $marketingDemoFaker,
+        protected MLHUBDemoImageResolver $imageResolver,
+        protected MLHUBLocalBoostDemoFaker $localBoostDemoFaker,
+        protected MLHUBMarketingDemoFaker $marketingDemoFaker,
     ) {}
 
     /**

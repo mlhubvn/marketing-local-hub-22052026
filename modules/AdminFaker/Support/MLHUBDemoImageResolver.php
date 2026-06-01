@@ -6,7 +6,7 @@ use App\Support\Storage\StorageDriverManager;
 use Modules\AdminUser\Models\User;
 use Modules\AppFiles\Models\AppFile;
 
-class MlhubDemoImageResolver
+class MLHUBDemoImageResolver
 {
     public function __construct(
         protected StorageDriverManager $storageDriverManager,

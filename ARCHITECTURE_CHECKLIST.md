@@ -26,6 +26,16 @@ Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** (LocalBoost AI
 >
 > **Phân chia trách nhiệm:** AI chỉ **sửa code/config tại local** + soạn **commit message gợi ý**. Bước **`git commit` / `git push` / Redeploy là do chủ dự án tự làm thủ công** (để kịp copy log khi lỗi). AI **không** tự commit/push/deploy. Nếu cần cấu hình Coolify, AI hướng dẫn theo từng tab (General, Environment Variables, Scheduled Tasks, …). Khi phát hiện rủi ro bảo mật/UX (kể cả ngoài task) → **báo ngay**.
 
+### 1.1 Quy tắc giữ cấu trúc gốc khi nâng cấp phiên bản
+
+- [ ] Mặc định sửa trực tiếp file có sẵn; tránh tạo file/class/module logic mới.
+- [ ] Khi làm tính năng, ưu tiên mở rộng từ file/module tạo sẵn trước khi nghĩ tới file mới.
+- [ ] Nếu có file mới phát sinh cho logic, phải tự đánh dấu và lên kế hoạch gộp vào file cũ trước khi bàn giao.
+- [ ] Nếu buộc phải tạo file logic mới, ưu tiên đặt trong `modules/Custom...` theo đúng khu vực cần fix để dễ quản lý diff.
+- [ ] File mới chỉ chấp nhận cho dữ liệu seed/doc nội bộ có lý do rõ ràng.
+- [ ] Tên thương hiệu hiển thị luôn dùng **`MLHUB`** (uppercase), không dùng bất kỳ biến thể nào.
+- [ ] Naming mới liên quan brand phải dùng `MLHUB` (uppercase), tránh mọi biến thể chữ hoa/thường khác.
+
 ### ⛔ Quy tắc bất di bất dịch về hạ tầng
 
 - **TUYỆT ĐỐI KHÔNG** đề xuất can thiệp thủ công bằng dòng lệnh trực tiếp trên server Coolify (SSH, sửa file trên container, chạy lệnh tay…).

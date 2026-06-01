@@ -64,7 +64,7 @@ resources/themes/{area}/{name}/
 
 Theme đang dùng của mỗi area lưu trong `OptionStore` (`frontend_theme`, `backend_theme`), chỉnh ở **Admin → Themes**, và được khởi tạo từ env `THEME_FRONTEND` / `THEME_BACKEND`.
 
-> **Quan trọng cho vibecode:** khu guest đang dùng **`mlhubfrontend`** (`resources/themes/guest/mlhubfrontend/`, fork `localboostai`). Backend portal dùng **`mlhubbackend`** (fork `default`). Gốc upstream vẫn là `localboostai` / `default` để merge update tác giả. App là **MLHUB** (`mlhub.vn`), locale mặc định **`vi`**.
+> **Quan trọng cho vibecode:** khu guest đang dùng **`mlhubfrontend`** (`resources/themes/guest/mlhubfrontend/`, fork `localboostai`). Backend portal dùng **`mlhubbackend`** (fork `default`). Gốc upstream vẫn là `localboostai` / `default` để merge update tác giả. App là **MLHUB** (`mlhub.vn`), locale mặc định **`vi`**. Khi custom UI, ưu tiên sửa file theme/module hiện có; tránh tạo file view/component mới nếu chỉ là đổi định dạng/branding.
 
 ### 2.3 Giải quyết theme khi runtime
 

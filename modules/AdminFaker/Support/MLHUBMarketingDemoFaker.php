@@ -27,7 +27,7 @@ use Modules\AppFiles\Models\AppFile;
 /**
  * Admin-site demo content for MLHUB (FAQ, blog, support, affiliate, notifications).
  */
-class MlhubMarketingDemoFaker
+class MLHUBMarketingDemoFaker
 {
     /**
      * @param  array<int, AppFile>  $imageFiles
@@ -182,7 +182,7 @@ class MlhubMarketingDemoFaker
             ],
         );
 
-        $tickets = MlhubAdminFakerConfig::load()['marketing']['support_tickets'] ?? [];
+        $tickets = MLHUBAdminFakerConfig::load()['marketing']['support_tickets'] ?? [];
 
         foreach ($tickets as $index => $item) {
             $ticket = SupportTicket::query()->updateOrCreate(
@@ -322,7 +322,7 @@ class MlhubMarketingDemoFaker
 
     protected function createFaqs(array &$counts): void
     {
-        $faqs = MlhubAdminFakerConfig::load()['marketing']['faqs'] ?? [];
+        $faqs = MLHUBAdminFakerConfig::load()['marketing']['faqs'] ?? [];
 
         foreach ($faqs as $faq) {
             Faq::query()->updateOrCreate(
@@ -391,9 +391,9 @@ class MlhubMarketingDemoFaker
     protected function createBlogs(User $user, BlogCategory $category, $tags, array $imageFiles, array &$counts): void
     {
         $now = time();
-        $imageResolver = app(MlhubDemoImageResolver::class);
+        $imageResolver = app(MLHUBDemoImageResolver::class);
 
-        $blogs = MlhubAdminFakerConfig::load()['marketing']['blogs'] ?? [];
+        $blogs = MLHUBAdminFakerConfig::load()['marketing']['blogs'] ?? [];
 
         foreach ($blogs as $index => $blog) {
             $image = $imageResolver->random($imageFiles);
@@ -429,7 +429,7 @@ class MlhubMarketingDemoFaker
 
     protected function createGlobalNotifications(User $user, array &$counts): void
     {
-        $rows = MlhubAdminFakerConfig::load()['marketing']['global_notifications'] ?? [];
+        $rows = MLHUBAdminFakerConfig::load()['marketing']['global_notifications'] ?? [];
 
         foreach ($rows as $index => $row) {
             NotificationManual::query()->updateOrCreate(

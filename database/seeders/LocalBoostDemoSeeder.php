@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Database\Support\IdSequence;
-use Database\Support\MlhubDemoVolume;
+use Database\Support\MLHUBDemoVolume;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
@@ -31,7 +31,7 @@ class LocalBoostDemoSeeder extends Seeder
 
     public function run(): void
     {
-        $this->demo = MlhubDemoVolume::demoConfig();
+        $this->demo = MLHUBDemoVolume::demoConfig();
 
         $user = $this->seedDemoUser();
         $businesses = $this->seedBusinesses($user);
@@ -234,9 +234,9 @@ class LocalBoostDemoSeeder extends Seeder
                 continue;
             }
 
-            $metrics = MlhubDemoVolume::metricsForSlug($definition['slug']);
+            $metrics = MLHUBDemoVolume::metricsForSlug($definition['slug']);
 
-            MlhubDemoVolume::insertQrScans(
+            MLHUBDemoVolume::insertQrScans(
                 $user->id,
                 $campaign->id,
                 $metrics['visits'],
@@ -246,7 +246,7 @@ class LocalBoostDemoSeeder extends Seeder
             );
 
             match ($definition['type']) {
-                'review' => MlhubDemoVolume::insertReviewFeedback(
+                'review' => MLHUBDemoVolume::insertReviewFeedback(
                     $user->id,
                     $campaign->id,
                     $metrics['conversions'],
@@ -254,14 +254,14 @@ class LocalBoostDemoSeeder extends Seeder
                     $messages['review_positive'],
                     $messages['review_negative'],
                 ),
-                'lead' => MlhubDemoVolume::insertLeads(
+                'lead' => MLHUBDemoVolume::insertLeads(
                     $user->id,
                     $campaign->id,
                     $metrics['conversions'],
                     $customerPool,
                     $messages['lead'],
                 ),
-                'booking' => MlhubDemoVolume::insertBookings(
+                'booking' => MLHUBDemoVolume::insertBookings(
                     $user->id,
                     $campaign->id,
                     $service->id,
@@ -269,14 +269,14 @@ class LocalBoostDemoSeeder extends Seeder
                     $customerPool,
                     $messages['booking_note'],
                 ),
-                'coupon' => MlhubDemoVolume::insertCouponRedemptions(
+                'coupon' => MLHUBDemoVolume::insertCouponRedemptions(
                     $user->id,
                     $campaign->id,
                     $metrics['conversions'],
                     $customerPool,
                     $couponCode,
                 ),
-                'feedback' => MlhubDemoVolume::insertFeedbackResponses(
+                'feedback' => MLHUBDemoVolume::insertFeedbackResponses(
                     $user->id,
                     $campaign->id,
                     $metrics['conversions'],

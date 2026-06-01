@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Database\Support\MlhubDemoVolume;
+use Database\Support\MLHUBDemoVolume;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -50,7 +50,7 @@ class MLHUBBootstrapSeeder extends Seeder
             return;
         }
 
-        $demo = MlhubDemoVolume::demoConfig();
+        $demo = MLHUBDemoVolume::demoConfig();
         $site = (array) config('mlhub.site', []);
         /** @var OptionStore $options */
         $options = app(OptionStore::class);

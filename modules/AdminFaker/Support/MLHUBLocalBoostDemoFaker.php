@@ -2,7 +2,7 @@
 
 namespace Modules\AdminFaker\Support;
 
-use Database\Support\MlhubDemoVolume;
+use Database\Support\MLHUBDemoVolume;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Modules\AdminUser\Models\User;
@@ -23,7 +23,7 @@ use Modules\AppQRCampaigns\Models\QrCampaign;
 use Modules\AppQRCampaigns\Models\QrScan;
 use Modules\AppReviewBooster\Models\ReviewFeedback;
 
-class MlhubLocalBoostDemoFaker
+class MLHUBLocalBoostDemoFaker
 {
   public function seed(User $user, array &$counts): void
   {
@@ -33,7 +33,7 @@ class MlhubLocalBoostDemoFaker
 
     $this->clear($user, $counts);
 
-    $config = MlhubAdminFakerConfig::load();
+    $config = MLHUBAdminFakerConfig::load();
     $weeklyHours = $config['weekly_hours'];
     $messages = $config['messages'];
     $maxDaysAgo = (int) ($config['engagement_max_days_ago'] ?? 365);
@@ -187,10 +187,10 @@ class MlhubLocalBoostDemoFaker
     $totalFeedback = 0;
 
     foreach ($campaigns->values() as $campaignIndex => $campaign) {
-      $metrics = MlhubAdminFakerConfig::metricsForSlug($campaign->slug);
+      $metrics = MLHUBAdminFakerConfig::metricsForSlug($campaign->slug);
       $totalVisits += $metrics['visits'];
 
-      MlhubDemoVolume::insertQrScans(
+      MLHUBDemoVolume::insertQrScans(
         $user->id,
         $campaign->id,
         $metrics['visits'],
@@ -208,7 +208,7 @@ class MlhubLocalBoostDemoFaker
       match ($campaign->type) {
         'review' => (function () use ($user, $campaign, $metrics, $customerPool, $messages, $maxDaysAgo, &$totalReviews): void {
           $totalReviews += $metrics['conversions'];
-          MlhubDemoVolume::insertReviewFeedback(
+          MLHUBDemoVolume::insertReviewFeedback(
             $user->id,
             $campaign->id,
             $metrics['conversions'],
@@ -220,7 +220,7 @@ class MlhubLocalBoostDemoFaker
         })(),
         'lead' => (function () use ($user, $campaign, $metrics, $customerPool, $messages, $maxDaysAgo, &$totalLeads): void {
           $totalLeads += $metrics['conversions'];
-          MlhubDemoVolume::insertLeads(
+          MLHUBDemoVolume::insertLeads(
             $user->id,
             $campaign->id,
             $metrics['conversions'],
@@ -235,7 +235,7 @@ class MlhubLocalBoostDemoFaker
             return;
           }
           $totalBookings += $metrics['conversions'];
-          MlhubDemoVolume::insertBookings(
+          MLHUBDemoVolume::insertBookings(
             $user->id,
             $campaign->id,
             $bookingServiceId,
@@ -247,7 +247,7 @@ class MlhubLocalBoostDemoFaker
         })(),
         'coupon' => (function () use ($user, $campaign, $metrics, $customerPool, $couponCode, $maxDaysAgo, &$totalCoupons): void {
           $totalCoupons += $metrics['conversions'];
-          MlhubDemoVolume::insertCouponRedemptions(
+          MLHUBDemoVolume::insertCouponRedemptions(
             $user->id,
             $campaign->id,
             $metrics['conversions'],
@@ -258,7 +258,7 @@ class MlhubLocalBoostDemoFaker
         })(),
         'feedback' => (function () use ($user, $campaign, $metrics, $customerPool, $messages, $maxDaysAgo, &$totalFeedback): void {
           $totalFeedback += $metrics['conversions'];
-          MlhubDemoVolume::insertFeedbackResponses(
+          MLHUBDemoVolume::insertFeedbackResponses(
             $user->id,
             $campaign->id,
             $metrics['conversions'],
@@ -328,7 +328,7 @@ class MlhubLocalBoostDemoFaker
       return;
     }
 
-    $standaloneSlugs = MlhubAdminFakerConfig::standaloneLandingSlugs();
+    $standaloneSlugs = MLHUBAdminFakerConfig::standaloneLandingSlugs();
 
     if ($standaloneSlugs !== []) {
       $deleted['local_landing_pages'] += LandingPage::query()
@@ -340,7 +340,7 @@ class MlhubLocalBoostDemoFaker
     $campaignIds = QrCampaign::query()
       ->where('user_id', $user->id)
       ->where(function ($query): void {
-        $query->whereIn('slug', MlhubAdminFakerConfig::campaignSlugs())
+        $query->whereIn('slug', MLHUBAdminFakerConfig::campaignSlugs())
           ->orWhere('slug', 'like', 'admin-faker-%');
       })
       ->pluck('id');
@@ -366,7 +366,7 @@ class MlhubLocalBoostDemoFaker
     $businessIds = LocalBusiness::query()
       ->where('user_id', $user->id)
       ->where(function ($query) use ($legacyNames): void {
-        $query->whereIn('name', MlhubAdminFakerConfig::businessNames())
+        $query->whereIn('name', MLHUBAdminFakerConfig::businessNames())
           ->orWhereIn('name', $legacyNames);
       })
       ->pluck('id');
@@ -413,7 +413,7 @@ class MlhubLocalBoostDemoFaker
           'demo_scope' => 'localboost-dn-soho-landing',
         ], (array) ($data['settings'] ?? []));
 
-        $scaledLandingMetrics = MlhubAdminFakerConfig::scaleMetrics(
+        $scaledLandingMetrics = MLHUBAdminFakerConfig::scaleMetrics(
           (int) ($data['visits'] ?? 0),
           (int) ($data['conversions'] ?? 0),
         );

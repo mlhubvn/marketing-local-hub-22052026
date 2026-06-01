@@ -37,6 +37,17 @@
 5. **Báo NGAY khi phát hiện vấn đề bảo mật hoặc ảnh hưởng trải nghiệm người dùng** (kể cả ngoài phạm vi task đang làm) — nêu rủi ro bằng lời dễ hiểu + mức độ + cách xử lý đề xuất, để chủ dự án quyết ưu tiên.
 6. **Khi chủ dự án đưa nội dung log** (`laravel.log` dán vào repo, hoặc xem qua **Admin → Cài đặt → Logs** = module `AdminLog` tại `admin/settings/log`): tự rà mọi dòng `ERROR/CRITICAL`, **fix luôn lỗi code** theo phong cách vibecode; lỗi nào đã vá / chỉ thoáng qua (vd Livewire "children" do snapshot cũ sau deploy) thì nêu rõ trạng thái thay vì sửa thừa. Chủ dự án **không dùng `.gitignore`**, tự loại `laravel.log` thủ công khi commit — đừng tạo `.gitignore` trừ khi được yêu cầu.
 
+### 0.3 Quy tắc quản lý diff với upstream (CỐ ĐỊNH)
+
+- Ưu tiên tuyệt đối: **sửa trên file hiện có** để dễ `git diff`/`compare` với repo gốc khi nâng cấp phiên bản.
+- **Không tạo file/class/module mới cho logic ứng dụng** nếu có thể gộp vào `app/`, `modules/`, `resources/themes/` hiện hữu.
+- Khi có yêu cầu tính năng, **phải ưu tiên file/module tạo sẵn trước**, chỉ mở rộng trong file hiện có nếu đáp ứng được.
+- Chỉ tạo file mới khi thật sự bắt buộc (seed data/doc đặc thù dự án) và phải ghi rõ lý do trong `ARCHITECTURE_*.md`.
+- Nếu buộc phải tạo file logic mới, ưu tiên đặt trong `modules/Custom...` theo đúng khu vực cần chỉnh (ví dụ `modules/CustomAdminFaker`, `modules/CustomReviewBooster`) để tách rõ phần custom.
+- Nếu lỡ tạo file logic mới, phải gộp lại vào file cũ tương ứng và xóa file phát sinh trước khi bàn giao.
+- Quy tắc thương hiệu: tên hiển thị/user-facing luôn dùng **`MLHUB`** (uppercase), không dùng bất kỳ biến thể nào.
+- Quy tắc naming mới: class/file/constant/biến mới liên quan brand phải dùng tiền tố `MLHUB` (uppercase), không tạo naming theo biến thể khác.
+
 ---
 
 ## 1. Stack công nghệ (KHÔNG đổi nếu không được duyệt)

@@ -29,7 +29,7 @@ Nguyên tắc cốt lõi:
 | `app/Providers/AppServiceProvider.php` | Đăng ký singleton: `SidebarRegistry`, `HeaderRegistry`, `AdminDashboardRegistry`, `UserDashboardRegistry`, `PlanPermissionRegistry`, `StorageDriverManager`, `SocialAvatarStore`. Đặt `CarbonImmutable` mặc định, Livewire component hook, đường dẫn Blade component dùng chung, ép HTTPS ở production. |
 | `app/Providers/FortifyServiceProvider.php` | Gắn view của Fortify vào các trang Livewire auth. |
 | `config/mlhub.php` | Bootstrap MLHUB (seed stack, theme/site mặc định) — **không còn** Web Installer. |
-| `app/Console/Commands/MlhubResetDemoCommand.php` | `php artisan mlhub:reset-demo --force` — wipe + migrate + seed (pilot). |
+| `app/Console/Commands/MLHUBResetDemoCommand.php` | `php artisan mlhub:reset-demo --force` — wipe + migrate + seed (pilot). |
 | `app/Http/Middleware/EnsureAdminAccess.php` | Cổng kiểm soát truy cập khu admin. |
 | `app/Http/Middleware/ResolveUserPlanState.php` | Nạp ngữ cảnh gói (plan) cho mỗi request. |
 | `app/Http/Middleware/PreventDemoModeWriteOperations.php` | Chặn thao tác ghi khi bật chế độ demo. |

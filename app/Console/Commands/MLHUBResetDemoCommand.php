@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
-class MlhubResetDemoCommand extends Command
+class MLHUBResetDemoCommand extends Command
 {
     protected $signature = 'mlhub:reset-demo
                             {--force : Xác nhận xóa toàn bộ dữ liệu MySQL và seed lại}';

@@ -9,6 +9,8 @@ Tài liệu đánh giá Hệ thống lõi và 6 module mở rộng, dùng làm *
 > - 🔴 **Contains Bugs / Incomplete** — thiếu hoặc nghi ngờ lỗi, cần xử lý.
 >
 > Đánh giá dựa trên quét tĩnh mã nguồn — **không thay cho QA chạy thật**.
+>
+> Quy ước maintainability: với các chỉnh sửa tính năng, ưu tiên cập nhật trực tiếp module/file hiện có để giữ diff gọn khi so sánh upstream. Chỉ tạo file mới cho data seed/doc khi thật sự cần.
 
 ---
 

@@ -5,7 +5,7 @@ namespace Modules\AdminFaker\Support;
 /**
  * Loads Admin Faker demo dataset (Đà Nẵng SOHO investor demo).
  */
-final class MlhubAdminFakerConfig
+final class MLHUBAdminFakerConfig
 {
     public const DATA_FILENAME = 'mlhub_adminfaker_dn_soho.php';
 
