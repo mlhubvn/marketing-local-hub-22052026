@@ -162,16 +162,18 @@ php artisan tinker
 
 **Coolify (tab Environment Variables) — luôn giữ:**
 
-| Biến | Giá trị |
-|------|---------|
-| `APP_INSTALLED` | `true` (bắt buộc — entrypoint mới chạy `migrate`) |
-| `MLHUB_ADMIN_PLAN_SLUG` | `agency-lifetime` |
-| `MLHUB_ALLOW_RESET_DEMO` | `true` (chỉ khi cần chạy lệnh wipe trên pilot; xong có thể đặt lại `false`) |
-| `MLHUB_LICENSE_PURCHASE_CODE` | Mã mua Stackposts (mặc định trong `config/mlhub.php` nếu không set) |
-| `MLHUB_LICENSE_DOMAIN` | `mlhub.vn` |
-| `MAIL_PASSWORD` | SMTP (không commit vào repo; seed ghi vào `options.smtp_password` nếu có) |
 
-**License / Marketplace sau reset:** không còn Web Installer (`purchase_verify_url`). Seed `MLHUBMarketplaceSeeder` + `license_*` trong `MLHUBBootstrapSeeder` khôi phục `marketplace_packages` và trạng thái license. **Không** import nguyên `mysql-dump-default-*.sql` (chứa SMTP/captcha secret). Logo đã upload: `MLHUBBrandFilesSeeder` tái tạo bản ghi `files` nếu ảnh còn trên disk `storage/app/public`.
+| Biến                          | Giá trị                                                                     |
+| ----------------------------- | --------------------------------------------------------------------------- |
+| `APP_INSTALLED`               | `true` (bắt buộc — entrypoint mới chạy `migrate`)                           |
+| `MLHUB_ADMIN_PLAN_SLUG`       | `agency-lifetime`                                                           |
+| `MLHUB_ALLOW_RESET_DEMO`      | `true` (chỉ khi cần chạy lệnh wipe trên pilot; xong có thể đặt lại `false`) |
+| `MLHUB_LICENSE_PURCHASE_CODE` | Mã mua Stackposts (mặc định trong `config/mlhub.php` nếu không set)         |
+| `MLHUB_LICENSE_DOMAIN`        | `mlhub.vn`                                                                  |
+| `MAIL_PASSWORD`               | SMTP (không commit vào repo; seed ghi vào `options.smtp_password` nếu có)   |
+
+
+**License / Marketplace sau reset:** không còn Web Installer (`purchase_verify_url`). Seed `MLHUBMarketplaceSeeder` + `license_`* trong `MLHUBBootstrapSeeder` khôi phục `marketplace_packages` và trạng thái license. **Không** import nguyên `mysql-dump-default-*.sql` (chứa SMTP/captcha secret). Logo đã upload: `MLHUBBrandFilesSeeder` tái tạo bản ghi `files` nếu ảnh còn trên disk `storage/app/public`.
 
 #### A. Combo một lệnh (trong container app — khuyến nghị)
 
@@ -182,7 +184,7 @@ php artisan mlhub:reset-demo --force
 redis-cli -h <redis-host> -a '<password>' FLUSHALL
 ```
 
-Lệnh trên: `db:wipe` → `migrate` → `db:seed` (foundation, license, marketplace, demo VN + volume) → **`admin-faker:refresh`** (demo investor Đà Nẵng SOHO: 10 business, 32 QR campaign, FAQ/blog/support — xem `ARCHITECTURE_ADMINFAKER.md`; không LinkBio/publishing) → `MLHUBDemoExtrasSeeder` (email templates, template packs) → `optimize:clear`. **Không** seed `files` (logo upload tay). Chỉ chạy `db:seed` / reset mà không có bước Admin Faker ≈ dump `mysql-moi.sql` (thiếu ~27 bảng so với `mysql-cu.sql` sau Faker).
+Lệnh trên: `db:wipe` → `migrate` → `db:seed` (foundation, license, marketplace, demo VN + volume) → `**admin-faker:refresh**` (demo investor Đà Nẵng SOHO: 10 business, 32 QR campaign, FAQ/blog/support — xem `ARCHITECTURE_ADMINFAKER.md`; không LinkBio/publishing) → `MLHUBDemoExtrasSeeder` (email templates, template packs) → `optimize:clear`. **Không** seed `files` (logo upload tay). Chỉ chạy `db:seed` / reset mà không có bước Admin Faker ≈ dump `mysql-moi.sql` (thiếu ~27 bảng so với `mysql-cu.sql` sau Faker).
 
 #### B. Từng bước (nếu muốn kiểm soát)
 
@@ -214,12 +216,91 @@ php artisan optimize:clear
 
 #### E. Sau reset — kiểm tra
 
-- Đăng nhập **`demo@mlhub.vn`** / **`123456`** → **Admin** + **Portal** đều được.
+- Đăng nhập `**demo@mlhub.vn**` / `**123456**` → **Admin** + **Portal** đều được.
 - **Tổng quan tăng trưởng:** visits ~1.2k–4.8k/chiến dịch; tỷ lệ chuyển đổi ~8–10%.
 
 **Cấu hình:** `config/mlhub.php`, `database/seeders/data/mlhub_demo_vn.php` (`campaign_metrics`), `database/Support/MLHUBDemoVolume.php`.
 
 > Quy ước repo: không giữ script one-off/generator trong `database/seeders/scripts` hoặc `database/seeders/data` nếu không cần runtime seed. Ưu tiên chỉnh trực tiếp file data runtime để dễ compare với upstream.
+
+### 3.2 Tải full source từ server (`fullcode.zip`) — pilot / backup
+
+> Dùng khi cần tải **bản code đang chạy trên Coolify** về máy (so sánh, backup tạm). **Source of truth vẫn là GitHub** — không thay thế quy trình commit/push.
+
+> 🔴 **Bảo mật:** File đặt trong `public/` = **URL công khai**. Ai biết link `https://mlhub.vn/fullcode.zip` đều tải được. **Tạo → tải xong → xóa ngay** (xem bước 5). Không để qua đêm trên production.
+
+**Bước 1 — SSH vào container app (Coolify → Terminal hoặc `docker exec`):**
+
+```bash
+docker exec -it <container_app> sh
+cd /var/www/html
+```
+
+Nếu báo `zip: not found`, cài một lần trong container (mất sau khi rebuild image — bình thường):
+
+```bash
+apt-get update && apt-get install -y zip
+```
+
+**Bước 2 — Chuẩn hóa symlink theme (tránh zip phình 500MB+):**
+
+`public/resources/themes` trên server **phải là symlink** tới `resources/themes/` (tạo trong `entrypoint.sh`). Nếu lỡ là thư mục thật hoặc có `themes/themes/...` lặp vô hạn, `zip -r` sẽ nhân bản cùng file hàng chục nghìn lần.
+
+```bash
+rm -rf public/resources/themes
+mkdir -p public/resources
+ln -sfn ../../resources/themes public/resources/themes
+ls -la public/resources/themes
+# phải thấy: public/resources/themes -> ../../resources/themes
+```
+
+**Bước 3 — Tạo file zip trong `public/`:**
+
+Dùng **`-y`** để zip **không** đi theo symlink (chỉ lưu link; nội dung theme lấy một lần từ `resources/themes/`):
+
+```bash
+zip -ry public/fullcode.zip . \
+  -x "public/fullcode.zip" \
+  -x ".git/*" \
+  -x "node_modules/*" \
+  -x "vendor/*" \
+  -x "storage/logs/*" \
+  -x "storage/framework/cache/*" \
+  -x "storage/framework/sessions/*" \
+  -x "storage/framework/views/*" \
+  -x ".env" \
+  -x ".env.*"
+```
+
+- Bỏ dòng `-x "vendor/*"` nếu cần zip **đủ nặng** kèm `vendor/` (file có thể vài trăm MB–GB, tạo lâu).
+- **Không** đưa `.env` vào zip (secret nằm trên Coolify env). Giữ `.env.example` trong repo GitHub.
+- Zip bình thường ~**80–120MB** (không `vendor`). Nếu >200MB hoặc thấy đường dẫn `themes/themes/themes/...` → dừng (`Ctrl+C`), chạy lại **bước 2** rồi zip với **`-y`**.
+
+**Bước 4 — Tải bằng trình duyệt:**
+
+`https://mlhub.vn/fullcode.zip`
+
+(hoặc `https://www.mlhub.vn/fullcode.zip`)
+
+**Bước 5 — Xóa file ngay sau khi tải xong (bắt buộc):**
+
+```bash
+rm -f /var/www/html/public/fullcode.zip
+```
+
+Kiểm tra đã xóa (trình duyệt hoặc):
+
+```bash
+ls -la /var/www/html/public/fullcode.zip
+# phải báo: No such file or directory
+```
+
+**Lưu ý:**
+
+- Máy local nếu Git báo hàng chục nghìn file `public/resources/themes/themes/...`: **đừng commit** — chạy `rm -rf public/resources/themes` rồi `git restore public/resources/themes` (hoặc deploy lại để entrypoint tạo symlink).
+- Không commit `public/fullcode.zip` lên GitHub.
+- Uploads thật của khách nằm ở volume `storage/` — zip trên thường **không** gồm toàn bộ `storage/app` nếu mount volume riêng; cần backup storage thì dùng snapshot volume Coolify.
+- So sánh code với bản gốc marketplace: ưu tiên `git diff` trên máy local từ repo GitHub, không dựa vào zip server làm nguồn chính.
 
 ---
 

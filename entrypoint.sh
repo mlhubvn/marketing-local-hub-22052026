@@ -107,6 +107,9 @@ mkdir -p storage/app/public/files
 chown -R www-data:www-data storage/app/public
 chmod -R 775 storage/app/public
 mkdir -p public/resources
+# public/resources/themes must be a symlink to ../../resources/themes (not a real directory).
+# If a folder already exists, `ln` can create themes/themes/... and `zip -r` loops to hundreds of MB.
+rm -rf public/resources/themes
 ln -sfn ../../resources/themes public/resources/themes
 
 chown -h www-data:www-data public/storage 2>/dev/null || true
