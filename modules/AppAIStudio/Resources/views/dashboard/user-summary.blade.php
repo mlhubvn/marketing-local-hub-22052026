@@ -72,7 +72,7 @@
                 @foreach ($supportTools as $tool)
                     <a href="{{ $tool['route'] }}" wire:navigate class="flex items-center justify-between gap-3 rounded-xl border px-4 py-3 transition hover:-translate-y-px" style="border-color: rgba(var(--theme-border-color-rgb),0.56); background-color: rgba(var(--theme-surface-bg-rgb),0.45);">
                         <span class="min-w-0 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $tool['label'] }}</span>
-                        <span class="inline-flex shrink-0 items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em]" style="color: #0f766e;">
+                        <span class="inline-flex shrink-0 items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-accent);">
                             {{ __('Open') }}
                             <i class="fa-light fa-arrow-right"></i>
                         </span>

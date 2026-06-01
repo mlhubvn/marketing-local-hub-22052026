@@ -524,6 +524,10 @@ if (! function_exists('format_date_locale')) {
      */
     function format_date_locale(mixed $date, ?string $format = null): string
     {
+        if ($date instanceof Illuminate\Support\Optional) {
+            $date = $date->value();
+        }
+
         if (empty($date)) {
             return '';
         }
@@ -548,6 +552,10 @@ if (! function_exists('format_datetime_locale')) {
      */
     function format_datetime_locale(mixed $date, ?string $format = null): string
     {
+        if ($date instanceof Illuminate\Support\Optional) {
+            $date = $date->value();
+        }
+
         if (empty($date)) {
             return '';
         }

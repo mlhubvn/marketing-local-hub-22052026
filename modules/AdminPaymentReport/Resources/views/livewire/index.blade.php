@@ -1,5 +1,10 @@
 @php
+    use Modules\AdminPlans\Support\CurrencyCatalog;
+
     $hasLatestPayments = $latestPayments->isNotEmpty();
+    $defaultCurrency = CurrencyCatalog::normalizeCode(platform_format_settings()['default_currency'] ?? 'VND');
+    $currencySymbol = CurrencyCatalog::symbolFor($defaultCurrency);
+    $revenueChartTooltip = '<b>{point.y:,.0f} '.e(trim($currencySymbol)).'</b>';
 
     $dailyCategories = collect($incomeByDay)->map(fn ($day) => $day['label'])->all();
     $dailyRevenueSeries = collect($incomeByDay)->map(fn ($day) => (float) $day['total'])->all();
@@ -36,35 +41,35 @@
     $reportMetricCards = [
         [
             'label' => __('Total income'),
-            'value' => '$'.number_format($info['total_income'], 2),
+            'value' => format_money($info['total_income'], $defaultCurrency),
             'description' => __('Gross successful payment value in the selected range.'),
             'tone' => 'var(--theme-accent)',
             'progress' => 100,
         ],
         [
             'label' => __('Net income'),
-            'value' => '$'.number_format($info['net_income'], 2),
+            'value' => format_money($info['net_income'], $defaultCurrency),
             'description' => __('Successful income minus refunded amount.'),
             'tone' => '#0ea5e9',
             'progress' => 100,
         ],
         [
             'label' => __('Transactions'),
-            'value' => number_format($info['total_transactions']),
+            'value' => format_number_locale((int) $info['total_transactions']),
             'description' => __('All successful, refunded, and pending payment records.'),
             'tone' => '#6366f1',
             'progress' => 100,
         ],
         [
-            'label' => __('AOV'),
-            'value' => '$'.number_format($info['avg_order_value'], 2),
+            'label' => __('Average order value'),
+            'value' => format_money($info['avg_order_value'], $defaultCurrency),
             'description' => __('Average order value for successful payments.'),
             'tone' => '#10b981',
             'progress' => 100,
         ],
         [
             'label' => __('Refund rate'),
-            'value' => number_format($info['refund_rate'], 2).'%',
+            'value' => format_number_locale((float) $info['refund_rate'], 2).'%',
             'description' => __('Refunded transaction share in current period.'),
             'tone' => '#f43f5e',
             'progress' => min(100, max(8, (int) round($info['refund_rate']))),
@@ -86,7 +91,7 @@
             'name' => __('Revenue'),
             'data' => $dailyRevenueSeries,
         ]],
-        'tooltip' => ['pointFormat' => '<b>${point.y:.2f}</b>'],
+        'tooltip' => ['pointFormat' => $revenueChartTooltip],
     ];
 
     $dailyTxOptions = [
@@ -108,7 +113,7 @@
             'name' => __('Revenue'),
             'data' => $hourlyRevenueSeries,
         ]],
-        'tooltip' => ['pointFormat' => '<b>${point.y:.2f}</b>'],
+        'tooltip' => ['pointFormat' => $revenueChartTooltip],
     ];
 
     $weekdayOptions = [
@@ -137,7 +142,7 @@
             'name' => __('Revenue'),
             'data' => $planRevenueSeries,
         ]],
-        'tooltip' => ['pointFormat' => '<b>${point.y:.2f}</b>'],
+        'tooltip' => ['pointFormat' => $revenueChartTooltip],
     ];
 @endphp
 
@@ -181,17 +186,17 @@
                     {{ __('Income growth') }}: {{ $info['income_growth'] >= 0 ? '+' : '' }}{{ $info['income_growth'] }}%
                 </span>
                 <span class="inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium" style="border-color: var(--theme-border-color); color: var(--theme-muted-text-color);">
-                    {{ __('Active days') }}: {{ number_format($info['active_days']) }}
+                    {{ __('Active days') }}: {{ format_number_locale((int) $info['active_days']) }}
                 </span>
             </x-slot:chips>
         </x-ui.filter-panel>
     </div>
 
     <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <x-ui.notice-card variant="info" icon="fa-light fa-chart-line" :title="__('Average daily income')" :description="'$'.number_format($averageDailyIncome, 2)" />
-        <x-ui.notice-card variant="success" icon="fa-light fa-trophy-star" :title="__('Peak day')" :description="($peakDay['label'] ?? __('N/A')).' · $'.number_format((float) ($peakDay['total'] ?? 0), 2)" />
-        <x-ui.notice-card variant="warning" icon="fa-light fa-clock" :title="__('Peak hour')" :description="($peakHour['label'] ?? __('N/A')).' · $'.number_format((float) ($peakHour['total'] ?? 0), 2)" />
-        <x-ui.notice-card variant="success" icon="fa-light fa-calendar-star" :title="__('Best weekday')" :description="($bestWeekday['label'] ?? __('N/A')).' · $'.number_format((float) ($bestWeekday['total'] ?? 0), 2)" />
+        <x-ui.notice-card variant="info" icon="fa-light fa-chart-line" :title="__('Average daily income')" :description="format_money($averageDailyIncome, $defaultCurrency)" />
+        <x-ui.notice-card variant="success" icon="fa-light fa-trophy-star" :title="__('Peak day')" :description="($peakDay['label'] ?? __('N/A')).' · '.format_money((float) ($peakDay['total'] ?? 0), $defaultCurrency)" />
+        <x-ui.notice-card variant="warning" icon="fa-light fa-clock" :title="__('Peak hour')" :description="($peakHour['label'] ?? __('N/A')).' · '.format_money((float) ($peakHour['total'] ?? 0), $defaultCurrency)" />
+        <x-ui.notice-card variant="success" icon="fa-light fa-calendar-star" :title="__('Best weekday')" :description="($bestWeekday['label'] ?? __('N/A')).' · '.format_money((float) ($bestWeekday['total'] ?? 0), $defaultCurrency)" />
     </div>
 
     <div class="grid gap-5 xl:grid-cols-2">
@@ -275,7 +280,7 @@
                                 <p class="mt-2 text-xs" style="color: var(--theme-muted-text-color);">{{ $payment->plan?->name ?: __('No plan') }} / {{ $payment->from ?: __('Unknown gateway') }}</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $payment->currency ?: 'USD' }} {{ number_format((float) $payment->amount, 2) }}</p>
+                                <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ format_money((float) $payment->amount, $payment->currency ?: $defaultCurrency) }}</p>
                                 <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $payment->createdAtFormatted() ?: __('N/A') }}</p>
                             </div>
                         </div>

@@ -26,7 +26,26 @@
                         </x-slot:meta>
                     @endif
 
-                    <div class="mb-4 flex flex-wrap items-center gap-3">
+                    <div
+                        class="mb-4 flex flex-wrap items-center gap-3"
+                        x-data="{
+                            copied: false,
+                            async copyLog() {
+                                const el = document.getElementById('admin-log-preview');
+                                const text = el?.innerText?.trim() ?? '';
+                                if (text === '') {
+                                    return;
+                                }
+                                try {
+                                    await navigator.clipboard.writeText(text);
+                                    this.copied = true;
+                                    setTimeout(() => this.copied = false, 1400);
+                                } catch (e) {
+                                    // ignore — clipboard may be blocked without HTTPS
+                                }
+                            },
+                        }"
+                    >
                         <x-ui.button type="button" variant="outline" wire:click="refresh" wire:loading.attr="disabled">
                             <i class="fa-light fa-rotate-right"></i>
                             <span>{{ __('Refresh') }}</span>
@@ -35,6 +54,11 @@
                         <x-ui.button type="button" variant="secondary" wire:click="download('{{ $selectedFile }}')" wire:loading.attr="disabled">
                             <i class="fa-light fa-download"></i>
                             <span>{{ __('Download') }}</span>
+                        </x-ui.button>
+
+                        <x-ui.button type="button" variant="outline" x-on:click="copyLog()">
+                            <i class="fa-light" x-bind:class="copied ? 'fa-check' : 'fa-copy'"></i>
+                            <span x-text="copied ? @js(__('Copied')) : @js(__('Copy'))"></span>
                         </x-ui.button>
 
                         <x-ui.dialog wire:key="log-clear-{{ $selectedFile }}" :title="__('Clear this log file?')" :description="__('This empties the file contents but keeps the file. This cannot be undone.')" width="sm">
@@ -70,7 +94,7 @@
                         </x-ui.dialog>
                     </div>
 
-                    <pre class="max-h-[32rem] overflow-auto rounded-lg bg-zinc-950 p-4 text-xs leading-relaxed text-zinc-100 whitespace-pre-wrap break-words">{{ filled($content) ? $content : __('This log file is empty.') }}</pre>
+                    <pre id="admin-log-preview" class="max-h-[32rem] overflow-auto rounded-lg bg-zinc-950 p-4 text-xs leading-relaxed text-zinc-100 whitespace-pre-wrap break-words">{{ filled($content) ? $content : __('This log file is empty.') }}</pre>
                 </x-theme.section-card>
             @endif
 
