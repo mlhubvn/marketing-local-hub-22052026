@@ -51,13 +51,13 @@ class MLHUBDemoVolume
             return;
         }
 
-        $chunkSize = 10000;
+        $chunkSize = 1500;
         $maxDaysAgo = max(7, $maxDaysAgo);
         $city = $cities[$campaignIndex % max(1, count($cities))];
         $ipSecond = ($campaignId % 200) + 1;
         $now = time();
         $inserted = 0;
-        $reportEvery = 100000;
+        $reportEvery = 50000;
 
         for ($offset = 1; $offset <= $count; $offset += $chunkSize) {
             $chunk = [];
@@ -240,11 +240,11 @@ class MLHUBDemoVolume
         }
 
         $chunk = [];
-        $chunkSize = 2000;
+        $chunkSize = 800;
         $now = time();
         $customerList = $customers->values();
         $maxDaysAgo = max(7, $maxDaysAgo);
-        $customerTotal = $customerList->count();
+        $customerTotal = max(1, $customerList->count());
 
         for ($index = 0; $index < $count; $index++) {
             $customer = $customerList[$index % $customerTotal];
