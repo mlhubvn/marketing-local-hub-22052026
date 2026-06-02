@@ -4,6 +4,7 @@ namespace Modules\AppPayments\Support;
 
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
+use Illuminate\Support\Facades\Schema;
 use Modules\AdminPaymentHistory\Models\PaymentHistory;
 use Modules\AdminPlans\Models\AdminPlan;
 use Modules\AdminUser\Models\User;
@@ -129,6 +130,10 @@ class UserPlanTransitionService
 
     public function activateDuePlans(): int
     {
+        if (! Schema::hasTable('users')) {
+            return 0;
+        }
+
         $count = 0;
 
         User::query()

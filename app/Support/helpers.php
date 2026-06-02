@@ -524,11 +524,19 @@ if (! function_exists('format_date_locale')) {
      */
     function format_date_locale(mixed $date, ?string $format = null): string
     {
+        while ($date instanceof Illuminate\Support\Optional) {
+            $date = $date->value();
+        }
+
         if (is_object($date) && ! $date instanceof DateTimeInterface && method_exists($date, 'value')) {
             $date = $date->value();
         }
 
         if ($date === null || $date === '') {
+            return '';
+        }
+
+        if ($date instanceof Illuminate\Support\Optional) {
             return '';
         }
 
@@ -556,11 +564,19 @@ if (! function_exists('format_datetime_locale')) {
      */
     function format_datetime_locale(mixed $date, ?string $format = null): string
     {
+        while ($date instanceof Illuminate\Support\Optional) {
+            $date = $date->value();
+        }
+
         if (is_object($date) && ! $date instanceof DateTimeInterface && method_exists($date, 'value')) {
             $date = $date->value();
         }
 
         if ($date === null || $date === '') {
+            return '';
+        }
+
+        if ($date instanceof Illuminate\Support\Optional) {
             return '';
         }
 
