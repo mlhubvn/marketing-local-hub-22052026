@@ -15,29 +15,24 @@ use Modules\AppReviewBooster\Models\ReviewFeedback;
 
 class PortalGrowthDashboardMetrics
 {
-    public static function remember(int $userId): array
+    public static function rememberMetrics(int $userId): array
     {
-        $campaignIds = QrCampaign::query()->where('user_id', $userId)->pluck('id');
+        return Cache::remember(
+            "portal.growth_metrics.v1.{$userId}",
+            now()->addMinutes(15),
+            function () use ($userId): array {
+                $campaignIds = QrCampaign::query()->where('user_id', $userId)->pluck('id');
 
-        return [
-            'metrics' => Cache::remember(
-                "portal.growth_metrics.v1.{$userId}",
-                now()->addMinutes(15),
-                fn (): array => self::metrics($userId, $campaignIds),
-            ),
-            'recentActivity' => self::recentActivity($campaignIds),
-            'topCampaigns' => Cache::remember(
-                "portal.top_campaigns.v1.{$userId}",
-                now()->addMinutes(15),
-                fn (): Collection => self::topCampaigns($userId, $campaignIds),
-            ),
-        ];
+                return self::metrics($userId, $campaignIds);
+            },
+        );
     }
 
     public static function forget(int $userId): void
     {
         Cache::forget("portal.growth_metrics.v1.{$userId}");
         Cache::forget("portal.top_campaigns.v1.{$userId}");
+        Cache::forget("portal.recent_activity.v1.{$userId}");
         Cache::forget("portal.plan_usage.v1.{$userId}");
     }
 
@@ -102,7 +97,33 @@ class PortalGrowthDashboardMetrics
         ];
     }
 
-    protected static function recentActivity(Collection $campaignIds): Collection
+    public static function recentActivity(int $userId, int $limit = 8): Collection
+    {
+        return Cache::remember(
+            "portal.recent_activity.v1.{$userId}.{$limit}",
+            now()->addMinutes(10),
+            function () use ($userId, $limit): Collection {
+                $campaignIds = QrCampaign::query()->where('user_id', $userId)->pluck('id');
+
+                return self::recentActivityImpl($campaignIds, $limit);
+            },
+        );
+    }
+
+    public static function topCampaigns(int $userId): Collection
+    {
+        return Cache::remember(
+            "portal.top_campaigns.v1.{$userId}",
+            now()->addMinutes(15),
+            function () use ($userId): Collection {
+                $campaignIds = QrCampaign::query()->where('user_id', $userId)->pluck('id');
+
+                return self::topCampaignsImpl($userId, $campaignIds);
+            },
+        );
+    }
+
+    protected static function recentActivityImpl(Collection $campaignIds, int $limit): Collection
     {
         if ($campaignIds->isEmpty()) {
             return collect();
@@ -111,13 +132,13 @@ class PortalGrowthDashboardMetrics
         $campaigns = QrCampaign::query()->with('business')->whereIn('id', $campaignIds)->get()->keyBy('id');
 
         return collect()
-            ->merge(LeadSubmission::query()->whereIn('campaign_id', $campaignIds)->latest()->limit(8)->get()->map(fn ($lead): array => self::activityRow($lead->name, __('submitted a lead'), $lead->campaign_id, $lead->created_at, $campaigns, 'fa-user-plus')))
-            ->merge(Booking::query()->whereIn('campaign_id', $campaignIds)->latest()->limit(8)->get()->map(fn ($booking): array => self::activityRow($booking->customer_name, __('booked an appointment'), $booking->campaign_id, $booking->created_at, $campaigns, 'fa-calendar-check')))
-            ->merge(CouponRedemption::query()->whereIn('campaign_id', $campaignIds)->latest()->limit(8)->get()->map(fn ($coupon): array => self::activityRow($coupon->customer_name, __('claimed a coupon'), $coupon->campaign_id, $coupon->created_at, $campaigns, 'fa-ticket')))
-            ->merge(ReviewFeedback::query()->whereIn('campaign_id', $campaignIds)->latest()->limit(8)->get()->map(fn ($review): array => self::activityRow($review->customer_name ?: __('Guest'), $review->rating >= 4 ? __('clicked review') : __('sent private feedback'), $review->campaign_id, $review->created_at, $campaigns, $review->rating >= 4 ? 'fa-star' : 'fa-message-lines')))
-            ->merge(FeedbackResponse::query()->whereIn('campaign_id', $campaignIds)->latest()->limit(8)->get()->map(fn ($feedback): array => self::activityRow($feedback->customer_name ?: __('Guest'), __('sent feedback'), $feedback->campaign_id, $feedback->created_at, $campaigns, 'fa-comments')))
+            ->merge(LeadSubmission::query()->whereIn('campaign_id', $campaignIds)->latest()->limit($limit)->get()->map(fn ($lead): array => self::activityRow($lead->name, __('submitted a lead'), $lead->campaign_id, $lead->created_at, $campaigns, 'fa-user-plus')))
+            ->merge(Booking::query()->whereIn('campaign_id', $campaignIds)->latest()->limit($limit)->get()->map(fn ($booking): array => self::activityRow($booking->customer_name, __('booked an appointment'), $booking->campaign_id, $booking->created_at, $campaigns, 'fa-calendar-check')))
+            ->merge(CouponRedemption::query()->whereIn('campaign_id', $campaignIds)->latest()->limit($limit)->get()->map(fn ($coupon): array => self::activityRow($coupon->customer_name, __('claimed a coupon'), $coupon->campaign_id, $coupon->created_at, $campaigns, 'fa-ticket')))
+            ->merge(ReviewFeedback::query()->whereIn('campaign_id', $campaignIds)->latest()->limit($limit)->get()->map(fn ($review): array => self::activityRow($review->customer_name ?: __('Guest'), $review->rating >= 4 ? __('clicked review') : __('sent private feedback'), $review->campaign_id, $review->created_at, $campaigns, $review->rating >= 4 ? 'fa-star' : 'fa-message-lines')))
+            ->merge(FeedbackResponse::query()->whereIn('campaign_id', $campaignIds)->latest()->limit($limit)->get()->map(fn ($feedback): array => self::activityRow($feedback->customer_name ?: __('Guest'), __('sent feedback'), $feedback->campaign_id, $feedback->created_at, $campaigns, 'fa-comments')))
             ->sortByDesc('time')
-            ->take(8)
+            ->take($limit)
             ->values();
     }
 
@@ -138,7 +159,7 @@ class PortalGrowthDashboardMetrics
         ];
     }
 
-    protected static function topCampaigns(int $userId, Collection $campaignIds): Collection
+    protected static function topCampaignsImpl(int $userId, Collection $campaignIds): Collection
     {
         if ($campaignIds->isEmpty()) {
             return collect();

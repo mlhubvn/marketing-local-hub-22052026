@@ -16,6 +16,12 @@ use Modules\AppQRCampaigns\Models\QrCampaign;
 #[Title('User Dashboard')]
 class Dashboard extends Component
 {
+    public array $recentActivity = [];
+    public array $topCampaigns = [];
+
+    public int $recentActivityLimit = 8;
+    public bool $recentActivityHasMore = false;
+
     /**
      * @param  array<int, string>  $itemIds
      */
@@ -35,12 +41,13 @@ class Dashboard extends Component
     {
         $user = auth()->user();
         $userId = $user?->id;
+
         $growthDashboard = $userId
-            ? PortalGrowthDashboardMetrics::remember((int) $userId)
+            ? [
+                'metrics' => PortalGrowthDashboardMetrics::rememberMetrics((int) $userId),
+            ]
             : [
                 'metrics' => [],
-                'recentActivity' => collect(),
-                'topCampaigns' => collect(),
             ];
         $onboarding = $this->onboarding($userId, $growthDashboard);
 
@@ -61,6 +68,38 @@ class Dashboard extends Component
         ])->layout(theme_view('layouts.app', 'app'), [
             'title' => __('User Dashboard'),
         ]);
+    }
+
+    public function loadTopCampaigns(): void
+    {
+        $userId = auth()->id();
+
+        if (! $userId) {
+            return;
+        }
+
+        $this->topCampaigns = PortalGrowthDashboardMetrics::topCampaigns((int) $userId)->values()->all();
+    }
+
+    public function loadRecentActivity(): void
+    {
+        $userId = auth()->id();
+
+        if (! $userId) {
+            return;
+        }
+
+        $items = PortalGrowthDashboardMetrics::recentActivity((int) $userId, $this->recentActivityLimit);
+
+        $this->recentActivity = $items->values()->all();
+        $this->recentActivityHasMore = count($this->recentActivity) >= $this->recentActivityLimit;
+    }
+
+    public function loadMoreRecentActivity(): void
+    {
+        $this->recentActivityLimit = min(64, $this->recentActivityLimit + 8);
+
+        $this->loadRecentActivity();
     }
 
     protected function onboarding(?int $userId, array $growthDashboard): array

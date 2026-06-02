@@ -9,8 +9,8 @@
     $portalUser = auth()->user();
     $portalName = $portalUser?->name ?: $portalUser?->username ?: __('Operator');
     $growthMetrics = $growthDashboard['metrics'] ?? [];
-    $recentActivity = $growthDashboard['recentActivity'] ?? collect();
-    $topCampaigns = $growthDashboard['topCampaigns'] ?? collect();
+    $recentActivity = $this->recentActivity ?? [];
+    $topCampaigns = $this->topCampaigns ?? [];
     $onboardingSteps = $onboarding['steps'] ?? [];
     $onboardingPercent = (int) ($onboarding['percent'] ?? 0);
     $onboardingComplete = (bool) ($onboarding['is_complete'] ?? false);
@@ -228,7 +228,7 @@
             ['label' => __('Bookings'), 'value' => $growthMetrics['bookings'] ?? 0, 'description' => __('Appointment requests'), 'icon' => 'fa-light fa-calendar-check', 'accent' => 'var(--theme-accent)', 'format' => 'number'],
             ['label' => __('Coupon Claims'), 'value' => $growthMetrics['coupon_claims'] ?? 0, 'description' => __('Claimed offers'), 'icon' => 'fa-light fa-ticket', 'accent' => 'var(--theme-accent)', 'format' => 'number'],
             ['label' => __('Feedback'), 'value' => $growthMetrics['feedback'] ?? 0, 'description' => __('Private responses'), 'icon' => 'fa-light fa-message-lines', 'accent' => 'var(--theme-accent)', 'format' => 'number'],
-            ['label' => __('Recent Activity'), 'value' => $recentActivity->count(), 'description' => __('Latest signals'), 'icon' => 'fa-light fa-clock-rotate-left', 'accent' => 'var(--theme-accent)', 'format' => 'number'],
+            ['label' => __('Recent Activity'), 'value' => count($recentActivity), 'description' => __('Latest signals'), 'icon' => 'fa-light fa-clock-rotate-left', 'accent' => 'var(--theme-accent)', 'format' => 'number'],
         ] as $metric)
             <article class="rounded-[1rem] border bg-white p-4 shadow-sm" style="border-color: rgba(var(--theme-border-color-rgb),0.72); border-top: 4px solid {{ $metric['accent'] }};">
                 <div class="flex items-start justify-between gap-4">
@@ -262,39 +262,47 @@
                 </div>
                 <x-ui.button href="{{ route('portal.reports') }}" variant="outline" size="sm" wire:navigate>{{ __('Open Reports') }}</x-ui.button>
             </div>
-            @if ($topCampaigns->count() > 0)
-                <div class="overflow-x-auto">
-                    <table class="min-w-full text-left text-sm">
-                        <thead style="color: var(--theme-muted-text-color);">
-                            <tr>
-                                <th class="px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em]">{{ __('Campaign') }}</th>
-                                <th class="px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em]">{{ __('Business') }}</th>
-                                <th class="px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em]">{{ __('Visits') }}</th>
-                                <th class="px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em]">{{ __('Conversions') }}</th>
-                                <th class="px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em]">{{ __('Rate') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y" style="border-color: rgba(var(--theme-border-color-rgb),0.58);">
-                            @foreach ($topCampaigns as $row)
-                                <tr>
-                                    <td class="px-5 py-4">
-                                        <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $row['campaign']->name }}</p>
-                                        <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ str($row['campaign']->type)->headline() }}</p>
-                                    </td>
-                                    <td class="px-5 py-4" style="color: var(--theme-muted-text-color);">{{ $row['campaign']->business?->name ?: __('No business') }}</td>
-                                    <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($row['visits']) }}</td>
-                                    <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($row['conversions']) }}</td>
-                                    <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_percent_locale($row['conversion_rate']) }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+            <div wire:init="loadTopCampaigns">
+                <div class="px-5 py-8" wire:loading wire:target="loadTopCampaigns">
+                    <div style="color: var(--theme-muted-text-color);">{{ __('Loading top campaigns...') }}</div>
                 </div>
-            @else
-                <div class="px-5 py-8">
-                    <x-ui.empty :title="__('No campaign performance yet')" :description="__('Create a review, booking, coupon, feedback, or lead campaign to start seeing top campaigns.')" />
+
+                <div wire:loading.remove wire:target="loadTopCampaigns">
+                    @if (count($topCampaigns) > 0)
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-left text-sm">
+                                <thead style="color: var(--theme-muted-text-color);">
+                                    <tr>
+                                        <th class="px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em]">{{ __('Campaign') }}</th>
+                                        <th class="px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em]">{{ __('Business') }}</th>
+                                        <th class="px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em]">{{ __('Visits') }}</th>
+                                        <th class="px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em]">{{ __('Conversions') }}</th>
+                                        <th class="px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em]">{{ __('Rate') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y" style="border-color: rgba(var(--theme-border-color-rgb),0.58);">
+                                    @foreach ($topCampaigns as $row)
+                                        <tr>
+                                            <td class="px-5 py-4">
+                                                <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $row['campaign']->name }}</p>
+                                                <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ str($row['campaign']->type)->headline() }}</p>
+                                            </td>
+                                            <td class="px-5 py-4" style="color: var(--theme-muted-text-color);">{{ $row['campaign']->business?->name ?: __('No business') }}</td>
+                                            <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($row['visits']) }}</td>
+                                            <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($row['conversions']) }}</td>
+                                            <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_percent_locale($row['conversion_rate']) }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="px-5 py-8">
+                            <x-ui.empty :title="__('No campaign performance yet')" :description="__('Create a review, booking, coupon, feedback, or lead campaign to start seeing top campaigns.')" />
+                        </div>
+                    @endif
                 </div>
-            @endif
+            </div>
         </div>
 
         <div class="overflow-hidden rounded-[1.25rem] border bg-white shadow-sm" style="border-color: rgba(var(--theme-border-color-rgb),0.7);">
@@ -302,21 +310,43 @@
                 <h2 class="text-base font-semibold" style="color: var(--theme-header-text-color);">{{ __('Recent Activity') }}</h2>
                 <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Latest growth events across campaign pages.') }}</p>
             </div>
-            <div class="grid gap-3 p-5">
-                @forelse ($recentActivity as $item)
-                    <div class="flex gap-3 rounded-xl border p-3" style="border-color: rgba(var(--theme-border-color-rgb),0.62); background: rgba(var(--theme-surface-bg-rgb),0.55);">
-                        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background: rgba(var(--theme-accent-rgb),0.1); color: var(--theme-accent);">
-                            <i class="fa-light {{ $item['icon'] }}"></i>
-                        </span>
-                        <div class="min-w-0">
-                            <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $item['customer'] }} {{ $item['action'] }}</p>
-                            <p class="mt-1 truncate text-xs" style="color: var(--theme-muted-text-color);">{{ $item['business'] }} · {{ $item['campaign'] }}</p>
-                            <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $item['time']?->diffForHumans() }}</p>
-                        </div>
+            <div wire:init="loadRecentActivity">
+                <div class="grid gap-3 p-5" wire:loading wire:target="loadRecentActivity">
+                    <div style="color: var(--theme-muted-text-color);">{{ __('Loading recent activity...') }}</div>
+                </div>
+
+                <div wire:loading.remove wire:target="loadRecentActivity">
+                    <div class="grid gap-3 p-5">
+                        @forelse ($recentActivity as $item)
+                            <div class="flex gap-3 rounded-xl border p-3" style="border-color: rgba(var(--theme-border-color-rgb),0.62); background: rgba(var(--theme-surface-bg-rgb),0.55);">
+                                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background: rgba(var(--theme-accent-rgb),0.1); color: var(--theme-accent);">
+                                    <i class="fa-light {{ $item['icon'] }}"></i>
+                                </span>
+                                <div class="min-w-0">
+                                    <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $item['customer'] }} {{ $item['action'] }}</p>
+                                    <p class="mt-1 truncate text-xs" style="color: var(--theme-muted-text-color);">{{ $item['business'] }} · {{ $item['campaign'] }}</p>
+                                    <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $item['time']?->diffForHumans() }}</p>
+                                </div>
+                            </div>
+                        @empty
+                            <x-ui.empty :title="__('No recent activity yet')" :description="__('Lead, booking, coupon, review, and feedback events will appear here.')" />
+                        @endforelse
                     </div>
-                @empty
-                    <x-ui.empty :title="__('No recent activity yet')" :description="__('Lead, booking, coupon, review, and feedback events will appear here.')" />
-                @endforelse
+
+                    @if ($recentActivityHasMore && $recentActivityLimit < 64)
+                        <div class="px-5 pb-5">
+                            <x-ui.button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                wire:click="loadMoreRecentActivity"
+                                wire:loading.attr="disabled"
+                            >
+                                {{ __('Load more') }}
+                            </x-ui.button>
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
     </section>
