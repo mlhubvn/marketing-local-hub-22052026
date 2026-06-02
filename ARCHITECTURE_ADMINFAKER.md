@@ -98,8 +98,8 @@ flowchart TB
 | ✓ | Coupon | `lb_coupon_redemptions` | ↑ | ↑ | ~900+ | ✓ |
 | ✓ | Review | `lb_review_feedbacks` | ↑ | ↑ | ~1k+ | ✓ |
 | ✓ | Feedback | `lb_feedback_responses` | ↑ | ↑ | ~600+ | ✓ |
-| ✓ | FAQ | `faqs` | `MLHUBMarketingDemoFaker` | `marketing.faqs` + generator | **250** | ✓ `demo-preview-*` |
-| ✓ | Blog | `blogs` | ↑ | `marketing.blogs` + generator | **250** (6 danh mục, 8 tag) | ✓ |
+| ✓ | FAQ | `faqs` | `MLHUBMarketingDemoFaker` | `marketing.faqs` + generator | **150** | ✓ `demo-preview-*` |
+| ✓ | Blog | `blogs` | ↑ | `marketing.blogs` + generator | **150** (6 danh mục, 8 tag) | ✓ |
 | ✓ | Support | `support_tickets` + comments | ↑ | `marketing.support_tickets` | **6** | ✓ `[DEMO]%` |
 | ✓ | Affiliate | commissions / withdrawals | ↑ | (code) | 3 + 2 | ✓ marker |
 | ✓ | Thông báo global | `notification_manuals` | ↑ | `marketing.global_notifications` | **7** | ✓ `[DEMO]%` |
@@ -171,7 +171,7 @@ Sửa tên/địa chỉ/SĐT tại `businesses` + `locations` trong `mlhub_admin
 5. **Chiến dịch QR** — tối thiểu **5** growth-tool / cơ sở (review, lead, coupon, feedback, booking/url).
 6. Mở **analytics** 1 campaign review + 1 coupon (volume ~10M tổng).
 7. **Landing pages** — sync từ campaign + trang độc lập theo cơ sở.
-8. **Khách hàng** — **11.000** CRM (mô phỏng 1–2 năm; ~1.000 khách/cơ sở).
+8. **Khách hàng** — **~6.600** CRM (mô phỏng 1–2 năm; ~600 khách/cơ sở).
 9. Mở **1 funnel live** (URL public campaign) — form review/lead.
 10. (Tuỳ chọn) Guest site: FAQ/blog; Admin: support + notification.
 
@@ -180,17 +180,17 @@ Sửa tên/địa chỉ/SĐT tại `businesses` + `locations` trong `mlhub_admin
 ## 9. Chỉnh volume (không sửa Blade/PHP service)
 
 1. Sửa `database/seeders/data/mlhub_adminfaker_dn_soho.php` (`meta`):
-   - `target_qr_visits` — **10000000** (~10M quét; hệ số nhân tự tính từ tổng baseline campaign)
+   - `target_qr_visits` — **6000000** (~6M quét, ~60% bản 10M; hệ số nhân tự tính)
    - `site_count` — **11** cơ sở; `min_campaigns_per_site` — **5**
-   - `customer_target` — **11000** (~1k khách/cơ sở, 1–2 năm)
-   - `volume_scale` — **20** (CRM, loyalty, affiliate)
+   - `customer_target` — **6600** (~600 khách/cơ sở)
+   - `volume_scale` — **12**; `engagement_insert_cap` — **2400** / chiến dịch
    - `engagement_max_days_ago` — **730** (24 tháng timeline)
-   - `marketing_faq_target` / `marketing_blog_target` — **250** FAQ + **250** blog (nội dung MLHUB, SOHO, Đà Nẵng)
+   - `marketing_faq_target` / `marketing_blog_target` — **150** + **150**
    - `metrics_multiplier` — fallback nếu `target_qr_visits` = 0
 2. Mở rộng runtime: `modules/AdminFaker/Support/MLHUBEnterpriseDemoExpander.php` (thêm cơ sở/campaign/landing thiếu).
 3. Chạy: `php artisan admin-faker:refresh` hoặc `php artisan mlhub:reset-demo --force` (chỉ pilot; `MLHUB_ALLOW_RESET_DEMO=true`).
 
-**Lưu ý load-test:** ~**10M** `lb_qr_scans` + hàng triệu lead/booking/review/feedback — seed **20–60 phút**. Pilot: `max_execution_time` ≥ **3600**, `memory_limit` ≥ **1024M**, MySQL buffer pool lớn, disk đủ.
+**Lưu ý load-test:** ~**6M** `lb_qr_scans` (~60% bản full), engagement cap **2400**/chiến dịch — seed **12–25 phút**. Sau seed: `php artisan optimize` (không chỉ `optimize:clear`). Pilot: `max_execution_time` ≥ **3600**, `memory_limit` ≥ **1024M**.
 
 ---
 

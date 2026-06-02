@@ -21,7 +21,7 @@ class RefreshAdminFakerCommand extends Command
         DB::connection()->disableQueryLog();
         MLHUBDemoSeedProgress::bind($this->output);
 
-        $this->info('Bắt đầu Admin Faker (enterprise có thể chạy 20–40 phút — xem dòng log bên dưới).');
+        $this->info('Bắt đầu Admin Faker (~6M QR, ~60% volume — khoảng 12–25 phút, xem log bên dưới).');
         $this->newLine();
 
         $result = $faker->seedForFirstUser(! $this->option('no-clear'));
