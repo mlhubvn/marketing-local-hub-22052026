@@ -44,6 +44,7 @@ class MLHUBResetDemoCommand extends Command
         $this->call('db:seed', ['--class' => \Database\Seeders\MLHUBDemoExtrasSeeder::class, '--force' => true]);
 
         $this->call('optimize:clear');
+        $this->call('optimize');
 
         $this->newLine();
         $this->info('Hoàn tất. Đăng nhập: demo@mlhub.vn / 123456 (super admin + demo đầy đủ).');

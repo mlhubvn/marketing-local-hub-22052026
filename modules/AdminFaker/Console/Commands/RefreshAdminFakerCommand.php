@@ -39,6 +39,10 @@ class RefreshAdminFakerCommand extends Command
             $this->line(sprintf('- %s: %s', $key, (string) $value));
         }
 
+        $this->newLine();
+        $this->warn('Không chạy `optimize:clear` một mình trên production — sẽ mất routes cache và không login được.');
+        $this->line('Nếu đã chạy nhầm: `php artisan optimize` để khôi phục.');
+
         return self::SUCCESS;
     }
 }
