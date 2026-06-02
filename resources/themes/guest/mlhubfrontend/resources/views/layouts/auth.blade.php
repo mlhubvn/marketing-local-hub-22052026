@@ -21,7 +21,6 @@
     <body class="lb-auth-page min-h-screen antialiased">
         <div class="relative min-h-screen overflow-hidden px-4 py-6 sm:px-6 lg:px-8">
             <div class="pointer-events-none absolute -right-28 top-20 h-80 w-80 rounded-full opacity-40 blur-3xl" style="background: var(--lb-lime);"></div>
-            <div class="pointer-events-none absolute -bottom-32 left-0 select-none font-serif text-[9rem] font-black leading-none text-neutral-100 sm:text-[14rem]">LocalBoost</div>
 
             <div class="lb-wrap relative grid min-h-[calc(100vh-3rem)] gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
                 <section class="hidden lg:block">

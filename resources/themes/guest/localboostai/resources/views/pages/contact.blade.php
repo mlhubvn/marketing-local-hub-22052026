@@ -23,7 +23,7 @@
             width: 28rem;
             height: 28rem;
             border-radius: 999px;
-            background: radial-gradient(circle, rgba(184, 218, 22, .22), transparent 68%);
+            background: radial-gradient(circle, rgba(225, 235, 22, .22), transparent 68%);
             filter: blur(12px);
         }
 

@@ -8,7 +8,7 @@
 
     $adminUser = auth()->user();
     $adminName = $adminUser?->name ?: __('Administrator');
-    $todayLabel = now()->translatedFormat('d M Y');
+    $todayLabel = format_date_locale(now());
     $quickActionIcons = [
         'users' => 'fa-users',
         'teams' => 'fa-user-group',

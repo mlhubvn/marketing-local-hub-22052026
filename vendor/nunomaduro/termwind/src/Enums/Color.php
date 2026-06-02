@@ -274,7 +274,7 @@ final class Color
 
     public const TEAL_200 = '#99f6e4';
 
-    public const TEAL_300 = '#5eead4';
+    public const TEAL_300 = '#ffb347';
 
     public const TEAL_400 = '#2dd4bf';
 

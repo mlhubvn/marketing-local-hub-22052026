@@ -50,7 +50,7 @@
         }
 
         html[data-theme-resolved='dark'] .lb-static-eyebrow {
-            border-color: rgba(184, 218, 22, .22) !important;
+            border-color: rgba(225, 235, 22, .22) !important;
             background: rgba(184, 218, 22, .12) !important;
             color: #d9f75d !important;
         }
@@ -81,7 +81,7 @@
 
         html[data-theme-resolved='dark'] .lb-static-content a,
         html[data-theme-resolved='dark'] .lb-static-content.prose a {
-            color: #5eead4 !important;
+            color: #ffb347 !important;
         }
     </style>
 

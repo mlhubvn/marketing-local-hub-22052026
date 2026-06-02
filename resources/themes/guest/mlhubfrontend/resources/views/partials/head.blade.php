@@ -1624,7 +1624,7 @@
     }
 
     html[data-theme-resolved='dark'] .prose :where(a):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-        color: #5eead4 !important;
+        color: #ffb347 !important;
     }
 </style>
 

@@ -20,7 +20,7 @@
             width: 28rem;
             height: 28rem;
             border-radius: 999px;
-            background: radial-gradient(circle, rgba(184, 218, 22, .22), transparent 68%);
+            background: radial-gradient(circle, rgba(225, 235, 22, .22), transparent 68%);
             filter: blur(12px);
         }
 
@@ -73,7 +73,7 @@
             overflow: hidden;
             background:
                 radial-gradient(circle at 12% 18%, rgba(255, 95, 95, .11), transparent 18rem),
-                radial-gradient(circle at 88% 80%, rgba(184, 218, 22, .22), transparent 18rem),
+                radial-gradient(circle at 88% 80%, rgba(225, 235, 22, .22), transparent 18rem),
                 rgba(255, 255, 252, .92);
         }
 

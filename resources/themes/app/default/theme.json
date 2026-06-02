@@ -80,7 +80,7 @@
             "dark_accent_color": {
                 "type": "color",
                 "label": "Dark accent color",
-                "default": "#5eead4"
+                "default": "#ffb347"
             },
             "dark_sidebar_bg_color": {
                 "type": "color",
@@ -100,7 +100,7 @@
             "dark_link_color": {
                 "type": "color",
                 "label": "Dark link color",
-                "default": "#5eead4"
+                "default": "#ffb347"
             },
             "dark_link_hover_color": {
                 "type": "color",

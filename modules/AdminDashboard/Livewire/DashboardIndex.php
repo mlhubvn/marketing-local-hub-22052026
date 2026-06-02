@@ -219,10 +219,6 @@ class DashboardIndex extends Component
 
     protected function formatMoney(float $value): string
     {
-        if ($value <= 0) {
-            return '$0';
-        }
-
-        return '$'.number_format($value, $value >= 1000 ? 0 : 2);
+        return format_money(max(0, $value));
     }
 }

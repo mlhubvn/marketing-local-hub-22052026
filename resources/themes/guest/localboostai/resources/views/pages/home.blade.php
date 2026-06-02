@@ -330,7 +330,7 @@
             position: absolute;
             inset: 0;
             z-index: -1;
-            background: linear-gradient(115deg, transparent 24%, rgba(255, 235, 22, .16) 48%, transparent 68%);
+            background: linear-gradient(115deg, transparent 24%, rgba(225, 235, 22, .22) 48%, transparent 68%);
             transform: translateX(-130%);
             animation: lb-card-sheen 5.4s ease-in-out infinite;
             animation-delay: calc(var(--lb-card-delay, 0ms) + 900ms);
@@ -397,7 +397,7 @@
             z-index: -1;
             border-radius: 2rem;
             background:
-                radial-gradient(circle at 50% 20%, rgba(184, 218, 22, .22), transparent 18rem),
+                radial-gradient(circle at 50% 20%, rgba(225, 235, 22, .22), transparent 18rem),
                 radial-gradient(circle at 80% 80%, rgba(15, 118, 110, .12), transparent 16rem);
             filter: blur(14px);
         }
@@ -444,7 +444,7 @@
             z-index: -1;
             border-radius: 3rem;
             background:
-                radial-gradient(circle at 20% 18%, rgba(184, 218, 22, .22), transparent 18rem),
+                radial-gradient(circle at 20% 18%, rgba(225, 235, 22, .22), transparent 18rem),
                 radial-gradient(circle at 78% 72%, rgba(15, 118, 110, .11), transparent 20rem);
             filter: blur(10px);
         }
@@ -452,7 +452,7 @@
         .lb-feature-hero {
             min-height: 100%;
             background:
-                linear-gradient(145deg, rgba(15, 118, 110, .08), rgba(255, 235, 22, .16)),
+                linear-gradient(145deg, rgba(15, 118, 110, .08), rgba(225, 235, 22, .22)),
                 #fffefb;
         }
 
@@ -512,7 +512,7 @@
         }
 
         .lb-proof-visual {
-            background: linear-gradient(145deg, rgba(15, 118, 110, .08), rgba(255, 235, 22, .16));
+            background: linear-gradient(145deg, rgba(15, 118, 110, .08), rgba(225, 235, 22, .22));
         }
 
         .lb-proof-node {
@@ -720,7 +720,7 @@
         html[data-theme-resolved='dark'] .lb-sales [style*="color: #506807"],
         html[data-theme-resolved='dark'] .lb-sales [style*="color:#506807"],
         html[data-theme-resolved='dark'] .lb-sales [style*="color: var(--lb-red)"] {
-            color: #5eead4 !important;
+            color: #ffb347 !important;
         }
 
         html[data-theme-resolved='dark'] .lb-suite-card::after,
@@ -736,7 +736,7 @@
         html[data-theme-resolved='dark'] .lb-feature-icon,
         html[data-theme-resolved='dark'] .lb-page-icon {
             background: color-mix(in srgb, var(--module-color, var(--lb-red)) 18%, rgba(15, 23, 42, .82)) !important;
-            color: #5eead4 !important;
+            color: #ffb347 !important;
             box-shadow: inset 0 0 0 1px rgba(94, 234, 212, .18);
         }
 

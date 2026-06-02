@@ -33,7 +33,7 @@
         .lb-blog-cover {
             background:
                 radial-gradient(circle at 20% 20%, rgba(255, 95, 95, .12), transparent 13rem),
-                radial-gradient(circle at 80% 70%, rgba(184, 218, 22, .22), transparent 12rem),
+                radial-gradient(circle at 80% 70%, rgba(225, 235, 22, .22), transparent 12rem),
                 rgba(255, 255, 252, .9);
         }
 
