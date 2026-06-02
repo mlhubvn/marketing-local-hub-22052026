@@ -56,8 +56,8 @@
         }
 
         .lb-page-link.is-active {
-            background: var(--lb-green);
-            border-color: var(--lb-green);
+            background: var(--lb-red);
+            border-color: var(--lb-red);
             color: #fff;
         }
 
@@ -97,7 +97,7 @@
         }
 
         html[data-theme-resolved='dark'] .lb-page-link.is-active {
-            border-color: #14a399 !important;
+            border-color: #ff5f5f !important;
             background: #0f766e !important;
             color: #fff !important;
         }
@@ -145,7 +145,7 @@
                                                     @foreach ([['fa-star', __('Reviews'), '4.9'], ['fa-qrcode', __('QR scans'), '284'], ['fa-user-plus', __('Leads'), '39']] as $item)
                                                         <div class="lb-blog-mini-card rounded-2xl border bg-white p-4" style="border-color: var(--lb-line);">
                                                             <div class="flex items-center justify-between gap-4">
-                                                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-green) 9%, #fff); color: var(--lb-green);">
+                                                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-red) 9%, #fff); color: var(--lb-red);">
                                                                     <i class="fa-light {{ $item[0] }}"></i>
                                                                 </span>
                                                                 <span class="text-2xl font-black">{{ $item[2] }}</span>
@@ -191,7 +191,7 @@
                                 ['fa-chart-line', __('Reports'), __('Measure conversion')],
                             ] as $topic)
                                 <div class="rounded-2xl border bg-white/80 p-4" style="border-color: var(--lb-line);">
-                                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-green) 9%, #fff); color: var(--lb-green);">
+                                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-red) 9%, #fff); color: var(--lb-red);">
                                         <i class="fa-light {{ $topic[0] }}"></i>
                                     </span>
                                     <p class="mt-4 text-sm font-black">{{ $topic[1] }}</p>
@@ -205,7 +205,7 @@
 
             <div class="mt-14 flex items-end justify-between gap-4">
                 <div>
-                    <p class="text-xs font-black uppercase tracking-[0.2em]" style="color:#5f7f07;">{{ __('Latest') }}</p>
+                    <p class="text-xs font-black uppercase tracking-[0.2em]" style="color:#ff5f5f;">{{ __('Latest') }}</p>
                     <h2 class="lb-serif mt-3 text-4xl leading-none">{{ __('Recent articles and operating notes') }}</h2>
                 </div>
                 <span class="hidden rounded-full border bg-white px-4 py-2 text-sm font-bold md:inline-flex" style="border-color: var(--lb-line); color: var(--lb-muted);">{{ $blogs->total() }} {{ __('posts') }}</span>
@@ -221,7 +221,7 @@
                                 <div class="flex h-full items-center justify-center">
                                     <div class="lb-blog-cover-card w-[82%] rounded-3xl border bg-white/85 p-5" style="border-color: var(--lb-line);">
                                         <div class="flex items-center justify-between gap-3">
-                                            <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl" style="background: color-mix(in srgb, var(--lb-green) 9%, #fff); color: var(--lb-green);">
+                                            <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl" style="background: color-mix(in srgb, var(--lb-red) 9%, #fff); color: var(--lb-red);">
                                                 <i class="fa-light fa-chart-line text-xl"></i>
                                             </span>
                                             <span class="rounded-full px-3 py-1 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 28%, #fff); color:#506807;">{{ __('Guide') }}</span>

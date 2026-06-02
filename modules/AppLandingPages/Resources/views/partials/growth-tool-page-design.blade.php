@@ -138,7 +138,7 @@
                 :label="__('Primary color')"
                 :value="$primary_color"
                 :error="$errors->first('primary_color')"
-                :presets="['#0f766e', '#128a7f', '#5f7f07', '#b8da16', '#2563eb', '#7c3aed', '#d97706', '#0f172a']"
+                :presets="['#0f766e', '#128a7f', '#ff5f5f', '#b8da16', '#2563eb', '#7c3aed', '#d97706', '#0f172a']"
             />
             <x-ui.select wire:model="background_type" name="{{ $type }}_background_type" :label="__('Background')" :error="$errors->first('background_type')">
                 <option value="gradient">{{ __('Gradient') }}</option>

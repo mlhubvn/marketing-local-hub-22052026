@@ -84,7 +84,7 @@
                             ['fa-users', __('Team setup'), __('Workspaces, members and permissions')],
                         ] as $card)
                             <div class="lb-card rounded-2xl p-4">
-                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-green) 9%, #fff); color: var(--lb-green);">
+                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-red) 9%, #fff); color: var(--lb-red);">
                                     <i class="fa-light {{ $card[0] }}"></i>
                                 </span>
                                 <p class="mt-4 text-sm font-black">{{ $card[1] }}</p>
@@ -113,7 +113,7 @@
                         ] as $item)
                             @if ($item[3])
                                 <a href="{{ $item[3] }}" class="lb-contact-row lb-hover flex gap-4 py-4 first:pt-0 last:pb-0">
-                                    <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-green) 9%, #fff); color: var(--lb-green);">
+                                    <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-red) 9%, #fff); color: var(--lb-red);">
                                         <i class="fa-light {{ $item[0] }}"></i>
                                     </span>
                                     <span class="min-w-0">
@@ -123,7 +123,7 @@
                                 </a>
                             @else
                                 <div class="lb-contact-row flex gap-4 py-4 first:pt-0 last:pb-0">
-                                    <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-green) 9%, #fff); color: var(--lb-green);">
+                                    <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-red) 9%, #fff); color: var(--lb-red);">
                                         <i class="fa-light {{ $item[0] }}"></i>
                                     </span>
                                     <span class="min-w-0">

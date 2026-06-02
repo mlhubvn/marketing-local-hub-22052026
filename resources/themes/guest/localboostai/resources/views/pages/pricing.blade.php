@@ -35,7 +35,7 @@
             inset-inline: 0;
             top: 0;
             height: 4px;
-            background: linear-gradient(90deg, var(--lb-green), var(--lb-lime));
+            background: linear-gradient(90deg, var(--lb-red), var(--lb-lime));
             opacity: .18;
         }
 
@@ -157,7 +157,7 @@
                     <div class="lb-card lb-plan-toggle lb-reveal w-max max-w-full justify-self-start rounded-full p-1.5 lg:justify-self-end" style="--lb-delay: 120ms;">
                         <div class="inline-flex max-w-full flex-wrap gap-1">
                             @foreach ($planTypes as $typeKey => $typeLabel)
-                                <button type="button" x-on:click="type = {{ $typeKey }}" class="rounded-full px-5 py-3 text-sm font-black transition" x-bind:class="type === {{ $typeKey }} ? 'text-white' : 'text-neutral-500 hover:bg-neutral-100'" x-bind:style="type === {{ $typeKey }} ? 'background:#5f7f07;' : ''">
+                                <button type="button" x-on:click="type = {{ $typeKey }}" class="rounded-full px-5 py-3 text-sm font-black transition" x-bind:class="type === {{ $typeKey }} ? 'text-white' : 'text-neutral-500 hover:bg-neutral-100'" x-bind:style="type === {{ $typeKey }} ? 'background:#ff5f5f;' : ''">
                                     {{ $typeLabel }}
                                 </button>
                             @endforeach
@@ -286,7 +286,7 @@
                                     <div class="rounded-[1rem] border px-4 py-3.5" style="border-color: var(--lb-line); background-color: rgba(255,255,255,0.78);">
                                         <div class="flex items-center justify-between gap-4">
                                             <div class="flex min-w-0 items-center gap-3">
-                                                <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full" style="background: {{ ($feature['check'] ?? true) ? 'rgba(16,185,129,0.10)' : 'rgba(107,114,128,0.12)' }}; color: {{ ($feature['check'] ?? true) ? 'var(--lb-green)' : 'var(--lb-muted)' }};">
+                                                <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full" style="background: {{ ($feature['check'] ?? true) ? 'rgba(16,185,129,0.10)' : 'rgba(107,114,128,0.12)' }}; color: {{ ($feature['check'] ?? true) ? 'var(--lb-red)' : 'var(--lb-muted)' }};">
                                                     <i class="fa-light {{ ($feature['check'] ?? true) ? 'fa-check' : 'fa-minus' }} text-[11px]"></i>
                                                 </span>
                                                 <span class="truncate text-sm font-bold">{{ __((string) ($feature['label'] ?? '')) }}</span>
@@ -324,7 +324,7 @@
                         ] as $limit)
                             <div class="lb-limit-row py-4 first:pt-0 last:pb-0">
                                 <div class="flex items-center gap-3">
-                                    <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-green) 9%, #fff); color: var(--lb-green);">
+                                    <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-red) 9%, #fff); color: var(--lb-red);">
                                         <i class="fa-light {{ $limit[0] }}"></i>
                                     </span>
                                     <div class="min-w-0 flex-1">
@@ -333,7 +333,7 @@
                                             <span class="text-xs font-black" style="color: var(--lb-muted);">{{ $limit[3] }}</span>
                                         </div>
                                         <p class="mt-1 text-xs" style="color: var(--lb-muted);">{{ $limit[2] }}</p>
-                                        <span class="lb-limit-meter mt-3 block h-2 rounded-full" style="width: {{ $limit[3] }}; background: linear-gradient(90deg, var(--lb-green), var(--lb-lime));"></span>
+                                        <span class="lb-limit-meter mt-3 block h-2 rounded-full" style="width: {{ $limit[3] }}; background: linear-gradient(90deg, var(--lb-red), var(--lb-lime));"></span>
                                     </div>
                                 </div>
                             </div>

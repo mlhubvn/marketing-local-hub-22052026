@@ -26,7 +26,7 @@
                                     <p class="text-[10px] font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">{{ __('Question') }} {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</p>
                                     <h2 class="lb-serif mt-2 text-3xl leading-none">{{ $faq->titleForLocale() }}</h2>
                                 </div>
-                                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition" style="background: color-mix(in srgb, var(--lb-lime) 28%, #fff); color:#5f7f07;" x-bind:class="openFaq === {{ $loop->index }} ? 'rotate-45' : ''">
+                                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition" style="background: color-mix(in srgb, var(--lb-lime) 28%, #fff); color:#ff5f5f;" x-bind:class="openFaq === {{ $loop->index }} ? 'rotate-45' : ''">
                                     <i class="fa-light fa-plus"></i>
                                 </span>
                             </button>

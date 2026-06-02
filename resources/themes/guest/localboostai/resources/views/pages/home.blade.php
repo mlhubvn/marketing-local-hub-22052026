@@ -50,7 +50,7 @@
             --lb-soft: #edf5ef;
             --lb-line: #dfe9df;
             --lb-lime: #b8da16;
-            --lb-green: #0f766e;
+            --lb-red: #0f766e;
             --lb-dark: #10251f;
             background:
                 radial-gradient(circle at 78% 9%, rgba(184, 218, 22, .28), transparent 26rem),
@@ -101,7 +101,7 @@
 
         .lb-button {
             border-radius: 999px;
-            background: var(--lb-green);
+            background: var(--lb-red);
             color: #fff;
             box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 22px 48px -30px rgba(15,118,110,.9);
             transition: transform .22s ease, box-shadow .22s ease;
@@ -125,7 +125,7 @@
         }
 
         .lb-hover:hover {
-            border-color: color-mix(in srgb, var(--lb-green) 30%, var(--lb-line));
+            border-color: color-mix(in srgb, var(--lb-red) 30%, var(--lb-line));
             box-shadow: 0 34px 90px -62px rgba(16, 37, 31, .6);
         }
 
@@ -268,7 +268,7 @@
             top: 0;
             height: 4px;
             border-radius: 999px;
-            background: linear-gradient(90deg, var(--lb-green), var(--lb-lime));
+            background: linear-gradient(90deg, var(--lb-red), var(--lb-lime));
             transform: scaleX(.18);
             transform-origin: left;
             transition: transform .42s cubic-bezier(.16,1,.3,1);
@@ -290,7 +290,7 @@
         }
 
         .lb-step-arrow {
-            color: color-mix(in srgb, var(--lb-green) 72%, #fff);
+            color: color-mix(in srgb, var(--lb-red) 72%, #fff);
         }
 
         .lb-page-demo {
@@ -321,7 +321,7 @@
 
         .lb-page-card:hover {
             transform: translateY(-5px);
-            border-color: color-mix(in srgb, var(--lb-green) 28%, var(--lb-line));
+            border-color: color-mix(in srgb, var(--lb-red) 28%, var(--lb-line));
             box-shadow: 0 24px 60px -45px rgba(16, 37, 31, .55);
         }
 
@@ -330,7 +330,7 @@
             position: absolute;
             inset: 0;
             z-index: -1;
-            background: linear-gradient(115deg, transparent 24%, rgba(184, 218, 22, .16) 48%, transparent 68%);
+            background: linear-gradient(115deg, transparent 24%, rgba(255, 235, 22, .16) 48%, transparent 68%);
             transform: translateX(-130%);
             animation: lb-card-sheen 5.4s ease-in-out infinite;
             animation-delay: calc(var(--lb-card-delay, 0ms) + 900ms);
@@ -377,12 +377,12 @@
             top: 50%;
             width: .75rem;
             height: 1px;
-            background: color-mix(in srgb, var(--lb-green) 42%, var(--lb-line));
+            background: color-mix(in srgb, var(--lb-red) 42%, var(--lb-line));
         }
 
         .lb-page-flow-step span:first-child {
-            background: color-mix(in srgb, var(--lb-green) 10%, #fff);
-            color: var(--lb-green);
+            background: color-mix(in srgb, var(--lb-red) 10%, #fff);
+            color: var(--lb-red);
         }
 
         .lb-suite {
@@ -411,7 +411,7 @@
 
         .lb-suite-card:hover {
             transform: translateY(-6px);
-            border-color: color-mix(in srgb, var(--lb-green) 28%, var(--lb-line));
+            border-color: color-mix(in srgb, var(--lb-red) 28%, var(--lb-line));
             box-shadow: 0 28px 72px -54px rgba(16, 37, 31, .62);
         }
 
@@ -452,7 +452,7 @@
         .lb-feature-hero {
             min-height: 100%;
             background:
-                linear-gradient(145deg, rgba(15, 118, 110, .08), rgba(184, 218, 22, .16)),
+                linear-gradient(145deg, rgba(15, 118, 110, .08), rgba(255, 235, 22, .16)),
                 #fffefb;
         }
 
@@ -512,7 +512,7 @@
         }
 
         .lb-proof-visual {
-            background: linear-gradient(145deg, rgba(15, 118, 110, .08), rgba(184, 218, 22, .16));
+            background: linear-gradient(145deg, rgba(15, 118, 110, .08), rgba(255, 235, 22, .16));
         }
 
         .lb-proof-node {
@@ -540,8 +540,8 @@
 
         .lb-mini-qr {
             background:
-                linear-gradient(90deg, var(--lb-green) 22%, transparent 22% 44%, var(--lb-green) 44% 66%, transparent 66%),
-                linear-gradient(var(--lb-green) 22%, transparent 22% 44%, var(--lb-green) 44% 66%, transparent 66%);
+                linear-gradient(90deg, var(--lb-red) 22%, transparent 22% 44%, var(--lb-red) 44% 66%, transparent 66%),
+                linear-gradient(var(--lb-red) 22%, transparent 22% 44%, var(--lb-red) 44% 66%, transparent 66%);
             background-size: 9px 9px;
             opacity: .85;
         }
@@ -651,7 +651,7 @@
             --lb-soft: #101d32;
             --lb-line: #25364d;
             --lb-lime: #b8da16;
-            --lb-green: #14a399;
+            --lb-red: #ff5f5f;
             --lb-dark: #e8eef7;
             background:
                 linear-gradient(rgba(96, 165, 250, .05) 1px, transparent 1px),
@@ -716,10 +716,10 @@
             border-color: var(--lb-line) !important;
         }
 
-        html[data-theme-resolved='dark'] .lb-sales [style*="color:#5f7f07"],
+        html[data-theme-resolved='dark'] .lb-sales [style*="color:#ff5f5f"],
         html[data-theme-resolved='dark'] .lb-sales [style*="color: #506807"],
         html[data-theme-resolved='dark'] .lb-sales [style*="color:#506807"],
-        html[data-theme-resolved='dark'] .lb-sales [style*="color: var(--lb-green)"] {
+        html[data-theme-resolved='dark'] .lb-sales [style*="color: var(--lb-red)"] {
             color: #5eead4 !important;
         }
 
@@ -727,7 +727,7 @@
         html[data-theme-resolved='dark'] .lb-feature-row::after,
         html[data-theme-resolved='dark'] .lb-step-card::after {
             background:
-                radial-gradient(circle at 34% 34%, color-mix(in srgb, var(--module-color, var(--lb-green)) 26%, rgba(96, 165, 250, .12)), rgba(15, 23, 42, .72) 68%) !important;
+                radial-gradient(circle at 34% 34%, color-mix(in srgb, var(--module-color, var(--lb-red)) 26%, rgba(96, 165, 250, .12)), rgba(15, 23, 42, .72) 68%) !important;
             border: 1px solid rgba(96, 165, 250, .16);
             opacity: .72;
         }
@@ -735,7 +735,7 @@
         html[data-theme-resolved='dark'] .lb-suite-icon,
         html[data-theme-resolved='dark'] .lb-feature-icon,
         html[data-theme-resolved='dark'] .lb-page-icon {
-            background: color-mix(in srgb, var(--module-color, var(--lb-green)) 18%, rgba(15, 23, 42, .82)) !important;
+            background: color-mix(in srgb, var(--module-color, var(--lb-red)) 18%, rgba(15, 23, 42, .82)) !important;
             color: #5eead4 !important;
             box-shadow: inset 0 0 0 1px rgba(94, 234, 212, .18);
         }
@@ -812,7 +812,7 @@
                             <aside class="hidden border-r px-4 py-3 lg:block" style="border-color: var(--lb-line); background: var(--lb-soft);">
                                 <div class="grid justify-items-center gap-3">
                                     @foreach (['fa-house', 'fa-store', 'fa-star', 'fa-ticket', 'fa-chart-line'] as $index => $icon)
-                                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl {{ $index === 2 ? 'text-white' : '' }}" style="{{ $index === 2 ? 'background: var(--lb-green);' : 'background:#fff; color:#5f7f07;' }}">
+                                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl {{ $index === 2 ? 'text-white' : '' }}" style="{{ $index === 2 ? 'background: var(--lb-red);' : 'background:#fff; color:#ff5f5f;' }}">
                                             <i class="fa-light {{ $icon }}"></i>
                                         </span>
                                     @endforeach
@@ -840,7 +840,7 @@
                                     <div class="rounded-xl border bg-white p-4" style="border-color: var(--lb-line);">
                                         <div class="flex items-end gap-2 h-36">
                                             @foreach ([38, 56, 44, 76, 61, 88, 73, 96] as $bar)
-                                                <span class="lb-bar flex-1 rounded-t-lg" style="--lb-bar-delay: {{ $loop->index * 160 }}ms; height: {{ $bar }}%; background: {{ $loop->even ? 'var(--lb-green)' : 'var(--lb-lime)' }};"></span>
+                                                <span class="lb-bar flex-1 rounded-t-lg" style="--lb-bar-delay: {{ $loop->index * 160 }}ms; height: {{ $bar }}%; background: {{ $loop->even ? 'var(--lb-red)' : 'var(--lb-lime)' }};"></span>
                                             @endforeach
                                         </div>
                                     </div>
@@ -918,7 +918,7 @@
                                     $dotColor = $dotPalette[$loop->index % count($dotPalette)];
                                 @endphp
                                 <div class="lb-workflow-card flex items-center gap-4 rounded-full p-3 pr-5 text-left" style="--workflow-dot: {{ $dotColor }};">
-                                    <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full" style="background: color-mix(in srgb, var(--lb-green) 9%, #fff); color: var(--lb-green);">
+                                    <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full" style="background: color-mix(in srgb, var(--lb-red) 9%, #fff); color: var(--lb-red);">
                                         <i class="fa-light {{ $card[0] }}"></i>
                                     </span>
                                     <div class="min-w-0">
@@ -949,7 +949,7 @@
                                 <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ __('Growth engine') }}</p>
                                 <h3 class="mt-2 text-2xl font-black">{{ __('One campaign hub') }}</h3>
                             </div>
-                            <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl text-white" style="background: var(--lb-green);">
+                            <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl text-white" style="background: var(--lb-red);">
                                 <i class="fa-light fa-bolt"></i>
                             </span>
                         </div>
@@ -967,7 +967,7 @@
                             @foreach ([82, 64, 92] as $width)
                                 <div class="mb-3 last:mb-0">
                                     <span class="mb-2 block h-2 w-24 rounded-full" style="background: var(--lb-line);"></span>
-                                    <span class="lb-signal block h-3 rounded-full" style="width: {{ $width }}%; background: color-mix(in srgb, var(--lb-green) 72%, var(--lb-lime));"></span>
+                                    <span class="lb-signal block h-3 rounded-full" style="width: {{ $width }}%; background: color-mix(in srgb, var(--lb-red) 72%, var(--lb-lime));"></span>
                                 </div>
                             @endforeach
                         </div>
@@ -978,7 +978,7 @@
                     @foreach ($coreFeatures as $feature)
                         <article class="lb-card lb-feature-row lb-hover rounded-2xl p-5">
                             <div class="relative z-10 flex items-start gap-4">
-                                <span class="lb-feature-icon inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color:#5f7f07;">
+                                <span class="lb-feature-icon inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color:#ff5f5f;">
                                     <i class="fa-light {{ $feature[0] }} text-xl"></i>
                                 </span>
                                 <div>
@@ -1008,7 +1008,7 @@
                     ] as $step)
                         <article class="lb-card lb-step-card lb-hover rounded-2xl p-6">
                             <div class="relative z-10 flex items-center justify-between gap-4">
-                                <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl text-white" style="background: var(--lb-green);">
+                                <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl text-white" style="background: var(--lb-red);">
                                     <i class="fa-light {{ $step[1] }}"></i>
                                 </span>
                                 <div class="flex items-center gap-3">
@@ -1050,7 +1050,7 @@
                         <div class="relative z-10 grid gap-4 sm:grid-cols-2">
                         @foreach ([['fa-star', __('Review Page')], ['fa-calendar-check', __('Booking Page')], ['fa-ticket', __('Coupon Page')], ['fa-address-card', __('Lead Page')]] as $page)
                             <div class="lb-page-card rounded-xl border bg-white p-5" style="border-color: var(--lb-line); --lb-card-delay: {{ $loop->index * 120 }}ms;">
-                                <span class="lb-page-icon inline-flex h-11 w-11 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-green) 9%, #fff); color: #0f766e;">
+                                <span class="lb-page-icon inline-flex h-11 w-11 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-red) 9%, #fff); color: #0f766e;">
                                     <i class="fa-light {{ $page[0] }} text-2xl"></i>
                                 </span>
                                 <h3 class="mt-5 text-xl font-black">{{ $page[1] }}</h3>
@@ -1080,7 +1080,7 @@
                     <p class="mt-5 text-base leading-8" style="color: var(--lb-muted);">{{ __('Manage the growth tools your local business needs from one connected workspace.') }}</p>
                     <div class="mt-8 rounded-2xl border bg-white/80 p-5" style="border-color: var(--lb-line);">
                         <div class="flex items-center gap-3">
-                            <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl text-white" style="background: var(--lb-green);">
+                            <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl text-white" style="background: var(--lb-red);">
                                 <i class="fa-light fa-diagram-project"></i>
                             </span>
                             <div>
@@ -1125,7 +1125,7 @@
                             <div class="grid gap-3 sm:grid-cols-3">
                                 @foreach ([['fa-bullhorn', __('Campaign')], ['fa-browser', __('Public Page')], ['fa-user-plus', __('Customer')]] as $node)
                                     <div class="lb-proof-node rounded-2xl bg-white p-4">
-                                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-green) 9%, #fff); color: var(--lb-green);">
+                                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-red) 9%, #fff); color: var(--lb-red);">
                                             <i class="fa-light {{ $node[0] }}"></i>
                                         </span>
                                         <p class="mt-4 text-sm font-black">{{ $node[1] }}</p>
@@ -1139,7 +1139,7 @@
                                 </div>
                                 <div class="mt-4 flex items-end gap-2 h-20">
                                     @foreach ([42, 66, 52, 78, 92] as $bar)
-                                        <span class="lb-bar flex-1 rounded-t-lg" style="--lb-bar-delay: {{ $loop->index * 140 }}ms; height: {{ $bar }}%; background: {{ $loop->even ? 'var(--lb-green)' : 'var(--lb-lime)' }};"></span>
+                                        <span class="lb-bar flex-1 rounded-t-lg" style="--lb-bar-delay: {{ $loop->index * 140 }}ms; height: {{ $bar }}%; background: {{ $loop->even ? 'var(--lb-red)' : 'var(--lb-lime)' }};"></span>
                                     @endforeach
                                 </div>
                             </div>
@@ -1148,7 +1148,7 @@
                     <div class="relative z-10 grid gap-x-6 sm:grid-cols-2">
                         @foreach ($productHighlights as $item)
                             <div class="lb-proof-item flex gap-3 py-4">
-                                <span class="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full" style="background: color-mix(in srgb, var(--lb-green) 10%, #fff); color: var(--lb-green);">
+                                <span class="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full" style="background: color-mix(in srgb, var(--lb-red) 10%, #fff); color: var(--lb-red);">
                                     <i class="fa-light fa-check text-xs"></i>
                                 </span>
                                 <span class="text-sm font-black leading-6">{{ $item }}</span>
@@ -1208,7 +1208,7 @@
                                     @foreach ([['fa-eye', '284', __('Visits')], ['fa-star', '72', __('Review clicks')], ['fa-user-plus', '39', __('New leads')]] as $stat)
                                         <div class="rounded-2xl border bg-white p-3" style="border-color: var(--lb-line);">
                                             <div class="flex items-center justify-between gap-3">
-                                                <span class="inline-flex h-8 w-8 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-green) 9%, #fff); color: var(--lb-green);">
+                                                <span class="inline-flex h-8 w-8 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-red) 9%, #fff); color: var(--lb-red);">
                                                     <i class="fa-light {{ $stat[0] }} text-sm"></i>
                                                 </span>
                                                 <span class="text-xl font-black">{{ $stat[1] }}</span>

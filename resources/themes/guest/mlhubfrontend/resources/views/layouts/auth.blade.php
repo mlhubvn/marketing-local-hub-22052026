@@ -43,7 +43,7 @@
                         @foreach ([['fa-star', __('Review clicks'), __('Turn happy customers into public reviews.')], ['fa-qrcode', __('QR campaign pages'), __('Share every offer and request offline.' )], ['fa-chart-line', __('Growth reports'), __('Track visits, conversions, leads, and bookings.')]] as $index => $item)
                             <div class="lb-card lb-hover lb-reveal rounded-xl p-4" style="--lb-delay: {{ 120 + ($index * 80) }}ms;">
                                 <div class="flex gap-4">
-                                    <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color:#5f7f07;">
+                                    <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color:#ff5f5f;">
                                         <i class="fa-light {{ $item[0] }}"></i>
                                     </span>
                                     <div>
@@ -89,7 +89,7 @@
                         </div>
                         <div class="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-semibold" style="color: var(--lb-muted);">
                             <a href="{{ route('guest.privacy-policy') }}" class="transition hover:opacity-80" style="color: inherit;" wire:navigate>{{ __('Privacy Policy') }}</a>
-                            <span class="h-1 w-1 rounded-full" style="background: color-mix(in srgb, var(--lb-green) 35%, var(--lb-line));"></span>
+                            <span class="h-1 w-1 rounded-full" style="background: color-mix(in srgb, var(--lb-red) 35%, var(--lb-line));"></span>
                             <a href="{{ route('guest.terms-of-use') }}" class="transition hover:opacity-80" style="color: inherit;" wire:navigate>{{ __('Terms of Use') }}</a>
                         </div>
                     </div>
