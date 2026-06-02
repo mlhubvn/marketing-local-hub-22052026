@@ -3,6 +3,7 @@
 namespace Modules\AppGoogleBusiness\Console;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Schema;
 use Modules\AppGoogleBusiness\Models\GoogleBusinessLocation;
 use Modules\AppGoogleBusiness\Models\GoogleReview;
 use Modules\AppGoogleBusiness\Support\GoogleAutoReplyService;
@@ -17,6 +18,13 @@ class SyncGoogleBusinessReviewsCommand extends Command
 
     public function handle(GoogleBusinessClient $client, GoogleAutoReplyService $autoReply): int
     {
+        if (
+            ! Schema::hasTable((new GoogleBusinessLocation)->getTable())
+            || ! Schema::hasTable((new GoogleReview)->getTable())
+        ) {
+            return self::SUCCESS;
+        }
+
         $query = GoogleBusinessLocation::query()
             ->with('connection')
             ->where('sync_reviews', true)
