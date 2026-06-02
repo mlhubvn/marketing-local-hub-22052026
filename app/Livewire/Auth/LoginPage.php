@@ -48,8 +48,11 @@ class LoginPage extends Component
         $login = Str::lower(trim($validated['identifier']));
 
         $user = User::query()
-            ->whereRaw('LOWER(email) = ?', [$login])
-            ->orWhereRaw('LOWER(username) = ?', [$login])
+            ->where(function ($query) use ($login): void {
+                $query
+                    ->whereRaw('LOWER(email) = ?', [$login])
+                    ->orWhereRaw('LOWER(username) = ?', [$login]);
+            })
             ->first();
 
         if (! $user || ! Hash::check($validated['password'], $user->password)) {
