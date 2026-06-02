@@ -4,6 +4,7 @@ namespace Modules\AdminDashboard\Livewire;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -21,18 +22,32 @@ use Modules\AppQRCampaigns\Models\QrCampaign;
 #[Title('Dashboard')]
 class DashboardIndex extends Component
 {
+    public bool $widgetsLoaded = false;
+
     public function render(): View
     {
         $user = auth()->user();
+        $userId = $user?->id;
+
+        $adminSummary = Cache::remember(
+            "admin.dashboard.summary.v1.{$userId}",
+            now()->addMinutes(10),
+            fn (): array => $this->adminSummary(),
+        );
 
         return view(theme_view('livewire.admin.dashboard', 'app'), [
-            'welcomeItems' => admin_dashboard_items($user, 'welcome'),
-            'dashboardItems' => admin_dashboard_items($user, 'main'),
-            'adminSummary' => $this->adminSummary(),
+            'welcomeItems' => $this->widgetsLoaded ? admin_dashboard_items($user, 'welcome') : [],
+            'dashboardItems' => $this->widgetsLoaded ? admin_dashboard_items($user, 'main') : [],
+            'adminSummary' => $adminSummary,
             'adminQuickLinks' => $this->adminQuickLinks(),
         ])->layout(theme_view('layouts.app', 'app'), [
             'title' => __('Dashboard'),
         ]);
+    }
+
+    public function loadWidgets(): void
+    {
+        $this->widgetsLoaded = true;
     }
 
     /**

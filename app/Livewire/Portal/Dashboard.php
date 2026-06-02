@@ -5,7 +5,6 @@ namespace App\Livewire\Portal;
 use App\Support\Plans\PlanLimitGuard;
 use App\Support\Portal\PortalGrowthDashboardMetrics;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Validator;
@@ -16,6 +15,9 @@ use Modules\AppQRCampaigns\Models\QrCampaign;
 #[Title('User Dashboard')]
 class Dashboard extends Component
 {
+    public array $growthMetrics = [];
+    public bool $metricsLoaded = false;
+
     public array $recentActivity = [];
     public array $topCampaigns = [];
 
@@ -42,13 +44,9 @@ class Dashboard extends Component
         $user = auth()->user();
         $userId = $user?->id;
 
-        $growthDashboard = $userId
-            ? [
-                'metrics' => PortalGrowthDashboardMetrics::rememberMetrics((int) $userId),
-            ]
-            : [
-                'metrics' => [],
-            ];
+        $growthDashboard = [
+            'metrics' => $this->growthMetrics,
+        ];
         $onboarding = $this->onboarding($userId, $growthDashboard);
 
         $planUsage = $userId
@@ -68,6 +66,18 @@ class Dashboard extends Component
         ])->layout(theme_view('layouts.app', 'app'), [
             'title' => __('User Dashboard'),
         ]);
+    }
+
+    public function loadMetrics(): void
+    {
+        $userId = auth()->id();
+
+        if (! $userId) {
+            return;
+        }
+
+        $this->growthMetrics = PortalGrowthDashboardMetrics::rememberMetrics((int) $userId);
+        $this->metricsLoaded = true;
     }
 
     public function loadTopCampaigns(): void

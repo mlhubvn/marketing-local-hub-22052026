@@ -188,7 +188,8 @@
         </div>
     </section>
 
-    @if (($welcomeItems ?? []) !== [])
+    <div wire:init="loadWidgets">
+    @if ($widgetsLoaded && (($welcomeItems ?? []) !== []))
         <div class="space-y-5">
             @foreach ($welcomeItems as $item)
                 <section>
@@ -198,7 +199,11 @@
         </div>
     @endif
 
-    @if ($dashboardItems === [])
+    @if (! $widgetsLoaded)
+        <div class="rounded-[1rem] border p-5 text-sm" style="border-color: rgba(var(--theme-border-color-rgb),0.72); color: var(--theme-muted-text-color);">
+            {{ __('Loading dashboard widgets...') }}
+        </div>
+    @elseif ($dashboardItems === [])
         <x-ui.empty
             :title="__('No dashboard items registered')"
             :description="__('Start by registering widgets from admin modules with register_admin_dashboard_item().')"
@@ -226,4 +231,5 @@
             @endforeach
         </div>
     @endif
+    </div>
 </div>

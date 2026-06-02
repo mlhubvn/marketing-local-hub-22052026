@@ -9,6 +9,7 @@
     $portalUser = auth()->user();
     $portalName = $portalUser?->name ?: $portalUser?->username ?: __('Operator');
     $growthMetrics = $growthDashboard['metrics'] ?? [];
+    $metricsLoaded = (bool) ($this->metricsLoaded ?? false);
     $recentActivity = $this->recentActivity ?? [];
     $topCampaigns = $this->topCampaigns ?? [];
     $onboardingSteps = $onboarding['steps'] ?? [];
@@ -217,7 +218,12 @@
         </div>
     </section>
 
-    <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+    <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5" wire:init="loadMetrics">
+        @if (! $metricsLoaded)
+            <article class="rounded-[1rem] border bg-white p-4 shadow-sm sm:col-span-2 xl:col-span-5" style="border-color: rgba(var(--theme-border-color-rgb),0.72);">
+                <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Loading dashboard metrics...') }}</p>
+            </article>
+        @endif
         @foreach ([
             ['label' => __('Businesses'), 'value' => $growthMetrics['businesses'] ?? 0, 'description' => __('Local profiles'), 'icon' => 'fa-light fa-store', 'accent' => '#0f766e'],
             ['label' => __('Active Campaigns'), 'value' => $growthMetrics['active_campaigns'] ?? 0, 'description' => __('Published funnels'), 'icon' => 'fa-light fa-bullhorn', 'accent' => '#0f766e'],
