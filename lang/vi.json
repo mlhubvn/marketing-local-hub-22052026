@@ -9312,5 +9312,8 @@
     "ZIP package": "Gói ZIP",
     "Zoom": "Thu phóng",
     "Zoom URL": "URL thu phóng",
-    "zylim0702/qr_code_controlnet": "Zylim0702/qr_code_controlnet"
+    "zylim0702/qr_code_controlnet": "Zylim0702/qr_code_controlnet",
+    "Loading log…": "Đang tải nhật ký…",
+    "Could not load log preview. Try Refresh or Download.": "Không tải được xem trước nhật ký. Hãy thử Làm mới hoặc Tải xuống.",
+    "… (showing the last :lines lines — download for the full log)": "… (hiển thị :lines dòng cuối — tải xuống để xem toàn bộ)"
 }

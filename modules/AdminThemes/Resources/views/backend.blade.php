@@ -774,6 +774,10 @@
     <script>
         (() => {
             const initThemeCodeEditors = () => {
+                if (typeof CodeMirror === 'undefined') {
+                    return;
+                }
+
                 document.querySelectorAll('textarea[data-code-editor]').forEach((textarea) => {
                     if (textarea.dataset.editorReady === 'true') {
                         return;

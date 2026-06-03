@@ -3,11 +3,18 @@
 namespace Modules\AdminLog\Support;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use RuntimeException;
 
 class LogManager
 {
-    protected int $maxReadBytes = 2097152;
+    protected int $maxTailScanBytes = 524288;
+
+    protected int $maxOutputChars = 131072;
+
+    protected int $maxLineLength = 4000;
+
+    protected int $maxFilesListed = 100;
 
     public function directory(): string
     {
@@ -19,6 +26,14 @@ class LogManager
      */
     public function files(): array
     {
+        return Cache::remember('mlhub.admin.log.files.v1', now()->addSeconds(60), fn (): array => $this->scanFiles());
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    protected function scanFiles(): array
+    {
         $directory = $this->directory();
 
         if (! is_dir($directory)) {
@@ -29,16 +44,27 @@ class LogManager
 
         return collect($paths)
             ->filter(fn (string $path): bool => is_file($path))
-            ->map(fn (string $path): array => [
-                'name' => basename($path),
-                'size' => (int) filesize($path),
-                'size_human' => $this->humanSize((int) filesize($path)),
-                'mtime' => (int) filemtime($path),
-                'modified' => Carbon::createFromTimestamp((int) filemtime($path))->diffForHumans(),
-            ])
+            ->map(function (string $path): array {
+                $size = (int) filesize($path);
+                $mtime = (int) filemtime($path);
+
+                return [
+                    'name' => basename($path),
+                    'size' => $size,
+                    'size_human' => $this->humanSize($size),
+                    'mtime' => $mtime,
+                    'modified' => Carbon::createFromTimestamp($mtime)->diffForHumans(),
+                ];
+            })
             ->sortByDesc('mtime')
+            ->take($this->maxFilesListed)
             ->values()
             ->all();
+    }
+
+    public function forgetFilesCache(): void
+    {
+        Cache::forget('mlhub.admin.log.files.v1');
     }
 
     public function defaultFile(): ?string
@@ -61,7 +87,12 @@ class LogManager
     public function tail(string $file, int $lines = 200): string
     {
         $path = $this->resolve($file);
+        $lines = max(1, min($lines, 500));
         $size = (int) filesize($path);
+
+        if ($size === 0) {
+            return '';
+        }
 
         $handle = fopen($path, 'rb');
 
@@ -69,20 +100,31 @@ class LogManager
             return '';
         }
 
-        if ($size > $this->maxReadBytes) {
-            fseek($handle, -$this->maxReadBytes, SEEK_END);
+        $chunkSize = 8192;
+        $buffer = '';
+        $lineCount = 0;
+        $position = $size;
+        $bytesRead = 0;
+
+        while ($position > 0 && $lineCount <= $lines && $bytesRead < $this->maxTailScanBytes) {
+            $readSize = (int) min($chunkSize, $position);
+            $position -= $readSize;
+            fseek($handle, $position);
+            $chunk = (string) fread($handle, $readSize);
+            $buffer = $chunk.$buffer;
+            $bytesRead += $readSize;
+            $lineCount = substr_count($buffer, "\n");
         }
 
-        $contents = (string) stream_get_contents($handle);
         fclose($handle);
 
-        $rows = preg_split("/\r\n|\n|\r/", $contents) ?: [];
-        $rows = array_slice($rows, -max(1, $lines));
+        $rows = preg_split("/\r\n|\n|\r/", $buffer) ?: [];
+        $rows = array_slice($rows, -$lines);
+        $output = trim(implode("\n", array_map(fn (string $row): string => $this->truncateLine($row), $rows)));
+        $output = $this->capOutput($output);
 
-        $output = trim(implode("\n", $rows));
-
-        if ($size > $this->maxReadBytes) {
-            return __('… (showing the last :size of a larger file — download for the full log)', ['size' => $this->humanSize($this->maxReadBytes)])."\n\n".$output;
+        if ($size > $this->maxTailScanBytes || $bytesRead >= $this->maxTailScanBytes) {
+            return __('… (showing the last :lines lines — download for the full log)', ['lines' => $lines])."\n\n".$output;
         }
 
         return $output;
@@ -93,6 +135,7 @@ class LogManager
         $path = $this->resolve($file);
 
         file_put_contents($path, '');
+        $this->forgetFilesCache();
 
         return __('Log file :name cleared successfully.', ['name' => basename($path)]);
     }
@@ -102,6 +145,7 @@ class LogManager
         $path = $this->resolve($file);
 
         @unlink($path);
+        $this->forgetFilesCache();
 
         return __('Log file :name deleted successfully.', ['name' => basename($file)]);
     }
@@ -143,5 +187,23 @@ class LogManager
         $power = min((int) floor(log($bytes, 1024)), count($units) - 1);
 
         return round($bytes / (1024 ** $power), 2).' '.$units[$power];
+    }
+
+    protected function truncateLine(string $line): string
+    {
+        if (strlen($line) <= $this->maxLineLength) {
+            return $line;
+        }
+
+        return substr($line, 0, $this->maxLineLength).'…';
+    }
+
+    protected function capOutput(string $output): string
+    {
+        if (strlen($output) <= $this->maxOutputChars) {
+            return $output;
+        }
+
+        return substr($output, -$this->maxOutputChars);
     }
 }

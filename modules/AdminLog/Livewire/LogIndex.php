@@ -39,6 +39,7 @@ class LogIndex extends Component
 
             $this->selectedFile = basename($file);
             $this->statusMessage = null;
+            $this->dispatchPreviewReload();
         } catch (Throwable $exception) {
             report($exception);
 
@@ -79,20 +80,32 @@ class LogIndex extends Component
     public function clearFile(string $file): void
     {
         $this->runSafely(fn (): string => $this->logs->clear($file));
+
+        if ($this->statusVariant === 'success') {
+            $this->dispatchPreviewReload();
+        }
     }
 
     public function deleteFile(string $file): void
     {
         $this->runSafely(fn (): string => $this->logs->delete($file));
 
-        if ($this->statusVariant === 'success' && basename($file) === $this->selectedFile) {
+        if ($this->statusVariant !== 'success') {
+            return;
+        }
+
+        if (basename($file) === $this->selectedFile) {
             $this->selectedFile = $this->logs->defaultFile();
         }
+
+        $this->dispatchPreviewReload();
     }
 
     public function refresh(): void
     {
         $this->statusMessage = null;
+        $this->logs->forgetFilesCache();
+        $this->dispatchPreviewReload();
     }
 
     protected function runSafely(callable $callback): void
@@ -110,27 +123,25 @@ class LogIndex extends Component
         }
     }
 
+    protected function dispatchPreviewReload(): void
+    {
+        if (! $this->selectedFile) {
+            return;
+        }
+
+        $this->dispatch('log-preview-reload', file: $this->selectedFile, lines: $this->lines);
+    }
+
     public function render(): View
     {
         $files = $this->logs->files();
-
-        $content = null;
-
-        if ($this->selectedFile) {
-            try {
-                $content = $this->logs->tail($this->selectedFile, $this->lines);
-            } catch (Throwable $exception) {
-                $content = null;
-                $this->selectedFile = null;
-            }
-        }
 
         $activeFile = collect($files)->firstWhere('name', $this->selectedFile) ?? ($files[0] ?? null);
 
         return view('adminlog::index', [
             'files' => $files,
             'activeFile' => $activeFile,
-            'content' => $content,
+            'previewUrl' => route('admin-log.preview'),
         ])->layout(theme_view('layouts.app', 'app'), [
             'title' => __('Logs'),
         ]);

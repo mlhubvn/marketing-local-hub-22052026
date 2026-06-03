@@ -94,7 +94,59 @@
                         </x-ui.dialog>
                     </div>
 
-                    <pre id="admin-log-preview" class="max-h-[32rem] overflow-auto rounded-lg bg-zinc-950 p-4 text-xs leading-relaxed text-zinc-100 whitespace-pre-wrap break-words">{{ filled($content) ? $content : __('This log file is empty.') }}</pre>
+                    <div
+                        wire:ignore
+                        class="relative"
+                        x-data="{
+                            loading: true,
+                            error: '',
+                            async loadPreview(file, lines) {
+                                const el = document.getElementById('admin-log-preview');
+                                if (! el || ! file) {
+                                    return;
+                                }
+
+                                this.loading = true;
+                                this.error = '';
+
+                                const url = new URL(@js($previewUrl), window.location.origin);
+                                url.searchParams.set('file', file);
+                                url.searchParams.set('lines', String(lines));
+
+                                try {
+                                    const response = await fetch(url.toString(), {
+                                        headers: { Accept: 'text/plain' },
+                                        credentials: 'same-origin',
+                                    });
+
+                                    if (! response.ok) {
+                                        throw new Error('preview_failed');
+                                    }
+
+                                    const text = await response.text();
+                                    el.textContent = text.trim() === '' ? @js(__('This log file is empty.')) : text;
+                                } catch (e) {
+                                    el.textContent = '';
+                                    this.error = @js(__('Could not load log preview. Try Refresh or Download.'));
+                                } finally {
+                                    this.loading = false;
+                                }
+                            },
+                        }"
+                        x-init="loadPreview(@js($selectedFile), @js($lines))"
+                        x-on:log-preview-reload.window="loadPreview($event.detail.file, $event.detail.lines)"
+                    >
+                        <div
+                            x-show="loading"
+                            x-cloak
+                            class="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-zinc-950/90 text-sm text-zinc-300"
+                        >
+                            <i class="fa-light fa-spinner-third fa-spin mr-2"></i>
+                            <span>{{ __('Loading log…') }}</span>
+                        </div>
+                        <p x-show="error !== ''" x-cloak x-text="error" class="mb-2 text-sm text-amber-300"></p>
+                        <pre id="admin-log-preview" class="max-h-[32rem] min-h-[12rem] overflow-auto rounded-lg bg-zinc-950 p-4 text-xs leading-relaxed text-zinc-100 whitespace-pre-wrap break-words"></pre>
+                    </div>
                 </x-theme.section-card>
             @endif
 
