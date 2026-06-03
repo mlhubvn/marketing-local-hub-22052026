@@ -294,7 +294,7 @@
                                             <div class="flex items-center gap-2">
                                                 @if(($feature['display'] ?? null) !== null && ($feature['display'] ?? '') !== '')
                                                     <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-black" style="background: color-mix(in srgb, var(--lb-lime) 28%, #fff); color: #506807;">
-                                                        {{ is_string($feature['display']) ? __($feature['display']) : $feature['display'] }}
+                                                        {{ $feature['display'] }}
                                                     </span>
                                                 @endif
                                             </div>

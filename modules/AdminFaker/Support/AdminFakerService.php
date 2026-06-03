@@ -2,6 +2,7 @@
 
 namespace Modules\AdminFaker\Support;
 
+use Database\Seeders\PlanSeeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -115,6 +116,7 @@ class AdminFakerService
         $this->marketingDemoFaker->seed($user, $team, $imageFiles, $counts);
         MLHUBDemoSeedProgress::step('Bước 3/3: CRM nâng cao, email, loyalty…');
         $this->extendedModulesDemoFaker->seed($user, $team, $counts);
+        $this->resyncPlanCatalogPermissions();
         MLHUBDemoSeedProgress::step('Hoàn tất seed.');
 
         return [
@@ -223,6 +225,11 @@ class AdminFakerService
         abort_if(! $user, 404, __('No user found for Admin Faker.'));
 
         return $user;
+    }
+
+    protected function resyncPlanCatalogPermissions(): void
+    {
+        (new PlanSeeder)->run();
     }
 
     protected function ensurePlan(User $user): void

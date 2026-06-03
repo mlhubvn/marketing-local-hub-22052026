@@ -95,7 +95,7 @@
                             <option value="business">{{ __('Business owner') }}</option>
                             <option value="custom">{{ __('Custom WhatsApp') }}</option>
                         </x-ui.select>
-                        <x-ui.input wire:model="custom_phone" name="custom_phone" :label="__('Custom phone')" :placeholder="__('15551234567')" :error="$errors->first('custom_phone')" />
+                        <x-ui.input wire:model="custom_phone" name="custom_phone" :label="__('Custom phone')" :placeholder="__('e.g. 0905123456')" :error="$errors->first('custom_phone')" />
                         <x-ui.select wire:model="status" name="status" :label="__('Status')"><option value="draft">{{ __('Draft') }}</option><option value="active">{{ __('Active') }}</option><option value="inactive">{{ __('Inactive') }}</option></x-ui.select>
                         <div class="pt-7">
                             <x-ui.checkbox wire:model="require_customer_phone" :checked="$require_customer_phone" :label="__('Require customer phone')" :description="__('Skip customer messages when no phone exists.')" />

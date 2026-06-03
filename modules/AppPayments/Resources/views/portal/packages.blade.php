@@ -248,7 +248,7 @@
                                                     <div class="flex items-center gap-2">
                                                         @if(($feature['display'] ?? null) !== null && ($feature['display'] ?? '') !== '')
                                                             <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold" style="background-color: rgba(var(--theme-border-color-rgb),0.12); color: var(--theme-muted-text-color);">
-                                                                {{ is_string($feature['display']) ? __($feature['display']) : $feature['display'] }}
+                                                                {{ $feature['display'] }}
                                                             </span>
                                                         @endif
                                                         @if (!empty($feature['subfeature']))
@@ -281,7 +281,7 @@
                                                                                             <span class="truncate text-xs font-medium" style="color: var(--theme-header-text-color);">{{ __((string) ($sub['label'] ?? '')) }}</span>
                                                                                         </div>
                                                                                         @if(($sub['display'] ?? null) !== null && ($sub['display'] ?? '') !== '')
-                                                                                            <span class="inline-flex items-center rounded-full px-2 py-1 text-[10px] font-semibold" style="background-color: rgba(var(--theme-border-color-rgb),0.12); color: var(--theme-muted-text-color);">{{ is_string($sub['display']) ? __($sub['display']) : $sub['display'] }}</span>
+                                                                                            <span class="inline-flex items-center rounded-full px-2 py-1 text-[10px] font-semibold" style="background-color: rgba(var(--theme-border-color-rgb),0.12); color: var(--theme-muted-text-color);">{{ $sub['display'] }}</span>
                                                                                         @endif
                                                                                     </div>
                                                                                 @endforeach
