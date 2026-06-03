@@ -6,6 +6,7 @@ use App\Console\Commands\MLHUBResetDemoCommand;
 use App\Http\Middleware\PreventDemoModeWriteOperations;
 use App\Livewire\DemoModeActionGuard;
 use Database\Support\MLHUBSetIdSequenceCommand;
+use App\Support\Mail\AuthMailMessageBuilder;
 use App\Support\Dashboard\AdminDashboardRegistry;
 use App\Support\Dashboard\UserDashboardRegistry;
 use App\Support\Navigation\HeaderRegistry;
@@ -53,6 +54,7 @@ class AppServiceProvider extends ServiceProvider
         }
 
         $this->configureDefaults();
+        AuthMailMessageBuilder::register();
         $this->configureLivewireAssets();
         $this->configureLivewireMiddleware();
         $this->configureFortifyFeatures();

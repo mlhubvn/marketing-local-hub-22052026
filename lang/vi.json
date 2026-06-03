@@ -9315,5 +9315,16 @@
     "zylim0702/qr_code_controlnet": "Zylim0702/qr_code_controlnet",
     "Loading log…": "Đang tải nhật ký…",
     "Could not load log preview. Try Refresh or Download.": "Không tải được xem trước nhật ký. Hãy thử Làm mới hoặc Tải xuống.",
-    "… (showing the last :lines lines — download for the full log)": "… (hiển thị :lines dòng cuối — tải xuống để xem toàn bộ)"
+    "… (showing the last :lines lines — download for the full log)": "… (hiển thị :lines dòng cuối — tải xuống để xem toàn bộ)",
+    "If you cannot click the \":actionText\" button, copy and paste the URL below into your browser:": "Nếu không bấm được nút «:actionText», hãy sao chép và dán đường dẫn sau vào trình duyệt:",
+    "Hello!": "Xin chào!",
+    "Whoops!": "Rất tiếc!",
+    "Regards,": "Trân trọng,",
+    "You are receiving this email because we received a password reset request for your account.": "Bạn nhận email này vì hệ thống vừa nhận yêu cầu đặt lại mật khẩu cho tài khoản của bạn.",
+    "This password reset link will expire in :count minutes.": "Liên kết đặt lại mật khẩu có hiệu lực trong :count phút.",
+    "If you did not request a password reset, no further action is required.": "Nếu bạn không yêu cầu đặt lại mật khẩu, bạn không cần làm gì thêm.",
+    "Verify your email address": "Xác minh địa chỉ email của bạn",
+    "Please click the button below to verify your email address.": "Vui lòng nhấn nút bên dưới để xác minh địa chỉ email.",
+    "Verify Email Address": "Xác minh email",
+    "If you did not create an account, no further action is required.": "Nếu bạn không tạo tài khoản, bạn không cần làm gì thêm."
 }
