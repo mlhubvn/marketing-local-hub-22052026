@@ -13,7 +13,7 @@
     ":count file(s) failed to upload.": ":count file(s) failed to upload.",
     ":count full": ":count đã đầy",
     ":count landing pages": ":count trang đích",
-    ":count left": ":count left",
+    ":count left": "Còn :count",
     ":count links": ":count liên kết",
     ":count open": ":count mở",
     ":count published": ":count đã xuất bản",

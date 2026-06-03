@@ -5,6 +5,7 @@ namespace App\Support\Plans;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
+use Modules\AdminPlans\Support\CatalogLocalization;
 use Modules\AdminUser\Models\User;
 use Modules\AppBusinessProfiles\Models\LocalBusiness;
 use Modules\AppLandingPages\Models\LandingPage;
@@ -96,7 +97,7 @@ class PlanLimitGuard
         $creditSummary = $user?->creditSummary() ?? ['used' => 0, 'limit' => -1, 'remaining' => null, 'unlimited' => true, 'usage_percent' => 0];
         $rows = [
             'credits' => [
-                'label' => __('AI credits'),
+                'label' => 'AI credits',
                 'key' => 'credits_usage_limit',
                 'used' => (int) ($creditSummary['used'] ?? 0),
                 'limit' => is_numeric($creditSummary['limit'] ?? null) ? (int) $creditSummary['limit'] : -1,
@@ -109,27 +110,27 @@ class PlanLimitGuard
                 'precomputed' => true,
             ],
             'businesses' => [
-                'label' => __('Businesses'),
+                'label' => 'Businesses',
                 'key' => 'max_businesses',
                 'used' => LocalBusiness::query()->where('user_id', $user?->id)->count(),
             ],
             'campaigns' => [
-                'label' => __('Campaigns'),
+                'label' => 'Campaigns',
                 'key' => 'max_campaigns',
                 'used' => $this->campaignCount($user),
             ],
             'landing_pages' => [
-                'label' => __('Landing pages'),
+                'label' => 'Landing pages',
                 'key' => 'max_landing_pages',
                 'used' => LandingPage::query()->where('user_id', $user?->id)->count(),
             ],
             'qr_codes' => [
-                'label' => __('QR codes'),
+                'label' => 'QR codes',
                 'key' => 'max_qr_codes',
                 'used' => QrCampaign::query()->where('user_id', $user?->id)->count(),
             ],
             'templates' => [
-                'label' => __('Custom templates'),
+                'label' => 'Custom templates',
                 'key' => 'max_templates',
                 'used' => MarketingTemplate::query()
                     ->where('user_id', $user?->id)
@@ -142,7 +143,7 @@ class PlanLimitGuard
 
         if (class_exists($customDomainModel) && $user?->canUsePlanFeature('qr_custom_domains')) {
             $rows['custom_domains'] = [
-                'label' => __('Custom domains'),
+                'label' => 'Custom domains',
                 'key' => 'max_custom_domains',
                 'used' => $customDomainModel::query()->where('owner_user_id', $user?->id)->count(),
             ];
@@ -159,13 +160,13 @@ class PlanLimitGuard
             && $user?->canUsePlanFeature('email_automation')
         ) {
             $rows['email_automations'] = [
-                'label' => __('Email automations'),
+                'label' => 'Email automations',
                 'key' => 'max_email_automations',
                 'used' => $this->countOwnedRows($emailAutomationModel, 'lb_email_automations', $user),
             ];
 
             $rows['email_templates'] = [
-                'label' => __('Email templates'),
+                'label' => 'Email templates',
                 'key' => 'max_email_templates',
                 'used' => $this->ownedQuery($emailTemplateModel, 'lb_email_templates', $user)
                     ->where('is_system', false)
@@ -173,7 +174,7 @@ class PlanLimitGuard
             ];
 
             $rows['emails_this_month'] = [
-                'label' => __('Emails this month'),
+                'label' => 'Emails this month',
                 'key' => 'emails_per_month',
                 'used' => $this->ownedQuery($emailLogModel, 'lb_email_automation_logs', $user)
                     ->whereIn('status', ['queued', 'sent', 'opened', 'clicked'])
@@ -191,13 +192,13 @@ class PlanLimitGuard
             && $user?->canUsePlanFeature('google_business')
         ) {
             $rows['google_business_connections'] = [
-                'label' => __('Google connections'),
+                'label' => 'Google connections',
                 'key' => 'max_google_business_connections',
                 'used' => $googleConnectionModel::query()->where('team_id', $user?->id)->count(),
             ];
 
             $rows['google_business_locations'] = [
-                'label' => __('Google locations'),
+                'label' => 'Google locations',
                 'key' => 'max_google_business_locations',
                 'used' => $googleLocationModel::query()->where('team_id', $user?->id)->count(),
             ];
@@ -205,6 +206,8 @@ class PlanLimitGuard
 
         return collect($rows)
             ->map(function (array $row) use ($user): array {
+                $row['label'] = CatalogLocalization::resolve((string) ($row['label'] ?? ''));
+
                 if (($row['precomputed'] ?? false) === true) {
                     return $row;
                 }
@@ -277,13 +280,18 @@ class PlanLimitGuard
     {
         $userId = (int) ($user?->id ?? 0);
         $version = $user?->hasActivePlan() ? 'v1' : 'v0';
+        $locale = strtolower((string) app()->getLocale());
 
-        return "portal.plan_usage.{$version}.{$userId}";
+        return "portal.plan_usage.{$version}.{$userId}.{$locale}";
     }
 
     public static function forgetPlanUsageCache(int $userId): void
     {
         foreach (['v0', 'v1', 'v2'] as $version) {
+            foreach (['en', 'vi'] as $locale) {
+                Cache::forget("portal.plan_usage.{$version}.{$userId}.{$locale}");
+            }
+
             Cache::forget("portal.plan_usage.{$version}.{$userId}");
         }
     }
