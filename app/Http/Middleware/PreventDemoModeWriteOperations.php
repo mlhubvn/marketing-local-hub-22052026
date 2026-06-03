@@ -134,7 +134,10 @@ class PreventDemoModeWriteOperations
 
     protected function isLivewireUpdate(Request $request): bool
     {
-        return $request->is('livewire/update');
+        $path = $request->path();
+
+        return $path === 'livewire/update'
+            || (bool) preg_match('/^livewire-[a-f0-9]+\/update$/', $path);
     }
 
     protected function isLivewireRequest(Request $request): bool

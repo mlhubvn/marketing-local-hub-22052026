@@ -68,6 +68,18 @@ class Dashboard extends Component
         ]);
     }
 
+    public function loadDashboardSections(): void
+    {
+        try {
+            $this->loadMetrics();
+            $this->loadTopCampaigns();
+            $this->loadRecentActivity();
+        } catch (\Throwable $exception) {
+            report($exception);
+            $this->metricsLoaded = true;
+        }
+    }
+
     public function loadMetrics(): void
     {
         $userId = auth()->id();

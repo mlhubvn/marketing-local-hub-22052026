@@ -218,7 +218,7 @@
         </div>
     </section>
 
-    <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5" wire:init="loadMetrics">
+    <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5" wire:init="loadDashboardSections">
         @if (! $metricsLoaded)
             <article class="rounded-[1rem] border bg-white p-4 shadow-sm sm:col-span-2 xl:col-span-5" style="border-color: rgba(var(--theme-border-color-rgb),0.72);">
                 <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Loading dashboard metrics...') }}</p>
@@ -260,12 +260,12 @@
                 </div>
                 <x-ui.button href="{{ route('portal.reports') }}" variant="outline" size="sm" wire:navigate>{{ __('Open Reports') }}</x-ui.button>
             </div>
-            <div wire:init="loadTopCampaigns">
-                <div class="px-5 py-8" wire:loading wire:target="loadTopCampaigns">
+            <div>
+                <div class="px-5 py-8" wire:loading wire:target="loadDashboardSections,loadTopCampaigns">
                     <div style="color: var(--theme-muted-text-color);">{{ __('Loading top campaigns...') }}</div>
                 </div>
 
-                <div wire:loading.remove wire:target="loadTopCampaigns">
+                <div wire:loading.remove wire:target="loadDashboardSections,loadTopCampaigns">
                     @if (count($topCampaigns) > 0)
                         <div class="overflow-x-auto">
                             <table class="min-w-full text-left text-sm">
@@ -308,12 +308,12 @@
                 <h2 class="text-base font-semibold" style="color: var(--theme-header-text-color);">{{ __('Recent Activity') }}</h2>
                 <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Latest growth events across campaign pages.') }}</p>
             </div>
-            <div wire:init="loadRecentActivity">
-                <div class="grid gap-3 p-5" wire:loading wire:target="loadRecentActivity">
+            <div>
+                <div class="grid gap-3 p-5" wire:loading wire:target="loadDashboardSections,loadRecentActivity,loadMoreRecentActivity">
                     <div style="color: var(--theme-muted-text-color);">{{ __('Loading recent activity...') }}</div>
                 </div>
 
-                <div wire:loading.remove wire:target="loadRecentActivity">
+                <div wire:loading.remove wire:target="loadDashboardSections,loadRecentActivity,loadMoreRecentActivity">
                     <div class="grid gap-3 p-5">
                         @forelse ($recentActivity as $item)
                             <div class="flex gap-3 rounded-xl border p-3" style="border-color: rgba(var(--theme-border-color-rgb),0.62); background: rgba(var(--theme-surface-bg-rgb),0.55);">

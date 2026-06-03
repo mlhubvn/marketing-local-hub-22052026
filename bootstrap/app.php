@@ -43,8 +43,37 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->reportable(function (\Throwable $exception): void {
+            $request = request();
+
+            if (! $request instanceof Request) {
+                return;
+            }
+
+            $isLivewire = $request->hasHeader('X-Livewire') || is_array($request->input('components'));
+
+            if (! $isLivewire) {
+                return;
+            }
+
+            $status = method_exists($exception, 'getStatusCode')
+                ? (int) $exception->getStatusCode()
+                : 0;
+
+            if ($status === 419) {
+                logger()->warning('Livewire request rejected with 419.', [
+                    'path' => $request->path(),
+                    'exception' => $exception::class,
+                    'message' => $exception->getMessage(),
+                ]);
+            }
+        });
+
         $exceptions->render(function (DemoModeRestrictedException $exception, Request $request) {
-            if ($request->expectsJson() || $request->is('livewire/update')) {
+            $livewirePath = $request->is('livewire/update')
+                || (bool) preg_match('/^livewire-[a-f0-9]+\/update$/', $request->path());
+
+            if ($request->expectsJson() || $livewirePath) {
                 return response()->json([
                     'message' => $exception->getMessage(),
                     'demo_mode' => true,

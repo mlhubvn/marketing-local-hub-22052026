@@ -54,6 +54,7 @@ class AppServiceProvider extends ServiceProvider
         }
 
         $this->configureDefaults();
+        $this->configureLivewire();
         AuthMailMessageBuilder::register();
         $this->configureLivewireAssets();
         $this->configureLivewireMiddleware();
@@ -73,6 +74,15 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Configure default behaviors for production-ready applications.
      */
+    protected function configureLivewire(): void
+    {
+        $token = trim((string) env('LIVEWIRE_RELEASE_TOKEN', ''));
+
+        if ($token !== '') {
+            config(['livewire.release_token' => $token]);
+        }
+    }
+
     protected function configureDefaults(): void
     {
         Date::use(CarbonImmutable::class);
