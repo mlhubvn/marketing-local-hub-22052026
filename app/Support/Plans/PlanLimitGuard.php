@@ -2,8 +2,9 @@
 
 namespace App\Support\Plans;
 
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\ValidationException;
 use Modules\AdminUser\Models\User;
 use Modules\AppBusinessProfiles\Models\LocalBusiness;
 use Modules\AppLandingPages\Models\LandingPage;
@@ -270,5 +271,20 @@ class PlanLimitGuard
         $query = $modelClass::query();
 
         return $column ? $query->where($column, $user?->id) : $query->whereRaw('1 = 0');
+    }
+
+    public static function planUsageCacheKey(?User $user): string
+    {
+        $userId = (int) ($user?->id ?? 0);
+        $version = $user?->hasActivePlan() ? 'v1' : 'v0';
+
+        return "portal.plan_usage.{$version}.{$userId}";
+    }
+
+    public static function forgetPlanUsageCache(int $userId): void
+    {
+        foreach (['v0', 'v1', 'v2'] as $version) {
+            Cache::forget("portal.plan_usage.{$version}.{$userId}");
+        }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Support\Portal;
 
+use App\Support\Plans\PlanLimitGuard;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Modules\AppBookingPages\Models\Booking;
@@ -33,7 +34,7 @@ class PortalGrowthDashboardMetrics
         Cache::forget("portal.growth_metrics.v1.{$userId}");
         Cache::forget("portal.top_campaigns.v1.{$userId}");
         Cache::forget("portal.top_campaigns.v2.{$userId}");
-        Cache::forget("portal.plan_usage.v1.{$userId}");
+        PlanLimitGuard::forgetPlanUsageCache($userId);
 
         for ($limit = 8; $limit <= 64; $limit += 8) {
             Cache::forget("portal.recent_activity.v1.{$userId}.{$limit}");

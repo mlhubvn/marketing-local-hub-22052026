@@ -49,9 +49,9 @@ class Dashboard extends Component
         ];
         $onboarding = $this->onboarding($userId, $growthDashboard);
 
-        $planUsage = $userId
+        $planUsage = $user
             ? Cache::remember(
-                "portal.plan_usage.v1.{$userId}",
+                PlanLimitGuard::planUsageCacheKey($user),
                 now()->addMinutes(15),
                 fn (): array => app(PlanLimitGuard::class)->usageSummary($user),
             )

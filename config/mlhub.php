@@ -11,6 +11,42 @@ return [
     'admin_plan_slug' => env('MLHUB_ADMIN_PLAN_SLUG', 'agency-lifetime'),
 
     /*
+     * User đăng ký chưa chọn/gán gói (plan_id null): vẫn dùng portal với hạn mức cố định.
+     * Chỉnh trong file này hoặc Coolify env MLHUB_NO_PLAN_ACCESS_* — không cần tạo gói Free trong Admin.
+     */
+    'no_plan_access' => [
+        'enabled' => filter_var(env('MLHUB_NO_PLAN_ACCESS_ENABLED', true), FILTER_VALIDATE_BOOL),
+        'label' => env('MLHUB_NO_PLAN_ACCESS_LABEL', 'MLHUB Free'),
+        'permissions' => [
+            'credits_usage' => true,
+            'credits_usage_limit' => (int) env('MLHUB_NO_PLAN_CREDITS_LIMIT', 100),
+            'localboost' => true,
+            'max_businesses' => (int) env('MLHUB_NO_PLAN_MAX_BUSINESSES', 1),
+            'max_campaigns' => (int) env('MLHUB_NO_PLAN_MAX_CAMPAIGNS', 3),
+            'max_landing_pages' => (int) env('MLHUB_NO_PLAN_MAX_LANDING_PAGES', 3),
+            'max_qr_codes' => (int) env('MLHUB_NO_PLAN_MAX_QR_CODES', 10),
+            'max_templates' => (int) env('MLHUB_NO_PLAN_MAX_TEMPLATES', 5),
+            'files' => true,
+            'max_storage_size_mb' => (int) env('MLHUB_NO_PLAN_MAX_STORAGE_MB', 512),
+            'max_file_size_mb' => 32,
+            'image_editor' => true,
+            'support' => true,
+            'ai_studio' => true,
+            'ai_studio_caption_generator' => true,
+            'ai_studio_content_planner' => false,
+            'ai_studio_repurpose' => false,
+            'ai_studio_image' => false,
+            'advanced_crm' => false,
+            'google_business' => false,
+            'email_automation' => false,
+            'whatsapp_notification' => false,
+            'webhook_automation' => false,
+            'loyalty_stamp_cards' => false,
+            'qr_custom_domains' => false,
+        ],
+    ],
+
+    /*
      * Admin Faker gắn dữ liệu investor demo (Đà Nẵng SOHO) vào user này.
      * Sau `mlhub:reset-demo` user được tạo bởi LocalBoostDemoSeeder: demo@mlhub.vn / 123456.
      */

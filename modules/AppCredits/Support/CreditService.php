@@ -35,7 +35,7 @@ class CreditService
         $limit = $this->planLimit($user);
         $startedAt = $this->startedAt($user);
         $used = $this->used($user);
-        $unlimited = ! $user->plan || $limit === -1;
+        $unlimited = $limit < 0;
         $topupRemaining = $unlimited ? 0 : $this->topups->remaining($user);
         $planUsed = $unlimited ? 0 : $this->planUsed($user, $used);
         $planRemaining = $unlimited ? null : max(0, $limit - $planUsed);

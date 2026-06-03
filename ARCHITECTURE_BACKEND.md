@@ -153,7 +153,9 @@ Hệ thống **không** dùng tách database; tenant được cô lập bằng *
 
 - Gói nằm ở `Modules\AdminPlans\Models\AdminPlan`; user gắn `plan_id`, `plan_started_at`, `plan_expires_at`, `next_plan_id`.
 - **Hiển thị catalog (portal Packages / guest pricing):** `PlanSeeder` lưu `name`/`desc` bằng **chuỗi tiếng Anh** (key `__()`); bản dịch VI trong `lang/vi.json`. `Modules\AdminPlans\Support\CatalogLocalization::resolve()` + `PricingService::render()` dịch lúc render (kể cả label đã bị “đóng băng” tiếng Việt lúc boot `__('…')` trên locale mặc định).
-- **Sidebar portal (addon):** menu module marketplace chỉ `visible` khi `User::canUsePlanFeature(...)` (cần `hasActivePlan()` + quyền trong `plans.permissions`). User **No plan assigned** không thấy CRM / Google Business / Loyalty / Custom Domains; vào URL trực tiếp → `403` trên Livewire/controller tương ứng.
+- **Sidebar portal (addon):** menu module marketplace chỉ `visible` khi `User::canUsePlanFeature(...)` (cần quyền trong gói **hoặc** `config/mlhub.php` → `no_plan_access.permissions`). User chưa gán gói **không** thấy CRM / Google Business / Loyalty / Custom Domains; vào URL trực tiếp → `403`.
+- **Chưa chọn gói nhưng dùng ngay (free tier):** `MLHUB_NO_PLAN_ACCESS_ENABLED=true` (mặc định). Hạn mức trong `config/mlhub.php` `no_plan_access.permissions` (+ env `MLHUB_NO_PLAN_*`). `User::planLimit()` / `canUsePlanFeature('localboost')` / dashboard **Current plan limits** dùng các số này thay vì Unlimited. Sidebar hiển thị **MLHUB Free** / badge **Free**.
+- **Cache dashboard plan limits:** `PlanLimitGuard::planUsageCacheKey()` → `portal.plan_usage.v0.{userId}` khi **chưa có gói active** (free tier / no plan), `portal.plan_usage.v1.{userId}` khi **đã có gói**; đổi gói tự dùng key khác (không dính snapshot cũ). `forgetPlanUsageCache()` xóa v0/v1/v2.
 - Kiểm tra quyền tính năng:
   - `$user->hasActivePlan()` — còn hạn không.
   - `$user->canUsePlanFeature('localboost')` — gói còn hạn **và** bật cờ tính năng.

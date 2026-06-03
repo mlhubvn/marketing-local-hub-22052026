@@ -2,6 +2,7 @@
 
 namespace Modules\AdminUser\Models;
 
+use App\Support\Plans\NoPlanAccess;
 use App\Support\Storage\StorageDriverManager;
 use Carbon\Carbon;
 use Database\Factories\UserFactory;
@@ -271,26 +272,68 @@ class User extends Authenticatable implements MustVerifyEmail, HasLocalePreferen
         return $this->isInPlanTrial() ? Carbon::parse($this->plan_expires_at) : null;
     }
 
+    public function usesNoPlanFreeAccess(): bool
+    {
+        return ! $this->hasActivePlan() && NoPlanAccess::enabled();
+    }
+
+    public function portalPlanLabel(): string
+    {
+        if ($this->hasActivePlan() && $this->plan) {
+            return (string) $this->plan->name;
+        }
+
+        if ($this->usesNoPlanFreeAccess()) {
+            return __(NoPlanAccess::label());
+        }
+
+        return __('No plan assigned');
+    }
+
+    public function portalPlanStatusLabel(): string
+    {
+        if ($this->isInPlanTrial()) {
+            return __('Trial');
+        }
+
+        if ($this->hasActivePlan()) {
+            return __('Active');
+        }
+
+        if ($this->usesNoPlanFreeAccess()) {
+            return __('Free');
+        }
+
+        return __('Inactive');
+    }
+
+    public function portalPlanStatusTone(): string
+    {
+        return ($this->hasActivePlan() || $this->usesNoPlanFreeAccess()) ? 'success' : 'neutral';
+    }
+
     public function hasPlanFeature(string $feature): bool
     {
-        $value = $this->plan?->permissions[$feature] ?? false;
+        $value = $this->hasActivePlan()
+            ? ($this->plan?->permissions[$feature] ?? false)
+            : (NoPlanAccess::enabled() ? (NoPlanAccess::permissions()[$feature] ?? false) : false);
 
         return $value === true || $value === 1 || $value === '1';
     }
 
     public function canUsePlanFeature(string $feature): bool
     {
-        return $this->hasActivePlan() && $this->hasPlanFeature($feature);
+        if ($this->hasActivePlan()) {
+            return $this->hasPlanFeature($feature);
+        }
+
+        return $this->usesNoPlanFreeAccess() && $this->hasPlanFeature($feature);
     }
 
     public function canUseAnyPlanFeature(array $features): bool
     {
-        if (! $this->hasActivePlan()) {
-            return false;
-        }
-
         foreach ($features as $feature) {
-            if (is_string($feature) && $feature !== '' && $this->hasPlanFeature($feature)) {
+            if (is_string($feature) && $feature !== '' && $this->canUsePlanFeature($feature)) {
                 return true;
             }
         }
@@ -309,7 +352,15 @@ class User extends Authenticatable implements MustVerifyEmail, HasLocalePreferen
 
     public function planLimit(string $key, mixed $default = null): mixed
     {
-        return $this->plan?->permissions[$key] ?? $default;
+        if ($this->hasActivePlan()) {
+            return $this->plan?->permissions[$key] ?? $default;
+        }
+
+        if (! NoPlanAccess::enabled()) {
+            return $default;
+        }
+
+        return NoPlanAccess::permissions()[$key] ?? $default;
     }
 
     public function creditSummary(): array
