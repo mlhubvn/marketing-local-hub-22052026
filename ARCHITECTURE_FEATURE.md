@@ -59,7 +59,7 @@ Review Booster, Booking, Coupons, Feedback, Lead Forms **không độc lập ho�
 - [ ] Test cô lập dữ liệu giữa các tenant (IDOR): thử truy cập `findOrFail` bằng ID của user khác.
 - [ ] Test end-to-end ít nhất 1 cổng thanh toán thật + xử lý webhook thất bại/hoàn tiền.
 - [ ] Rà soát ma trận quyền team (owner/member, module bật/tắt).
-- [ ] `.env` production: `APP_DEBUG=false`, queue worker, scheduler, `TRUSTED_PROXIES`, S3/mail thật.
+- [ ] `.env` production: `APP_DEBUG=false`, `APP_URL=https://mlhub.vn`, `SESSION_DOMAIN=.mlhub.vn`, `TRUSTED_PROXIES`, queue worker (một nguồn), S3/mail thật; sau deploy user **Ctrl+F5** nếu Livewire 419.
 
 ---
 

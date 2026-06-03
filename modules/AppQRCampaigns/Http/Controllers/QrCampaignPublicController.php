@@ -2,6 +2,7 @@
 
 namespace Modules\AppQRCampaigns\Http\Controllers;
 
+use App\Support\Portal\PortalGrowthDashboardMetrics;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -87,5 +88,7 @@ class QrCampaignPublicController extends Controller
             'device' => str_contains(strtolower($agent), 'mobile') ? 'mobile' : 'desktop',
             'created_at' => now(),
         ]);
+
+        PortalGrowthDashboardMetrics::forget((int) $campaign->user_id);
     }
 }

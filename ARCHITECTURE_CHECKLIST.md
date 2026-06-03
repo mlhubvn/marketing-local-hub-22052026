@@ -2,7 +2,7 @@
 
 Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** (LocalBoost AI / Stackposts) khi làm việc với Cursor. Mục tiêu: code **ổn định, đúng phong cách lập trình viên gốc, an toàn cho production, và tiết kiệm tài nguyên đọc lại dự án**.
 
-> Đọc kèm: `.cursorrules` (luật cứng), `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_FEATURE.md`, `ARCHITECTURE_PROMPT.md` (bộ prompt + cheatsheet lệnh).
+> Đọc kèm: `.cursorrules` (luật cứng), `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_FEATURE.md`, `ARCHITECTURE_PROMPT.md` (prompt mẫu + **Superpowers** §2 + cheatsheet lệnh).
 > **Bắt buộc:** đọc lướt file này trước khi bắt tay vào bất kỳ Task / tính năng mới nào.
 
 ---
@@ -139,14 +139,16 @@ Với các nhóm việc dưới đây, AI **PHẢI dừng lại, trình bày k�
 
 ---
 
-## 4. Tóm tắt 6 bước Vibecode (bản rút gọn để nhớ nhanh)
+## 4. Tóm tắt 7 bước Vibecode (bản rút gọn — kèm Superpowers)
 
+0. **Chọn skill** — xem `ARCHITECTURE_PROMPT.md` §2 (bug → `systematic-debugging`; feature → `brainstorming` → `writing-plans` → **Duyệt** → `executing-plans`).
 1. **Phân tích hẹp** — `@file` đúng chỗ, đọc `ARCHITECTURE_*.md`, không quét toàn dự án.
 2. **Bám tiền tố module** — `App*` / `Admin*` / `Payment*`.
-3. **Phân loại việc** — bug fix (sửa thẳng, surgical) vs feature mới (ưu tiên extension point).
-4. **Code đúng vibe** — theo `.cursorrules` §3, scope tenant, guard plan/credit.
-5. **Format + test** — `pint` file đã sửa → `php artisan test` → rà checklist §2.D.
-6. **Việc rủi ro: Plan trước** — migration/payment/xóa dữ liệu/đụng core → trình bày kế hoạch, chờ duyệt.
+3. **Phân loại việc** — bug fix (surgical) vs feature mới (extension point §5 `.cursorrules`).
+4. **Code đúng vibe** — `.cursorrules` §3, scope tenant, guard plan/credit.
+5. **Format + verify** — `pint` → `php artisan test` → skill `verification-before-completion` → rà §2.D.
+6. **Review** — cụm lớn: subagent `code-reviewer` hoặc skill `requesting-code-review`.
+7. **Deploy** — commit/push (chủ dự án) → Coolify → user **Ctrl+F5** nếu Livewire 419 sau deploy.
 
 ---
 

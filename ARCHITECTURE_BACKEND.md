@@ -34,7 +34,10 @@ Nguyên tắc cốt lõi:
 | `app/Http/Middleware/ResolveUserPlanState.php` | Nạp ngữ cảnh gói (plan) cho mỗi request. |
 | `app/Http/Middleware/PreventDemoModeWriteOperations.php` | Chặn thao tác ghi khi bật chế độ demo. |
 | `app/Http/Controllers/GuestMarketingController.php`, `GuestStaticPageController.php`, `Auth/SocialLoginController.php` | Trang marketing công khai, trang tĩnh, đăng nhập mạng xã hội. |
-| `app/Livewire/Auth/*`, `app/Livewire/Portal/Dashboard.php` | Trang login/register/reset, dashboard portal. |
+| `app/Livewire/Auth/*`, `app/Livewire/Portal/Dashboard.php` | Trang login/register/reset, dashboard portal (lazy `loadDashboardSections`). |
+| `app/Support/Portal/PortalGrowthDashboardMetrics.php` | Metrics/top campaigns/recent activity portal (Redis cache, `forget()` sau growth events). |
+| `app/Support/Mail/AuthMailMessageBuilder.php` | Mail reset password / verify email (locale user, `toMailUsing`). |
+| `app/Livewire/DemoModeActionGuard.php` | Chặn Livewire write khi `APP_DEMO=true`. |
 | `app/Support/Navigation/` | `SidebarRegistry`, `HeaderRegistry`. |
 | `app/Support/Dashboard/` | `AdminDashboardRegistry`, `UserDashboardRegistry`. |
 | `app/Support/Plans/` | `PlanPermissionRegistry`, **`PlanLimitGuard`** (kiểm soát hạn mức tạo bản ghi). |
@@ -212,19 +215,18 @@ Route::middleware('web')
 Thứ tự rất quan trọng:
 
 ```
-PrepareInstallation
-  → (web stack chuẩn của Laravel)
+(web stack chuẩn của Laravel)
   → SetLocale            (Modules\AdminLanguages)
   → SetThemeContext      (Modules\AdminThemes)
   → CaptureAffiliateReferral (Modules\AppAffiliate)
   → ResolveUserPlanState (App\Http\Middleware)
   → EnsureAdminAccess    (App\Http\Middleware)
-  → PreventDemoModeWriteOperations
+  → PreventDemoModeWriteOperations   (HTTP POST; Livewire ghi → DemoModeActionGuard)
 ```
 
 - CSRF loại trừ: `livewire/upload-file`, `livewire-*/upload-file`.
 - Trust proxy theo `TRUSTED_PROXIES` env (mặc định `*` ở production) — vì chạy sau Traefik/Coolify, app thấy HTTP nhưng phải sinh signed URL dạng HTTPS.
-- Exception handler render `DemoModeRestrictedException`: JSON 403 cho request `expectsJson()`/`livewire/update`, ngược lại `back()->with('warning', ...)`.
+- Exception handler: `DemoModeRestrictedException` → JSON 403 cho Livewire/AJAX; log `warning` khi Livewire trả 419 (release token / CSRF / snapshot).
 
 ### 5.4 "API" của hệ thống
 

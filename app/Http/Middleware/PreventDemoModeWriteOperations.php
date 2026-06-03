@@ -11,53 +11,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PreventDemoModeWriteOperations
 {
-    /**
-     * @var array<int, string>
-     */
-    protected array $blockedMethodPrefixes = [
-        'activate',
-        'approve',
-        'archive',
-        'attach',
-        'cancel',
-        'clear',
-        'clone',
-        'connect',
-        'create',
-        'deactivate',
-        'delete',
-        'destroy',
-        'detach',
-        'disconnect',
-        'duplicate',
-        'import',
-        'install',
-        'invite',
-        'mark',
-        'move',
-        'process',
-        'remove',
-        'reorder',
-        'reject',
-        'rescan',
-        'resend',
-        'reset',
-        'restore',
-        'revoke',
-        'run',
-        'save',
-        'send',
-        'set',
-        'store',
-        'submit',
-        'sync',
-        'toggle',
-        'unlink',
-        'unpublish',
-        'update',
-        'upload',
-    ];
-
     public function handle(Request $request, Closure $next): Response
     {
         if (! config('app.demo_mode')) {
@@ -86,17 +39,6 @@ class PreventDemoModeWriteOperations
         }
 
         return $this->isWorkspaceRequest($request);
-    }
-
-    protected function isBlockedMethod(string $method): bool
-    {
-        foreach ($this->blockedMethodPrefixes as $prefix) {
-            if (str_starts_with($method, $prefix)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     protected function isWorkspaceRequest(Request $request): bool

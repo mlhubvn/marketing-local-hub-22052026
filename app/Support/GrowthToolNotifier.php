@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Support\Portal\PortalGrowthDashboardMetrics;
 use Modules\AdminNotifications\Services\NotificationService;
 use Modules\AppQRCampaigns\Models\QrCampaign;
 
@@ -82,7 +83,13 @@ class GrowthToolNotifier
 
     protected function notify(int $userId, string $title, string $message, ?string $url, string $type): void
     {
-        if ($userId <= 0 || ! class_exists(NotificationService::class)) {
+        if ($userId <= 0) {
+            return;
+        }
+
+        PortalGrowthDashboardMetrics::forget($userId);
+
+        if (! class_exists(NotificationService::class)) {
             return;
         }
 

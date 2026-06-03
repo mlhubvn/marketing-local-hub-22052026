@@ -76,14 +76,14 @@ class FortifyServiceProvider extends ServiceProvider
             }
 
             if (function_exists('captcha_enabled') && captcha_enabled()) {
-                if (! $request->attributes->get('captcha_verified', false)) {
-                    if (! captcha_verify($request)) {
-                        throw ValidationException::withMessages([
-                            'captcha_token' => [captcha_error_message()],
-                        ]);
-                    }
-
-                    $request->attributes->set('captcha_verified', true);
+                if (! captcha_verify_token(
+                    token: (string) $request->input('captcha_token', $request->input('cf-turnstile-response', '')),
+                    host: $request->getHost(),
+                    ip: $request->ip(),
+                )) {
+                    throw ValidationException::withMessages([
+                        'captcha_token' => [captcha_error_message()],
+                    ]);
                 }
             }
 

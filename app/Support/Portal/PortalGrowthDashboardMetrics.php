@@ -44,6 +44,7 @@ class PortalGrowthDashboardMetrics
         if ($campaignIds->isEmpty()) {
             return [
                 'businesses' => LocalBusiness::query()->where('user_id', $userId)->count(),
+                'campaigns' => 0,
                 'active_campaigns' => 0,
                 'visits' => 0,
                 'review_clicks' => 0,
@@ -86,6 +87,7 @@ class PortalGrowthDashboardMetrics
 
         return [
             'businesses' => LocalBusiness::query()->where('user_id', $userId)->count(),
+            'campaigns' => QrCampaign::query()->where('user_id', $userId)->count(),
             'active_campaigns' => QrCampaign::query()->where('user_id', $userId)->whereNotNull('published_at')->count(),
             'visits' => $visits,
             'review_clicks' => $reviewClicks,

@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Validator;
 use Livewire\Attributes\Title;
 use Livewire\Component;
-use Modules\AppQRCampaigns\Models\QrCampaign;
-
 #[Title('User Dashboard')]
 class Dashboard extends Component
 {
@@ -136,7 +134,7 @@ class Dashboard extends Component
             + (int) ($metrics['coupon_claims'] ?? 0)
             + (int) ($metrics['feedback'] ?? 0);
 
-        $campaigns = $userId ? QrCampaign::query()->where('user_id', $userId)->count() : 0;
+        $campaigns = (int) ($metrics['campaigns'] ?? 0);
 
         $steps = [
             [

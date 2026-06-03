@@ -94,7 +94,7 @@
                     {{ __('Growth Dashboard') }}
                 </div>
                 <h1 class="mt-4 max-w-4xl text-[2.35rem] font-semibold leading-[1.02] tracking-[-0.055em] sm:text-[3rem]" style="color: var(--theme-header-text-color);">
-                    {{ __('LocalBoost growth overview') }}
+                    {{ __('MLHUB growth overview') }}
                 </h1>
                 <p class="mt-4 max-w-3xl text-sm leading-7 sm:text-[1rem]" style="color: var(--theme-muted-text-color);">
                     {{ __('Track visits, review clicks, leads, bookings, coupon claims, feedback, conversion rate, recent activity, and top campaigns from one workspace.') }}
@@ -151,7 +151,7 @@
     @include('applandingpages::partials.plan-limit-usage', [
         'usage' => $planUsage,
         'title' => __('Current plan limits'),
-        'description' => __('See how many LocalBoost assets are used before creating more campaigns, pages, QR codes, or templates.'),
+        'description' => __('See how many MLHUB assets are used before creating more campaigns, pages, QR codes, or templates.'),
     ])
 
     <section id="onboarding" class="scroll-mt-28 overflow-hidden rounded-[1.25rem] border bg-white shadow-sm" style="border-color: rgba(var(--theme-border-color-rgb),0.7);">

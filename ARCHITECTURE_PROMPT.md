@@ -1,9 +1,10 @@
 # MLHUB — Bộ Prompt & Sổ tay lệnh (Vibecode)
 
-Nơi lưu **prompt mẫu** để làm việc với Cursor và **cheatsheet lệnh** (Laravel / Docker / SSH Coolify) cho dự án MLHUB. Mở file này mỗi khi bắt đầu code, copy prompt phù hợp rồi điền chỗ `<...>`.
+Nơi lưu **prompt mẫu** để làm việc với Cursor (kèm plugin **Superpowers**) và **cheatsheet lệnh** (Laravel / Docker / Coolify) cho dự án MLHUB. Mở file này mỗi khi bắt đầu phiên làm việc, chọn luồng §2 rồi copy prompt §3.
 
-> Đọc kèm: `.cursorrules`, `ARCHITECTURE_CHECKLIST.md`, `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_FEATURE.md`.
+> Đọc kèm: `.cursorrules`, `ARCHITECTURE_CHECKLIST.md`, `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_FEATURE.md`, `ARCHITECTURE_ADMINFAKER.md`.
 > Mọi prompt nên đính kèm `@file` đúng chỗ thay vì `@Codebase` để tiết kiệm tài nguyên.
+> **Commit / push / redeploy Coolify do chủ dự án làm thủ công** — AI chỉ sửa local + soạn commit message.
 
 ---
 
@@ -12,23 +13,158 @@ Nơi lưu **prompt mẫu** để làm việc với Cursor và **cheatsheet lện
 - **Khoanh vùng hẹp:** `@modules/AppBookingPages/...` thay vì cả dự án.
 - **Nói rõ loại việc:** "sửa lỗi" (surgical) hay "tính năng mới" (ưu tiên extension point).
 - **Nhắc ngữ cảnh chuẩn:** "theo `.cursorrules` và `ARCHITECTURE_CHECKLIST.md`".
-- **Việc rủi ro:** yêu cầu "trình bày kế hoạch trước, chưa code".
+- **Bật Superpowers:** gõ `/` trong chat → chọn skill (hoặc nói rõ skill trong prompt — xem §2).
+- **Việc rủi ro:** luôn **kế hoạch trước → duyệt → code** (`writing-plans` → bạn gõ **Duyệt** → `executing-plans`).
 - **Một task một mục tiêu:** đừng gộp nhiều việc không liên quan vào một prompt.
 
 ---
 
-## 2. Bộ Prompt mẫu (copy & điền)
+## 2. Superpowers + quy trình Vibecode (MLHUB)
 
-### 2.1 Khởi động phiên làm việc
+Plugin **Superpowers** trong Cursor cung cấp **skills** (quy trình bắt buộc) và **subagent** (rà soát chuyên sâu). Dùng để quản lý dự án, fix lỗi production và nâng cấp phiên bản mà không “nhảy cóc” vào code.
+
+### 2.1 Cách gọi trong Cursor
+
+| Cách | Ví dụ |
+|------|--------|
+| Gõ `/` | `/brainstorming`, hoặc tìm tên skill trong danh sách |
+| Trong prompt | “Dùng skill `systematic-debugging` cho lỗi 419” |
+| Subagent | “Chạy code-reviewer sau khi xong dashboard” |
+
+> Lệnh cũ `/brainstorm`, `/write-plan`, `/execute-plan` **đã deprecated** — dùng skill cùng tên thay thế.
+
+### 2.2 Luồng chuẩn theo loại việc
+
+```mermaid
+flowchart TD
+  A[Bắt đầu phiên] --> B{Loại việc?}
+  B -->|Tính năng / đổi lớn| C[brainstorming]
+  C --> D[writing-plans]
+  D --> E{Chủ dự án: Duyệt}
+  E --> F[executing-plans]
+  F --> G[verification-before-completion]
+  G --> H[requesting-code-review / code-reviewer]
+  B -->|Bug / 419 / 504 / 500| I[systematic-debugging]
+  I --> J{Sửa xong?}
+  J --> K[verification-before-completion]
+  K --> H
+  B -->|Nâng cấp upstream / module mới| L[brainstorming + writing-plans]
+  L --> E
+  E --> F
+  F --> M[Cập nhật ARCHITECTURE_* + .cursorrules]
+  B -->|Nhiều việc độc lập| N[dispatching-parallel-agents]
+```
+
+### 2.3 Bảng skill — khi nào dùng (MLHUB)
+
+| Skill | Dùng khi | Không dùng khi |
+|-------|----------|----------------|
+| **using-superpowers** | Đầu phiên lớn, chưa quen plugin | Đã rõ skill cần dùng |
+| **brainstorming** | Tính năng mới, đổi kiến trúc, nâng cấp upstream | Sửa 1 dòng typo |
+| **writing-plans** | Trước khi code; sau brainstorm | Đã có kế hoạch chi tiết |
+| **executing-plans** | Sau khi bạn gõ **Duyệt** | Chưa duyệt kế hoạch |
+| **systematic-debugging** | 419 Livewire, 504, 500, test fail, log ERROR | Đoán mò sửa ngay |
+| **test-driven-development** | Logic mới, bug có thể tái hiện bằng test | Chỉ đổi chuỗi `lang/vi.json` |
+| **verification-before-completion** | Trước khi bảo “xong” / trước commit | Chưa chạy pint/test |
+| **requesting-code-review** | Xong cụm việc lớn | Thay đổi 1 file nhỏ |
+| **code-reviewer** (subagent) | Review sau dashboard/auth/infra | Mỗi dòng CSS |
+| **receiving-code-review** | Có feedback PR/review cần phân tích | — |
+| **finishing-a-development-branch** | Nhánh xong, cần merge/PR/dọn | Giữa chừng task |
+| **dispatching-parallel-agents** | 2+ task không phụ thuộc | Một bug một file |
+| **using-git-worktrees** | Thử nghiệm tách nhánh an toàn | Hotfix production nhỏ |
+
+### 2.4 MASTER PROMPT — Ổn định workspace / nâng cấp (copy nguyên khối)
+
+Dùng khi vừa đổi nhiều file, chuẩn bị production, hoặc sau khi merge upstream. **Không code** cho đến khi bạn **Duyệt** kế hoạch.
 
 ```
-Bối cảnh: dự án MLHUB (Laravel 13 + Livewire 4, modular monolith). 
-Hãy đọc lướt .cursorrules và ARCHITECTURE_CHECKLIST.md trước. 
-Hôm nay tôi muốn làm: <mô tả mục tiêu>. 
-Hãy xác nhận bạn đã nắm quy trình rồi đề xuất các bước, CHƯA code.
+Act as Staff Engineer for MLHUB (Laravel 13 + Livewire 4, modular monolith, production mlhub.vn).
+
+Use Superpowers skills in order: brainstorming → writing-plans → (wait for my "Duyệt") → executing-plans → verification-before-completion → code-reviewer.
+
+PHASE 1 — Read and internalize:
+- .cursorrules
+- ARCHITECTURE_CHECKLIST.md, ARCHITECTURE_BACKEND.md, ARCHITECTURE_FRONTEND.md, ARCHITECTURE_FEATURE.md, ARCHITECTURE_ADMINFAKER.md, ARCHITECTURE_PROMPT.md
+Propose .cursorrules updates only if ARCHITECTURE_* and code diverge.
+
+PHASE 2 — Infra (local mirrors production intent):
+Inspect .env.example, docker-compose.yaml, Dockerfile, entrypoint.sh.
+Focus: Redis session/cache/queue, TRUSTED_PROXIES, SESSION_DOMAIN, single queue worker, Livewire deploy cache, 419/504 causes.
+
+PHASE 3 — Code health:
+Review recent changes: @app/Livewire/Portal/Dashboard.php, @app/Providers/AppServiceProvider.php, @bootstrap/app.php, @modules/AdminLog, middleware, seeders.
+Cross-check ARCHITECTURE_* and .cursorrules. List P0/P1/P2 — no code yet.
+
+PHASE 4 — Output a step-by-step plan (writing-plans): rules → infra → code fixes → verification checklist.
+Wait for my approval "Duyệt" before implementing.
 ```
 
-### 2.2 Sửa lỗi (Bug fix — surgical)
+### 2.5 MASTER PROMPT — Sửa lỗi production (419 / 504 / 500)
+
+```
+MLHUB production bug. Use skill systematic-debugging — do NOT patch until root cause is identified.
+
+Symptom: <mô tả, vd Livewire 419 on /portal/dashboard>
+Evidence: @storage/logs/laravel.log OR Admin → Settings → Logs (paste ERROR lines)
+Repro: <URL, browser, after deploy? yes/no>
+
+Read .cursorrules (Livewire 419/504 section) and @ARCHITECTURE_CHECKLIST.md.
+
+Checklist to investigate:
+- Deploy snapshot stale? (Ctrl+F5, entrypoint Livewire JS sync)
+- SESSION_DOMAIN / APP_URL on Coolify
+- Parallel wire:init (portal dashboard must use loadDashboardSections once)
+- Redis session down / APP_KEY rotated
+- Heavy QrScan count / missing migration index
+
+Surgical fix only. After fix: verification-before-completion + list Coolify env if any.
+Suggest commit message. Do not git push.
+```
+
+### 2.6 MASTER PROMPT — Nâng cấp phiên bản tác giả / module marketplace
+
+```
+MLHUB upstream/marketplace upgrade. Skills: brainstorming → writing-plans → wait "Duyệt" → executing-plans.
+
+What changed: <phiên bản / module tên>
+Attach: @modules/<ModuleName>/ (if known)
+
+Before coding:
+1. Diff scope vs .cursorrules (prefer edit existing files, modules/Custom* for new logic)
+2. List new migrations under modules/*/Database/Migrations
+3. Plan: migrate on deploy (entrypoint), portal smoke routes, update ARCHITECTURE_* counts (Admin*/App*/Payment*)
+
+After deploy checklist:
+- Coolify log: migrate OK, "Livewire JS synced"
+- php artisan optimize:clear then optimize (or rely on entrypoint)
+- Portal: CRM, email-automation, loyalty, reports — no 500
+- Optional pilot: MLHUB_ALLOW_RESET_DEMO=true → mlhub:reset-demo --force + Redis FLUSHALL
+
+Do not run migrate:fresh on production. Document new env keys in .env.example only.
+```
+
+### 2.7 Sau khi AI báo “xong” (chủ dự án)
+
+1. Đọc tóm tắt file đổi + **commit message gợi ý**.
+2. Coolify **Environment Variables** (nếu AI liệt kê).
+3. Commit + push → đợi build.
+4. Trên site: **Ctrl+F5** trang portal/admin (tránh Livewire 419 tab cũ).
+5. Ghi note vào §8 (sổ tay cá nhân) nếu gặp cạm bẫy mới.
+
+---
+
+## 3. Bộ Prompt mẫu (copy & điền)
+
+### 3.1 Khởi động phiên làm việc (skill: brainstorming)
+
+```
+Bối cảnh: MLHUB (Laravel 13 + Livewire 4, production mlhub.vn). Dùng skill brainstorming.
+Đọc lướt .cursorrules và ARCHITECTURE_CHECKLIST.md (và ARCHITECTURE_PROMPT.md §2 nếu cần).
+Mục tiêu hôm nay: <mô tả>.
+Xác nhận đã nắm quy trình → đề xuất bước tiếp theo (có cần writing-plans không). CHƯA code.
+```
+
+### 3.2 Sửa lỗi (Bug fix — skill: systematic-debugging)
 
 ```
 Sửa lỗi trong @<đường-dẫn-file>. 
@@ -38,7 +174,7 @@ Yêu cầu: sửa tối thiểu, bám đúng phong cách file (vibecode §3), sc
 không refactor ngoài phạm vi. Giải thích nguyên nhân gốc trước khi sửa.
 ```
 
-### 2.3 Tính năng mới (Feature)
+### 3.3 Tính năng mới (skills: brainstorming → writing-plans)
 
 ```
 Thêm tính năng: <mô tả>. 
@@ -47,7 +183,7 @@ theo ARCHITECTURE_BACKEND.md §5, KHÔNG sửa core nếu không cần.
 Hãy trình bày kế hoạch (file/route/model/migration/permission/env mới) để tôi duyệt, rồi mới code.
 ```
 
-### 2.4 Một growth tool mới (theo engine lb_campaigns)
+### 3.4 Một growth tool mới (theo engine lb_campaigns)
 
 ```
 Tôi muốn thêm growth tool kiểu <tên>. 
@@ -56,7 +192,7 @@ public qua QrCampaignPublicController, PlanLimitGuard, CustomerUpserter, GrowthT
 (xem ARCHITECTURE_FEATURE.md §0). Trình bày kế hoạch trước.
 ```
 
-### 2.5 Giao diện / Theme (White-label)
+### 3.5 Giao diện / Theme (White-label)
 
 ```
 Chỉnh giao diện <mô tả> ở khu <guest/portal/admin>. 
@@ -65,7 +201,7 @@ Dùng lại <x-ui.*>/<x-shared.*>, màu dùng token var(--theme-*), không hard-
 Nếu chỉ là branding nhỏ, gợi ý dùng Admin → Themes → Custom CSS/JS thay vì sửa file.
 ```
 
-### 2.6 Tính năng AI (có credit)
+### 3.6 Tính năng AI (có credit)
 
 ```
 Thêm/sửa tính năng AI: <mô tả>. 
@@ -74,7 +210,7 @@ try/catch (Throwable) có fallback → consume_credits() khi thành công (mẫu
 Scope lịch sử theo workspaceOwnerUserId().
 ```
 
-### 2.7 Database migration (🔴 plan trước)
+### 3.7 Database migration (🔴 skill: writing-plans)
 
 ```
 Tôi cần thay đổi schema: <mô tả>. 
@@ -83,7 +219,7 @@ chỉ thêm mới/nullable hay có đổi/xóa, phương án rollback, và cách
 (entrypoint.sh / migrate --force), tuyệt đối không migrate:fresh trên production.
 ```
 
-### 2.8 Payment / Subscription / Credit (🔴 plan trước)
+### 3.8 Payment / Subscription / Credit (🔴 plan trước)
 
 ```
 Làm việc với cổng thanh toán <PaymentXxx>: <mô tả>. 
@@ -92,7 +228,7 @@ ca lỗi/hoàn tiền/hết hạn, webhook URL & env cần cấu hình, đảm b
 Test sandbox trước.
 ```
 
-### 2.9 Rà soát / Audit trước production
+### 3.9 Rà soát / Audit trước production (subagent: code-reviewer)
 
 ```
 Audit module @<module> theo ARCHITECTURE_FEATURE.md. 
@@ -100,12 +236,12 @@ Kiểm tra: IDOR (scope tenant), thiếu rate-limit/captcha ở endpoint public,
 race condition, và xử lý lỗi. Liệt kê rủi ro theo mức P0/P1/P2 + đề xuất fix, CHƯA sửa.
 ```
 
-### 2.10 Cập nhật tài liệu / sau khi nâng cấp upstream
+### 3.10 Cập nhật tài liệu / sau khi nâng cấp upstream
 
 ```
-Tôi vừa cập nhật phiên bản tác giả và/hoặc cài module mới. Hãy quét lại codebase (đếm modules/*, 
-migration module mới, routes public, env) rồi cập nhật surgical: .cursorrules, Dockerfile, 
-docker-compose.yaml, entrypoint.sh, .env.example, ARCHITECTURE_*.md — khớp số liệu thực tế (79 module, 14 Payment*).
+Tôi vừa cập nhật phiên bản tác giả và/hoặc cài module mới.
+Dùng luồng ARCHITECTURE_PROMPT.md §2.6 (upstream upgrade): brainstorming → writing-plans → chờ Duyệt.
+Quét surgical: modules/*, migration mới, routes public → cập nhật .cursorrules, Dockerfile, entrypoint.sh, .env.example, ARCHITECTURE_*.md.
 ```
 
 ```
@@ -113,17 +249,33 @@ Tôi vừa thay đổi <mô tả>. Hãy cập nhật các file ARCHITECTURE_*.md
 cho khớp thực tế (surgical, không viết lại toàn bộ) để Cursor sau này không phải quét lại dự án.
 ```
 
-### 2.11 Chuẩn bị commit (theo pipeline)
+### 3.11 Chuẩn bị commit (skill: verification-before-completion)
 
 ```
 Tóm tắt thay đổi của phiên này và soạn commit message đúng style repo. 
 Liệt kê file đổi, migration/route/permission/env mới. 
 Nhắc tôi nếu có biến .env cần cập nhật trên Coolify. Chưa push cho tới khi tôi đồng ý.
+Chạy verification-before-completion: pint trên file đã sửa, nêu test/manual check cần làm.
+```
+
+### 3.12 Livewire 419 / "page expired" (rút gọn)
+
+```
+Lỗi Livewire 419 trên <URL>. Skill systematic-debugging.
+@bootstrap/app.php @app/Livewire/Portal/Dashboard.php @resources/themes/app/mlhubbackend/resources/views/livewire/portal/dashboard.blade.php
+Đã Ctrl+F5 chưa: <có/không>. Vừa deploy: <có/không>.
+Sửa surgical; nhắc Coolify: APP_URL, SESSION_DOMAIN, TRUSTED_PROXIES. Không SSH vá tay server.
+```
+
+### 3.13 Duyệt kế hoạch rồi triển khai (một câu)
+
+```
+Duyệt. Triển khai kế hoạch vừa lập theo executing-plans — từng bước, surgical, cập nhật ARCHITECTURE_* nếu cần.
 ```
 
 ---
 
-## 3. Cheatsheet lệnh Laravel (chạy ở LOCAL trên Cursor)
+## 4. Cheatsheet lệnh Laravel (chạy ở LOCAL trên Cursor)
 
 ```bash
 # Chất lượng code
@@ -160,7 +312,7 @@ php artisan tinker
 
 > ⚠️ KHÔNG chạy `migrate:fresh`, `migrate:rollback`, `db:wipe` trên DB có dữ liệu thật.
 
-### 3.1 Reset dữ liệu demo (không còn Web Installer)
+### 4.1 Reset dữ liệu demo (không còn Web Installer)
 
 > 🔴 **Chỉ pilot/staging/local — chưa có khách thật.** MLHUB **đã gỡ Web Installer**; bootstrap qua **seed** + env Coolify.
 
@@ -230,7 +382,7 @@ php artisan optimize:clear
 
 > Quy ước repo: không giữ script one-off/generator trong `database/seeders/scripts` hoặc `database/seeders/data` nếu không cần runtime seed. Ưu tiên chỉnh trực tiếp file data runtime để dễ compare với upstream.
 
-### 3.2 Tải full source từ server (`fullcode.zip`) — pilot / backup
+### 4.2 Tải full source từ server (`fullcode.zip`) — pilot / backup
 
 > Dùng khi cần tải **toàn bộ thư mục app đang chạy** trên Coolify (`/var/www/html`) về máy — gồm code, `vendor/`, `modules/`, `storage/` (upload/cache/log trên container), theme, v.v. **Source of truth vẫn là GitHub** — zip chỉ để backup/so sánh tạm, không thay commit/push.
 
@@ -301,7 +453,7 @@ zip -ry public/fullcode.zip . -x "public/fullcode.zip" -x ".env"
 
 ---
 
-## 4. Cheatsheet Docker / SSH Coolify (CHỈ để CHẨN ĐOÁN — đọc log/kiểm tra)
+## 5. Cheatsheet Docker / SSH Coolify (CHỈ để CHẨN ĐOÁN — đọc log/kiểm tra)
 
 > 🔴 **Quy tắc cốt lõi (ARCHITECTURE_CHECKLIST.md §1):** KHÔNG dùng các lệnh này để **thay đổi** hạ tầng/code/config trên server. Mọi thay đổi đi qua local → GitHub → Coolify build. Các lệnh dưới đây chỉ để **xem trạng thái, đọc log, debug**.
 
@@ -339,7 +491,7 @@ df -h
 4. Nếu là biến môi trường: sửa trong **Coolify UI (env)** + cập nhật `.env.example` ở repo cho khớp.
 5. Nếu cần chạy migration khi deploy: đảm bảo nằm trong `entrypoint.sh`/pipeline.
 
-### 4.1 Xem & tải `laravel.log` an toàn (module AdminLog)
+### 5.1 Xem & tải `laravel.log` an toàn (module AdminLog)
 
 > ✅ **Dùng trang admin, KHÔNG copy log ra `public/`.** Xem/tải log tại **Admin → Cài đặt → Logs** (`https://mlhub.vn/admin/settings/log`). Trang này nằm sau `auth` + `EnsureAdminAccess` (chỉ admin), tránh phơi log ra Internet.
 >
@@ -349,7 +501,7 @@ Tại trang đó có thể: chọn file log, xem nhanh phần cuối (tail), **t
 
 ---
 
-## 5. Tham chiếu nhanh môi trường MLHUB
+## 6. Tham chiếu nhanh môi trường MLHUB
 
 
 | Hạng mục            | Giá trị                                                                                                          |
@@ -362,13 +514,14 @@ Tại trang đó có thể: chọn file log, xem nhanh phần cuối (tail), **t
 | Captcha             | Cloudflare Turnstile (mặc định) + reCAPTCHA v2 — Admin → Captcha (OptionStore); gắn ở auth, chưa gắn form public |
 | Rate-limit          | `throttle:10,1` trên 5 form public (booking/coupon/feedback/lead/review)                                         |
 | Storage             | disk `public` (S3 trống)                                                                                         |
-| Theme active        | guest = `mlhubtheme`, backend = `default`                                                                        |
+| Theme active        | guest = `mlhubfrontend`, backend = `mlhubbackend` (env `THEME_FRONTEND` / `THEME_BACKEND`)                        |
+| Session / URL prod  | `SESSION_DOMAIN=.mlhub.vn`, `APP_URL=https://mlhub.vn`, `TRUSTED_PROXIES=*`                                       |
 | Deploy              | Coolify + Traefik (HTTP→HTTPS, Let's Encrypt)                                                                    |
 
 
 ---
 
-## 6. Sổ tay cá nhân (tự ghi note mỗi lần code)
+## 7. Sổ tay cá nhân (tự ghi note mỗi lần code)
 
 > Khu vực để bạn tự bổ sung. Gợi ý ghi theo định dạng ngày + việc + lệnh/đường dẫn liên quan.
 
@@ -380,7 +533,7 @@ Tại trang đó có thể: chọn file log, xem nhanh phần cuối (tail), **t
 - Kết quả / lưu ý / cạm bẫy gặp phải:
 - Việc cần làm tiếp:
 
-## 7. Lựa chọn mô hình để vibecode
+## 8. Lựa chọn mô hình AI trong Cursor
 
 ### 1. Giữ nguyên **Opus 4.8 High (Core)**
 
@@ -394,6 +547,7 @@ Tại trang đó có thể: chọn file log, xem nhanh phần cuối (tail), **t
 
 ### 3. Dùng **Sonnet 4.6 Medium** hoặc **GPT-5.5 Medium (Theme)**
 
-- **Khi nào dùng:** Dành cho team của bạn khi làm các tác vụ nhẹ nhàng hơn. Ví dụ: Giang nhờ AI căn chỉnh lại CSS Tailwind trên theme `mlhubtheme`, hoặc nhờ AI viết vài đoạn regex để kiểm tra định dạng số điện thoại.
+- **Khi nào dùng:** Tác vụ nhẹ: chỉnh CSS Tailwind trên theme `mlhubfrontend` / `mlhubbackend`, bổ sung `lang/vi.json`, regex validation.
+- **Luôn kèm:** `.cursorrules` + `@file` blade cụ thể; không thay thế bước `writing-plans` cho tính năng lớn.
 - **Lý do:** Tiết kiệm "Premium credits" của bạn, tốc độ phản hồi nhanh hơn Opus, và dư sức xử lý các file đơn lẻ.
 

@@ -174,7 +174,8 @@ fi
 #     QUEUE_CONNECTION=redis → jobs (email, notification, growth-tool notify)
 #     cần một worker xử lý, nếu không job sẽ dồn trong Redis và không bao giờ chạy.
 #     Chạy bằng www-data, có vòng lặp tự khởi động lại nếu worker thoát.
-#     Tắt bằng RUN_QUEUE_WORKER=false (vd khi bạn chạy worker bằng service Coolify riêng).
+#     Chỉ bật MỘT nguồn worker: entrypoint HOẶC service Coolify riêng — không cả hai.
+#     Tắt bằng RUN_QUEUE_WORKER=false khi Coolify chạy queue service riêng.
 # -----------------------------------------------------------------------------
 RUN_QUEUE_WORKER_VALUE="${RUN_QUEUE_WORKER:-true}"
 
