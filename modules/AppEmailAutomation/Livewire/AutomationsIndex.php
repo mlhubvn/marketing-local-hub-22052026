@@ -40,7 +40,7 @@ class AutomationsIndex extends Component
 
     public function save(): void
     {
-        abort_unless(! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('email_automation') ?? false), 403);
+        abort_unless(auth()->user()?->canUsePlanFeature('email_automation'), 403);
 
         $limit = (int) (auth()->user()?->planLimit('max_email_automations', -1) ?? -1);
         if ($limit >= 0 && EmailAutomation::query()->where('user_id', auth()->id())->count() >= $limit) {

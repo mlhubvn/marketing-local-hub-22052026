@@ -262,8 +262,8 @@
                                 <span class="absolute right-5 top-5 rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.14em]" style="background: var(--lb-lime); color: #334408;">{{ __('Featured') }}</span>
                             @endif
 
-                            <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ $plan['name'] ?? '-' }}</p>
-                            <p class="lb-copy lb-plan-desc mt-5 text-sm">{{ $plan['desc'] ?: __('A practical plan for local campaign pages, QR campaigns, AI copy, reports, and team usage.') }}</p>
+                            <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ \Modules\AdminPlans\Support\CatalogLocalization::resolve($plan['name'] ?? '-') }}</p>
+                            <p class="lb-copy lb-plan-desc mt-5 text-sm">{{ $plan['desc'] ? \Modules\AdminPlans\Support\CatalogLocalization::resolve($plan['desc']) : __('A practical plan for local campaign pages, QR campaigns, AI copy, reports, and team usage.') }}</p>
                             <div class="mt-5">
                                 <span class="lb-serif lb-plan-price text-6xl">
                                     {{ $isFreePlan ? format_money(0, $plan['currency'] ?? null) : format_money((float) ($plan['price'] ?? 0), $plan['currency'] ?? null) }}
@@ -289,7 +289,7 @@
                                                 <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full" style="background: {{ ($feature['check'] ?? true) ? 'rgba(16,185,129,0.10)' : 'rgba(107,114,128,0.12)' }}; color: {{ ($feature['check'] ?? true) ? 'var(--lb-red)' : 'var(--lb-muted)' }};">
                                                     <i class="fa-light {{ ($feature['check'] ?? true) ? 'fa-check' : 'fa-minus' }} text-[11px]"></i>
                                                 </span>
-                                                <span class="truncate text-sm font-bold">{{ __((string) ($feature['label'] ?? '')) }}</span>
+                                                <span class="truncate text-sm font-bold">{{ $feature['label'] }}</span>
                                             </div>
                                             <div class="flex items-center gap-2">
                                                 @if(($feature['display'] ?? null) !== null && ($feature['display'] ?? '') !== '')

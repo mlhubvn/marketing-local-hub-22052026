@@ -139,7 +139,7 @@ class PlanLimitGuard
 
         $customDomainModel = 'Modules\\AppCustomDomain\\Models\\AppCustomDomain';
 
-        if (class_exists($customDomainModel) && (! $user?->plan || ($user->canUsePlanFeature('qr_custom_domains') ?? false))) {
+        if (class_exists($customDomainModel) && $user?->canUsePlanFeature('qr_custom_domains')) {
             $rows['custom_domains'] = [
                 'label' => __('Custom domains'),
                 'key' => 'max_custom_domains',
@@ -155,7 +155,7 @@ class PlanLimitGuard
             class_exists($emailAutomationModel)
             && class_exists($emailTemplateModel)
             && class_exists($emailLogModel)
-            && (! $user?->plan || ($user->canUsePlanFeature('email_automation') ?? false))
+            && $user?->canUsePlanFeature('email_automation')
         ) {
             $rows['email_automations'] = [
                 'label' => __('Email automations'),
@@ -187,7 +187,7 @@ class PlanLimitGuard
         if (
             class_exists($googleConnectionModel)
             && class_exists($googleLocationModel)
-            && (! $user?->plan || ($user->canUsePlanFeature('google_business') ?? false))
+            && $user?->canUsePlanFeature('google_business')
         ) {
             $rows['google_business_connections'] = [
                 'label' => __('Google connections'),

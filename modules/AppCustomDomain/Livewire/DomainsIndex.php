@@ -191,7 +191,7 @@ class DomainsIndex extends Component
     {
         $user = auth()->user();
 
-        return ! $user?->plan || ($user->canUsePlanFeature('qr_custom_domains') ?? false);
+        return (bool) $user?->canUsePlanFeature('qr_custom_domains');
     }
 
     protected function domainLimit(): int

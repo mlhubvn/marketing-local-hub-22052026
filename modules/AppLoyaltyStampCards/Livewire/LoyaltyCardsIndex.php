@@ -57,7 +57,7 @@ class LoyaltyCardsIndex extends Component
 
     public function mount(): void
     {
-        abort_unless(! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('loyalty_stamp_cards') ?? false), 403);
+        abort_unless(auth()->user()?->canUsePlanFeature('loyalty_stamp_cards'), 403);
 
         $this->initializePageDesign('loyalty');
     }

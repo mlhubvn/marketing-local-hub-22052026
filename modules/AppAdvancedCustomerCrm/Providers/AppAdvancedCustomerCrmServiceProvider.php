@@ -60,7 +60,7 @@ class AppAdvancedCustomerCrmServiceProvider extends ServiceProvider
             'active_when' => ['portal.crm.customers', 'portal.crm.customers.show'],
             'icon' => 'fa-light fa-users-viewfinder',
             'order' => 38,
-            'visible' => fn (): bool => ! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('advanced_crm') ?? false),
+            'visible' => fn (): bool => (bool) auth()->user()?->canUsePlanFeature('advanced_crm'),
         ]);
 
         register_user_sidebar_item('crm', [
@@ -69,7 +69,7 @@ class AppAdvancedCustomerCrmServiceProvider extends ServiceProvider
             'active_when' => ['portal.crm.segments'],
             'icon' => 'fa-light fa-chart-pie-simple',
             'order' => 39,
-            'visible' => fn (): bool => ! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('advanced_crm') ?? false),
+            'visible' => fn (): bool => (bool) auth()->user()?->canUsePlanFeature('advanced_crm'),
         ]);
 
         register_user_sidebar_item('crm', [
@@ -78,7 +78,7 @@ class AppAdvancedCustomerCrmServiceProvider extends ServiceProvider
             'active_when' => ['portal.crm.tags'],
             'icon' => 'fa-light fa-tags',
             'order' => 40,
-            'visible' => fn (): bool => ! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('advanced_crm') ?? false),
+            'visible' => fn (): bool => (bool) auth()->user()?->canUsePlanFeature('advanced_crm'),
         ]);
 
         register_user_sidebar_item('crm', [
@@ -87,7 +87,7 @@ class AppAdvancedCustomerCrmServiceProvider extends ServiceProvider
             'active_when' => ['portal.crm.tasks'],
             'icon' => 'fa-light fa-list-check',
             'order' => 41,
-            'visible' => fn (): bool => ! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('advanced_crm') ?? false),
+            'visible' => fn (): bool => (bool) auth()->user()?->canUsePlanFeature('advanced_crm'),
         ]);
 
         register_user_sidebar_item('crm', [
@@ -96,7 +96,7 @@ class AppAdvancedCustomerCrmServiceProvider extends ServiceProvider
             'active_when' => ['portal.crm.automations'],
             'icon' => 'fa-light fa-wand-magic-sparkles',
             'order' => 42,
-            'visible' => fn (): bool => ! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('advanced_crm') ?? false),
+            'visible' => fn (): bool => (bool) auth()->user()?->canUsePlanFeature('advanced_crm'),
         ]);
 
         register_user_sidebar_item('crm', [
@@ -105,7 +105,7 @@ class AppAdvancedCustomerCrmServiceProvider extends ServiceProvider
             'active_when' => ['portal.crm.reports'],
             'icon' => 'fa-light fa-chart-line',
             'order' => 43,
-            'visible' => fn (): bool => ! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('advanced_crm') ?? false),
+            'visible' => fn (): bool => (bool) auth()->user()?->canUsePlanFeature('advanced_crm'),
         ]);
 
         $this->app->booted(function (): void {

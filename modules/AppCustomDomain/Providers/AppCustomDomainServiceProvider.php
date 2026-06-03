@@ -37,7 +37,7 @@ class AppCustomDomainServiceProvider extends ServiceProvider
                 'active_when' => ['portal.brand.domains', 'portal.qr-codes.domains'],
                 'icon' => 'fa-light fa-globe-pointer',
                 'order' => 35,
-                'visible' => fn () => ! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('qr_custom_domains') ?? false),
+                'visible' => fn () => (bool) auth()->user()?->canUsePlanFeature('qr_custom_domains'),
             ], 70);
         } else {
             register_user_sidebar_item('marketing-assets', [
@@ -46,7 +46,7 @@ class AppCustomDomainServiceProvider extends ServiceProvider
                 'icon' => 'fa-light fa-globe-pointer',
                 'active_when' => ['portal.brand.domains', 'portal.qr-codes.domains'],
                 'order' => 35,
-                'visible' => fn () => ! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('qr_custom_domains') ?? false),
+                'visible' => fn () => (bool) auth()->user()?->canUsePlanFeature('qr_custom_domains'),
             ]);
         }
 

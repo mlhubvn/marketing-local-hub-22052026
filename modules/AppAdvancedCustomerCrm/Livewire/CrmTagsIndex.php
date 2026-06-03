@@ -22,7 +22,7 @@ class CrmTagsIndex extends Component
 
     public function mount(): void
     {
-        abort_unless(! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('advanced_crm') ?? false), 403);
+        abort_unless(auth()->user()?->canUsePlanFeature('advanced_crm'), 403);
         $this->seedSystemTags();
     }
 

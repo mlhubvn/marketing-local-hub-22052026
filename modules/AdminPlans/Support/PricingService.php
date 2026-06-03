@@ -179,7 +179,7 @@ class PricingService
 
         return [
             'check' => $isCheck,
-            'label' => $feature['label'] ?? '',
+            'label' => CatalogLocalization::resolve((string) ($feature['label'] ?? '')),
             'key' => $feature['key'] ?? null,
             'raw' => $value,
             'type' => $feature['type'] ?? 'boolean',
@@ -210,9 +210,11 @@ class PricingService
             $label = (string) ($group['standalone_label'] ?? $group['tab_name'] ?? '');
             $key = (string) ($group['standalone_key'] ?? $group['tab_id'] ?? '');
 
+            $resolvedLabel = CatalogLocalization::resolve($label);
+
             return [
                 'check' => true,
-                'label' => $label,
+                'label' => $resolvedLabel,
                 'key' => $key,
                 'raw' => null,
                 'type' => 'group',
@@ -221,7 +223,7 @@ class PricingService
                 'feature' => [
                     'sort' => (int) ($group['standalone_sort'] ?? 999),
                     'key' => $key,
-                    'label' => $label,
+                    'label' => $resolvedLabel,
                     'check' => false,
                     'type' => 'group',
                     'raw' => null,
@@ -326,7 +328,7 @@ class PricingService
 
             $result[] = [
                 'tab_id' => $group['tab_id'],
-                'tab_name' => $group['tab_name'],
+                'tab_name' => CatalogLocalization::resolve((string) ($group['tab_name'] ?? '')),
                 'items' => $group['items'],
                 'standalone' => (bool) ($group['standalone'] ?? false),
                 'standalone_sort' => $group['standalone_sort'] ?? null,
@@ -338,7 +340,7 @@ class PricingService
         if ($other !== []) {
             $result[] = [
                 'tab_id' => 'other',
-                'tab_name' => __('Other'),
+                'tab_name' => CatalogLocalization::resolve('Other'),
                 'items' => $other,
             ];
         }

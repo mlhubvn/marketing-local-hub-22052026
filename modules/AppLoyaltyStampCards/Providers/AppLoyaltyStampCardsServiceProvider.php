@@ -39,7 +39,7 @@ class AppLoyaltyStampCardsServiceProvider extends ServiceProvider
             'active_when' => ['portal.loyalty-cards'],
             'icon' => 'fa-light fa-stamp',
             'order' => 35,
-            'visible' => fn (): bool => ! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('loyalty_stamp_cards') ?? false),
+            'visible' => fn (): bool => (bool) auth()->user()?->canUsePlanFeature('loyalty_stamp_cards'),
         ]);
 
         $this->app->booted(function (): void {

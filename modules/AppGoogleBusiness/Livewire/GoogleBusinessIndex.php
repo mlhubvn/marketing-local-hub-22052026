@@ -143,6 +143,8 @@ class GoogleBusinessIndex extends Component
 
     public function mount(): void
     {
+        abort_unless(auth()->user()?->canUsePlanFeature('google_business'), 403);
+
         $this->statusMessage = (string) session('google_business_status', '');
         $this->errorMessage = (string) session('google_business_error', '');
         $this->locationCandidates = array_values((array) data_get(session('google_business_location_candidates', []), 'locations', []));
@@ -464,7 +466,7 @@ class GoogleBusinessIndex extends Component
 
     public function saveGooglePost(string $publish = 'draft'): void
     {
-        abort_unless(! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('google_business_posts') ?? false), 403);
+        abort_unless(auth()->user()?->canUsePlanFeature('google_business_posts'), 403);
 
         $payload = $this->validate([
             'postLocationId' => ['required', 'integer'],
@@ -536,7 +538,7 @@ class GoogleBusinessIndex extends Component
 
     public function publishGooglePost(int $postId): void
     {
-        abort_unless(! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('google_business_posts') ?? false), 403);
+        abort_unless(auth()->user()?->canUsePlanFeature('google_business_posts'), 403);
 
         $post = GoogleBusinessPost::query()
             ->where('team_id', auth()->id())
@@ -773,7 +775,7 @@ class GoogleBusinessIndex extends Component
     public function syncReviews(int $locationId): void
     {
         $location = $this->locationQuery()->findOrFail($locationId);
-        abort_unless(! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('google_review_sync') ?? false), 403);
+        abort_unless(auth()->user()?->canUsePlanFeature('google_review_sync'), 403);
 
         if (! $location->is_managed) {
             $this->errorMessage = __('Click Manage on this Google location before syncing reviews.');
@@ -797,7 +799,7 @@ class GoogleBusinessIndex extends Component
 
     public function publishReply(int $reviewId): void
     {
-        abort_unless(! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('google_review_reply') ?? false), 403);
+        abort_unless(auth()->user()?->canUsePlanFeature('google_review_reply'), 403);
 
         $review = GoogleReview::query()
             ->where('team_id', auth()->id())

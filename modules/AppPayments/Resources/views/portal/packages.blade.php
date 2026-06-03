@@ -72,7 +72,7 @@
                                         <div class="flex items-start justify-between gap-4">
                                             <div class="flex flex-wrap items-center gap-2">
                                                 <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]" style="background-color: {{ $plan['featured'] ? 'rgba(var(--theme-accent-rgb),0.12)' : 'rgba(var(--theme-border-color-rgb),0.10)' }}; color: {{ $plan['featured'] ? 'var(--theme-accent)' : 'var(--theme-muted-text-color)' }};">
-                                                    {{ $plan['name'] }}
+                                                    {{ \Modules\AdminPlans\Support\CatalogLocalization::resolve($plan['name']) }}
                                                 </span>
                                                 @if (!($plan['free_plan'] ?? false) && (int) ($plan['trial_day'] ?? 0) > 0)
                                                     <x-ui.badge variant="warning">{{ __(':days-day trial', ['days' => (int) $plan['trial_day']]) }}</x-ui.badge>
@@ -92,7 +92,7 @@
                                         </div>
 
                                         <p class="mt-6 text-sm leading-7" style="color: var(--theme-muted-text-color);">
-                                            {{ $plan['desc'] ?: __('A practical plan with the core features, limits, and access controls for this tier.') }}
+                                            {{ $plan['desc'] ? \Modules\AdminPlans\Support\CatalogLocalization::resolve($plan['desc']) : __('A practical plan with the core features, limits, and access controls for this tier.') }}
                                         </p>
 
                                         <div class="mt-8">
@@ -243,7 +243,7 @@
                                                         <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full {{ $feature['check'] ? '' : '' }}" style="background-color: {{ $feature['check'] ? 'rgba(16,185,129,0.10)' : 'rgba(var(--theme-border-color-rgb),0.12)' }}; color: {{ $feature['check'] ? 'var(--theme-success-color)' : 'var(--theme-muted-text-color)' }};">
                                                             <i class="fa-light {{ $feature['check'] ? 'fa-check' : 'fa-minus' }} text-[11px]"></i>
                                                         </span>
-                                                        <span class="truncate text-sm font-medium" style="color: var(--theme-header-text-color);">{{ __((string) ($feature['label'] ?? '')) }}</span>
+                                                        <span class="truncate text-sm font-medium" style="color: var(--theme-header-text-color);">{{ $feature['label'] }}</span>
                                                     </div>
                                                     <div class="flex items-center gap-2">
                                                         @if(($feature['display'] ?? null) !== null && ($feature['display'] ?? '') !== '')
@@ -270,7 +270,7 @@
                                                                         @endphp
                                                                         @continue($visibleSubItems->isEmpty())
                                                                         <div class="mb-4 last:mb-0">
-                                                                            <p class="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __((string) ($tabGroup['tab_name'] ?? '')) }}</p>
+                                                                            <p class="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ $tabGroup['tab_name'] }}</p>
                                                                             <div class="space-y-2">
                                                                                 @foreach ($visibleSubItems as $sub)
                                                                                     <div class="flex items-center justify-between gap-3 rounded-[0.9rem] border px-3 py-2.5" style="border-color: rgba(var(--theme-border-color-rgb),0.52); background-color: rgba(var(--theme-surface-base-rgb,255,255,255),0.78);">
@@ -278,7 +278,7 @@
                                                                                             <span class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full" style="background-color: {{ $sub['check'] ? 'rgba(16,185,129,0.10)' : 'rgba(var(--theme-border-color-rgb),0.12)' }}; color: {{ $sub['check'] ? 'var(--theme-success-color)' : 'var(--theme-muted-text-color)' }};">
                                                                                                 <i class="fa-light {{ $sub['check'] ? 'fa-check' : 'fa-minus' }} text-[10px]"></i>
                                                                                             </span>
-                                                                                            <span class="truncate text-xs font-medium" style="color: var(--theme-header-text-color);">{{ __((string) ($sub['label'] ?? '')) }}</span>
+                                                                                            <span class="truncate text-xs font-medium" style="color: var(--theme-header-text-color);">{{ $sub['label'] }}</span>
                                                                                         </div>
                                                                                         @if(($sub['display'] ?? null) !== null && ($sub['display'] ?? '') !== '')
                                                                                             <span class="inline-flex items-center rounded-full px-2 py-1 text-[10px] font-semibold" style="background-color: rgba(var(--theme-border-color-rgb),0.12); color: var(--theme-muted-text-color);">{{ $sub['display'] }}</span>

@@ -13,7 +13,7 @@ class CrmExportController extends Controller
 {
     public function customers(Request $request): StreamedResponse
     {
-        abort_unless(! $request->user()?->plan || ($request->user()?->canUsePlanFeature('advanced_crm') ?? false), 403);
+        abort_unless($request->user()?->canUsePlanFeature('advanced_crm'), 403);
 
         $query = Customer::query()->where('user_id', $request->user()->id)->with('business');
 

@@ -58,7 +58,7 @@ class AppGoogleBusinessServiceProvider extends ServiceProvider
         ]);
 
         register_user_sidebar_section('google-business', __('Google Business'), 500);
-        $googleBusinessVisible = fn (): bool => ! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('google_business') ?? false);
+        $googleBusinessVisible = fn (): bool => (bool) auth()->user()?->canUsePlanFeature('google_business');
         $googleBusinessPath = trim((string) config('modules.appgooglebusiness.route_prefix', 'portal/integrations/google-business'), '/');
 
         foreach ([

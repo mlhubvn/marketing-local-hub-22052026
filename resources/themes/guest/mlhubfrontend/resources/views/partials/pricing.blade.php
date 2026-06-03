@@ -66,7 +66,7 @@
                                 @endif
 
                                 <span class="mb-3 inline-block text-sm text-indigo-600 font-semibold uppercase tracking-px leading-snug">
-                                    {{ __($plan['name'] ?? '-') }}
+                                    {{ \Modules\AdminPlans\Support\CatalogLocalization::resolve($plan['name'] ?? '-') }}
                                 </span>
                                 @if(!($plan['free_plan'] ?? false) && (int) ($plan['trial_day'] ?? 0) > 0)
                                     <div class="mb-3">
@@ -76,7 +76,7 @@
                                     </div>
                                 @endif
                                 <p class="mb-6 text-gray-500 font-medium leading-relaxed">
-                                    {{ __($plan['desc'] ?? '') }}
+                                    {{ \Modules\AdminPlans\Support\CatalogLocalization::resolve($plan['desc'] ?? '') }}
                                 </p>
                                 <h3 class="mb-1 text-4xl text-gray-900 font-bold leading-tight">
                                     @if($isFreePlan)
@@ -231,7 +231,7 @@
                                             <i class="fa-regular fa-check {{ $feature['check'] ? 'text-green-600' : 'text-gray-500' }}"></i>
                                             <div class="min-w-0 flex-1">
                                                 <div class="flex items-center justify-between gap-2 min-w-0">
-                                                    <p class="font-semibold leading-normal min-w-0">{{ __($featureLabel) }}</p>
+                                                    <p class="font-semibold leading-normal min-w-0">{{ $featureLabel }}</p>
                                                     @if(($feature['display'] ?? null) !== null && ($feature['display'] ?? '') !== '')
                                                         <span class="shrink-0 inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
                                                             {{ $feature['display'] }}

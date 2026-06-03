@@ -152,6 +152,8 @@ Hệ thống **không** dùng tách database; tenant được cô lập bằng *
 ### 4.2 Gói dịch vụ (Plan) & hạn mức
 
 - Gói nằm ở `Modules\AdminPlans\Models\AdminPlan`; user gắn `plan_id`, `plan_started_at`, `plan_expires_at`, `next_plan_id`.
+- **Hiển thị catalog (portal Packages / guest pricing):** `PlanSeeder` lưu `name`/`desc` bằng **chuỗi tiếng Anh** (key `__()`); bản dịch VI trong `lang/vi.json`. `Modules\AdminPlans\Support\CatalogLocalization::resolve()` + `PricingService::render()` dịch lúc render (kể cả label đã bị “đóng băng” tiếng Việt lúc boot `__('…')` trên locale mặc định).
+- **Sidebar portal (addon):** menu module marketplace chỉ `visible` khi `User::canUsePlanFeature(...)` (cần `hasActivePlan()` + quyền trong `plans.permissions`). User **No plan assigned** không thấy CRM / Google Business / Loyalty / Custom Domains; vào URL trực tiếp → `403` trên Livewire/controller tương ứng.
 - Kiểm tra quyền tính năng:
   - `$user->hasActivePlan()` — còn hạn không.
   - `$user->canUsePlanFeature('localboost')` — gói còn hạn **và** bật cờ tính năng.

@@ -49,7 +49,7 @@ class CrmCustomerShow extends Component
 
     public function mount(Customer $customer): void
     {
-        abort_unless(! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('advanced_crm') ?? false), 403);
+        abort_unless(auth()->user()?->canUsePlanFeature('advanced_crm'), 403);
         abort_unless((int) $customer->user_id === (int) auth()->id(), 404);
 
         $this->customer = $customer;

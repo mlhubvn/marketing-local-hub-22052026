@@ -14,7 +14,7 @@ class GoogleBusinessOAuthController extends Controller
 {
     public function connect(Request $request, GoogleBusinessClient $client): RedirectResponse
     {
-        abort_unless(! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('google_business') ?? false), 403);
+        abort_unless(auth()->user()?->canUsePlanFeature('google_business'), 403);
 
         try {
             $limit = (int) (auth()->user()?->planLimit('max_google_business_connections', -1) ?? -1);
@@ -35,7 +35,7 @@ class GoogleBusinessOAuthController extends Controller
 
     public function callback(Request $request, GoogleBusinessClient $client): RedirectResponse
     {
-        abort_unless(! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('google_business') ?? false), 403);
+        abort_unless(auth()->user()?->canUsePlanFeature('google_business'), 403);
 
         if (! hash_equals((string) $request->session()->pull('google_business_oauth_state'), (string) $request->query('state'))) {
             return redirect()->route('portal.google-business')->with('google_business_error', __('Invalid Google OAuth state. Please try again.'));
