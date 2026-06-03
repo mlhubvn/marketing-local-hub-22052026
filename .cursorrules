@@ -31,7 +31,7 @@
 
 1. **Chủ dự án ra lệnh, AI tự quyết & xử lý.** Chủ dự án không rành dev/bảo mật → **KHÔNG bày nhiều phương án để chọn**. Tự chọn hướng tốt nhất (an toàn, chuẩn production), tự thực thi, rồi đưa lại **các bước đơn giản để chủ dự án làm theo**. Chỉ hỏi khi thiếu thông tin bắt buộc (bí mật, quyết định nghiệp vụ) — hỏi 1 câu rõ ràng.
 2. **Sau khi xử lý, BẮT BUỘC đồng bộ các file hệ thống liên quan** (chỉ sửa file nào thực sự bị ảnh hưởng, không sửa thừa):
-   `.cursorrules`, `.env.example`, `.htaccess`, `docker-compose.yaml`, `Dockerfile`, `entrypoint.sh`, `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_FEATURE.md`, `ARCHITECTURE_CHECKLIST.md`, `ARCHITECTURE_PROMPT.md`.
+   `.cursorrules`, `.env.example`, `.htaccess`, `docker-compose.yaml`, `Dockerfile`, `entrypoint.sh`, `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_FEATURE.md`, `ARCHITECTURE_CHECKLIST.md`, `ARCHITECTURE_PROMPT.md`, `ARCHITECTURE_ADMINFAKER.md`.
 3. **Nếu cần cấu hình trên Coolify → hướng dẫn từng bước theo đúng tab Coolify**: General, Advanced, Environment Variables, Persistent Storage, Git Source, Servers, Scheduled Tasks, Webhooks, Preview Deployments, Healthcheck, Rollback, Resource Limits, Resource Operations, Metrics, Tags, Danger Zone. Nói rõ tab nào, ô nào, giá trị gì.
 4. **Commit GitHub + Deploy do CHỦ DỰ ÁN làm thủ công.** AI **KHÔNG** tự `git commit`/`git push`/deploy. AI chỉ sửa file tại local + soạn sẵn **commit message gợi ý**; chủ dự án tự đẩy để kịp copy log nếu lỗi. Khi xong một cụm việc, tóm tắt "đã đổi file nào" + gợi ý commit message.
 5. **Báo NGAY khi phát hiện vấn đề bảo mật hoặc ảnh hưởng trải nghiệm người dùng** (kể cả ngoài phạm vi task đang làm) — nêu rủi ro bằng lời dễ hiểu + mức độ + cách xử lý đề xuất, để chủ dự án quyết ưu tiên.
@@ -98,7 +98,9 @@
 
 **Triển khai:** Coolify + Traefik (HTTP→HTTPS, Let's Encrypt), domain `mlhub.vn`/`www.mlhub.vn`, storage gắn volume `mlhub-storage:/var/www/html/storage`. Vì chạy sau proxy nên `TRUSTED_PROXIES` đã được xử lý trong `bootstrap/app.php` — **đừng** hard-code `http://` khi tạo URL, dùng helper sinh URL của Laravel.
 
-**Livewire 419 / 504 (production):** Sau deploy, user phải **Ctrl+F5** nếu tab cũ báo "page expired". `SESSION_DOMAIN=.mlhub.vn` + `APP_URL=https://mlhub.vn` bắt buộc trên Coolify. Dashboard portal: **một** `wire:init` (`loadDashboardSections`), không bắn 3 request Livewire song song. `entrypoint.sh` sync Livewire JS + `optimize:clear` → `optimize` mỗi deploy. Tùy chọn: `LIVEWIRE_RELEASE_TOKEN` trên Coolify khi đổi phiên bản lớn. Cache metrics: `PortalGrowthDashboardMetrics::forget($userId)` sau scan/conversion (qua `GrowthToolNotifier` / `recordScan`).
+**Livewire 419 / 504 (production):** Sau deploy, user phải **Ctrl+F5** nếu tab cũ báo "page expired". `SESSION_DOMAIN=.mlhub.vn` + `APP_URL=https://mlhub.vn` bắt buộc trên Coolify. Dashboard portal: **một** `wire:init` (`loadDashboardSections`), không bắn 3 request Livewire song song. `entrypoint.sh` sync Livewire JS + `optimize:clear` → `optimize` mỗi deploy. Tùy chọn: `LIVEWIRE_RELEASE_TOKEN` trên Coolify khi đổi phiên bản lớn. Cache metrics: `PortalGrowthDashboardMetrics::forget($userId)` sau scan/conversion (qua `GrowthToolNotifier` / `recordScan` / review feedback).
+
+**Redis cache (portal dashboard):** `Cache::remember()` cho `PortalGrowthDashboardMetrics` **chỉ lưu mảng scalar** (key `portal.*.v2`), không serialize Eloquent/`Collection` model — tránh `__PHP_Incomplete_Class` sau deploy. `forget()` phải xóa đúng suffix key (vd `recent_activity.v2.{userId}.{limit}` 8→64).
 
 **Demo mode:** HTTP POST chặn bởi `PreventDemoModeWriteOperations`; Livewire ghi chặn bởi `DemoModeActionGuard` (hook trong `AppServiceProvider`). Không trùng logic chặn method trong middleware.
 

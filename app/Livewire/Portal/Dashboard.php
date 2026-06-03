@@ -22,6 +22,8 @@ class Dashboard extends Component
     public int $recentActivityLimit = 8;
     public bool $recentActivityHasMore = false;
 
+    public ?string $dashboardLoadError = null;
+
     /**
      * @param  array<int, string>  $itemIds
      */
@@ -68,14 +70,30 @@ class Dashboard extends Component
 
     public function loadDashboardSections(): void
     {
+        $this->dashboardLoadError = null;
+
         try {
             $this->loadMetrics();
+        } catch (\Throwable $exception) {
+            report($exception);
+            $this->dashboardLoadError = __('Unable to load dashboard metrics. Please refresh the page.');
+        }
+
+        try {
             $this->loadTopCampaigns();
+        } catch (\Throwable $exception) {
+            report($exception);
+            $this->dashboardLoadError ??= __('Unable to load campaign performance. Please refresh the page.');
+        }
+
+        try {
             $this->loadRecentActivity();
         } catch (\Throwable $exception) {
             report($exception);
-            $this->metricsLoaded = true;
+            $this->dashboardLoadError ??= __('Unable to load recent activity. Please refresh the page.');
         }
+
+        $this->metricsLoaded = true;
     }
 
     public function loadMetrics(): void

@@ -28,12 +28,12 @@ Bạn **không cần** cấu hình Admin Faker riêng trên Coolify. Chỉ cần
 ### Sau khi deploy
 
 1. **Commit** → push GitHub → Coolify deploy lại.
-2. **SSH vào container app** (Laravel):
+2. **Coolify** → mở app MLHUB → tab **Terminal** (hoặc **Execute Command**), chạy trong container Laravel:
    ```bash
    php artisan mlhub:reset-demo --force
    ```
    Lệnh này tự: wipe DB → migrate → seed → **admin-faker:refresh** → extras → optimize:clear.
-3. **Thoát container**, chạy **Redis** (session/cache/queue) — dùng host/port/password từ Coolify:
+3. Trên service **Redis** của Coolify (Terminal tương ứng), xóa cache session/app sau reset demo:
    ```bash
    redis-cli -h <REDIS_HOST> -p 6379 -a "<REDIS_PASSWORD>" FLUSHALL
    ```

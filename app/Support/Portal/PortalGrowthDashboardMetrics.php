@@ -33,9 +33,12 @@ class PortalGrowthDashboardMetrics
         Cache::forget("portal.growth_metrics.v1.{$userId}");
         Cache::forget("portal.top_campaigns.v1.{$userId}");
         Cache::forget("portal.top_campaigns.v2.{$userId}");
-        Cache::forget("portal.recent_activity.v1.{$userId}");
-        Cache::forget("portal.recent_activity.v2.{$userId}");
         Cache::forget("portal.plan_usage.v1.{$userId}");
+
+        for ($limit = 8; $limit <= 64; $limit += 8) {
+            Cache::forget("portal.recent_activity.v1.{$userId}.{$limit}");
+            Cache::forget("portal.recent_activity.v2.{$userId}.{$limit}");
+        }
     }
 
     /**
@@ -58,7 +61,10 @@ class PortalGrowthDashboardMetrics
             ];
         }
 
-        $visits = (int) QrScan::query()->where('user_id', $userId)->count();
+        $visits = (int) QrScan::query()
+            ->where('user_id', $userId)
+            ->whereIn('campaign_id', $campaignIds)
+            ->count();
         $reviewClicks = ReviewFeedback::query()
             ->where('user_id', $userId)
             ->whereIn('campaign_id', $campaignIds)

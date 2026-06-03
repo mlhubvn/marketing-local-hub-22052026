@@ -35,7 +35,7 @@ Nguyên tắc cốt lõi:
 | `app/Http/Middleware/PreventDemoModeWriteOperations.php` | Chặn thao tác ghi khi bật chế độ demo. |
 | `app/Http/Controllers/GuestMarketingController.php`, `GuestStaticPageController.php`, `Auth/SocialLoginController.php` | Trang marketing công khai, trang tĩnh, đăng nhập mạng xã hội. |
 | `app/Livewire/Auth/*`, `app/Livewire/Portal/Dashboard.php` | Trang login/register/reset, dashboard portal (lazy `loadDashboardSections`). |
-| `app/Support/Portal/PortalGrowthDashboardMetrics.php` | Metrics/top campaigns/recent activity portal (Redis cache, `forget()` sau growth events). |
+| `app/Support/Portal/PortalGrowthDashboardMetrics.php` | Metrics/top campaigns/recent activity portal (Redis cache **v2 = mảng scalar**, không cache Eloquent; `forget()` xóa key đủ suffix; `visits` đếm theo `campaign_id` của user; sau scan/conversion/review qua `GrowthToolNotifier` / `recordScan`). |
 | `app/Support/Mail/AuthMailMessageBuilder.php` | Mail reset password / verify email (locale user, `toMailUsing`). |
 | `app/Livewire/DemoModeActionGuard.php` | Chặn Livewire write khi `APP_DEMO=true`. |
 | `app/Support/Navigation/` | `SidebarRegistry`, `HeaderRegistry`. |

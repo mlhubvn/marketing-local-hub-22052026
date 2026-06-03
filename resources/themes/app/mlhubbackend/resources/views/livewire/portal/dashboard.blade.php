@@ -18,6 +18,17 @@
     $planUsage = $planUsage ?? [];
 @endphp
 
+@if (filled($this->dashboardLoadError ?? null))
+    <div
+        class="rounded-[1.25rem] border px-5 py-4 text-sm"
+        style="border-color: rgba(220, 38, 38, 0.35); background: rgba(220, 38, 38, 0.06); color: var(--theme-header-text-color);"
+        role="alert"
+    >
+        <p class="font-semibold">{{ __('Dashboard data could not be loaded') }}</p>
+        <p class="mt-1" style="color: var(--theme-muted-text-color);">{{ $this->dashboardLoadError }}</p>
+    </div>
+@endif
+
 <div
     class="portal-dashboard min-w-0 max-w-full space-y-6"
     x-data="{

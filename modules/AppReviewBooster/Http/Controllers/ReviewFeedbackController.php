@@ -2,6 +2,7 @@
 
 namespace Modules\AppReviewBooster\Http\Controllers;
 
+use App\Support\GrowthToolNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -35,6 +36,12 @@ class ReviewFeedbackController extends Controller
             'campaign_id' => $campaign->id,
             ...$payload,
         ]);
+
+        app(GrowthToolNotifier::class)->feedbackCreated(
+            $campaign,
+            (string) ($payload['customer_name'] ?? ''),
+            $rating,
+        );
 
         if ($rating >= $threshold) {
             $destinationUrl = $preferredDestination === 'facebook' ? ($facebookUrl ?: $googleUrl) : ($googleUrl ?: $facebookUrl);

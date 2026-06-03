@@ -9328,5 +9328,9 @@
     "Verify Email Address": "Xác minh email",
     "If you did not create an account, no further action is required.": "Nếu bạn không tạo tài khoản, bạn không cần làm gì thêm.",
     "MLHUB growth overview": "Tổng quan tăng trưởng MLHUB",
-    "See how many MLHUB assets are used before creating more campaigns, pages, QR codes, or templates.": "Xem số nội dung MLHUB đã dùng trước khi tạo thêm chiến dịch, trang, mã QR hoặc mẫu."
+    "See how many MLHUB assets are used before creating more campaigns, pages, QR codes, or templates.": "Xem số nội dung MLHUB đã dùng trước khi tạo thêm chiến dịch, trang, mã QR hoặc mẫu.",
+    "Dashboard data could not be loaded": "Không tải được dữ liệu bảng điều khiển",
+    "Unable to load dashboard metrics. Please refresh the page.": "Không tải được số liệu tổng quan. Vui lòng tải lại trang (Ctrl+F5).",
+    "Unable to load campaign performance. Please refresh the page.": "Không tải được hiệu suất chiến dịch. Vui lòng tải lại trang (Ctrl+F5).",
+    "Unable to load recent activity. Please refresh the page.": "Không tải được hoạt động gần đây. Vui lòng tải lại trang (Ctrl+F5)."
 }
