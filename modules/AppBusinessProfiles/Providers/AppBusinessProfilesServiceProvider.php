@@ -32,7 +32,7 @@ class AppBusinessProfilesServiceProvider extends ServiceProvider
             ],
         ]);
 
-        register_user_sidebar_section('local-businesses', __('Businesses'), 150);
+        register_user_sidebar_section('local-businesses', 'Enterprise', 150);
         register_user_sidebar_section('growth-tools', __('Growth Tools'), 200);
         register_user_sidebar_section('ai-tools', __('AI Tools'), 300);
         register_user_sidebar_section('marketing-assets', __('Assets'), 400);
