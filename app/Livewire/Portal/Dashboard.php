@@ -98,7 +98,7 @@ class Dashboard extends Component
             return;
         }
 
-        $this->topCampaigns = PortalGrowthDashboardMetrics::topCampaigns((int) $userId)->values()->all();
+        $this->topCampaigns = PortalGrowthDashboardMetrics::topCampaigns((int) $userId);
     }
 
     public function loadRecentActivity(): void
@@ -109,9 +109,7 @@ class Dashboard extends Component
             return;
         }
 
-        $items = PortalGrowthDashboardMetrics::recentActivity((int) $userId, $this->recentActivityLimit);
-
-        $this->recentActivity = $items->values()->all();
+        $this->recentActivity = PortalGrowthDashboardMetrics::recentActivity((int) $userId, $this->recentActivityLimit);
         $this->recentActivityHasMore = count($this->recentActivity) >= $this->recentActivityLimit;
     }
 

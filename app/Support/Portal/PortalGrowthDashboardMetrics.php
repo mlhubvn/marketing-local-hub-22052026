@@ -32,7 +32,9 @@ class PortalGrowthDashboardMetrics
     {
         Cache::forget("portal.growth_metrics.v1.{$userId}");
         Cache::forget("portal.top_campaigns.v1.{$userId}");
+        Cache::forget("portal.top_campaigns.v2.{$userId}");
         Cache::forget("portal.recent_activity.v1.{$userId}");
+        Cache::forget("portal.recent_activity.v2.{$userId}");
         Cache::forget("portal.plan_usage.v1.{$userId}");
     }
 
@@ -99,30 +101,79 @@ class PortalGrowthDashboardMetrics
         ];
     }
 
-    public static function recentActivity(int $userId, int $limit = 8): Collection
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function recentActivity(int $userId, int $limit = 8): array
     {
         return Cache::remember(
-            "portal.recent_activity.v1.{$userId}.{$limit}",
+            "portal.recent_activity.v2.{$userId}.{$limit}",
             now()->addMinutes(10),
-            function () use ($userId, $limit): Collection {
+            function () use ($userId, $limit): array {
                 $campaignIds = QrCampaign::query()->where('user_id', $userId)->pluck('id');
 
-                return self::recentActivityImpl($campaignIds, $limit);
+                return self::recentActivityImpl($campaignIds, $limit)
+                    ->map(fn (array $row): array => self::serializeRecentActivityRow($row))
+                    ->values()
+                    ->all();
             },
         );
     }
 
-    public static function topCampaigns(int $userId): Collection
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function topCampaigns(int $userId): array
     {
         return Cache::remember(
-            "portal.top_campaigns.v1.{$userId}",
+            "portal.top_campaigns.v2.{$userId}",
             now()->addMinutes(15),
-            function () use ($userId): Collection {
+            function () use ($userId): array {
                 $campaignIds = QrCampaign::query()->where('user_id', $userId)->pluck('id');
 
-                return self::topCampaignsImpl($userId, $campaignIds);
+                return self::topCampaignsImpl($userId, $campaignIds)
+                    ->map(fn (array $row): array => self::serializeTopCampaignRow($row))
+                    ->values()
+                    ->all();
             },
         );
+    }
+
+    /**
+     * @param  array<string, mixed>  $row
+     * @return array<string, mixed>
+     */
+    protected static function serializeTopCampaignRow(array $row): array
+    {
+        /** @var QrCampaign $campaign */
+        $campaign = $row['campaign'];
+
+        return [
+            'campaign_name' => $campaign->name,
+            'campaign_type' => (string) $campaign->type,
+            'business_name' => $campaign->business?->name,
+            'visits' => (int) $row['visits'],
+            'conversions' => (int) $row['conversions'],
+            'conversion_rate' => (int) $row['conversion_rate'],
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $row
+     * @return array<string, mixed>
+     */
+    protected static function serializeRecentActivityRow(array $row): array
+    {
+        $time = $row['time'] ?? null;
+
+        return [
+            'customer' => $row['customer'],
+            'action' => $row['action'],
+            'campaign' => $row['campaign'],
+            'business' => $row['business'],
+            'icon' => $row['icon'],
+            'time' => $time instanceof \DateTimeInterface ? $time->format(\DateTimeInterface::ATOM) : null,
+        ];
     }
 
     protected static function recentActivityImpl(Collection $campaignIds, int $limit): Collection

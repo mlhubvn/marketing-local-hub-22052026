@@ -290,10 +290,10 @@
                                     @foreach ($topCampaigns as $row)
                                         <tr>
                                             <td class="px-5 py-4">
-                                                <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $row['campaign']->name }}</p>
-                                                <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ str($row['campaign']->type)->headline() }}</p>
+                                                <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $row['campaign_name'] }}</p>
+                                                <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ str($row['campaign_type'])->headline() }}</p>
                                             </td>
-                                            <td class="px-5 py-4" style="color: var(--theme-muted-text-color);">{{ $row['campaign']->business?->name ?: __('No business') }}</td>
+                                            <td class="px-5 py-4" style="color: var(--theme-muted-text-color);">{{ $row['business_name'] ?: __('No business') }}</td>
                                             <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($row['visits']) }}</td>
                                             <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($row['conversions']) }}</td>
                                             <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_percent_locale($row['conversion_rate']) }}</td>
@@ -331,7 +331,7 @@
                                 <div class="min-w-0">
                                     <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $item['customer'] }} {{ $item['action'] }}</p>
                                     <p class="mt-1 truncate text-xs" style="color: var(--theme-muted-text-color);">{{ $item['business'] }} · {{ $item['campaign'] }}</p>
-                                    <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $item['time']?->diffForHumans() }}</p>
+                                    <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $item['time'] ? \Carbon\CarbonImmutable::parse($item['time'])->diffForHumans() : '' }}</p>
                                 </div>
                             </div>
                         @empty
