@@ -7,6 +7,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Modules\AdminPlans\Support\CatalogLocalization;
 use Modules\AdminSettings\Support\OptionStore;
 
 class SidebarRegistry
@@ -80,6 +81,16 @@ class SidebarRegistry
 
         $resolvedSections = $this->applyOverrides($area, $resolvedSections);
 
+        $resolvedSections = array_map(function (array $section): array {
+            $section['label'] = $this->resolveMenuLabel($section['label'] ?? null);
+            $section['items'] = array_values(array_map(
+                fn (array $item): array => $this->resolveMenuItemLabels($item),
+                $section['items'] ?? [],
+            ));
+
+            return $section;
+        }, $resolvedSections);
+
         return array_values(array_filter($resolvedSections, fn (array $section): bool => $section['items'] !== []));
     }
 
@@ -135,6 +146,37 @@ class SidebarRegistry
         $item['children'] = $children;
         unset($item['children_resolver']);
         $item['active'] = $forEditor ? false : $this->resolveActive($item);
+
+        return $item;
+    }
+
+    protected function resolveMenuLabel(?string $label): ?string
+    {
+        if ($label === null || trim($label) === '') {
+            return $label;
+        }
+
+        return CatalogLocalization::resolve($label);
+    }
+
+    /**
+     * @param  array<string, mixed>  $item
+     * @return array<string, mixed>
+     */
+    protected function resolveMenuItemLabels(array $item): array
+    {
+        if (isset($item['label']) && is_string($item['label'])) {
+            $item['label'] = CatalogLocalization::resolve($item['label']);
+        }
+
+        if (isset($item['badge']) && is_string($item['badge'])) {
+            $item['badge'] = CatalogLocalization::resolve($item['badge']);
+        }
+
+        $item['children'] = array_values(array_map(
+            fn (array $child): array => $this->resolveMenuItemLabels($child),
+            $item['children'] ?? [],
+        ));
 
         return $item;
     }

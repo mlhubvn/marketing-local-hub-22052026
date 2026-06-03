@@ -156,6 +156,7 @@ Hệ thống **không** dùng tách database; tenant được cô lập bằng *
 - **Sidebar portal (addon):** menu module marketplace chỉ `visible` khi `User::canUsePlanFeature(...)` (cần quyền trong gói **hoặc** `config/mlhub.php` → `no_plan_access.permissions`). User chưa gán gói **không** thấy CRM / Google Business / Loyalty / Custom Domains; vào URL trực tiếp → `403`.
 - **Chưa chọn gói nhưng dùng ngay (free tier):** `MLHUB_NO_PLAN_ACCESS_ENABLED=true` (mặc định). Hạn mức trong `config/mlhub.php` `no_plan_access.permissions` (+ env `MLHUB_NO_PLAN_*`). `User::planLimit()` / `canUsePlanFeature('localboost')` / dashboard **Current plan limits** dùng các số này thay vì Unlimited. Sidebar hiển thị **MLHUB Free** / badge **Free**.
 - **Cache dashboard plan limits:** `PlanLimitGuard::planUsageCacheKey()` → `portal.plan_usage.v0.{userId}` khi **chưa có gói active** (free tier / no plan), `portal.plan_usage.v1.{userId}` khi **đã có gói**; đổi gói tự dùng key khác (không dính snapshot cũ). `forgetPlanUsageCache()` xóa v0/v1/v2.
+- **Sidebar portal/admin:** `SidebarRegistry::sections()` resolve nhãn section/item qua `CatalogLocalization::resolve()` sau menu overrides (tránh nhãn `__('…')` bị “đóng băng” tiếng Việt lúc boot). Blade `sidebar-menu` in trực tiếp nhãn đã resolve, không `__()` lại.
 - Kiểm tra quyền tính năng:
   - `$user->hasActivePlan()` — còn hạn không.
   - `$user->canUsePlanFeature('localboost')` — gói còn hạn **và** bật cờ tính năng.

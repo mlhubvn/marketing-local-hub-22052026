@@ -49,7 +49,7 @@
             <section class="{{ $loop->first ? '' : 'border-t pt-4' }}" style="{{ $loop->first ? '' : 'border-color: rgba(var(--theme-border-color-rgb), 0.4);' }}">
                 @if (! empty($section['label']))
                     <p class="px-2 text-[11px] font-semibold uppercase tracking-[0.24em]" style="color: var(--theme-muted-text-color);">
-                        {{ __($section['label']) }}
+                        {{ $section['label'] }}
                     </p>
                 @endif
 
@@ -88,9 +88,9 @@
                                 >
                                     <i class="{{ $icon }} fa-fw text-[15px] leading-none"></i>
                                 </span>
-                                <span class="min-w-0 flex-1 truncate">{{ __($mobileLink['label'] ?? '') }}</span>
+                                <span class="min-w-0 flex-1 truncate">{{ $mobileLink['label'] ?? '' }}</span>
                                 @if ($badge)
-                                    <span title="{{ __('This is a separate addon module and is not included in the main script.') }}" class="ml-1 inline-flex shrink-0 items-center rounded border px-0.5 py-px text-[7px] font-bold uppercase leading-none tracking-normal" style="border-color: rgba(var(--theme-accent-rgb),0.16); background-color: rgba(var(--theme-accent-rgb),0.06); color: var(--theme-accent);">{{ __($badge) }}</span>
+                                    <span title="{{ __('This is a separate addon module and is not included in the main script.') }}" class="ml-1 inline-flex shrink-0 items-center rounded border px-0.5 py-px text-[7px] font-bold uppercase leading-none tracking-normal" style="border-color: rgba(var(--theme-accent-rgb),0.16); background-color: rgba(var(--theme-accent-rgb),0.06); color: var(--theme-accent);">{{ $badge }}</span>
                                 @endif
                             </a>
                         @else
@@ -105,9 +105,9 @@
                                 >
                                     <i class="{{ $icon }} fa-fw text-[15px] leading-none"></i>
                                 </span>
-                                <span class="min-w-0 flex-1 truncate">{{ __($mobileLink['label'] ?? '') }}</span>
+                                <span class="min-w-0 flex-1 truncate">{{ $mobileLink['label'] ?? '' }}</span>
                                 @if ($badge)
-                                    <span title="{{ __('This is a separate addon module and is not included in the main script.') }}" class="ml-1 inline-flex shrink-0 items-center rounded border px-0.5 py-px text-[7px] font-bold uppercase leading-none tracking-normal" style="border-color: rgba(var(--theme-accent-rgb),0.16); background-color: rgba(var(--theme-accent-rgb),0.06); color: var(--theme-accent);">{{ __($badge) }}</span>
+                                    <span title="{{ __('This is a separate addon module and is not included in the main script.') }}" class="ml-1 inline-flex shrink-0 items-center rounded border px-0.5 py-px text-[7px] font-bold uppercase leading-none tracking-normal" style="border-color: rgba(var(--theme-accent-rgb),0.16); background-color: rgba(var(--theme-accent-rgb),0.06); color: var(--theme-accent);">{{ $badge }}</span>
                                 @endif
                             </a>
                         @endif
@@ -127,7 +127,7 @@
                         x-transition:enter="transition ease-out duration-140"
                         x-transition:enter-start="opacity-0 -translate-x-1"
                         x-transition:enter-end="opacity-100 translate-x-0">
-                        {{ __($section['label']) }}
+                        {{ $section['label'] }}
                     </p>
 
                     <div class="flex justify-center overflow-hidden"
@@ -164,7 +164,7 @@
                                 x-bind:class="sidebarContentVisible
                                     ? '{{ $isCurrent ? 'h-10 rounded-xl pl-[45px] pr-3 text-slate-950 dark:text-white' : 'h-10 rounded-xl pl-[45px] pr-3 text-slate-600 hover:text-slate-950 dark:text-slate-300 dark:hover:text-white' }}'
                                     : '{{ $isCurrent ? 'h-10 rounded-none bg-transparent pl-[7px] pr-0 text-slate-950 shadow-none ring-0 dark:text-white' : 'h-10 rounded-none bg-transparent pl-[7px] pr-0 text-slate-600 shadow-none ring-0 dark:text-slate-300' }}'"
-                                title="{{ __($item['label']) }}"
+                                title="{{ $item['label'] }}"
                             >
                                 <span class="absolute left-[7px] top-1/2 inline-flex h-[1.875rem] w-[1.875rem] -translate-y-1/2 items-center justify-center rounded-lg border border-transparent transition-colors duration-100"
                                     x-bind:class="sidebarContentVisible
@@ -180,7 +180,7 @@
                                     x-show="sidebarContentVisible"
                                     x-transition:enter="transition ease-out duration-140"
                                     x-transition:enter-start="opacity-0 -translate-x-1.5"
-                                    x-transition:enter-end="opacity-100 translate-x-0">{{ __($item['label']) }}</span>
+                                    x-transition:enter-end="opacity-100 translate-x-0">{{ $item['label'] }}</span>
                                 @if ($badge)
                                     <span title="{{ __('This is a separate addon module and is not included in the main script.') }}" class="ml-1 inline-flex shrink-0 items-center rounded border px-0.5 py-px text-[7px] font-bold uppercase leading-none tracking-normal"
                                         x-cloak
@@ -188,7 +188,7 @@
                                         x-transition:enter="transition ease-out duration-120"
                                         x-transition:enter-start="opacity-0"
                                         x-transition:enter-end="opacity-100"
-                                        style="border-color: rgba(var(--theme-accent-rgb),0.16); background-color: rgba(var(--theme-accent-rgb),0.06); color: var(--theme-accent);">{{ __($badge) }}</span>
+                                        style="border-color: rgba(var(--theme-accent-rgb),0.16); background-color: rgba(var(--theme-accent-rgb),0.06); color: var(--theme-accent);">{{ $badge }}</span>
                                 @endif
                                 <span class="ml-auto inline-flex h-5 w-5 items-center justify-center text-slate-500"
                                     x-cloak
@@ -217,9 +217,9 @@
                                         class="{{ ($child['active'] ?? false) ? 'text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white' }} group relative flex items-center rounded-lg px-3 py-1.5 text-[12.5px] font-medium tracking-[0.005em] transition {{ $childDisabled ? 'cursor-default opacity-60' : '' }}"
                                     >
                                         <span class="absolute left-0 top-1/2 h-px w-3 -translate-x-[1rem] -translate-y-1/2 {{ ($child['active'] ?? false) ? 'bg-slate-400 dark:bg-slate-500' : 'bg-slate-300/90 dark:bg-slate-700' }}"></span>
-                                        <span class="min-w-0 flex-1 truncate">{{ __($child['label']) }}</span>
+                                        <span class="min-w-0 flex-1 truncate">{{ $child['label'] }}</span>
                                         @if ($childBadge)
-                                            <span title="{{ __('This is a separate addon module and is not included in the main script.') }}" class="ml-1 inline-flex shrink-0 items-center rounded border px-0.5 py-px text-[7px] font-bold uppercase leading-none tracking-normal" style="border-color: rgba(var(--theme-accent-rgb),0.16); background-color: rgba(var(--theme-accent-rgb),0.06); color: var(--theme-accent);">{{ __($childBadge) }}</span>
+                                            <span title="{{ __('This is a separate addon module and is not included in the main script.') }}" class="ml-1 inline-flex shrink-0 items-center rounded border px-0.5 py-px text-[7px] font-bold uppercase leading-none tracking-normal" style="border-color: rgba(var(--theme-accent-rgb),0.16); background-color: rgba(var(--theme-accent-rgb),0.06); color: var(--theme-accent);">{{ $childBadge }}</span>
                                         @endif
                                     </a>
                                 @endforeach
@@ -233,7 +233,7 @@
                             x-bind:class="sidebarContentVisible
                                 ? '{{ $isCurrent ? 'h-10 rounded-xl pl-[45px] pr-3 text-slate-950 dark:text-white' : 'h-10 rounded-xl pl-[45px] pr-3 text-slate-600 hover:text-slate-950 dark:text-slate-300 dark:hover:text-white' }}'
                                 : '{{ $isCurrent ? 'h-10 rounded-none bg-transparent pl-[7px] pr-0 text-slate-950 shadow-none ring-0 dark:text-white' : 'h-10 rounded-none bg-transparent pl-[7px] pr-0 text-slate-600 shadow-none ring-0 dark:text-slate-300' }}'"
-                            title="{{ __($item['label']) }}"
+                            title="{{ $item['label'] }}"
                         >
                                 <span class="absolute left-[7px] top-1/2 inline-flex h-[1.875rem] w-[1.875rem] -translate-y-1/2 items-center justify-center rounded-lg border border-transparent transition-colors duration-100"
                                     x-bind:class="sidebarContentVisible
@@ -249,7 +249,7 @@
                                 x-show="sidebarContentVisible"
                                 x-transition:enter="transition ease-out duration-140"
                                 x-transition:enter-start="opacity-0 -translate-x-1.5"
-                                x-transition:enter-end="opacity-100 translate-x-0">{{ __($item['label']) }}</span>
+                                x-transition:enter-end="opacity-100 translate-x-0">{{ $item['label'] }}</span>
                             @if ($badge)
                                 <span title="{{ __('This is a separate addon module and is not included in the main script.') }}" class="ml-1 inline-flex shrink-0 items-center rounded border px-0.5 py-px text-[7px] font-bold uppercase leading-none tracking-normal"
                                     x-cloak
@@ -257,7 +257,7 @@
                                     x-transition:enter="transition ease-out duration-120"
                                     x-transition:enter-start="opacity-0"
                                     x-transition:enter-end="opacity-100"
-                                    style="border-color: rgba(var(--theme-accent-rgb),0.16); background-color: rgba(var(--theme-accent-rgb),0.06); color: var(--theme-accent);">{{ __($badge) }}</span>
+                                    style="border-color: rgba(var(--theme-accent-rgb),0.16); background-color: rgba(var(--theme-accent-rgb),0.06); color: var(--theme-accent);">{{ $badge }}</span>
                             @endif
                             @if (! empty($item['suffix']))
                                 <span class="ml-2 text-[12px] text-slate-400 group-hover:text-slate-500"
