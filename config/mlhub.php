@@ -16,7 +16,7 @@ return [
      */
     'no_plan_access' => [
         'enabled' => filter_var(env('MLHUB_NO_PLAN_ACCESS_ENABLED', true), FILTER_VALIDATE_BOOL),
-        'label' => env('MLHUB_NO_PLAN_ACCESS_LABEL', 'Free'),
+        'label' => env('MLHUB_NO_PLAN_ACCESS_LABEL', 'None'),
         'permissions' => [
             'credits_usage' => true,
             'credits_usage_limit' => (int) env('MLHUB_NO_PLAN_CREDITS_LIMIT', 100),
