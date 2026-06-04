@@ -19,14 +19,18 @@
         ['label' => __('Core benefits'), 'hash' => '#about-benefits', 'icon' => 'fa-gem'],
         ['label' => __('Your MLHUB journey'), 'hash' => '#about-journey', 'icon' => 'fa-road'],
     ];
-    $simpleNavItems = [
-        ['key' => 'pricing', 'label' => __('Pricing'), 'href' => route('guest.pricing'), 'active' => request()->routeIs('guest.pricing')],
-        ['key' => 'blog', 'label' => __('Blog'), 'href' => route('guest.blogs'), 'active' => request()->routeIs('guest.blogs') || request()->routeIs('guest.blog*')],
-        ['key' => 'faqs', 'label' => __('FAQs'), 'href' => route('guest.faqs'), 'active' => request()->routeIs('guest.faqs')],
-        ['key' => 'contact', 'label' => __('Contact'), 'href' => route('guest.contact'), 'active' => request()->routeIs('guest.contact')],
+    $resourceNavSections = [
+        ['label' => __('Pricing'), 'href' => route('guest.pricing'), 'icon' => 'fa-credit-card'],
+        ['label' => __('Blog'), 'href' => route('guest.blogs'), 'icon' => 'fa-newspaper'],
+        ['label' => __('FAQs'), 'href' => route('guest.faqs'), 'icon' => 'fa-circle-question'],
     ];
     $homeNavActive = request()->routeIs('home');
     $aboutNavActive = request()->routeIs('guest.about');
+    $resourcesNavActive = request()->routeIs('guest.pricing')
+        || request()->routeIs('guest.blogs')
+        || request()->routeIs('guest.blog*')
+        || request()->routeIs('guest.faqs');
+    $contactNavActive = request()->routeIs('guest.contact');
 @endphp
 
 <nav class="hidden items-center gap-2 lg:flex">
@@ -108,9 +112,47 @@
         </div>
     </div>
 
-    @foreach ($simpleNavItems as $item)
-        <a href="{{ $item['href'] }}" class="rounded-full px-4 py-2.5 text-sm font-bold transition {{ $item['active'] ? 'bg-neutral-100 text-neutral-950' : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-950' }}">
-            {{ $item['label'] }}
+    <div
+        x-data="{ open: false }"
+        class="relative"
+        x-on:mouseenter="open = true"
+        x-on:mouseleave="open = false"
+    >
+        <a
+            href="{{ route('guest.pricing') }}"
+            class="inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-bold transition {{ $resourcesNavActive ? 'bg-neutral-100 text-neutral-950' : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-950' }}"
+        >
+            {{ __('Resources') }}
+            <i class="fa-light fa-chevron-down text-[10px] opacity-70"></i>
         </a>
-    @endforeach
+        <div
+            x-cloak
+            x-show="open"
+            x-transition:enter="transition ease-out duration-150"
+            x-transition:enter-start="opacity-0 -translate-y-1"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-100"
+            x-transition:leave-start="opacity-100 translate-y-0"
+            x-transition:leave-end="opacity-0 -translate-y-1"
+            class="absolute left-0 z-40 mt-2 w-[15.5rem] overflow-hidden rounded-[1.1rem] border bg-white p-2 shadow-xl"
+            style="border-color: rgba(232,229,220,0.95);"
+        >
+            <p class="px-3 pb-1 pt-2 text-[10px] font-black uppercase tracking-[0.14em] text-neutral-400">{{ __('Solutions') }}</p>
+            @foreach ($resourceNavSections as $section)
+                <a
+                    href="{{ $section['href'] }}"
+                    class="flex items-center gap-3 rounded-[0.85rem] px-3 py-2.5 text-sm font-semibold text-neutral-600 transition hover:bg-neutral-50 hover:text-neutral-950"
+                >
+                    <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg" style="background: color-mix(in srgb, #ff5f5f 10%, #fff); color: #ff5f5f;">
+                        <i class="fa-light {{ $section['icon'] }} text-sm"></i>
+                    </span>
+                    <span>{{ $section['label'] }}</span>
+                </a>
+            @endforeach
+        </div>
+    </div>
+
+    <a href="{{ route('guest.contact') }}" class="rounded-full px-4 py-2.5 text-sm font-bold transition {{ $contactNavActive ? 'bg-neutral-100 text-neutral-950' : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-950' }}">
+        {{ __('Contact') }}
+    </a>
 </nav>
