@@ -884,7 +884,7 @@
                                 <div class="grid justify-items-center gap-3">
                                     <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white p-1.5" aria-hidden="true">
                                         <img
-                                            src="{{ theme_asset('assets/img/mlhub-hero-mark.svg', 'guest') }}"
+                                            src="{{ 'img/mlhub-hero-mark.svg' | asset_url }}"
                                             alt=""
                                             class="h-full w-full object-contain"
                                             width="40"
