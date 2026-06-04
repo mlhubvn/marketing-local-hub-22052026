@@ -216,8 +216,7 @@
             padding-block: clamp(4.5rem, 8vw, 7.5rem);
         }
 
-        .lb-sales [id].scroll-mt-28,
-        .lb-sales .lb-about-panel {
+        .lb-sales [id].scroll-mt-28 {
             scroll-margin-top: 7rem;
         }
 
@@ -935,8 +934,6 @@
                 </div>
             </div>
         </section>
-
-        @include(theme_view('partials.home-about', 'guest'))
 
         <section id="workflow" class="lb-workflow-band scroll-mt-28">
             <div class="lb-wrap relative z-10 text-center">

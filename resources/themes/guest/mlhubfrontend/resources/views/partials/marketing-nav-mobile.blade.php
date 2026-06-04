@@ -1,5 +1,8 @@
 @php
     $homeUrl = route('home');
+    $aboutUrl = route('guest.about');
+    $homeNavActive = request()->routeIs('home');
+    $aboutNavActive = request()->routeIs('guest.about');
     $homeNavSections = [
         ['label' => __('Overview'), 'hash' => '#hero'],
         ['label' => __('Connected workflow'), 'hash' => '#workflow'],
@@ -31,8 +34,8 @@
         <button
             type="button"
             x-on:click="homeOpen = ! homeOpen"
-            class="flex w-full items-center justify-between rounded-[0.95rem] px-3 py-2.5 text-sm font-bold text-white"
-            style="background:#ff5f5f;"
+            class="flex w-full items-center justify-between rounded-[0.95rem] px-3 py-2.5 text-sm font-bold {{ $homeNavActive ? 'text-white' : 'text-slate-700' }}"
+            @if($homeNavActive) style="background:#ff5f5f;" @endif
         >
             <span>{{ __('Home') }}</span>
             <i class="fa-light text-xs" x-bind:class="homeOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
@@ -48,14 +51,15 @@
         <button
             type="button"
             x-on:click="aboutOpen = ! aboutOpen"
-            class="flex w-full items-center justify-between rounded-[0.95rem] px-3 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50"
+            class="flex w-full items-center justify-between rounded-[0.95rem] px-3 py-2.5 text-sm font-bold {{ $aboutNavActive ? 'text-white' : 'text-slate-700 hover:bg-slate-50' }}"
+            @if($aboutNavActive) style="background:#ff5f5f;" @endif
         >
             <span>{{ __('About') }}</span>
             <i class="fa-light text-xs" x-bind:class="aboutOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
         </button>
         <div x-cloak x-show="aboutOpen" x-transition class="mt-1 grid gap-0.5 pl-2">
             @foreach ($aboutNavSections as $section)
-                <a href="{{ $homeUrl }}{{ $section['hash'] }}" class="rounded-[0.85rem] px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">{{ $section['label'] }}</a>
+                <a href="{{ $aboutUrl }}{{ $section['hash'] }}" class="rounded-[0.85rem] px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">{{ $section['label'] }}</a>
             @endforeach
         </div>
     </div>

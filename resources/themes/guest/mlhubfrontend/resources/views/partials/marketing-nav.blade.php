@@ -1,5 +1,6 @@
 @php
     $homeUrl = route('home');
+    $aboutUrl = route('guest.about');
     $homeNavSections = [
         ['label' => __('Overview'), 'hash' => '#hero', 'icon' => 'fa-house'],
         ['label' => __('Connected workflow'), 'hash' => '#workflow', 'icon' => 'fa-diagram-project'],
@@ -25,6 +26,7 @@
         ['key' => 'contact', 'label' => __('Contact'), 'href' => route('guest.contact'), 'active' => request()->routeIs('guest.contact')],
     ];
     $homeNavActive = request()->routeIs('home');
+    $aboutNavActive = request()->routeIs('guest.about');
 @endphp
 
 <nav class="hidden items-center gap-2 lg:flex">
@@ -74,8 +76,8 @@
         x-on:mouseleave="open = false"
     >
         <a
-            href="{{ $homeUrl }}#about-what"
-            class="inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-bold text-neutral-500 transition hover:bg-neutral-50 hover:text-neutral-950"
+            href="{{ $aboutUrl }}#about-what"
+            class="inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-bold transition {{ $aboutNavActive ? 'bg-neutral-100 text-neutral-950' : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-950' }}"
         >
             {{ __('About') }}
             <i class="fa-light fa-chevron-down text-[10px] opacity-70"></i>
@@ -94,7 +96,7 @@
         >
             @foreach ($aboutNavSections as $section)
                 <a
-                    href="{{ $homeUrl }}{{ $section['hash'] }}"
+                    href="{{ $aboutUrl }}{{ $section['hash'] }}"
                     class="flex items-center gap-3 rounded-[0.85rem] px-3 py-2.5 text-sm font-semibold text-neutral-600 transition hover:bg-neutral-50 hover:text-neutral-950"
                 >
                     <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg" style="background: color-mix(in srgb, #ff5f5f 10%, #fff); color: #ff5f5f;">

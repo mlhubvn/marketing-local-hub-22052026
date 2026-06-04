@@ -1,28 +1,28 @@
 <section id="about" class="lb-wrap lb-section lb-about">
     <div class="mb-10 text-center">
         <span class="lb-pill inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('About MLHUB') }}</span>
-        <h2 class="lb-serif lb-heading mx-auto mt-5 max-w-3xl">{{ __('Making Local HUB for Vietnamese local businesses') }}</h2>
+        <h1 class="lb-serif lb-heading mx-auto mt-5 max-w-3xl">{{ __('Making Local HUB for Vietnamese local businesses') }}</h1>
     </div>
 
     <div class="grid gap-6">
-        <article id="about-what" class="lb-card lb-about-panel scroll-mt-28 rounded-2xl p-6 sm:p-8">
+        <article id="about-what" class="lb-card lb-about-panel rounded-2xl p-6 sm:p-8">
             <p class="text-xs font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">01</p>
-            <h3 class="lb-card-title mt-3">{{ __('What is MLHUB?') }}</h3>
+            <h2 class="lb-card-title mt-3">{{ __('What is MLHUB?') }}</h2>
             <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('MLHUB is an all-in-one Marketing Automation platform built for household businesses (SOHO), small and medium enterprises (SMEs), and retail chains. We turn complex technology into easy tools so local stores can attract and nurture customers automatically without technical expertise.') }}</p>
         </article>
 
-        <article id="about-vision" class="lb-card lb-about-panel scroll-mt-28 rounded-2xl p-6 sm:p-8">
+        <article id="about-vision" class="lb-card lb-about-panel rounded-2xl p-6 sm:p-8">
             <p class="text-xs font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">02</p>
-            <h3 class="lb-card-title mt-3">{{ __('Vision & Mission') }}</h3>
+            <h2 class="lb-card-title mt-3">{{ __('Vision & Mission') }}</h2>
             <p class="lb-body mt-4 font-bold" style="color: var(--lb-ink);">{{ __('Vision') }}</p>
             <p class="lb-body mt-2" style="color: var(--lb-muted);">{{ __("Become Vietnam's leading Marketing Automation platform so every business—even the smallest—can operate with the discipline of a large enterprise.") }}</p>
             <p class="lb-body mt-5 font-bold" style="color: var(--lb-ink);">{{ __('Mission: Making Local HUB') }}</p>
             <p class="lb-body mt-2" style="color: var(--lb-muted);">{{ __('Create lasting value for the local economy through four pillars: continuous revenue growth, digital workforce training, loyal customer retention, and standardized SOP processes.') }}</p>
         </article>
 
-        <article id="about-pain" class="lb-card lb-about-panel scroll-mt-28 rounded-2xl p-6 sm:p-8">
+        <article id="about-pain" class="lb-card lb-about-panel rounded-2xl p-6 sm:p-8">
             <p class="text-xs font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">03</p>
-            <h3 class="lb-card-title mt-3">{{ __('Market challenges') }}</h3>
+            <h2 class="lb-card-title mt-3">{{ __('Market challenges') }}</h2>
             <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('Small merchants face four major barriers:') }}</p>
             <ul class="lb-body mt-4 grid gap-2 sm:grid-cols-2" style="color: var(--lb-muted);">
                 <li class="flex gap-2"><i class="fa-light fa-circle-small mt-2 shrink-0 text-[#ff5f5f]"></i><span>{{ __('Limited budget for online marketing.') }}</span></li>
@@ -32,9 +32,9 @@
             </ul>
         </article>
 
-        <article id="about-solutions" class="lb-card lb-about-panel scroll-mt-28 rounded-2xl p-6 sm:p-8">
+        <article id="about-solutions" class="lb-card lb-about-panel rounded-2xl p-6 sm:p-8">
             <p class="text-xs font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">04</p>
-            <h3 class="lb-card-title mt-3">{{ __('Breakthrough solutions from MLHUB') }}</h3>
+            <h2 class="lb-card-title mt-3">{{ __('Breakthrough solutions from MLHUB') }}</h2>
             <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('Instead of feature overload, MLHUB delivers three revenue-ready solutions:') }}</p>
             <ul class="mt-5 grid gap-4">
                 @foreach ([
@@ -55,9 +55,9 @@
             </ul>
         </article>
 
-        <article id="about-benefits" class="lb-card lb-about-panel scroll-mt-28 rounded-2xl p-6 sm:p-8">
+        <article id="about-benefits" class="lb-card lb-about-panel rounded-2xl p-6 sm:p-8">
             <p class="text-xs font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">05</p>
-            <h3 class="lb-card-title mt-3">{{ __('Core benefits') }}</h3>
+            <h2 class="lb-card-title mt-3">{{ __('Core benefits') }}</h2>
             <div class="mt-5 grid gap-4 sm:grid-cols-2">
                 @foreach ([
                     [__('Operations'), __('Automate every touchpoint and free owners from manual tasks.')],
@@ -73,9 +73,9 @@
             </div>
         </article>
 
-        <article id="about-journey" class="lb-card lb-about-panel scroll-mt-28 rounded-2xl p-6 sm:p-8">
+        <article id="about-journey" class="lb-card lb-about-panel rounded-2xl p-6 sm:p-8">
             <p class="text-xs font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">06</p>
-            <h3 class="lb-card-title mt-3">{{ __('Your MLHUB journey') }}</h3>
+            <h2 class="lb-card-title mt-3">{{ __('Your MLHUB journey') }}</h2>
             <div class="mt-5 space-y-5">
                 <p class="lb-body" style="color: var(--lb-muted);">{{ __('Your store starts invisible online with few walk-ins. Through Business Profiles, MLHUB connects to Google to optimize listings, publish posts, and sync reviews—so tourists find you on the map and walk in naturally. This builds Maps visibility and SEO without extra ad spend.') }}</p>
                 <p class="lb-body" style="color: var(--lb-muted);">{{ __('When guests arrive, QR codes at tables plus AI-built coupon campaigns capture names and phone numbers instantly—no manual notes—solving budget and staffing limits with smart O2O marketing.') }}</p>
