@@ -13,7 +13,7 @@
         ['label' => __('Launch campaigns'), 'hash' => '#get-started'],
     ];
     $aboutNavSections = [
-        ['label' => __('MLHUB (Making Local HUB)'), 'hash' => '#about-what'],
+        ['label' => __('What is MLHUB?'), 'hash' => '#about-what'],
         ['label' => __('Vision & Mission'), 'hash' => '#about-vision'],
         ['label' => __('Market challenges'), 'hash' => '#about-pain'],
         ['label' => __('Comprehensive solutions'), 'hash' => '#about-solutions'],
