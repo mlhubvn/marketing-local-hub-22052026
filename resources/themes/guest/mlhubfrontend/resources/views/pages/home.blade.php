@@ -909,27 +909,40 @@
 
                                 <div class="mt-5 grid gap-4 lg:grid-cols-[1fr_minmax(14rem,1.05fr)]">
                                     <div class="rounded-xl border bg-white p-4" style="border-color: var(--lb-line);">
-                                        <div class="flex items-end gap-2 h-36">
+                                        <div class="flex items-end gap-2 h-28">
                                             @foreach ([38, 56, 44, 76, 61, 88, 73, 96] as $bar)
                                                 <span class="lb-bar flex-1 rounded-t-lg" style="--lb-bar-delay: {{ $loop->index * 160 }}ms; height: {{ $bar }}%; background: {{ $loop->even ? 'var(--lb-red)' : 'var(--lb-lime)' }};"></span>
+                                            @endforeach
+                                        </div>
+                                        <div class="mt-4 space-y-3 border-t pt-4" style="border-color: var(--lb-line);">
+                                            @foreach ([['Hero dash Reviews', 78], ['Hero dash Bookings', 92]] as $progress)
+                                                <div>
+                                                    <div class="flex items-center justify-between gap-2">
+                                                        <p class="min-w-0 text-[10px] font-bold leading-none whitespace-nowrap" style="color: var(--lb-muted);">{{ __($progress[0]) }}</p>
+                                                        <p class="shrink-0 text-[10px] font-black tabular-nums" style="color: #ff5f5f;">{{ $progress[1] }}%</p>
+                                                    </div>
+                                                    <div class="mt-1.5 h-1.5 overflow-hidden rounded-full" style="background: color-mix(in srgb, var(--lb-line) 55%, #fff);">
+                                                        <span class="block h-full rounded-full transition-[width] duration-700" style="width: {{ $progress[1] }}%; background: {{ $loop->even ? 'var(--lb-red)' : 'var(--lb-lime)' }};"></span>
+                                                    </div>
+                                                </div>
                                             @endforeach
                                         </div>
                                     </div>
                                     @php
                                         $heroModuleStats = [
-                                            ['Making Local HUB', __('12 hub locations')],
-                                            ['Marketing Automation', __('6 active campaigns')],
-                                            ['Local O2O', __('94% O2O reach')],
-                                            ['Review Booster', __('4.9 avg rating')],
-                                            ['Lead Gen & Booking', __('8 new bookings')],
-                                            ['Coupon claims', __('23 coupons used')],
+                                            [__('Hero dash Local HUB'), __('Hero dash 12 hubs')],
+                                            [__('Hero dash Automation'), __('Hero dash 6 live')],
+                                            [__('Hero dash O2O'), __('Hero dash 94 O2O')],
+                                            [__('Hero dash Reviews'), __('Hero dash 4.9 avg')],
+                                            [__('Hero dash Bookings'), __('Hero dash 8 new')],
+                                            [__('Hero dash Coupons'), __('Hero dash 23 used')],
                                         ];
                                     @endphp
                                     <div class="grid grid-cols-2 gap-2">
                                         @foreach ($heroModuleStats as $item)
                                             <div class="rounded-xl border bg-white p-2.5" style="border-color: var(--lb-line);">
-                                                <p class="text-[10px] font-black leading-snug line-clamp-2">{{ __($item[0]) }}</p>
-                                                <p class="mt-1.5 text-sm font-black leading-tight" style="color: #ff5f5f;">{{ $item[1] }}</p>
+                                                <p class="text-[10px] font-black leading-none whitespace-nowrap">{{ $item[0] }}</p>
+                                                <p class="mt-1.5 text-[11px] font-black leading-none whitespace-nowrap tabular-nums" style="color: #ff5f5f;">{{ $item[1] }}</p>
                                             </div>
                                         @endforeach
                                     </div>
