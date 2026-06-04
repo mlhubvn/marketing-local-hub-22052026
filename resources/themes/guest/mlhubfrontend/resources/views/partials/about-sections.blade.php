@@ -1,7 +1,7 @@
 <section id="about" class="lb-wrap lb-section lb-about">
     <div class="mb-10 text-center">
         <span class="lb-pill inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('About MLHUB') }}</span>
-        <h1 class="lb-serif lb-heading mx-auto mt-5 max-w-3xl">{{ __('Making Local HUB for Vietnamese local businesses') }}</h1>
+        <h1 class="lb-serif lb-heading mx-auto mt-5 max-w-3xl">{{ __('Making Local Hub partners with SOHO') }}</h1>
     </div>
 
     <div class="grid gap-6">
