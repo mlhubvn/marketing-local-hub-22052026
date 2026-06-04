@@ -113,7 +113,12 @@ mkdir -p public/resources
 rm -rf public/resources/themes
 ln -sfn ../../resources/themes public/resources/themes
 
+THEME_FRONTEND_VALUE="${THEME_FRONTEND:-mlhubfrontend}"
+rm -rf public/img
+ln -sfn "../resources/themes/guest/${THEME_FRONTEND_VALUE}/assets/img" public/img
+
 chown -h www-data:www-data public/storage 2>/dev/null || true
+chown -h www-data:www-data public/img 2>/dev/null || true
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # -----------------------------------------------------------------------------
