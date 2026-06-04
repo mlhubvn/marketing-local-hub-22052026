@@ -882,6 +882,17 @@
                         <div class="grid gap-0 lg:grid-cols-[5.2rem_minmax(0,1fr)]">
                             <aside class="hidden border-r px-4 py-3 lg:block" style="border-color: var(--lb-line); background: var(--lb-soft);">
                                 <div class="grid justify-items-center gap-3">
+                                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white p-1.5" aria-hidden="true">
+                                        <img
+                                            src="{{ theme_asset('assets/img/mlhub-hero-mark.svg', 'guest') }}"
+                                            alt=""
+                                            class="h-full w-full object-contain"
+                                            width="40"
+                                            height="40"
+                                            loading="lazy"
+                                            decoding="async"
+                                        >
+                                    </span>
                                     @foreach (['fa-house', 'fa-store', 'fa-star', 'fa-ticket', 'fa-chart-line'] as $index => $icon)
                                         <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl {{ $index === 2 ? 'text-white' : '' }}" style="{{ $index === 2 ? 'background: var(--lb-red);' : 'background:#fff; color:#ff5f5f;' }}">
                                             <i class="fa-light {{ $icon }}"></i>
@@ -940,9 +951,9 @@
                                     @endphp
                                     <div class="grid grid-cols-2 gap-2">
                                         @foreach ($heroModuleStats as $item)
-                                            <div class="rounded-xl border bg-white p-2.5" style="border-color: var(--lb-line);">
-                                                <p class="text-[10px] font-black leading-none whitespace-nowrap">{{ $item[0] }}</p>
-                                                <p class="mt-1.5 text-[11px] font-black leading-none whitespace-nowrap tabular-nums" style="color: #ff5f5f;">{{ $item[1] }}</p>
+                                            <div class="rounded-xl border bg-white p-3" style="border-color: var(--lb-line);">
+                                                <p class="text-xs font-black leading-snug line-clamp-2">{{ $item[0] }}</p>
+                                                <p class="mt-2 text-sm font-black leading-snug line-clamp-2" style="color: #ff5f5f;">{{ $item[1] }}</p>
                                             </div>
                                         @endforeach
                                     </div>
@@ -951,13 +962,19 @@
                         </div>
                     </div>
 
-                    <div class="lb-card lb-float absolute -left-5 bottom-8 z-20 hidden rounded-xl p-4 shadow-xl md:block" style="--lb-delay: 120ms;">
+                    <div class="lb-card lb-float absolute -left-5 bottom-16 z-20 hidden rounded-xl p-4 shadow-xl md:block" style="--lb-delay: 120ms;">
                         <p class="text-xs font-black">{{ __('AI Campaign Builder') }}</p>
                         <p class="mt-1 text-xs" style="color: var(--lb-muted);">{{ __('Built for your goals and purpose') }}</p>
                     </div>
-                    <div class="lb-card lb-float absolute -right-4 top-10 z-20 hidden rounded-xl p-4 shadow-xl md:block" style="--lb-delay: 420ms;">
-                        <p class="text-xs font-black">{{ __('Coupon Claims') }}</p>
-                        <p class="mt-1 text-xl font-black" style="color: #ff5f5f;">+42</p>
+                    <div class="lb-card lb-float absolute -right-4 top-10 z-20 hidden w-[13.5rem] max-w-[calc(100vw-2.5rem)] rounded-xl p-3 shadow-xl md:block" style="--lb-delay: 420ms;">
+                        <div class="flex gap-2.5">
+                            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm text-white" style="background: var(--lb-red);">
+                                <i class="fa-light fa-robot" aria-hidden="true"></i>
+                            </span>
+                            <p class="text-[11px] font-bold leading-snug" style="color: var(--lb-muted);">
+                                {{ __('Hero float AI revenue notification') }}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
