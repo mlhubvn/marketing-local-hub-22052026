@@ -918,7 +918,7 @@
                                     @endforeach
                                 </div>
 
-                                <div class="mt-5 grid gap-4 lg:grid-cols-[1fr_minmax(14rem,1.05fr)]">
+                                <div class="mt-5 grid gap-4 lg:grid-cols-[1fr_minmax(11rem,0.5fr)]">
                                     <div class="rounded-xl border bg-white p-4" style="border-color: var(--lb-line);">
                                         <div class="flex items-end gap-2 h-28">
                                             @foreach ([38, 56, 44, 76, 61, 88, 73, 96] as $bar)
@@ -959,11 +959,11 @@
                         </div>
                     </div>
 
-                    <div class="lb-card lb-float absolute -left-5 bottom-16 z-20 hidden rounded-xl p-4 shadow-xl md:block" style="--lb-delay: 120ms;">
+                    <div class="lb-card lb-float absolute -left-5 bottom-18 z-20 hidden rounded-xl p-4 shadow-xl md:block" style="--lb-delay: 120ms;">
                         <p class="text-xs font-black">{{ __('AI Campaign Builder') }}</p>
                         <p class="mt-1 text-xs" style="color: var(--lb-muted);">{{ __('Built for your goals and purpose') }}</p>
                     </div>
-                    <div class="lb-card lb-float absolute -right-4 top-10 z-20 hidden w-[13.5rem] max-w-[calc(100vw-2.5rem)] rounded-xl p-3 shadow-xl md:block" style="--lb-delay: 420ms;">
+                    <div class="lb-card lb-float absolute -right-4 top-14 z-20 hidden w-[13.5rem] max-w-[calc(100vw-2.5rem)] rounded-xl p-3 shadow-xl md:block" style="--lb-delay: 420ms;">
                         <div class="flex gap-2.5">
                             <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm text-white" style="background: var(--lb-red);">
                                 <i class="fa-light fa-robot" aria-hidden="true"></i>
