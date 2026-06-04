@@ -941,15 +941,12 @@
                                     </div>
                                     @php
                                         $heroModuleStats = [
-                                            [__('Hero dash Local HUB'), __('Hero dash 12 hubs')],
-                                            [__('Hero dash Automation'), __('Hero dash 6 live')],
-                                            [__('Hero dash O2O'), __('Hero dash 94 O2O')],
                                             [__('Hero dash Reviews'), __('Hero dash 4.9 avg')],
                                             [__('Hero dash Bookings'), __('Hero dash 8 new')],
                                             [__('Hero dash Coupons'), __('Hero dash 23 used')],
                                         ];
                                     @endphp
-                                    <div class="grid grid-cols-2 gap-2">
+                                    <div class="grid grid-cols-1 gap-2">
                                         @foreach ($heroModuleStats as $item)
                                             <div class="rounded-xl border bg-white p-3" style="border-color: var(--lb-line);">
                                                 <p class="text-xs font-black leading-snug line-clamp-2">{{ $item[0] }}</p>
