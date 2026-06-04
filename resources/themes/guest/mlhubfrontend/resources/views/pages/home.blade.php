@@ -6,12 +6,11 @@
         $featuresHref = '#features';
         $niches = [__('Restaurants'), __('Salons'), __('Clinics'), __('Dentists'), __('Gyms'), __('Local shops'), __('Spas'), __('Agencies')];
         $coreFeatures = [
-            ['fa-star', __('Review Booster'), __('Route happy customers to Google or Facebook reviews and keep low-score feedback private.')],
-            ['fa-calendar-check', __('Booking Pages'), __('Collect appointment requests from clean public booking pages.')],
-            ['fa-ticket', __('Coupons & Offers'), __('Create claimable coupons, codes, redemption tracking, and customer records.')],
-            ['fa-comments', __('Feedback Forms'), __('Collect private customer feedback, topics, ratings, and resolution status.')],
-            ['fa-address-card', __('Lead Forms'), __('Capture customer contacts from campaign landing pages and QR scans.')],
-            ['fa-sparkles', __('AI Campaign Builder'), __('Generate campaign plans, landing page copy, CTAs, FAQs, and follow-up messages.')],
+            ['fa-star', __('Review Booster'), __('Route satisfied customers to Google Maps or Facebook, while keeping negative feedback private for immediate resolution.')],
+            ['fa-calendar-check', __('Booking Pages'), __('Instantly collect appointment requests from public booking pages, turning viewers into actual customers.')],
+            ['fa-ticket', __('Coupons & Offers'), __('Create hooks with coupons, track redemption rates, and build a massive customer profile database from Offline-to-Online campaigns.')],
+            ['fa-address-card', __('Lead & Feedback Forms'), __('Capture contact info and measure satisfaction. Automate funnel segmentation for personalized follow-ups.')],
+            ['fa-sparkles', __('AI Campaign Builder'), __('Save hours of work. Let AI write your campaign copy, landing page content, CTAs, and follow-up messages.')],
             ['fa-browser', __('Landing Pages'), __('Public campaign pages for every local growth goal, not a generic page builder.')],
             ['fa-chart-line', __('Reports & Analytics'), __('Track visits, leads, reviews, bookings, coupons, feedback, and conversion rate.')],
         ];
@@ -71,9 +70,9 @@
         }
 
         .lb-hero-title {
-            font-size: clamp(3rem, 6.1vw, 5.35rem);
-            line-height: .98;
-            max-width: 12ch;
+            font-size: clamp(2.35rem, 5vw, 4.25rem);
+            line-height: 1.02;
+            max-width: min(100%, 42rem);
         }
 
         .lb-heading {
@@ -768,31 +767,28 @@
                 <div>
                     <span class="lb-pill lb-reveal inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">
                         <i class="fa-light fa-sparkles"></i>
-                        {{ __('AI-powered local marketing SaaS') }}
+                        {{ __('AI-Powered Local Marketing') }}
                     </span>
                     <h1 class="lb-serif lb-hero-title lb-reveal mt-7" style="--lb-delay: 70ms;">
-                        {{ __('AI Local Marketing for Reviews, Bookings and Leads') }}
+                        {{ __('Marketing Automation. Helping local businesses continuously generate new leads, increase bookings, and multiply loyal customers.') }}
                     </h1>
-                    <h2 class="lb-reveal mt-6 max-w-xl text-2xl font-semibold leading-tight sm:text-[1.7rem]" style="--lb-delay: 140ms;">
-                        {{ __('Help local businesses get more reviews, bookings, leads, coupon claims and repeat customers.') }}
-                    </h2>
-                    <p class="lb-reveal mt-5 max-w-xl text-base leading-8" style="--lb-delay: 210ms; color: var(--lb-muted);">
-                        {{ __('LocalBoost AI helps restaurants, salons, clinics, gyms and local shops publish campaign pages, collect customers, generate AI copy, share QR codes and track real growth from one dashboard.') }}
+                    <p class="lb-reveal mt-6 max-w-xl text-base leading-8" style="--lb-delay: 140ms; color: var(--lb-muted);">
+                        {{ __('MLHUB is more than a tool; it is the process of building your Local HUB. Automate data collection (Lead Gen), create AI-driven campaigns, distribute via O2O QR codes, and measure real growth all on a single platform.') }}
                     </p>
 
-                    <div class="lb-reveal mt-8 flex flex-wrap gap-3" style="--lb-delay: 280ms;">
+                    <div class="lb-reveal mt-8 flex flex-wrap gap-3" style="--lb-delay: 210ms;">
                         <a href="{{ $demoHref }}" class="lb-button inline-flex items-center justify-center gap-2 px-6 py-4 text-sm font-black">
                             <i class="fa-light fa-display"></i>
-                            {{ __('Start Free Trial') }}
+                            {{ __('Start your free trial') }}
                         </a>
                         <a href="{{ $featuresHref }}" class="lb-button-soft inline-flex items-center justify-center gap-2 px-6 py-4 text-sm font-black">
                             <i class="fa-light fa-grid-2"></i>
-                            {{ __('Explore Features') }}
+                            {{ __('Explore features') }}
                         </a>
                     </div>
 
-                    <div class="lb-reveal mt-7 flex flex-wrap gap-2" style="--lb-delay: 350ms;">
-                        @foreach ([__('AI-Powered'), __('Local Business Growth'), __('Review Booster'), __('QR Campaign Pages')] as $badge)
+                    <div class="lb-reveal mt-7 flex flex-wrap gap-2" style="--lb-delay: 280ms;">
+                        @foreach ([__('Making Local HUB'), __('O2O Marketing Automation'), __('Review Booster'), __('Lead Gen & Booking')] as $badge)
                             <span class="rounded-full border bg-white px-3 py-2 text-xs font-black" style="border-color: var(--lb-line); color: var(--lb-muted);">{{ $badge }}</span>
                         @endforeach
                     </div>
@@ -871,12 +867,12 @@
 
         <section class="lb-workflow-band">
             <div class="lb-wrap relative z-10 text-center">
-                <span class="lb-pill inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Connected local growth workflow') }}</span>
+                <span class="lb-pill inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Connected Local Growth Workflow') }}</span>
                 <h2 class="lb-serif lb-heading mx-auto mt-5 max-w-3xl">
-                    {{ __('Everything moves from campaign pages to customers, QR scans and reports.') }}
+                    {{ __('Everything flows seamlessly from Campaign Ideas to Real Customer Actions.') }}
                 </h2>
                 <p class="mx-auto mt-5 max-w-2xl text-sm leading-7" style="color: var(--lb-muted);">
-                    {{ __('Create campaigns, publish public pages, collect submissions, generate AI copy and track the results without switching between disconnected tools.') }}
+                    {{ __('A standardized SOP system: Create AI campaigns, publish lead capture pages, route through QR codes, and automatically update reports without switching between disconnected software.') }}
                 </p>
             </div>
 
@@ -996,15 +992,15 @@
             <div class="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:items-start">
                 <div>
                     <span class="lb-pill inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('How it works') }}</span>
-                    <h2 class="lb-serif lb-heading mt-5">{{ __('From business profile to live campaign in minutes') }}</h2>
+                    <h2 class="lb-serif lb-heading mt-5">{{ __('From business profile to an explosive live campaign in minutes.') }}</h2>
                 </div>
                 <div class="relative">
                     <div class="lb-steps relative z-10 grid gap-4 md:grid-cols-2">
                     @foreach ([
-                        ['1', 'fa-store', __('Create a business profile'), __('Add logo, contact, address, review links and brand details.')],
-                        ['2', 'fa-bullseye-arrow', __('Choose a growth goal'), __('Get reviews, bookings, coupon claims, feedback or leads.')],
-                        ['3', 'fa-sparkles', __('AI builds the campaign'), __('Generate page copy, CTA, messages and campaign content.')],
-                        ['4', 'fa-paper-plane', __('Publish, share and track'), __('Get a public page, QR code, visits, conversions and reports.')],
+                        ['1', 'fa-store', __('Create business profile'), __('Add your logo, address, review links, and brand identity.')],
+                        ['2', 'fa-bullseye-arrow', __('Choose growth goals'), __('Do you want to boost reviews, get bookings, distribute coupons, or collect Leads?')],
+                        ['3', 'fa-sparkles', __('AI builds the campaign'), __('The AI system automatically generates content, imagery, and follow-up scripts.')],
+                        ['4', 'fa-qrcode', __('Publish & share QR codes'), __('Place QR codes at your physical location. Track scans, conversion rates, and incoming revenue.')],
                     ] as $step)
                         <article class="lb-card lb-step-card lb-hover rounded-2xl p-6">
                             <div class="relative z-10 flex items-center justify-between gap-4">
@@ -1120,7 +1116,7 @@
                     <div class="relative z-10">
                         <span class="lb-pill inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Campaign workflow') }}</span>
                         <h2 class="lb-serif lb-heading">{{ __('One flow from campaign idea to real customer action') }}</h2>
-                        <p class="mt-5 text-base leading-8" style="color: var(--lb-muted);">{{ __('LocalBoost AI turns a local marketing goal into a public campaign page, a QR code, customer capture, AI content and measurable reports in one connected workflow.') }}</p>
+                        <p class="mt-5 text-base leading-8" style="color: var(--lb-muted);">{{ __('MLHUB turns a local marketing goal into a public campaign page, a QR code, customer capture, AI content and measurable reports in one connected workflow.') }}</p>
                         <div class="lb-proof-visual mt-8 rounded-2xl border p-5" style="border-color: var(--lb-line);">
                             <div class="grid gap-3 sm:grid-cols-3">
                                 @foreach ([['fa-bullhorn', __('Campaign')], ['fa-browser', __('Public Page')], ['fa-user-plus', __('Customer')]] as $node)
@@ -1165,11 +1161,11 @@
                     <div>
                         <span class="lb-pill inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Launch your next campaign') }}</span>
                         <h2 class="lb-serif lb-heading mt-5 max-w-3xl">{{ __('Ready to turn local traffic into reviews, bookings and leads?') }}</h2>
-                        <p class="mt-5 max-w-2xl text-base leading-8" style="color: var(--lb-muted);">{{ __('Create campaign pages for reviews, bookings, coupons, leads and feedback, then share them with public links and QR codes while LocalBoost AI tracks every result.') }}</p>
+                        <p class="mt-5 max-w-2xl text-base leading-8" style="color: var(--lb-muted);">{{ __('Create campaign pages for reviews, bookings, coupons, leads and feedback, then share them with public links and QR codes while MLHUB tracks every result.') }}</p>
                         <div class="mt-8 flex flex-wrap gap-3">
                             <a href="{{ $demoHref }}" class="lb-button inline-flex items-center justify-center gap-2 px-6 py-4 text-sm font-black">
                                 <i class="fa-light fa-rocket-launch"></i>
-                                {{ __('Start Free Trial') }}
+                                {{ __('Start your free trial') }}
                             </a>
                             <a href="{{ route('guest.pricing') }}" class="lb-button-soft inline-flex items-center justify-center gap-2 px-6 py-4 text-sm font-black">
                                 <i class="fa-light fa-credit-card"></i>
