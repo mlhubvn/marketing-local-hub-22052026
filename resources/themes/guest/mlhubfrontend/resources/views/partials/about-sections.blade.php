@@ -7,7 +7,7 @@
     <div class="grid gap-6">
         <article id="about-what" class="lb-card lb-about-panel rounded-2xl p-6 sm:p-8">
             <p class="text-xs font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">01</p>
-            <h2 class="lb-card-title mt-3">{{ __('What is MLHUB?') }}</h2>
+            <h2 class="lb-card-title mt-3">{{ __('MLHUB (Making Local HUB)') }}</h2>
             <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('MLHUB is an all-in-one Marketing Automation platform built for household businesses (SOHO), small and medium enterprises (SMEs), and retail chains. We turn complex technology into easy tools so local stores can attract and nurture customers automatically without technical expertise.') }}</p>
         </article>
 
@@ -34,7 +34,7 @@
 
         <article id="about-solutions" class="lb-card lb-about-panel rounded-2xl p-6 sm:p-8">
             <p class="text-xs font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">04</p>
-            <h2 class="lb-card-title mt-3">{{ __('Breakthrough solutions from MLHUB') }}</h2>
+            <h2 class="lb-card-title mt-3">{{ __('Comprehensive solutions') }}</h2>
             <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('Instead of feature overload, MLHUB delivers three revenue-ready solutions:') }}</p>
             <ul class="mt-5 grid gap-4">
                 @foreach ([
@@ -57,7 +57,7 @@
 
         <article id="about-benefits" class="lb-card lb-about-panel rounded-2xl p-6 sm:p-8">
             <p class="text-xs font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">05</p>
-            <h2 class="lb-card-title mt-3">{{ __('Core benefits') }}</h2>
+            <h2 class="lb-card-title mt-3">{{ __('Productivity digitization') }}</h2>
             <div class="mt-5 grid gap-4 sm:grid-cols-2">
                 @foreach ([
                     [__('Operations'), __('Automate every touchpoint and free owners from manual tasks.')],
@@ -75,7 +75,7 @@
 
         <article id="about-journey" class="lb-card lb-about-panel rounded-2xl p-6 sm:p-8">
             <p class="text-xs font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">06</p>
-            <h2 class="lb-card-title mt-3">{{ __('Your MLHUB journey') }}</h2>
+            <h2 class="lb-card-title mt-3">{{ __('Revenue replication') }}</h2>
             <div class="mt-5 space-y-5">
                 <p class="lb-body" style="color: var(--lb-muted);">{{ __('Your store starts invisible online with few walk-ins. Through Business Profiles, MLHUB connects to Google to optimize listings, publish posts, and sync reviews—so tourists find you on the map and walk in naturally. This builds Maps visibility and SEO without extra ad spend.') }}</p>
                 <p class="lb-body" style="color: var(--lb-muted);">{{ __('When guests arrive, QR codes at tables plus AI-built coupon campaigns capture names and phone numbers instantly—no manual notes—solving budget and staffing limits with smart O2O marketing.') }}</p>

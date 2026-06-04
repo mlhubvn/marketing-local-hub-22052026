@@ -16,6 +16,7 @@ Route::get('/', function () {
     return app(GuestMarketingController::class)->home();
 })->name('home');
 Route::get('/about', [GuestMarketingController::class, 'about'])->name('guest.about');
+Route::get('/solutions', [GuestMarketingController::class, 'solutions'])->name('guest.solutions');
 Route::get('/pricing', [GuestMarketingController::class, 'pricing'])->name('guest.pricing');
 Route::get('/faqs', [GuestMarketingController::class, 'faqs'])->name('guest.faqs');
 Route::get('/blogs', [GuestMarketingController::class, 'blogs'])->name('guest.blogs');

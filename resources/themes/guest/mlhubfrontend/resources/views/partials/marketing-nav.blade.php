@@ -2,31 +2,32 @@
     $homeUrl = route('home');
     $aboutUrl = route('guest.about');
     $homeNavSections = [
-        ['label' => __('Overview'), 'hash' => '#hero', 'icon' => 'fa-house'],
-        ['label' => __('Connected workflow'), 'hash' => '#workflow', 'icon' => 'fa-diagram-project'],
-        ['label' => __('Features'), 'hash' => '#features', 'icon' => 'fa-grid-2'],
+        ['label' => __('Platform overview'), 'hash' => '#hero', 'icon' => 'fa-house'],
+        ['label' => __('Growth workflow'), 'hash' => '#workflow', 'icon' => 'fa-diagram-project'],
+        ['label' => __('Core features'), 'hash' => '#features', 'icon' => 'fa-grid-2'],
         ['label' => __('How it works'), 'hash' => '#how-it-works', 'icon' => 'fa-route'],
-        ['label' => __('Public campaign pages'), 'hash' => '#product-proof', 'icon' => 'fa-browser'],
-        ['label' => __('Platform modules'), 'hash' => '#modules', 'icon' => 'fa-layer-group'],
-        ['label' => __('Campaign workflow'), 'hash' => '#growth-flow', 'icon' => 'fa-bullhorn'],
-        ['label' => __('Get started'), 'hash' => '#get-started', 'icon' => 'fa-rocket-launch'],
+        ['label' => __('Real-world proof'), 'hash' => '#product-proof', 'icon' => 'fa-browser'],
+        ['label' => __('Flexible expansion'), 'hash' => '#modules', 'icon' => 'fa-layer-group'],
+        ['label' => __('Launch campaigns'), 'hash' => '#get-started', 'icon' => 'fa-rocket-launch'],
     ];
     $aboutNavSections = [
-        ['label' => __('What is MLHUB?'), 'hash' => '#about-what', 'icon' => 'fa-circle-info'],
+        ['label' => __('MLHUB (Making Local HUB)'), 'hash' => '#about-what', 'icon' => 'fa-circle-info'],
         ['label' => __('Vision & Mission'), 'hash' => '#about-vision', 'icon' => 'fa-compass'],
         ['label' => __('Market challenges'), 'hash' => '#about-pain', 'icon' => 'fa-triangle-exclamation'],
-        ['label' => __('MLHUB solutions'), 'hash' => '#about-solutions', 'icon' => 'fa-lightbulb'],
-        ['label' => __('Core benefits'), 'hash' => '#about-benefits', 'icon' => 'fa-gem'],
-        ['label' => __('Your MLHUB journey'), 'hash' => '#about-journey', 'icon' => 'fa-road'],
+        ['label' => __('Comprehensive solutions'), 'hash' => '#about-solutions', 'icon' => 'fa-lightbulb'],
+        ['label' => __('Productivity digitization'), 'hash' => '#about-benefits', 'icon' => 'fa-gem'],
+        ['label' => __('Revenue replication'), 'hash' => '#about-journey', 'icon' => 'fa-road'],
     ];
     $resourceNavSections = [
+        ['label' => __('Solutions'), 'href' => route('guest.solutions'), 'icon' => 'fa-puzzle-piece'],
         ['label' => __('Pricing'), 'href' => route('guest.pricing'), 'icon' => 'fa-credit-card'],
         ['label' => __('Blog'), 'href' => route('guest.blogs'), 'icon' => 'fa-newspaper'],
-        ['label' => __('FAQs'), 'href' => route('guest.faqs'), 'icon' => 'fa-circle-question'],
+        ['label' => __('FAQs (FAQ)'), 'href' => route('guest.faqs'), 'icon' => 'fa-circle-question'],
     ];
     $homeNavActive = request()->routeIs('home');
     $aboutNavActive = request()->routeIs('guest.about');
-    $resourcesNavActive = request()->routeIs('guest.pricing')
+    $resourcesNavActive = request()->routeIs('guest.solutions')
+        || request()->routeIs('guest.pricing')
         || request()->routeIs('guest.blogs')
         || request()->routeIs('guest.blog*')
         || request()->routeIs('guest.faqs');
@@ -137,7 +138,6 @@
             class="absolute left-0 z-40 mt-2 w-[15.5rem] overflow-hidden rounded-[1.1rem] border bg-white p-2 shadow-xl"
             style="border-color: rgba(232,229,220,0.95);"
         >
-            <p class="px-3 pb-1 pt-2 text-[10px] font-black uppercase tracking-[0.14em] text-neutral-400">{{ __('Solutions') }}</p>
             @foreach ($resourceNavSections as $section)
                 <a
                     href="{{ $section['href'] }}"

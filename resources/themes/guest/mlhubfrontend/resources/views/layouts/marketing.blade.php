@@ -163,7 +163,8 @@
                         <p class="text-xs font-black uppercase tracking-[0.18em] text-neutral-400">{{ __('Product') }}</p>
                         <div class="mt-4 grid gap-3 text-sm font-bold text-neutral-600">
                             <a href="{{ route('guest.about') }}" class="hover:text-teal-700">{{ __('About') }}</a>
-                            <a href="{{ $homeUrl }}#features" class="hover:text-teal-700">{{ __('Features') }}</a>
+                            <a href="{{ route('guest.solutions') }}" class="hover:text-teal-700">{{ __('Solutions') }}</a>
+                            <a href="{{ $homeUrl }}#features" class="hover:text-teal-700">{{ __('Core features') }}</a>
                             <a href="{{ route('guest.pricing') }}" class="hover:text-teal-700">{{ __('Pricing') }}</a>
                             <a href="{{ route('home') }}#how-it-works" class="hover:text-teal-700">{{ __('How it works') }}</a>
                             <a href="{{ route('guest.blogs') }}" class="hover:text-teal-700">{{ __('Blog') }}</a>

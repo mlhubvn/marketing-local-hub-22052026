@@ -44,6 +44,13 @@ class GuestMarketingController extends Controller
         ]);
     }
 
+    public function solutions(): View
+    {
+        return view(theme_view('pages.solutions', 'guest'), [
+            'pageTitle' => __('Solutions'),
+        ]);
+    }
+
     public function pricing(): View
     {
         $plans = $this->publicPlans();
