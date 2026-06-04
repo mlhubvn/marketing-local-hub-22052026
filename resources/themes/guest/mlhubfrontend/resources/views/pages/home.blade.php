@@ -847,10 +847,7 @@
                     <h1 class="lb-serif lb-hero-title lb-reveal mt-7" style="--lb-delay: 70ms;">
                         {{ __('Comprehensive Marketing Automation platform for every business type') }}
                     </h1>
-                    <p class="lb-lead lb-reveal mt-6 max-w-xl" style="--lb-delay: 140ms; color: var(--lb-muted);">
-                        {{ __('MLHUB is more than a tool; it is the process of building your Local HUB. Automate data collection (Lead Gen), create AI-driven campaigns, distribute via O2O QR codes, and measure real growth all on a single platform.') }}
-                    </p>
-                    <p class="lb-body lb-reveal mt-4 max-w-xl" style="--lb-delay: 180ms; color: var(--lb-muted);">
+                    <p class="lb-body lb-reveal mt-6 max-w-xl" style="--lb-delay: 140ms; color: var(--lb-muted);">
                         {{ __('Whether you run a household business (SOHO), an SME, or a retail chain, MLHUB provides a lean digital ecosystem to automate marketing, optimize operations, and attract customers efficiently.') }}
                     </p>
 
