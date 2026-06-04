@@ -200,6 +200,7 @@ Theo thứ tự "ít rủi ro nhất → nhiều nhất":
 - Bản dịch JSON ở gốc: `lang/{locale}.json` (đã có `en.json`, `**vi.json`**).
 - Theme có thể có lang riêng: `resources/themes/guest/{name}/lang/{locale}.json`.
 - Mọi chuỗi hiển thị **bắt buộc** bọc `__()` / `@lang`.
+- **Khi chỉnh nội dung (marketing, menu, PDF brief):** luôn cập nhật **đồng thời** `lang/en.json` + `lang/vi.json` trong cùng task — EN = key/value chuẩn; VI = wording brief; xóa copy trong Blade thì xóa key ở cả hai file. Chi tiết: `.cursorrules` §3.7.
 - Thêm key custom: `app/Custom/lang/{locale}.json` + `loadJsonTranslationsFrom(...)` trong provider của bạn (Laravel merge JSON, không ghi đè).
 
 ---

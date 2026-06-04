@@ -80,7 +80,12 @@ Thực hiện tuần tự cho **mỗi** task. Bước nào không áp dụng th�
 - **Đa người dùng:** mọi truy vấn dữ liệu scope theo `auth()->id()` / `workspaceOwnerUserId()`.
 - **Gói & tài nguyên:** gọi `PlanLimitGuard::ensureXxxCanBeCreated()` trước khi tạo; tính năng AI gọi `credit_service()->ensureCanConsume()` → `consume_credits()`.
 - **Xử lý lỗi đúng mẫu:** `abort_unless(...,404)` cho public; `ValidationException::withMessages(['plan'=>...])` cho limit; `try/catch (Throwable)` + fallback cho dịch vụ ngoài/AI.
-- **Đa ngôn ngữ:** mọi chuỗi hiển thị bọc `__()`; bổ sung bản dịch vào `lang/vi.json` (app mặc định locale `vi`).
+- **Đa ngôn ngữ (§3.7 `.cursorrules` — bắt buộc khi chỉnh copy):**
+  - Blade/Livewire: `__('English key')` — không hard-code VI/EN.
+  - **`lang/en.json`:** key + value tiếng Anh (cập nhật/thêm/xóa cùng lúc với Blade).
+  - **`lang/vi.json`:** bản dịch tiếng Việt (theo brief chủ dự án); nếu chỉ có VI thì viết EN tương đương trước.
+  - Xóa đoạn trong view → xóa key ở **cả hai** JSON; grep key mới — không key mồ côi; validate JSON parse được.
+  - Đổi menu/nhãn section → đồng bộ nav + i18n.
 - **Giao diện:** dùng lại `<x-ui.*>` / `<x-shared.*>`; màu dùng token `var(--theme-*)`; theme guest `mlhubfrontend`, backend `mlhubbackend`.
 - **Tính năng mới** thì ưu tiên điểm mở rộng: `modules/Custom`* + `bootstrap/providers.marketplace.php` (không sửa core nếu không cần).
 

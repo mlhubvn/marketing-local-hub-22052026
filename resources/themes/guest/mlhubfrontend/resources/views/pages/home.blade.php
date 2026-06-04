@@ -842,13 +842,13 @@
                 <div>
                     <span class="lb-pill lb-reveal inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">
                         <i class="fa-light fa-sparkles"></i>
-                        {{ __('Marketing Automation Platform') }}
+                        {{ __('O2O AI-powered marketing automation platform') }}
                     </span>
                     <h1 class="lb-serif lb-hero-title lb-reveal mt-7" style="--lb-delay: 70ms;">
-                        {{ __('Comprehensive Marketing Automation platform for every business type') }}
+                        {{ __('O2O AI-powered marketing automation') }}
                     </h1>
                     <p class="lb-body lb-reveal mt-6 max-w-xl" style="--lb-delay: 140ms; color: var(--lb-muted);">
-                        {{ __('Whether you run a household business (SOHO), an SME, or a retail chain, MLHUB provides a lean digital ecosystem to automate marketing, optimize operations, and attract customers efficiently.') }}
+                        {{ __('A comprehensive solution that helps household businesses, SMEs, and retail chains automate lead capture, bookings, and review management. Create AI content and track real growth on one screen.') }}
                     </p>
 
                     <div class="lb-reveal mt-8 flex flex-wrap gap-3" style="--lb-delay: 210ms;">
@@ -863,7 +863,7 @@
                     </div>
 
                     <div class="lb-reveal mt-7 flex flex-wrap gap-2" style="--lb-delay: 280ms;">
-                        @foreach ([__('Making Local HUB'), __('Marketing Automation O2O'), __('Review Booster'), __('Lead Gen & Booking'), __('Coupon claims')] as $badge)
+                        @foreach ([__('Making Local HUB'), __('Marketing Automation'), __('Local O2O'), __('Review Booster'), __('Lead Gen & Booking'), __('Coupon claims')] as $badge)
                             <span class="rounded-full border bg-white px-3 py-2 text-xs font-black" style="border-color: var(--lb-line); color: var(--lb-muted);">{{ $badge }}</span>
                         @endforeach
                     </div>
@@ -907,7 +907,7 @@
                                     @endforeach
                                 </div>
 
-                                <div class="mt-5 grid gap-4 lg:grid-cols-[1fr_13rem]">
+                                <div class="mt-5 grid gap-4 lg:grid-cols-[1fr_minmax(14rem,1.05fr)]">
                                     <div class="rounded-xl border bg-white p-4" style="border-color: var(--lb-line);">
                                         <div class="flex items-end gap-2 h-36">
                                             @foreach ([38, 56, 44, 76, 61, 88, 73, 96] as $bar)
@@ -915,11 +915,21 @@
                                             @endforeach
                                         </div>
                                     </div>
-                                    <div class="grid gap-3">
-                                        @foreach ([['Review Booster', '4.9', 'avg'], ['Booking Pages', '8', 'new'], ['Coupon claims', '23', 'used']] as $item)
-                                            <div class="rounded-xl border bg-white p-3" style="border-color: var(--lb-line);">
-                                                <p class="text-xs font-black">{{ __($item[0]) }}</p>
-                                                <p class="mt-2 text-lg font-black" style="color: #ff5f5f;">{{ $item[1] }} {{ __($item[2]) }}</p>
+                                    @php
+                                        $heroModuleStats = [
+                                            ['Making Local HUB', __('12 hub locations')],
+                                            ['Marketing Automation', __('6 active campaigns')],
+                                            ['Local O2O', __('94% O2O reach')],
+                                            ['Review Booster', __('4.9 avg rating')],
+                                            ['Lead Gen & Booking', __('8 new bookings')],
+                                            ['Coupon claims', __('23 coupons used')],
+                                        ];
+                                    @endphp
+                                    <div class="grid grid-cols-2 gap-2">
+                                        @foreach ($heroModuleStats as $item)
+                                            <div class="rounded-xl border bg-white p-2.5" style="border-color: var(--lb-line);">
+                                                <p class="text-[10px] font-black leading-snug line-clamp-2">{{ __($item[0]) }}</p>
+                                                <p class="mt-1.5 text-sm font-black leading-tight" style="color: #ff5f5f;">{{ $item[1] }}</p>
                                             </div>
                                         @endforeach
                                     </div>

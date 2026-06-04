@@ -210,6 +210,26 @@ class FeatureIndex extends Component
 }
 ```
 
+### 3.7 Chỉnh nội dung hiển thị (copy / marketing / PDF brief) — BẮT BUỘC đồng bộ i18n + dọn code
+
+> Áp dụng **mỗi khi** đổi chữ trên Blade/Livewire/theme guest (`mlhubfrontend`), menu, trang marketing (`home`, `about`, `solutions`, `pricing`…), hoặc theo file brief PDF của chủ dự án. **Không** coi việc sửa Blade là xong nếu chưa xử lý `lang/en.json` + `lang/vi.json`.
+
+**Quy trình cố định (cùng một task, không tách lệnh):**
+
+1. **Key tiếng Anh trong code:** Mọi chuỗi user-facing bọc `__('English sentence as key')` — key = câu tiếng Anh chuẩn, tự nhiên (không hard-code tiếng Việt trong Blade).
+2. **`lang/en.json`:** Thêm/cập nhật entry — **key** và **value** tiếng Anh trùng nhau (trừ khi EN cần khác key vì lịch sử; ưu tiên key mới đúng nghĩa).
+3. **`lang/vi.json`:** Thêm/cập nhật bản dịch tiếng Việt — lấy đúng wording từ brief/PDF của chủ dự án; nếu chỉ có VI thì AI **tự viết lại câu EN** tương đương rồi mới gắn key.
+4. **Xóa / đổi copy:** Gỡ `__()` trong Blade → **xóa key tương ứng** khỏi **cả** `en.json` và `vi.json` (tránh key mồ côi). Đổi nội dung → cập nhật value cả hai file (hoặc key mới + xóa key cũ nếu đổi câu hoàn toàn).
+5. **Rà soát sạch code (bắt buộc trước bàn giao):**
+   - `rg "__\('"` / grep key mới trong file vừa sửa — mọi key đều có mặt trong `en.json` **và** `vi.json`.
+   - Không để chuỗi tiếng Việt/Anh thô trong Blade (ngoại lệ: **MLHUB**, tên riêng, mã route, class CSS).
+   - Menu/anchor đổi nhãn → đồng bộ `marketing-nav*.blade.php`, section `id`, và key i18n liên quan.
+   - Validate JSON: parse được (`node -e "JSON.parse(...)"` hoặc tương đương).
+   - Không commit script tạm `storage/*.mjs` dùng một lần — gộp thẳng vào JSON hoặc xóa script sau khi merge.
+6. **Báo cáo ngắn cho chủ dự án:** liệt kê file Blade + `lang/en.json` + `lang/vi.json` đã đụng; nêu key đã xóa (nếu có).
+
+**Thứ tự ưu tiên nguồn chữ:** brief/PDF chủ dự án (VI) → EN chuyên nghiệp tương đương → code `__()` → hai file JSON.
+
 ---
 
 ## 4. Kiến trúc — các mẫu đang dùng
@@ -270,6 +290,6 @@ class FeatureIndex extends Component
 1. Đây là **sửa lỗi** (được sửa core, surgical) hay **tính năng mới** (ưu tiên extension point §5)?
 2. Đã scope theo `auth()->id()` / workspace owner chưa?
 3. Đã guard plan limit + credit (nếu là tính năng dùng tài nguyên/AI) chưa?
-4. Mọi chuỗi đã bọc `__()` chưa?
+4. Mọi chuỗi đã bọc `__()` chưa? Đã **cập nhật đủ `lang/en.json` + `lang/vi.json`** và xóa key mồ côi chưa? (xem §3.7)
 5. Phong cách (thụt lề, comment, kiểu, xử lý lỗi) có **khớp file xung quanh** không?
 6. Chạy `vendor/bin/pint` trên file đã sửa. Có migration/route/permission/env mới thì liệt kê ra cho người dùng.
