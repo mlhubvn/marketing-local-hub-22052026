@@ -12,11 +12,11 @@
     $siteLogoDark = trim((string) ($options->get('website_logo_brand_dark')
         ?: $options->get('website_logo_dark')
         ?: $options->get('website_logo')
-        ?: 'img/logo-brand-dark.png'));
+        ?: config('mlhub.site.brand_logo_dark', 'img/logo-brand-dark.svg')));
     $siteLogoLight = trim((string) ($options->get('website_logo_brand_light')
         ?: $options->get('website_logo_light')
         ?: $options->get('website_logo')
-        ?: 'img/logo-brand-light.png'));
+        ?: config('mlhub.site.brand_logo_light', 'img/logo-brand-light.svg')));
     $siteLogoDarkUrl = url($siteLogoDark);
     $siteLogoLightUrl = url($siteLogoLight);
     $siteDescription = trim((string) $options->get('website_description', ''));

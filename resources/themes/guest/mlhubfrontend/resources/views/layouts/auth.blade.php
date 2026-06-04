@@ -10,11 +10,11 @@
         $authDarkLogoPath = (string) ($brandOptions->get('website_logo_brand_dark')
             ?: $brandOptions->get('website_logo_dark')
             ?: $brandOptions->get('website_logo')
-            ?: 'img/logo-brand-dark.png');
+            ?: config('mlhub.site.brand_logo_dark', 'img/logo-brand-dark.svg'));
         $authLightLogoPath = (string) ($brandOptions->get('website_logo_brand_light')
             ?: $brandOptions->get('website_logo_light')
             ?: $brandOptions->get('website_logo')
-            ?: 'img/logo-brand-light.png');
+            ?: config('mlhub.site.brand_logo_light', 'img/logo-brand-light.svg'));
         $resolvedAuthDarkLogo = url($authDarkLogoPath);
         $resolvedAuthLightLogo = url($authLightLogoPath);
     @endphp

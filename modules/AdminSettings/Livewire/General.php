@@ -67,8 +67,8 @@ class General extends Component
         $this->website_favicon = (string) $this->options->get('website_favicon', 'img/favicon.png');
         $this->website_logo_dark = (string) $this->options->get('website_logo_dark', 'img/logo-dark.png');
         $this->website_logo_light = (string) $this->options->get('website_logo_light', 'img/logo-light.png');
-        $this->website_logo_brand_dark = (string) $this->options->get('website_logo_brand_dark', 'img/logo-brand-dark.png');
-        $this->website_logo_brand_light = (string) $this->options->get('website_logo_brand_light', 'img/logo-brand-light.png');
+        $this->website_logo_brand_dark = (string) $this->options->get('website_logo_brand_dark', config('mlhub.site.brand_logo_dark', 'img/logo-brand-dark.svg'));
+        $this->website_logo_brand_light = (string) $this->options->get('website_logo_brand_light', config('mlhub.site.brand_logo_light', 'img/logo-brand-light.svg'));
         $this->format_date = (string) $this->options->get('format_date', 'd/m/Y');
         $this->format_datetime = (string) $this->options->get('format_datetime', 'd/m/Y H:i');
         $this->format_number_style = (string) $this->options->get('format_number_style', 'vi_VN');

@@ -72,6 +72,8 @@ return [
         'keywords' => env('SITE_KEYWORDS', 'MLHUB, marketing, đánh giá Google, đặt lịch, phiếu giảm giá, hộ kinh doanh'),
         'guest_theme' => env('THEME_FRONTEND', 'mlhubfrontend'),
         'backend_theme' => env('THEME_BACKEND', 'mlhubbackend'),
+        'brand_logo_dark' => 'img/logo-brand-dark.svg',
+        'brand_logo_light' => 'img/logo-brand-light.svg',
     ],
 
     'default_seeders' => [

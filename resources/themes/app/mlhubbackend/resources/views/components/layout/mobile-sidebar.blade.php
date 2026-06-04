@@ -8,9 +8,9 @@
     $sidebarBrandDark = (string) get_option('website_logo_brand_dark', '');
     $sidebarBrandLight = (string) get_option('website_logo_brand_light', '');
 
-    $sidebarBrandDarkUrl = $sidebarBrandDark !== '' ? url($sidebarBrandDark) : theme_asset('assets/img/logo-brand-dark.png', 'app');
-    $sidebarBrandLightUrl = $sidebarBrandLight !== '' ? url($sidebarBrandLight) : theme_asset('assets/img/logo-brand-light.png', 'app');
-    $sidebarLogoFallback = theme_asset('assets/img/logo-brand-dark.png', 'app');
+    $sidebarBrandDarkUrl = $sidebarBrandDark !== '' ? url($sidebarBrandDark) : url(config('mlhub.site.brand_logo_dark', 'img/logo-brand-dark.svg'));
+    $sidebarBrandLightUrl = $sidebarBrandLight !== '' ? url($sidebarBrandLight) : url(config('mlhub.site.brand_logo_light', 'img/logo-brand-light.svg'));
+    $sidebarLogoFallback = url(config('mlhub.site.brand_logo_dark', 'img/logo-brand-dark.svg'));
 @endphp
 
 <div

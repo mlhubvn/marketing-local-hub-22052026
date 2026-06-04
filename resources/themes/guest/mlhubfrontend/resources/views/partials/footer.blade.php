@@ -45,8 +45,8 @@
             <div class="flex flex-wrap items-center justify-between -m-4">
                 <div class="w-auto p-4">
                     <a href="{{ url('/') }}">
-                        <img class="theme-logo-dark h-9" src="{{ url(get_option('website_logo_brand_dark', 'img/logo-brand-dark.png')) }}" alt="">
-                        <img class="theme-logo-light h-9" src="{{ url(get_option('website_logo_brand_light', 'img/logo-brand-light.png')) }}" alt="">
+                        <img class="theme-logo-dark h-9" src="{{ url(get_option('website_logo_brand_dark', 'img/logo-brand-dark.svg')) }}" alt="">
+                        <img class="theme-logo-light h-9" src="{{ url(get_option('website_logo_brand_light', 'img/logo-brand-light.svg')) }}" alt="">
                     </a>
                 </div>
 

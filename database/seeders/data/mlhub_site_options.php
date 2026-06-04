@@ -66,4 +66,6 @@ return [
     'smtp_encryption' => 'tls',
     'mail_timeout' => '30',
     'mail_ehlo_domain' => 'mlhub.vn',
+    'website_logo_brand_dark' => 'img/logo-brand-dark.svg',
+    'website_logo_brand_light' => 'img/logo-brand-light.svg',
 ];

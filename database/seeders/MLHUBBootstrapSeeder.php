@@ -65,8 +65,8 @@ class MLHUBBootstrapSeeder extends Seeder
         $options->set('website_favicon', '');
         $options->set('website_logo_dark', '');
         $options->set('website_logo_light', '');
-        $options->set('website_logo_brand_dark', '');
-        $options->set('website_logo_brand_light', '');
+        $options->set('website_logo_brand_dark', (string) config('mlhub.site.brand_logo_dark', 'img/logo-brand-dark.svg'));
+        $options->set('website_logo_brand_light', (string) config('mlhub.site.brand_logo_light', 'img/logo-brand-light.svg'));
         $options->set('contact_company_name', $title);
         $options->set('contact_email', (string) config('mlhub.contact_email', $demo['user']['email'] ?? 'demo@mlhub.vn'));
         $options->set('app_timezone', (string) config('mlhub.timezone', 'Asia/Ho_Chi_Minh'));
