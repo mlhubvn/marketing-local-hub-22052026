@@ -51,12 +51,22 @@
             --lb-lime: #ffb347;
             --lb-red: #ff5f5f;
             --lb-dark: #10251f;
+            --lb-text-xs: 0.75rem;
+            --lb-text-sm: 0.875rem;
+            --lb-text-base: 1rem;
+            --lb-text-lg: 1.125rem;
+            --lb-text-xl: 1.25rem;
+            --lb-text-2xl: 1.5rem;
+            --lb-text-h2: clamp(1.625rem, 1.6vw + 1.1rem, 2.375rem);
+            --lb-text-h1: clamp(1.875rem, 2.2vw + 1rem, 2.875rem);
             background:
                 radial-gradient(circle at 78% 9%, rgba(184, 218, 22, .28), transparent 26rem),
                 radial-gradient(circle at 7% 18%, rgba(255, 95, 95, .13), transparent 24rem),
                 var(--lb-paper);
             color: var(--lb-ink);
             font-family: var(--theme-font-sans);
+            font-size: var(--lb-text-base);
+            line-height: 1.65;
         }
 
         .lb-wrap {
@@ -66,18 +76,85 @@
 
         .lb-serif {
             font-family: var(--theme-font-sans);
-            letter-spacing: -0.045em;
+            letter-spacing: -0.03em;
         }
 
         .lb-hero-title {
-            font-size: clamp(2.35rem, 5vw, 4.25rem);
-            line-height: 1.02;
-            max-width: min(100%, 42rem);
+            font-size: var(--lb-text-h1);
+            font-weight: 800;
+            line-height: 1.15;
+            max-width: min(100%, 40rem);
         }
 
         .lb-heading {
-            font-size: clamp(2.5rem, 5vw, 4.1rem);
-            line-height: .98;
+            font-size: var(--lb-text-h2);
+            font-weight: 800;
+            line-height: 1.12;
+        }
+
+        .lb-sales .lb-pill {
+            font-size: var(--lb-text-xs);
+            font-weight: 700 !important;
+            letter-spacing: 0.06em;
+            line-height: 1.35;
+        }
+
+        .lb-sales .lb-feature-hero h3 {
+            font-size: var(--lb-text-2xl);
+            font-weight: 800;
+            line-height: 1.25;
+        }
+
+        .lb-sales .lb-workflow-card p.text-sm {
+            font-size: var(--lb-text-sm);
+            font-weight: 700;
+        }
+
+        .lb-sales .lb-workflow-card p.text-xs {
+            font-size: var(--lb-text-xs);
+            line-height: 1.4;
+        }
+
+        .lb-lead {
+            font-size: var(--lb-text-lg);
+            line-height: 1.65;
+        }
+
+        .lb-body {
+            font-size: var(--lb-text-base);
+            line-height: 1.65;
+        }
+
+        .lb-caption {
+            font-size: var(--lb-text-sm);
+            line-height: 1.55;
+        }
+
+        .lb-card-title {
+            font-size: var(--lb-text-xl);
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+        .lb-sales .lb-feature-row h3,
+        .lb-sales .lb-step-card h3,
+        .lb-sales .lb-page-card h3 {
+            font-size: var(--lb-text-xl);
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+        .lb-sales .lb-suite-card h3 {
+            font-size: var(--lb-text-base);
+            font-weight: 800;
+            line-height: 1.35;
+        }
+
+        .lb-sales .lb-workflow-band .lb-heading + p,
+        .lb-sales .lb-section > .grid > div > .lb-body,
+        .lb-sales .lb-section > .grid > div > p.lb-body {
+            font-size: var(--lb-text-base);
+            line-height: 1.65;
         }
 
         .lb-card {
@@ -621,20 +698,9 @@
             }
         }
 
-        @media (max-width: 1023px) {
-            .lb-hero-title {
-                max-width: 13ch;
-            }
-        }
-
         @media (max-width: 640px) {
             .lb-wrap {
                 width: min(100% - 28px, 1160px);
-            }
-
-            .lb-hero-title {
-                font-size: clamp(3rem, 16vw, 4.25rem);
-                max-width: 10.5ch;
             }
         }
 
@@ -772,7 +838,7 @@
                     <h1 class="lb-serif lb-hero-title lb-reveal mt-7" style="--lb-delay: 70ms;">
                         {{ __('Marketing Automation. Helping local businesses continuously generate new leads, increase bookings, and multiply loyal customers.') }}
                     </h1>
-                    <p class="lb-reveal mt-6 max-w-xl text-base leading-8" style="--lb-delay: 140ms; color: var(--lb-muted);">
+                    <p class="lb-lead lb-reveal mt-6 max-w-xl" style="--lb-delay: 140ms; color: var(--lb-muted);">
                         {{ __('MLHUB is more than a tool; it is the process of building your Local HUB. Automate data collection (Lead Gen), create AI-driven campaigns, distribute via O2O QR codes, and measure real growth all on a single platform.') }}
                     </p>
 
@@ -871,7 +937,7 @@
                 <h2 class="lb-serif lb-heading mx-auto mt-5 max-w-3xl">
                     {{ __('Everything flows seamlessly from Campaign Ideas to Real Customer Actions.') }}
                 </h2>
-                <p class="mx-auto mt-5 max-w-2xl text-sm leading-7" style="color: var(--lb-muted);">
+                <p class="lb-body mx-auto mt-5 max-w-2xl" style="color: var(--lb-muted);">
                     {{ __('A standardized SOP system: Create AI campaigns, publish lead capture pages, route through QR codes, and automatically update reports without switching between disconnected software.') }}
                 </p>
             </div>
@@ -937,7 +1003,7 @@
                 <div>
                     <span class="lb-pill inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Core Features') }}</span>
                     <h2 class="lb-serif lb-heading mt-5">{{ __('Everything local businesses need to grow') }}</h2>
-                    <p class="mt-5 text-base leading-8" style="color: var(--lb-muted);">{{ __('Turn walk-in customers, QR scans, messages and visits into measurable review clicks, bookings, leads, coupon claims and feedback.') }}</p>
+                    <p class="lb-body mt-5" style="color: var(--lb-muted);">{{ __('Turn walk-in customers, QR scans, messages and visits into measurable review clicks, bookings, leads, coupon claims and feedback.') }}</p>
 
                     <div class="lb-card lb-feature-hero mt-8 rounded-2xl p-6">
                         <div class="flex items-center justify-between gap-4">
@@ -978,8 +1044,8 @@
                                     <i class="fa-light {{ $feature[0] }} text-xl"></i>
                                 </span>
                                 <div>
-                                    <h3 class="text-lg font-black">{{ $feature[1] }}</h3>
-                                    <p class="mt-2 text-sm leading-6" style="color: var(--lb-muted);">{{ $feature[2] }}</p>
+                                    <h3 class="lb-card-title">{{ $feature[1] }}</h3>
+                                    <p class="lb-caption mt-2" style="color: var(--lb-muted);">{{ $feature[2] }}</p>
                                 </div>
                             </div>
                         </article>
@@ -1012,8 +1078,8 @@
                                     <span class="inline-flex h-9 w-9 items-center justify-center rounded-full text-sm font-black" style="background: color-mix(in srgb, var(--lb-lime) 34%, #fff); color: #ff5f5f;">{{ $step[0] }}</span>
                                 </div>
                             </div>
-                            <h3 class="relative z-10 mt-6 text-xl font-black">{{ $step[2] }}</h3>
-                            <p class="relative z-10 mt-3 text-sm leading-7" style="color: var(--lb-muted);">{{ $step[3] }}</p>
+                            <h3 class="relative z-10 mt-6 lb-card-title">{{ $step[2] }}</h3>
+                            <p class="relative z-10 mt-3 lb-caption" style="color: var(--lb-muted);">{{ $step[3] }}</p>
                             @if (! $loop->last)
                                 <span class="lb-step-arrow absolute bottom-5 right-5 z-10 hidden text-xl md:inline-flex">
                                     <i class="fa-light fa-arrow-right-long"></i>
@@ -1063,7 +1129,7 @@
                 <div>
                     <span class="lb-pill inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Product proof') }}</span>
                     <h2 class="lb-serif lb-heading mt-5">{{ __('Beautiful public pages plus a real backend dashboard') }}</h2>
-                    <p class="mt-5 text-base leading-8" style="color: var(--lb-muted);">{{ __('Every campaign can publish a landing page, copy a public URL, download a QR code, collect submissions and update reports. Your team sees what is working without stitching together forms, links and spreadsheets.') }}</p>
+                    <p class="lb-body mt-5" style="color: var(--lb-muted);">{{ __('Every campaign can publish a landing page, copy a public URL, download a QR code, collect submissions and update reports. Your team sees what is working without stitching together forms, links and spreadsheets.') }}</p>
                 </div>
             </div>
         </section>
@@ -1073,7 +1139,7 @@
                 <div class="lg:sticky lg:top-28">
                     <span class="lb-pill inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Included Modules') }}</span>
                     <h2 class="lb-serif lb-heading mt-5">{{ __('A full local marketing SaaS toolkit') }}</h2>
-                    <p class="mt-5 text-base leading-8" style="color: var(--lb-muted);">{{ __('Manage the growth tools your local business needs from one connected workspace.') }}</p>
+                    <p class="lb-body mt-5" style="color: var(--lb-muted);">{{ __('Manage the growth tools your local business needs from one connected workspace.') }}</p>
                     <div class="mt-8 rounded-2xl border bg-white/80 p-5" style="border-color: var(--lb-line);">
                         <div class="flex items-center gap-3">
                             <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl text-white" style="background: var(--lb-red);">
@@ -1116,7 +1182,7 @@
                     <div class="relative z-10">
                         <span class="lb-pill inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Campaign workflow') }}</span>
                         <h2 class="lb-serif lb-heading">{{ __('One flow from campaign idea to real customer action') }}</h2>
-                        <p class="mt-5 text-base leading-8" style="color: var(--lb-muted);">{{ __('MLHUB turns a local marketing goal into a public campaign page, a QR code, customer capture, AI content and measurable reports in one connected workflow.') }}</p>
+                        <p class="lb-body mt-5" style="color: var(--lb-muted);">{{ __('MLHUB turns a local marketing goal into a public campaign page, a QR code, customer capture, AI content and measurable reports in one connected workflow.') }}</p>
                         <div class="lb-proof-visual mt-8 rounded-2xl border p-5" style="border-color: var(--lb-line);">
                             <div class="grid gap-3 sm:grid-cols-3">
                                 @foreach ([['fa-bullhorn', __('Campaign')], ['fa-browser', __('Public Page')], ['fa-user-plus', __('Customer')]] as $node)
@@ -1161,7 +1227,7 @@
                     <div>
                         <span class="lb-pill inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Launch your next campaign') }}</span>
                         <h2 class="lb-serif lb-heading mt-5 max-w-3xl">{{ __('Ready to turn local traffic into reviews, bookings and leads?') }}</h2>
-                        <p class="mt-5 max-w-2xl text-base leading-8" style="color: var(--lb-muted);">{{ __('Create campaign pages for reviews, bookings, coupons, leads and feedback, then share them with public links and QR codes while MLHUB tracks every result.') }}</p>
+                        <p class="lb-body mt-5 max-w-2xl" style="color: var(--lb-muted);">{{ __('Create campaign pages for reviews, bookings, coupons, leads and feedback, then share them with public links and QR codes while MLHUB tracks every result.') }}</p>
                         <div class="mt-8 flex flex-wrap gap-3">
                             <a href="{{ $demoHref }}" class="lb-button inline-flex items-center justify-center gap-2 px-6 py-4 text-sm font-black">
                                 <i class="fa-light fa-rocket-launch"></i>
