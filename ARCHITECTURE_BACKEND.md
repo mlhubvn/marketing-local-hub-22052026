@@ -1,4 +1,4 @@
-# MLHUB AI (Stackposts) — Kiến trúc Backend
+# MLHUB AI — Kiến trúc Backend
 
 Tài liệu mô tả cách backend Laravel 13 được tổ chức, các add-on/module tích hợp vào core ra sao, logic SaaS/đa người dùng, và luồng API/middleware. Nội dung dựa trên **mã nguồn thực tế** của dự án.
 
@@ -9,7 +9,7 @@ Tài liệu mô tả cách backend Laravel 13 được tổ chức, các add-on/
 LocalBoost AI là một **Modular Monolith** (khối nguyên một process nhưng chia module):
 
 - `app/` — **lớp vỏ (shell) mỏng**: auth, trang marketing khách, bootstrap MLHUB (`config/mlhub.php`, `mlhub:reset-demo`), các registry toàn cục, middleware.
-- `modules/` — **79 module** (29 `Admin*`, 36 `App*`, 14 `Payment*`) chứa hầu hết Model, Livewire, Route, Service.
+- `modules/` — **79 module** (29 `Admin`*, 36 `App*`, 14 `Payment*`) chứa hầu hết Model, Livewire, Route, Service.
 - `resources/themes/` — tầng trình bày (xem `ARCHITECTURE_FRONTEND.md`).
 - `bootstrap/providers.php` — **tự động phát hiện** mọi module và nạp Service Provider của chúng.
 
@@ -36,7 +36,7 @@ Nguyên tắc cốt lõi:
 | `app/Http/Middleware/ResolveUserPlanState.php`                                                                         | Nạp ngữ cảnh gói (plan) cho mỗi request.                                                                                                                                                                                                                                                                |
 | `app/Http/Middleware/PreventDemoModeWriteOperations.php`                                                               | Chặn thao tác ghi khi bật chế độ demo.                                                                                                                                                                                                                                                                  |
 | `app/Http/Controllers/GuestMarketingController.php`, `GuestStaticPageController.php`, `Auth/SocialLoginController.php` | Trang marketing công khai, trang tĩnh, đăng nhập mạng xã hội.                                                                                                                                                                                                                                           |
-| `app/Livewire/Auth/*`, `app/Livewire/Portal/Dashboard.php`                                                             | Trang login/register/reset, dashboard portal (lazy `loadDashboardSections`).                                                                                                                                                                                                                            |
+| `app/Livewire/Auth/`*, `app/Livewire/Portal/Dashboard.php`                                                             | Trang login/register/reset, dashboard portal (lazy `loadDashboardSections`).                                                                                                                                                                                                                            |
 | `app/Support/Portal/PortalGrowthDashboardMetrics.php`                                                                  | Metrics/top campaigns/recent activity portal (Redis cache **v2 = mảng scalar**, không cache Eloquent; `forget()` xóa key đủ suffix; `visits` đếm theo `campaign_id` của user; sau scan/conversion/review qua `GrowthToolNotifier` / `recordScan`).                                                      |
 | `app/Support/Mail/AuthMailMessageBuilder.php`                                                                          | Mail reset password / verify email (locale user, `toMailUsing`).                                                                                                                                                                                                                                        |
 | `app/Livewire/DemoModeActionGuard.php`                                                                                 | Chặn Livewire write khi `APP_DEMO=true`.                                                                                                                                                                                                                                                                |
@@ -56,7 +56,7 @@ Nguyên tắc cốt lõi:
 
 | Tiền tố    | Đối tượng                       | Ví dụ                                                                                                                                                                                                                                                                                                                                                                                                       |
 | ---------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Admin`*   | Super-admin / cấu hình          | `AdminUser`, `AdminPlans`, `AdminThemes`, `AdminSettings`, `AdminLanguages`, `AdminMarketplace`, `AdminCrons`, `AdminCoupons`, `AdminPayment*`, `AdminCredits`, `AdminAI*`, `AdminCache`, `AdminLog` (xem/tải/xoá log tại `admin/settings/log`, route `admin-log.index`, chỉ admin)                                                                                                                         |
+| `Admin`*   | Super-admin / cấu hình          | `AdminUser`, `AdminPlans`, `AdminThemes`, `AdminSettings`, `AdminLanguages`, `AdminMarketplace`, `AdminCrons`, `AdminCoupons`, `AdminPayment`*, `AdminCredits`, `AdminAI*`, `AdminCache`, `AdminLog` (xem/tải/xoá log tại `admin/settings/log`, route `admin-log.index`, chỉ admin)                                                                                                                         |
 | `App*`     | Portal khách hàng               | Growth: `AppQRCampaigns`, `AppReviewBooster`, `AppBookingPages`, `AppCouponCampaigns`, `AppFeedbackForms`, `AppLeadForms`. Mở rộng: `AppAdvancedCustomerCrm`, `AppEmailAutomation`, `AppLoyaltyStampCards`, `AppLocalAnalytics`. Core: `AppBusinessProfiles`, `AppCustomers`, `AppLandingPages`, `AppTeams`, `AppCredits`, `AppPayments`, `AppBilling`, `AppAI*`, `AppGoogleBusiness`, `AppIntegrations`, … |
 | `Payment*` | Plugin cổng thanh toán (**14**) | `PaymentStripe`, `PaymentPaypal`, `PaymentRazorpay`, `PaymentPaystack`, `PaymentFlutterwave`, `PaymentInstamojo`, `PaymentIyzico`, `Payment2Checkout`, `PaymentCCAvenue`, `PaymentSslCommerz`, `PaymentYooMoney`, `PaymentPaytm`, `PaymentPayU`, `PaymentPayTR`                                                                                                                                             |
 
@@ -100,7 +100,7 @@ return array_values(array_unique(array_merge(
 )));
 ```
 
-> **Hệ quả:** Để thêm một add-on, chỉ cần (a) thả thư mục module có `module.json` vào `modules/` (tự nạp), hoặc (b) thêm provider vào `bootstrap/providers.marketplace.php` nếu marketplace yêu cầu. **Không bao giờ sửa `bootstrap/providers.php`.** Sau cập nhật upstream: chạy deploy → `migrate --force` trong `entrypoint.sh` áp migration module mới (`lb_email_`*, `lb_loyalty_*`, `lb_crm_*`, …).
+> **Hệ quả:** Để thêm một add-on, chỉ cần (a) thả thư mục module có `module.json` vào `modules/` (tự nạp), hoặc (b) thêm provider vào `bootstrap/providers.marketplace.php` nếu marketplace yêu cầu. **Không bao giờ sửa `bootstrap/providers.php`.** Sau cập nhật upstream: chạy deploy → `migrate --force` trong `entrypoint.sh` áp migration module mới (`lb_email_`*, `lb_loyalty_`*, `lb_crm_*`, …).
 
 ### 3.2 Service Provider của module làm gì
 
@@ -152,7 +152,7 @@ Hệ thống **không** dùng tách database; tenant được cô lập bằng *
 
 - Model người dùng: `**Modules\AdminUser\Models\User`** (`extends Authenticatable`, implements `MustVerifyEmail`, `HasLocalePreference`, dùng `TwoFactorAuthenticatable`).
 - Phân biệt 2 thế giới:
-  - **Quản trị**: `is_super_admin` / `role_id` → `canAccessAdmin()`, `hasPermission()` (kiểm tra theo `role->permissions`, hỗ trợ wildcard `*` và `prefix.*`). Cổng: middleware `EnsureAdminAccess`.
+  - **Quản trị**: `is_super_admin` / `role_id` → `canAccessAdmin()`, `hasPermission()` (kiểm tra theo `role->permissions`, hỗ trợ wildcard `*` và `prefix.`*). Cổng: middleware `EnsureAdminAccess`.
   - **Khách hàng (portal)**: scope theo `user_id`.
 
 ### 4.2 Gói dịch vụ (Plan) & hạn mức
@@ -160,7 +160,7 @@ Hệ thống **không** dùng tách database; tenant được cô lập bằng *
 - Gói nằm ở `Modules\AdminPlans\Models\AdminPlan`; user gắn `plan_id`, `plan_started_at`, `plan_expires_at`, `next_plan_id`.
 - **Hiển thị catalog (portal Packages / guest pricing):** `PlanSeeder` lưu `name`/`desc` bằng **chuỗi tiếng Anh** (key `__()`); bản dịch VI trong `lang/vi.json`. `Modules\AdminPlans\Support\CatalogLocalization::resolve()` + `PricingService::render()` dịch lúc render (kể cả label đã bị “đóng băng” tiếng Việt lúc boot `__('…')` trên locale mặc định).
 - **Sidebar portal (addon):** menu module marketplace chỉ `visible` khi `User::canUsePlanFeature(...)` (cần quyền trong gói **hoặc** `config/mlhub.php` → `no_plan_access.permissions`). User chưa gán gói **không** thấy CRM / Google Business / Loyalty / Custom Domains; vào URL trực tiếp → `403`.
-- **Chưa chọn gói nhưng dùng ngay (free tier):** `MLHUB_NO_PLAN_ACCESS_ENABLED=true` (mặc định). Hạn mức trong `config/mlhub.php` `no_plan_access.permissions` (+ env `MLHUB_NO_PLAN_*`). `User::planLimit()` / `canUsePlanFeature('localboost')` / dashboard **Current plan limits** dùng các số này thay vì Unlimited. Sidebar hiển thị **MLHUB Free** / badge **Free**.
+- **Chưa chọn gói nhưng dùng ngay (free tier):** `MLHUB_NO_PLAN_ACCESS_ENABLED=true` (mặc định). Hạn mức trong `config/mlhub.php` `no_plan_access.permissions` (+ env `MLHUB_NO_PLAN_`*). `User::planLimit()` / `canUsePlanFeature('localboost')` / dashboard **Current plan limits** dùng các số này thay vì Unlimited. Sidebar hiển thị **MLHUB Free** / badge **Free**.
 - **Cache dashboard plan limits:** `PlanLimitGuard::planUsageCacheKey()` → `portal.plan_usage.v0|v1.{userId}.{locale}`; nhãn usage resolve qua `CatalogLocalization` lúc build (không cache nhầm ngôn ngữ). `forgetPlanUsageCache()` xóa v0/v1/v2 theo `en`/`vi`.
 - **Sidebar portal/admin:** `SidebarRegistry::sections()` resolve nhãn section/item qua `CatalogLocalization::resolve()` sau menu overrides (tránh nhãn `__('…')` bị “đóng băng” tiếng Việt lúc boot). Blade `sidebar-menu` in trực tiếp nhãn đã resolve, không `__()` lại.
 - Kiểm tra quyền tính năng:

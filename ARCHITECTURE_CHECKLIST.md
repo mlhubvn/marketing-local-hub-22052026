@@ -1,4 +1,4 @@
-# MLHUB — Quy trình làm việc & Checklist (Vibecode)
+# MLHUB AI — Quy trình làm việc & Checklist (Vibecode)
 
 Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** (LocalBoost AI / Stackposts) khi làm việc với Cursor. Mục tiêu: code **ổn định, đúng phong cách lập trình viên gốc, an toàn cho production, và tiết kiệm tài nguyên đọc lại dự án**.
 
@@ -24,17 +24,17 @@ Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** (LocalBoost AI
 
 > ⚠️ **Dự án ĐÃ CHẠY PRODUCTION (live, có người dùng thật).** Ưu tiên tuyệt đối: an toàn dữ liệu, bảo mật, trải nghiệm người dùng.
 >
-> **Phân chia trách nhiệm:** AI chỉ **sửa code/config tại local** + soạn **commit message gợi ý**. Bước **`git commit` / `git push` / Redeploy là do chủ dự án tự làm thủ công** (để kịp copy log khi lỗi). AI **không** tự commit/push/deploy. Nếu cần cấu hình Coolify, AI hướng dẫn theo từng tab (General, Environment Variables, Scheduled Tasks, …). Khi phát hiện rủi ro bảo mật/UX (kể cả ngoài task) → **báo ngay**.
+> **Phân chia trách nhiệm:** AI chỉ **sửa code/config tại local** + soạn **commit message gợi ý**. Bước `**git commit` / `git push` / Redeploy là do chủ dự án tự làm thủ công** (để kịp copy log khi lỗi). AI **không** tự commit/push/deploy. Nếu cần cấu hình Coolify, AI hướng dẫn theo từng tab (General, Environment Variables, Scheduled Tasks, …). Khi phát hiện rủi ro bảo mật/UX (kể cả ngoài task) → **báo ngay**.
 
 ### 1.1 Quy tắc giữ cấu trúc gốc khi nâng cấp phiên bản
 
-- [ ] Mặc định sửa trực tiếp file có sẵn; tránh tạo file/class/module logic mới.
-- [ ] Khi làm tính năng, ưu tiên mở rộng từ file/module tạo sẵn trước khi nghĩ tới file mới.
-- [ ] Nếu có file mới phát sinh cho logic, phải tự đánh dấu và lên kế hoạch gộp vào file cũ trước khi bàn giao.
-- [ ] Nếu buộc phải tạo file logic mới, ưu tiên đặt trong `modules/Custom...` theo đúng khu vực cần fix để dễ quản lý diff.
-- [ ] File mới chỉ chấp nhận cho dữ liệu seed/doc nội bộ có lý do rõ ràng.
-- [ ] Tên thương hiệu hiển thị luôn dùng **`MLHUB`** (uppercase), không dùng bất kỳ biến thể nào.
-- [ ] Naming mới liên quan brand phải dùng `MLHUB` (uppercase), tránh mọi biến thể chữ hoa/thường khác.
+- Mặc định sửa trực tiếp file có sẵn; tránh tạo file/class/module logic mới.
+- Khi làm tính năng, ưu tiên mở rộng từ file/module tạo sẵn trước khi nghĩ tới file mới.
+- Nếu có file mới phát sinh cho logic, phải tự đánh dấu và lên kế hoạch gộp vào file cũ trước khi bàn giao.
+- Nếu buộc phải tạo file logic mới, ưu tiên đặt trong `modules/Custom...` theo đúng khu vực cần fix để dễ quản lý diff.
+- File mới chỉ chấp nhận cho dữ liệu seed/doc nội bộ có lý do rõ ràng.
+- Tên thương hiệu hiển thị luôn dùng `**MLHUB`** (uppercase), không dùng bất kỳ biến thể nào.
+- Naming mới liên quan brand phải dùng `MLHUB` (uppercase), tránh mọi biến thể chữ hoa/thường khác.
 
 ### ⛔ Quy tắc bất di bất dịch về hạ tầng
 
@@ -47,12 +47,12 @@ Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** (LocalBoost AI
 
 ### 1.2 Sau khi cập nhật phiên bản tác giả / cài module mới
 
-- [ ] Commit/push → Coolify redeploy (để `entrypoint.sh` chạy `migrate --force` — gồm migration trong `modules/*/Database/Migrations`).
-- [ ] Kiểm tra log deploy: không lỗi migration (`lb_email_*`, `lb_loyalty_*`, `lb_crm_*`, …).
-- [ ] Admin → Marketplace / Modules: module mới hiển thị và bật (vd `AppLoyaltyStampCards` qua `providers.marketplace.php`).
-- [ ] Portal: vào menu CRM, Email automation, Loyalty cards, Reports — không 500.
-- [ ] Cập nhật `ARCHITECTURE_*.md` + `.cursorrules` nếu thêm module/env (đã quét trong lần sync gần nhất).
-- [ ] Pilot: `MLHUB_ALLOW_RESET_DEMO=true` → `php artisan mlhub:reset-demo --force` + Redis `FLUSHALL` nếu cần làm mới demo.
+- Commit/push → Coolify redeploy (để `entrypoint.sh` chạy `migrate --force` — gồm migration trong `modules/*/Database/Migrations`).
+- Kiểm tra log deploy: không lỗi migration (`lb_email_`*, `lb_loyalty_*`, `lb_crm_*`, …).
+- Admin → Marketplace / Modules: module mới hiển thị và bật (vd `AppLoyaltyStampCards` qua `providers.marketplace.php`).
+- Portal: vào menu CRM, Email automation, Loyalty cards, Reports — không 500.
+- Cập nhật `ARCHITECTURE_*.md` + `.cursorrules` nếu thêm module/env (đã quét trong lần sync gần nhất).
+- Pilot: `MLHUB_ALLOW_RESET_DEMO=true` → `php artisan mlhub:reset-demo --force` + Redis `FLUSHALL` nếu cần làm mới demo.
 
 ---
 
@@ -62,50 +62,50 @@ Thực hiện tuần tự cho **mỗi** task. Bước nào không áp dụng th�
 
 ### Giai đoạn A — Phân tích & Khoanh vùng (tiết kiệm tài nguyên)
 
-- [ ] Xác định loại công việc: **Sửa lỗi (bug fix)** hay **Tính năng mới (feature)**?
-- [ ] Khoanh vùng module theo tiền tố: khu khách → `App*`, quản trị → `Admin*`, thanh toán → `Payment*`.
-- [ ] Đính kèm ngữ cảnh **hẹp** bằng `@file` đúng module/file liên quan (vd `@modules/AppBookingPages/Support/BookingAvailability.php`).
-- [ ] **Tránh** dùng `@Codebase`/quét toàn dự án trừ khi thật sự cần — ưu tiên đọc `ARCHITECTURE_*.md` đã có.
-- [ ] Đọc lướt `ARCHITECTURE_CHECKLIST.md` + phần liên quan trong `ARCHITECTURE_BACKEND/FRONTEND/FEATURE.md`.
-- [ ] Nếu việc thuộc nhóm rủi ro (DB migration / Payment / xóa dữ liệu / refactor lớn) → chuyển sang **Mục 3 (Plan trước)**.
+- Xác định loại công việc: **Sửa lỗi (bug fix)** hay **Tính năng mới (feature)**?
+- Khoanh vùng module theo tiền tố: khu khách → `App`*, quản trị → `Admin*`, thanh toán → `Payment*`.
+- Đính kèm ngữ cảnh **hẹp** bằng `@file` đúng module/file liên quan (vd `@modules/AppBookingPages/Support/BookingAvailability.php`).
+- **Tránh** dùng `@Codebase`/quét toàn dự án trừ khi thật sự cần — ưu tiên đọc `ARCHITECTURE_*.md` đã có.
+- Đọc lướt `ARCHITECTURE_CHECKLIST.md` + phần liên quan trong `ARCHITECTURE_BACKEND/FRONTEND/FEATURE.md`.
+- Nếu việc thuộc nhóm rủi ro (DB migration / Payment / xóa dữ liệu / refactor lớn) → chuyển sang **Mục 3 (Plan trước)**.
 
 ### Giai đoạn B — Thực thi code (surgical + vibecode)
 
-- [ ] Sửa **tối thiểu, đúng trọng tâm** (surgical) — không refactor ngoài phạm vi yêu cầu.
-- [ ] **Bắt chước đúng phong cách file đang sửa** (xem §3 "Vibecode" trong `.cursorrules`):
-  - [ ] Thụt lề 4 space; **không** thêm `declare(strict_types=1)` nếu file gốc không có.
-  - [ ] Khai báo kiểu trả về + typed property; dùng `match()`, spread `...$payload`.
-  - [ ] Eloquent bắt đầu bằng `Model::query()->...`; đọc JSON bằng `data_get()`.
-  - [ ] Comment tối thiểu — chỉ giải thích "tại sao", không kể lể từng dòng.
-- [ ] **Đa người dùng:** mọi truy vấn dữ liệu scope theo `auth()->id()` / `workspaceOwnerUserId()`.
-- [ ] **Gói & tài nguyên:** gọi `PlanLimitGuard::ensureXxxCanBeCreated()` trước khi tạo; tính năng AI gọi `credit_service()->ensureCanConsume()` → `consume_credits()`.
-- [ ] **Xử lý lỗi đúng mẫu:** `abort_unless(...,404)` cho public; `ValidationException::withMessages(['plan'=>...])` cho limit; `try/catch (Throwable)` + fallback cho dịch vụ ngoài/AI.
-- [ ] **Đa ngôn ngữ:** mọi chuỗi hiển thị bọc `__()`; bổ sung bản dịch vào `lang/vi.json` (app mặc định locale `vi`).
-- [ ] **Giao diện:** dùng lại `<x-ui.*>` / `<x-shared.*>`; màu dùng token `var(--theme-*)`; theme guest `mlhubfrontend`, backend `mlhubbackend`.
-- [ ] **Tính năng mới** thì ưu tiên điểm mở rộng: `modules/Custom*` + `bootstrap/providers.marketplace.php` (không sửa core nếu không cần).
+- Sửa **tối thiểu, đúng trọng tâm** (surgical) — không refactor ngoài phạm vi yêu cầu.
+- **Bắt chước đúng phong cách file đang sửa** (xem §3 "Vibecode" trong `.cursorrules`):
+  - Thụt lề 4 space; **không** thêm `declare(strict_types=1)` nếu file gốc không có.
+  - Khai báo kiểu trả về + typed property; dùng `match()`, spread `...$payload`.
+  - Eloquent bắt đầu bằng `Model::query()->...`; đọc JSON bằng `data_get()`.
+  - Comment tối thiểu — chỉ giải thích "tại sao", không kể lể từng dòng.
+- **Đa người dùng:** mọi truy vấn dữ liệu scope theo `auth()->id()` / `workspaceOwnerUserId()`.
+- **Gói & tài nguyên:** gọi `PlanLimitGuard::ensureXxxCanBeCreated()` trước khi tạo; tính năng AI gọi `credit_service()->ensureCanConsume()` → `consume_credits()`.
+- **Xử lý lỗi đúng mẫu:** `abort_unless(...,404)` cho public; `ValidationException::withMessages(['plan'=>...])` cho limit; `try/catch (Throwable)` + fallback cho dịch vụ ngoài/AI.
+- **Đa ngôn ngữ:** mọi chuỗi hiển thị bọc `__()`; bổ sung bản dịch vào `lang/vi.json` (app mặc định locale `vi`).
+- **Giao diện:** dùng lại `<x-ui.*>` / `<x-shared.*>`; màu dùng token `var(--theme-*)`; theme guest `mlhubfrontend`, backend `mlhubbackend`.
+- **Tính năng mới** thì ưu tiên điểm mở rộng: `modules/Custom`* + `bootstrap/providers.marketplace.php` (không sửa core nếu không cần).
 
 ### Giai đoạn C — Định dạng & Kiểm thử
 
-- [ ] Chạy format chỉ trên file đã sửa: `vendor/bin/pint <đường-dẫn-file>` (hoặc `vendor/bin/pint --dirty`).
-- [ ] Kiểm tra linter trong Cursor — sửa lỗi do mình tạo ra.
-- [ ] Chạy test liên quan: `php artisan test` (hoặc Pest filter cho phần vừa đổi).
-- [ ] Nếu có migration mới: `php artisan migrate` trên **local** (DB MySQL) để xác nhận chạy được; **không** test trên production.
-- [ ] Nếu đổi Blade: `php artisan view:clear`, kiểm tra cả light/dark + các area bị ảnh hưởng (guest/portal/admin).
+- Chạy format chỉ trên file đã sửa: `vendor/bin/pint <đường-dẫn-file>` (hoặc `vendor/bin/pint --dirty`).
+- Kiểm tra linter trong Cursor — sửa lỗi do mình tạo ra.
+- Chạy test liên quan: `php artisan test` (hoặc Pest filter cho phần vừa đổi).
+- Nếu có migration mới: `php artisan migrate` trên **local** (DB MySQL) để xác nhận chạy được; **không** test trên production.
+- Nếu đổi Blade: `php artisan view:clear`, kiểm tra cả light/dark + các area bị ảnh hưởng (guest/portal/admin).
 
 ### Giai đoạn D — Rà soát rủi ro (trước khi commit)
 
-- [ ] **IDOR / cô lập tenant:** không có `findOrFail` "trần" — đã scope theo chủ sở hữu chưa?
-- [ ] **Spam:** endpoint công khai mới đã có `throttle`/captcha chưa?
-- [ ] **Demo mode:** action ghi Livewire mới còn tương thích `DemoModeActionGuard`?
-- [ ] **Bí mật:** không commit `.env`, khóa API, file trong `storage/`.
-- [ ] Liệt kê rõ cho người dùng: route mới / permission mới / migration mới / **biến `.env` mới** (kèm cập nhật `.env.example`).
+- **IDOR / cô lập tenant:** không có `findOrFail` "trần" — đã scope theo chủ sở hữu chưa?
+- **Spam:** endpoint công khai mới đã có `throttle`/captcha chưa?
+- **Demo mode:** action ghi Livewire mới còn tương thích `DemoModeActionGuard`?
+- **Bí mật:** không commit `.env`, khóa API, file trong `storage/`.
+- Liệt kê rõ cho người dùng: route mới / permission mới / migration mới / **biến `.env` mới** (kèm cập nhật `.env.example`).
 
 ### Giai đoạn E — Commit & Đẩy lên pipeline
 
-- [ ] Commit message rõ ràng, đúng style repo; chỉ commit khi người dùng yêu cầu.
-- [ ] `git push` lên GitHub (nhánh chính / nhánh feature theo thỏa thuận).
-- [ ] Nếu thay đổi ảnh hưởng deploy (env/migration/asset) → nêu rõ để theo dõi Coolify auto-build; **không** can thiệp tay trên server.
-- [ ] Sau deploy: xác nhận trên `mlhub.vn` (qua HTTPS sau Traefik) tính năng hoạt động.
+- Commit message rõ ràng, đúng style repo; chỉ commit khi người dùng yêu cầu.
+- `git push` lên GitHub (nhánh chính / nhánh feature theo thỏa thuận).
+- Nếu thay đổi ảnh hưởng deploy (env/migration/asset) → nêu rõ để theo dõi Coolify auto-build; **không** can thiệp tay trên server.
+- Sau deploy: xác nhận trên `mlhub.vn` (qua HTTPS sau Traefik) tính năng hoạt động.
 
 ---
 
@@ -114,26 +114,30 @@ Thực hiện tuần tự cho **mỗi** task. Bước nào không áp dụng th�
 Với các nhóm việc dưới đây, AI **PHẢI dừng lại, trình bày kế hoạch chi tiết và chờ người dùng duyệt** trước khi viết/đổi bất kỳ dòng code nào:
 
 ### 3.1 🔴 Database Migration / thay đổi schema
-- [ ] Mô tả: bảng/cột nào thêm/sửa/xóa, kiểu dữ liệu, index, ràng buộc.
-- [ ] Khẳng định **chỉ thêm mới hoặc cột nullable** với bảng `lb_*` đang có dữ liệu; nêu rõ nếu phải đổi/xóa cột.
-- [ ] **TUYỆT ĐỐI** không đề xuất `migrate:fresh`, `migrate:rollback`, `db:wipe` trên môi trường có dữ liệu thật.
-- [ ] Nêu kế hoạch chạy migration qua pipeline (`entrypoint.sh` / `migrate --force` khi build), **không** chạy tay trên Coolify.
-- [ ] Có phương án rollback an toàn.
+
+- Mô tả: bảng/cột nào thêm/sửa/xóa, kiểu dữ liệu, index, ràng buộc.
+- Khẳng định **chỉ thêm mới hoặc cột nullable** với bảng `lb_`* đang có dữ liệu; nêu rõ nếu phải đổi/xóa cột.
+- **TUYỆT ĐỐI** không đề xuất `migrate:fresh`, `migrate:rollback`, `db:wipe` trên môi trường có dữ liệu thật.
+- Nêu kế hoạch chạy migration qua pipeline (`entrypoint.sh` / `migrate --force` khi build), **không** chạy tay trên Coolify.
+- Có phương án rollback an toàn.
 
 ### 3.2 🔴 Payment (cổng thanh toán / subscription / credit)
-- [ ] Nêu rõ cổng (`Payment*`) và contract bị ảnh hưởng.
-- [ ] Mô tả luồng tiền: checkout → webhook → cập nhật subscription/credit; trường hợp lỗi/hoàn tiền/hết hạn.
-- [ ] Khẳng định không log dữ liệu nhạy cảm (số thẻ, secret).
-- [ ] Liệt kê webhook URL / biến env cần cấu hình; test trên **sandbox** trước.
+
+- Nêu rõ cổng (`Payment`*) và contract bị ảnh hưởng.
+- Mô tả luồng tiền: checkout → webhook → cập nhật subscription/credit; trường hợp lỗi/hoàn tiền/hết hạn.
+- Khẳng định không log dữ liệu nhạy cảm (số thẻ, secret).
+- Liệt kê webhook URL / biến env cần cấu hình; test trên **sandbox** trước.
 
 ### 3.3 🔴 Xóa dữ liệu / thao tác hàng loạt
-- [ ] Liệt kê chính xác bản ghi/bảng bị ảnh hưởng và phạm vi (`where`).
-- [ ] Xác nhận có scope chủ sở hữu, không xóa nhầm tenant khác.
-- [ ] Ưu tiên soft-delete nếu mô hình hỗ trợ; cân nhắc backup trước.
+
+- Liệt kê chính xác bản ghi/bảng bị ảnh hưởng và phạm vi (`where`).
+- Xác nhận có scope chủ sở hữu, không xóa nhầm tenant khác.
+- Ưu tiên soft-delete nếu mô hình hỗ trợ; cân nhắc backup trước.
 
 ### 3.4 🟠 Refactor lớn / đổi kiến trúc / đụng core
-- [ ] Sửa `bootstrap/app.php`, `bootstrap/providers.php`, `composer.json`, `package.json`, `Dockerfile`, `entrypoint.sh`, `docker-compose.yaml`, `config/*.php` → cần duyệt trước.
-- [ ] Trình bày phương án thay thế bằng điểm mở rộng (`modules/Custom*`, `providers.marketplace.php`, `routes/custom.php`) nếu có.
+
+- Sửa `bootstrap/app.php`, `bootstrap/providers.php`, `composer.json`, `package.json`, `Dockerfile`, `entrypoint.sh`, `docker-compose.yaml`, `config/*.php` → cần duyệt trước.
+- Trình bày phương án thay thế bằng điểm mở rộng (`modules/Custom`*, `providers.marketplace.php`, `routes/custom.php`) nếu có.
 
 > Khi không chắc thuộc nhóm nào → mặc định **hỏi trước, code sau**.
 
@@ -141,14 +145,14 @@ Với các nhóm việc dưới đây, AI **PHẢI dừng lại, trình bày k�
 
 ## 4. Tóm tắt 7 bước Vibecode (bản rút gọn — kèm Superpowers)
 
-0. **Chọn skill** — xem `ARCHITECTURE_PROMPT.md` §2 (bug → `systematic-debugging`; feature → `brainstorming` → `writing-plans` → **Duyệt** → `executing-plans`).
-1. **Phân tích hẹp** — `@file` đúng chỗ, đọc `ARCHITECTURE_*.md`, không quét toàn dự án.
-2. **Bám tiền tố module** — `App*` / `Admin*` / `Payment*`.
-3. **Phân loại việc** — bug fix (surgical) vs feature mới (extension point §5 `.cursorrules`).
-4. **Code đúng vibe** — `.cursorrules` §3, scope tenant, guard plan/credit.
-5. **Format + verify** — `pint` → `php artisan test` → skill `verification-before-completion` → rà §2.D.
-6. **Review** — cụm lớn: subagent `code-reviewer` hoặc skill `requesting-code-review`.
-7. **Deploy** — commit/push (chủ dự án) → Coolify → user **Ctrl+F5** nếu Livewire 419 sau deploy.
+1. **Chọn skill** — xem `ARCHITECTURE_PROMPT.md` §2 (bug → `systematic-debugging`; feature → `brainstorming` → `writing-plans` → **Duyệt** → `executing-plans`).
+2. **Phân tích hẹp** — `@file` đúng chỗ, đọc `ARCHITECTURE_*.md`, không quét toàn dự án.
+3. **Bám tiền tố module** — `App`* / `Admin*` / `Payment*`.
+4. **Phân loại việc** — bug fix (surgical) vs feature mới (extension point §5 `.cursorrules`).
+5. **Code đúng vibe** — `.cursorrules` §3, scope tenant, guard plan/credit.
+6. **Format + verify** — `pint` → `php artisan test` → skill `verification-before-completion` → rà §2.D.
+7. **Review** — cụm lớn: subagent `code-reviewer` hoặc skill `requesting-code-review`.
+8. **Deploy** — commit/push (chủ dự án) → Coolify → user **Ctrl+F5** nếu Livewire 419 sau deploy.
 
 ---
 
@@ -163,3 +167,4 @@ php artisan config:clear           # khi đổi config/env lúc dev
 ```
 
 > Trên production: các lệnh tương ứng (`migrate --force`, `config:cache`…) do pipeline Coolify/`entrypoint.sh` đảm nhiệm — không gõ tay trên server.
+

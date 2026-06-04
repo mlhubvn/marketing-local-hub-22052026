@@ -1,4 +1,4 @@
-# MLHUB — Bộ Prompt & Sổ tay lệnh (Vibecode)
+# MLHUB AI — Bộ Prompt & Sổ tay lệnh (Vibecode)
 
 Nơi lưu **prompt mẫu** để làm việc với Cursor (kèm plugin **Superpowers**) và **cheatsheet lệnh** (Laravel / Docker / Coolify) cho dự án MLHUB. Mở file này mỗi khi bắt đầu phiên làm việc, chọn luồng §2 rồi copy prompt §3.
 
@@ -25,11 +25,13 @@ Plugin **Superpowers** trong Cursor cung cấp **skills** (quy trình bắt bu�
 
 ### 2.1 Cách gọi trong Cursor
 
-| Cách | Ví dụ |
-|------|--------|
-| Gõ `/` | `/brainstorming`, hoặc tìm tên skill trong danh sách |
-| Trong prompt | “Dùng skill `systematic-debugging` cho lỗi 419” |
-| Subagent | “Chạy code-reviewer sau khi xong dashboard” |
+
+| Cách         | Ví dụ                                                |
+| ------------ | ---------------------------------------------------- |
+| Gõ `/`       | `/brainstorming`, hoặc tìm tên skill trong danh sách |
+| Trong prompt | “Dùng skill `systematic-debugging` cho lỗi 419”      |
+| Subagent     | “Chạy code-reviewer sau khi xong dashboard”          |
+
 
 > Lệnh cũ `/brainstorm`, `/write-plan`, `/execute-plan` **đã deprecated** — dùng skill cùng tên thay thế.
 
@@ -55,23 +57,27 @@ flowchart TD
   B -->|Nhiều việc độc lập| N[dispatching-parallel-agents]
 ```
 
+
+
 ### 2.3 Bảng skill — khi nào dùng (MLHUB)
 
-| Skill | Dùng khi | Không dùng khi |
-|-------|----------|----------------|
-| **using-superpowers** | Đầu phiên lớn, chưa quen plugin | Đã rõ skill cần dùng |
-| **brainstorming** | Tính năng mới, đổi kiến trúc, nâng cấp upstream | Sửa 1 dòng typo |
-| **writing-plans** | Trước khi code; sau brainstorm | Đã có kế hoạch chi tiết |
-| **executing-plans** | Sau khi bạn gõ **Duyệt** | Chưa duyệt kế hoạch |
-| **systematic-debugging** | 419 Livewire, 504, 500, test fail, log ERROR | Đoán mò sửa ngay |
-| **test-driven-development** | Logic mới, bug có thể tái hiện bằng test | Chỉ đổi chuỗi `lang/vi.json` |
-| **verification-before-completion** | Trước khi bảo “xong” / trước commit | Chưa chạy pint/test |
-| **requesting-code-review** | Xong cụm việc lớn | Thay đổi 1 file nhỏ |
-| **code-reviewer** (subagent) | Review sau dashboard/auth/infra | Mỗi dòng CSS |
-| **receiving-code-review** | Có feedback PR/review cần phân tích | — |
-| **finishing-a-development-branch** | Nhánh xong, cần merge/PR/dọn | Giữa chừng task |
-| **dispatching-parallel-agents** | 2+ task không phụ thuộc | Một bug một file |
-| **using-git-worktrees** | Thử nghiệm tách nhánh an toàn | Hotfix production nhỏ |
+
+| Skill                              | Dùng khi                                        | Không dùng khi               |
+| ---------------------------------- | ----------------------------------------------- | ---------------------------- |
+| **using-superpowers**              | Đầu phiên lớn, chưa quen plugin                 | Đã rõ skill cần dùng         |
+| **brainstorming**                  | Tính năng mới, đổi kiến trúc, nâng cấp upstream | Sửa 1 dòng typo              |
+| **writing-plans**                  | Trước khi code; sau brainstorm                  | Đã có kế hoạch chi tiết      |
+| **executing-plans**                | Sau khi bạn gõ **Duyệt**                        | Chưa duyệt kế hoạch          |
+| **systematic-debugging**           | 419 Livewire, 504, 500, test fail, log ERROR    | Đoán mò sửa ngay             |
+| **test-driven-development**        | Logic mới, bug có thể tái hiện bằng test        | Chỉ đổi chuỗi `lang/vi.json` |
+| **verification-before-completion** | Trước khi bảo “xong” / trước commit             | Chưa chạy pint/test          |
+| **requesting-code-review**         | Xong cụm việc lớn                               | Thay đổi 1 file nhỏ          |
+| **code-reviewer** (subagent)       | Review sau dashboard/auth/infra                 | Mỗi dòng CSS                 |
+| **receiving-code-review**          | Có feedback PR/review cần phân tích             | —                            |
+| **finishing-a-development-branch** | Nhánh xong, cần merge/PR/dọn                    | Giữa chừng task              |
+| **dispatching-parallel-agents**    | 2+ task không phụ thuộc                         | Một bug một file             |
+| **using-git-worktrees**            | Thử nghiệm tách nhánh an toàn                   | Hotfix production nhỏ        |
+
 
 ### 2.4 MASTER PROMPT — Ổn định workspace / nâng cấp (copy nguyên khối)
 
@@ -328,7 +334,7 @@ php artisan tinker
 | `MLHUB_ALLOW_RESET_DEMO`      | `true` (chỉ khi cần chạy lệnh wipe trên pilot; xong có thể đặt lại `false`) |
 | `MLHUB_LICENSE_PURCHASE_CODE` | Mã license Stackposts (Coolify — không commit)                              |
 | `MLHUB_LICENSE_DOMAIN`        | `mlhub.vn`                                                                  |
-| `RUN_QUEUE_WORKER`            | `true` (entrypoint start worker; `false` nếu worker Coolify riêng)           |
+| `RUN_QUEUE_WORKER`            | `true` (entrypoint start worker; `false` nếu worker Coolify riêng)          |
 | `MAIL_PASSWORD`               | SMTP (không commit vào repo; seed ghi vào `options.smtp_password` nếu có)   |
 
 
@@ -390,7 +396,7 @@ php artisan optimize:clear
 
 **“Full” nghĩa là gì:** Nén **gần như mọi thứ** trong `/var/www/html`. Chỉ **không** đưa vào zip: (1) chính file `public/fullcode.zip` đang tạo, (2) file `.env` (chứa mật khẩu — bí mật thật nằm tab Environment Variables của Coolify). Các file khác (`vendor`, `storage`, `bootstrap/cache`, `.env.example`, …) **đều nằm trong zip**.
 
-Mỗi lần container khởi động, `entrypoint.sh` đã tạo symlink `public/resources/themes` → `../../resources/themes`. Lệnh zip dùng cờ **`-y`** để không đi theo symlink lặp vô hạn (tránh zip phình 500MB+ vì `themes/themes/...`).
+Mỗi lần container khởi động, `entrypoint.sh` đã tạo symlink `public/resources/themes` → `../../resources/themes`. Lệnh zip dùng cờ `**-y`** để không đi theo symlink lặp vô hạn (tránh zip phình 500MB+ vì `themes/themes/...`).
 
 **Bước 1 — Vào container app (Coolify → Terminal hoặc `docker exec`):**
 
@@ -411,8 +417,8 @@ apt-get update && apt-get install -y zip
 zip -ry public/fullcode.zip . -x "public/fullcode.zip" -x ".env"
 ```
 
-- **`-r`**: nén đệ quy toàn bộ thư mục hiện tại.
-- **`-y`**: bỏ qua symlink khi ghi zip (theme vẫn đủ vì có `resources/themes/`).
+- `**-r**`: nén đệ quy toàn bộ thư mục hiện tại.
+- `**-y**`: bỏ qua symlink khi ghi zip (theme vẫn đủ vì có `resources/themes/`).
 - Kích thước thường **~200MB–1GB+** (có `vendor` + `storage`), tạo **vài phút** — đợi đến khi shell trả về prompt, không thoát giữa chừng.
 - Sau khi xong, kiểm tra nhanh:
 
@@ -514,8 +520,8 @@ Tại trang đó có thể: chọn file log, xem nhanh phần cuối (tail), **t
 | Captcha             | Cloudflare Turnstile (mặc định) + reCAPTCHA v2 — Admin → Captcha (OptionStore); gắn ở auth, chưa gắn form public |
 | Rate-limit          | `throttle:10,1` trên 5 form public (booking/coupon/feedback/lead/review)                                         |
 | Storage             | disk `public` (S3 trống)                                                                                         |
-| Theme active        | guest = `mlhubfrontend`, backend = `mlhubbackend` (env `THEME_FRONTEND` / `THEME_BACKEND`)                        |
-| Session / URL prod  | `SESSION_DOMAIN=.mlhub.vn`, `APP_URL=https://mlhub.vn`, `TRUSTED_PROXIES=*`                                       |
+| Theme active        | guest = `mlhubfrontend`, backend = `mlhubbackend` (env `THEME_FRONTEND` / `THEME_BACKEND`)                       |
+| Session / URL prod  | `SESSION_DOMAIN=.mlhub.vn`, `APP_URL=https://mlhub.vn`, `TRUSTED_PROXIES=`*                                      |
 | Deploy              | Coolify + Traefik (HTTP→HTTPS, Let's Encrypt)                                                                    |
 
 

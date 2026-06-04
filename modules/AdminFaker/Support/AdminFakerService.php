@@ -13,7 +13,7 @@ use Modules\AppFiles\Models\AppFile;
 
 /**
  * Orchestrates MLHUB demo seeding (LocalBoost marketing data + admin marketing content).
- * Legacy StackPosts features (LinkBio, publishing, channels, short links) are not seeded here.
+ * Legacy MLHUB features (LinkBio, publishing, channels, short links) are not seeded here.
  */
 class AdminFakerService
 {

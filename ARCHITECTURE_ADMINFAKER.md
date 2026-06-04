@@ -1,6 +1,6 @@
 # ARCHITECTURE — Admin Faker (Investor Demo Đà Nẵng)
 
-> Quy ước naming: branding hiển thị luôn dùng **MLHUB** và class/file liên quan cũng đồng bộ theo tiền tố `MLHUB*`.
+> Quy ước naming: branding hiển thị luôn dùng **MLHUB** và class/file liên quan cũng đồng bộ theo tiền tố `MLHUB`*.
 
 ## 1. Mục đích & disclaimer
 
@@ -18,10 +18,12 @@ Bạn **không cần** cấu hình Admin Faker riêng trên Coolify. Chỉ cần
 
 ### Trên Coolify (env)
 
-| Biến | Pilot/demo | Production thật |
-|------|------------|-----------------|
-| `MLHUB_ALLOW_RESET_DEMO` | `true` | `false` |
-| `MLHUB_CONTACT_EMAIL` | `demo@mlhub.vn` | email thật |
+
+| Biến                     | Pilot/demo      | Production thật |
+| ------------------------ | --------------- | --------------- |
+| `MLHUB_ALLOW_RESET_DEMO` | `true`          | `false`         |
+| `MLHUB_CONTACT_EMAIL`    | `demo@mlhub.vn` | email thật      |
+
 
 `MLHUB_ADMIN_FAKER_USER` — **không bắt buộc**; mặc định code = `demo@mlhub.vn`.
 
@@ -29,24 +31,26 @@ Bạn **không cần** cấu hình Admin Faker riêng trên Coolify. Chỉ cần
 
 1. **Commit** → push GitHub → Coolify deploy lại.
 2. **Coolify** → mở app MLHUB → tab **Terminal** (hoặc **Execute Command**), chạy trong container Laravel:
-   ```bash
+  ```bash
    php artisan mlhub:reset-demo --force
-   ```
+  ```
    Lệnh này tự: wipe DB → migrate → seed → **admin-faker:refresh** → extras → optimize:clear.
 3. Trên service **Redis** của Coolify (Terminal tương ứng), xóa cache session/app sau reset demo:
-   ```bash
+  ```bash
    redis-cli -h <REDIS_HOST> -p 6379 -a "<REDIS_PASSWORD>" FLUSHALL
-   ```
-4. Đăng nhập: **`demo@mlhub.vn` / `123456`** (super admin + demo đầy đủ).
+  ```
+4. Đăng nhập: `**demo@mlhub.vn` / `123456**` (super admin + demo đầy đủ).
 
 **Thời gian seed ước tính:** 1–4 phút trong container app.
 
 ### Lệnh thủ công (hiếm khi cần)
 
-| Lệnh | Khi nào |
-|------|---------|
-| `php artisan admin-faker:refresh` | Chỉ refresh faker trên DB hiện có (Admin UI) |
-| `php artisan mlhub:reset-demo --force` | Reset toàn bộ pilot — **dùng cái này** |
+
+| Lệnh                                   | Khi nào                                      |
+| -------------------------------------- | -------------------------------------------- |
+| `php artisan admin-faker:refresh`      | Chỉ refresh faker trên DB hiện có (Admin UI) |
+| `php artisan mlhub:reset-demo --force` | Reset toàn bộ pilot — **dùng cái này**       |
+
 
 ---
 
@@ -78,37 +82,41 @@ flowchart TB
     EXT --> EXTDATA
 ```
 
+
+
 ---
 
 ## 4. Danh sách tính năng đã faker
 
-| ✓ | Module | Model / bảng | Class | File data | Mặc định | Clear |
-|---|--------|--------------|-------|-----------|----------|-------|
-| ✓ | Hồ sơ KD | `LocalBusiness` | `MLHUBLocalBoostDemoFaker` | `mlhub_adminfaker_dn_soho.php` → `businesses` | **10** | ✓ theo tên |
-| ✓ | Chi nhánh | `BusinessLocation` | ↑ | `locations` | **21** | ✓ |
-| ✓ | Chiến dịch QR | `QrCampaign` | ↑ | `campaigns` | **32** | ✓ slug `admin-faker-*` |
-| ✓ | Landing (campaign) | `LandingPage` | `LandingPageFactory::syncFromCampaign` | ↑ | **32** | ✓ |
-| ✓ | Landing độc lập | `LandingPage` | ↑ | `standalone_landing_pages` | **18** | ✓ slug |
-| ✓ | Dịch vụ booking | `BookingService` | ↑ | `booking_services` | **12** | ✓ |
-| ✓ | Khách hàng | `Customer` | ↑ | `customers` | **120** | ✓ |
-| ✓ | Tag CRM | `CustomerTag` | ↑ | (hardcoded 9 tag) | 9 | ✓ pivot |
-| ✓ | QR scans | `lb_qr_scans` | `MLHUBDemoVolume` | `campaign_metrics` | ~12k+ visits | ✓ |
-| ✓ | Lead | `lb_lead_submissions` | ↑ | ↑ conversions | ~1k+ | ✓ |
-| ✓ | Booking | `lb_bookings` | ↑ | ↑ | ~800+ | ✓ |
-| ✓ | Coupon | `lb_coupon_redemptions` | ↑ | ↑ | ~900+ | ✓ |
-| ✓ | Review | `lb_review_feedbacks` | ↑ | ↑ | ~1k+ | ✓ |
-| ✓ | Feedback | `lb_feedback_responses` | ↑ | ↑ | ~600+ | ✓ |
-| ✓ | FAQ | `faqs` | `MLHUBMarketingDemoFaker` | `marketing.faqs` + generator | **150** | ✓ `demo-preview-*` |
-| ✓ | Blog | `blogs` | ↑ | `marketing.blogs` + generator | **150** (6 danh mục, 8 tag) | ✓ |
-| ✓ | Support | `support_tickets` + comments | ↑ | `marketing.support_tickets` | **6** | ✓ `[DEMO]%` |
-| ✓ | Affiliate | commissions / withdrawals | ↑ | (code) | 3 + 2 | ✓ marker |
-| ✓ | Thông báo global | `notification_manuals` | ↑ | `marketing.global_notifications` | **7** | ✓ `[DEMO]%` |
-| ✓ | Email automation | `lb_email_automations` + logs | `MLHUBExtendedModulesDemoFaker` | `mlhub_adminfaker_extensions.php` | **6** + logs | ✓ tên `[DEMO]%` |
-| ✓ | CRM nâng cao | activities, tasks, notes, segments, automations | ↑ | ↑ `crm_*` | **~80** KH + 4 segment + 4 automation | ✓ marker / `[DEMO]%` |
-| ✓ | Loyalty stamp cards | `lb_loyalty_*` | ↑ | `loyalty_cards` | **4** thẻ + stamps | ✓ slug `admin-faker-%` |
-| ✓ | Referral | `lb_referral_*` | ↑ | `referral_campaigns` | **2** chiến dịch + links | ✓ slug `admin-faker-%` |
-| ✓ | Template packs | `MarketingTemplate` (system) | ↑ | `TemplatePackService` | system packs | — |
-| ✓ | Báo cáo (`AppLocalAnalytics`) | — | (đọc số liệu trên) | — | dashboard đủ số | — |
+
+| ✓   | Module                        | Model / bảng                                    | Class                                  | File data                                     | Mặc định                              | Clear                  |
+| --- | ----------------------------- | ----------------------------------------------- | -------------------------------------- | --------------------------------------------- | ------------------------------------- | ---------------------- |
+| ✓   | Hồ sơ KD                      | `LocalBusiness`                                 | `MLHUBLocalBoostDemoFaker`             | `mlhub_adminfaker_dn_soho.php` → `businesses` | **10**                                | ✓ theo tên             |
+| ✓   | Chi nhánh                     | `BusinessLocation`                              | ↑                                      | `locations`                                   | **21**                                | ✓                      |
+| ✓   | Chiến dịch QR                 | `QrCampaign`                                    | ↑                                      | `campaigns`                                   | **32**                                | ✓ slug `admin-faker-`* |
+| ✓   | Landing (campaign)            | `LandingPage`                                   | `LandingPageFactory::syncFromCampaign` | ↑                                             | **32**                                | ✓                      |
+| ✓   | Landing độc lập               | `LandingPage`                                   | ↑                                      | `standalone_landing_pages`                    | **18**                                | ✓ slug                 |
+| ✓   | Dịch vụ booking               | `BookingService`                                | ↑                                      | `booking_services`                            | **12**                                | ✓                      |
+| ✓   | Khách hàng                    | `Customer`                                      | ↑                                      | `customers`                                   | **120**                               | ✓                      |
+| ✓   | Tag CRM                       | `CustomerTag`                                   | ↑                                      | (hardcoded 9 tag)                             | 9                                     | ✓ pivot                |
+| ✓   | QR scans                      | `lb_qr_scans`                                   | `MLHUBDemoVolume`                      | `campaign_metrics`                            | ~12k+ visits                          | ✓                      |
+| ✓   | Lead                          | `lb_lead_submissions`                           | ↑                                      | ↑ conversions                                 | ~1k+                                  | ✓                      |
+| ✓   | Booking                       | `lb_bookings`                                   | ↑                                      | ↑                                             | ~800+                                 | ✓                      |
+| ✓   | Coupon                        | `lb_coupon_redemptions`                         | ↑                                      | ↑                                             | ~900+                                 | ✓                      |
+| ✓   | Review                        | `lb_review_feedbacks`                           | ↑                                      | ↑                                             | ~1k+                                  | ✓                      |
+| ✓   | Feedback                      | `lb_feedback_responses`                         | ↑                                      | ↑                                             | ~600+                                 | ✓                      |
+| ✓   | FAQ                           | `faqs`                                          | `MLHUBMarketingDemoFaker`              | `marketing.faqs` + generator                  | **150**                               | ✓ `demo-preview-`*     |
+| ✓   | Blog                          | `blogs`                                         | ↑                                      | `marketing.blogs` + generator                 | **150** (6 danh mục, 8 tag)           | ✓                      |
+| ✓   | Support                       | `support_tickets` + comments                    | ↑                                      | `marketing.support_tickets`                   | **6**                                 | ✓ `[DEMO]%`            |
+| ✓   | Affiliate                     | commissions / withdrawals                       | ↑                                      | (code)                                        | 3 + 2                                 | ✓ marker               |
+| ✓   | Thông báo global              | `notification_manuals`                          | ↑                                      | `marketing.global_notifications`              | **7**                                 | ✓ `[DEMO]%`            |
+| ✓   | Email automation              | `lb_email_automations` + logs                   | `MLHUBExtendedModulesDemoFaker`        | `mlhub_adminfaker_extensions.php`             | **6** + logs                          | ✓ tên `[DEMO]%`        |
+| ✓   | CRM nâng cao                  | activities, tasks, notes, segments, automations | ↑                                      | ↑ `crm_`*                                     | **~80** KH + 4 segment + 4 automation | ✓ marker / `[DEMO]%`   |
+| ✓   | Loyalty stamp cards           | `lb_loyalty_`*                                  | ↑                                      | `loyalty_cards`                               | **4** thẻ + stamps                    | ✓ slug `admin-faker-%` |
+| ✓   | Referral                      | `lb_referral_`*                                 | ↑                                      | `referral_campaigns`                          | **2** chiến dịch + links              | ✓ slug `admin-faker-%` |
+| ✓   | Template packs                | `MarketingTemplate` (system)                    | ↑                                      | `TemplatePackService`                         | system packs                          | —                      |
+| ✓   | Báo cáo (`AppLocalAnalytics`) | —                                               | (đọc số liệu trên)                     | —                                             | dashboard đủ số                       | —                      |
+
 
 **Marker:** `DemoMarker::SOURCE` = `admin-faker` trong `settings` / `metadata` / payload engagement.
 
@@ -118,31 +126,35 @@ flowchart TB
 
 ## 5. Chưa faker / out of scope
 
-| Tính năng | Ghi chú |
-|-----------|---------|
-| LinkBio, Short links | Không seed (StackPosts legacy) |
-| Social publishing / channels | Không có trong MLHUB fork |
-| AI Studio / lịch sử AI | Module có; không seed prompt history (tốn credit/API) |
-| Google Business Profile sync | Chỉ link review tùy chỉnh trên campaign |
-| Upload ảnh mới | `MLHUBDemoImageResolver` tái dùng ảnh user có sẵn |
-| Webhook automation / Custom domain | Cấu hình thật theo tenant — không faker |
+
+| Tính năng                          | Ghi chú                                               |
+| ---------------------------------- | ----------------------------------------------------- |
+| LinkBio, Short links               | Không seed (StackPosts legacy)                        |
+| Social publishing / channels       | Không có trong MLHUB fork                             |
+| AI Studio / lịch sử AI             | Module có; không seed prompt history (tốn credit/API) |
+| Google Business Profile sync       | Chỉ link review tùy chỉnh trên campaign               |
+| Upload ảnh mới                     | `MLHUBDemoImageResolver` tái dùng ảnh user có sẵn     |
+| Webhook automation / Custom domain | Cấu hình thật theo tenant — không faker               |
+
 
 ---
 
 ## 6. Persona Đà Nẵng SOHO (chỉnh trong file data)
 
-| Key | Tên demo | Loại | Chi nhánh (trong config) |
-|-----|----------|------|---------------------------|
-| `mi_quang_1a` | Mì Quảng 1A Đà Nẵng | restaurant | 2 |
-| `banh_trang_tran` | Bánh Tráng Cuốn Thịt Heo Trần | restaurant | 2 |
-| `be_man_seafood` | Bé Mặn — Hải Sản | restaurant | 2 |
-| `vanda_spa` | Vanda Spa | spa | 2 |
-| `sen_spa_dn` | Sen Spa | spa | 2 |
-| `east_west_dental` | East Meets West Dental | clinic | 2 |
-| `highlands_dn` | Highlands Coffee | cafe | 3 |
-| `camellia_homestay` | Camellia Homestay & Villa | homestay | 2 |
-| `chuong_duong_tour` | Chuồng Dê Tour | tour | 2 |
-| `california_gym` | California Fitness | gym | 2 |
+
+| Key                 | Tên demo                      | Loại       | Chi nhánh (trong config) |
+| ------------------- | ----------------------------- | ---------- | ------------------------ |
+| `mi_quang_1a`       | Mì Quảng 1A Đà Nẵng           | restaurant | 2                        |
+| `banh_trang_tran`   | Bánh Tráng Cuốn Thịt Heo Trần | restaurant | 2                        |
+| `be_man_seafood`    | Bé Mặn — Hải Sản              | restaurant | 2                        |
+| `vanda_spa`         | Vanda Spa                     | spa        | 2                        |
+| `sen_spa_dn`        | Sen Spa                       | spa        | 2                        |
+| `east_west_dental`  | East Meets West Dental        | clinic     | 2                        |
+| `highlands_dn`      | Highlands Coffee              | cafe       | 3                        |
+| `camellia_homestay` | Camellia Homestay & Villa     | homestay   | 2                        |
+| `chuong_duong_tour` | Chuồng Dê Tour                | tour       | 2                        |
+| `california_gym`    | California Fitness            | gym        | 2                        |
+
 
 Sửa tên/địa chỉ/SĐT tại `businesses` + `locations` trong `mlhub_adminfaker_dn_soho.php`, sau đó `admin-faker:refresh`.
 
@@ -150,15 +162,17 @@ Sửa tên/địa chỉ/SĐT tại `businesses` + `locations` trong `mlhub_admin
 
 ## 7. Quy ước đặt tên
 
-| Loại | Quy ước |
-|------|---------|
-| Chiến dịch QR | slug `admin-faker-{brand}-{type}-...` |
-| Landing độc lập | slug `admin-faker-lp-...` |
-| Blog / FAQ | slug `demo-preview-...` |
-| Support | title `[DEMO] ...` |
-| Notification | title `[DEMO] ...` |
-| Khách | email `khach.dn.{n}@demo.mlhub.vn` |
-| Engagement source | `admin-faker` trong JSON payload |
+
+| Loại              | Quy ước                               |
+| ----------------- | ------------------------------------- |
+| Chiến dịch QR     | slug `admin-faker-{brand}-{type}-...` |
+| Landing độc lập   | slug `admin-faker-lp-...`             |
+| Blog / FAQ        | slug `demo-preview-...`               |
+| Support           | title `[DEMO] ...`                    |
+| Notification      | title `[DEMO] ...`                    |
+| Khách             | email `khach.dn.{n}@demo.mlhub.vn`    |
+| Engagement source | `admin-faker` trong JSON payload      |
+
 
 ---
 
@@ -180,26 +194,28 @@ Sửa tên/địa chỉ/SĐT tại `businesses` + `locations` trong `mlhub_admin
 ## 9. Chỉnh volume (không sửa Blade/PHP service)
 
 1. Sửa `database/seeders/data/mlhub_adminfaker_dn_soho.php` (`meta`):
-   - `target_qr_visits` — **6000000** (~6M quét, ~60% bản 10M; hệ số nhân tự tính)
-   - `site_count` — **11** cơ sở; `min_campaigns_per_site` — **5**
-   - `customer_target` — **6600** (~600 khách/cơ sở)
-   - `volume_scale` — **12**; `engagement_insert_cap` — **2400** / chiến dịch
-   - `engagement_max_days_ago` — **730** (24 tháng timeline)
-   - `marketing_faq_target` / `marketing_blog_target` — **150** + **150**
-   - `metrics_multiplier` — fallback nếu `target_qr_visits` = 0
+  - `target_qr_visits` — **6000000** (~6M quét, ~60% bản 10M; hệ số nhân tự tính)
+  - `site_count` — **11** cơ sở; `min_campaigns_per_site` — **5**
+  - `customer_target` — **6600** (~600 khách/cơ sở)
+  - `volume_scale` — **12**; `engagement_insert_cap` — **2400** / chiến dịch
+  - `engagement_max_days_ago` — **730** (24 tháng timeline)
+  - `marketing_faq_target` / `marketing_blog_target` — **150** + **150**
+  - `metrics_multiplier` — fallback nếu `target_qr_visits` = 0
 2. Mở rộng runtime: `modules/AdminFaker/Support/MLHUBEnterpriseDemoExpander.php` (thêm cơ sở/campaign/landing thiếu).
 3. Chạy: `php artisan admin-faker:refresh` hoặc `php artisan mlhub:reset-demo --force` (chỉ pilot; `MLHUB_ALLOW_RESET_DEMO=true`).
 
-**Lưu ý load-test:** ~**6M** `lb_qr_scans` (~60% bản full), engagement cap **2400**/chiến dịch — seed **12–25 phút**. Sau seed: `php artisan optimize` (không chỉ `optimize:clear`). Pilot: `max_execution_time` ≥ **3600**, `memory_limit` ≥ **1024M**.
+**Lưu ý load-test:** ~~**6M** `lb_qr_scans` (~~60% bản full), engagement cap **2400**/chiến dịch — seed **12–25 phút**. Sau seed: `php artisan optimize` (không chỉ `optimize:clear`). Pilot: `max_execution_time` ≥ **3600**, `memory_limit` ≥ **1024M**.
 
 ---
 
 ## 10. Đồng bộ ngược với `mlhub_demo_vn.php`
 
-| File | Vai trò |
-|------|---------|
-| `mlhub_adminfaker_dn_soho.php` | **Admin Faker** — investor demo Đà Nẵng (user #1) |
-| `mlhub_demo_vn.php` | **LocalBoostDemoSeeder** / `mlhub:reset-demo` — user `demo@mlhub.vn`, 3 business mẫu VN |
+
+| File                           | Vai trò                                                                                 |
+| ------------------------------ | --------------------------------------------------------------------------------------- |
+| `mlhub_adminfaker_dn_soho.php` | **Admin Faker** — investor demo Đà Nẵng (user #1)                                       |
+| `mlhub_demo_vn.php`            | **LocalBoostDemoSeeder** / `mlhub:reset-demo` — user `demo@mlhub.vn`, 3 business mẫu VN |
+
 
 Khi đổi metric engagement dùng chung, cập nhật **cả hai** hoặc chỉ `campaign_metrics` trong file tương ứng. `MLHUBDemoVolume` đọc `mlhub_demo_vn.php`; Admin Faker dùng `MLHUBAdminFakerConfig::metricsForSlug()` từ file DN SOHO.
 
@@ -233,8 +249,8 @@ php artisan admin-faker:refresh
 php artisan optimize:clear
 ```
 
-- [ ] Portal: ≥ 10 businesses, ≥ 30 campaigns
-- [ ] Clear → seed lại: không lỗi FK
-- [ ] Chạy 2 lần `--no-clear`: không duplicate slug
+- Portal: ≥ 10 businesses, ≥ 30 campaigns
+- Clear → seed lại: không lỗi FK
+- Chạy 2 lần `--no-clear`: không duplicate slug
 
 *Ghi chú CI/local: môi trường dev cần PHP + DB đã migrate.*
