@@ -854,7 +854,7 @@
                     </div>
 
                     <div class="lb-reveal mt-7 flex flex-wrap gap-2" style="--lb-delay: 280ms;">
-                        @foreach ([__('Making Local HUB'), __('O2O Marketing Automation'), __('Review Booster'), __('Lead Gen & Booking')] as $badge)
+                        @foreach ([__('Making Local HUB'), __('O2O Marketing Automation'), __('Review Booster'), __('Lead Gen & Booking'), __('Coupon Claims')] as $badge)
                             <span class="rounded-full border bg-white px-3 py-2 text-xs font-black" style="border-color: var(--lb-line); color: var(--lb-muted);">{{ $badge }}</span>
                         @endforeach
                     </div>
