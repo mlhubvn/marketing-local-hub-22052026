@@ -216,6 +216,11 @@
             padding-block: clamp(4.5rem, 8vw, 7.5rem);
         }
 
+        .lb-sales [id].scroll-mt-28,
+        .lb-sales .lb-about-panel {
+            scroll-margin-top: 7rem;
+        }
+
         .lb-workflow-band {
             position: relative;
             overflow: hidden;
@@ -828,7 +833,7 @@
     </style>
 
     <div class="lb-sales">
-        <section class="lb-wrap pb-16 pt-16 lg:pb-24 lg:pt-20">
+        <section id="hero" class="lb-wrap scroll-mt-28 pb-16 pt-16 lg:pb-24 lg:pt-20">
             <div class="grid gap-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(34rem,1.1fr)] lg:items-center">
                 <div>
                     <span class="lb-pill lb-reveal inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">
@@ -931,7 +936,9 @@
             </div>
         </section>
 
-        <section class="lb-workflow-band">
+        @include(theme_view('partials.home-about', 'guest'))
+
+        <section id="workflow" class="lb-workflow-band scroll-mt-28">
             <div class="lb-wrap relative z-10 text-center">
                 <span class="lb-pill inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Connected Local Growth Workflow') }}</span>
                 <h2 class="lb-serif lb-heading mx-auto mt-5 max-w-3xl">
@@ -998,7 +1005,7 @@
             </div>
         </section>
 
-        <section id="features" class="lb-wrap lb-section lb-feature-showcase">
+        <section id="features" class="lb-wrap lb-section lb-feature-showcase scroll-mt-28">
             <div class="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
                 <div>
                     <span class="lb-pill inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Core Features') }}</span>
@@ -1054,7 +1061,7 @@
             </div>
         </section>
 
-        <section id="how-it-works" class="lb-wrap lb-section">
+        <section id="how-it-works" class="lb-wrap lb-section scroll-mt-28">
             <div class="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:items-start">
                 <div>
                     <span class="lb-pill inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('How it works') }}</span>
@@ -1092,7 +1099,7 @@
             </div>
         </section>
 
-        <section class="lb-wrap lb-section">
+        <section id="product-proof" class="lb-wrap lb-section scroll-mt-28">
             <div class="grid gap-8 lg:grid-cols-2 lg:items-center">
                 <div class="lb-window lb-page-demo overflow-hidden rounded-2xl">
                     <div class="border-b px-5 py-4" style="border-color: var(--lb-line);">
@@ -1134,7 +1141,7 @@
             </div>
         </section>
 
-        <section class="lb-wrap lb-section lb-suite">
+        <section id="modules" class="lb-wrap lb-section lb-suite scroll-mt-28">
             <div class="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
                 <div class="lg:sticky lg:top-28">
                     <span class="lb-pill inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Included Modules') }}</span>
@@ -1176,7 +1183,7 @@
             </div>
         </section>
 
-        <section class="lb-wrap lb-section">
+        <section id="growth-flow" class="lb-wrap lb-section scroll-mt-28">
             <div class="lb-card lb-proof-panel rounded-3xl p-6 sm:p-8">
                 <div class="grid gap-10 lg:grid-cols-[0.86fr_1.14fr] lg:items-center">
                     <div class="relative z-10">
@@ -1221,7 +1228,7 @@
             </div>
         </section>
 
-        <section class="lb-wrap pb-20">
+        <section id="get-started" class="lb-wrap scroll-mt-28 pb-20">
             <div class="lb-window lb-final-cta rounded-3xl p-6 sm:p-8">
                 <div class="grid gap-8 lg:grid-cols-[1fr_24rem] lg:items-center">
                     <div>

@@ -23,20 +23,13 @@
     $siteDescription = $siteDescription !== '' ? $siteDescription : __('AI-powered local marketing tools for reviews, bookings, leads, coupons, feedback, QR campaign pages, and reports.');
     $signupEnabled = (string) $options->get('auth_signup_page_status', '1') === '1';
     $contactEmail = trim((string) $options->get('contact_email', ''));
-    $navItems = [
-        ['key' => 'home', 'label' => __('Home'), 'href' => route('home'), 'active' => request()->routeIs('home')],
-        ['key' => 'features', 'label' => __('Features'), 'href' => route('home').'#features', 'active' => false],
-        ['key' => 'pricing', 'label' => __('Pricing'), 'href' => route('guest.pricing'), 'active' => request()->routeIs('guest.pricing')],
-        ['key' => 'blog', 'label' => __('Blog'), 'href' => route('guest.blogs'), 'active' => request()->routeIs('guest.blogs') || request()->routeIs('guest.blog*')],
-        ['key' => 'faqs', 'label' => __('FAQs'), 'href' => route('guest.faqs'), 'active' => request()->routeIs('guest.faqs')],
-        ['key' => 'contact', 'label' => __('Contact'), 'href' => route('guest.contact'), 'active' => request()->routeIs('guest.contact')],
-    ];
+    $homeUrl = route('home');
     $footerLegal = [
         ['label' => __('Privacy Policy'), 'href' => route('guest.privacy-policy')],
         ['label' => __('Terms of Use'), 'href' => route('guest.terms-of-use')],
     ];
 @endphp
-<body class="min-h-screen antialiased" style="font-family: var(--theme-font-sans); color: #242320; background: #fbfaf5;">
+<body class="min-h-screen antialiased scroll-smooth" style="font-family: var(--theme-font-sans); color: #242320; background: #fbfaf5;">
     <div class="relative isolate min-h-screen overflow-hidden">
         <header
             x-data="{
@@ -74,13 +67,7 @@
                             </span>
                         </a>
 
-                        <nav class="hidden items-center gap-2 lg:flex">
-                            @foreach ($navItems as $item)
-                                <a href="{{ $item['href'] }}" class="rounded-full px-4 py-2.5 text-sm font-bold transition {{ $item['active'] ? 'bg-neutral-100 text-neutral-950' : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-950' }}">
-                                    {{ $item['label'] }}
-                                </a>
-                            @endforeach
-                        </nav>
+                        @include(theme_view('partials.marketing-nav', 'guest'))
 
                         <div class="hidden items-center gap-2 lg:flex">
                             <button
@@ -129,11 +116,7 @@
                     </div>
 
                     <div x-cloak x-show="open" x-transition class="border-t pb-4 pt-3 lg:hidden" style="border-color: rgba(var(--theme-border-color-rgb),0.75);">
-                        <nav class="grid gap-1">
-                            @foreach ($navItems as $item)
-                                <a href="{{ $item['href'] }}" class="rounded-[0.95rem] px-3 py-2.5 text-sm font-bold {{ $item['active'] ? 'text-white' : 'text-slate-600 hover:bg-slate-50' }}" @if($item['active']) style="background:#ff5f5f;" @endif>{{ $item['label'] }}</a>
-                            @endforeach
-                        </nav>
+                        @include(theme_view('partials.marketing-nav-mobile', 'guest'))
                         <div class="mt-3 grid gap-2 sm:grid-cols-2">
                             <button
                                 type="button"
@@ -179,7 +162,8 @@
                     <div>
                         <p class="text-xs font-black uppercase tracking-[0.18em] text-neutral-400">{{ __('Product') }}</p>
                         <div class="mt-4 grid gap-3 text-sm font-bold text-neutral-600">
-                            <a href="{{ route('home') }}#features" class="hover:text-teal-700">{{ __('Features') }}</a>
+                            <a href="{{ $homeUrl }}#about-what" class="hover:text-teal-700">{{ __('About') }}</a>
+                            <a href="{{ $homeUrl }}#features" class="hover:text-teal-700">{{ __('Features') }}</a>
                             <a href="{{ route('guest.pricing') }}" class="hover:text-teal-700">{{ __('Pricing') }}</a>
                             <a href="{{ route('home') }}#how-it-works" class="hover:text-teal-700">{{ __('How it works') }}</a>
                             <a href="{{ route('guest.blogs') }}" class="hover:text-teal-700">{{ __('Blog') }}</a>
