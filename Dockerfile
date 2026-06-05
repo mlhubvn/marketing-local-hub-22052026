@@ -30,6 +30,9 @@ ENV PHP_OPCACHE_ENABLE=1
 
 WORKDIR /var/www/html
 
+# Serial extension builds — avoids OOM on small Coolify build hosts (parallel -j$(nproc) spikes RAM during intl/opcache JIT).
+ENV MAKEFLAGS=-j1
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
@@ -47,7 +50,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libonig-dev \
         libxml2-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j"$(nproc)" \
+    && docker-php-ext-install -j1 \
         bcmath \
         exif \
         gd \

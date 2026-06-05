@@ -158,6 +158,7 @@ Với các nhóm việc dưới đây, AI **PHẢI dừng lại, trình bày k�
 6. **Format + verify** — `pint` → `php artisan test` → skill `verification-before-completion` → rà §2.D.
 7. **Review** — cụm lớn: subagent `code-reviewer` hoặc skill `requesting-code-review`.
 8. **Deploy** — commit/push (chủ dự án) → Coolify → user **Ctrl+F5** nếu Livewire 419 sau deploy.
+   - Docker build fail `exit 255` giữa bước `docker-php-ext-install` (log cắt ở intl/opcache): thường **OOM** trên VPS nhỏ — repo đã có `.dockerignore` (bỏ `vendor/` khỏi context) + `Dockerfile` dùng `-j1`/`MAKEFLAGS=-j1`. Nếu vẫn fail: tăng RAM/swap server hoặc bật **Runtime only** cho `APP_ENV` trên Coolify.
 
 ---
 

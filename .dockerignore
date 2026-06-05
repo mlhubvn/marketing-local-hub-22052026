@@ -1,0 +1,47 @@
+# Composer — installed in Dockerfile build stage (not from host context)
+vendor/
+
+# Node / front-end tooling (Vite per theme; assets committed under resources/themes)
+**/node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Git / IDE / local tooling
+.git/
+.github/
+.cursor/
+.idea/
+.vscode/
+*.swp
+*~
+
+# Runtime secrets (Coolify injects at runtime)
+.env
+.env.*
+!.env.example
+
+# Laravel writable dirs — recreated in entrypoint.sh
+storage/logs/
+storage/framework/cache/
+storage/framework/sessions/
+storage/framework/views/
+storage/app/public/*
+!storage/app/public/.gitignore
+bootstrap/cache/*
+!bootstrap/cache/.gitignore
+
+# Tests & dev-only
+tests/
+phpunit.xml
+.phpunit.result.cache
+pest.xml
+.phpunit.cache/
+
+# Docs / meta (not needed in production image)
+ARCHITECTURE_*.md
+.cursorrules
+
+# Large or one-off local artifacts
+storage/*.log
+storage/*.mjs
