@@ -22,7 +22,7 @@
             overflow: hidden;
             background:
                 radial-gradient(circle at 20% 20%, rgba(255, 95, 95, .16), transparent 14rem),
-                radial-gradient(circle at 78% 76%, rgba(184, 218, 22, .28), transparent 14rem),
+                radial-gradient(circle at 78% 76%, rgba(225, 235, 22, .22), transparent 14rem),
                 rgba(255, 255, 252, .92);
         }
 

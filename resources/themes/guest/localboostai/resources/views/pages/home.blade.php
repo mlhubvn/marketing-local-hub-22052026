@@ -53,7 +53,7 @@
             --lb-red: #0f766e;
             --lb-dark: #10251f;
             background:
-                radial-gradient(circle at 78% 9%, rgba(184, 218, 22, .28), transparent 26rem),
+                radial-gradient(circle at 78% 9%, rgba(225, 235, 22, .22), transparent 26rem),
                 radial-gradient(circle at 7% 18%, rgba(15, 118, 110, .13), transparent 24rem),
                 var(--lb-paper);
             color: var(--lb-ink);
@@ -499,7 +499,7 @@
             overflow: hidden;
             background:
                 radial-gradient(circle at 12% 18%, rgba(15, 118, 110, .13), transparent 18rem),
-                radial-gradient(circle at 92% 88%, rgba(184, 218, 22, .28), transparent 16rem),
+                radial-gradient(circle at 92% 88%, rgba(225, 235, 22, .22), transparent 16rem),
                 rgba(255, 255, 252, .92);
         }
 

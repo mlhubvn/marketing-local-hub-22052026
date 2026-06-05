@@ -13,7 +13,7 @@
         --lb-text-xl: 1.25rem;
         --lb-text-h2: clamp(1.625rem, 1.6vw + 1.1rem, 2.375rem);
         background:
-            radial-gradient(circle at 78% 9%, rgba(184, 218, 22, .28), transparent 26rem),
+            radial-gradient(circle at 78% 9%, rgba(225, 235, 22, .22), transparent 26rem),
             radial-gradient(circle at 7% 18%, rgba(255, 95, 95, .13), transparent 24rem),
             var(--lb-paper);
         color: var(--lb-ink);

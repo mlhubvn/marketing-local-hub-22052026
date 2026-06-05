@@ -64,7 +64,7 @@
             --lb-text-h2: clamp(1.625rem, 1.6vw + 1.1rem, 2.375rem);
             --lb-text-h1: clamp(1.875rem, 2.2vw + 1rem, 2.875rem);
             background:
-                radial-gradient(circle at 78% 9%, rgba(184, 218, 22, .28), transparent 26rem),
+                radial-gradient(circle at 78% 9%, rgba(225, 235, 22, .22), transparent 26rem),
                 radial-gradient(circle at 7% 18%, rgba(255, 95, 95, .13), transparent 24rem),
                 var(--lb-paper);
             color: var(--lb-ink);
@@ -584,7 +584,7 @@
             overflow: hidden;
             background:
                 radial-gradient(circle at 12% 18%, rgba(255, 95, 95, .13), transparent 18rem),
-                radial-gradient(circle at 92% 88%, rgba(184, 218, 22, .28), transparent 16rem),
+                radial-gradient(circle at 92% 88%, rgba(225, 235, 22, .22), transparent 16rem),
                 rgba(255, 255, 252, .92);
         }
 
@@ -1258,9 +1258,9 @@
                                     <span class="text-xs font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">{{ __('Growth signals') }}</span>
                                     <span class="rounded-full px-3 py-1 text-xs font-black" style="background:#dcfce7; color:#047857;">{{ __('Tracked') }}</span>
                                 </div>
-                                <div class="mt-4 flex items-end gap-2 h-20">
-                                    @foreach ([42, 66, 52, 78, 92] as $bar)
-                                        <span class="lb-bar flex-1 rounded-t-lg" style="--lb-bar-delay: {{ $loop->index * 140 }}ms; height: {{ $bar }}%; background: {{ $loop->even ? 'var(--lb-red)' : 'var(--lb-lime)' }};"></span>
+                                <div class="mt-4 flex items-end gap-1.5 h-20">
+                                    @foreach ([42, 66, 52, 78, 92, 56, 68, 74, 48, 82, 64, 96] as $bar)
+                                        <span class="lb-bar flex-1 rounded-t-lg" style="--lb-bar-delay: {{ $loop->index * 120 }}ms; height: {{ $bar }}%; background: {{ $loop->even ? 'var(--lb-red)' : 'var(--lb-lime)' }};"></span>
                                     @endforeach
                                 </div>
                             </div>
