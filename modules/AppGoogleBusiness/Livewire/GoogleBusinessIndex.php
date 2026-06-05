@@ -1134,7 +1134,7 @@ class GoogleBusinessIndex extends Component
             foreach ($months as $key => $monthRows) {
                 $date = \Carbon\Carbon::createFromFormat('Y-m', $key);
 
-                $trendLabels[] = $date->format('M Y');
+                $trendLabels[] = format_date_locale($date, 'm/Y');
                 $newReviewSeries[] = $monthRows->count();
                 $repliedSeries[] = $monthRows->filter(fn ($review) => filled($review->reply) || filled($review->local_reply))->count();
                 $lowScoreSeries[] = $monthRows->where('rating', '<=', 3)->count();
@@ -1148,7 +1148,7 @@ class GoogleBusinessIndex extends Component
                 $key = $date->format('Y-m-d');
                 $dayRows = $analyticsReviews->filter(fn ($review) => $review->review_created_at && $review->review_created_at->format('Y-m-d') === $key);
 
-                $trendLabels[] = $date->format($trendDays > 30 ? 'M j' : 'j M');
+                $trendLabels[] = format_date_locale($date, 'd/m');
                 $newReviewSeries[] = $dayRows->count();
                 $repliedSeries[] = $dayRows->filter(fn ($review) => filled($review->reply) || filled($review->local_reply))->count();
                 $lowScoreSeries[] = $dayRows->where('rating', '<=', 3)->count();

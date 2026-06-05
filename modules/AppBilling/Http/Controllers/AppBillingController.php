@@ -141,7 +141,7 @@ class AppBillingController extends Controller
 
         $user = $request->user();
         $appName = (string) config('app.name', 'Stackposts');
-        $createdAt = $invoice->createdAtFormatted('Y-m-d H:i') ?: 'N/A';
+        $createdAt = $invoice->createdAtFormatted() ?: 'N/A';
         $amount = ($invoice->currency ?: 'USD').' '.format_number_locale((float) $invoice->amount, 2);
 
         $pdf = $pdfBuilder->make([
@@ -157,7 +157,7 @@ class AppBillingController extends Controller
             'amount' => $amount,
             'status' => $invoice->statusLabel(),
             'issued_at' => $createdAt,
-            'generated_at' => now()->format('Y-m-d H:i'),
+            'generated_at' => format_datetime_locale(now()),
             'line_description' => ($invoice->plan?->name ?: 'Subscription charge').' via '.($invoice->from ?: 'billing gateway'),
         ]);
 

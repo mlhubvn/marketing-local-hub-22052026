@@ -59,7 +59,7 @@
                         <x-ui.table-cell><span class="font-semibold" style="color: var(--theme-header-text-color);">{{ $entry->amount > 0 ? '+' : '' }}{{ format_number_locale((int) $entry->amount) }}</span></x-ui.table-cell>
                         <x-ui.table-cell>{{ format_number_locale((int) $entry->remaining) }}</x-ui.table-cell>
                         <x-ui.table-cell><span class="font-mono text-xs" style="color: var(--theme-muted-text-color);">{{ $entry->paymentHistory?->transaction_id ?: '—' }}</span></x-ui.table-cell>
-                        <x-ui.table-cell>{{ $entry->created_at?->format('Y-m-d H:i') }}</x-ui.table-cell>
+                        <x-ui.table-cell>{{ format_datetime_locale($entry->created_at) }}</x-ui.table-cell>
                     </x-ui.table-row>
                 @empty
                     <x-ui.table-row>

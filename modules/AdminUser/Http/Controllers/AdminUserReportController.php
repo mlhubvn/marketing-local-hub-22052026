@@ -43,7 +43,7 @@ class AdminUserReportController extends Controller
             $count = $users->filter(fn (User $user) => $user->created_at?->isSameMonth($month))->count();
 
             return [
-                'label' => $month->format('M'),
+                'label' => format_date_locale($month, 'm/Y'),
                 'value' => $count,
             ];
         });
@@ -53,7 +53,7 @@ class AdminUserReportController extends Controller
             $count = $users->filter(fn (User $user) => $user->created_at?->isSameDay($date))->count();
 
             return [
-                'label' => $date->format('d M'),
+                'label' => format_date_locale($date, 'd/m'),
                 'value' => $count,
             ];
         });
@@ -64,7 +64,7 @@ class AdminUserReportController extends Controller
             $count = $users->filter(fn (User $user) => $user->created_at && $user->created_at->between($start, $end))->count();
 
             return [
-                'label' => $start->format('d M'),
+                'label' => format_date_locale($start, 'd/m'),
                 'value' => $count,
             ];
         });

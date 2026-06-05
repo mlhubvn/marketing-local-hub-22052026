@@ -267,7 +267,7 @@ class NotificationIndex extends Component
             'selectedUsers' => $selectedUsers,
             'userResults' => $userResults,
             'recipientCount' => $this->notification?->recipientsCount() ?? 0,
-            'sentAt' => $this->notification?->created_at?->format('Y-m-d H:i'),
+            'sentAt' => $this->notification?->created_at ? format_datetime_locale($this->notification->created_at) : null,
         ])->layout(theme_view('layouts.app', 'app'), [
             'title' => __('Notifications'),
         ]);

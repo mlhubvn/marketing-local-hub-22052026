@@ -233,7 +233,7 @@
                 </div>
 
                 <div class="text-sm" style="color: var(--theme-muted-text-color);">
-                    {{ __('Last checked: :time', ['time' => $source->last_checked_at ? date('Y-m-d H:i', (int) $source->last_checked_at) : __('Never')]) }}
+                    {{ __('Last checked: :time', ['time' => $source->last_checked_at ? format_datetime_locale(\Illuminate\Support\Carbon::createFromTimestamp((int) $source->last_checked_at)) : __('Never')]) }}
                 </div>
 
                 @if ($source->last_error)

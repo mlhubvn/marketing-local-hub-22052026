@@ -62,7 +62,7 @@
                         <x-ui.table-cell><span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $log->amount) }}</span></x-ui.table-cell>
                         <x-ui.table-cell>{{ format_number_locale((int) $log->quantity) }}</x-ui.table-cell>
                         <x-ui.table-cell>{{ $log->plan?->name ?: __('No plan') }}</x-ui.table-cell>
-                        <x-ui.table-cell>{{ $log->created_at?->format('Y-m-d H:i') }}</x-ui.table-cell>
+                        <x-ui.table-cell>{{ format_datetime_locale($log->created_at) }}</x-ui.table-cell>
                     </x-ui.table-row>
                 @empty
                     <x-ui.table-row>

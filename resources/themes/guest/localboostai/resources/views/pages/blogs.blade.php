@@ -160,7 +160,7 @@
                                 </a>
                                 <div class="flex flex-col justify-between p-6 sm:p-8">
                                     <div>
-                                        <p class="text-[10px] font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">{{ $featuredPost->publishedAtFormatted('M d, Y') ?: $featuredPost->createdAtFormatted('M d, Y') }}</p>
+                                        <p class="text-[10px] font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">{{ $featuredPost->publishedAtFormatted('Y-m-d') ?: $featuredPost->createdAtFormatted('Y-m-d') }}</p>
                                         <h2 class="lb-serif mt-4 text-4xl leading-none"><a href="{{ route('guest.blog-show', $featuredPost->slug) }}">{{ $featuredPost->titleForLocale() }}</a></h2>
                                         <p class="lb-copy mt-4 text-sm">{{ $featuredPost->contentPreview(240) }}</p>
                                     </div>

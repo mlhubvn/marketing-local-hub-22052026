@@ -28,7 +28,7 @@
 		            {{ $blogDetail->title }}
 		        </h1>
 		        <div class="flex flex-wrap items-center gap-6 text-gray-600 text-lg">
-		            <span>{{ __("Created at: ") }} {{ $blogDetail->created ? \Carbon\Carbon::createFromTimestamp($blogDetail->created)->format('d M, Y') : '' }}</span>
+		            <span>{{ __("Created at: ") }} {{ $blogDetail->created ? format_carbon_display(\Carbon\Carbon::createFromTimestamp($blogDetail->created), 'Y-m-d') : '' }}</span>
 		        </div>
 		    </div>
 		</div>
@@ -76,7 +76,7 @@
 				                            {{ $blog->title }}
 				                        </h4>
 				                        <p class="text-xs text-gray-500 mt-1">
-				                            {{ $blog->created ? \Carbon\Carbon::parse($blog->created)->format('d M, Y') : '' }}
+				                            {{ $blog->created ? format_carbon_display(\Carbon\Carbon::parse($blog->created), 'Y-m-d') : '' }}
 				                        </p>
 				                    </div>
 				                </div>

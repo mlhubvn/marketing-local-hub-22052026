@@ -57,7 +57,7 @@ class BlogCategory extends Model
 
     public function createdAtFormatted(string $format = 'Y-m-d H:i'): ?string
     {
-        return $this->created ? Carbon::createFromTimestamp((int) $this->created)->format($format) : null;
+        return $this->created ? format_carbon_display(Carbon::createFromTimestamp((int) $this->created), $format) : null;
     }
 
     public static function cleanTranslations(array $translations, int $max = 65535): array

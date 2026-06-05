@@ -115,7 +115,7 @@ class PaymentReportService
             $total = (float) ($rows[$key] ?? 0);
 
             $days->push([
-                'label' => $cursor->format('M d'),
+                'label' => format_date_locale($cursor, 'd/m'),
                 'total' => round($total, 2),
                 'transactions' => (int) ($groupedRows->has($key) ? $groupedRows->get($key, collect())->count() : 0),
                 'avg_ticket' => $groupedRows->has($key) ? round($total / max(1, $groupedRows->get($key, collect())->count()), 2) : 0.0,

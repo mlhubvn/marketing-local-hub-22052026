@@ -87,7 +87,7 @@ class MailServerSettings extends Component
             Mail::raw(
                 __('This is a test email sent from the :app mail server configuration on :date.', [
                     'app' => config('app.name', 'Stackposts'),
-                    'date' => now()->format('Y-m-d H:i:s'),
+                    'date' => format_datetime_locale(now(), 'd/m/Y H:i:s'),
                 ]),
                 function ($message) use ($validated): void {
                     $message

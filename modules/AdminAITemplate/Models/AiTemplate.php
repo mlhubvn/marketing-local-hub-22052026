@@ -46,7 +46,7 @@ class AiTemplate extends Model
             return null;
         }
 
-        return Carbon::createFromTimestamp((int) $this->created)->format($format);
+        return format_carbon_display(Carbon::createFromTimestamp((int) $this->created), $format);
     }
 
     public function contentPreview(int $limit = 120): string

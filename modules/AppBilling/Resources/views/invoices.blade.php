@@ -68,7 +68,7 @@
                                 <td class="px-5 py-4">{{ $invoice->from ?: __('N/A') }}</td>
                                 <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ ($invoice->currency ?: 'USD').' '.format_number_locale((float) $invoice->amount, 2) }}</td>
                                 <td class="px-5 py-4"><x-ui.badge :variant="$invoice->statusVariant()">{{ $invoice->statusLabel() }}</x-ui.badge></td>
-                                <td class="px-5 py-4">{{ $invoice->createdAtFormatted('Y-m-d H:i') ?: __('N/A') }}</td>
+                                <td class="px-5 py-4">{{ $invoice->createdAtFormatted() ?: __('N/A') }}</td>
                                 <td class="px-5 py-4 text-right">
                                     <x-ui.button href="{{ route('portal.invoices.download', $invoice) }}" variant="outline" size="sm"><i class="fa-light fa-download"></i>{{ __('PDF') }}</x-ui.button>
                                 </td>

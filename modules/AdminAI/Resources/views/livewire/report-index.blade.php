@@ -222,7 +222,7 @@
                         <div class="flex items-start justify-between gap-3">
                             <div class="min-w-0">
                                 <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ strtoupper($log->provider) }} · {{ $log->model ?: __('Unknown model') }}</p>
-                                <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $log->created_at?->format('Y-m-d H:i:s') }} · {{ $log->user?->email ?: __('No user attached') }}</p>
+                                <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ format_datetime_locale($log->created_at, 'd/m/Y H:i:s') }} · {{ $log->user?->email ?: __('No user attached') }}</p>
                             </div>
                             <x-ui.badge variant="danger">{{ strtoupper($log->status) }}</x-ui.badge>
                         </div>
@@ -251,7 +251,7 @@
                             <x-ui.table-cell><div class="space-y-1"><x-ui.badge variant="neutral">{{ strtoupper($log->provider) }}</x-ui.badge><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $log->model }}</p></div></x-ui.table-cell>
                             <x-ui.table-cell><div class="space-y-1"><p class="font-semibold" style="color: var(--theme-header-text-color);">{{ ucfirst($log->capability) }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ collect([$log->feature, $log->route_name])->filter()->implode(' | ') ?: __('No feature metadata') }}</p></div></x-ui.table-cell>
                             <x-ui.table-cell><p class="font-medium" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) ($log->total_tokens ?? 0)) }} {{ __('tokens') }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">${{ format_number_locale((float) ($log->estimated_cost ?? 0), 4) }} · {{ $log->latency_ms !== null ? format_number_locale((int) $log->latency_ms).'ms' : __('No latency') }}</p></x-ui.table-cell>
-                            <x-ui.table-cell><div class="space-y-1"><x-ui.badge :variant="$log->status === 'success' ? 'success' : ($log->status === 'failed' ? 'danger' : 'neutral')">{{ strtoupper($log->status) }}</x-ui.badge><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $log->created_at?->format('Y-m-d H:i') }}</p></div></x-ui.table-cell>
+                            <x-ui.table-cell><div class="space-y-1"><x-ui.badge :variant="$log->status === 'success' ? 'success' : ($log->status === 'failed' ? 'danger' : 'neutral')">{{ strtoupper($log->status) }}</x-ui.badge><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ format_datetime_locale($log->created_at) }}</p></div></x-ui.table-cell>
                         </x-ui.table-row>
                     @empty
                         <x-ui.table-row>

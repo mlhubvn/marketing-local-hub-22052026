@@ -61,7 +61,7 @@ class AdminAIServiceProvider extends ServiceProvider
                     $date = now()->subDays($offset);
 
                     return [
-                        'label' => $date->format('d M'),
+                        'label' => format_date_locale($date, 'd/m'),
                         'value' => $logs->filter(fn ($log) => $log->created_at?->isSameDay($date))->count(),
                     ];
                 })->values();

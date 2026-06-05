@@ -630,7 +630,7 @@
                                                 </div>
                                                 <div class="rounded-[1rem] border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.5); background-color: color-mix(in srgb, var(--theme-surface-base) 92%, transparent);">
                                                     <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Expires') }}</p>
-                                                    <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $invite->expires_at?->format('M j, Y') ?: '-' }}</p>
+                                                    <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $invite->expires_at ? format_date_locale($invite->expires_at) : '-' }}</p>
                                                 </div>
                                                 <div class="rounded-[1rem] border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.5); background-color: color-mix(in srgb, var(--theme-surface-base) 92%, transparent);">
                                                     <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Invited by') }}</p>

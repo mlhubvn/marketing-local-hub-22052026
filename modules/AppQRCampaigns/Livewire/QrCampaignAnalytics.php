@@ -99,7 +99,7 @@ class QrCampaignAnalytics extends Component
             $date = $start->copy()->addDays($offset);
 
             return [
-                'label' => $date->format('M d'),
+                'label' => format_date_locale($date, 'd/m'),
                 'date' => $date->toDateString(),
                 'total' => (int) ($counts[$date->toDateString()] ?? 0),
             ];

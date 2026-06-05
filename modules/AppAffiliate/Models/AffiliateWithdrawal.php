@@ -51,6 +51,6 @@ class AffiliateWithdrawal extends Model
 
     public function createdAtFormatted(string $format = 'Y-m-d H:i'): ?string
     {
-        return $this->created_at ? Carbon::parse($this->created_at)->format($format) : null;
+        return $this->created_at ? format_carbon_display(Carbon::parse($this->created_at), $format) : null;
     }
 }

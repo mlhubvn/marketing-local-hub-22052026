@@ -684,3 +684,31 @@ if (! function_exists('format_percent_locale')) {
         return format_number_locale(max(0, (int) round((float) $value)), 0).'%';
     }
 }
+
+if (! function_exists('format_carbon_display')) {
+    /**
+     * Map pattern Carbon cũ (Y-m-d…) sang locale VN; giữ pattern lạ nguyên.
+     */
+    function format_carbon_display(mixed $date, string $format = 'Y-m-d H:i'): ?string
+    {
+        if ($date === null || $date === '') {
+            return null;
+        }
+
+        $carbon = $date instanceof DateTimeInterface
+            ? Illuminate\Support\Carbon::instance($date)
+            : Illuminate\Support\Carbon::parse($date);
+
+        $formatted = match ($format) {
+            'Y-m-d' => format_date_locale($carbon),
+            'Y-m-d H:i' => format_datetime_locale($carbon),
+            'Y-m-d H:i:s' => format_datetime_locale($carbon, 'd/m/Y H:i:s'),
+            'M d' => format_date_locale($carbon, 'd/m'),
+            'M d, Y' => format_date_locale($carbon, 'd/m/Y'),
+            'M d, Y H:i' => format_datetime_locale($carbon, 'd/m/Y H:i'),
+            default => $carbon->format($format),
+        };
+
+        return $formatted !== '' ? $formatted : null;
+    }
+}

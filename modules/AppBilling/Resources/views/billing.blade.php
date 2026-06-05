@@ -132,7 +132,7 @@
                     @foreach ([
                         __('Gateway') => $latestSubscription?->source ?: __('N/A'),
                         __('Service') => $latestSubscription?->service ?: __('N/A'),
-                        __('Started') => $latestSubscription?->createdAtFormatted('Y-m-d') ?? __('N/A'),
+                        __('Started') => $latestSubscription?->createdAtFormatted() ?? __('N/A'),
                     ] as $label => $value)
                         <div class="flex items-center justify-between gap-4 rounded-xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .56); background-color: var(--theme-surface-overlay);">
                             <span class="text-sm" style="color: var(--theme-muted-text-color);">{{ $label }}</span>
@@ -179,7 +179,7 @@
                                 <td class="px-5 py-4">{{ $payment->from ?: __('N/A') }}</td>
                                 <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ ($payment->currency ?: 'USD').' '.format_number_locale((float) $payment->amount, 2) }}</td>
                                 <td class="px-5 py-4"><x-ui.badge :variant="$payment->statusVariant()">{{ $payment->statusLabel() }}</x-ui.badge></td>
-                                <td class="px-5 py-4">{{ $payment->createdAtFormatted('Y-m-d H:i') ?: __('N/A') }}</td>
+                                <td class="px-5 py-4">{{ $payment->createdAtFormatted() ?: __('N/A') }}</td>
                             </tr>
                         @empty
                             <tr><td colspan="6" class="px-5 py-12 text-center" style="color: var(--theme-muted-text-color);">{{ __('No payment records found yet.') }}</td></tr>

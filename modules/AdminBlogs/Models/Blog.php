@@ -105,12 +105,12 @@ class Blog extends Model
 
     public function publishedAtFormatted(string $format = 'Y-m-d H:i'): ?string
     {
-        return $this->published_at ? Carbon::createFromTimestamp((int) $this->published_at)->format($format) : null;
+        return $this->published_at ? format_carbon_display(Carbon::createFromTimestamp((int) $this->published_at), $format) : null;
     }
 
     public function createdAtFormatted(string $format = 'Y-m-d H:i'): ?string
     {
-        return $this->created ? Carbon::createFromTimestamp((int) $this->created)->format($format) : null;
+        return $this->created ? format_carbon_display(Carbon::createFromTimestamp((int) $this->created), $format) : null;
     }
 
     public function seoTitle(): string

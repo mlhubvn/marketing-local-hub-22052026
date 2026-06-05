@@ -54,7 +54,7 @@
                             <div class="min-w-0">
                                 <p class="truncate text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $import->title }}</p>
                                 <div class="mt-1 flex flex-wrap items-center gap-2 text-xs" style="color: var(--theme-muted-text-color);">
-                                    <span>{{ $import->created ? date('Y-m-d H:i', (int) $import->created) : __('Unknown') }}</span>
+                                    <span>{{ $import->created ? format_datetime_locale(\Illuminate\Support\Carbon::createFromTimestamp((int) $import->created)) : __('Unknown') }}</span>
                                     @if ($import->source)
                                         <span>&bull;</span>
                                         <span class="truncate">{{ $import->source->name }}</span>

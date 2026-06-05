@@ -61,7 +61,7 @@ class CrmReportsIndex extends Component
                 ->whereMonth('created_at', $date->month)
                 ->count();
 
-            return ['label' => $date->format('M'), 'count' => $count, 'percent' => (int) round(($count / $maxGrowth) * 100)];
+            return ['label' => format_date_locale($date, 'm/Y'), 'count' => $count, 'percent' => (int) round(($count / $maxGrowth) * 100)];
         });
 
         $activityRows = CustomerActivity::query()

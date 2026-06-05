@@ -1895,7 +1895,7 @@
                                     </div>
 
                                     <div class="mt-5 flex items-center justify-between text-sm" style="color: var(--theme-muted-text-color);">
-                                        <span>{{ __('Updated') }} {{ $item->updated_at?->format('M d') }}</span>
+                                        <span>{{ __('Updated') }} {{ format_carbon_display($item->updated_at, 'M d') }}</span>
                                         <span>{{ $item->humanSize() }}</span>
                                     </div>
                                 </article>
@@ -2041,7 +2041,7 @@
 
                                     <div class="flex items-center justify-between text-sm" style="color: var(--theme-muted-text-color);">
                                         <span>{{ $item->humanSize() }}</span>
-                                        <span>{{ $item->updated_at?->format('M d') }}</span>
+                                        <span>{{ format_carbon_display($item->updated_at, 'M d') }}</span>
                                     </div>
 
                                     <div class="flex items-center justify-between border-t pt-3" style="border-color: {{ $softBorder }};">

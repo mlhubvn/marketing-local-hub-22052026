@@ -109,7 +109,7 @@ class AdminUserServiceProvider extends ServiceProvider
                         $date = now()->subDays($offset)->startOfDay();
 
                         return [
-                            'label' => $date->format('d M'),
+                            'label' => format_date_locale($date, 'd/m'),
                             'value' => (clone $query)
                                 ->whereBetween('created_at', [$date, (clone $date)->endOfDay()])
                                 ->count(),
@@ -240,7 +240,7 @@ class AdminUserServiceProvider extends ServiceProvider
                             'area_variant' => $log->area === 'user' ? 'primary' : 'neutral',
                             'metadata_summary' => $metadataSummary,
                             'subject_label' => $log->subject_type ? Str::headline(class_basename($log->subject_type)) : null,
-                            'created_at_label' => $log->created_at?->format('Y-m-d H:i'),
+                            'created_at_label' => $log->created_at ? format_datetime_locale($log->created_at) : null,
                             'created_at_relative' => $log->created_at?->diffForHumans(),
                         ];
                     }),

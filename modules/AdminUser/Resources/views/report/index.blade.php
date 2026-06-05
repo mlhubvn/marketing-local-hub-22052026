@@ -247,9 +247,9 @@
                             </div>
 
                             <div class="mt-4 grid gap-2 text-xs" style="color: var(--theme-muted-text-color);">
-                                <p>{{ __('Created') }}: {{ $user->created_at?->format('Y-m-d') ?: __('N/A') }}</p>
+                                <p>{{ __('Created') }}: {{ $user->created_at ? format_date_locale($user->created_at) : __('N/A') }}</p>
                                 <p>{{ __('Teams') }}: {{ format_number_locale((int) $user->teams_count) }}</p>
-                                <p>{{ __('Plan expiry') }}: {{ $user->plan_expires_at?->format('Y-m-d') ?: __('Not scheduled') }}</p>
+                                <p>{{ __('Plan expiry') }}: {{ $user->plan_expires_at ? format_date_locale($user->plan_expires_at) : __('Not scheduled') }}</p>
                             </div>
                         </x-ui.surface-card>
                     @empty
@@ -309,7 +309,7 @@
                             </x-ui.table-cell>
                             <x-ui.table-cell>{{ $user->isSuperAdmin() ? __('Super admin') : ($user->role?->name ?: __('No role')) }}</x-ui.table-cell>
                             <x-ui.table-cell>{{ $user->plan?->name ?: __('No plan') }}</x-ui.table-cell>
-                            <x-ui.table-cell>{{ $user->created_at?->format('Y-m-d H:i') }}</x-ui.table-cell>
+                            <x-ui.table-cell>{{ format_datetime_locale($user->created_at) }}</x-ui.table-cell>
                         </x-ui.table-row>
                     @empty
                         <x-ui.table-row>

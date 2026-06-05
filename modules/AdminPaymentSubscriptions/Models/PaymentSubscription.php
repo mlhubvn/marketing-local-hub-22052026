@@ -64,7 +64,7 @@ class PaymentSubscription extends Model
             return null;
         }
 
-        return Carbon::createFromTimestamp((int) $this->created)->format($format);
+        return format_carbon_display(Carbon::createFromTimestamp((int) $this->created), $format);
     }
 
     public function changedAtFormatted(string $format = 'Y-m-d H:i'): ?string
@@ -73,7 +73,7 @@ class PaymentSubscription extends Model
             return null;
         }
 
-        return Carbon::createFromTimestamp((int) $this->changed)->format($format);
+        return format_carbon_display(Carbon::createFromTimestamp((int) $this->changed), $format);
     }
 
     public static function userHasActive(int $userId): bool

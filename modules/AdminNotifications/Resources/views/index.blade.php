@@ -64,7 +64,7 @@
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{{ __('Sent Today') }}</p>
                 <p class="text-2xl font-semibold tracking-[-0.04em] text-emerald-600 dark:text-emerald-300">{{ format_number_locale($summary['sent_today']) }}</p>
-                <p class="text-sm leading-6 text-slate-500 dark:text-slate-400">{{ __('New announcements created on :date.', ['date' => now()->format('Y-m-d')]) }}</p>
+                <p class="text-sm leading-6 text-slate-500 dark:text-slate-400">{{ __('New announcements created on :date.', ['date' => format_date_locale(now())]) }}</p>
             </x-ui.card>
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{{ __('Delivered') }}</p>
@@ -126,7 +126,7 @@
                             </x-ui.table-cell>
                             <x-ui.table-cell>
                                 <div class="space-y-1">
-                                    <p class="text-sm" style="color: var(--theme-header-text-color);">{{ optional($notification->created_at)->format('Y-m-d H:i') ?: __('N/A') }}</p>
+                                    <p class="text-sm" style="color: var(--theme-header-text-color);">{{ $notification->created_at ? format_datetime_locale($notification->created_at) : __('N/A') }}</p>
                                     <p class="text-xs" style="color: var(--theme-muted-text-color);">{{ optional($notification->created_at)->diffForHumans() }}</p>
                                 </div>
                             </x-ui.table-cell>
@@ -207,7 +207,7 @@
                                                 'isEditing' => true,
                                                 'plainSections' => true,
                                                 'recipientCount' => $notification->recipientsCount(),
-                                                'sentAt' => optional($notification->created_at)->format('Y-m-d H:i'),
+                                                'sentAt' => $notification->created_at ? format_datetime_locale($notification->created_at) : null,
                                                 'selectedUserOptions' => [],
                                             ])
                                         </form>

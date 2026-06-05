@@ -191,7 +191,7 @@ class LoyaltyPublicController extends Controller
             if ($nextAllowedAt && $nextAllowedAt->isFuture()) {
                 throw ValidationException::withMessages([
                     'phone' => __('You already collected a stamp for this card. Please come back after :time.', [
-                        'time' => $nextAllowedAt->format('M d, Y H:i'),
+                        'time' => format_datetime_locale($nextAllowedAt),
                     ]),
                 ]);
             }

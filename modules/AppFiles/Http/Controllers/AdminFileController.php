@@ -261,7 +261,7 @@ class AdminFileController extends Controller
                     'isImage' => (bool) $file->is_image,
                     'isEditableImage' => $file->isEditableImage(),
                     'typeLabel' => $file->typeLabel(),
-                    'updatedLabel' => $file->updated_at?->format('M d'),
+                    'updatedLabel' => format_carbon_display($file->updated_at, 'M d'),
                     'editImageUrl' => $editImageUrl,
                 ];
             });
@@ -371,8 +371,8 @@ class AdminFileController extends Controller
                     'isImage' => (bool) $file->is_image,
                     'isEditableImage' => $file->isEditableImage(),
                     'typeLabel' => $file->typeLabel(),
-                    'updatedLabel' => $file->updated_at?->format('M d'),
-                    'updatedShortLabel' => $file->updated_at?->format('M d'),
+                    'updatedLabel' => format_carbon_display($file->updated_at, 'M d'),
+                    'updatedShortLabel' => format_carbon_display($file->updated_at, 'M d'),
                     'editImageUrl' => $editImageUrl,
                 ];
             });

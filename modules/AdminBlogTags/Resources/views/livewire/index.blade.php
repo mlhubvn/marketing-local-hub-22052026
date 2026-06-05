@@ -183,7 +183,7 @@
                     </div>
                     <div class="rounded-[1rem] border px-4 py-3" style="{{ $surfaceSoftStyle }}">
                         <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Created') }}</p>
-                        <p class="mt-2 text-sm font-medium" style="color: var(--theme-header-text-color);">{{ $tag->createdAtFormatted('Y-m-d') ?: __('N/A') }}</p>
+                        <p class="mt-2 text-sm font-medium" style="color: var(--theme-header-text-color);">{{ $tag->createdAtFormatted() ?: __('N/A') }}</p>
                     </div>
                 </div>
 

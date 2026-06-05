@@ -3,12 +3,12 @@
     $memberAssignments = (int) $teams->sum('members_count');
     $ownerAssignedCount = (int) $teams->whereNotNull('owner_user_id')->count();
     $ownerlessCount = max(0, $teamCount - $ownerAssignedCount);
-    $averageTeamSize = $teamCount > 0 ? round($memberAssignments / $teamCount, 1) : 0;
+    $averageTeamSize = $teamCount > 0 ? (int) round($memberAssignments / $teamCount) : 0;
     $metricCards = [
         ['label' => __('Teams'), 'value' => format_number_locale($teamCount), 'description' => __('Current workspace teams.'), 'tone' => 'var(--theme-accent)', 'progress' => 100],
         ['label' => __('Owned'), 'value' => format_number_locale($ownerAssignedCount), 'description' => __('Teams with owner assigned.'), 'tone' => '#10b981', 'progress' => $teamCount > 0 ? max(8, (int) round(($ownerAssignedCount / $teamCount) * 100)) : 8],
         ['label' => __('Need owner'), 'value' => format_number_locale($ownerlessCount), 'description' => __('Teams missing ownership.'), 'tone' => '#f59e0b', 'progress' => $teamCount > 0 ? max(8, (int) round(($ownerlessCount / $teamCount) * 100)) : 8],
-        ['label' => __('Avg size'), 'value' => format_number_locale($averageTeamSize, 1), 'description' => __('Members per team.'), 'tone' => '#64748b', 'progress' => $averageTeamSize > 0 ? 100 : 8],
+        ['label' => __('Avg size'), 'value' => format_number_locale($averageTeamSize), 'description' => __('Members per team.'), 'tone' => '#64748b', 'progress' => $averageTeamSize > 0 ? 100 : 8],
     ];
 @endphp
 

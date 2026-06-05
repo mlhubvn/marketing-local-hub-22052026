@@ -258,7 +258,7 @@ class PortalFileController extends Controller
                     'isImage' => (bool) $file->is_image,
                     'isEditableImage' => $file->isEditableImage(),
                     'typeLabel' => $this->cleanUtf8($file->typeLabel()),
-                    'updatedShortLabel' => $file->updated_at?->format('M d'),
+                    'updatedShortLabel' => format_carbon_display($file->updated_at, 'M d'),
                     'updatedLabel' => format_date_locale($file->updated_at),
                     'editImageUrl' => $editImageUrl,
                 ];

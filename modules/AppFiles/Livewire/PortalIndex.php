@@ -764,7 +764,7 @@ class PortalIndex extends Component
                     'name' => (string) $file->name,
                     'mimeType' => (string) ($file->mime_type ?: ''),
                     'size' => (string) $file->humanSize(),
-                    'updatedLabel' => (string) ($file->updated_at?->format('M d') ?? ''),
+                    'updatedLabel' => (string) (format_carbon_display($file->updated_at, 'M d') ?? ''),
                     'category' => (string) ($file->category ?: ''),
                     'typeLabel' => (string) $file->typeLabel(),
                     'url' => $displayUrl,

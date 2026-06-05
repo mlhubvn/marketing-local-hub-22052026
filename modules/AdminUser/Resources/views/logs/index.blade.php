@@ -88,7 +88,7 @@
                             <x-ui.table-cell>
                                 <x-ui.badge :variant="$log->area === 'user' ? 'primary' : 'neutral'">{{ strtoupper($log->area) }}</x-ui.badge>
                             </x-ui.table-cell>
-                            <x-ui.table-cell>{{ $log->created_at?->format('Y-m-d H:i:s') }}</x-ui.table-cell>
+                            <x-ui.table-cell>{{ format_datetime_locale($log->created_at, 'd/m/Y H:i:s') }}</x-ui.table-cell>
                         </x-ui.table-row>
                     @empty
                         <x-ui.table-row>

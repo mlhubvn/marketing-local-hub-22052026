@@ -131,7 +131,7 @@
 
                         <div class="text-left lg:text-right">
                             <p class="font-mono text-xs" style="color: var(--theme-muted-text-color);">{{ $log->route_name ?: '-' }}</p>
-                            <p class="mt-1 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $log->created_at?->format('Y-m-d H:i') }}</p>
+                            <p class="mt-1 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ format_datetime_locale($log->created_at) }}</p>
                         </div>
                     </article>
                 @empty

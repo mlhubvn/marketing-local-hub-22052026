@@ -55,7 +55,7 @@ class AiReportIndex extends Component
                 $latencyLogs = $dayLogs->whereNotNull('latency_ms');
 
                 return [
-                    'label' => $date->format('d M'),
+                    'label' => format_date_locale($date, 'd/m'),
                     'requests' => $dayTotal,
                     'tokens' => (int) $dayLogs->sum('total_tokens'),
                     'cost' => (float) $dayLogs->sum('estimated_cost'),

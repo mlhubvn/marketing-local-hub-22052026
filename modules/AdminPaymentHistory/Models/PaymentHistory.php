@@ -61,14 +61,6 @@ class PaymentHistory extends Model
             return null;
         }
 
-        $carbon = Carbon::createFromTimestamp((int) $this->created);
-
-        if ($format === 'Y-m-d H:i') {
-            $formatted = format_datetime_locale($carbon);
-
-            return $formatted !== '' ? $formatted : null;
-        }
-
-        return $carbon->format($format);
+        return format_carbon_display(Carbon::createFromTimestamp((int) $this->created), $format);
     }
 }

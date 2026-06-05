@@ -130,7 +130,7 @@
                             :description="__('Scans, leads, bookings, coupons, feedback, and review clicks.')"
                             type="areaspline"
                             height="320"
-                            :categories="$dailyActivity->map(fn ($day) => \Carbon\Carbon::parse($day['day'])->format('M d'))->all()"
+                            :categories="$dailyActivity->map(fn ($day) => format_date_locale(\Carbon\Carbon::parse($day['day']), 'd/m'))->all()"
                             :series="[
                                 ['name' => __('QR Scans'), 'data' => $dailyActivity->pluck('scans')->map(fn ($value) => (int) $value)->all()],
                                 ['name' => __('Leads'), 'data' => $dailyActivity->pluck('leads')->map(fn ($value) => (int) $value)->all()],

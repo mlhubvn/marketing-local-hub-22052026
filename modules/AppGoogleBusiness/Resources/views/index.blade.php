@@ -575,10 +575,10 @@
                                             <td class="px-5 py-4"><x-ui.badge variant="neutral">{{ str($post->type)->headline() }}</x-ui.badge></td>
                                             <td class="px-5 py-4" style="color: var(--theme-muted-text-color);">
                                                 @if ($post->scheduled_at && $post->status === 'scheduled')
-                                                    <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $post->scheduled_at->format('M j, Y g:i A') }}</p>
+                                                    <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_datetime_locale($post->scheduled_at) }}</p>
                                                     <p class="mt-1 text-xs">{{ $post->scheduled_at->diffForHumans() }}</p>
                                                 @elseif ($post->published_at)
-                                                    <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $post->published_at->format('M j, Y g:i A') }}</p>
+                                                    <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_datetime_locale($post->published_at) }}</p>
                                                     <p class="mt-1 text-xs">{{ __('Published') }}</p>
                                                 @else
                                                     <span class="text-xs">{{ __('Not scheduled') }}</span>

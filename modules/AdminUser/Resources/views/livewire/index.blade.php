@@ -131,7 +131,7 @@
                         <div class="flex flex-wrap items-center gap-3 xl:justify-end">
                             <span class="text-xs" style="color: var(--theme-muted-text-color);" x-text="selectedCount > 0 ? `${selectedCount} {{ __('selected') }}` : `{{ __('No selection') }}`"></span>
                             @if ($latestUser?->created_at)
-                                <span class="text-xs" style="color: var(--theme-muted-text-color);">{{ __('Latest') }}: {{ $latestUser->created_at->format('Y-m-d H:i') }}</span>
+                                <span class="text-xs" style="color: var(--theme-muted-text-color);">{{ __('Latest') }}: {{ format_datetime_locale($latestUser->created_at) }}</span>
                             @endif
 
                             <x-ui.dialog :title="__('Delete selected users?')" :description="__('This permanently removes every selected account except the one currently signed in. This action cannot be undone.')" width="sm" dismissible>
@@ -181,12 +181,12 @@
                                 <div class="rounded-[0.9rem] border px-3 py-3" style="border-color: var(--theme-border-color); background: var(--theme-surface-soft);">
                                     <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Plan') }}</p>
                                     <p class="mt-2 text-sm font-medium" style="color: var(--theme-header-text-color);">{{ $user->plan?->name ?? __('No plan') }}</p>
-                                    <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $user->plan_expires_at?->format('Y-m-d') ? __('Expires').' '.$user->plan_expires_at->format('Y-m-d') : __('No expiry set') }}</p>
+                                    <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $user->plan_expires_at ? __('Expires').' '.format_date_locale($user->plan_expires_at) : __('No expiry set') }}</p>
                                 </div>
                                 <div class="rounded-[0.9rem] border px-3 py-3 sm:col-span-2" style="border-color: var(--theme-border-color); background: var(--theme-surface-soft);">
                                     <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Contact') }}</p>
                                     <p class="mt-2 text-sm font-medium break-all" style="color: var(--theme-header-text-color);">{{ $user->email ?: '-' }}</p>
-                                    <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $user->created_at?->format('Y-m-d H:i') ?? '-' }}</p>
+                                    <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $user->created_at ? format_datetime_locale($user->created_at) : '-' }}</p>
                                 </div>
                             </div>
 
@@ -318,7 +318,7 @@
                                     <x-ui.table-cell>
                                         <div class="space-y-1">
                                             <p class="font-medium" style="color: var(--theme-header-text-color);">{{ $user->plan?->name ?? __('No plan') }}</p>
-                                            <p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $user->plan_expires_at?->format('Y-m-d') ? __('Expires').' '.$user->plan_expires_at->format('Y-m-d') : __('No expiry set') }}</p>
+                                            <p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $user->plan_expires_at ? __('Expires').' '.format_date_locale($user->plan_expires_at) : __('No expiry set') }}</p>
                                         </div>
                                     </x-ui.table-cell>
                                     <x-ui.table-cell>
@@ -329,7 +329,7 @@
                                     </x-ui.table-cell>
                                     <x-ui.table-cell>
                                         <div class="space-y-1">
-                                            <p class="font-medium" style="color: var(--theme-header-text-color);">{{ $user->created_at?->format('Y-m-d') ?? '-' }}</p>
+                                            <p class="font-medium" style="color: var(--theme-header-text-color);">{{ $user->created_at ? format_date_locale($user->created_at) : '-' }}</p>
                                             <p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $user->created_at?->diffForHumans() ?? '-' }}</p>
                                         </div>
                                     </x-ui.table-cell>

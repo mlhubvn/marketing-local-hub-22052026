@@ -80,7 +80,7 @@
                         </x-ui.table-cell>
                         <x-ui.table-cell>
                             <div class="space-y-1">
-                                <p class="text-sm" style="color: var(--theme-header-text-color);">{{ optional($notification->created_at)->format('Y-m-d H:i') ?: __('N/A') }}</p>
+                                <p class="text-sm" style="color: var(--theme-header-text-color);">{{ $notification->created_at ? format_datetime_locale($notification->created_at) : __('N/A') }}</p>
                                 <p class="text-xs" style="color: var(--theme-muted-text-color);">{{ optional($notification->created_at)->diffForHumans() }}</p>
                             </div>
                         </x-ui.table-cell>

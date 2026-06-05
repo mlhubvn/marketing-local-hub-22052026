@@ -82,6 +82,6 @@ class Coupon extends Model
             return null;
         }
 
-        return Carbon::createFromTimestamp((int) $this->created)->format($format);
+        return format_carbon_display(Carbon::createFromTimestamp((int) $this->created), $format);
     }
 }

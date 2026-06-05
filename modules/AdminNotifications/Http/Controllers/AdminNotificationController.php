@@ -238,7 +238,7 @@ class AdminNotificationController extends Controller
             'notification' => $notification,
             'selectedUserOptions' => $this->selectedUserOptions(request()->session()->getOldInput('user_ids', [])),
             'isEditing' => $notification->exists,
-            'sentAt' => $notification->created_at instanceof Carbon ? $notification->created_at->format('Y-m-d H:i') : null,
+            'sentAt' => $notification->created_at instanceof Carbon ? format_datetime_locale($notification->created_at) : null,
             'recipientCount' => $notification->exists ? $notification->recipientsCount() : 0,
         ];
     }

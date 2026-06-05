@@ -230,7 +230,7 @@
                             :description="__('QR scans and campaign link visits across selected businesses.')"
                             type="areaspline"
                             height="320"
-                            :categories="$dailyScans->map(fn ($day) => \Carbon\Carbon::parse($day->day)->format('M d'))->all()"
+                            :categories="$dailyScans->map(fn ($day) => format_date_locale(\Carbon\Carbon::parse($day->day), 'd/m'))->all()"
                             :series="[
                                 ['name' => __('Visits'), 'data' => $dailyScans->pluck('total')->map(fn ($value) => (int) $value)->all()],
                             ]"

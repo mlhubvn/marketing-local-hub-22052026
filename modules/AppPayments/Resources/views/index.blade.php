@@ -60,7 +60,7 @@
                 <x-payments.status-notice
                     variant="info"
                     :title="__('Trial starts after checkout')"
-                    :message="__('This is your first paid plan purchase, so this checkout will start a :days-day trial. Full billing access will remain active until :date, then the regular :cycle cycle takes over on future renewals or plan changes.', ['days' => (int) $plan->trial_day, 'date' => $trialEndsAt?->format('Y-m-d H:i') ?: __('the trial end date'), 'cycle' => strtolower($planTypeLabel)])"
+                    :message="__('This is your first paid plan purchase, so this checkout will start a :days-day trial. Full billing access will remain active until :date, then the regular :cycle cycle takes over on future renewals or plan changes.', ['days' => (int) $plan->trial_day, 'date' => $trialEndsAt ? format_datetime_locale($trialEndsAt) : __('the trial end date'), 'cycle' => strtolower($planTypeLabel)])"
                 />
             @endif
 

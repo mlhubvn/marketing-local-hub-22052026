@@ -11,7 +11,7 @@
                     @if ($blog->category)
                         <span class="rounded-full bg-blue-50 px-3 py-1 text-blue-700">{{ $blog->category->nameForLocale() }}</span>
                     @endif
-                    <span>{{ $blog->publishedAtFormatted('M d, Y') ?: $blog->createdAtFormatted('M d, Y') }}</span>
+                    <span>{{ $blog->publishedAtFormatted('Y-m-d') ?: $blog->createdAtFormatted('Y-m-d') }}</span>
                 </div>
                 <h1 class="mt-5 max-w-4xl text-5xl font-extrabold leading-[1.02] tracking-[-0.07em] text-slate-950 md:text-6xl">
                     {{ $blog->titleForLocale() }}

@@ -184,6 +184,7 @@ php artisan config:clear           # khi đổi config/env lúc dev
 | Tiền VNĐ | `format_money($amount)` |
 | Ngày | `format_date_locale($date)` |
 | Ngày + giờ | `format_datetime_locale($date)` |
+| Model `createdAtFormatted('Y-m-d')` cũ | `format_carbon_display($date, $format)` (đã gắn trong model) |
 | Phần trăm | `format_percent_locale($n)` |
 | JS chart/table | `window.MLHUB_FORMAT` (inject trong `head.blade.php`) |
 

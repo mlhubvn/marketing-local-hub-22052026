@@ -47,7 +47,7 @@
             @if ($blog->category)
                 <span class="inline-flex items-center rounded-full border border-white/10 px-2.5 py-1">{{ $blog->category->nameForLocale() }}</span>
             @endif
-            <span>{{ $blog->publishedAtFormatted('M d, Y') ?: $blog->createdAtFormatted('M d, Y') }}</span>
+            <span>{{ $blog->publishedAtFormatted('Y-m-d') ?: $blog->createdAtFormatted('Y-m-d') }}</span>
         </div>
 
         <div class="space-y-3">
