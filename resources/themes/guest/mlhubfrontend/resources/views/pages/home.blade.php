@@ -83,8 +83,9 @@
         .lb-hero-title {
             font-size: var(--lb-text-h1);
             font-weight: 800;
-            line-height: 1.15;
+            line-height: 1.3;
             max-width: min(100%, 40rem);
+            text-transform: uppercase;
         }
 
         .lb-heading {
@@ -841,7 +842,7 @@
                         {{ __('O2O AI-powered marketing automation platform') }}
                     </span>
                     <h1 class="lb-serif lb-hero-title lb-reveal mt-7" style="--lb-delay: 70ms;">
-                        {{ __('O2O AI-powered marketing automation') }}
+                        {{ __('Hero title marketing automation line') }}<br>{{ __('Hero title O2O AI line') }}
                     </h1>
                     <p class="lb-body lb-reveal mt-6 max-w-xl" style="--lb-delay: 140ms; color: var(--lb-muted);">
                         {{ __('A comprehensive Online-to-Offline (O2O) solution that helps household businesses, SMEs, and retail chains automate lead capture, bookings, and review management. Create content with AI and track real growth on a single screen.') }}
@@ -1080,20 +1081,28 @@
                     </div>
                 </div>
 
-                <div class="grid gap-4 md:grid-cols-2">
-                    @foreach ($coreFeatures as $feature)
-                        <article class="lb-card lb-feature-row lb-hover rounded-2xl p-5">
-                            <div class="relative z-10 flex items-start gap-4">
-                                <span class="lb-feature-icon inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color:#ff5f5f;">
-                                    <i class="fa-light {{ $feature[0] }} text-xl"></i>
-                                </span>
-                                <div>
-                                    <h3 class="lb-card-title">{{ $feature[1] }}</h3>
-                                    <p class="lb-caption mt-2" style="color: var(--lb-muted);">{{ $feature[2] }}</p>
+                <div>
+                    <div class="grid gap-4 md:grid-cols-2">
+                        @foreach ($coreFeatures as $feature)
+                            <article class="lb-card lb-feature-row lb-hover rounded-2xl p-5">
+                                <div class="relative z-10 flex items-start gap-4">
+                                    <span class="lb-feature-icon inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color:#ff5f5f;">
+                                        <i class="fa-light {{ $feature[0] }} text-xl"></i>
+                                    </span>
+                                    <div>
+                                        <h3 class="lb-card-title">{{ $feature[1] }}</h3>
+                                        <p class="lb-caption mt-2" style="color: var(--lb-muted);">{{ $feature[2] }}</p>
+                                    </div>
                                 </div>
-                            </div>
-                        </article>
-                    @endforeach
+                            </article>
+                        @endforeach
+                    </div>
+                    <div class="mt-4 flex justify-end">
+                        <a href="{{ route('guest.solutions') }}" class="inline-flex items-center gap-2 text-sm font-black transition hover:opacity-80" style="color: var(--lb-red);">
+                            {{ __('See more other features') }}
+                            <i class="fa-light fa-arrow-right-long" aria-hidden="true"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1110,10 +1119,10 @@
                 <div class="relative">
                     <div class="lb-steps relative z-10 grid gap-4 md:grid-cols-2">
                     @foreach ([
-                        ['1', 'fa-store', __('Launch your digital storefront'), __('Update your venue details, logo, hero images, and Google Maps link.')],
-                        ['2', 'fa-bullseye-arrow', __('Choose your campaign goal'), __('Need more foot traffic, stronger reputation, or more contacts?')],
-                        ['3', 'fa-sparkles', __('AI builds your campaign'), __('Enter a few key points—AI writes compelling copy, CTAs, and guest reply scripts.')],
-                        ['4', 'fa-qrcode', __('Place QR at checkout and track'), __('Print QR codes for tables or counters. Track visits and incoming customer data in real time.')],
+                        ['1', 'fa-store', __('Launch your digital space'), __('Update your venue details, logo, hero images, and Google Maps link.')],
+                        ['2', 'fa-bullseye-arrow', __('Choose your campaign goal'), __('What do you need? Drive foot traffic, build reputation, or capture customer contacts?')],
+                        ['3', 'fa-sparkles', __('AI builds your campaign'), __('AI automatically writes compelling copy, calls to action, and guest reply scripts.')],
+                        ['4', 'fa-qrcode', __('Print and place QR codes at checkout'), __('Print QR codes for tables or counters. Track visits and incoming customer data.')],
                     ] as $step)
                         <article class="lb-card lb-step-card lb-hover rounded-2xl p-6">
                             <div class="relative z-10 flex items-center justify-between gap-4">
