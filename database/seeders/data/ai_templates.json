@@ -8643,7 +8643,7 @@
         "id": 147124428,
         "id_secure": "65a10d7cea81e",
         "category_name": "Nhà hàng",
-        "content": "Viết bài đăng mời người theo dõi thử các món theo mùa mới trên thực đơn.",
+        "content": "Viết bài đăng mời người theo dõi thử các món theo mùa mới trên menu.",
         "status": true,
         "changed": 1780151790,
         "created": 1780151790
@@ -8715,7 +8715,7 @@
         "id": 147124436,
         "id_secure": "65a10d7cec788",
         "category_name": "Nhà hàng",
-        "content": "Tạo bài đăng giới thiệu {{ công thức từ thực đơn }} mà người theo dõi có thể tự làm tại nhà.",
+        "content": "Tạo bài đăng giới thiệu {{ công thức từ menu }} mà người theo dõi có thể tự làm tại nhà.",
         "status": true,
         "changed": 1780151790,
         "created": 1780151790
@@ -8724,7 +8724,7 @@
         "id": 147124437,
         "id_secure": "65a10d7cecb47",
         "category_name": "Nhà hàng",
-        "content": "Viết bài đăng mời người theo dõi bình chọn món tiếp theo sẽ được giới thiệu trên thực đơn.",
+        "content": "Viết bài đăng mời người theo dõi bình chọn món tiếp theo sẽ được giới thiệu trên menu.",
         "status": true,
         "changed": 1780151790,
         "created": 1780151790
@@ -8742,7 +8742,7 @@
         "id": 147124439,
         "id_secure": "65a10d7ced2ea",
         "category_name": "Nhà hàng",
-        "content": "Viết bài đăng kể về lịch sử và ý nghĩa của {{ món ăn từ thực đơn }}.",
+        "content": "Viết bài đăng kể về lịch sử và ý nghĩa của {{ món ăn từ menu }}.",
         "status": true,
         "changed": 1780151790,
         "created": 1780151790
@@ -8778,7 +8778,7 @@
         "id": 147124443,
         "id_secure": "65a10d7cee1f5",
         "category_name": "Nhà hàng",
-        "content": "Tạo bài đăng giới thiệu thực đơn gia đình hoặc món ăn chia sẻ tại nhà hàng.",
+        "content": "Tạo bài đăng giới thiệu menu gia đình hoặc món ăn chia sẻ tại nhà hàng.",
         "status": true,
         "changed": 1780151790,
         "created": 1780151790
@@ -8814,7 +8814,7 @@
         "id": 147124447,
         "id_secure": "65a10d7cef0c9",
         "category_name": "Nhà hàng",
-        "content": "Viết bài đăng làm nổi bật các lựa chọn món chay hoặc thuần chay trên thực đơn.",
+        "content": "Viết bài đăng làm nổi bật các lựa chọn món chay hoặc thuần chay trên menu.",
         "status": true,
         "changed": 1780151790,
         "created": 1780151790
@@ -8832,7 +8832,7 @@
         "id": 147124449,
         "id_secure": "65a10d7cef850",
         "category_name": "Nhà hàng",
-        "content": "Tạo bài đăng quảng bá thực đơn brunch và cocktail mimosa của nhà hàng.",
+        "content": "Tạo bài đăng quảng bá menu brunch và cocktail mimosa của nhà hàng.",
         "status": true,
         "changed": 1780151790,
         "created": 1780151790
