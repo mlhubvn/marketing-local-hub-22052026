@@ -60,7 +60,7 @@
                 <span class="absolute inset-x-0 top-0 h-1 opacity-80" style="background-color: var(--theme-warning-color);"></span>
                 <div class="flex items-start justify-between gap-3">
                     <div>
-                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
+                        <p class="text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
                         <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                         <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                     </div>

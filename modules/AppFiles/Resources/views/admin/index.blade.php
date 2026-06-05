@@ -1524,11 +1524,11 @@
                                     <div class="mt-4 grid grid-cols-2 gap-3">
                                         <div class="rounded-[1rem] px-4 py-4" style="background: var(--theme-surface-soft);">
                                             <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Files') }}</p>
-                                            <p class="mt-3 text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['files']) }}</p>
+                                            <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['files']) }}</p>
                                         </div>
                                         <div class="rounded-[1rem] px-4 py-4" style="background: var(--theme-surface-soft);">
                                             <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Folders') }}</p>
-                                            <p class="mt-3 text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['folders']) }}</p>
+                                            <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['folders']) }}</p>
                                         </div>
                                     </div>
 
@@ -1947,11 +1947,11 @@
                     <div class="mt-4 grid grid-cols-2 gap-3">
                         <div class="rounded-[1rem] px-4 py-4" style="background: var(--theme-surface-soft);">
                             <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Files') }}</p>
-                            <p class="mt-3 text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['files']) }}</p>
+                            <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['files']) }}</p>
                         </div>
                         <div class="rounded-[1rem] px-4 py-4" style="background: var(--theme-surface-soft);">
                             <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Folders') }}</p>
-                            <p class="mt-3 text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['folders']) }}</p>
+                            <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['folders']) }}</p>
                         </div>
                     </div>
 

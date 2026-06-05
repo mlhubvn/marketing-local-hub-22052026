@@ -36,7 +36,7 @@
                 <div class="mt-5 space-y-3">
                     @foreach ([__('Profile details'), __('Location and contact'), __('Campaign-ready assets')] as $item)
                         <div class="flex items-center gap-3 rounded-xl border px-3 py-2.5" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 74%, transparent);">
-                            <span class="flex h-7 w-7 items-center justify-center rounded-lg" style="background-color: rgba(var(--theme-success-color-rgb),0.12); color: var(--theme-success-color);">
+                            <span class="flex h-7 w-7 items-center justify-center rounded-lg" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">
                                 <i class="fa-light fa-check text-xs"></i>
                             </span>
                             <span class="text-sm font-medium" style="color: var(--theme-header-text-color);">{{ $item }}</span>
@@ -71,7 +71,7 @@
                 <span class="absolute inset-x-0 top-0 h-1" style="background-color: var(--theme-warning-color);"></span>
                 <div class="flex items-start justify-between gap-3">
                     <div>
-                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
+                        <p class="text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
                         <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                         <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                     </div>
@@ -120,7 +120,7 @@
                         color-mix(in srgb, var(--theme-surface-overlay) 72%, transparent);">
                         <div class="flex items-start justify-between gap-4">
                             <div class="flex min-w-0 items-center gap-3">
-                                <div class="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.15rem] border text-base font-semibold uppercase shadow-[0_16px_34px_-28px_rgba(var(--theme-accent-rgb),0.9)]" style="border-color: rgba(var(--theme-accent-rgb), 0.2); background: linear-gradient(135deg, rgba(var(--theme-accent-rgb),0.14), rgba(var(--theme-success-color-rgb),0.10)); color: var(--theme-accent);">
+                                <div class="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.15rem] border text-base font-semibold uppercase shadow-[0_16px_34px_-28px_rgba(var(--theme-accent-rgb),0.9)]" style="border-color: rgba(var(--theme-accent-rgb), 0.2); background: linear-gradient(135deg, rgba(var(--theme-accent-rgb),0.14), rgba(var(--theme-warning-color-rgb),0.10)); color: var(--theme-accent);">
                                     {{ str($business->name)->substr(0, 2)->upper() }}
                                     <span class="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2" style="border-color: var(--theme-surface-base); background-color: var(--theme-success-color);"></span>
                                 </div>
@@ -140,7 +140,7 @@
                                         {{ trans_choice('{0} No campaigns yet|{1} :count campaign|[2,*] :count campaigns', $business->campaigns_count, ['count' => format_number_locale($business->campaigns_count)]) }}
                                     </p>
                                 </div>
-                                <span class="rounded-full px-2.5 py-1 text-xs font-semibold" style="background-color: rgba(var(--theme-success-color-rgb),0.12); color: var(--theme-success-color);">{{ $readyPercent }}%</span>
+                                <span class="rounded-full px-2.5 py-1 text-xs font-semibold" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">{{ $readyPercent }}%</span>
                             </div>
                             <div class="mt-3 h-2 overflow-hidden rounded-full" style="background-color: rgba(var(--theme-border-color-rgb),0.26);">
                                 <div class="h-full rounded-full transition-all" style="width: {{ $readyPercent }}%; background: var(--theme-brand-gradient);"></div>

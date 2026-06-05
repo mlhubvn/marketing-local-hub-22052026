@@ -62,10 +62,10 @@
                     @foreach ([
                         ['label' => __('Claimed'), 'value' => $stats['claimed']],
                         ['label' => __('Used'), 'value' => $stats['used']],
-            ['label' => __('Rate'), 'value' => $stats['redemption_rate'].'%'],
+                        ['label' => __('Rate'), 'value' => format_number_locale((float) $stats['redemption_rate'], 1).'%'],
                     ] as $item)
                         <div class="rounded-lg border px-3 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                            <p class="text-xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ $item['value'] }}</p>
+                            <p class="text-xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ is_numeric($item['value']) ? format_number_locale((float) $item['value']) : $item['value'] }}</p>
                             <p class="mt-1 truncate text-xs" style="color: var(--theme-muted-text-color);">{{ $item['label'] }}</p>
                         </div>
                     @endforeach
@@ -86,7 +86,7 @@
                 <span class="absolute inset-x-0 top-0 h-1" style="background-color: var(--theme-warning-color);"></span>
                 <div class="flex items-start justify-between gap-3">
                     <div>
-                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ is_numeric($metric['value']) ? format_number_locale((float) $metric['value']) : $metric['value'] }}</p>
+                        <p class="text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ is_numeric($metric['value']) ? format_number_locale((float) $metric['value']) : $metric['value'] }}</p>
                         <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                         <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                     </div>

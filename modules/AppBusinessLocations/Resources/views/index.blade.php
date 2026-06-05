@@ -113,7 +113,7 @@
                                     <p class="text-xs font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Preview') }}</p>
                                     <div class="mt-3 rounded-2xl border p-4" style="border-color: rgba(var(--theme-border-color-rgb), .48); background-color: color-mix(in srgb, var(--theme-surface-overlay) 90%, transparent);">
                                         <div class="flex items-center gap-3">
-                                            <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border" style="border-color: rgba(var(--theme-success-color-rgb),0.18); background-color: rgba(var(--theme-success-color-rgb),0.12); color: var(--theme-success-color);">
+                                            <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border" style="border-color: rgba(var(--theme-success-color-rgb),0.18); background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">
                                                 <i class="fa-light fa-store"></i>
                                             </span>
                                             <div class="min-w-0">

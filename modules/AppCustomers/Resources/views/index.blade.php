@@ -325,7 +325,7 @@
                                     <div class="mt-4 space-y-3">
                                         @foreach ([__('Booking reminders'), __('Coupon follow-up'), __('Review requests'), __('Lead nurturing')] as $item)
                                             <div class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold" style="background-color: color-mix(in srgb, var(--theme-surface-soft) 78%, transparent); color: var(--theme-header-text-color);">
-                                                <span class="flex h-7 w-7 items-center justify-center rounded-lg" style="background-color: rgba(var(--theme-success-color-rgb),0.12); color: var(--theme-success-color);">
+                                                <span class="flex h-7 w-7 items-center justify-center rounded-lg" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">
                                                     <i class="fa-light fa-check text-xs"></i>
                                                 </span>
                                                 {{ $item }}

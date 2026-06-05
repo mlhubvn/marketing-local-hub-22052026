@@ -35,7 +35,7 @@
                 <div class="mt-4 grid grid-cols-3 gap-2">
                     @foreach ([['label' => __('Active'), 'value' => $stats['active']], ['label' => __('Available'), 'value' => $stats['available_rewards']], ['label' => __('Used'), 'value' => $stats['used_rewards']]] as $item)
                         <div class="rounded-lg border px-3 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                            <p class="text-xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($item['value']) }}</p>
+                            <p class="text-xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($item['value']) }}</p>
                             <p class="mt-1 truncate text-xs" style="color: var(--theme-muted-text-color);">{{ $item['label'] }}</p>
                         </div>
                     @endforeach
@@ -54,7 +54,7 @@
                 <div class="min-w-0 flex-1">
                     <div class="flex items-baseline justify-between gap-3">
                         <p class="truncate text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
-                        <p class="text-[1.75rem] font-semibold leading-none tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($metric['value']) }}</p>
+                        <p class="text-[1.75rem] font-semibold leading-none tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
                     </div>
                     <p class="mt-2 truncate text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                     <div class="mt-3 h-1.5 overflow-hidden rounded-full" style="background-color: rgba(var(--theme-border-color-rgb), 0.35);">
@@ -209,16 +209,16 @@
                 <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
                     <p class="text-sm" style="color: var(--theme-muted-text-color);">
                         {{ __('Showing') }}
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($cards->firstItem()) }}</span>
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($cards->firstItem()) }}</span>
                         -
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($cards->lastItem()) }}</span>
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($cards->lastItem()) }}</span>
                         {{ __('of') }}
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($cards->total()) }}</span>
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($cards->total()) }}</span>
                         {{ __('loyalty cards') }}
                     </p>
                     <div class="flex items-center gap-2">
                         <button type="button" wire:click="previousPage('cardsPage')" @disabled($cards->onFirstPage()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);"><i class="fa-light fa-arrow-left"></i>{{ __('Previous') }}</button>
-                        <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ number_format($cards->currentPage()) }} / {{ number_format($cards->lastPage()) }}</span>
+                        <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ format_number_locale($cards->currentPage()) }} / {{ format_number_locale($cards->lastPage()) }}</span>
                         <button type="button" wire:click="nextPage('cardsPage')" @disabled(! $cards->hasMorePages()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);">{{ __('Next') }}<i class="fa-light fa-arrow-right"></i></button>
                     </div>
                 </div>
@@ -249,7 +249,7 @@
                                     </td>
                                     <td class="px-5 py-4">{{ $progress->card?->name }}</td>
                                     <td class="px-5 py-4">{{ $progress->stamps_count }} / {{ $progress->card?->required_stamps }}</td>
-                                    <td class="px-5 py-4">{{ number_format($progress->completed_count) }}</td>
+                                    <td class="px-5 py-4">{{ format_number_locale($progress->completed_count) }}</td>
                                     <td class="px-5 py-4">{{ $progress->last_stamp_at?->format('M d, Y') ?: __('Never') }}</td>
                                 </tr>
                             @endforeach
@@ -259,16 +259,16 @@
                 <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
                     <p class="text-sm" style="color: var(--theme-muted-text-color);">
                         {{ __('Showing') }}
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($loyaltyCustomers->firstItem()) }}</span>
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($loyaltyCustomers->firstItem()) }}</span>
                         -
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($loyaltyCustomers->lastItem()) }}</span>
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($loyaltyCustomers->lastItem()) }}</span>
                         {{ __('of') }}
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($loyaltyCustomers->total()) }}</span>
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($loyaltyCustomers->total()) }}</span>
                         {{ __('loyalty customers') }}
                     </p>
                     <div class="flex items-center gap-2">
                         <button type="button" wire:click="previousPage('customersPage')" @disabled($loyaltyCustomers->onFirstPage()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);"><i class="fa-light fa-arrow-left"></i>{{ __('Previous') }}</button>
-                        <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ number_format($loyaltyCustomers->currentPage()) }} / {{ number_format($loyaltyCustomers->lastPage()) }}</span>
+                        <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ format_number_locale($loyaltyCustomers->currentPage()) }} / {{ format_number_locale($loyaltyCustomers->lastPage()) }}</span>
                         <button type="button" wire:click="nextPage('customersPage')" @disabled(! $loyaltyCustomers->hasMorePages()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);">{{ __('Next') }}<i class="fa-light fa-arrow-right"></i></button>
                     </div>
                 </div>
@@ -309,16 +309,16 @@
                 <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
                     <p class="text-sm" style="color: var(--theme-muted-text-color);">
                         {{ __('Showing') }}
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($stamps->firstItem()) }}</span>
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($stamps->firstItem()) }}</span>
                         -
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($stamps->lastItem()) }}</span>
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($stamps->lastItem()) }}</span>
                         {{ __('of') }}
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($stamps->total()) }}</span>
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($stamps->total()) }}</span>
                         {{ __('stamps') }}
                     </p>
                     <div class="flex items-center gap-2">
                         <button type="button" wire:click="previousPage('stampsPage')" @disabled($stamps->onFirstPage()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);"><i class="fa-light fa-arrow-left"></i>{{ __('Previous') }}</button>
-                        <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ number_format($stamps->currentPage()) }} / {{ number_format($stamps->lastPage()) }}</span>
+                        <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ format_number_locale($stamps->currentPage()) }} / {{ format_number_locale($stamps->lastPage()) }}</span>
                         <button type="button" wire:click="nextPage('stampsPage')" @disabled(! $stamps->hasMorePages()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);">{{ __('Next') }}<i class="fa-light fa-arrow-right"></i></button>
                     </div>
                 </div>
@@ -380,10 +380,10 @@
                     </table>
                 </div>
                 <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
-                    <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($referralCampaigns->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($referralCampaigns->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($referralCampaigns->total()) }}</span> {{ __('referral campaigns') }}</p>
+                    <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($referralCampaigns->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($referralCampaigns->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($referralCampaigns->total()) }}</span> {{ __('referral campaigns') }}</p>
                     <div class="flex items-center gap-2">
                         <button type="button" wire:click="previousPage('referralCampaignsPage')" @disabled($referralCampaigns->onFirstPage()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);"><i class="fa-light fa-arrow-left"></i>{{ __('Previous') }}</button>
-                        <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ number_format($referralCampaigns->currentPage()) }} / {{ number_format($referralCampaigns->lastPage()) }}</span>
+                        <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ format_number_locale($referralCampaigns->currentPage()) }} / {{ format_number_locale($referralCampaigns->lastPage()) }}</span>
                         <button type="button" wire:click="nextPage('referralCampaignsPage')" @disabled(! $referralCampaigns->hasMorePages()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);">{{ __('Next') }}<i class="fa-light fa-arrow-right"></i></button>
                     </div>
                 </div>
@@ -419,10 +419,10 @@
                     </table>
                 </div>
                 <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
-                    <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($referrals->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($referrals->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($referrals->total()) }}</span> {{ __('referrals') }}</p>
+                    <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($referrals->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($referrals->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($referrals->total()) }}</span> {{ __('referrals') }}</p>
                     <div class="flex items-center gap-2">
                         <button type="button" wire:click="previousPage('referralsPage')" @disabled($referrals->onFirstPage()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);"><i class="fa-light fa-arrow-left"></i>{{ __('Previous') }}</button>
-                        <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ number_format($referrals->currentPage()) }} / {{ number_format($referrals->lastPage()) }}</span>
+                        <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ format_number_locale($referrals->currentPage()) }} / {{ format_number_locale($referrals->lastPage()) }}</span>
                         <button type="button" wire:click="nextPage('referralsPage')" @disabled(! $referrals->hasMorePages()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);">{{ __('Next') }}<i class="fa-light fa-arrow-right"></i></button>
                     </div>
                 </div>
@@ -469,16 +469,16 @@
                 <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
                     <p class="text-sm" style="color: var(--theme-muted-text-color);">
                         {{ __('Showing') }}
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($rewards->firstItem()) }}</span>
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($rewards->firstItem()) }}</span>
                         -
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($rewards->lastItem()) }}</span>
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($rewards->lastItem()) }}</span>
                         {{ __('of') }}
-                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($rewards->total()) }}</span>
+                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($rewards->total()) }}</span>
                         {{ __('rewards') }}
                     </p>
                     <div class="flex items-center gap-2">
                         <button type="button" wire:click="previousPage('rewardsPage')" @disabled($rewards->onFirstPage()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);"><i class="fa-light fa-arrow-left"></i>{{ __('Previous') }}</button>
-                        <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ number_format($rewards->currentPage()) }} / {{ number_format($rewards->lastPage()) }}</span>
+                        <span class="inline-flex h-10 items-center rounded-xl border px-3 text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb), .22); background-color: rgba(var(--theme-accent-rgb), .08); color: var(--theme-accent);">{{ __('Page') }} {{ format_number_locale($rewards->currentPage()) }} / {{ format_number_locale($rewards->lastPage()) }}</span>
                         <button type="button" wire:click="nextPage('rewardsPage')" @disabled(! $rewards->hasMorePages()) class="inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45" style="border-color: rgba(var(--theme-border-color-rgb), .7); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);">{{ __('Next') }}<i class="fa-light fa-arrow-right"></i></button>
                     </div>
                 </div>

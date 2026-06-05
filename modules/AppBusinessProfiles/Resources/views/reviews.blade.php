@@ -61,7 +61,7 @@
                 color-mix(in srgb, var(--theme-surface-overlay) 98%, transparent);">
                 <div class="flex items-start justify-between gap-3">
                     <div>
-                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
+                        <p class="text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
                         <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $metric['hint'] }}</p>
                     </div>
@@ -230,7 +230,7 @@
                             <div class="space-y-2">
                                 @foreach ([__('Customer scans QR'), __('Chooses 1 to 5 stars'), __('Positive reviews go public'), __('Low scores stay internal')] as $step)
                                     <div class="flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-semibold" style="border-color: rgba(var(--theme-border-color-rgb),0.52); background-color: color-mix(in srgb, var(--theme-surface-overlay) 84%, transparent); color: var(--theme-header-text-color);">
-                                        <span class="flex h-7 w-7 items-center justify-center rounded-lg" style="background-color: rgba(var(--theme-success-color-rgb),0.12); color: var(--theme-success-color);">
+                                        <span class="flex h-7 w-7 items-center justify-center rounded-lg" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">
                                             <i class="fa-light fa-check text-xs"></i>
                                         </span>
                                         {{ $step }}

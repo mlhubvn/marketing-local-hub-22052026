@@ -19,7 +19,7 @@
                 <div class="mt-4 space-y-2">
                     @foreach ([__('Choose business'), __('Pick content type'), __('Generate versions'), __('Copy or save content')] as $step)
                         <div class="flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm" style="border-color: rgba(var(--theme-border-color-rgb),0.50); background-color: color-mix(in srgb, var(--theme-surface-overlay) 80%, transparent); color: var(--theme-muted-text-color);">
-                            <span class="flex h-7 w-7 items-center justify-center rounded-lg" style="background-color: rgba(var(--theme-success-color-rgb),0.12); color: var(--theme-success-color);">
+                            <span class="flex h-7 w-7 items-center justify-center rounded-lg" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">
                                 <i class="fa-light fa-check text-xs"></i>
                             </span>
                             {{ $step }}

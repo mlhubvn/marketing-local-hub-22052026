@@ -155,7 +155,7 @@
         <section class="overflow-visible rounded-[1.25rem] border" style="border-color: rgba(var(--theme-border-color-rgb), 0.68); background-color: color-mix(in srgb, var(--theme-surface-overlay) 98%, transparent);">
             <div class="rounded-t-[1.25rem] flex flex-col gap-4 border-b px-5 py-5 md:flex-row md:items-center md:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), 0.68);">
                 <div class="flex items-start gap-3">
-                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl" style="background-color: rgba(var(--theme-success-color-rgb),0.12); color: var(--theme-success-color);">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">
                         <i class="fa-light fa-address-card"></i>
                     </div>
                     <div>
@@ -281,7 +281,7 @@
                         ['done' => 'filled(form.google_maps_url)', 'label' => __('Google Maps URL')],
                     ] as $item)
                         <div class="flex items-center gap-3 text-sm">
-                            <span class="flex h-7 w-7 items-center justify-center rounded-lg" x-bind:style="{{ $item['done'] }} ? 'background-color: rgba(var(--theme-success-color-rgb),0.12); color: var(--theme-success-color);' : 'background-color: rgba(var(--theme-border-color-rgb),0.18); color: var(--theme-muted-text-color);'">
+                            <span class="flex h-7 w-7 items-center justify-center rounded-lg" x-bind:style="{{ $item['done'] }} ? 'background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);' : 'background-color: rgba(var(--theme-border-color-rgb),0.18); color: var(--theme-muted-text-color);'">
                                 <i class="fa-light text-xs" x-bind:class="{{ $item['done'] }} ? 'fa-check' : 'fa-minus'"></i>
                             </span>
                             <span style="color: var(--theme-header-text-color);">{{ $item['label'] }}</span>

@@ -71,10 +71,10 @@
                     @foreach ([
                         ['label' => __('Forms'), 'value' => $stats['forms']],
                         ['label' => __('Responses'), 'value' => $stats['responses']],
-                        ['label' => __('Avg Rating'), 'value' => $stats['avg_rating'] ? $stats['avg_rating'].'/5' : '0/5'],
+                        ['label' => __('Avg Rating'), 'value' => ($stats['avg_rating'] ? format_number_locale((float) $stats['avg_rating'], 1) : '0').'/5'],
                     ] as $item)
                         <div class="border px-3 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                            <p class="text-xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ $item['value'] }}</p>
+                            <p class="text-xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ is_numeric($item['value']) ? format_number_locale((float) $item['value']) : $item['value'] }}</p>
                             <p class="mt-1 truncate text-xs" style="color: var(--theme-muted-text-color);">{{ $item['label'] }}</p>
                         </div>
                     @endforeach
@@ -95,7 +95,7 @@
                 <span class="absolute inset-x-0 top-0 h-1" style="background-color: var(--theme-warning-color);"></span>
                 <div class="flex items-start justify-between gap-3">
                     <div class="min-w-0">
-                        <p class="text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
+                        <p class="text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
                         <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                         <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                     </div>

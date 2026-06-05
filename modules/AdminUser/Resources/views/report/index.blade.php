@@ -122,7 +122,7 @@
                     ] as $stat)
                         <div class="rounded-[1.1rem] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.46); background: linear-gradient(180deg, color-mix(in srgb, var(--theme-surface-base) 94%, white 6%) 0%, color-mix(in srgb, var(--theme-surface-soft) 86%, var(--theme-surface-base) 14%) 100%);">
                             <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ $stat['label'] }}</p>
-                            <p class="mt-3 text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ $stat['value'] }}</p>
+                            <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ $stat['value'] }}</p>
                             <p class="mt-2 text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ $stat['meta'] }}</p>
                         </div>
                     @endforeach
@@ -155,7 +155,7 @@
                     ] as $item)
                         <div class="rounded-[1rem] border px-5 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.42); background: rgba(var(--theme-surface-base-rgb,255,255,255),0.72);">
                             <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ $item['label'] }}</p>
-                            <p class="mt-2 text-[2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format((int) $item['value']) }}</p>
+                            <p class="mt-2 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format((int) $item['value']) }}</p>
                         </div>
                     @endforeach
                 </div>
