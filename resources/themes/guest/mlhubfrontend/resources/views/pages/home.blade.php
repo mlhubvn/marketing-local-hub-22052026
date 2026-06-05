@@ -879,7 +879,7 @@
                                 <div class="grid justify-items-center gap-3">
                                     <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white p-1.5" aria-hidden="true">
                                         <img
-                                            src="{{ asset('img/mlhub-hero-mark.svg') }}"
+                                            src="{{ asset(config('mlhub.site.hero_mark', 'img/mlhub-hero-mark.svg')) }}"
                                             alt=""
                                             class="h-full w-full object-contain"
                                             width="40"
@@ -916,7 +916,7 @@
                                 <div class="mt-5 grid gap-4 lg:grid-cols-[1fr_minmax(11rem,0.5fr)]">
                                     <div class="rounded-xl border bg-white p-4" style="border-color: var(--lb-line);">
                                         <div class="flex items-end gap-2 h-28">
-                                            @foreach ([38, 56, 44, 76, 61, 88, 73, 96] as $bar)
+                                            @foreach ([38, 56, 44, 76, 61, 88, 73, 96, 84, 92, 88, 100] as $bar)
                                                 <span class="lb-bar flex-1 rounded-t-lg" style="--lb-bar-delay: {{ $loop->index * 160 }}ms; height: {{ $bar }}%; background: {{ $loop->even ? 'var(--lb-red)' : 'var(--lb-lime)' }};"></span>
                                             @endforeach
                                         </div>

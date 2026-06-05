@@ -9,7 +9,9 @@
     $gaEnabled = (string) $gaOptions->get('google_analytics_status', '0') === '1';
     $gaMeasurementId = trim((string) $gaOptions->get('google_analytics_measurement_id', ''));
     $gaTrackApp = (string) $gaOptions->get('google_analytics_track_app', '0') === '1';
-    $siteFavicon = url((string) $gaOptions->get('website_favicon', 'img/favicon.png'));
+    $faviconPath = (string) $gaOptions->get('website_favicon', config('mlhub.site.favicon', 'img/favicon.svg'));
+    $siteFavicon = url($faviconPath);
+    $faviconMimeType = str_ends_with(strtolower($faviconPath), '.svg') ? 'image/svg+xml' : 'image/png';
 @endphp
 
 <title>
@@ -28,7 +30,7 @@
 
 @include(theme_view('partials.embed-code-head', 'app'))
 
-<link rel="icon" href="{{ $siteFavicon }}" type="image/png">
+<link rel="icon" href="{{ $siteFavicon }}" type="{{ $faviconMimeType }}">
 <link rel="apple-touch-icon" href="{{ $siteFavicon }}">
 
 <link rel="preconnect" href="https://fonts.bunny.net">

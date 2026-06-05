@@ -62,9 +62,9 @@ class MLHUBBootstrapSeeder extends Seeder
         $options->set('website_title', $title);
         $options->set('website_description', (string) ($site['description'] ?? ''));
         $options->set('website_keyword', (string) ($site['keywords'] ?? ''));
-        $options->set('website_favicon', '');
-        $options->set('website_logo_dark', '');
-        $options->set('website_logo_light', '');
+        $options->set('website_favicon', (string) config('mlhub.site.favicon', 'img/favicon.svg'));
+        $options->set('website_logo_dark', (string) config('mlhub.site.logo_dark', 'img/logo-dark.svg'));
+        $options->set('website_logo_light', (string) config('mlhub.site.logo_light', 'img/logo-light.svg'));
         $options->set('website_logo_brand_dark', (string) config('mlhub.site.brand_logo_dark', 'img/logo-brand-dark.svg'));
         $options->set('website_logo_brand_light', (string) config('mlhub.site.brand_logo_light', 'img/logo-brand-light.svg'));
         $options->set('contact_company_name', $title);

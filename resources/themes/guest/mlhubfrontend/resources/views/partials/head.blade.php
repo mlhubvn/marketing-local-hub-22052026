@@ -5,7 +5,9 @@
     $gaEnabled = (string) $options->get('google_analytics_status', '0') === '1';
     $gaMeasurementId = trim((string) $options->get('google_analytics_measurement_id', ''));
     $gaTrackGuest = (string) $options->get('google_analytics_track_guest', '1') === '1';
-    $siteFavicon = url((string) $options->get('website_favicon', 'img/favicon.png'));
+    $faviconPath = (string) $options->get('website_favicon', config('mlhub.site.favicon', 'img/favicon.svg'));
+    $siteFavicon = url($faviconPath);
+    $faviconMimeType = str_ends_with(strtolower($faviconPath), '.svg') ? 'image/svg+xml' : 'image/png';
     $siteTitle = trim((string) $options->get('website_title', ''));
     $siteTitle = $siteTitle !== '' ? $siteTitle : 'LocalBoostAI';
     $cardRadius = theme_setting('card_radius', 'guest', 18);
@@ -29,7 +31,7 @@
 
 @include(theme_view('partials.embed-code-head', 'guest'))
 
-<link rel="icon" href="{{ $siteFavicon }}" type="image/png">
+<link rel="icon" href="{{ $siteFavicon }}" type="{{ $faviconMimeType }}">
 <link rel="apple-touch-icon" href="{{ $siteFavicon }}">
 <link rel="preconnect" href="https://fonts.bunny.net">
 <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800|instrument-sans:400,500,600,700|plus-jakarta-sans:400,500,600,700,800|manrope:400,500,600,700,800|outfit:400,500,600,700,800" rel="stylesheet" />

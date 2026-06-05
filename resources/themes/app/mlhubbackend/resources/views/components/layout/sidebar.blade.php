@@ -11,8 +11,8 @@
 
     $sidebarBrandDarkUrl = $sidebarBrandDark !== '' ? url($sidebarBrandDark) : url(config('mlhub.site.brand_logo_dark', 'img/logo-brand-dark.svg'));
     $sidebarBrandLightUrl = $sidebarBrandLight !== '' ? url($sidebarBrandLight) : url(config('mlhub.site.brand_logo_light', 'img/logo-brand-light.svg'));
-    $sidebarLogoDarkUrl = $sidebarLogoDark !== '' ? url($sidebarLogoDark) : theme_asset('assets/img/logo-dark.png', 'app');
-    $sidebarLogoLightUrl = $sidebarLogoLight !== '' ? url($sidebarLogoLight) : theme_asset('assets/img/logo-light.png', 'app');
+    $sidebarLogoDarkUrl = $sidebarLogoDark !== '' ? url($sidebarLogoDark) : url(config('mlhub.site.logo_dark', 'img/logo-dark.svg'));
+    $sidebarLogoLightUrl = $sidebarLogoLight !== '' ? url($sidebarLogoLight) : url(config('mlhub.site.logo_light', 'img/logo-light.svg'));
     $sidebarLogoFallback = url(config('mlhub.site.brand_logo_dark', 'img/logo-brand-dark.svg'));
 @endphp
 
