@@ -9,7 +9,8 @@
             ['fa-star', __('Review Booster'), __('Route happy customers to Google Maps or Facebook to boost local SEO rankings.')],
             ['fa-calendar-check', __('Booking Pages'), __('Accept table and appointment requests directly from landing pages and auto-save details to convert viewers into customers.')],
             ['fa-ticket', __('Coupons & Offers'), __('Attract guests with vouchers, drive purchases, and automatically collect new customer data.')],
-            ['fa-address-card', __('Lead capture & feedback'), __('Capture contacts and measure satisfaction naturally.')],
+            ['fa-address-card', __('Lead capture'), __('Capture contacts from campaigns and landing pages to build your customer list.')],
+            ['fa-comments', __('Feedback summary'), __('Aggregate guest opinions and satisfaction signals in one view for faster follow-up.')],
             ['fa-sparkles', __('AI campaign assistant'), __('No copywriting skills required. AI creates landing page content, headlines, CTAs, and nurture scripts.')],
             ['fa-browser', __('Landing Pages'), __('Launch professional campaign pages quickly for each goal—offers, leads, or bookings.')],
             ['fa-chart-line', __('Reports & Analytics'), __('See real business health through visits, conversion rates, and returning customers.')],
@@ -976,10 +977,10 @@
             <div class="lb-wrap relative z-10 text-center">
                 <span class="lb-pill inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Connected growth workflow chain') }}</span>
                 <h2 class="lb-serif lb-heading mx-auto mt-5 max-w-3xl">
-                    {{ __('Digital transformation without financial or skill barriers.') }}
+                    {{ __('Digital transformation without barriers from limited finances or technology skills.') }}
                 </h2>
                 <p class="lb-body mx-auto mt-5 max-w-2xl" style="color: var(--lb-muted);">
-                    {{ __('MLHUB offers a standardized SOP system to create AI campaigns, publish lead capture pages, route through QR codes, and auto-update reports without juggling disconnected software—walking with you step by step to transform how you operate gently, affordably, and effectively with ready-made tools.') }}
+                    {{ __('MLHUB standardized SOP workflows help you create AI campaigns, publish lead capture landing pages, route through QR codes, and auto-update reports without juggling disconnected software. MLHUB walks with you step by step to transform digital asset management and make daily operations gentler, more affordable, and more effective with ready-made tools.') }}
                 </p>
             </div>
 
@@ -1042,10 +1043,10 @@
         <section id="features" class="lb-wrap lb-section lb-feature-showcase scroll-mt-28">
             <div class="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
                 <div>
-                    <span class="lb-pill inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Core Features') }}</span>
+                    <span class="lb-pill inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('AI-integrated core features') }}</span>
                     <h2 class="lb-serif lb-heading mt-5">{{ __('Professional presence, local revenue breakthrough') }}</h2>
                     <p class="lb-body mt-5" style="color: var(--lb-muted);">
-                        {{ __('We help businesses and household operators build a credible digital storefront, optimize Google Maps to attract tourists and walk-in customers, and package ready-made marketing tools that are easy to use and highly effective.') }}
+                        {{ __('A complete feature set for easy online presence—build a credible digital storefront, optimize Google Maps to attract tourists and walk-in customers, and package ready-made marketing tools that are easy to use and highly effective.') }}
                     </p>
 
                     <div class="lb-card lb-feature-hero mt-8 rounded-2xl p-6">
