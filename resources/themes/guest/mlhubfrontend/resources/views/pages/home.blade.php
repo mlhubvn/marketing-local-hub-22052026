@@ -5,11 +5,6 @@
         $demoHref = auth()->check() ? route('portal.dashboard') : route('login');
         $featuresHref = '#features';
         $niches = [__('Restaurants'), __('Salons'), __('Clinics'), __('Dentists'), __('Gyms'), __('Local shops'), __('Spas'), __('Agencies')];
-        $businessGoals = [
-            __('Build a credible digital storefront with a professional presence.'),
-            __('Optimize Google Maps to attract tourists and walk-in customers.'),
-            __('Package ready-made marketing tools that are easy to use and highly effective.'),
-        ];
         $coreFeatures = [
             ['fa-star', __('Review Booster'), __('Route happy customers to Google Maps or Facebook to boost local SEO rankings.')],
             ['fa-calendar-check', __('Booking Pages'), __('Accept table and appointment requests directly from landing pages and auto-save details to convert viewers into customers.')],
@@ -848,7 +843,7 @@
                         {{ __('O2O AI-powered marketing automation') }}
                     </h1>
                     <p class="lb-body lb-reveal mt-6 max-w-xl" style="--lb-delay: 140ms; color: var(--lb-muted);">
-                        {{ __('A comprehensive solution that helps household businesses, SMEs, and retail chains automate lead capture, bookings, and review management. Create AI content and track real growth on one screen.') }}
+                        {{ __('A comprehensive Online-to-Offline (O2O) solution that helps household businesses, SMEs, and retail chains automate lead capture, bookings, and review management. Create content with AI and track real growth on a single screen.') }}
                     </p>
 
                     <div class="lb-reveal mt-8 flex flex-wrap gap-3" style="--lb-delay: 210ms;">
@@ -984,10 +979,7 @@
                     {{ __('Digital transformation without financial or skill barriers.') }}
                 </h2>
                 <p class="lb-body mx-auto mt-5 max-w-2xl" style="color: var(--lb-muted);">
-                    {{ __('A standardized SOP system: Create AI campaigns, publish lead capture pages, route through QR codes, and automatically update reports without switching between disconnected software.') }}
-                </p>
-                <p class="lb-body mx-auto mt-4 max-w-2xl" style="color: var(--lb-muted);">
-                    {{ __('MLHUB walks with you step by step to change how you operate—gently, affordably, and effectively—with ready-made tools.') }}
+                    {{ __('MLHUB offers a standardized SOP system to create AI campaigns, publish lead capture pages, route through QR codes, and auto-update reports without juggling disconnected software—walking with you step by step to transform how you operate gently, affordably, and effectively with ready-made tools.') }}
                 </p>
             </div>
 
@@ -1051,13 +1043,10 @@
             <div class="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
                 <div>
                     <span class="lb-pill inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Core Features') }}</span>
-                    <h2 class="lb-serif lb-heading mt-5">{{ __('Professional presence — local revenue breakthrough') }}</h2>
-                    <p class="lb-body mt-5 font-bold" style="color: var(--lb-ink);">{{ __('We help businesses and household operators:') }}</p>
-                    <ul class="lb-body mt-3 grid gap-2" style="color: var(--lb-muted);">
-                        @foreach ($businessGoals as $goal)
-                            <li class="flex gap-2"><i class="fa-light fa-circle-small mt-2 shrink-0 text-[#ff5f5f]"></i><span>{{ $goal }}</span></li>
-                        @endforeach
-                    </ul>
+                    <h2 class="lb-serif lb-heading mt-5">{{ __('Professional presence, local revenue breakthrough') }}</h2>
+                    <p class="lb-body mt-5" style="color: var(--lb-muted);">
+                        {{ __('We help businesses and household operators build a credible digital storefront, optimize Google Maps to attract tourists and walk-in customers, and package ready-made marketing tools that are easy to use and highly effective.') }}
+                    </p>
 
                     <div class="lb-card lb-feature-hero mt-8 rounded-2xl p-6">
                         <div class="flex items-center justify-between gap-4">
@@ -1113,6 +1102,9 @@
                 <div>
                     <span class="lb-pill inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('How it works') }}</span>
                     <h2 class="lb-serif lb-heading mt-5">{{ __('Launch your first automated campaign in just 4 steps') }}</h2>
+                    <p class="lb-body mt-5" style="color: var(--lb-muted);">
+                        {{ __('From setup to go-live in minutes—AI handles the copy, you place the QR, and MLHUB tracks visits and leads in real time.') }}
+                    </p>
                 </div>
                 <div class="relative">
                     <div class="lb-steps relative z-10 grid gap-4 md:grid-cols-2">
