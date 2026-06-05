@@ -1,8 +1,8 @@
 @php
     $metricCards = [
-        ['label' => __('Total'), 'value' => number_format($summary['total']), 'description' => __('All withdrawal requests.'), 'icon' => 'fa-light fa-money-bill-transfer', 'tone' => 'var(--theme-accent)', 'progress' => $summary['total'] > 0 ? 100 : 0],
-        ['label' => __('Pending'), 'value' => number_format($summary['pending']), 'description' => __('Waiting for payout processing.'), 'icon' => 'fa-light fa-hourglass-half', 'tone' => 'rgb(217 119 6)', 'progress' => $summary['pending'] > 0 ? 100 : 0],
-        ['label' => __('Approved Value'), 'value' => number_format($summary['approved'], 2), 'description' => __('Total amount already approved for payout.'), 'icon' => 'fa-light fa-circle-check', 'tone' => 'rgb(5 150 105)', 'progress' => $summary['approved'] > 0 ? 100 : 0],
+        ['label' => __('Total'), 'value' => format_number_locale($summary['total']), 'description' => __('All withdrawal requests.'), 'icon' => 'fa-light fa-money-bill-transfer', 'tone' => 'var(--theme-accent)', 'progress' => $summary['total'] > 0 ? 100 : 0],
+        ['label' => __('Pending'), 'value' => format_number_locale($summary['pending']), 'description' => __('Waiting for payout processing.'), 'icon' => 'fa-light fa-hourglass-half', 'tone' => 'rgb(217 119 6)', 'progress' => $summary['pending'] > 0 ? 100 : 0],
+        ['label' => __('Approved Value'), 'value' => format_number_locale($summary['approved'], 2), 'description' => __('Total amount already approved for payout.'), 'icon' => 'fa-light fa-circle-check', 'tone' => 'rgb(5 150 105)', 'progress' => $summary['approved'] > 0 ? 100 : 0],
     ];
     $statusLabels = [
         'all' => __('All'),
@@ -68,7 +68,7 @@
                         <x-ui.table-cell><div class="space-y-1"><p class="font-medium" style="color: var(--theme-header-text-color);">{{ $withdrawal->affiliateUser?->name ?: __('Unknown user') }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $withdrawal->affiliateUser?->email ?: __('No email') }}</p></div></x-ui.table-cell>
                         <x-ui.table-cell><div class="space-y-1"><p class="font-mono text-sm" style="color: var(--theme-header-text-color);">{{ $withdrawal->id_secure }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $withdrawal->createdAtFormatted() ?: __('N/A') }}</p></div></x-ui.table-cell>
                         <x-ui.table-cell><div class="space-y-1"><p class="text-sm" style="color: var(--theme-header-text-color);">{{ $withdrawal->payment_method }}</p><p class="line-clamp-2 text-xs" style="color: var(--theme-muted-text-color);">{{ $withdrawal->payment_details }}</p></div></x-ui.table-cell>
-                        <x-ui.table-cell><span class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ number_format((float) $withdrawal->amount, 2) }}</span></x-ui.table-cell>
+                        <x-ui.table-cell><span class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale((float) $withdrawal->amount, 2) }}</span></x-ui.table-cell>
                         <x-ui.table-cell><x-ui.badge :variant="$withdrawal->statusVariant()">{{ $withdrawal->statusLabel() }}</x-ui.badge></x-ui.table-cell>
                         <x-ui.table-cell>
                             @if ((int) $withdrawal->status === 0)

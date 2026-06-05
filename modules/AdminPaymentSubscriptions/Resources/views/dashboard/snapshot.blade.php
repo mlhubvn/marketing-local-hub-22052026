@@ -46,29 +46,29 @@
             <div class="flex items-start justify-between gap-4">
                 <div>
                     <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Recurring summary') }}</p>
-                    <p class="mt-2 text-[2.2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($metrics['active_volume'], 2) }}</p>
+                    <p class="mt-2 text-[2.2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metrics['active_volume'], 2) }}</p>
                     <p class="mt-2 text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('Current recurring billing amount from active subscriptions.') }}</p>
                 </div>
                 <div class="rounded-[var(--theme-card-radius,1.15rem)] border px-4 py-3 text-right" style="border-color: rgba(var(--theme-border-color-rgb),0.52); background: color-mix(in srgb, var(--theme-surface-base) 88%, rgba(var(--theme-accent-rgb),0.04));">
                     <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Active base') }}</p>
-                    <p class="mt-2 text-[1.7rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format((int) $metrics['active']) }}</p>
+                    <p class="mt-2 text-[1.7rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $metrics['active']) }}</p>
                 </div>
             </div>
 
             <div class="grid gap-3 sm:grid-cols-3">
                 <div class="rounded-[var(--theme-card-radius,1.15rem)] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.48); background: linear-gradient(180deg, color-mix(in srgb, var(--theme-surface-overlay) 94%, rgba(var(--theme-accent-rgb),0.04)), color-mix(in srgb, var(--theme-surface-base) 96%, rgba(var(--theme-accent-rgb),0.02)));">
                     <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('All subscriptions') }}</p>
-                    <p class="mt-2 text-[1.65rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format((int) $metrics['total']) }}</p>
+                    <p class="mt-2 text-[1.65rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $metrics['total']) }}</p>
                     <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Rows in billing registry') }}</p>
                 </div>
                 <div class="rounded-[var(--theme-card-radius,1.15rem)] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.48); background: linear-gradient(180deg, color-mix(in srgb, var(--theme-surface-overlay) 94%, rgba(var(--theme-danger-color-rgb),0.05)), color-mix(in srgb, var(--theme-surface-base) 96%, rgba(var(--theme-danger-color-rgb),0.02)));">
                     <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Cancelled') }}</p>
-                    <p class="mt-2 text-[1.65rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format((int) $metrics['cancelled']) }}</p>
+                    <p class="mt-2 text-[1.65rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $metrics['cancelled']) }}</p>
                     <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Stopped recurring plans') }}</p>
                 </div>
                 <div class="rounded-[var(--theme-card-radius,1.15rem)] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.48); background: linear-gradient(180deg, color-mix(in srgb, var(--theme-surface-overlay) 94%, rgba(var(--theme-warning-color-rgb),0.05)), color-mix(in srgb, var(--theme-surface-base) 96%, rgba(var(--theme-warning-color-rgb),0.02)));">
                     <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Inactive') }}</p>
-                    <p class="mt-2 text-[1.65rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($inactiveSubscriptions) }}</p>
+                    <p class="mt-2 text-[1.65rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($inactiveSubscriptions) }}</p>
                     <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('No longer billing') }}</p>
                 </div>
             </div>

@@ -7,21 +7,21 @@
     $planMetricCards = [
         [
             'label' => __('Total'),
-            'value' => number_format($totalPlans),
+            'value' => format_number_locale($totalPlans),
             'description' => __('Pricing tiers currently stored.'),
             'tone' => 'var(--theme-accent)',
             'progress' => 100,
         ],
         [
             'label' => __('Active'),
-            'value' => number_format($activePlans),
+            'value' => format_number_locale($activePlans),
             'description' => __('Plans currently assignable to users.'),
             'tone' => '#10b981',
             'progress' => max(8, $totalPlans > 0 ? (int) round(($activePlans / $totalPlans) * 100) : 8),
         ],
         [
             'label' => __('Featured'),
-            'value' => number_format($featuredPlans),
+            'value' => format_number_locale($featuredPlans),
             'description' => __('Plans highlighted as primary offers.'),
             'tone' => '#f59e0b',
             'progress' => max(8, $totalPlans > 0 ? (int) round(($featuredPlans / $totalPlans) * 100) : 8),
@@ -110,7 +110,7 @@
         <x-slot:selection>
             <div class="flex min-w-0 items-center gap-3">
                 <span class="text-sm font-medium" style="color: var(--theme-header-text-color);">{{ trans_choice('{1} :count plan|[2,*] :count plans', $totalPlans, ['count' => $totalPlans]) }}</span>
-                <span class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Assignments') }}: {{ number_format($totalAssignments) }}</span>
+                <span class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Assignments') }}: {{ format_number_locale($totalAssignments) }}</span>
             </div>
         </x-slot:selection>
     </x-ui.bulk-toolbar>
@@ -168,7 +168,7 @@
                 <div class="grid gap-3 sm:grid-cols-2">
                     <x-ui.metric-card
                         :label="__('Assignments')"
-                        :value="number_format($plan->users_count)"
+                        :value="format_number_locale($plan->users_count)"
                         :description="__('Users attached to this plan.')"
                         icon="fa-light fa-users"
                         accent="neutral"
@@ -177,7 +177,7 @@
                     />
                     <x-ui.metric-card
                         :label="__('Position')"
-                        :value="number_format((int) ($plan->position ?? 0))"
+                        :value="format_number_locale((int) ($plan->position ?? 0))"
                         :description="__('Display order in plan listings.')"
                         icon="fa-light fa-arrow-down-1-9"
                         accent="neutral"

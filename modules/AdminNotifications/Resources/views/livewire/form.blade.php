@@ -98,7 +98,7 @@
                     <div class="grid gap-5 md:grid-cols-3">
                         <x-ui.card class="space-y-1 p-4">
                             <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">{{ __('Recipients') }}</p>
-                            <p class="text-xl font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($recipientCount) }}</p>
+                            <p class="text-xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($recipientCount) }}</p>
                         </x-ui.card>
                         <x-ui.card class="space-y-1 p-4">
                             <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">{{ __('Sent At') }}</p>

@@ -1,8 +1,8 @@
 @php
     $notificationMetricCards = [
-        ['label' => __('Total'), 'value' => number_format($summary['total']), 'description' => __('Manual notifications saved in the system.'), 'tone' => 'var(--theme-accent)', 'progress' => 100],
-        ['label' => __('Sent today'), 'value' => number_format($summary['sent_today']), 'description' => __('New announcements created today.'), 'tone' => '#10b981', 'progress' => $summary['sent_today'] > 0 ? 100 : 8],
-        ['label' => __('Delivered'), 'value' => number_format($summary['recipients']), 'description' => __('Total notification rows generated from manual sends.'), 'tone' => '#64748b', 'progress' => $summary['recipients'] > 0 ? 100 : 8],
+        ['label' => __('Total'), 'value' => format_number_locale($summary['total']), 'description' => __('Manual notifications saved in the system.'), 'tone' => 'var(--theme-accent)', 'progress' => 100],
+        ['label' => __('Sent today'), 'value' => format_number_locale($summary['sent_today']), 'description' => __('New announcements created today.'), 'tone' => '#10b981', 'progress' => $summary['sent_today'] > 0 ? 100 : 8],
+        ['label' => __('Delivered'), 'value' => format_number_locale($summary['recipients']), 'description' => __('Total notification rows generated from manual sends.'), 'tone' => '#64748b', 'progress' => $summary['recipients'] > 0 ? 100 : 8],
     ];
 @endphp
 
@@ -73,7 +73,7 @@
                             </div>
                         </x-ui.table-cell>
                         <x-ui.table-cell>
-                            <x-ui.badge variant="primary">{{ number_format($notification->recipientsCount()) }}</x-ui.badge>
+                            <x-ui.badge variant="primary">{{ format_number_locale($notification->recipientsCount()) }}</x-ui.badge>
                         </x-ui.table-cell>
                         <x-ui.table-cell>
                             <p class="text-sm" style="color: var(--theme-header-text-color);">{{ $notification->creator?->name ?: __('System') }}</p>
@@ -209,7 +209,7 @@
                     <div class="grid gap-3 md:grid-cols-3">
                         <div class="rounded-[0.85rem] border px-4 py-3" style="border-color: var(--theme-border-color); background: color-mix(in srgb, var(--theme-surface-base) 88%, white 12%);">
                             <p class="text-[11px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('Recipients') }}</p>
-                            <p class="mt-1 text-xl font-semibold leading-tight" style="color: var(--theme-header-text-color);">{{ number_format($recipientCount) }}</p>
+                            <p class="mt-1 text-xl font-semibold leading-tight" style="color: var(--theme-header-text-color);">{{ format_number_locale($recipientCount) }}</p>
                             <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Users assigned') }}</p>
                         </div>
                         <div class="rounded-[0.85rem] border px-4 py-3" style="border-color: var(--theme-border-color); background: color-mix(in srgb, var(--theme-surface-base) 88%, white 12%);">

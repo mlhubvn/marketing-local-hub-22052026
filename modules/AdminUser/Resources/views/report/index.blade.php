@@ -1,12 +1,12 @@
 @component(theme_view('layouts.app', 'app'), ['title' => __('User Report')])
     @php
         $reportMetricCards = [
-            ['label' => __('Total users'), 'value' => number_format($metrics['total_users']), 'description' => __('All identities currently stored in the workspace.'), 'tone' => 'var(--theme-accent)', 'progress' => 100],
-            ['label' => __('30-day growth'), 'value' => ($metrics['growth_rate'] >= 0 ? '+' : '').$metrics['growth_rate'].'%', 'description' => __('New users in the last 30 days: :count', ['count' => number_format($metrics['new_users_last_30_days'])]), 'tone' => '#0ea5e9', 'progress' => min(100, max(8, abs((int) $metrics['growth_rate'])))],
-            ['label' => __('Verified email'), 'value' => $metrics['verification_rate'].'%', 'description' => __(':count verified accounts', ['count' => number_format($metrics['verified_users'])]), 'tone' => '#10b981', 'progress' => max(8, (int) $metrics['verification_rate'])],
-            ['label' => __('Two-factor'), 'value' => $metrics['two_factor_rate'].'%', 'description' => __(':count secured accounts', ['count' => number_format($metrics['two_factor_users'])]), 'tone' => '#f59e0b', 'progress' => max(8, (int) $metrics['two_factor_rate'])],
-            ['label' => __('Users with plan'), 'value' => $metrics['active_plan_rate'].'%', 'description' => __(':count attached to an active or assigned plan', ['count' => number_format($metrics['users_with_plan'])]), 'tone' => '#8b5cf6', 'progress' => max(8, (int) $metrics['active_plan_rate'])],
-            ['label' => __('Teams'), 'value' => number_format($metrics['team_count']), 'description' => __('Average team size: :size', ['size' => $metrics['avg_team_size']]), 'tone' => '#64748b', 'progress' => $metrics['team_count'] > 0 ? 100 : 8],
+            ['label' => __('Total users'), 'value' => format_number_locale($metrics['total_users']), 'description' => __('All identities currently stored in the workspace.'), 'tone' => 'var(--theme-accent)', 'progress' => 100],
+            ['label' => __('30-day growth'), 'value' => ($metrics['growth_rate'] >= 0 ? '+' : '').$metrics['growth_rate'].'%', 'description' => __('New users in the last 30 days: :count', ['count' => format_number_locale($metrics['new_users_last_30_days'])]), 'tone' => '#0ea5e9', 'progress' => min(100, max(8, abs((int) $metrics['growth_rate'])))],
+            ['label' => __('Verified email'), 'value' => $metrics['verification_rate'].'%', 'description' => __(':count verified accounts', ['count' => format_number_locale($metrics['verified_users'])]), 'tone' => '#10b981', 'progress' => max(8, (int) $metrics['verification_rate'])],
+            ['label' => __('Two-factor'), 'value' => $metrics['two_factor_rate'].'%', 'description' => __(':count secured accounts', ['count' => format_number_locale($metrics['two_factor_users'])]), 'tone' => '#f59e0b', 'progress' => max(8, (int) $metrics['two_factor_rate'])],
+            ['label' => __('Users with plan'), 'value' => $metrics['active_plan_rate'].'%', 'description' => __(':count attached to an active or assigned plan', ['count' => format_number_locale($metrics['users_with_plan'])]), 'tone' => '#8b5cf6', 'progress' => max(8, (int) $metrics['active_plan_rate'])],
+            ['label' => __('Teams'), 'value' => format_number_locale($metrics['team_count']), 'description' => __('Average team size: :size', ['size' => $metrics['avg_team_size']]), 'tone' => '#64748b', 'progress' => $metrics['team_count'] > 0 ? 100 : 8],
         ];
 
         $monthlySignupOptions = [
@@ -89,7 +89,7 @@
                     <div class="flex items-start justify-between gap-4">
                         <div>
                             <p class="text-[11px] font-semibold uppercase tracking-[0.2em]" style="color: var(--theme-muted-text-color);">{{ __('Executive summary') }}</p>
-                            <h2 class="mt-4 text-[3rem] font-semibold tracking-[-0.07em]" style="color: var(--theme-header-text-color);">{{ number_format($metrics['total_users']) }}</h2>
+                            <h2 class="mt-4 text-[3rem] font-semibold tracking-[-0.07em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metrics['total_users']) }}</h2>
                             <p class="mt-2 text-lg font-semibold tracking-[-0.03em]" style="color: var(--theme-header-text-color);">{{ __('User identities under administration') }}</p>
                         </div>
                         <div class="rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em]" style="background: rgba(var(--theme-accent-rgb),0.1); color: var(--theme-accent);">
@@ -101,9 +101,9 @@
 
                     <div class="mt-6 grid gap-3 sm:grid-cols-3">
                         @foreach ([
-                            ['label' => __('Admin access'), 'value' => number_format($metrics['admin_users'])],
-                            ['label' => __('Roles'), 'value' => number_format($roleCount)],
-                            ['label' => __('Plans'), 'value' => number_format($planCount)],
+                            ['label' => __('Admin access'), 'value' => format_number_locale($metrics['admin_users'])],
+                            ['label' => __('Roles'), 'value' => format_number_locale($roleCount)],
+                            ['label' => __('Plans'), 'value' => format_number_locale($planCount)],
                         ] as $mini)
                                 <div class="rounded-[1rem] border px-4 py-3.5" style="border-color: rgba(var(--theme-border-color-rgb),0.42); background: color-mix(in srgb, var(--theme-surface-base) 84%, transparent);">
                                     <p class="text-[10px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ $mini['label'] }}</p>
@@ -115,10 +115,10 @@
 
                 <div class="grid gap-3 sm:grid-cols-2">
                     @foreach ([
-                        ['label' => __('New this month'), 'value' => number_format($metrics['new_users_this_month']), 'meta' => __('Accounts created during the current calendar month')],
-                        ['label' => __('Previous 30 days'), 'value' => number_format($metrics['new_users_previous_30_days']), 'meta' => __('Baseline to compare current acquisition pace')],
-                        ['label' => __('Without plan'), 'value' => number_format($metrics['users_without_plan']), 'meta' => __('Accounts not currently attached to a plan')],
-                        ['label' => __('Expired plans'), 'value' => number_format($metrics['expired_users']), 'meta' => __('Accounts whose assigned plan already expired')],
+                        ['label' => __('New this month'), 'value' => format_number_locale($metrics['new_users_this_month']), 'meta' => __('Accounts created during the current calendar month')],
+                        ['label' => __('Previous 30 days'), 'value' => format_number_locale($metrics['new_users_previous_30_days']), 'meta' => __('Baseline to compare current acquisition pace')],
+                        ['label' => __('Without plan'), 'value' => format_number_locale($metrics['users_without_plan']), 'meta' => __('Accounts not currently attached to a plan')],
+                        ['label' => __('Expired plans'), 'value' => format_number_locale($metrics['expired_users']), 'meta' => __('Accounts whose assigned plan already expired')],
                     ] as $stat)
                         <div class="rounded-[1.1rem] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.46); background: linear-gradient(180deg, color-mix(in srgb, var(--theme-surface-base) 94%, white 6%) 0%, color-mix(in srgb, var(--theme-surface-soft) 86%, var(--theme-surface-base) 14%) 100%);">
                             <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ $stat['label'] }}</p>
@@ -155,7 +155,7 @@
                     ] as $item)
                         <div class="rounded-[1rem] border px-5 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.42); background: rgba(var(--theme-surface-base-rgb,255,255,255),0.72);">
                             <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ $item['label'] }}</p>
-                            <p class="mt-2 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format((int) $item['value']) }}</p>
+                            <p class="mt-2 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $item['value']) }}</p>
                         </div>
                     @endforeach
                 </div>
@@ -223,7 +223,7 @@
                         ] as $summary)
                             <div class="rounded-[1rem] border px-4 py-3.5" style="border-color: rgba(var(--theme-border-color-rgb),0.42); background: rgba(var(--theme-surface-base-rgb,255,255,255),0.72);">
                                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ $summary['label'] }}</p>
-                                <p class="mt-2 text-[1.55rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format((int) $summary['value']) }}</p>
+                                <p class="mt-2 text-[1.55rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $summary['value']) }}</p>
                             </div>
                         @endforeach
                     </div>
@@ -248,7 +248,7 @@
 
                             <div class="mt-4 grid gap-2 text-xs" style="color: var(--theme-muted-text-color);">
                                 <p>{{ __('Created') }}: {{ $user->created_at?->format('Y-m-d') ?: __('N/A') }}</p>
-                                <p>{{ __('Teams') }}: {{ number_format((int) $user->teams_count) }}</p>
+                                <p>{{ __('Teams') }}: {{ format_number_locale((int) $user->teams_count) }}</p>
                                 <p>{{ __('Plan expiry') }}: {{ $user->plan_expires_at?->format('Y-m-d') ?: __('Not scheduled') }}</p>
                             </div>
                         </x-ui.surface-card>
@@ -277,7 +277,7 @@
                                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Owner') }}: {{ $team->owner?->name ?: __('Unknown') }}</p>
                                     </div>
                                     <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border text-sm font-semibold" style="border-color: rgba(var(--theme-accent-rgb),0.22); background: rgba(var(--theme-accent-rgb),0.08); color: var(--theme-accent);">
-                                        {{ number_format((int) $team->members_count) }}
+                                        {{ format_number_locale((int) $team->members_count) }}
                                     </div>
                                 </div>
                             </x-ui.surface-card>

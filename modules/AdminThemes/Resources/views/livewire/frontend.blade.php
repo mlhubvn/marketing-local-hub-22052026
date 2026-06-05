@@ -200,10 +200,10 @@
 
             <x-ui.metric-strip
                 :items="[
-                    ['label' => __('Library'), 'value' => number_format($themeSummary['library']), 'description' => __('Installed guest themes available for public surfaces.'), 'progress' => 100, 'tone' => 'var(--theme-accent)'],
-                    ['label' => __('Editor fields'), 'value' => number_format($themeSummary['editor_fields']), 'description' => __('Theme settings currently exposed in the active guest schema.'), 'progress' => $themeSummary['editor_fields'] > 0 ? 100 : 0, 'tone' => 'var(--theme-warning-color)'],
-                    ['label' => __('Supports'), 'value' => number_format($themeSummary['supports']), 'description' => __('Feature flags advertised by the selected frontend theme.'), 'progress' => $themeSummary['supports'] > 0 ? 100 : 0, 'tone' => 'var(--theme-success-color)'],
-                    ['label' => __('Backend themes'), 'value' => number_format($themeSummary['backend_themes']), 'description' => __('Admin theme variants available alongside the guest library.'), 'progress' => $themeSummary['backend_themes'] > 0 ? 100 : 0, 'tone' => 'var(--theme-muted-text-color)'],
+                    ['label' => __('Library'), 'value' => format_number_locale($themeSummary['library']), 'description' => __('Installed guest themes available for public surfaces.'), 'progress' => 100, 'tone' => 'var(--theme-accent)'],
+                    ['label' => __('Editor fields'), 'value' => format_number_locale($themeSummary['editor_fields']), 'description' => __('Theme settings currently exposed in the active guest schema.'), 'progress' => $themeSummary['editor_fields'] > 0 ? 100 : 0, 'tone' => 'var(--theme-warning-color)'],
+                    ['label' => __('Supports'), 'value' => format_number_locale($themeSummary['supports']), 'description' => __('Feature flags advertised by the selected frontend theme.'), 'progress' => $themeSummary['supports'] > 0 ? 100 : 0, 'tone' => 'var(--theme-success-color)'],
+                    ['label' => __('Backend themes'), 'value' => format_number_locale($themeSummary['backend_themes']), 'description' => __('Admin theme variants available alongside the guest library.'), 'progress' => $themeSummary['backend_themes'] > 0 ? 100 : 0, 'tone' => 'var(--theme-muted-text-color)'],
                 ]"
                 :show-icons="false"
                 columns="md:grid-cols-2 xl:grid-cols-4"

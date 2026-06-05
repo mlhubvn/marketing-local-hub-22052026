@@ -139,7 +139,7 @@
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ $card['label'] }}</p>
-                                    <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ $card['value'] }}</p>
+                                    <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ is_numeric($card['value']) ? format_number_locale((float) $card['value']) : $card['value'] }}</p>
                                 </div>
                                 <div class="flex h-10 w-10 items-center justify-center rounded-xl" style="background-color: color-mix(in srgb, {{ $card['tone'] }} 10%, white); color: {{ $card['tone'] }};">
                                     <i class="fa-light {{ $card['icon'] }}"></i>
@@ -346,7 +346,7 @@
                             <div class="flex items-center justify-between gap-3">
                                 <div>
                                     <p class="text-[11px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ $card['label'] }}</p>
-                                    <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ $card['value'] }}</p>
+                                    <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ is_numeric($card['value']) ? format_number_locale((float) $card['value']) : $card['value'] }}</p>
                                 </div>
                                 <span class="flex h-9 w-9 items-center justify-center rounded-xl" style="background-color: color-mix(in srgb, {{ $card['tone'] }} 10%, white); color: {{ $card['tone'] }};"><i class="fa-light {{ $card['icon'] }}"></i></span>
                             </div>
@@ -421,7 +421,7 @@
                                 </div>
                                 <p class="mt-2 flex flex-wrap items-center gap-2 text-xs" style="color: var(--theme-muted-text-color);">
                                     @if ($review->review_created_at)
-                                        <span>{{ $review->review_created_at->format('Y-m-d H:i') }}</span>
+                                        <span>{{ format_datetime_locale($review->review_created_at) }}</span>
                                     @endif
                                     <span class="inline-flex items-center gap-1"><i class="fa-brands fa-google"></i>{{ __('Synced from Google') }}</span>
                                     @if ($review->last_synced_at)
@@ -1141,7 +1141,7 @@
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ $card['label'] }}</p>
-                                    <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ $card['value'] }}</p>
+                                    <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ is_numeric($card['value']) ? format_number_locale((float) $card['value']) : $card['value'] }}</p>
                                 </div>
                                 <div class="flex h-10 w-10 items-center justify-center rounded-xl" style="background-color: color-mix(in srgb, {{ $card['tone'] }} 10%, white); color: {{ $card['tone'] }};"><i class="fa-light {{ $card['icon'] }}"></i></div>
                             </div>

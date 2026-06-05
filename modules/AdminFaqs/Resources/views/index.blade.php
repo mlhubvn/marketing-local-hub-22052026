@@ -80,7 +80,7 @@
                         <div class="space-y-3">
                             <span class="inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em]" style="border-color: rgba(var(--theme-accent-rgb), 0.14); background-color: rgba(var(--theme-accent-rgb), 0.08); color: var(--theme-accent);">{{ __('Total') }}</span>
                             <div class="flex items-end gap-2">
-                                <p class="text-4xl font-semibold leading-none tracking-[-0.07em]" style="color: var(--theme-header-text-color);">{{ number_format($summary['total']) }}</p>
+                                <p class="text-4xl font-semibold leading-none tracking-[-0.07em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['total']) }}</p>
                                 <span class="pb-1 text-xs font-medium uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('entries') }}</span>
                             </div>
                         </div>
@@ -105,7 +105,7 @@
                         <div class="space-y-3">
                             <span class="inline-flex items-center rounded-full border border-emerald-500/15 bg-emerald-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-emerald-600 dark:text-emerald-300">{{ __('Enabled') }}</span>
                             <div class="flex items-end gap-2">
-                                <p class="text-4xl font-semibold leading-none tracking-[-0.07em] text-emerald-600 dark:text-emerald-300">{{ number_format($summary['enabled']) }}</p>
+                                <p class="text-4xl font-semibold leading-none tracking-[-0.07em] text-emerald-600 dark:text-emerald-300">{{ format_number_locale($summary['enabled']) }}</p>
                                 <span class="pb-1 text-xs font-medium uppercase tracking-[0.18em] text-emerald-600/70 dark:text-emerald-300/70">{{ __('live') }}</span>
                             </div>
                         </div>
@@ -130,7 +130,7 @@
                         <div class="space-y-3">
                             <span class="inline-flex items-center rounded-full border border-slate-300/70 bg-slate-500/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500 dark:border-slate-700 dark:text-slate-300">{{ __('Disabled') }}</span>
                             <div class="flex items-end gap-2">
-                                <p class="text-4xl font-semibold leading-none tracking-[-0.07em] text-slate-700 dark:text-slate-200">{{ number_format($summary['disabled']) }}</p>
+                                <p class="text-4xl font-semibold leading-none tracking-[-0.07em] text-slate-700 dark:text-slate-200">{{ format_number_locale($summary['disabled']) }}</p>
                                 <span class="pb-1 text-xs font-medium uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">{{ __('hidden') }}</span>
                             </div>
                         </div>

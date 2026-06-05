@@ -136,7 +136,7 @@
                                 </x-ui.table-cell>
                                 <x-ui.table-cell>{{ format_number_locale((int) $entry->remaining) }}</x-ui.table-cell>
                                 <x-ui.table-cell>{{ $entry->creditPack?->name ?: __('Manual adjustment') }}</x-ui.table-cell>
-                                <x-ui.table-cell>{{ $entry->created_at?->format('Y-m-d H:i:s') }}</x-ui.table-cell>
+                                <x-ui.table-cell>{{ format_datetime_locale($entry->created_at, 'd/m/Y H:i:s') }}</x-ui.table-cell>
                             </x-ui.table-row>
                         @endforeach
                     </x-ui.table-body>
@@ -182,7 +182,7 @@
                                     {{ collect((array) $log->metadata)->map(fn ($value, $key) => $key.': '.(is_array($value) ? implode(', ', array_map('strval', $value)) : (is_scalar($value) || $value === null ? (string) $value : json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES))))->implode(' • ') ?: '—' }}
                                 </p>
                             </x-ui.table-cell>
-                            <x-ui.table-cell>{{ $log->created_at?->format('Y-m-d H:i:s') }}</x-ui.table-cell>
+                            <x-ui.table-cell>{{ format_datetime_locale($log->created_at, 'd/m/Y H:i:s') }}</x-ui.table-cell>
                         </x-ui.table-row>
                     @empty
                         <x-ui.table-row>

@@ -174,3 +174,35 @@ php artisan config:clear           # khi đổi config/env lúc dev
 
 > Trên production: các lệnh tương ứng (`migrate --force`, `config:cache`…) do pipeline Coolify/`entrypoint.sh` đảm nhiệm — không gõ tay trên server.
 
+### 5.1 Rà soát định dạng số / ngày / tiền (chuẩn Việt Nam)
+
+**Helper chuẩn** (trong `app/Support/helpers.php`; cấu hình Admin → Cài đặt → General):
+
+| Hiển thị | Helper |
+|----------|--------|
+| Số đếm / thống kê | `format_number_locale($n)` hoặc `format_number_locale($n, $decimals)` |
+| Tiền VNĐ | `format_money($amount)` |
+| Ngày | `format_date_locale($date)` |
+| Ngày + giờ | `format_datetime_locale($date)` |
+| Phần trăm | `format_percent_locale($n)` |
+| JS chart/table | `window.MLHUB_FORMAT` (inject trong `head.blade.php`) |
+
+**Không dùng** `number_format($x)` trần trong Blade/Livewire hiển thị — mặc định kiểu Mỹ (dấu phẩy ngàn). **Bỏ qua** `number_format` trong `modules/Payment*` (format gửi API cổng thanh toán, không phải UI).
+
+**Rà soát** (Cursor Terminal, thư mục gốc dự án — dùng **Cursor AI grep** hoặc `rg` nếu máy đã cài ripgrep):
+
+```text
+# 1. Số format sai (ưu tiên sửa Blade portal + Admin)
+rg "number_format\(" modules resources app --glob "*.blade.php"
+
+# 2. Ngày in cứng Y-m-d / M d (đổi sang format_date_locale / format_datetime_locale)
+rg "->format\(" modules resources --glob "*.blade.php"
+
+# 3. Ô metric in số thô (hay sót widget health)
+rg "\{\{\s*\$[^}]*\['value'\]\s*\}\}" modules --glob "*.blade.php"
+```
+
+**Thứ tự sửa:** component dùng chung (`resources/views/components/`, `resources/themes/app/*/components/`) → module `App*` (portal) → `Admin*` → chart JS dùng `MLHUB_FORMAT`.
+
+**Không tạo file script** trong repo cho việc này — chỉ chạy lệnh grep khi cần (tránh file rác quên commit).
+

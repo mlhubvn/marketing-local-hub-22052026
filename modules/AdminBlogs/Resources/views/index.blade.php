@@ -16,17 +16,17 @@
         <div class="grid gap-5 md:grid-cols-3">
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">{{ __('Total') }}</p>
-                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($summary['total']) }}</p>
+                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['total']) }}</p>
                 <p class="text-sm leading-6 text-slate-500">{{ __('All blog posts currently stored.') }}</p>
             </x-ui.card>
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">{{ __('Published') }}</p>
-                <p class="text-2xl font-semibold tracking-[-0.04em] text-emerald-600">{{ number_format($summary['published']) }}</p>
+                <p class="text-2xl font-semibold tracking-[-0.04em] text-emerald-600">{{ format_number_locale($summary['published']) }}</p>
                 <p class="text-sm leading-6 text-slate-500">{{ __('Posts currently visible for publishing workflows.') }}</p>
             </x-ui.card>
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">{{ __('Draft') }}</p>
-                <p class="text-2xl font-semibold tracking-[-0.04em] text-slate-600">{{ number_format($summary['draft']) }}</p>
+                <p class="text-2xl font-semibold tracking-[-0.04em] text-slate-600">{{ format_number_locale($summary['draft']) }}</p>
                 <p class="text-sm leading-6 text-slate-500">{{ __('Posts not yet published.') }}</p>
             </x-ui.card>
         </div>

@@ -90,7 +90,7 @@ class DashboardIndex extends Component
                 'icon' => 'fa-bullhorn',
                 'color' => '#84a900',
                 'route' => null,
-                'meta' => __(':count landing pages', ['count' => number_format($this->countModel(LandingPage::class))]),
+                'meta' => __(':count landing pages', ['count' => format_number_locale($this->countModel(LandingPage::class))]),
             ],
             [
                 'label' => __('Payments'),
@@ -107,7 +107,7 @@ class DashboardIndex extends Component
                 'icon' => 'fa-layer-group',
                 'color' => '#4d7c0f',
                 'route' => $this->routeUrl('admin-plans.index'),
-                'meta' => __(':count active subscriptions', ['count' => number_format($this->countModel(PaymentSubscription::class, ['status' => 1]))]),
+                'meta' => __(':count active subscriptions', ['count' => format_number_locale($this->countModel(PaymentSubscription::class, ['status' => 1]))]),
             ],
             [
                 'label' => __('AI usage'),
@@ -124,7 +124,7 @@ class DashboardIndex extends Component
                 'icon' => 'fa-headset',
                 'color' => '#dc2626',
                 'route' => $this->routeUrl('admin-support.index'),
-                'meta' => __(':count open', ['count' => number_format($this->countModel(SupportTicket::class, ['status' => 1]))]),
+                'meta' => __(':count open', ['count' => format_number_locale($this->countModel(SupportTicket::class, ['status' => 1]))]),
             ],
             [
                 'label' => __('System reports'),
@@ -207,14 +207,14 @@ class DashboardIndex extends Component
     protected function compactNumber(float|int $value): string
     {
         if ($value >= 1000000) {
-            return number_format($value / 1000000, 1).'M';
+            return format_number_locale($value / 1000000, 1).'M';
         }
 
         if ($value >= 1000) {
-            return number_format($value / 1000, 1).'K';
+            return format_number_locale($value / 1000, 1).'K';
         }
 
-        return number_format($value);
+        return format_number_locale($value);
     }
 
     protected function formatMoney(float $value): string

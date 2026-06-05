@@ -19,7 +19,7 @@
             <div class="flex items-end justify-between gap-3">
                 <div>
                     <p class="text-xs font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Entries loaded') }}</p>
-                    <p class="mt-1 text-3xl font-semibold tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ number_format($metrics['loaded'] ?? 0) }}</p>
+                    <p class="mt-1 text-3xl font-semibold tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metrics['loaded'] ?? 0) }}</p>
                 </div>
                 <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">
                     <i class="fa-light fa-list-timeline"></i>
@@ -34,9 +34,9 @@
 
     <div class="grid border-t sm:grid-cols-3" style="border-color: rgba(var(--theme-border-color-rgb),0.62);">
         @foreach ([
-            [__('Today'), number_format($metrics['today'] ?? 0)],
-            [__('Last 7 days'), number_format($metrics['week'] ?? 0)],
-            [__('Entries loaded'), number_format($metrics['loaded'] ?? 0)],
+            [__('Today'), format_number_locale($metrics['today'] ?? 0)],
+            [__('Last 7 days'), format_number_locale($metrics['week'] ?? 0)],
+            [__('Entries loaded'), format_number_locale($metrics['loaded'] ?? 0)],
         ] as $metric)
             <div class="border-b p-4 sm:border-r sm:border-b-0" style="border-color: rgba(var(--theme-border-color-rgb),0.62);">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ $metric[0] }}</p>

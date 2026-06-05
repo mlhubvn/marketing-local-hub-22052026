@@ -82,7 +82,7 @@
                                     <div class="max-w-3xl">
                                         <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('AI operations command') }}</p>
                                         <div class="mt-3 flex flex-wrap items-end gap-x-4 gap-y-2">
-                                            <p class="text-[2.9rem] font-semibold leading-none tracking-[-0.07em]" style="color: var(--theme-header-text-color);">{{ number_format($totalRequests) }}</p>
+                                            <p class="text-[2.9rem] font-semibold leading-none tracking-[-0.07em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($totalRequests) }}</p>
                                             <p class="pb-1 text-sm font-medium" style="color: var(--theme-muted-text-color);">{{ __('Total AI requests tracked') }}</p>
                                         </div>
                                         <p class="mt-4 max-w-[40rem] text-sm leading-7" style="color: var(--theme-muted-text-color);">{{ $healthCopy }}</p>
@@ -102,19 +102,19 @@
 
                                     <div class="rounded-[1.1rem] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.42); background: color-mix(in srgb, var(--theme-surface-base) 90%, rgba(var(--theme-accent-rgb),0.03));">
                                         <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Avg latency') }}</p>
-                                        <p class="mt-2 text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($avgLatency) }}<span class="text-base">ms</span></p>
-                                        <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('About :seconds seconds per request.', ['seconds' => number_format($latencySeconds, 1)]) }}</p>
+                                        <p class="mt-2 text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($avgLatency) }}<span class="text-base">ms</span></p>
+                                        <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('About :seconds seconds per request.', ['seconds' => format_number_locale($latencySeconds, 1)]) }}</p>
                                     </div>
 
                                     <div class="rounded-[1.1rem] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.42); background: color-mix(in srgb, var(--theme-surface-base) 90%, rgba(var(--theme-accent-rgb),0.03));">
                                         <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Average daily demand') }}</p>
-                                        <p class="mt-2 text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($avgDailyRequests, 1) }}</p>
+                                        <p class="mt-2 text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($avgDailyRequests, 1) }}</p>
                                         <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Typical daily request volume across the last 7 days') }}</p>
                                     </div>
 
                                     <div class="rounded-[1.1rem] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.42); background: color-mix(in srgb, var(--theme-surface-base) 90%, rgba(var(--theme-accent-rgb),0.03));">
                                         <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Spend efficiency') }}</p>
-                                        <p class="mt-2 text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">${{ number_format($costPerRequest, 4) }}</p>
+                                        <p class="mt-2 text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">${{ format_number_locale($costPerRequest, 4) }}</p>
                                         <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Estimated average cost per request.') }}</p>
                                     </div>
                                 </div>
@@ -124,25 +124,25 @@
                         <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
                             <div class="rounded-[1.25rem] border px-5 py-5" style="border-color: rgba(var(--theme-border-color-rgb),0.46); background: linear-gradient(180deg, color-mix(in srgb, var(--theme-surface-overlay) 94%, rgba(var(--theme-accent-rgb),0.04)), color-mix(in srgb, var(--theme-surface-base) 96%, rgba(var(--theme-accent-rgb),0.02)));">
                                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('7-day demand') }}</p>
-                                <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($requests7d) }}</p>
+                                <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($requests7d) }}</p>
                                 <p class="mt-2 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Requests handled this week') }}</p>
                             </div>
 
                             <div class="rounded-[1.25rem] border px-5 py-5" style="border-color: rgba(var(--theme-border-color-rgb),0.46); background: linear-gradient(180deg, color-mix(in srgb, var(--theme-surface-overlay) 94%, rgba(var(--theme-accent-rgb),0.04)), color-mix(in srgb, var(--theme-surface-base) 96%, rgba(var(--theme-accent-rgb),0.02)));">
                                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Successful') }}</p>
-                                <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($successfulRequests) }}</p>
+                                <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($successfulRequests) }}</p>
                                 <p class="mt-2 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Requests completed cleanly') }}</p>
                             </div>
 
                             <div class="rounded-[1.25rem] border px-5 py-5" style="border-color: rgba(var(--theme-border-color-rgb),0.46); background: linear-gradient(180deg, color-mix(in srgb, var(--theme-surface-overlay) 94%, rgba(var(--theme-accent-rgb),0.04)), color-mix(in srgb, var(--theme-surface-base) 96%, rgba(var(--theme-accent-rgb),0.02)));">
                                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Peak day') }}</p>
-                                <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($peakDailyRequests) }}</p>
+                                <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($peakDailyRequests) }}</p>
                                 <p class="mt-2 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Highest 1-day request volume this week') }}</p>
                             </div>
 
                             <div class="rounded-[1.25rem] border px-5 py-5" style="border-color: rgba(var(--theme-border-color-rgb),0.46); background: linear-gradient(180deg, color-mix(in srgb, var(--theme-surface-overlay) 94%, rgba(var(--theme-accent-rgb),0.04)), color-mix(in srgb, var(--theme-surface-base) 96%, rgba(var(--theme-accent-rgb),0.02)));">
                                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Tokens / request') }}</p>
-                                <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($tokensPerRequest) }}</p>
+                                <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($tokensPerRequest) }}</p>
                                 <p class="mt-2 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Average token intensity per call') }}</p>
                             </div>
                         </div>

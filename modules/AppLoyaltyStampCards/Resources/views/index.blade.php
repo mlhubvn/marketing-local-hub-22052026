@@ -250,7 +250,7 @@
                                     <td class="px-5 py-4">{{ $progress->card?->name }}</td>
                                     <td class="px-5 py-4">{{ $progress->stamps_count }} / {{ $progress->card?->required_stamps }}</td>
                                     <td class="px-5 py-4">{{ format_number_locale($progress->completed_count) }}</td>
-                                    <td class="px-5 py-4">{{ $progress->last_stamp_at?->format('M d, Y') ?: __('Never') }}</td>
+                                    <td class="px-5 py-4">{{ $progress->last_stamp_at ? format_date_locale($progress->last_stamp_at) : __('Never') }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -300,7 +300,7 @@
                                     <td class="px-5 py-4">{{ $stamp->card?->name }}</td>
                                     <td class="px-5 py-4">{{ $stamp->card?->business?->name ?: __('Business removed') }}</td>
                                     <td class="px-5 py-4"><x-ui.badge variant="neutral">{{ str($stamp->source)->headline() }}</x-ui.badge></td>
-                                    <td class="px-5 py-4">{{ $stamp->created_at?->format('M d, Y H:i') }}</td>
+                                    <td class="px-5 py-4">{{ format_datetime_locale($stamp->created_at) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -412,7 +412,7 @@
                                     <td class="px-5 py-4">{{ $referral->referred?->name }}</td>
                                     <td class="px-5 py-4">{{ $referral->campaign?->name }}</td>
                                     <td class="px-5 py-4"><x-ui.badge variant="neutral">{{ str($referral->target_action)->headline() }}</x-ui.badge></td>
-                                    <td class="px-5 py-4">{{ $referral->converted_at?->format('M d, Y H:i') }}</td>
+                                    <td class="px-5 py-4">{{ format_datetime_locale($referral->converted_at) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -453,7 +453,7 @@
                                     <td class="px-5 py-4">{{ $reward->card?->reward_title }}</td>
                                     <td class="px-5 py-4"><span class="rounded-lg border px-2.5 py-1.5 font-semibold tracking-[0.08em]" style="border-color: rgba(var(--theme-border-color-rgb), .62); color: var(--theme-header-text-color);">{{ $reward->code }}</span></td>
                                     <td class="px-5 py-4"><x-ui.badge :variant="$reward->status === 'used' ? 'success' : 'warning'">{{ str($reward->status)->headline() }}</x-ui.badge></td>
-                                    <td class="px-5 py-4">{{ $reward->expires_at?->format('M d, Y') ?: __('No expiry') }}</td>
+                                    <td class="px-5 py-4">{{ $reward->expires_at ? format_date_locale($reward->expires_at) : __('No expiry') }}</td>
                                     <td class="px-5 py-4 text-right">
                                         @if ($reward->status === 'used')
                                             <button type="button" wire:click="restoreReward({{ $reward->id }})" class="rounded-lg border px-3 py-2 text-xs font-semibold" style="border-color: rgba(var(--theme-border-color-rgb), .68); color: var(--theme-header-text-color);">{{ __('Undo') }}</button>
@@ -507,7 +507,7 @@
                                         <td class="px-5 py-4">{{ $reward->campaign?->reward_title }}</td>
                                         <td class="px-5 py-4"><span class="rounded-lg border px-2.5 py-1.5 font-semibold tracking-[0.08em]" style="border-color: rgba(var(--theme-border-color-rgb), .62); color: var(--theme-header-text-color);">{{ $reward->code }}</span></td>
                                         <td class="px-5 py-4"><x-ui.badge :variant="$reward->status === 'used' ? 'success' : 'warning'">{{ str($reward->status)->headline() }}</x-ui.badge></td>
-                                        <td class="px-5 py-4">{{ $reward->expires_at?->format('M d, Y') ?: __('No expiry') }}</td>
+                                        <td class="px-5 py-4">{{ $reward->expires_at ? format_date_locale($reward->expires_at) : __('No expiry') }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

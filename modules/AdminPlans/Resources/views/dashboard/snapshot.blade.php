@@ -72,7 +72,7 @@
                                     <div class="max-w-3xl">
                                         <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Pricing catalog command') }}</p>
                                         <div class="mt-3 flex flex-wrap items-end gap-x-4 gap-y-2">
-                                            <p class="text-[2.9rem] font-semibold leading-none tracking-[-0.07em]" style="color: var(--theme-header-text-color);">{{ number_format($totalPlans) }}</p>
+                                            <p class="text-[2.9rem] font-semibold leading-none tracking-[-0.07em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($totalPlans) }}</p>
                                             <p class="pb-1 text-sm font-medium" style="color: var(--theme-muted-text-color);">{{ __('Plans available in the active pricing catalog') }}</p>
                                         </div>
                                         <p class="mt-4 max-w-[40rem] text-sm leading-7" style="color: var(--theme-muted-text-color);">{{ $healthCopy }}</p>
@@ -98,7 +98,7 @@
 
                                     <div class="rounded-[1.1rem] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.42); background: color-mix(in srgb, var(--theme-surface-base) 90%, rgba(var(--theme-accent-rgb),0.03));">
                                         <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Featured plans') }}</p>
-                                        <p class="mt-2 text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format($featuredPlans) }}</p>
+                                        <p class="mt-2 text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($featuredPlans) }}</p>
                                         <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Offers intentionally pushed to the front of the pricing story.') }}</p>
                                     </div>
 
@@ -114,25 +114,25 @@
                         <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
                             <div class="rounded-[1.25rem] border px-5 py-5" style="border-color: rgba(var(--theme-border-color-rgb),0.46); background: linear-gradient(180deg, color-mix(in srgb, var(--theme-surface-overlay) 94%, rgba(var(--theme-accent-rgb),0.04)), color-mix(in srgb, var(--theme-surface-base) 96%, rgba(var(--theme-accent-rgb),0.02)));">
                                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Active plans') }}</p>
-                                <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($activePlans) }}</p>
+                                <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($activePlans) }}</p>
                                 <p class="mt-2 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Ready for assignment right now') }}</p>
                             </div>
 
                             <div class="rounded-[1.25rem] border px-5 py-5" style="border-color: rgba(var(--theme-border-color-rgb),0.46); background: linear-gradient(180deg, color-mix(in srgb, var(--theme-surface-overlay) 94%, rgba(var(--theme-accent-rgb),0.04)), color-mix(in srgb, var(--theme-surface-base) 96%, rgba(var(--theme-accent-rgb),0.02)));">
                                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Inactive plans') }}</p>
-                                <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($inactivePlans) }}</p>
+                                <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($inactivePlans) }}</p>
                                 <p class="mt-2 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Catalog entries that may need pruning') }}</p>
                             </div>
 
                             <div class="rounded-[1.25rem] border px-5 py-5" style="border-color: rgba(var(--theme-border-color-rgb),0.46); background: linear-gradient(180deg, color-mix(in srgb, var(--theme-surface-overlay) 94%, rgba(var(--theme-accent-rgb),0.04)), color-mix(in srgb, var(--theme-surface-base) 96%, rgba(var(--theme-accent-rgb),0.02)));">
                                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Featured plans') }}</p>
-                                <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($featuredPlans) }}</p>
+                                <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($featuredPlans) }}</p>
                                 <p class="mt-2 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Positioned for promotion in pricing') }}</p>
                             </div>
 
                             <div class="rounded-[1.25rem] border px-5 py-5" style="border-color: rgba(var(--theme-border-color-rgb),0.46); background: linear-gradient(180deg, color-mix(in srgb, var(--theme-surface-overlay) 94%, rgba(var(--theme-accent-rgb),0.04)), color-mix(in srgb, var(--theme-surface-base) 96%, rgba(var(--theme-accent-rgb),0.02)));">
                                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Free tiers') }}</p>
-                                <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($freePlans) }}</p>
+                                <p class="mt-3 text-[1.5rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($freePlans) }}</p>
                                 <p class="mt-2 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Low-friction acquisition entry points') }}</p>
                             </div>
                         </div>

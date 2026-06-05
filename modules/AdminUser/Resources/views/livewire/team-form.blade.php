@@ -92,7 +92,7 @@
 
             <x-ui.datatable-shell :title="__('Members')" :info="__('Current users attached to this team.')">
                 <x-slot:toolbar>
-                    <x-ui.badge variant="primary">{{ number_format($team->members->count()) }} {{ __('members') }}</x-ui.badge>
+                    <x-ui.badge variant="primary">{{ format_number_locale($team->members->count()) }} {{ __('members') }}</x-ui.badge>
                 </x-slot:toolbar>
 
                 <x-ui.table class="rounded-none border-0 shadow-none">

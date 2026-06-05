@@ -1,10 +1,10 @@
 @php
     $usersPerTeam = (int) ($metrics['teams'] ?? 0) > 0
-        ? number_format(((int) $metrics['users']) / max(1, (int) $metrics['teams']), 1)
-        : number_format((int) $metrics['users']);
+        ? format_number_locale(((int) $metrics['users']) / max(1, (int) $metrics['teams']), 1)
+        : format_number_locale((int) $metrics['users']);
     $rolesPerTeam = (int) ($metrics['teams'] ?? 0) > 0
-        ? number_format(((int) $metrics['roles']) / max(1, (int) $metrics['teams']), 1)
-        : number_format((int) $metrics['roles']);
+        ? format_number_locale(((int) $metrics['roles']) / max(1, (int) $metrics['teams']), 1)
+        : format_number_locale((int) $metrics['roles']);
     $signupShare = (int) ($metrics['users'] ?? 0) > 0
         ? round((((int) $metrics['new_users']) / max(1, (int) $metrics['users'])) * 100)
         : 0;
@@ -70,7 +70,7 @@
                         <div class="flex items-start justify-between gap-4">
                             <div>
                                 <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Identity overview') }}</p>
-                                <p class="mt-3 text-[2.7rem] font-semibold tracking-[-0.065em]" style="color: var(--theme-header-text-color);">{{ number_format((int) $metrics['users']) }}</p>
+                                <p class="mt-3 text-[2.7rem] font-semibold tracking-[-0.065em]" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $metrics['users']) }}</p>
                                 <p class="mt-2 text-base font-semibold" style="color: var(--theme-header-text-color);">{{ __('Accounts under management') }}</p>
                             </div>
 
@@ -100,7 +100,7 @@
                 <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
                     <div class="rounded-[var(--theme-card-radius,1.15rem)] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.5); background: linear-gradient(180deg, color-mix(in srgb, var(--theme-surface-overlay) 94%, rgba(var(--theme-success-color-rgb),0.08)), color-mix(in srgb, var(--theme-surface-base) 96%, rgba(var(--theme-success-color-rgb),0.04)));">
                         <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Signup motion') }}</p>
-                        <p class="mt-2 text-[1.9rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ number_format((int) $metrics['new_users']) }}</p>
+                        <p class="mt-2 text-[1.9rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $metrics['new_users']) }}</p>
                         <p class="mt-1 text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('New identities landed during the current 7-day window.') }}</p>
                     </div>
 
@@ -116,13 +116,13 @@
                 <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                     <div class="rounded-[calc(var(--theme-card-radius,1.15rem)-0.2rem)] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.42); background: color-mix(in srgb, var(--theme-surface-base) 90%, rgba(var(--theme-accent-rgb),0.03));">
                         <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Teams') }}</p>
-                        <p class="mt-2 text-[1.55rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format((int) $metrics['teams']) }}</p>
+                        <p class="mt-2 text-[1.55rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $metrics['teams']) }}</p>
                         <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Structured admin groups') }}</p>
                     </div>
 
                     <div class="rounded-[calc(var(--theme-card-radius,1.15rem)-0.2rem)] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.42); background: color-mix(in srgb, var(--theme-surface-base) 90%, rgba(var(--theme-accent-rgb),0.03));">
                         <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Roles') }}</p>
-                        <p class="mt-2 text-[1.55rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format((int) $metrics['roles']) }}</p>
+                        <p class="mt-2 text-[1.55rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $metrics['roles']) }}</p>
                         <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Access definitions in rotation') }}</p>
                     </div>
 

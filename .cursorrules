@@ -293,3 +293,4 @@ class FeatureIndex extends Component
 4. Mọi chuỗi đã bọc `__()` chưa? Đã **cập nhật đủ `lang/en.json` + `lang/vi.json`** và xóa key mồ côi chưa? (xem §3.7)
 5. Phong cách (thụt lề, comment, kiểu, xử lý lỗi) có **khớp file xung quanh** không?
 6. Chạy `vendor/bin/pint` trên file đã sửa. Có migration/route/permission/env mới thì liệt kê ra cho người dùng.
+7. Số/ngày/tiền hiển thị dùng `format_number_locale` / `format_money` / `format_date_locale` — không `number_format` trần trong Blade. Rà soát: **`ARCHITECTURE_CHECKLIST.md` §5.1**.

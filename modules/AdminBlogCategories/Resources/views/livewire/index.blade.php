@@ -19,21 +19,21 @@
         $categoryMetricCards = [
             [
                 'label' => __('Total'),
-                'value' => number_format($summary['total']),
+                'value' => format_number_locale($summary['total']),
                 'description' => __('All blog categories currently available.'),
                 'tone' => 'var(--theme-accent)',
                 'progress' => 100,
             ],
             [
                 'label' => __('Enabled'),
-                'value' => number_format($summary['enabled']),
+                'value' => format_number_locale($summary['enabled']),
                 'description' => __('Categories visible for publishing workflows.'),
                 'tone' => '#10b981',
                 'progress' => max(8, $summary['total'] > 0 ? round(($summary['enabled'] / $summary['total']) * 100) : 8),
             ],
             [
                 'label' => __('Disabled'),
-                'value' => number_format($summary['disabled']),
+                'value' => format_number_locale($summary['disabled']),
                 'description' => __('Categories hidden from new content selection.'),
                 'tone' => '#64748b',
                 'progress' => max(8, $summary['total'] > 0 ? round(($summary['disabled'] / $summary['total']) * 100) : 8),
@@ -205,7 +205,7 @@
                     <div class="grid gap-3 sm:grid-cols-3 lg:min-w-[28rem]">
                         <div class="rounded-[1rem] border px-4 py-3" style="border-color: var(--theme-border-color); background-color: color-mix(in srgb, var(--theme-surface-soft) 76%, transparent);">
                             <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Posts') }}</p>
-                            <p class="mt-2 text-lg font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($category->blogs_count) }}</p>
+                            <p class="mt-2 text-lg font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($category->blogs_count) }}</p>
                         </div>
                         <div class="rounded-[1rem] border px-4 py-3" style="border-color: var(--theme-border-color); background-color: color-mix(in srgb, var(--theme-surface-soft) 76%, transparent);">
                             <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Updated') }}</p>

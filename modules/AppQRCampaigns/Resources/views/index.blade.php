@@ -154,7 +154,7 @@
                                         </div>
                                         <div class="min-w-0">
                                             <a href="{{ $publicUrl }}" target="_blank" class="block truncate font-semibold hover:underline" style="color: var(--theme-header-text-color);">{{ $campaign->name }}</a>
-                                            <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Created from: :source', ['source' => $createdFrom]) }} - {{ $campaign->created_at?->format('Y-m-d') }}</p>
+                                            <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Created from: :source', ['source' => $createdFrom]) }} - {{ format_date_locale($campaign->created_at) }}</p>
                                             <a href="{{ $destination }}" target="_blank" class="mt-1 block max-w-[28rem] truncate text-xs font-medium hover:underline" style="color: var(--theme-accent);">{{ $destination }}</a>
                                         </div>
                                     </div>

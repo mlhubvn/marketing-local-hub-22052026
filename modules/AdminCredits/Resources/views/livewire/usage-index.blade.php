@@ -1,9 +1,9 @@
 @php
     $metricCards = [
-        ['label' => __('Entries'), 'value' => number_format($metrics['entries']), 'description' => __('Usage rows after current filters.'), 'tone' => 'var(--theme-accent)', 'progress' => 100],
-        ['label' => __('Credits spent'), 'value' => number_format($metrics['credits']), 'description' => __('Credits consumed by filtered actions.'), 'tone' => '#10b981', 'progress' => $metrics['credits'] > 0 ? 100 : 8],
-        ['label' => __('Users'), 'value' => number_format($metrics['users']), 'description' => __('Distinct users consuming credits.'), 'tone' => '#f59e0b', 'progress' => $metrics['users'] > 0 ? 100 : 8],
-        ['label' => __('Actions'), 'value' => number_format($metrics['actions']), 'description' => __('Distinct action keys in the filtered set.'), 'tone' => '#64748b', 'progress' => $metrics['actions'] > 0 ? 100 : 8],
+        ['label' => __('Entries'), 'value' => format_number_locale($metrics['entries']), 'description' => __('Usage rows after current filters.'), 'tone' => 'var(--theme-accent)', 'progress' => 100],
+        ['label' => __('Credits spent'), 'value' => format_number_locale($metrics['credits']), 'description' => __('Credits consumed by filtered actions.'), 'tone' => '#10b981', 'progress' => $metrics['credits'] > 0 ? 100 : 8],
+        ['label' => __('Users'), 'value' => format_number_locale($metrics['users']), 'description' => __('Distinct users consuming credits.'), 'tone' => '#f59e0b', 'progress' => $metrics['users'] > 0 ? 100 : 8],
+        ['label' => __('Actions'), 'value' => format_number_locale($metrics['actions']), 'description' => __('Distinct action keys in the filtered set.'), 'tone' => '#64748b', 'progress' => $metrics['actions'] > 0 ? 100 : 8],
     ];
 @endphp
 
@@ -59,8 +59,8 @@
                                 <p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $log->feature ?: '—' }}</p>
                             </div>
                         </x-ui.table-cell>
-                        <x-ui.table-cell><span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format((int) $log->amount) }}</span></x-ui.table-cell>
-                        <x-ui.table-cell>{{ number_format((int) $log->quantity) }}</x-ui.table-cell>
+                        <x-ui.table-cell><span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $log->amount) }}</span></x-ui.table-cell>
+                        <x-ui.table-cell>{{ format_number_locale((int) $log->quantity) }}</x-ui.table-cell>
                         <x-ui.table-cell>{{ $log->plan?->name ?: __('No plan') }}</x-ui.table-cell>
                         <x-ui.table-cell>{{ $log->created_at?->format('Y-m-d H:i') }}</x-ui.table-cell>
                     </x-ui.table-row>

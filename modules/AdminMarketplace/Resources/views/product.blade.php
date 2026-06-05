@@ -216,7 +216,7 @@
 
         <div class="rounded-[1.4rem] border px-5 py-4" style="border-color: rgba(var(--theme-border-color-rgb), 0.66); background: color-mix(in srgb, var(--theme-surface-base) 96%, rgba(245,158,11,0.05));">
             <p class="text-[11px] uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Sales') }}</p>
-            <p class="mt-2 text-base font-semibold" style="color: var(--theme-header-text-color);">{{ number_format((int) $product['sales']) }}</p>
+            <p class="mt-2 text-base font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $product['sales']) }}</p>
         </div>
 
         <div class="rounded-[1.4rem] border px-5 py-4" style="border-color: rgba(var(--theme-border-color-rgb), 0.66); background: color-mix(in srgb, var(--theme-surface-base) 96%, rgba(99,102,241,0.05));">
@@ -302,7 +302,7 @@
                                 </div>
                                 <div>
                                     <p class="text-[11px] font-semibold uppercase tracking-[0.22em]" style="color: var(--theme-muted-text-color);">{{ __('Sales') }}</p>
-                                    <p class="mt-1 text-base font-semibold" style="color: var(--theme-header-text-color);">{{ number_format((int) $product['sales']) }}</p>
+                                    <p class="mt-1 text-base font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $product['sales']) }}</p>
                                 </div>
                                 <div>
                                     <p class="text-[11px] font-semibold uppercase tracking-[0.22em]" style="color: var(--theme-muted-text-color);">{{ __('Version') }}</p>
@@ -454,18 +454,18 @@
                     <div class="grid gap-3 sm:grid-cols-2">
                         <div class="rounded-2xl px-4 py-4" style="background: rgba(59,130,246,0.08);">
                             <p class="text-xs uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Regular') }}</p>
-                            <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">${{ number_format($product['price_regular_license'], 2) }}</p>
+                            <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">${{ format_number_locale($product['price_regular_license'], 2) }}</p>
                         </div>
                         <div class="rounded-2xl px-4 py-4" style="background: rgba(16,185,129,0.08);">
                             <p class="text-xs uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Extended') }}</p>
-                            <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">${{ number_format($product['price_extended_license'], 2) }}</p>
+                            <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">${{ format_number_locale($product['price_extended_license'], 2) }}</p>
                         </div>
                     </div>
 
                     @if ($product['price_renew_support'] > 0)
                         <div class="rounded-2xl px-4 py-4" style="background: rgba(245,158,11,0.08);">
                             <p class="text-xs uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Renew support') }}</p>
-                            <p class="mt-2 text-xl font-semibold" style="color: var(--theme-header-text-color);">${{ number_format($product['price_renew_support'], 2) }}</p>
+                            <p class="mt-2 text-xl font-semibold" style="color: var(--theme-header-text-color);">${{ format_number_locale($product['price_renew_support'], 2) }}</p>
                         </div>
                     @endif
 

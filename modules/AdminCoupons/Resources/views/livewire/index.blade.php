@@ -2,21 +2,21 @@
     $couponMetricCards = [
         [
             'label' => __('Total'),
-            'value' => number_format($summary['total']),
+            'value' => format_number_locale($summary['total']),
             'description' => __('All discount codes currently stored.'),
             'tone' => 'var(--theme-accent)',
             'progress' => 100,
         ],
         [
             'label' => __('Enabled'),
-            'value' => number_format($summary['enabled']),
+            'value' => format_number_locale($summary['enabled']),
             'description' => __('Coupons currently active for redemption.'),
             'tone' => '#10b981',
             'progress' => max(8, $summary['total'] > 0 ? (int) round(($summary['enabled'] / $summary['total']) * 100) : 8),
         ],
         [
             'label' => __('Unlimited'),
-            'value' => number_format($summary['unlimited']),
+            'value' => format_number_locale($summary['unlimited']),
             'description' => __('Coupons without a redemption cap.'),
             'tone' => '#f59e0b',
             'progress' => max(8, $summary['total'] > 0 ? (int) round(($summary['unlimited'] / $summary['total']) * 100) : 8),
@@ -102,7 +102,7 @@
                         </span>
                     @else
                         <span class="text-sm font-medium" style="color: var(--theme-header-text-color);">{{ trans_choice('{1} :count coupon|[2,*] :count coupons', $summary['total'], ['count' => $summary['total']]) }}</span>
-                        <span class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Active') }}: {{ number_format($summary['enabled']) }}</span>
+                        <span class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Active') }}: {{ format_number_locale($summary['enabled']) }}</span>
                     @endif
 
                     @if (count($selectedCouponIds) > 0)
@@ -154,7 +154,7 @@
                         </x-ui.table-cell>
                         <x-ui.table-cell>
                             <div class="space-y-1">
-                                <p class="text-sm" style="color: var(--theme-header-text-color);">{{ number_format((int) $coupon->usage_count) }}</p>
+                                <p class="text-sm" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $coupon->usage_count) }}</p>
                                 <p class="text-xs" style="color: var(--theme-muted-text-color);">{{ __('Limit') }}: {{ $coupon->usageLimitLabel() }}</p>
                             </div>
                         </x-ui.table-cell>

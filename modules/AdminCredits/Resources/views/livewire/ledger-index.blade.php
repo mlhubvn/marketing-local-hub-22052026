@@ -1,9 +1,9 @@
 @php
     $metricCards = [
-        ['label' => __('Entries'), 'value' => number_format($metrics['entries']), 'description' => __('Ledger rows after current filters.'), 'tone' => 'var(--theme-accent)', 'progress' => 100],
-        ['label' => __('Purchases'), 'value' => number_format($metrics['purchases']), 'description' => __('Pack purchase rows.'), 'tone' => '#10b981', 'progress' => $metrics['purchases'] > 0 ? 100 : 8],
-        ['label' => __('Granted'), 'value' => number_format($metrics['granted']), 'description' => __('Credits added through purchase or manual adjustment.'), 'tone' => '#f59e0b', 'progress' => $metrics['granted'] > 0 ? 100 : 8],
-        ['label' => __('Remaining'), 'value' => number_format($metrics['remaining']), 'description' => __('Open top-up balance currently stored in lots.'), 'tone' => '#64748b', 'progress' => $metrics['remaining'] > 0 ? 100 : 8],
+        ['label' => __('Entries'), 'value' => format_number_locale($metrics['entries']), 'description' => __('Ledger rows after current filters.'), 'tone' => 'var(--theme-accent)', 'progress' => 100],
+        ['label' => __('Purchases'), 'value' => format_number_locale($metrics['purchases']), 'description' => __('Pack purchase rows.'), 'tone' => '#10b981', 'progress' => $metrics['purchases'] > 0 ? 100 : 8],
+        ['label' => __('Granted'), 'value' => format_number_locale($metrics['granted']), 'description' => __('Credits added through purchase or manual adjustment.'), 'tone' => '#f59e0b', 'progress' => $metrics['granted'] > 0 ? 100 : 8],
+        ['label' => __('Remaining'), 'value' => format_number_locale($metrics['remaining']), 'description' => __('Open top-up balance currently stored in lots.'), 'tone' => '#64748b', 'progress' => $metrics['remaining'] > 0 ? 100 : 8],
     ];
 @endphp
 
@@ -56,8 +56,8 @@
                         </x-ui.table-cell>
                         <x-ui.table-cell><x-ui.badge :variant="in_array($entry->type, ['purchase', 'adjustment'], true) ? 'success' : 'neutral'">{{ __(ucfirst(str_replace('_', ' ', $entry->type))) }}</x-ui.badge></x-ui.table-cell>
                         <x-ui.table-cell>{{ $entry->creditPack?->name ?: __('Manual adjustment') }}</x-ui.table-cell>
-                        <x-ui.table-cell><span class="font-semibold" style="color: var(--theme-header-text-color);">{{ $entry->amount > 0 ? '+' : '' }}{{ number_format((int) $entry->amount) }}</span></x-ui.table-cell>
-                        <x-ui.table-cell>{{ number_format((int) $entry->remaining) }}</x-ui.table-cell>
+                        <x-ui.table-cell><span class="font-semibold" style="color: var(--theme-header-text-color);">{{ $entry->amount > 0 ? '+' : '' }}{{ format_number_locale((int) $entry->amount) }}</span></x-ui.table-cell>
+                        <x-ui.table-cell>{{ format_number_locale((int) $entry->remaining) }}</x-ui.table-cell>
                         <x-ui.table-cell><span class="font-mono text-xs" style="color: var(--theme-muted-text-color);">{{ $entry->paymentHistory?->transaction_id ?: '—' }}</span></x-ui.table-cell>
                         <x-ui.table-cell>{{ $entry->created_at?->format('Y-m-d H:i') }}</x-ui.table-cell>
                     </x-ui.table-row>

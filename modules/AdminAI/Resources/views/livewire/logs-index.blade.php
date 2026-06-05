@@ -21,10 +21,10 @@
 
     <x-ui.metric-strip
         :items="[
-            ['label' => __('Total'), 'value' => number_format($totalLogs), 'description' => __('Latest log records returned by the current query window.'), 'progress' => 100, 'tone' => 'var(--theme-accent)'],
-            ['label' => __('Success'), 'value' => number_format($successfulLogs), 'description' => __('Requests completed without AI provider errors.'), 'progress' => $totalLogs > 0 ? (int) round(($successfulLogs / $totalLogs) * 100) : 0, 'tone' => 'var(--theme-success-color)'],
-            ['label' => __('Failed'), 'value' => number_format($failedLogs), 'description' => __('Requests marked failed or returned an error state.'), 'progress' => $totalLogs > 0 ? (int) round(($failedLogs / $totalLogs) * 100) : 0, 'tone' => 'var(--theme-danger-color)'],
-            ['label' => __('Tokens'), 'value' => number_format($totalTokens), 'description' => __('Token volume across the visible AI usage records.'), 'progress' => $totalTokens > 0 ? 100 : 0, 'tone' => 'var(--theme-warning-color)'],
+            ['label' => __('Total'), 'value' => format_number_locale($totalLogs), 'description' => __('Latest log records returned by the current query window.'), 'progress' => 100, 'tone' => 'var(--theme-accent)'],
+            ['label' => __('Success'), 'value' => format_number_locale($successfulLogs), 'description' => __('Requests completed without AI provider errors.'), 'progress' => $totalLogs > 0 ? (int) round(($successfulLogs / $totalLogs) * 100) : 0, 'tone' => 'var(--theme-success-color)'],
+            ['label' => __('Failed'), 'value' => format_number_locale($failedLogs), 'description' => __('Requests marked failed or returned an error state.'), 'progress' => $totalLogs > 0 ? (int) round(($failedLogs / $totalLogs) * 100) : 0, 'tone' => 'var(--theme-danger-color)'],
+            ['label' => __('Tokens'), 'value' => format_number_locale($totalTokens), 'description' => __('Token volume across the visible AI usage records.'), 'progress' => $totalTokens > 0 ? 100 : 0, 'tone' => 'var(--theme-warning-color)'],
         ]"
         :show-icons="false"
         columns="md:grid-cols-2 xl:grid-cols-4"
@@ -85,7 +85,7 @@
             </div>
 
             <div class="flex flex-wrap gap-2">
-                <x-ui.badge variant="neutral">{{ __('Window') }}: {{ number_format($totalLogs) }} {{ __('records') }}</x-ui.badge>
+                <x-ui.badge variant="neutral">{{ __('Window') }}: {{ format_number_locale($totalLogs) }} {{ __('records') }}</x-ui.badge>
                 @if ($provider !== '')
                     <x-ui.badge variant="neutral">{{ __('Provider') }}: {{ ucfirst($provider) }}</x-ui.badge>
                 @endif
@@ -102,7 +102,7 @@
         </div>
     </x-ui.card>
 
-    <x-ui.datatable-shell :title="__('Usage timeline')" :info="__('Latest 100 AI requests after applying the current filters.')" :footer-text="number_format($totalLogs).' '.__('entries shown')" header-class="py-4" eyebrow-class="text-[10px] tracking-[0.2em]" title-class="mt-1 text-[1.15rem] tracking-[-0.025em]" description-class="mt-1 leading-6">
+    <x-ui.datatable-shell :title="__('Usage timeline')" :info="__('Latest 100 AI requests after applying the current filters.')" :footer-text="format_number_locale($totalLogs).' '.__('entries shown')" header-class="py-4" eyebrow-class="text-[10px] tracking-[0.2em]" title-class="mt-1 text-[1.15rem] tracking-[-0.025em]" description-class="mt-1 leading-6">
         <x-ui.table class="rounded-none border-0 shadow-none">
             <x-ui.table-head>
                 <x-ui.table-cell head>{{ __('User') }}</x-ui.table-cell>
@@ -121,7 +121,7 @@
                         <x-ui.table-cell><p class="font-semibold" style="color: var(--theme-header-text-color);">{{ ucfirst($log->capability) }}</p></x-ui.table-cell>
                         <x-ui.table-cell><div class="space-y-1"><p class="break-all font-semibold" style="color: var(--theme-header-text-color);">{{ $log->model }}</p>@if ($log->feature || $log->route_name)<p class="text-xs" style="color: var(--theme-muted-text-color);">{{ collect([$log->feature, $log->route_name])->filter()->implode(' | ') }}</p>@endif</div></x-ui.table-cell>
                         <x-ui.table-cell><x-ui.badge :variant="$log->status === 'success' ? 'success' : ($log->status === 'failed' ? 'danger' : 'neutral')">{{ strtoupper($log->status) }}</x-ui.badge></x-ui.table-cell>
-                        <x-ui.table-cell><div class="space-y-1"><p class="font-medium" style="color: var(--theme-header-text-color);">{{ __('Tokens: :count', ['count' => number_format((int) ($log->total_tokens ?? 0))]) }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ collect([$log->prompt_tokens !== null ? 'prompt: '.number_format((int) $log->prompt_tokens) : null, $log->completion_tokens !== null ? 'completion: '.number_format((int) $log->completion_tokens) : null, $log->estimated_cost !== null ? 'cost: $'.number_format((float) $log->estimated_cost, 6) : null, $log->latency_ms !== null ? 'latency: '.number_format((int) $log->latency_ms).'ms' : null])->filter()->implode(' | ') ?: __('No usage metadata') }}</p>@if ($log->error_message)<p class="text-xs" style="color: var(--theme-danger-color);">{{ $log->error_message }}</p>@endif</div></x-ui.table-cell>
+                        <x-ui.table-cell><div class="space-y-1"><p class="font-medium" style="color: var(--theme-header-text-color);">{{ __('Tokens: :count', ['count' => format_number_locale((int) ($log->total_tokens ?? 0))]) }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ collect([$log->prompt_tokens !== null ? 'prompt: '.format_number_locale((int) $log->prompt_tokens) : null, $log->completion_tokens !== null ? 'completion: '.format_number_locale((int) $log->completion_tokens) : null, $log->estimated_cost !== null ? 'cost: $'.format_number_locale((float) $log->estimated_cost, 6) : null, $log->latency_ms !== null ? 'latency: '.format_number_locale((int) $log->latency_ms).'ms' : null])->filter()->implode(' | ') ?: __('No usage metadata') }}</p>@if ($log->error_message)<p class="text-xs" style="color: var(--theme-danger-color);">{{ $log->error_message }}</p>@endif</div></x-ui.table-cell>
                         <x-ui.table-cell>{{ $log->created_at?->format('Y-m-d H:i:s') }}</x-ui.table-cell>
                     </x-ui.table-row>
                 @empty

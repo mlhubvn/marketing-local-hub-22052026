@@ -1,9 +1,9 @@
 @php
     $metricCards = [
-        ['label' => __('Installed packages'), 'value' => number_format($summary['total']), 'description' => __('Modules currently managed by Marketplace.'), 'icon' => 'fa-light fa-boxes-stacked', 'tone' => 'var(--theme-accent)'],
-        ['label' => __('Active packages'), 'value' => number_format($summary['active']), 'description' => __('Packages currently booted through the marketplace provider bootstrap file.'), 'icon' => 'fa-light fa-toggle-on', 'tone' => 'rgb(5 150 105)'],
-        ['label' => __('Catalog products'), 'value' => number_format($catalogSummary['total'] ?? 0), 'description' => __('Marketplace-ready products currently available in the synced catalog.'), 'icon' => 'fa-light fa-store', 'tone' => 'rgb(59 130 246)'],
-        ['label' => __('Featured products'), 'value' => number_format($catalogSummary['featured'] ?? 0), 'description' => __('Featured releases highlighted in the marketplace catalog.'), 'icon' => 'fa-light fa-sparkles', 'tone' => 'rgb(217 119 6)'],
+        ['label' => __('Installed packages'), 'value' => format_number_locale($summary['total']), 'description' => __('Modules currently managed by Marketplace.'), 'icon' => 'fa-light fa-boxes-stacked', 'tone' => 'var(--theme-accent)'],
+        ['label' => __('Active packages'), 'value' => format_number_locale($summary['active']), 'description' => __('Packages currently booted through the marketplace provider bootstrap file.'), 'icon' => 'fa-light fa-toggle-on', 'tone' => 'rgb(5 150 105)'],
+        ['label' => __('Catalog products'), 'value' => format_number_locale($catalogSummary['total'] ?? 0), 'description' => __('Marketplace-ready products currently available in the synced catalog.'), 'icon' => 'fa-light fa-store', 'tone' => 'rgb(59 130 246)'],
+        ['label' => __('Featured products'), 'value' => format_number_locale($catalogSummary['featured'] ?? 0), 'description' => __('Featured releases highlighted in the marketplace catalog.'), 'icon' => 'fa-light fa-sparkles', 'tone' => 'rgb(217 119 6)'],
     ];
     $openInstallModal = request()->boolean('install') || $errors->has('module_zip') || $errors->has('purchase_code');
     $installMethod = old('install_method', $errors->has('module_zip') ? 'zip' : 'purchase');
@@ -370,11 +370,11 @@
                         <div class="grid gap-2 sm:grid-cols-2">
                             <div class="rounded-2xl px-4 py-3" style="background: rgba(59,130,246,0.08);">
                                 <p class="text-xs uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Regular') }}</p>
-                                <p class="mt-2 text-lg font-semibold" style="color: var(--theme-header-text-color);">${{ number_format($product['price_regular_license'], 2) }}</p>
+                                <p class="mt-2 text-lg font-semibold" style="color: var(--theme-header-text-color);">${{ format_number_locale($product['price_regular_license'], 2) }}</p>
                             </div>
                             <div class="rounded-2xl px-4 py-3" style="background: rgba(16,185,129,0.08);">
                                 <p class="text-xs uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Extended') }}</p>
-                                <p class="mt-2 text-lg font-semibold" style="color: var(--theme-header-text-color);">${{ number_format($product['price_extended_license'], 2) }}</p>
+                                <p class="mt-2 text-lg font-semibold" style="color: var(--theme-header-text-color);">${{ format_number_locale($product['price_extended_license'], 2) }}</p>
                             </div>
                         </div>
 
@@ -469,9 +469,9 @@
                 <div class="flex flex-col items-center justify-between gap-4 rounded-[1.4rem] border px-4 py-4 md:flex-row" style="border-color: rgba(var(--theme-border-color-rgb), 0.65); background: color-mix(in srgb, var(--theme-surface-base) 96%, rgba(59,130,246,0.03));">
                     <div class="inline-flex items-center rounded-full px-3 py-2 text-sm" style="background: rgba(var(--theme-accent-rgb), 0.08); color: var(--theme-muted-text-color);">
                         {{ __('Showing :from to :to of :total results', [
-                            'from' => number_format($catalogProducts->firstItem()),
-                            'to' => number_format($catalogProducts->lastItem()),
-                            'total' => number_format($catalogProducts->total()),
+                            'from' => format_number_locale($catalogProducts->firstItem()),
+                            'to' => format_number_locale($catalogProducts->lastItem()),
+                            'total' => format_number_locale($catalogProducts->total()),
                         ]) }}
                     </div>
 

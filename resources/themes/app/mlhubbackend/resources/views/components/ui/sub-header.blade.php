@@ -17,7 +17,7 @@
                     <h1 class="text-[1.85rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ __($title) }}</h1>
                     @if ($count !== null)
                         <span class="inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]" style="border-color: var(--theme-border-color); background-color: var(--theme-surface-soft); color: var(--theme-muted-text-color);">
-                            {{ number_format((int) $count) }} {{ __('records') }}
+                            {{ format_number_locale((int) $count) }} {{ __('records') }}
                         </span>
                     @endif
                 </div>

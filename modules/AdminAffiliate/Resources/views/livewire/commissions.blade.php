@@ -1,8 +1,8 @@
 @php
     $metricCards = [
-        ['label' => __('Total'), 'value' => number_format($summary['total']), 'description' => __('All commission records.'), 'icon' => 'fa-light fa-badge-dollar', 'tone' => 'var(--theme-accent)', 'progress' => $summary['total'] > 0 ? 100 : 0],
-        ['label' => __('Pending'), 'value' => number_format($summary['pending']), 'description' => __('Waiting for admin review.'), 'icon' => 'fa-light fa-hourglass-half', 'tone' => 'rgb(217 119 6)', 'progress' => $summary['pending'] > 0 ? 100 : 0],
-        ['label' => __('Approved Value'), 'value' => number_format($summary['approved'], 2), 'description' => __('Commission value already approved.'), 'icon' => 'fa-light fa-circle-check', 'tone' => 'rgb(5 150 105)', 'progress' => $summary['approved'] > 0 ? 100 : 0],
+        ['label' => __('Total'), 'value' => format_number_locale($summary['total']), 'description' => __('All commission records.'), 'icon' => 'fa-light fa-badge-dollar', 'tone' => 'var(--theme-accent)', 'progress' => $summary['total'] > 0 ? 100 : 0],
+        ['label' => __('Pending'), 'value' => format_number_locale($summary['pending']), 'description' => __('Waiting for admin review.'), 'icon' => 'fa-light fa-hourglass-half', 'tone' => 'rgb(217 119 6)', 'progress' => $summary['pending'] > 0 ? 100 : 0],
+        ['label' => __('Approved Value'), 'value' => format_number_locale($summary['approved'], 2), 'description' => __('Commission value already approved.'), 'icon' => 'fa-light fa-circle-check', 'tone' => 'rgb(5 150 105)', 'progress' => $summary['approved'] > 0 ? 100 : 0],
     ];
     $statusLabels = [
         'all' => __('All'),
@@ -68,7 +68,7 @@
                         <x-ui.table-cell><div class="space-y-1"><p class="font-medium" style="color: var(--theme-header-text-color);">{{ $commission->affiliateUser?->name ?: __('Unknown user') }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $commission->affiliateUser?->email ?: __('No email') }}</p></div></x-ui.table-cell>
                         <x-ui.table-cell><div class="space-y-1"><p class="font-medium" style="color: var(--theme-header-text-color);">{{ $commission->referredUser?->name ?: __('Unknown user') }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $commission->referredUser?->email ?: __('No email') }}</p></div></x-ui.table-cell>
                         <x-ui.table-cell><div class="space-y-1"><p class="font-mono text-sm" style="color: var(--theme-header-text-color);">{{ $commission->paymentHistory?->transaction_id ?: __('N/A') }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $commission->paymentHistory?->from ?: __('Unknown') }}</p></div></x-ui.table-cell>
-                        <x-ui.table-cell><div class="space-y-1"><p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ number_format((float) $commission->commission, 2) }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ number_format((float) $commission->amount, 2) }} × {{ number_format((float) $commission->commission_rate, 2) }}%</p></div></x-ui.table-cell>
+                        <x-ui.table-cell><div class="space-y-1"><p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale((float) $commission->commission, 2) }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ format_number_locale((float) $commission->amount, 2) }} × {{ format_number_locale((float) $commission->commission_rate, 2) }}%</p></div></x-ui.table-cell>
                         <x-ui.table-cell><x-ui.badge :variant="$commission->statusVariant()">{{ $commission->statusLabel() }}</x-ui.badge></x-ui.table-cell>
                         <x-ui.table-cell>
                             @if ((int) $commission->status === 0)

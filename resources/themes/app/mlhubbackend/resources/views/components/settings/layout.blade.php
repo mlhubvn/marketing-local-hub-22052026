@@ -41,7 +41,7 @@
                             <i class="fa-light fa-file-lines text-[12px]"></i>
                         </span>
                     </div>
-                    <p class="mt-2 text-[1.65rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ number_format($settingsItemCount) }}</p>
+                    <p class="mt-2 text-[1.65rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($settingsItemCount) }}</p>
                 </div>
                 <div class="rounded-[1.05rem] border px-4 py-3.5" style="border-color: rgba(var(--theme-border-color-rgb), 0.42); background:
                     linear-gradient(160deg, rgba(var(--theme-surface-base-rgb,255,255,255),0.92), rgba(var(--theme-surface-soft-rgb,248,250,252),0.72));

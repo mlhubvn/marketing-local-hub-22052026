@@ -69,7 +69,7 @@
             @if ($isEditing)
                 <x-ui.card>
                     <p class="text-[11px] font-semibold uppercase tracking-[0.22em]" style="color: var(--theme-muted-text-color);">{{ __('Assigned users') }}</p>
-                    <p class="mt-3 text-[1.3rem] font-semibold tracking-[-0.03em]" style="color: var(--theme-header-text-color);">{{ number_format($users->count()) }}</p>
+                    <p class="mt-3 text-[1.3rem] font-semibold tracking-[-0.03em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($users->count()) }}</p>
                     <div class="mt-4 space-y-3">
                         @forelse ($users->take(6) as $assignedUser)
                             <div class="rounded-[0.9rem] border px-4 py-3" style="border-color: var(--theme-border-color); background: var(--theme-surface-soft);">

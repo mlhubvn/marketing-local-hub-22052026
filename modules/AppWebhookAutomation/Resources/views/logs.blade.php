@@ -38,7 +38,7 @@
                 <tbody class="divide-y" style="border-color: rgba(var(--theme-border-color-rgb), .58);">
                     @forelse ($logs as $log)
                         <tr>
-                            <td class="px-5 py-4" style="color: var(--theme-muted-text-color);">{{ $log->created_at?->format('Y-m-d H:i') }}</td>
+                            <td class="px-5 py-4" style="color: var(--theme-muted-text-color);">{{ format_datetime_locale($log->created_at) }}</td>
                             <td class="px-5 py-4"><p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $log->automation?->name ?: $log->trigger_event }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $log->trigger_event }}</p></td>
                             <td class="max-w-sm truncate px-5 py-4" style="color: var(--theme-muted-text-color);">{{ $log->method }} {{ $log->webhook_url }}</td>
                             <td class="px-5 py-4" style="color: var(--theme-muted-text-color);">{{ $log->response_status ?: '-' }}</td>

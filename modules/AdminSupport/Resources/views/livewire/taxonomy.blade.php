@@ -9,7 +9,7 @@
         $metricCards = [
             [
                 'label' => __('Total'),
-                'value' => number_format($summary['total']),
+                'value' => format_number_locale($summary['total']),
                 'description' => __('Total items currently available in this support directory.'),
                 'tone' => 'var(--theme-accent)',
                 'progress' => 100,
@@ -19,7 +19,7 @@
             ],
             [
                 'label' => __('Enabled'),
-                'value' => number_format($summary['enabled']),
+                'value' => format_number_locale($summary['enabled']),
                 'description' => __('Items currently available for routing and workflow selection.'),
                 'tone' => '#10b981',
                 'progress' => $summary['total'] > 0 ? max(8, (int) round(($summary['enabled'] / $summary['total']) * 100)) : 8,
@@ -29,7 +29,7 @@
             ],
             [
                 'label' => __('Disabled'),
-                'value' => number_format($summary['disabled']),
+                'value' => format_number_locale($summary['disabled']),
                 'description' => __('Items kept in the directory but hidden from active support flows.'),
                 'tone' => '#64748b',
                 'progress' => $summary['total'] > 0 ? max(8, (int) round(($summary['disabled'] / $summary['total']) * 100)) : 8,
@@ -134,8 +134,8 @@
                                 <p class="mt-1 text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('Filter by item name, icon token, and activation state before editing the directory.') }}</p>
                             </div>
                             <div class="flex flex-wrap items-center gap-2">
-                                <x-ui.badge variant="primary">{{ number_format($summary['total']) }} {{ str($config['plural_label'])->lower() }}</x-ui.badge>
-                                <x-ui.badge variant="success">{{ number_format($summary['enabled']) }} {{ __('enabled') }}</x-ui.badge>
+                                <x-ui.badge variant="primary">{{ format_number_locale($summary['total']) }} {{ str($config['plural_label'])->lower() }}</x-ui.badge>
+                                <x-ui.badge variant="success">{{ format_number_locale($summary['enabled']) }} {{ __('enabled') }}</x-ui.badge>
                             </div>
                         </div>
                     </div>
@@ -159,9 +159,9 @@
                 <x-ui.datatable-shell :title="$directoryTitle" :info="__('Review item identity, icon styling, visual color token, and activation state in a cleaner operational table.')" header-class="py-4" eyebrow-class="text-[10px] tracking-[0.2em]" title-class="mt-1 text-[1.15rem] tracking-[-0.025em]" description-class="mt-1 leading-6">
                 <x-slot:toolbar>
                     <div class="flex flex-wrap items-center gap-3">
-                        <x-ui.badge variant="primary">{{ number_format($summary['total']) }} {{ str($config['plural_label'])->lower() }}</x-ui.badge>
-                        <x-ui.badge variant="success">{{ number_format($summary['enabled']) }} {{ __('enabled') }}</x-ui.badge>
-                        <x-ui.badge variant="neutral">{{ number_format($summary['disabled']) }} {{ __('disabled') }}</x-ui.badge>
+                        <x-ui.badge variant="primary">{{ format_number_locale($summary['total']) }} {{ str($config['plural_label'])->lower() }}</x-ui.badge>
+                        <x-ui.badge variant="success">{{ format_number_locale($summary['enabled']) }} {{ __('enabled') }}</x-ui.badge>
+                        <x-ui.badge variant="neutral">{{ format_number_locale($summary['disabled']) }} {{ __('disabled') }}</x-ui.badge>
                         <x-ui.badge variant="neutral">{{ __('Support :label', ['label' => str($config['singular'])->lower()]) }}</x-ui.badge>
                     </div>
                 </x-slot:toolbar>

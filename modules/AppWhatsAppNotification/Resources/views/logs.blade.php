@@ -39,7 +39,7 @@
                 <tbody class="divide-y" style="border-color: rgba(var(--theme-border-color-rgb), .58);">
                     @forelse ($logs as $log)
                         <tr>
-                            <td class="px-5 py-4" style="color: var(--theme-muted-text-color);">{{ $log->created_at?->format('Y-m-d H:i') }}</td>
+                            <td class="px-5 py-4" style="color: var(--theme-muted-text-color);">{{ format_datetime_locale($log->created_at) }}</td>
                             <td class="px-5 py-4"><p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $log->recipient_name ?: __('No name') }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $log->recipient_phone }}</p></td>
                             <td class="px-5 py-4" style="color: var(--theme-muted-text-color);">{{ $log->automation?->name ?: $log->trigger_event }}</td>
                             <td class="px-5 py-4" style="color: var(--theme-muted-text-color);">{{ \Illuminate\Support\Str::limit((string) $log->body, 80) }}</td>

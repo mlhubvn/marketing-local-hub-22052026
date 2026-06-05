@@ -275,9 +275,9 @@ class AiReportIndex extends Component
             ],
             'summaryCards' => [
                 ['title' => __('Reporting range'), 'description' => format_date_locale($startDate).' - '.format_date_locale($endDate), 'variant' => 'info', 'icon' => 'fa-light fa-calendar-range'],
-                ['title' => __('Active users'), 'description' => number_format($activeUsers).' '.__('accounts generated AI traffic'), 'variant' => 'success', 'icon' => 'fa-light fa-users-viewfinder'],
-                ['title' => __('Average daily requests'), 'description' => number_format((float) $avgDailyRequests, 1).' '.__('requests per day'), 'variant' => 'warning', 'icon' => 'fa-light fa-chart-line-up'],
-                ['title' => __('Peak day'), 'description' => (($peakDay['label'] ?? __('N/A')).' - '.number_format((int) ($peakDay['requests'] ?? 0)).' '.__('requests')), 'variant' => 'danger', 'icon' => 'fa-light fa-bolt'],
+                ['title' => __('Active users'), 'description' => format_number_locale($activeUsers).' '.__('accounts generated AI traffic'), 'variant' => 'success', 'icon' => 'fa-light fa-users-viewfinder'],
+                ['title' => __('Average daily requests'), 'description' => format_number_locale((float) $avgDailyRequests, 1).' '.__('requests per day'), 'variant' => 'warning', 'icon' => 'fa-light fa-chart-line-up'],
+                ['title' => __('Peak day'), 'description' => (($peakDay['label'] ?? __('N/A')).' - '.format_number_locale((int) ($peakDay['requests'] ?? 0)).' '.__('requests')), 'variant' => 'danger', 'icon' => 'fa-light fa-bolt'],
             ],
             'requestTrendOptions' => $requestTrendOptions,
             'throughputOptions' => $throughputOptions,

@@ -80,7 +80,7 @@
                         </div>
                         <div class="rounded-[1rem] border px-4 py-3" style="border-color: var(--theme-border-color);">
                             <p class="text-xs uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Imported') }}</p>
-                            <p class="mt-2 font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($source->imports_count) }}</p>
+                            <p class="mt-2 font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($source->imports_count) }}</p>
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-2">

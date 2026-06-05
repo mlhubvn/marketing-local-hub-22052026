@@ -175,7 +175,7 @@
                                 <i class="fa-light {{ $tile['icon'] }}"></i>
                             </span>
                         </div>
-                        <p class="mt-3 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ is_numeric($tile['value']) ? number_format($tile['value']) : $tile['value'] }}</p>
+                        <p class="mt-3 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ is_numeric($tile['value']) ? format_number_locale($tile['value']) : $tile['value'] }}</p>
                         <div class="mt-2 flex items-center justify-between gap-2">
                             <p class="text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $tile['description'] }}</p>
                             @if (! empty($tile['meta']))

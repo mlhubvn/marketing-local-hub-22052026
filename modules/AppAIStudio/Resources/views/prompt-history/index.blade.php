@@ -69,7 +69,7 @@
                                 @if (! empty($history->config['language']))
                                     <x-ui.badge variant="neutral">{{ collect(world_languages())->firstWhere('code', data_get($history->config, 'language'))['name'] ?? strtoupper((string) data_get($history->config, 'language')) }}</x-ui.badge>
                                 @endif
-                                <span class="text-xs" style="color: var(--theme-muted-text-color);">{{ $history->created_at?->format('Y-m-d H:i') }}</span>
+                                <span class="text-xs" style="color: var(--theme-muted-text-color);">{{ format_datetime_locale($history->created_at) }}</span>
                             </div>
 
                             <h2 class="mt-3 text-lg font-semibold tracking-[-0.03em]" style="color: var(--theme-header-text-color);">

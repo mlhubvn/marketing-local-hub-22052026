@@ -186,7 +186,7 @@
         $faqStatCards = [
             [
                 'label' => __('Total'),
-                'value' => number_format($summary['total']),
+                'value' => format_number_locale($summary['total']),
                 'suffix' => __('entries'),
                 'description' => __('All FAQ entries currently stored.'),
                 'icon' => 'fa-layer-group',
@@ -197,7 +197,7 @@
             ],
             [
                 'label' => __('Enabled'),
-                'value' => number_format($summary['enabled']),
+                'value' => format_number_locale($summary['enabled']),
                 'suffix' => __('live'),
                 'description' => __('FAQs visible for public consumption.'),
                 'icon' => 'fa-circle-check',
@@ -208,7 +208,7 @@
             ],
             [
                 'label' => __('Disabled'),
-                'value' => number_format($summary['disabled']),
+                'value' => format_number_locale($summary['disabled']),
                 'suffix' => __('hidden'),
                 'description' => __('Draft or hidden FAQ entries.'),
                 'icon' => 'fa-eye-slash',

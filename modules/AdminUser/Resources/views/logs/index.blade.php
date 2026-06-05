@@ -41,7 +41,7 @@
             </div>
         </x-ui.card>
 
-        <x-ui.datatable-shell :title="__('Audit timeline')" :info="__('Latest 100 log entries after applying filters.')" :footer-text="number_format($logs->count()).' '.__('entries shown')" header-class="py-4" eyebrow-class="text-[10px] tracking-[0.2em]" title-class="mt-1 text-[1.15rem] tracking-[-0.025em]" description-class="mt-1 leading-6">
+        <x-ui.datatable-shell :title="__('Audit timeline')" :info="__('Latest 100 log entries after applying filters.')" :footer-text="format_number_locale($logs->count()).' '.__('entries shown')" header-class="py-4" eyebrow-class="text-[10px] tracking-[0.2em]" title-class="mt-1 text-[1.15rem] tracking-[-0.025em]" description-class="mt-1 leading-6">
             <x-ui.table class="rounded-none border-0 shadow-none">
                 <x-ui.table-head>
                     <x-ui.table-cell head>{{ __('User') }}</x-ui.table-cell>

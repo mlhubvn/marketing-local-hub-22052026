@@ -59,8 +59,8 @@
             'badge_tone' => $sidebarUser?->portalPlanStatusTone() ?? 'neutral',
             'expiry' => (($sidebarExpiry = ($sidebarUser?->isInPlanTrial() ? $sidebarUser?->trialEndsAt() : $sidebarUser?->plan_expires_at)) ? format_date_vn($sidebarExpiry) : __('Unlimited')),
             'unlimited' => (bool) ($sidebarCreditSummary['unlimited'] ?? false),
-            'credits_used_label' => number_format($sidebarCreditsUsed),
-            'credits_limit_label' => $sidebarCreditLimit !== null ? number_format($sidebarCreditLimit) : __('Unlimited'),
+            'credits_used_label' => format_number_locale($sidebarCreditsUsed),
+            'credits_limit_label' => $sidebarCreditLimit !== null ? format_number_locale($sidebarCreditLimit) : __('Unlimited'),
             'credits_percent' => $sidebarCreditsUsedPercent,
             'details_route' => route('portal.packages'),
         ];

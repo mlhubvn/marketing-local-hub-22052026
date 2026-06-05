@@ -16,17 +16,17 @@
         <div class="grid gap-5 md:grid-cols-3">
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">{{ __('Total') }}</p>
-                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($summary['total']) }}</p>
+                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['total']) }}</p>
                 <p class="text-sm leading-6 text-slate-500">{{ __('All tags currently available for blogs.') }}</p>
             </x-ui.card>
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">{{ __('Enabled') }}</p>
-                <p class="text-2xl font-semibold tracking-[-0.04em] text-emerald-600">{{ number_format($summary['enabled']) }}</p>
+                <p class="text-2xl font-semibold tracking-[-0.04em] text-emerald-600">{{ format_number_locale($summary['enabled']) }}</p>
                 <p class="text-sm leading-6 text-slate-500">{{ __('Tags available for new posts.') }}</p>
             </x-ui.card>
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">{{ __('Disabled') }}</p>
-                <p class="text-2xl font-semibold tracking-[-0.04em] text-slate-600">{{ number_format($summary['disabled']) }}</p>
+                <p class="text-2xl font-semibold tracking-[-0.04em] text-slate-600">{{ format_number_locale($summary['disabled']) }}</p>
                 <p class="text-sm leading-6 text-slate-500">{{ __('Tags hidden from selection.') }}</p>
             </x-ui.card>
         </div>
@@ -70,7 +70,7 @@
                                 </div>
                             </x-ui.table-cell>
                             <x-ui.table-cell><span class="font-mono text-sm">{{ $tag->slug }}</span></x-ui.table-cell>
-                            <x-ui.table-cell>{{ number_format($tag->blogs_count) }}</x-ui.table-cell>
+                            <x-ui.table-cell>{{ format_number_locale($tag->blogs_count) }}</x-ui.table-cell>
                             <x-ui.table-cell><x-ui.badge :variant="$tag->statusVariant()">{{ $tag->statusLabel() }}</x-ui.badge></x-ui.table-cell>
                             <x-ui.table-cell>{{ $tag->createdAtFormatted() ?: __('N/A') }}</x-ui.table-cell>
                             <x-ui.table-cell class="text-right">

@@ -81,7 +81,7 @@
                 <span class="absolute inset-x-0 top-0 h-1" style="background-color: var(--theme-warning-color);"></span>
                 <div class="flex items-start justify-between gap-3">
                     <div class="min-w-0">
-                        <p class="text-[1.75rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ $metric['value'] }}</p>
+                        <p class="text-[1.75rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ is_numeric($metric['value']) ? format_number_locale((float) $metric['value']) : $metric['value'] }}</p>
                         <p class="mt-2 text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $metric['label'] }}</p>
                         <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $metric['description'] }}</p>
                     </div>
@@ -151,7 +151,7 @@
                 <tbody class="divide-y" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
                     @forelse ($recentScans as $scan)
                         <tr>
-                            <td class="px-5 py-4 text-sm" style="color: var(--theme-header-text-color);">{{ $scan->created_at ? \Illuminate\Support\Carbon::parse($scan->created_at)->format('Y-m-d H:i') : __('Unknown') }}</td>
+                            <td class="px-5 py-4 text-sm" style="color: var(--theme-header-text-color);">{{ $scan->created_at ? format_datetime_locale(\Illuminate\Support\Carbon::parse($scan->created_at)) : __('Unknown') }}</td>
                             <td class="px-5 py-4 text-sm" style="color: var(--theme-muted-text-color);">{{ str($scan->device ?: __('Unknown'))->headline() }}</td>
                             <td class="px-5 py-4 text-sm" style="color: var(--theme-muted-text-color);">{{ $this->browserName((string) $scan->user_agent) }}</td>
                             <td class="px-5 py-4 text-sm" style="color: var(--theme-muted-text-color);">{{ trim(($scan->city ?: __('Unknown city')).', '.($scan->country ?: __('Unknown country'))) }}</td>

@@ -570,10 +570,10 @@
 
             <x-ui.metric-strip
                 :items="[
-                    ['label' => __('Library'), 'value' => number_format($themeSummary['library']), 'description' => __('Installed backend theme options ready for selection.'), 'progress' => 100, 'tone' => 'var(--theme-accent)'],
-                    ['label' => __('Editor fields'), 'value' => number_format($themeSummary['editor_fields']), 'description' => __('Theme settings currently exposed in the active schema.'), 'progress' => $themeSummary['editor_fields'] > 0 ? 100 : 0, 'tone' => 'var(--theme-warning-color)'],
-                    ['label' => __('Navigation'), 'value' => number_format($themeSummary['navigation_modes']), 'description' => __('Navigation modes supported by the selected backend theme.'), 'progress' => $themeSummary['navigation_modes'] > 0 ? 100 : 0, 'tone' => 'var(--theme-success-color)'],
-                    ['label' => __('Guest themes'), 'value' => number_format($themeSummary['guest_themes']), 'description' => __('Public theme variants available alongside the admin shell.'), 'progress' => $themeSummary['guest_themes'] > 0 ? 100 : 0, 'tone' => 'var(--theme-muted-text-color)'],
+                    ['label' => __('Library'), 'value' => format_number_locale($themeSummary['library']), 'description' => __('Installed backend theme options ready for selection.'), 'progress' => 100, 'tone' => 'var(--theme-accent)'],
+                    ['label' => __('Editor fields'), 'value' => format_number_locale($themeSummary['editor_fields']), 'description' => __('Theme settings currently exposed in the active schema.'), 'progress' => $themeSummary['editor_fields'] > 0 ? 100 : 0, 'tone' => 'var(--theme-warning-color)'],
+                    ['label' => __('Navigation'), 'value' => format_number_locale($themeSummary['navigation_modes']), 'description' => __('Navigation modes supported by the selected backend theme.'), 'progress' => $themeSummary['navigation_modes'] > 0 ? 100 : 0, 'tone' => 'var(--theme-success-color)'],
+                    ['label' => __('Guest themes'), 'value' => format_number_locale($themeSummary['guest_themes']), 'description' => __('Public theme variants available alongside the admin shell.'), 'progress' => $themeSummary['guest_themes'] > 0 ? 100 : 0, 'tone' => 'var(--theme-muted-text-color)'],
                 ]"
                 :show-icons="false"
                 columns="md:grid-cols-2 xl:grid-cols-4"

@@ -2,21 +2,21 @@
     $languageMetricCards = [
         [
             'label' => __('Total'),
-            'value' => number_format($summary['total']),
+            'value' => format_number_locale($summary['total']),
             'description' => __('All locale records currently registered.'),
             'tone' => 'var(--theme-accent)',
             'progress' => 100,
         ],
         [
             'label' => __('Active'),
-            'value' => number_format($summary['active']),
+            'value' => format_number_locale($summary['active']),
             'description' => __('Languages currently available to users.'),
             'tone' => 'var(--theme-success-color)',
             'progress' => max(8, $summary['total'] > 0 ? (int) round(($summary['active'] / $summary['total']) * 100) : 8),
         ],
         [
             'label' => __('Auto Translate'),
-            'value' => number_format($summary['auto_translate']),
+            'value' => format_number_locale($summary['auto_translate']),
             'description' => __('Languages enabled for machine-assisted translation.'),
             'tone' => 'var(--theme-warning-color)',
             'progress' => max(8, $summary['total'] > 0 ? (int) round(($summary['auto_translate'] / $summary['total']) * 100) : 8),
@@ -101,7 +101,7 @@
                         <span class="text-sm font-medium" style="color: var(--theme-header-text-color);">
                             {{ trans_choice('{1} :count language|[2,*] :count languages', $summary['total'], ['count' => $summary['total']]) }}
                         </span>
-                        <span class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Active') }}: {{ number_format($summary['active']) }}</span>
+                        <span class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Active') }}: {{ format_number_locale($summary['active']) }}</span>
                     @endif
 
                     @if (count($selected) > 0)

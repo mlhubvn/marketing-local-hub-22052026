@@ -3,9 +3,9 @@
     $assignedUsers = (int) $roles->sum('users_count');
     $permissionCount = (int) $roles->sum(fn ($role) => count($role->permissions ?? []));
     $metricCards = [
-        ['label' => __('Roles'), 'value' => number_format($roleCount), 'description' => __('Available permission groups.'), 'tone' => 'var(--theme-accent)', 'progress' => 100],
-        ['label' => __('Assigned users'), 'value' => number_format($assignedUsers), 'description' => __('Users attached to a role.'), 'tone' => '#10b981', 'progress' => $assignedUsers > 0 ? 100 : 8],
-        ['label' => __('Permissions'), 'value' => number_format($permissionCount), 'description' => __('Permission keys across roles.'), 'tone' => '#f59e0b', 'progress' => $permissionCount > 0 ? 100 : 8],
+        ['label' => __('Roles'), 'value' => format_number_locale($roleCount), 'description' => __('Available permission groups.'), 'tone' => 'var(--theme-accent)', 'progress' => 100],
+        ['label' => __('Assigned users'), 'value' => format_number_locale($assignedUsers), 'description' => __('Users attached to a role.'), 'tone' => '#10b981', 'progress' => $assignedUsers > 0 ? 100 : 8],
+        ['label' => __('Permissions'), 'value' => format_number_locale($permissionCount), 'description' => __('Permission keys across roles.'), 'tone' => '#f59e0b', 'progress' => $permissionCount > 0 ? 100 : 8],
     ];
 @endphp
 
@@ -27,7 +27,7 @@
 
     <x-ui.datatable-shell :title="__('Role directory')" :info="__('Roles, assigned users, and permission coverage across backend modules.')" header-class="py-4" eyebrow-class="text-[10px] tracking-[0.2em]" title-class="mt-1 text-[1.15rem] tracking-[-0.025em]" description-class="mt-1 leading-6">
         <x-slot:toolbar>
-            <x-ui.badge variant="primary">{{ number_format($roleCount) }} {{ __('roles') }}</x-ui.badge>
+            <x-ui.badge variant="primary">{{ format_number_locale($roleCount) }} {{ __('roles') }}</x-ui.badge>
         </x-slot:toolbar>
 
         <x-ui.table class="rounded-none border-0 shadow-none">
@@ -41,8 +41,8 @@
                 @forelse ($roles as $role)
                     <x-ui.table-row>
                         <x-ui.table-cell><div class="space-y-1"><p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $role->name }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $role->description ?: __('No description yet') }}</p></div></x-ui.table-cell>
-                        <x-ui.table-cell><x-ui.badge variant="success">{{ number_format($role->users_count) }}</x-ui.badge></x-ui.table-cell>
-                        <x-ui.table-cell><x-ui.badge variant="primary">{{ number_format(count($role->permissions ?? [])) }}</x-ui.badge></x-ui.table-cell>
+                        <x-ui.table-cell><x-ui.badge variant="success">{{ format_number_locale($role->users_count) }}</x-ui.badge></x-ui.table-cell>
+                        <x-ui.table-cell><x-ui.badge variant="primary">{{ format_number_locale(count($role->permissions ?? [])) }}</x-ui.badge></x-ui.table-cell>
                         <x-ui.table-cell>
                             <div class="flex items-center justify-end gap-2 pr-4">
                                 <x-ui.button href="{{ route('admin-user-roles.edit', $role) }}" variant="outline" size="sm" wire:navigate>{{ __('Manage') }}</x-ui.button>

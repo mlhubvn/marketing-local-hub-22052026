@@ -28,7 +28,7 @@
         $tagStatCards = [
             [
                 'label' => __('Total'),
-                'value' => number_format($summary['total']),
+                'value' => format_number_locale($summary['total']),
                 'suffix' => __('tags'),
                 'description' => __('All tags currently available for blogs.'),
                 'icon' => 'fa-layer-group',
@@ -37,7 +37,7 @@
             ],
             [
                 'label' => __('Enabled'),
-                'value' => number_format($summary['enabled']),
+                'value' => format_number_locale($summary['enabled']),
                 'suffix' => __('live'),
                 'description' => __('Tags available for new posts and filters.'),
                 'icon' => 'fa-circle-check',
@@ -46,7 +46,7 @@
             ],
             [
                 'label' => __('Disabled'),
-                'value' => number_format($summary['disabled']),
+                'value' => format_number_locale($summary['disabled']),
                 'suffix' => __('hidden'),
                 'description' => __('Tags hidden from selection and publishing flows.'),
                 'icon' => 'fa-eye-slash',
@@ -179,7 +179,7 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="rounded-[1rem] border px-4 py-3" style="{{ $surfaceSoftStyle }}">
                         <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Posts') }}</p>
-                        <p class="mt-2 text-xl font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($tag->blogs_count) }}</p>
+                        <p class="mt-2 text-xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($tag->blogs_count) }}</p>
                     </div>
                     <div class="rounded-[1rem] border px-4 py-3" style="{{ $surfaceSoftStyle }}">
                         <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Created') }}</p>

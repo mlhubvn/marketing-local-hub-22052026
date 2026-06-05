@@ -49,9 +49,9 @@
 
         <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             @foreach ([
-                ['label' => __('Total entries'), 'value' => number_format($totalLogs), 'hint' => __('All activity recorded for this user.'), 'icon' => 'fa-list-check', 'tone' => 'var(--theme-accent)'],
-                ['label' => __('Filtered'), 'value' => number_format($filteredCount), 'hint' => __('Rows matching the current view.'), 'icon' => 'fa-filter', 'tone' => '#0ea5e9'],
-                ['label' => __('Areas'), 'value' => number_format($areas->count()), 'hint' => __('Portal and admin surfaces represented.'), 'icon' => 'fa-layer-group', 'tone' => '#d97706'],
+                ['label' => __('Total entries'), 'value' => format_number_locale($totalLogs), 'hint' => __('All activity recorded for this user.'), 'icon' => 'fa-list-check', 'tone' => 'var(--theme-accent)'],
+                ['label' => __('Filtered'), 'value' => format_number_locale($filteredCount), 'hint' => __('Rows matching the current view.'), 'icon' => 'fa-filter', 'tone' => '#0ea5e9'],
+                ['label' => __('Areas'), 'value' => format_number_locale($areas->count()), 'hint' => __('Portal and admin surfaces represented.'), 'icon' => 'fa-layer-group', 'tone' => '#d97706'],
                 ['label' => __('Latest'), 'value' => $latestTime?->diffForHumans() ?? __('No activity'), 'hint' => $latest?->event ?? __('Activity will appear after key actions.'), 'icon' => 'fa-clock-rotate-left', 'tone' => 'var(--theme-success-color)'],
             ] as $card)
                 <div class="rounded-[1rem] border p-4" style="border-color: rgba(var(--theme-border-color-rgb), .58); background-color: var(--theme-surface-base);">

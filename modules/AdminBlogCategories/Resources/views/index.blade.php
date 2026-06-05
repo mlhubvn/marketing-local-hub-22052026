@@ -16,17 +16,17 @@
         <div class="grid gap-5 md:grid-cols-3">
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">{{ __('Total') }}</p>
-                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($summary['total']) }}</p>
+                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['total']) }}</p>
                 <p class="text-sm leading-6 text-slate-500">{{ __('All blog categories currently available.') }}</p>
             </x-ui.card>
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">{{ __('Enabled') }}</p>
-                <p class="text-2xl font-semibold tracking-[-0.04em] text-emerald-600">{{ number_format($summary['enabled']) }}</p>
+                <p class="text-2xl font-semibold tracking-[-0.04em] text-emerald-600">{{ format_number_locale($summary['enabled']) }}</p>
                 <p class="text-sm leading-6 text-slate-500">{{ __('Categories visible for publishing workflows.') }}</p>
             </x-ui.card>
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">{{ __('Disabled') }}</p>
-                <p class="text-2xl font-semibold tracking-[-0.04em] text-slate-600">{{ number_format($summary['disabled']) }}</p>
+                <p class="text-2xl font-semibold tracking-[-0.04em] text-slate-600">{{ format_number_locale($summary['disabled']) }}</p>
                 <p class="text-sm leading-6 text-slate-500">{{ __('Categories hidden from new content selection.') }}</p>
             </x-ui.card>
         </div>
@@ -71,7 +71,7 @@
                                 </div>
                             </x-ui.table-cell>
                             <x-ui.table-cell><span class="font-mono text-sm">{{ $category->slug }}</span></x-ui.table-cell>
-                            <x-ui.table-cell>{{ number_format($category->blogs_count) }}</x-ui.table-cell>
+                            <x-ui.table-cell>{{ format_number_locale($category->blogs_count) }}</x-ui.table-cell>
                             <x-ui.table-cell><x-ui.badge :variant="$category->statusVariant()">{{ $category->statusLabel() }}</x-ui.badge></x-ui.table-cell>
                             <x-ui.table-cell>{{ $category->createdAtFormatted() ?: __('N/A') }}</x-ui.table-cell>
                             <x-ui.table-cell class="text-right">

@@ -44,9 +44,9 @@
 
     <x-ui.metric-strip
         :items="[
-            ['label' => __('Total'), 'value' => number_format($summary['total']), 'description' => __('All configured category groups for AI templates.'), 'progress' => 100, 'tone' => 'var(--theme-accent)'],
-            ['label' => __('Enabled'), 'value' => number_format($summary['enabled']), 'description' => __('Categories currently available to template authors.'), 'progress' => $summary['total'] > 0 ? (int) round(($summary['enabled'] / $summary['total']) * 100) : 0, 'tone' => 'var(--theme-success-color)'],
-            ['label' => __('Disabled'), 'value' => number_format($summary['disabled']), 'description' => __('Categories hidden from the active template workflow.'), 'progress' => $summary['total'] > 0 ? (int) round(($summary['disabled'] / $summary['total']) * 100) : 0, 'tone' => 'var(--theme-muted-text-color)'],
+            ['label' => __('Total'), 'value' => format_number_locale($summary['total']), 'description' => __('All configured category groups for AI templates.'), 'progress' => 100, 'tone' => 'var(--theme-accent)'],
+            ['label' => __('Enabled'), 'value' => format_number_locale($summary['enabled']), 'description' => __('Categories currently available to template authors.'), 'progress' => $summary['total'] > 0 ? (int) round(($summary['enabled'] / $summary['total']) * 100) : 0, 'tone' => 'var(--theme-success-color)'],
+            ['label' => __('Disabled'), 'value' => format_number_locale($summary['disabled']), 'description' => __('Categories hidden from the active template workflow.'), 'progress' => $summary['total'] > 0 ? (int) round(($summary['disabled'] / $summary['total']) * 100) : 0, 'tone' => 'var(--theme-muted-text-color)'],
         ]"
         :show-icons="false"
         columns="md:grid-cols-3"
@@ -77,7 +77,7 @@
 
     <x-ui.bulk-toolbar compact>
         <x-slot:chips>
-            <x-ui.badge variant="neutral">{{ number_format($categories->total()) }} {{ __('matching categories') }}</x-ui.badge>
+            <x-ui.badge variant="neutral">{{ format_number_locale($categories->total()) }} {{ __('matching categories') }}</x-ui.badge>
         </x-slot:chips>
         <x-slot:selection>
             <span class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Page :current of :last', ['current' => $categories->currentPage(), 'last' => $categories->lastPage()]) }}</span>

@@ -13,10 +13,10 @@
 
     <x-ui.metric-strip
         :items="[
-            ['label' => __('Total'), 'value' => number_format($summary['total']), 'description' => __('All support tickets currently stored.'), 'progress' => 100, 'tone' => 'var(--theme-accent)', 'icon' => 'fa-light fa-folders', 'iconSurface' => 'color-mix(in srgb, var(--theme-accent) 10%, transparent)', 'iconBorder' => 'color-mix(in srgb, var(--theme-accent) 18%, var(--theme-border-color))'],
-            ['label' => __('Open'), 'value' => number_format($summary['open']), 'description' => __('Tickets waiting for a final resolution.'), 'progress' => $summary['total'] > 0 ? (int) round(($summary['open'] / $summary['total']) * 100) : 0, 'tone' => 'var(--theme-accent)', 'icon' => 'fa-light fa-door-open', 'iconSurface' => 'color-mix(in srgb, var(--theme-accent) 10%, transparent)', 'iconBorder' => 'color-mix(in srgb, var(--theme-accent) 18%, var(--theme-border-color))'],
-            ['label' => __('Resolved'), 'value' => number_format($summary['resolved']), 'description' => __('Tickets marked as resolved by the team.'), 'progress' => $summary['total'] > 0 ? (int) round(($summary['resolved'] / $summary['total']) * 100) : 0, 'tone' => 'var(--theme-success-color)', 'icon' => 'fa-light fa-circle-check', 'iconSurface' => 'color-mix(in srgb, var(--theme-success-color) 10%, transparent)', 'iconBorder' => 'color-mix(in srgb, var(--theme-success-color) 18%, var(--theme-border-color))'],
-            ['label' => __('Unread'), 'value' => number_format($summary['unread']), 'description' => __('Tickets with unread customer replies.'), 'progress' => $summary['total'] > 0 ? (int) round(($summary['unread'] / $summary['total']) * 100) : 0, 'tone' => 'var(--theme-warning-color)', 'icon' => 'fa-light fa-bell', 'iconSurface' => 'color-mix(in srgb, var(--theme-warning-color) 10%, transparent)', 'iconBorder' => 'color-mix(in srgb, var(--theme-warning-color) 18%, var(--theme-border-color))'],
+            ['label' => __('Total'), 'value' => format_number_locale($summary['total']), 'description' => __('All support tickets currently stored.'), 'progress' => 100, 'tone' => 'var(--theme-accent)', 'icon' => 'fa-light fa-folders', 'iconSurface' => 'color-mix(in srgb, var(--theme-accent) 10%, transparent)', 'iconBorder' => 'color-mix(in srgb, var(--theme-accent) 18%, var(--theme-border-color))'],
+            ['label' => __('Open'), 'value' => format_number_locale($summary['open']), 'description' => __('Tickets waiting for a final resolution.'), 'progress' => $summary['total'] > 0 ? (int) round(($summary['open'] / $summary['total']) * 100) : 0, 'tone' => 'var(--theme-accent)', 'icon' => 'fa-light fa-door-open', 'iconSurface' => 'color-mix(in srgb, var(--theme-accent) 10%, transparent)', 'iconBorder' => 'color-mix(in srgb, var(--theme-accent) 18%, var(--theme-border-color))'],
+            ['label' => __('Resolved'), 'value' => format_number_locale($summary['resolved']), 'description' => __('Tickets marked as resolved by the team.'), 'progress' => $summary['total'] > 0 ? (int) round(($summary['resolved'] / $summary['total']) * 100) : 0, 'tone' => 'var(--theme-success-color)', 'icon' => 'fa-light fa-circle-check', 'iconSurface' => 'color-mix(in srgb, var(--theme-success-color) 10%, transparent)', 'iconBorder' => 'color-mix(in srgb, var(--theme-success-color) 18%, var(--theme-border-color))'],
+            ['label' => __('Unread'), 'value' => format_number_locale($summary['unread']), 'description' => __('Tickets with unread customer replies.'), 'progress' => $summary['total'] > 0 ? (int) round(($summary['unread'] / $summary['total']) * 100) : 0, 'tone' => 'var(--theme-warning-color)', 'icon' => 'fa-light fa-bell', 'iconSurface' => 'color-mix(in srgb, var(--theme-warning-color) 10%, transparent)', 'iconBorder' => 'color-mix(in srgb, var(--theme-warning-color) 18%, var(--theme-border-color))'],
         ]"
         columns="md:grid-cols-2 xl:grid-cols-4"
     />
@@ -72,10 +72,10 @@
     >
         <x-slot:toolbar>
             <div class="flex flex-wrap items-center gap-2">
-                <x-ui.badge variant="primary">{{ number_format($summary['total']) }} {{ __('tickets') }}</x-ui.badge>
-                <x-ui.badge variant="success">{{ number_format($summary['open']) }} {{ __('open') }}</x-ui.badge>
+                <x-ui.badge variant="primary">{{ format_number_locale($summary['total']) }} {{ __('tickets') }}</x-ui.badge>
+                <x-ui.badge variant="success">{{ format_number_locale($summary['open']) }} {{ __('open') }}</x-ui.badge>
                 @if ($summary['unread'] > 0)
-                    <x-ui.badge variant="danger">{{ number_format($summary['unread']) }} {{ __('unread') }}</x-ui.badge>
+                    <x-ui.badge variant="danger">{{ format_number_locale($summary['unread']) }} {{ __('unread') }}</x-ui.badge>
                 @endif
             </div>
         </x-slot:toolbar>

@@ -58,17 +58,17 @@
         <div class="grid gap-5 md:grid-cols-3">
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{{ __('Total') }}</p>
-                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($summary['total']) }}</p>
+                <p class="text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($summary['total']) }}</p>
                 <p class="text-sm leading-6 text-slate-500 dark:text-slate-400">{{ __('Manual notifications saved in the system.') }}</p>
             </x-ui.card>
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{{ __('Sent Today') }}</p>
-                <p class="text-2xl font-semibold tracking-[-0.04em] text-emerald-600 dark:text-emerald-300">{{ number_format($summary['sent_today']) }}</p>
+                <p class="text-2xl font-semibold tracking-[-0.04em] text-emerald-600 dark:text-emerald-300">{{ format_number_locale($summary['sent_today']) }}</p>
                 <p class="text-sm leading-6 text-slate-500 dark:text-slate-400">{{ __('New announcements created on :date.', ['date' => now()->format('Y-m-d')]) }}</p>
             </x-ui.card>
             <x-ui.card class="space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">{{ __('Delivered') }}</p>
-                <p class="text-2xl font-semibold tracking-[-0.04em] text-slate-600 dark:text-slate-300">{{ number_format($summary['recipients']) }}</p>
+                <p class="text-2xl font-semibold tracking-[-0.04em] text-slate-600 dark:text-slate-300">{{ format_number_locale($summary['recipients']) }}</p>
                 <p class="text-sm leading-6 text-slate-500 dark:text-slate-400">{{ __('Total user notification rows generated from manual sends.') }}</p>
             </x-ui.card>
         </div>
@@ -119,7 +119,7 @@
                                 </div>
                             </x-ui.table-cell>
                             <x-ui.table-cell>
-                                <x-ui.badge variant="primary">{{ number_format($notification->recipientsCount()) }}</x-ui.badge>
+                                <x-ui.badge variant="primary">{{ format_number_locale($notification->recipientsCount()) }}</x-ui.badge>
                             </x-ui.table-cell>
                             <x-ui.table-cell>
                                 <p class="text-sm" style="color: var(--theme-header-text-color);">{{ $notification->creator?->name ?: __('System') }}</p>

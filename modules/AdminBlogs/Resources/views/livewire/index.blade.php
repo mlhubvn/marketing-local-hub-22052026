@@ -21,21 +21,21 @@
             $blogMetricCards = [
                 [
                     'label' => __('Total'),
-                    'value' => number_format($summary['total']),
+                    'value' => format_number_locale($summary['total']),
                     'description' => __('All blog posts currently stored.'),
                     'tone' => 'var(--theme-accent)',
                     'progress' => 100,
                 ],
                 [
                     'label' => __('Published'),
-                    'value' => number_format($summary['published']),
+                    'value' => format_number_locale($summary['published']),
                     'description' => __('Posts currently visible for publishing workflows.'),
                     'tone' => '#10b981',
                     'progress' => max(8, $summary['total'] > 0 ? round(($summary['published'] / $summary['total']) * 100) : 8),
                 ],
                 [
                     'label' => __('Draft'),
-                    'value' => number_format($summary['draft']),
+                    'value' => format_number_locale($summary['draft']),
                     'description' => __('Posts not yet published.'),
                     'tone' => '#64748b',
                     'progress' => max(8, $summary['total'] > 0 ? round(($summary['draft'] / $summary['total']) * 100) : 8),

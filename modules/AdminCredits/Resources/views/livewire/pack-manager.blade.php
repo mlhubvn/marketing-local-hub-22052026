@@ -1,8 +1,8 @@
 @php
     $metricCards = [
-        ['label' => __('Packs'), 'value' => number_format($packCount), 'description' => __('Configured top-up offers.'), 'tone' => 'var(--theme-accent)', 'progress' => 100],
-        ['label' => __('Active'), 'value' => number_format($activeCount), 'description' => __('Currently purchasable packs.'), 'tone' => '#10b981', 'progress' => $packCount > 0 ? max(8, (int) round(($activeCount / max(1, $packCount)) * 100)) : 8],
-        ['label' => __('Featured'), 'value' => number_format($featuredCount), 'description' => __('Highlighted packs in portal.'), 'tone' => '#f59e0b', 'progress' => $featuredCount > 0 ? max(8, (int) round(($featuredCount / max(1, $packCount)) * 100)) : 8],
+        ['label' => __('Packs'), 'value' => format_number_locale($packCount), 'description' => __('Configured top-up offers.'), 'tone' => 'var(--theme-accent)', 'progress' => 100],
+        ['label' => __('Active'), 'value' => format_number_locale($activeCount), 'description' => __('Currently purchasable packs.'), 'tone' => '#10b981', 'progress' => $packCount > 0 ? max(8, (int) round(($activeCount / max(1, $packCount)) * 100)) : 8],
+        ['label' => __('Featured'), 'value' => format_number_locale($featuredCount), 'description' => __('Highlighted packs in portal.'), 'tone' => '#f59e0b', 'progress' => $featuredCount > 0 ? max(8, (int) round(($featuredCount / max(1, $packCount)) * 100)) : 8],
     ];
 
     $statusLabel = fn ($value) => $value ? __('Enabled') : __('Disabled');
@@ -48,7 +48,7 @@
                     <div class="flex items-start justify-between gap-4">
                         <div>
                             <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Credits') }}</p>
-                            <p class="mt-2 text-[1.75rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ number_format($pack->credits) }}</p>
+                            <p class="mt-2 text-[1.75rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($pack->credits) }}</p>
                         </div>
                         <div class="text-right">
                             <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Price') }}</p>
@@ -61,7 +61,7 @@
                 <div class="grid gap-3 sm:grid-cols-2">
                     <x-ui.metric-card
                         :label="__('Sort order')"
-                        :value="number_format((int) $pack->sort)"
+                        :value="format_number_locale((int) $pack->sort)"
                         :description="__('Display order in credit pack listings.')"
                         icon="fa-light fa-arrow-down-1-9"
                         accent="neutral"

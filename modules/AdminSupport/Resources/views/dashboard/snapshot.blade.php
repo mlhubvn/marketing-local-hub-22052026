@@ -53,7 +53,7 @@
                             <i class="fa-light {{ $card['icon'] }}"></i>
                         </span>
                     </div>
-                    <p class="mt-3 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ number_format((int) $card['value']) }}</p>
+                    <p class="mt-3 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $card['value']) }}</p>
                     <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $card['description'] }}</p>
                 </div>
             @endforeach
@@ -62,7 +62,7 @@
         <div class="mt-5 grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
             <div class="rounded-[1rem] border p-5" style="border-color: rgba(var(--theme-border-color-rgb),0.64); background: color-mix(in srgb, var(--theme-surface-overlay) 92%, transparent);">
                 <p class="text-xs font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Service focus') }}</p>
-                <p class="mt-3 text-3xl font-semibold" style="color: var(--theme-header-text-color);">{{ number_format((int) $metrics['open']) }}</p>
+                <p class="mt-3 text-3xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) $metrics['open']) }}</p>
                 <p class="mt-2 text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('Tickets still in progress and waiting for response or resolution.') }}</p>
                 <div class="mt-5 h-2 overflow-hidden rounded-full" style="background: rgba(var(--theme-border-color-rgb),0.46);">
                     @php($unreadShare = ($metrics['open'] ?? 0) > 0 ? min(100, round(($metrics['unread'] / max(1, $metrics['open'])) * 100)) : 0)
