@@ -39,6 +39,9 @@
             __('Deploy in the real world with QR codes and short links.'),
             __('Push new customer data straight into your CRM.'),
             __('Manage multiple stores from one workspace.'),
+            __('Track bookings, coupons, and leads from one dashboard.'),
+            __('Schedule automated email nurture sequences for captured contacts.'),
+            __('Draft professional Google Maps review replies with AI.'),
         ];
     @endphp
 
@@ -1241,7 +1244,7 @@
                         <p class="lb-body mt-5" style="color: var(--lb-muted);">{{ __('Simplify every technical step—automate the full conversion flow from campaign pages and QR codes through to measurable reports.') }}</p>
                         <div class="lb-proof-visual mt-8 rounded-2xl border p-5" style="border-color: var(--lb-line);">
                             <div class="grid gap-3 sm:grid-cols-3">
-                                @foreach ([['fa-bullhorn', __('Campaign')], ['fa-browser', __('Public Page')], ['fa-user-plus', __('Customer')]] as $node)
+                                @foreach ([['fa-bullhorn', __('Campaign management')], ['fa-browser', __('Landing page management')], ['fa-user-plus', __('Customer management')]] as $node)
                                     <div class="lb-proof-node rounded-2xl bg-white p-4">
                                         <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-red) 9%, #fff); color: var(--lb-red);">
                                             <i class="fa-light {{ $node[0] }}"></i>
@@ -1263,15 +1266,18 @@
                             </div>
                         </div>
                     </div>
-                    <div class="relative z-10 grid gap-x-6 sm:grid-cols-2">
-                        @foreach ($productHighlights as $item)
-                            <div class="lb-proof-item flex gap-3 py-4">
-                                <span class="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full" style="background: color-mix(in srgb, var(--lb-red) 10%, #fff); color: var(--lb-red);">
-                                    <i class="fa-light fa-check text-xs"></i>
-                                </span>
-                                <span class="text-sm font-black leading-6">{{ $item }}</span>
-                            </div>
-                        @endforeach
+                    <div class="relative z-10">
+                        <h3 class="lb-card-title">{{ __('Mode for marketing staff') }}</h3>
+                        <div class="mt-4 grid gap-x-6 sm:grid-cols-2">
+                            @foreach ($productHighlights as $item)
+                                <div class="lb-proof-item flex gap-3 py-4">
+                                    <span class="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full" style="background: color-mix(in srgb, var(--lb-red) 10%, #fff); color: var(--lb-red);">
+                                        <i class="fa-light fa-check text-xs"></i>
+                                    </span>
+                                    <span class="text-sm font-black leading-6">{{ $item }}</span>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1281,9 +1287,26 @@
             <div class="lb-window lb-final-cta rounded-3xl p-6 sm:p-8">
                 <div class="grid gap-8 lg:grid-cols-[1fr_24rem] lg:items-center">
                     <div>
-                        <span class="lb-pill inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Launch your next campaign') }}</span>
+                        <span class="lb-pill inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Choose your industry and start your campaign') }}</span>
                         <h2 class="lb-serif lb-heading mt-5 max-w-3xl">{{ __('Ready to boost revenue and automate customer care?') }}</h2>
-                        <p class="lb-body mt-5 max-w-2xl" style="color: var(--lb-muted);">{{ __('Do not miss another potential customer. Start attracting guests, retaining them, and building a standard operating process for your store today.') }}</p>
+                        <p class="lb-body mt-5 max-w-2xl" style="color: var(--lb-muted);">{{ __('Do not miss any potential customer. Start attracting, retaining customers, and building a standard operating process (SPO) for your store right now.') }}</p>
+                        <div class="mt-6 flex flex-wrap items-center gap-3">
+                            <div class="flex-1 min-w-[12rem] rounded-2xl border bg-white p-4" style="border-color: var(--lb-line);">
+                                <p class="text-sm font-black">{{ __('Select a standardized SOP') }}</p>
+                            </div>
+                            <span class="flex-none text-xl font-black" style="color: var(--lb-red);">
+                                <i class="fa-light fa-arrow-right-long"></i>
+                            </span>
+                            <div class="flex-1 min-w-[12rem] rounded-2xl border bg-white p-4" style="border-color: var(--lb-line);">
+                                <p class="text-sm font-black">{{ __('AI pushes content') }}</p>
+                            </div>
+                            <span class="flex-none text-xl font-black" style="color: var(--lb-red);">
+                                <i class="fa-light fa-arrow-right-long"></i>
+                            </span>
+                            <div class="flex-1 min-w-[12rem] rounded-2xl border bg-white p-4" style="border-color: var(--lb-line);">
+                                <p class="text-sm font-black">{{ __('View overview dashboard') }}</p>
+                            </div>
+                        </div>
                         <div class="mt-8 flex flex-wrap gap-3">
                             <a href="{{ $demoHref }}" class="lb-button inline-flex items-center justify-center gap-2 px-6 py-4 text-sm font-black">
                                 <i class="fa-light fa-rocket-launch"></i>
