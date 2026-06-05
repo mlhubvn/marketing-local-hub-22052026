@@ -25,7 +25,7 @@
     $contactEmail = trim((string) $options->get('contact_email', ''));
     $homeUrl = route('home');
     $footerLegal = [
-        ['label' => __('Privacy Policy'), 'href' => route('guest.privacy-policy')],
+        ['label' => __('Security policy'), 'href' => route('guest.privacy-policy')],
         ['label' => __('Terms of Use'), 'href' => route('guest.terms-of-use')],
     ];
 @endphp
@@ -162,19 +162,19 @@
                     <div>
                         <p class="text-xs font-black uppercase tracking-[0.18em] text-neutral-400">{{ __('Product') }}</p>
                         <div class="mt-4 grid gap-3 text-sm font-bold text-neutral-600">
-                            <a href="{{ route('guest.about') }}" class="hover:text-teal-700">{{ __('About') }}</a>
-                            <a href="{{ route('guest.solutions') }}" class="hover:text-teal-700">{{ __('Solutions') }}</a>
+                            <a href="{{ route('guest.about') }}" class="hover:text-teal-700">{{ __('About MLHUB') }}</a>
+                            <a href="{{ route('guest.solutions') }}" class="hover:text-teal-700">{{ __('All-in-one solutions') }}</a>
                             <a href="{{ $homeUrl }}#features" class="hover:text-teal-700">{{ __('Core features') }}</a>
-                            <a href="{{ route('guest.pricing') }}" class="hover:text-teal-700">{{ __('Pricing') }}</a>
+                            <a href="{{ route('guest.pricing') }}" class="hover:text-teal-700">{{ __('Pricing and services') }}</a>
                             <a href="{{ route('home') }}#how-it-works" class="hover:text-teal-700">{{ __('How it works') }}</a>
-                            <a href="{{ route('guest.blogs') }}" class="hover:text-teal-700">{{ __('Blog') }}</a>
+                            <a href="{{ route('guest.blogs') }}" class="hover:text-teal-700">{{ __('News and guides') }}</a>
                         </div>
                     </div>
 
                     <div>
-                        <p class="text-xs font-black uppercase tracking-[0.18em] text-neutral-400">{{ __('Company') }}</p>
+                        <p class="text-xs font-black uppercase tracking-[0.18em] text-neutral-400">{{ __('Links') }}</p>
                         <div class="mt-4 grid gap-3 text-sm font-bold text-neutral-600">
-                            <a href="{{ route('guest.contact') }}" class="hover:text-teal-700">{{ __('Contact') }}</a>
+                            <a href="{{ route('guest.contact') }}" class="hover:text-teal-700">{{ __('Support contact') }}</a>
                             @foreach ($footerLegal as $item)
                                 <a href="{{ $item['href'] }}" class="hover:text-teal-700">{{ $item['label'] }}</a>
                             @endforeach
@@ -187,7 +187,7 @@
                     <div>
                         <p class="text-xs font-black uppercase tracking-[0.18em] text-neutral-400">{{ __('Built for') }}</p>
                         <div class="mt-4 flex flex-wrap gap-2">
-                            @foreach ([__('Reviews'), __('Bookings'), __('Leads'), __('QR campaigns'), __('Reports')] as $badge)
+                            @foreach ([__('Reviews'), __('Bookings'), __('Leads'), __('Reports'), __('QR campaigns')] as $badge)
                                 <span class="rounded-full border bg-white px-3 py-1.5 text-[11px] font-bold text-neutral-600 shadow-sm" style="border-color: #e8e5dc;">{{ $badge }}</span>
                             @endforeach
                         </div>

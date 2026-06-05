@@ -624,11 +624,11 @@
         }
 
         .lb-mini-qr {
-            background:
-                linear-gradient(90deg, var(--lb-red) 22%, transparent 22% 44%, var(--lb-red) 44% 66%, transparent 66%),
-                linear-gradient(var(--lb-red) 22%, transparent 22% 44%, var(--lb-red) 44% 66%, transparent 66%);
-            background-size: 9px 9px;
-            opacity: .85;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--lb-ink);
+            font-size: 2rem;
         }
 
         @keyframes lb-rise {
@@ -1334,7 +1334,9 @@
                                             <p class="text-xs font-black uppercase tracking-[0.14em]" style="color: var(--lb-muted);">{{ __('Review page') }}</p>
                                             <h3 class="mt-2 text-lg font-black">{{ __('Enjoyed your visit?') }}</h3>
                                         </div>
-                                        <div class="lb-mini-qr h-16 w-16 shrink-0 rounded-xl border bg-white" style="border-color: var(--lb-line);"></div>
+                                        <div class="lb-mini-qr h-16 w-16 shrink-0 rounded-xl border bg-white" style="border-color: var(--lb-line);" aria-hidden="true">
+                                            <i class="fa-light fa-qrcode"></i>
+                                        </div>
                                     </div>
                                     <div class="mt-4 space-y-2">
                                         <span class="block h-2.5 w-4/5 rounded-full" style="background: var(--lb-line);"></span>
@@ -1342,7 +1344,7 @@
                                     </div>
                                     <div class="mt-4 flex items-center justify-between gap-3">
                                         <span class="rounded-full px-4 py-2 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 38%, #fff); color:#ff5f5f;">{{ __('Leave a review') }}</span>
-                                        <span class="text-xs font-black" style="color: var(--lb-muted);">/r/weekend</span>
+                                        <span class="text-xs font-black" style="color: var(--lb-muted);">{{ __('Demo campaign link path') }}</span>
                                     </div>
                                 </div>
                                 <div class="space-y-3">

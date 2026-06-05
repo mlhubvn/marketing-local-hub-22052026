@@ -202,7 +202,7 @@
                     <div>
                         <p class="text-xs font-black uppercase tracking-[0.18em] text-neutral-400">{{ __('Built for') }}</p>
                         <div class="mt-4 flex flex-wrap gap-2">
-                            @foreach ([__('Reviews'), __('Bookings'), __('Leads'), __('QR campaigns'), __('Reports')] as $badge)
+                            @foreach ([__('Reviews'), __('Bookings'), __('Leads'), __('Reports'), __('QR campaigns')] as $badge)
                                 <span class="rounded-full border bg-white px-3 py-1.5 text-[11px] font-bold text-neutral-600 shadow-sm" style="border-color: #e8e5dc;">{{ $badge }}</span>
                             @endforeach
                         </div>
