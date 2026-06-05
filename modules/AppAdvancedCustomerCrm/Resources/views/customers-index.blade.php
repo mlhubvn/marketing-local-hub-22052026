@@ -36,7 +36,7 @@
                     <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" style="background-color: rgba(var(--theme-accent-rgb),.11); color: var(--theme-accent);"><i class="{{ $metric['icon'] }}"></i></span>
                     <div class="min-w-0 flex-1">
                         <p class="text-sm font-semibold" style="color: var(--theme-muted-text-color);">{{ $metric['label'] }}</p>
-                        <p class="mt-2 text-3xl font-semibold leading-none tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
+                        <p class="mt-2 text-2xl font-semibold leading-none tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metric['value']) }}</p>
                     </div>
                 </article>
             @endforeach

@@ -27,7 +27,7 @@
                     @endif
 
                     <div class="mt-4 flex items-end gap-2">
-                        <p class="text-3xl font-semibold leading-none" style="color: var(--theme-header-text-color);">{{ $item['value'] ?? '0' }}</p>
+                        <p class="text-2xl font-semibold leading-none" style="color: var(--theme-header-text-color);">{{ $item['value'] ?? '0' }}</p>
 
                         @if (!empty($item['suffix']))
                             <span class="text-[11px] font-semibold uppercase tracking-[0.2em]" style="color: var(--theme-muted-text-color);">{{ $item['suffix'] }}</span>

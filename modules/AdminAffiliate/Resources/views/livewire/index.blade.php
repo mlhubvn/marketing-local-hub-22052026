@@ -3,7 +3,7 @@
         ['label' => __('Affiliates'), 'value' => format_number_locale($summary['affiliates']), 'description' => __('Users with affiliate profiles.'), 'icon' => 'fa-light fa-users', 'tone' => 'var(--theme-accent)', 'progress' => $summary['affiliates'] > 0 ? 100 : 0],
         ['label' => __('Clicks'), 'value' => format_number_locale($summary['clicks']), 'description' => __('Tracked referral clicks.'), 'icon' => 'fa-light fa-arrow-pointer', 'tone' => 'rgb(71 85 105)', 'progress' => $summary['clicks'] > 0 ? 100 : 0],
         ['label' => __('Conversions'), 'value' => format_number_locale($summary['conversions']), 'description' => __('Commission-generating events.'), 'icon' => 'fa-light fa-badge-check', 'tone' => 'rgb(5 150 105)', 'progress' => $summary['conversions'] > 0 ? 100 : 0],
-        ['label' => __('Approved Earnings'), 'value' => format_number_locale($summary['approved'], 2), 'description' => __('Lifetime approved affiliate earnings.'), 'icon' => 'fa-light fa-sack-dollar', 'tone' => 'rgb(217 119 6)', 'progress' => $summary['approved'] > 0 ? 100 : 0],
+        ['label' => __('Approved Earnings'), 'value' => format_money($summary['approved']), 'description' => __('Lifetime approved affiliate earnings.'), 'icon' => 'fa-light fa-sack-dollar', 'tone' => 'rgb(217 119 6)', 'progress' => $summary['approved'] > 0 ? 100 : 0],
     ];
 @endphp
 
@@ -51,8 +51,8 @@
                         <x-ui.table-cell><div class="space-y-1"><p class="font-mono text-sm" style="color: var(--theme-header-text-color);">{{ $profile->user?->referral_code ?: __('N/A') }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $profile->user?->username ?: __('No username') }}</p></div></x-ui.table-cell>
                         <x-ui.table-cell><span class="text-sm" style="color: var(--theme-header-text-color);">{{ format_number_locale($profile->clicks) }}</span></x-ui.table-cell>
                         <x-ui.table-cell><span class="text-sm" style="color: var(--theme-header-text-color);">{{ format_number_locale($profile->conversions) }}</span></x-ui.table-cell>
-                        <x-ui.table-cell><span class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale((float) $profile->total_balance, 2) }}</span></x-ui.table-cell>
-                        <x-ui.table-cell><span class="text-sm" style="color: var(--theme-header-text-color);">{{ format_number_locale((float) $profile->total_approved, 2) }}</span></x-ui.table-cell>
+                        <x-ui.table-cell><span class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ format_money((float) $profile->total_balance) }}</span></x-ui.table-cell>
+                        <x-ui.table-cell><span class="text-sm" style="color: var(--theme-header-text-color);">{{ format_money((float) $profile->total_approved) }}</span></x-ui.table-cell>
                     </x-ui.table-row>
                 @empty
                     <x-ui.table-row>
