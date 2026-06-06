@@ -53,10 +53,15 @@ class ResetPasswordPage extends Component
             }
         }
 
+        $resetPayload = [
+            ...$validated,
+            'password_confirmation' => $this->password_confirmation,
+        ];
+
         $status = Password::broker(config('fortify.passwords'))->reset(
             $validated,
-            function ($user) use ($validated): void {
-                app(ResetUserPassword::class)->reset($user, $validated);
+            function ($user) use ($resetPayload): void {
+                app(ResetUserPassword::class)->reset($user, $resetPayload);
                 app(\Laravel\Fortify\Actions\CompletePasswordReset::class)(
                     app(StatefulGuard::class),
                     $user,

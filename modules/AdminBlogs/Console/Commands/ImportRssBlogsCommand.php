@@ -3,6 +3,7 @@
 namespace Modules\AdminBlogs\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Schema;
 use Modules\AdminBlogs\Models\BlogRssSource;
 use Modules\AdminBlogs\Support\RssImportService;
 
@@ -14,6 +15,12 @@ class ImportRssBlogsCommand extends Command
 
     public function handle(RssImportService $service): int
     {
+        if (! Schema::hasTable('blog_rss_sources')) {
+            $this->warn('Table blog_rss_sources is missing — run php artisan migrate --force then retry.');
+
+            return self::SUCCESS;
+        }
+
         $query = BlogRssSource::query()->where('status', true);
 
         if ($source = $this->option('source')) {

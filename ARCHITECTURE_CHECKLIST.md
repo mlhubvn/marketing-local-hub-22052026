@@ -58,7 +58,8 @@ Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** (LocalBoost AI
 - **Coolify → Logs** (container app): kéo lên dòng **cuối trước khi thoát** — tìm `ERROR:` hoặc `=== entrypoint:`.
 - **APP_KEY trống** → `ERROR: APP_KEY chưa đặt` — Coolify env: `APP_KEY=base64:...` (sinh bằng `php artisan key:generate --show`).
 - **MySQL** → `Database migration failed` — kiểm tra `DB_HOST` (hostname service MySQL trên Coolify, không phải `127.0.0.1`), `DB_*`, app + MySQL cùng network.
-- **Redis** → `WARN: optimize:clear failed` — sửa `REDIS_HOST` / `REDIS_PASSWORD`; hoặc tạm `CACHE_STORE=file` + `SESSION_DRIVER=file` để lên site (không khuyến nghị lâu dài).
+- **Redis** → `WARN: optimize:clear failed` hoặc log `getaddrinfo for … failed: Temporary failure in name resolution` — `REDIS_HOST` trỏ hostname **cũ** (Redis đã tạo lại trên Coolify) hoặc app chưa link Redis service. **Coolify:** mở resource **Redis** → copy **Internal Hostname** mới → app **Environment Variables** → `REDIS_HOST=` (chỉ hostname, không `redis://`, không port). `REDIS_PASSWORD` = mật khẩu Redis (một lần, không prefix `REDIS_PASSWORD=` lặp). App + Redis cùng network. Redeploy. Queue worker (`queue:work`) cần Redis sống — nếu chưa sửa kịp: tạm `CACHE_STORE=file` + `SESSION_DRIVER=file` (không khuyến nghị lâu dài).
+- **blog_rss_sources missing** → migration `2026_06_06_120000_ensure_blog_rss_tables` — redeploy (`migrate --force`). Cron `blogs:rss-import` sẽ hết ERROR sau migrate.
 - **public/storage** → `ERROR: public/storage symlink` — redeploy; volume `mlhub-storage` chỉ mount `/storage`, không mount `public/`.
 - Sau khi container **Running**: chạy một lần `php artisan mlhub:install` (DB trống).
 
