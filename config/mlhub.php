@@ -46,15 +46,6 @@ return [
         ],
     ],
 
-    /*
-     * Admin Faker gắn dữ liệu investor demo (Đà Nẵng SOHO) vào user này.
-     * Sau `mlhub:reset-demo` user được tạo bởi LocalBoostDemoSeeder: demo@mlhub.vn / 123456.
-     */
-    'admin_faker' => [
-        'preferred_user_email' => env('MLHUB_ADMIN_FAKER_USER', 'demo@mlhub.vn'),
-        'data_file' => 'mlhub_adminfaker_dn_soho.php',
-    ],
-
     'license' => [
         'purchase_code' => env('MLHUB_LICENSE_PURCHASE_CODE', 'd80177d1-4974-4e46-a7f3-564da3bc83f7'),
         'product_id' => (int) env('MLHUB_LICENSE_PRODUCT_ID', 10252026),
@@ -64,7 +55,7 @@ return [
         'license_type' => env('MLHUB_LICENSE_TYPE', 'Extended License'),
     ],
 
-    'contact_email' => env('MLHUB_CONTACT_EMAIL', 'demo@mlhub.vn'),
+    'contact_email' => env('MLHUB_CONTACT_EMAIL', ''),
 
     'site' => [
         'title' => env('SITE_TITLE', 'MLHUB'),
@@ -87,7 +78,8 @@ return [
         \Database\Seeders\AITemplateSeeder::class,
         \Database\Seeders\MLHUBBootstrapSeeder::class,
         \Database\Seeders\MLHUBMarketplaceSeeder::class,
-        \Database\Seeders\LocalBoostDemoSeeder::class,
+        \Modules\CustomMLHUB\Database\Seeders\MLHUBAdminSeeder::class,
+        \Modules\CustomMLHUB\Database\Seeders\MLHUBSystemExtrasSeeder::class,
     ],
 
     'backend_theme_settings' => [

@@ -33,8 +33,7 @@ Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** (LocalBoost AI
 - Nếu có file mới phát sinh cho logic, phải tự đánh dấu và lên kế hoạch gộp vào file cũ trước khi bàn giao.
 - Nếu buộc phải tạo file logic mới, ưu tiên đặt trong `modules/Custom...` theo đúng khu vực cần fix để dễ quản lý diff.
 - File mới chỉ chấp nhận cho dữ liệu seed/doc nội bộ có lý do rõ ràng.
-- Tên thương hiệu hiển thị luôn dùng `**MLHUB`** (uppercase), không dùng bất kỳ biến thể nào.
-- Naming mới liên quan brand phải dùng `MLHUB` (uppercase), tránh mọi biến thể chữ hoa/thường khác.
+- Thương hiệu code/file: **chỉ** `MLHUB` (class, constant, env, UI) hoặc `mlhub` (path, route, command, domain, config key). **Cấm** `Mlhub` / `MLHub` / mix-case — xem `.cursorrules` §2.0.
 
 ### ⛔ Quy tắc bất di bất dịch về hạ tầng
 
@@ -52,7 +51,17 @@ Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** (LocalBoost AI
 - Admin → Marketplace / Modules: module mới hiển thị và bật (vd `AppLoyaltyStampCards` qua `providers.marketplace.php`).
 - Portal: vào menu CRM, Email automation, Loyalty cards, Reports — không 500.
 - Cập nhật `ARCHITECTURE_*.md` + `.cursorrules` nếu thêm module/env (đã quét trong lần sync gần nhất).
-- Pilot: `MLHUB_ALLOW_RESET_DEMO=true` → `php artisan mlhub:reset-demo --force` + Redis `FLUSHALL` nếu cần làm mới demo.
+- Cài lần đầu (DB trống): Coolify env `MLHUB_FIRST_USER_EMAIL` + `MLHUB_FIRST_USER_PASSWORD` → container app → `php artisan mlhub:install` (xem `ARCHITECTURE_PROMPT.md` §4.1).
+
+### 1.3 Go-live production lần đầu (sau khi gỡ demo/faker)
+
+> Chạy **một lần** khi DB trống. Mọi biến env giải thích trong `.env.example`.
+
+1. **Coolify → Environment Variables:** điền `APP_KEY`, `MLHUB_FIRST_USER_*`, `MLHUB_LICENSE_PURCHASE_CODE`, `DB_*`, `REDIS_*`, `MAIL_PASSWORD`, `SESSION_DOMAIN=.mlhub.vn`, `APP_INSTALLED=true`, `MLHUB_ALLOW_RESET_DEMO=false`.
+2. **Commit + push** GitHub → đợi Coolify build xong (log: migrate OK, Livewire JS synced).
+3. **Container app** (Coolify Terminal): `cd /var/www/html && php artisan mlhub:install`
+4. **Kiểm tra:** đăng nhập `MLHUB_FIRST_USER_EMAIL` → Admin + Portal; portal trống (không business demo); ngày/tiền format VN.
+5. **Sau go-live:** chỉ push code → redeploy (không chạy lại `mlhub:install` trừ DB mới).
 
 ---
 

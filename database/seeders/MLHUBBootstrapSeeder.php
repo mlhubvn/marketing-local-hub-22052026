@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Database\Support\MLHUBDemoVolume;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -50,7 +49,6 @@ class MLHUBBootstrapSeeder extends Seeder
             return;
         }
 
-        $demo = MLHUBDemoVolume::demoConfig();
         $site = (array) config('mlhub.site', []);
         /** @var OptionStore $options */
         $options = app(OptionStore::class);
@@ -68,7 +66,11 @@ class MLHUBBootstrapSeeder extends Seeder
         $options->set('website_logo_brand_dark', (string) config('mlhub.site.brand_logo_dark', 'img/logo-brand-dark.svg'));
         $options->set('website_logo_brand_light', (string) config('mlhub.site.brand_logo_light', 'img/logo-brand-light.svg'));
         $options->set('contact_company_name', $title);
-        $options->set('contact_email', (string) config('mlhub.contact_email', $demo['user']['email'] ?? 'demo@mlhub.vn'));
+        $contactEmail = trim((string) config('mlhub.contact_email', ''));
+        if ($contactEmail === '') {
+            $contactEmail = trim((string) config('custommlhub.first_user.email', ''));
+        }
+        $options->set('contact_email', $contactEmail);
         $options->set('app_timezone', (string) config('mlhub.timezone', 'Asia/Ho_Chi_Minh'));
         $options->set('default_locale', (string) config('mlhub.locale', 'vi'));
         $options->set(config('themes.areas.guest.option_key', 'frontend_theme'), $guestTheme);
@@ -78,7 +80,7 @@ class MLHUBBootstrapSeeder extends Seeder
         $options->set('installer_completed_at', Carbon::now()->toIso8601String());
         $options->set('system_cron_secure_key', Str::random(16));
 
-        $path = database_path('seeders/data/mlhub_site_options.php');
+        $path = (string) config('custommlhub.site_options_file', database_path('seeders/data/mlhub_site_options.php'));
 
         if (is_file($path)) {
             foreach ((array) require $path as $name => $value) {

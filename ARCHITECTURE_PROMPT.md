@@ -2,7 +2,7 @@
 
 Nơi lưu **prompt mẫu** để làm việc với Cursor (kèm plugin **Superpowers**) và **cheatsheet lệnh** (Laravel / Docker / Coolify) cho dự án MLHUB. Mở file này mỗi khi bắt đầu phiên làm việc, chọn luồng §2 rồi copy prompt §3.
 
-> Đọc kèm: `.cursorrules`, `ARCHITECTURE_CHECKLIST.md`, `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_FEATURE.md`, `ARCHITECTURE_ADMINFAKER.md`.
+> Đọc kèm: `.cursorrules`, `ARCHITECTURE_CHECKLIST.md`, `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_FEATURE.md`.
 > Mọi prompt nên đính kèm `@file` đúng chỗ thay vì `@Codebase` để tiết kiệm tài nguyên.
 > **Commit / push / redeploy Coolify do chủ dự án làm thủ công** — AI chỉ sửa local + soạn commit message.
 
@@ -90,7 +90,7 @@ Use Superpowers skills in order: brainstorming → writing-plans → (wait for m
 
 PHASE 1 — Read and internalize:
 - .cursorrules
-- ARCHITECTURE_CHECKLIST.md, ARCHITECTURE_BACKEND.md, ARCHITECTURE_FRONTEND.md, ARCHITECTURE_FEATURE.md, ARCHITECTURE_ADMINFAKER.md, ARCHITECTURE_PROMPT.md
+- ARCHITECTURE_CHECKLIST.md, ARCHITECTURE_BACKEND.md, ARCHITECTURE_FRONTEND.md, ARCHITECTURE_FEATURE.md, ARCHITECTURE_PROMPT.md
 Propose .cursorrules updates only if ARCHITECTURE_* and code diverge.
 
 PHASE 2 — Infra (local mirrors production intent):
@@ -144,7 +144,7 @@ After deploy checklist:
 - Coolify log: migrate OK, "Livewire JS synced"
 - php artisan optimize:clear then optimize (or rely on entrypoint)
 - Portal: CRM, email-automation, loyalty, reports — no 500
-- Optional pilot: MLHUB_ALLOW_RESET_DEMO=true → mlhub:reset-demo --force + Redis FLUSHALL
+- Fresh DB (staging only): set MLHUB_FIRST_USER_* → php artisan mlhub:install
 
 Do not run migrate:fresh on production. Document new env keys in .env.example only.
 ```
@@ -318,75 +318,65 @@ php artisan tinker
 
 > ⚠️ KHÔNG chạy `migrate:fresh`, `migrate:rollback`, `db:wipe` trên DB có dữ liệu thật.
 
-### 4.1 Reset dữ liệu demo (không còn Web Installer)
+### 4.1 Cài đặt production lần đầu (không còn Web Installer / Admin Faker)
 
-> 🔴 **Chỉ pilot/staging/local — chưa có khách thật.** MLHUB **đã gỡ Web Installer**; bootstrap qua **seed** + env Coolify.
+> MLHUB **đã gỡ Web Installer** và **gỡ Admin Faker / demo volume**. Bootstrap qua **migrate** (tự động mỗi deploy) + **`mlhub:install`** (một lần, DB trống) + env Coolify.
+>
+> **Giải thích từng biến env:** file `.env.example` (comment tiếng Việt từng nhóm). Checklist go-live: `ARCHITECTURE_CHECKLIST.md` §1.3.
 
-**Tài khoản duy nhất cần nhớ:** `demo@mlhub.vn` / `123456` — vừa **super admin**, vừa có **demo tăng trưởng** (gói `agency-lifetime`).
+**Super admin:** lấy từ env `MLHUB_FIRST_USER_EMAIL` / `MLHUB_FIRST_USER_PASSWORD` (không hard-code trong repo).
 
-**Coolify (tab Environment Variables) — luôn giữ:**
-
-
-| Biến                          | Giá trị                                                                     |
-| ----------------------------- | --------------------------------------------------------------------------- |
-| `APP_INSTALLED`               | `true` (bắt buộc — entrypoint mới chạy `migrate`)                           |
-| `MLHUB_ADMIN_PLAN_SLUG`       | `agency-lifetime`                                                           |
-| `MLHUB_ALLOW_RESET_DEMO`      | `true` (chỉ khi cần chạy lệnh wipe trên pilot; xong có thể đặt lại `false`) |
-| `MLHUB_LICENSE_PURCHASE_CODE` | Mã license Stackposts (Coolify — không commit)                              |
-| `MLHUB_LICENSE_DOMAIN`        | `mlhub.vn`                                                                  |
-| `RUN_QUEUE_WORKER`            | `true` (entrypoint start worker; `false` nếu worker Coolify riêng)          |
-| `MAIL_PASSWORD`               | SMTP (không commit vào repo; seed ghi vào `options.smtp_password` nếu có)   |
+**Coolify (tab Environment Variables) — bắt buộc trước `mlhub:install`:**
 
 
-**License / Marketplace sau reset:** không còn Web Installer (`purchase_verify_url`). Seed `MLHUBMarketplaceSeeder` + `license_`* trong `MLHUBBootstrapSeeder` khôi phục `marketplace_packages` và trạng thái license. **Không** import nguyên `mysql-dump-default-*.sql` (chứa SMTP/captcha secret). Logo đã upload: `MLHUBBrandFilesSeeder` tái tạo bản ghi `files` nếu ảnh còn trên disk `storage/app/public`.
+| Biến | Giá trị |
+| ---- | ------- |
+| `APP_INSTALLED` | `true` (entrypoint chạy `migrate --force`) |
+| `MLHUB_FIRST_USER_EMAIL` | Email super admin (vd `you@mlhub.vn`) |
+| `MLHUB_FIRST_USER_PASSWORD` | Mật khẩu mạnh (Coolify — không commit) |
+| `MLHUB_FIRST_USER_NAME` | Tên hiển thị (tuỳ chọn) |
+| `MLHUB_CONTACT_EMAIL` | Email liên hệ site (thường trùng admin) |
+| `MLHUB_ADMIN_PLAN_SLUG` | `agency-lifetime` |
+| `MLHUB_STARTING_ID` | `147123468` (AUTO_INCREMENT sau seed) |
+| `MLHUB_LICENSE_PURCHASE_CODE` | Mã license Stackposts (Coolify) |
+| `MLHUB_LICENSE_DOMAIN` | `mlhub.vn` |
+| `MLHUB_ALLOW_RESET_DEMO` | `false` (chặn `db:wipe` trên production) |
+| `RUN_QUEUE_WORKER` | `true` (hoặc `false` nếu worker Coolify riêng) |
+| `MAIL_PASSWORD` | SMTP API key (seed ghi `options.smtp_password` nếu có) |
 
-#### A. Combo một lệnh (trong container app — khuyến nghị)
+
+**Module `CustomMLHUB`:** site options VN (`format_date` `d/m/Y`, VND, timezone), seeder admin, email/template packs hệ thống. Script dev Việt hóa AI templates: `modules/CustomMLHUB/Scripts/`.
+
+#### A. Một lệnh (trong container app — khuyến nghị)
 
 ```bash
 docker exec -it <container_app> sh
 cd /var/www/html
-php artisan mlhub:reset-demo --force
-redis-cli -h <redis-host> -a '<password>' FLUSHALL
+php artisan mlhub:install
 ```
 
-Lệnh trên: `db:wipe` → `migrate` → `db:seed` (foundation, license, marketplace, demo VN + volume) → `**admin-faker:refresh**` (demo investor Đà Nẵng SOHO: 10 business, 32 QR campaign, FAQ/blog/support — xem `ARCHITECTURE_ADMINFAKER.md`; không LinkBio/publishing) → `MLHUBDemoExtrasSeeder` (email templates, template packs) → `optimize:clear`. **Không** seed `files` (logo upload tay). Chỉ chạy `db:seed` / reset mà không có bước Admin Faker ≈ dump `mysql-moi.sql` (thiếu ~27 bảng so với `mysql-cu.sql` sau Faker).
+Lệnh trên: `migrate --force` → `db:seed --force` (foundation, plans, AI templates, bootstrap site/license, marketplace, super admin, system extras) → `IdSequence::apply()` → `optimize`. **Không** seed dữ liệu demo / QR volume / business mẫu.
 
-#### B. Từng bước (nếu muốn kiểm soát)
+#### B. Deploy thường (đã cài xong)
 
-```bash
-cd /var/www/html
-php artisan db:wipe --force --drop-views
-php artisan migrate --force
-php artisan db:seed --force
-php artisan optimize:clear
-```
+Push GitHub → Coolify redeploy → `entrypoint.sh` chỉ **migrate** + optimize. Không chạy lại seed.
 
-**Redis (bắt buộc sau reset):** `redis-cli FLUSHALL` — session/cache cũ không còn trỏ user ID đã xóa.
-
-#### C. SQL thủ công (khi không vào được artisan)
+#### C. DB trống từ SQL (khi cần)
 
 ```sql
-DROP DATABASE mlhub;
-CREATE DATABASE mlhub CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+DROP DATABASE default;
+CREATE DATABASE default CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-Sau đó trong container: `php artisan migrate --force` và `php artisan db:seed --force` (hoặc `mlhub:reset-demo --force`).
+Sau đó: `php artisan mlhub:install`.
 
-#### D. Chỉ seed lại demo (không wipe)
+#### D. Sau cài — kiểm tra
 
-```bash
-php artisan db:seed --class=LocalBoostDemoSeeder --force
-php artisan optimize:clear
-```
+- Đăng nhập bằng `MLHUB_FIRST_USER_EMAIL` / mật khẩu đã đặt → **Admin** + **Portal**.
+- Portal trống (chưa có business/campaign) — đúng production.
+- Admin → Cài đặt: ngày `dd/mm/yyyy`, tiền `₫` (từ `mlhub_site_options.php`).
 
-#### E. Sau reset — kiểm tra
-
-- Đăng nhập `**demo@mlhub.vn**` / `**123456**` → **Admin** + **Portal** đều được.
-- **Tổng quan tăng trưởng:** visits ~1.2k–4.8k/chiến dịch; tỷ lệ chuyển đổi ~8–10%.
-
-**Cấu hình:** `mlhub_adminfaker_dn_soho.php` — **11** cơ sở, `target_qr_visits` **6M** (~60%), `customer_target` **6600**, `volume_scale` **12**, FAQ/blog **150** mỗi loại.
-
-> Quy ước repo: không giữ script one-off/generator trong `database/seeders/scripts` hoặc `database/seeders/data` nếu không cần runtime seed. Ưu tiên chỉnh trực tiếp file data runtime để dễ compare với upstream.
+> **Không** import dump SQL cũ có `demo@mlhub.vn` / volume faker. Logo upload thủ công qua Admin hoặc storage volume.
 
 ### 4.2 Tải full source từ server (`fullcode.zip`) — pilot / backup
 

@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Console\Commands\MLHUBResetDemoCommand;
 use App\Http\Middleware\PreventDemoModeWriteOperations;
 use App\Livewire\DemoModeActionGuard;
 use Database\Support\MLHUBSetIdSequenceCommand;
@@ -66,7 +65,6 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 MLHUBSetIdSequenceCommand::class,
-                MLHUBResetDemoCommand::class,
             ]);
         }
     }

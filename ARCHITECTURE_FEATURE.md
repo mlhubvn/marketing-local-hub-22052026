@@ -37,6 +37,8 @@ Review Booster, Booking, Coupons, Feedback, Lead Forms **không độc lập ho�
 
 ## 1. Hệ thống lõi (Core: Users, Plans, Business, QR, Landing, Payments)
 
+**Bootstrap production:** không còn demo/faker. DB trống → `php artisan mlhub:install` (module `CustomMLHUB`) tạo super admin từ `MLHUB_FIRST_USER_*`, seed gói/plan/AI templates/site options VN. Portal bắt đầu **trống** — dữ liệu growth tool do khách tự tạo. Xem `.env.example`, `ARCHITECTURE_PROMPT.md` §4.1.
+
 **Tổng quan:** Nền tảng SaaS đa người dùng: đăng ký/đăng nhập (Fortify + 2FA), gói cước & hạn mức, hồ sơ doanh nghiệp địa phương (`LocalBusiness`), engine campaign/QR, landing page, thanh toán đa cổng, team/workspace, tín dụng AI, theme/white-label, đa ngôn ngữ.
 
 **Luồng kỹ thuật:**
@@ -299,7 +301,7 @@ Review Booster, Booking, Coupons, Feedback, Lead Forms **không độc lập ho�
 
 - Bật scheduled task Coolify cho các lệnh `crm:*` nếu dùng automation.
 - Test merge khách + IDOR trên task/note/tag.
-- Chưa có trong Admin Faker — dùng seed demo riêng hoặc dữ liệu thật.
+- Production: không còn Admin Faker — dùng `advanced-crm:seed-demo` trên staging hoặc dữ liệu thật từ portal.
 
 ---
 

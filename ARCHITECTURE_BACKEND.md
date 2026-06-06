@@ -8,7 +8,7 @@ Tài liệu mô tả cách backend Laravel 13 được tổ chức, các add-on/
 
 LocalBoost AI là một **Modular Monolith** (khối nguyên một process nhưng chia module):
 
-- `app/` — **lớp vỏ (shell) mỏng**: auth, trang marketing khách, bootstrap MLHUB (`config/mlhub.php`, `mlhub:reset-demo`), các registry toàn cục, middleware.
+- `app/` — **lớp vỏ (shell) mỏng**: auth, trang marketing khách, bootstrap MLHUB (`config/mlhub.php`, `mlhub:install`), các registry toàn cục, middleware.
 - `modules/` — **79 module** (29 `Admin`*, 36 `App*`, 14 `Payment*`) chứa hầu hết Model, Livewire, Route, Service.
 - `resources/themes/` — tầng trình bày (xem `ARCHITECTURE_FRONTEND.md`).
 - `bootstrap/providers.php` — **tự động phát hiện** mọi module và nạp Service Provider của chúng.
@@ -30,8 +30,8 @@ Nguyên tắc cốt lõi:
 | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `app/Providers/AppServiceProvider.php`                                                                                 | Đăng ký singleton: `SidebarRegistry`, `HeaderRegistry`, `AdminDashboardRegistry`, `UserDashboardRegistry`, `PlanPermissionRegistry`, `StorageDriverManager`, `SocialAvatarStore`. Đặt `CarbonImmutable` mặc định, Livewire component hook, đường dẫn Blade component dùng chung, ép HTTPS ở production. |
 | `app/Providers/FortifyServiceProvider.php`                                                                             | Gắn view của Fortify vào các trang Livewire auth.                                                                                                                                                                                                                                                       |
-| `config/mlhub.php`                                                                                                     | Bootstrap MLHUB (seed stack, theme/site mặc định) — **không còn** Web Installer.                                                                                                                                                                                                                        |
-| `app/Console/Commands/MLHUBResetDemoCommand.php`                                                                       | `php artisan mlhub:reset-demo --force` — wipe + migrate + seed (pilot).                                                                                                                                                                                                                                 |
+| `config/mlhub.php`                                                                                                     | Bootstrap MLHUB (seed stack, theme/site mặc định) — **không còn** Web Installer. Biến env: `.env.example`.                                                                                                                                                                                               |
+| `modules/CustomMLHUB/`                                                                                               | Gói thị trường VN: `mlhub:install`, super admin từ env, `mlhub_site_options.php`, script Việt hóa AI templates, `STARTING_ID=147123468`.                                                                                                                                                                |
 | `app/Http/Middleware/EnsureAdminAccess.php`                                                                            | Cổng kiểm soát truy cập khu admin.                                                                                                                                                                                                                                                                      |
 | `app/Http/Middleware/ResolveUserPlanState.php`                                                                         | Nạp ngữ cảnh gói (plan) cho mỗi request.                                                                                                                                                                                                                                                                |
 | `app/Http/Middleware/PreventDemoModeWriteOperations.php`                                                               | Chặn thao tác ghi khi bật chế độ demo.                                                                                                                                                                                                                                                                  |
@@ -50,6 +50,8 @@ Nguyên tắc cốt lõi:
 
 
 ### 2.2 `modules/` — nơi chứa nghiệp vụ chính
+
+**Thương hiệu MLHUB (đặt tên file/code):** chỉ `MLHUB` hoặc `mlhub` — không `Mlhub`/`MLHub`. Ví dụ: module `CustomMLHUB`, config `config/mlhub.php`, command `mlhub:install`.
 
 **Tiền tố tên module:**
 
@@ -259,7 +261,7 @@ Thứ tự rất quan trọng:
 | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | `database/migrations/2026_*_create_database.php` | Schema nền (baseline) — **bảng dùng tiền tố `lb_`**.                                                                                      |
 | `modules/*/Database/Migrations/`                 | Migration tăng dần riêng từng module.                                                                                                     |
-| `database/seeders/`                              | `DatabaseSeeder`, `LocalBoostDemoSeeder`, `PlanSeeder`, `AITemplateCategorySeeder`, `AITemplateSeeder` (data ở `database/seeders/data/`). |
+| `database/seeders/`                              | `DatabaseSeeder`, `PlanSeeder`, `MLHUBBootstrapSeeder`, `MLHUBMarketplaceSeeder`, `AITemplateCategorySeeder`, `AITemplateSeeder` (data ở `database/seeders/data/`). Admin + extras: `modules/CustomMLHUB/Database/Seeders/`. |
 
 
 - **Settings hệ thống:** `Modules\AdminSettings\Support\OptionStore` (key/value lưu DB).

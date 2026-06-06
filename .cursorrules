@@ -31,7 +31,7 @@
 
 1. **Chủ dự án ra lệnh, AI tự quyết & xử lý.** Chủ dự án không rành dev/bảo mật → **KHÔNG bày nhiều phương án để chọn**. Tự chọn hướng tốt nhất (an toàn, chuẩn production), tự thực thi, rồi đưa lại **các bước đơn giản để chủ dự án làm theo**. Chỉ hỏi khi thiếu thông tin bắt buộc (bí mật, quyết định nghiệp vụ) — hỏi 1 câu rõ ràng.
 2. **Sau khi xử lý, BẮT BUỘC đồng bộ các file hệ thống liên quan** (chỉ sửa file nào thực sự bị ảnh hưởng, không sửa thừa):
-   `.cursorrules`, `.env.example`, `.htaccess`, `docker-compose.yaml`, `Dockerfile`, `entrypoint.sh`, `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_FEATURE.md`, `ARCHITECTURE_CHECKLIST.md`, `ARCHITECTURE_PROMPT.md`, `ARCHITECTURE_ADMINFAKER.md`.
+   `.cursorrules`, `.env.example`, `.htaccess`, `docker-compose.yaml`, `Dockerfile`, `entrypoint.sh`, `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_FEATURE.md`, `ARCHITECTURE_CHECKLIST.md`, `ARCHITECTURE_PROMPT.md`.
 3. **Nếu cần cấu hình trên Coolify → hướng dẫn từng bước theo đúng tab Coolify**: General, Advanced, Environment Variables, Persistent Storage, Git Source, Servers, Scheduled Tasks, Webhooks, Preview Deployments, Healthcheck, Rollback, Resource Limits, Resource Operations, Metrics, Tags, Danger Zone. Nói rõ tab nào, ô nào, giá trị gì.
 4. **Commit GitHub + Deploy do CHỦ DỰ ÁN làm thủ công.** AI **KHÔNG** tự `git commit`/`git push`/deploy. AI chỉ sửa file tại local + soạn sẵn **commit message gợi ý**; chủ dự án tự đẩy để kịp copy log nếu lỗi. Khi xong một cụm việc, tóm tắt "đã đổi file nào" + gợi ý commit message.
 5. **Báo NGAY khi phát hiện vấn đề bảo mật hoặc ảnh hưởng trải nghiệm người dùng** (kể cả ngoài phạm vi task đang làm) — nêu rủi ro bằng lời dễ hiểu + mức độ + cách xử lý đề xuất, để chủ dự án quyết ưu tiên.
@@ -43,10 +43,12 @@
 - **Không tạo file/class/module mới cho logic ứng dụng** nếu có thể gộp vào `app/`, `modules/`, `resources/themes/` hiện hữu.
 - Khi có yêu cầu tính năng, **phải ưu tiên file/module tạo sẵn trước**, chỉ mở rộng trong file hiện có nếu đáp ứng được.
 - Chỉ tạo file mới khi thật sự bắt buộc (seed data/doc đặc thù dự án) và phải ghi rõ lý do trong `ARCHITECTURE_*.md`.
-- Nếu buộc phải tạo file logic mới, ưu tiên đặt trong `modules/Custom...` theo đúng khu vực cần chỉnh (ví dụ `modules/CustomAdminFaker`, `modules/CustomReviewBooster`) để tách rõ phần custom.
+- Nếu buộc phải tạo file logic mới, ưu tiên đặt trong `modules/Custom...` theo đúng khu vực cần chỉnh (ví dụ `modules/CustomMLHUB`, `modules/CustomReviewBooster`) để tách rõ phần custom.
 - Nếu lỡ tạo file logic mới, phải gộp lại vào file cũ tương ứng và xóa file phát sinh trước khi bàn giao.
-- Quy tắc thương hiệu: tên hiển thị/user-facing luôn dùng **`MLHUB`** (uppercase), không dùng bất kỳ biến thể nào.
-- Quy tắc naming mới: class/file/constant/biến mới liên quan brand phải dùng tiền tố `MLHUB` (uppercase), không tạo naming theo biến thể khác.
+- **Quy tắc thương hiệu (bắt buộc — chỉ 2 dạng, không trộn):**
+  - **`MLHUB`** (viết hoa toàn bộ): chuỗi hiển thị user-facing, class/constant/env prefix (`MLHUBAdminSeeder`, `MLHUB_FIRST_USER_EMAIL`, module `CustomMLHUB`).
+  - **`mlhub`** (viết thường toàn bộ): đường dẫn file, route, artisan command, domain, config key, theme slug (`config/mlhub.php`, `mlhub:install`, `mlhub.vn`, `mlhubfrontend`, `custommlhub`).
+  - **Cấm tuyệt đối:** `Mlhub`, `MLHub`, `mlHub`, `MlHub` hoặc bất kỳ mix-case nào khác — ảnh hưởng nhận diện thương hiệu khi gọi vốn.
 
 ---
 
@@ -87,10 +89,12 @@
 | `THEME_FRONTEND` / `THEME_BACKEND` | `mlhubfrontend` / `mlhubbackend` | Fork `localboostai` + `default`, chỉ phối màu MLHUB |
 | `APP_DEMO` | `false` | Demo mode đã tắt cho production |
 | `APP_INSTALLED` | `true` | **Luôn true** trên Coolify — không còn Web Installer |
-| `MLHUB_ALLOW_RESET_DEMO` | `false` | Đặt `true` tạm khi chạy `php artisan mlhub:reset-demo --force` trên pilot |
+| `MLHUB_ALLOW_RESET_DEMO` | `false` | `true` tạm chỉ khi cần `db:wipe`/`migrate:fresh` trên staging (production luôn `false`) |
+| `MLHUB_FIRST_USER_EMAIL` / `MLHUB_FIRST_USER_PASSWORD` | Coolify env | Super admin lần đầu — không commit mật khẩu |
+| `MLHUB_STARTING_ID` | `147123468` | AUTO_INCREMENT sau `db:seed` (`IdSequence`) |
+| `GOOGLE_BUSINESS_CLIENT_ID/SECRET` | Coolify env | OAuth addon Google Business |
 
-**Bootstrap lần đầu / reset demo:** `demo@mlhub.vn` / `123456` = super admin + dữ liệu mẫu VN. Một lệnh: `php artisan mlhub:reset-demo --force` (+ `redis-cli FLUSHALL`). Chi tiết: `ARCHITECTURE_PROMPT.md` §3.1, `config/mlhub.php`.
-| `GOOGLE_BUSINESS_CLIENT_ID/SECRET` | có dùng | Tích hợp Google Business bật |
+**Bootstrap lần đầu (DB trống):** đặt `MLHUB_FIRST_USER_*` trên Coolify → `php artisan mlhub:install` trong container app. Chi tiết: `ARCHITECTURE_PROMPT.md` §4.1, module `modules/CustomMLHUB/`. Giải thích từng biến env: `.env.example`.
 
 **Captcha:** module `AdminCaptcha` hỗ trợ **Google reCAPTCHA v2** và **Cloudflare Turnstile** (mặc định Turnstile). Cấu hình lưu trong **`OptionStore` (Admin → Captcha)**, **KHÔNG phải `.env`** (key: `captcha_type`, `auth_cloudflare_turnstile_*`, `auth_google_recaptcha_*`). Helper dùng lại: `captcha_render()`, `captcha_verify(request())`, `with_captcha_validation($rules)`. Hiện captcha đã gắn vào **trang auth** (login/register/forgot/reset); **chưa** gắn vào 5 form growth-tool công khai (xem backlog trong `ARCHITECTURE_FEATURE.md`).
 
@@ -111,6 +115,15 @@
 ---
 
 ## 2. Quy ước đặt tên (trích từ code thực tế)
+
+### 2.0 Thương hiệu MLHUB (chỉ 2 dạng — bắt buộc)
+
+| Dạng | Dùng cho | Ví dụ đúng |
+|------|----------|------------|
+| `MLHUB` | UI, class, constant, env prefix | `MLHUB Admin`, `MLHUBAdminSeeder`, `MLHUB_FIRST_USER_EMAIL`, `CustomMLHUB` |
+| `mlhub` | file path, route, artisan, domain, config key | `config/mlhub.php`, `mlhub:install`, `mlhub.vn`, `mlhubfrontend`, `custommlhub` |
+
+**Cấm:** `Mlhub`, `MLHub`, `mlHub`, `MlHub` — kể cả tên file/thư mục/class mới.
 
 ### 2.1 Module
 - Thư mục module: **PascalCase** có tiền tố cố định:

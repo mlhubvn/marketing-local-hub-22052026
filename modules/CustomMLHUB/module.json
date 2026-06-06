@@ -1,0 +1,7 @@
+{
+    "name": "CustomMLHUB",
+    "providers": [
+        "Modules\\CustomMLHUB\\Providers\\CustomMLHUBServiceProvider"
+    ],
+    "priority": 25
+}

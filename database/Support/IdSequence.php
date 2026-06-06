@@ -21,6 +21,8 @@ class IdSequence
         if (is_file($path)) {
             $config = require $path;
             $startingId = (int) ($config['starting_id'] ?? self::STARTING_ID);
+        } elseif (function_exists('config')) {
+            $startingId = (int) config('custommlhub.starting_id', self::STARTING_ID);
         } else {
             $startingId = self::STARTING_ID;
         }

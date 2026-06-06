@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 class DatabaseSeeder extends Seeder
 {
     /**
-     * MLHUB seed stack — `php artisan db:seed` / `php artisan mlhub:reset-demo`.
+     * MLHUB seed stack — `php artisan db:seed` / `php artisan mlhub:install`.
      */
     public function run(): void
     {
