@@ -1256,7 +1256,7 @@
                             <div class="mt-5 rounded-2xl bg-white p-4">
                                 <div class="flex items-center justify-between gap-3">
                                     <span class="text-xs font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">{{ __('Growth signals') }}</span>
-                                    <span class="rounded-full px-3 py-1 text-xs font-black" style="background:#dcfce7; color:#047857;">{{ __('Tracked') }}</span>
+                                    <span class="rounded-full px-3 py-1 text-xs font-black" style="background:#dcfce7; color:#047857; white-space: nowrap;">{{ __('Tracked') }}</span>
                                 </div>
                                 <div class="mt-4 flex items-end gap-1.5 h-20">
                                     @foreach ([42, 66, 52, 78, 92, 56, 68, 74, 48, 82, 64, 96] as $bar)
@@ -1325,7 +1325,7 @@
                                     <p class="text-xs font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">{{ __('Live campaign') }}</p>
                                     <p class="mt-1 text-xl font-black">{{ __('Weekend Review Boost') }}</p>
                                 </div>
-                                <span class="rounded-full px-3 py-1 text-xs font-black" style="background:#dcfce7; color:#047857;">{{ __('Active') }}</span>
+                                <span class="rounded-full px-3 py-1 text-xs font-black" style="background:#dcfce7; color:#047857; white-space: nowrap;">{{ __('Active') }}</span>
                             </div>
                             <div class="mt-5 grid gap-4">
                                 <div class="lb-mini-page rounded-2xl border p-4" style="border-color: var(--lb-line);">

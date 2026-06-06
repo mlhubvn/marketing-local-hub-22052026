@@ -168,7 +168,7 @@
     .lb-pill {
         border: 1px solid rgba(95, 127, 7, 0.18);
         background: color-mix(in srgb, var(--lb-lime) 24%, #fff);
-        color: #4d6805;
+        color: #ff5f5f;
     }
 
     .lb-button {

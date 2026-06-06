@@ -139,7 +139,7 @@
                                             <div class="w-full max-w-sm rounded-3xl border bg-white p-5" style="border-color: var(--lb-line);">
                                                 <div class="flex items-center justify-between gap-3">
                                                     <span class="text-xs font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">{{ __('Campaign note') }}</span>
-                                                    <span class="rounded-full px-3 py-1 text-xs font-black" style="background:#dcfce7; color:#047857;">{{ __('Published') }}</span>
+                                                    <span class="rounded-full px-3 py-1 text-xs font-black" style="background:#dcfce7; color:#047857; white-space: nowrap;">{{ __('Published') }}</span>
                                                 </div>
                                                 <div class="mt-5 grid gap-3">
                                                     @foreach ([['fa-star', __('Reviews'), '4.9'], ['fa-qrcode', __('QR scans'), '284'], ['fa-user-plus', __('Leads'), '39']] as $item)

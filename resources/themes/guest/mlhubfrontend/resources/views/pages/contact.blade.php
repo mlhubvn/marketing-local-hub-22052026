@@ -101,7 +101,7 @@
                             <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ __('Contact details') }}</p>
                             <h2 class="lb-serif mt-2 text-4xl">{{ $companyName }}</h2>
                         </div>
-                        <span class="rounded-full px-3 py-1 text-xs font-black" style="background:#dcfce7; color:#047857;">{{ __('Online') }}</span>
+                        <span class="rounded-full px-3 py-1 text-xs font-black" style="background:#dcfce7; color:#047857; white-space: nowrap;">{{ __('Online') }}</span>
                     </div>
                     <div class="mt-8 rounded-2xl border bg-white/80 p-5" style="border-color: var(--lb-line);">
                         @foreach ([
