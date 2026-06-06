@@ -27,7 +27,7 @@
     <section class="overflow-hidden rounded-[1.25rem] border" style="border-color: rgba(var(--theme-border-color-rgb), .68); background-color: color-mix(in srgb, var(--theme-surface-overlay) 98%, transparent);">
         <div class="flex gap-2 overflow-x-auto border-b p-2" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
             @foreach (['overview' => __('Overview'), 'timeline' => __('Timeline'), 'notes' => __('Notes'), 'tasks' => __('Tasks'), 'tags' => __('Tags')] as $key => $label)
-                <button type="button" x-on:click="tab = @js($key)" class="rounded-xl px-4 py-2 text-sm font-semibold" :style="tab === @js($key) ? 'background-color: rgba(var(--theme-accent-rgb),.12); color: var(--theme-accent);' : 'color: var(--theme-muted-text-color);'">{{ $label }}</button>
+                <button type="button" x-on:click="tab = @js($key)" class="rounded-xl px-4 py-2 text-sm font-semibold" :style="tab === @js($key) ? 'background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);' : 'color: var(--theme-muted-text-color);'">{{ $label }}</button>
             @endforeach
         </div>
 
@@ -166,7 +166,7 @@
         <div x-show="tab === 'timeline'" class="p-5">
             <div class="mb-5 flex gap-2 overflow-x-auto pb-1">
                 @foreach ($timelineCategories as $key => $category)
-                    <button type="button" wire:click="$set('timelineFilter', '{{ $key }}')" class="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition" style="{{ $timelineFilter === $key ? 'border-color: rgba(var(--theme-accent-rgb), .28); background-color: rgba(var(--theme-accent-rgb), .12); color: var(--theme-accent);' : 'border-color: rgba(var(--theme-border-color-rgb), .62); color: var(--theme-muted-text-color); background-color: color-mix(in srgb, var(--theme-surface-base) 74%, transparent);' }}">
+                    <button type="button" wire:click="$set('timelineFilter', '{{ $key }}')" class="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition" style="{{ $timelineFilter === $key ? 'border-color: rgba(var(--theme-accent-rgb), .28); background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);' : 'border-color: rgba(var(--theme-border-color-rgb), .62); color: var(--theme-muted-text-color); background-color: color-mix(in srgb, var(--theme-surface-base) 74%, transparent);' }}">
                         <i class="{{ $category['icon'] }}"></i>{{ $category['label'] }}
                     </button>
                 @endforeach

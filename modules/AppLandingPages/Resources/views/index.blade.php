@@ -648,7 +648,7 @@
                                             <span class="mt-1 block text-[10px] font-black uppercase tracking-[0.12em]" style="color: var(--theme-muted-text-color);">{{ str($preset['layout'] ?? 'split')->headline() }}</span>
                                             <span class="mt-0.5 block truncate text-[10px]" style="color: var(--theme-muted-text-color);">{{ str($preset['font_style'] ?? 'modern')->headline() }} · {{ str($preset['card_style'] ?? 'soft')->headline() }}</span>
                                         </span>
-                                        <span class="grid h-5 w-5 shrink-0 place-items-center rounded-full border" x-show="templateValue === @js($value)" style="border-color: rgba(var(--theme-accent-rgb), .32); background-color: rgba(var(--theme-accent-rgb), .12); color: var(--theme-accent);">
+                                        <span class="grid h-5 w-5 shrink-0 place-items-center rounded-full border" x-show="templateValue === @js($value)" style="border-color: rgba(var(--theme-accent-rgb), .32); background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">
                                             <i class="fa-light fa-check text-[10px]"></i>
                                         </span>
                                     </span>
@@ -815,7 +815,7 @@
                                                                     <span class="mt-1 block text-[10px] font-black uppercase tracking-[0.12em]" style="color: var(--theme-muted-text-color);">{{ str($preset['layout'] ?? 'split')->headline() }} / {{ str($preset['font_style'] ?? 'modern')->headline() }}</span>
                                                                     <span class="mt-0.5 block text-[11px]" style="color: var(--theme-muted-text-color);">{{ str($preset['button_style'] ?? 'pill')->headline() }} button · {{ str($preset['card_style'] ?? 'soft')->headline() }} card</span>
                                                                 </span>
-                                                                <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full border" x-show="templateValue === @js($value)" style="border-color: rgba(var(--theme-accent-rgb), .32); background-color: rgba(var(--theme-accent-rgb), .12); color: var(--theme-accent);">
+                                                                <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full border" x-show="templateValue === @js($value)" style="border-color: rgba(var(--theme-accent-rgb), .32); background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">
                                                                     <i class="fa-light fa-check text-xs"></i>
                                                                 </span>
                                                             </span>
@@ -955,11 +955,11 @@
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <div class="inline-flex rounded-xl border bg-white p-1" style="border-color: rgba(var(--theme-border-color-rgb), .62);">
-                                        <button type="button" class="h-8 rounded-lg px-3 text-xs font-semibold" style="background-color: rgba(var(--theme-accent-rgb), .12); color: var(--theme-accent);">{{ __('Draft') }}</button>
+                                        <button type="button" class="h-8 rounded-lg px-3 text-xs font-semibold" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">{{ __('Draft') }}</button>
                                     </div>
                                     <div class="inline-flex rounded-xl border bg-white p-1" style="border-color: rgba(var(--theme-border-color-rgb), .62);">
-                                        <button type="button" class="grid h-8 w-8 place-items-center rounded-lg text-xs" x-bind:style="previewMode === 'desktop' ? 'background-color: rgba(var(--theme-accent-rgb), .12); color: var(--theme-accent);' : 'color: #64748b;'" x-on:click="previewMode = 'desktop'" title="{{ __('Desktop') }}"><i class="fa-light fa-desktop"></i></button>
-                                        <button type="button" class="grid h-8 w-8 place-items-center rounded-lg text-xs" x-bind:style="previewMode === 'mobile' ? 'background-color: rgba(var(--theme-accent-rgb), .12); color: var(--theme-accent);' : 'color: #64748b;'" x-on:click="previewMode = 'mobile'" title="{{ __('Mobile') }}"><i class="fa-light fa-mobile"></i></button>
+                                        <button type="button" class="grid h-8 w-8 place-items-center rounded-lg text-xs" x-bind:style="previewMode === 'desktop' ? 'background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);' : 'color: #64748b;'" x-on:click="previewMode = 'desktop'" title="{{ __('Desktop') }}"><i class="fa-light fa-desktop"></i></button>
+                                        <button type="button" class="grid h-8 w-8 place-items-center rounded-lg text-xs" x-bind:style="previewMode === 'mobile' ? 'background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);' : 'color: #64748b;'" x-on:click="previewMode = 'mobile'" title="{{ __('Mobile') }}"><i class="fa-light fa-mobile"></i></button>
                                     </div>
                                     @if($public_url)
                                         <a href="{{ $public_url }}" target="_blank" class="grid h-9 w-9 place-items-center rounded-xl border bg-white text-xs text-slate-600 transition hover:text-slate-950" style="border-color: rgba(var(--theme-border-color-rgb), .62);" title="{{ __('Open public page') }}"><i class="fa-light fa-arrow-up-right"></i></a>

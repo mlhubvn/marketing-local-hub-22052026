@@ -27,7 +27,7 @@
                         <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Segment builder') }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Saved and system audiences') }}</p>
                     </div>
-                    <div class="flex h-11 w-11 items-center justify-center rounded-2xl" style="background-color: rgba(var(--theme-accent-rgb),.12); color: var(--theme-accent);"><i class="fa-light fa-layer-group"></i></div>
+                    <div class="flex h-11 w-11 items-center justify-center rounded-2xl" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);"><i class="fa-light fa-layer-group"></i></div>
                 </div>
                 <div class="mt-5 grid grid-cols-3 gap-3">
                     <div class="rounded-2xl border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), .46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);"><p class="text-2xl font-semibold tracking-[-0.045em]">{{ format_number_locale($savedSegments->count()) }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Saved') }}</p></div>

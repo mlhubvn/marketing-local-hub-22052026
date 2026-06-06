@@ -11,7 +11,7 @@
             <div class="rounded-[1.2rem] border p-4 shadow-[0_24px_70px_-48px_rgba(var(--theme-border-color-rgb),.9)]" style="border-color: rgba(var(--theme-border-color-rgb), .62); background-color: color-mix(in srgb, var(--theme-surface-base) 88%, transparent);">
                 <div class="flex items-center justify-between gap-3">
                     <div><p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('CRM health') }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Customer database snapshot') }}</p></div>
-                    <div class="flex h-11 w-11 items-center justify-center rounded-2xl" style="background-color: rgba(var(--theme-accent-rgb),.12); color: var(--theme-accent);"><i class="fa-light fa-sparkles"></i></div>
+                    <div class="flex h-11 w-11 items-center justify-center rounded-2xl" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);"><i class="fa-light fa-sparkles"></i></div>
                 </div>
                 <div class="mt-5 grid grid-cols-3 gap-3">
                     @foreach(array_slice($metrics, 0, 3) as $metric)

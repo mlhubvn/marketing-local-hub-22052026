@@ -14,7 +14,7 @@
         <section class="rounded-[1.25rem] border p-6 shadow-sm md:p-7" style="border-color: rgba(var(--theme-border-color-rgb), .58); background: linear-gradient(135deg, rgba(var(--theme-accent-rgb), .11), transparent 42%), var(--theme-surface-base);">
             <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                 <div class="flex items-start gap-4">
-                    <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl" style="background-color: rgba(var(--theme-accent-rgb), .12); color: var(--theme-accent);">
+                    <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">
                         <i class="fa-light fa-sparkles"></i>
                     </span>
                     <div>

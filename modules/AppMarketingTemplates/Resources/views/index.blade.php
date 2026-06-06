@@ -177,7 +177,7 @@
                         wire:loading.attr="disabled"
                         wire:target="setTab('{{ $key }}')"
                         class="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition disabled:pointer-events-none disabled:opacity-70"
-                        style="{{ $activeTab === $key ? 'border-color: rgba(var(--theme-accent-rgb),.26); background: rgba(var(--theme-accent-rgb),.12); color: var(--theme-accent);' : 'border-color: rgba(var(--theme-border-color-rgb),.68); color: var(--theme-muted-text-color);' }}"
+                        style="{{ $activeTab === $key ? 'border-color: rgba(var(--theme-accent-rgb),.26); background: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);' : 'border-color: rgba(var(--theme-border-color-rgb),.68); color: var(--theme-muted-text-color);' }}"
                     >
                         <i class="fa-light fa-spinner-third fa-spin" wire:loading wire:target="setTab('{{ $key }}')"></i>
                         <span>{{ $label }}</span>
@@ -248,7 +248,7 @@
                                     <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $pack->name }}</p>
                                     <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $pack->description }}</p>
                                 </div>
-                                <span class="rounded-full px-3 py-1 text-xs font-semibold" style="background: rgba(var(--theme-accent-rgb),.12); color: var(--theme-accent);">{{ str($pack->category)->replace('_', ' ')->headline() }}</span>
+                                <span class="rounded-full px-3 py-1 text-xs font-semibold" style="background: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">{{ str($pack->category)->replace('_', ' ')->headline() }}</span>
                             </div>
                             <div class="mt-4 flex items-center justify-between gap-3 text-xs" style="color: var(--theme-muted-text-color);">
                                 <span>{{ __('Version :version', ['version' => $pack->version]) }}</span>
@@ -533,14 +533,14 @@
                     @forelse (($previewPack->templates ?? collect()) as $packTemplate)
                         <article class="rounded-[1rem] border p-4" style="border-color: var(--theme-border-color); background: color-mix(in srgb, var(--theme-surface-overlay) 90%, transparent);">
                             <div class="flex items-start gap-3">
-                                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background: rgba(var(--theme-accent-rgb),.12); color: var(--theme-accent);">
+                                <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">
                                     <i class="{{ $packTemplate->icon ?: 'fa-light fa-grid-2' }}"></i>
                                 </span>
                                 <div class="min-w-0">
                                     <p class="truncate text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $packTemplate->name }}</p>
                                     <p class="mt-1 line-clamp-2 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $packTemplate->description }}</p>
                                     <div class="mt-3 flex flex-wrap gap-2">
-                                        <span class="rounded-full px-2.5 py-1 text-[11px] font-semibold" style="background: rgba(var(--theme-accent-rgb),.12); color: var(--theme-accent);">{{ str($packTemplate->type)->replace('_', ' ')->headline() }}</span>
+                                        <span class="rounded-full px-2.5 py-1 text-[11px] font-semibold" style="background: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">{{ str($packTemplate->type)->replace('_', ' ')->headline() }}</span>
                                         <span class="rounded-full px-2.5 py-1 text-[11px] font-semibold" style="background: rgba(var(--theme-border-color-rgb),.35); color: var(--theme-muted-text-color);">{{ str($packTemplate->goal)->replace('_', ' ')->headline() }}</span>
                                     </div>
                                 </div>

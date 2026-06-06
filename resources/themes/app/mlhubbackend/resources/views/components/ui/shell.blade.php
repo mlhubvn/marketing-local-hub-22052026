@@ -836,15 +836,15 @@
                                             <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ $sidebarPlanCard['expiry'] }}</span>
                                         </p>
                                     </div>
-                                    <span class="inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[11px] font-semibold whitespace-nowrap {{ $sidebarPlanCard['badge_tone'] === 'success' ? 'bg-emerald-400/12 text-emerald-500' : 'bg-slate-400/10 text-slate-500 dark:text-slate-300' }}">
-                                        {{ $sidebarPlanCard['badge'] }}
-                                    </span>
                                 </div>
 
                                 <div class="mt-4">
                                     <div class="flex items-center justify-between gap-3 text-xs font-semibold">
                                         <span style="color: var(--theme-muted-text-color);">{{ __('Credits used') }}</span>
                                         <span style="color: var(--theme-header-text-color);">{{ $sidebarPlanCard['credits_used_label'] }} / {{ $sidebarPlanCard['credits_limit_label'] }}</span>
+                                        <span class="inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[11px] font-semibold whitespace-nowrap {{ $sidebarPlanCard['badge_tone'] === 'success' ? 'bg-emerald-400/12 text-emerald-500' : 'bg-slate-400/10 text-slate-500 dark:text-slate-300' }}">
+                                            {{ $sidebarPlanCard['badge'] }}
+                                        </span>
                                     </div>
                                     <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-200/70 dark:bg-slate-800">
                                         <div

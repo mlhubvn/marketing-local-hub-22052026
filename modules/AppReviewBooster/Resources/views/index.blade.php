@@ -188,7 +188,7 @@
                             <tr class="transition hover:bg-[color:rgba(var(--theme-accent-rgb),0.035)]">
                                 <td class="max-w-[22rem] px-5 py-4">
                                     <div class="flex min-w-0 items-center gap-3">
-                                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border" style="border-color: rgba(var(--theme-warning-color-rgb),0.20); background-color: rgba(var(--theme-warning-color-rgb),0.12); color: var(--theme-warning-color);"><i class="fa-light fa-star"></i></span>
+                                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border" style="border-color: rgba(var(--theme-warning-color-rgb),0.20); background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);"><i class="fa-light fa-star"></i></span>
                                         <div class="min-w-0">
                                             <p class="truncate font-semibold" style="color: var(--theme-header-text-color);">{{ $campaign->name }}</p>
                                             <p class="mt-1 truncate text-xs" style="color: var(--theme-muted-text-color);">{{ $campaign->slug }}</p>
@@ -310,7 +310,7 @@
                     color-mix(in srgb, var(--theme-surface-base) 94%, transparent);">
                     <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-center">
                         <div>
-                            <div class="flex h-14 w-14 items-center justify-center rounded-2xl border" style="border-color: rgba(var(--theme-warning-color-rgb), 0.2); background-color: rgba(var(--theme-warning-color-rgb),0.12); color: var(--theme-warning-color);">
+                            <div class="flex h-14 w-14 items-center justify-center rounded-2xl border" style="border-color: rgba(var(--theme-warning-color-rgb), 0.2); background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">
                                 <i class="fa-light {{ $hasActiveFilters ? 'fa-magnifying-glass' : 'fa-star' }} text-xl"></i>
                             </div>
                             <h2 class="mt-5 text-xl font-semibold tracking-[-0.035em]" style="color: var(--theme-header-text-color);">{{ $hasActiveFilters ? __('No matching review boosters') : __('No review boosters yet') }}</h2>

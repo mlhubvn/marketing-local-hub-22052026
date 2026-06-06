@@ -410,7 +410,7 @@
                         <article class="grid overflow-hidden rounded-[1rem] border shadow-sm lg:grid-cols-[minmax(0,1fr)_minmax(24rem,0.82fr)]" style="border-color: rgba(var(--theme-border-color-rgb), .58); background-color: var(--theme-surface-base);">
                             <div class="p-4 lg:border-r" style="border-color: rgba(var(--theme-border-color-rgb), .52);">
                                 <div class="flex flex-wrap items-start gap-3">
-                                    <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold" style="background-color: rgba(var(--theme-accent-rgb), .12); color: var(--theme-accent);">{{ str($review->reviewer_name ?: 'G')->substr(0, 1)->upper() }}</span>
+                                    <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">{{ str($review->reviewer_name ?: 'G')->substr(0, 1)->upper() }}</span>
                                     <div class="min-w-0 flex-1">
                                         <div class="flex flex-wrap items-center gap-2">
                                             <p class="font-semibold leading-6" style="color: var(--theme-header-text-color);">{{ $review->reviewer_name ?: __('Google user') }}</p>
@@ -1267,7 +1267,7 @@
                                 @empty
                                     <div class="px-5 py-6">
                                         <div class="flex items-start gap-3 rounded-2xl border p-4" style="border-color: rgba(var(--theme-success-color-rgb), .22); background: linear-gradient(135deg, rgba(var(--theme-success-color-rgb), .08), transparent 45%), var(--theme-surface-base);">
-                                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background-color: rgba(var(--theme-success-color-rgb), .12); color: var(--theme-success-color);"><i class="fa-light fa-shield-check"></i></span>
+                                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);"><i class="fa-light fa-shield-check"></i></span>
                                             <div>
                                                 <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('No low-score reviews need attention') }}</p>
                                                 <p class="mt-1 text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('Reviews rated 3 stars or below will appear here when they need a response.') }}</p>

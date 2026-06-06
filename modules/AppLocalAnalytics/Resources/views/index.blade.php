@@ -553,7 +553,7 @@
                             <div class="divide-y" style="border-color: rgba(var(--theme-border-color-rgb), .62);">
                                 @foreach ($lowScoreFeedback as $feedback)
                                     <div class="flex gap-3 py-3">
-                                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold" style="background-color: rgba(var(--theme-warning-color-rgb), .12); color: var(--theme-warning-color);">{{ $feedback->rating }}/5</div>
+                                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold" style="background-color: rgba(var(--theme-warning-color-rgb),0.12); color: var(--theme-warning-color);">{{ $feedback->rating }}/5</div>
                                         <div class="min-w-0 flex-1">
                                             <div class="flex flex-wrap items-center gap-2">
                                                 <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $feedback->customer_name ?: __('Guest') }}</p>
