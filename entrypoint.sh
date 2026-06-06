@@ -18,9 +18,25 @@ set -e
 
 cd /var/www/html
 
+log_step() {
+    echo ""
+    echo "=== entrypoint: $1 ==="
+}
+
+# -----------------------------------------------------------------------------
+# 0. Preflight (lỗi env hay gặp → container restart 10x trên Coolify)
+# -----------------------------------------------------------------------------
+log_step "preflight env"
+if [ -z "${APP_KEY:-}" ] || [ "$APP_KEY" = "base64:" ] || [ "$APP_KEY" = "(đặt secret trên Coolify — không commit)" ]; then
+    echo "ERROR: APP_KEY chưa đặt trên Coolify Environment Variables." >&2
+    echo "Sinh key local: php artisan key:generate --show → dán vào Coolify → redeploy." >&2
+    exit 1
+fi
+
 # -----------------------------------------------------------------------------
 # 1. Writable directories
 # -----------------------------------------------------------------------------
+log_step "writable directories"
 mkdir -p \
     storage/framework/cache/data \
     storage/framework/sessions \
@@ -71,7 +87,11 @@ find storage/framework/cache/data -mindepth 1 -type d -empty -delete 2>/dev/null
 rm -f bootstrap/cache/packages.php bootstrap/cache/services.php bootstrap/cache/routes-v7.php bootstrap/cache/config.php bootstrap/cache/events.php
 find bootstrap/cache -maxdepth 1 -name 'livewire-*' -delete 2>/dev/null || true
 
-php artisan package:discover --ansi
+log_step "package:discover"
+if ! php artisan package:discover --ansi; then
+    echo "ERROR: package:discover failed — kiểm tra vendor/ (Docker build composer install) và modules/CustomMLHUB." >&2
+    exit 1
+fi
 
 # public/storage is often a git placeholder directory (public/storage/.gitignore).
 # storage:link refuses to replace a real directory ("link already exists") — remove it first.
@@ -135,6 +155,7 @@ case "$APP_INSTALLED_VALUE" in
             attempt=$((attempt + 1))
             if [ "$attempt" -ge "$max_attempts" ]; then
                 echo "Database migration failed after ${max_attempts} attempts." >&2
+                echo "Kiểm tra Coolify: DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD — app và MySQL cùng network coolify." >&2
                 exit 1
             fi
             echo "Waiting for database... (${attempt}/${max_attempts})"
@@ -157,21 +178,23 @@ is_app_installed() {
     esac
 }
 
+log_step "cache refresh"
 if is_app_installed "$APP_INSTALLED_VALUE"; then
-    php artisan optimize:clear --ansi
-    php artisan view:clear --ansi
-    php artisan route:clear --ansi
-    php artisan config:clear --ansi
+    # Redis chưa sẵn sàng không được làm container chết — site vẫn phải lên Apache.
+    php artisan optimize:clear --ansi \
+        || echo "WARN: optimize:clear failed (thường do REDIS_HOST/REDIS_PASSWORD sai hoặc Redis chưa chạy)." >&2
+    php artisan view:clear --ansi || true
+    php artisan route:clear --ansi || true
+    php artisan config:clear --ansi || true
     php artisan event:clear --ansi 2>/dev/null || true
-    # Re-warm caches against the NEW codebase. Done after the wipe so no stale
-    # compiled artifacts survive across deploys.
-    php artisan optimize --ansi
+    php artisan optimize --ansi \
+        || echo "WARN: optimize failed — app vẫn chạy; sửa Redis env rồi redeploy hoặc chạy optimize trong container." >&2
 else
     echo "APP_INSTALLED is false: skipping database-backed cache clear. Set APP_INSTALLED=true on Coolify."
-    php artisan config:clear --ansi
-    php artisan route:clear --ansi
-    php artisan view:clear --ansi
-    CACHE_STORE=file php artisan cache:clear --ansi
+    php artisan config:clear --ansi || true
+    php artisan route:clear --ansi || true
+    php artisan view:clear --ansi || true
+    CACHE_STORE=file php artisan cache:clear --ansi || true
 fi
 
 # -----------------------------------------------------------------------------
@@ -185,13 +208,24 @@ fi
 RUN_QUEUE_WORKER_VALUE="${RUN_QUEUE_WORKER:-true}"
 
 if is_app_installed "$APP_INSTALLED_VALUE" && is_app_installed "$RUN_QUEUE_WORKER_VALUE"; then
+    log_step "queue worker"
     echo "Starting queue worker (connection=${QUEUE_CONNECTION:-redis})..."
-    su -s /bin/sh -c '
-        while true; do
-            php artisan queue:work --sleep=3 --tries=3 --max-time=3600 --no-interaction || true
-            sleep 2
-        done
-    ' www-data &
+    if command -v su >/dev/null 2>&1; then
+        su -s /bin/sh www-data -c '
+            while true; do
+                php artisan queue:work --sleep=3 --tries=3 --max-time=3600 --no-interaction || true
+                sleep 2
+            done
+        ' &
+    else
+        echo "WARN: su not found — starting queue worker as root (đặt RUN_QUEUE_WORKER=false nếu không cần)." >&2
+        (
+            while true; do
+                php artisan queue:work --sleep=3 --tries=3 --max-time=3600 --no-interaction || true
+                sleep 2
+            done
+        ) &
+    fi
 else
     echo "Queue worker not started (APP_INSTALLED=${APP_INSTALLED_VALUE}, RUN_QUEUE_WORKER=${RUN_QUEUE_WORKER_VALUE})."
 fi
@@ -199,4 +233,5 @@ fi
 # -----------------------------------------------------------------------------
 # 6. Hand off to Apache (or whatever CMD was supplied)
 # -----------------------------------------------------------------------------
+log_step "starting ${*:-apache2-foreground}"
 exec "$@"

@@ -69,6 +69,60 @@ Review Booster, Booking, Coupons, Feedback, Lead Forms **không độc lập ho�
 - Rà soát ma trận quyền team (owner/member, module bật/tắt).
 - `.env` production: `APP_DEBUG=false`, `APP_URL=https://mlhub.vn`, `SESSION_DOMAIN=.mlhub.vn`, `TRUSTED_PROXIES`, queue worker (một nguồn), S3/mail thật; sau deploy user **Ctrl+F5** nếu Livewire 419.
 
+### 1.1 Showcase — user chưa gán gói (`plan_id null`)
+
+User đăng ký mới **không chọn gói** → `plan_id` null. Bật `MLHUB_NO_PLAN_ACCESS_ENABLED=true` để họ vẫn dùng portal với hạn mức cố định (không cần tạo gói Free trong Admin → Plans).
+
+**Cơ chế:** `User::canUsePlanFeature()` / `planLimit()` đọc `config/mlhub.php` → `no_plan_access.permissions` (build từ env `MLHUB_NO_PLAN_*` qua `NoPlanAccess::permissionsFromEnv()`). Sidebar addon chỉ hiện khi cờ tương ứng `true`; vào URL trực tiếp khi tắt → `403`.
+
+**Sau khi đổi env trên Coolify:** Redeploy (entrypoint `optimize:clear` → `optimize`) hoặc user **Ctrl+F5** tab portal.
+
+**Giới hạn số:** `-1` = không giới hạn (giống gói trả phí). `0` = không cho tạo thêm (addon tắt hoặc hạn mức bằng 0).
+
+#### Ma trận tính năng (key permission → env Coolify)
+
+
+| Nhóm | Tính năng / Addon | Key kiểm tra code | Env bật/tắt | Env hạn mức / phụ |
+| ---- | ----------------- | ----------------- | ----------- | ----------------- |
+| **Credits** | AI credits | `credits_usage` | `MLHUB_NO_PLAN_CREDITS_USAGE` | `MLHUB_NO_PLAN_CREDITS_LIMIT` |
+| **LocalBoost** | Toàn bộ growth + Businesses + Reports | `localboost` | `MLHUB_NO_PLAN_LOCALBOOST` | — |
+| | Review / Booking / Coupon / Feedback / Lead | *(gộp trong `localboost`)* | — | `MLHUB_NO_PLAN_MAX_CAMPAIGNS` |
+| | Hồ sơ doanh nghiệp | — | — | `MLHUB_NO_PLAN_MAX_BUSINESSES` |
+| | Landing pages | — | — | `MLHUB_NO_PLAN_MAX_LANDING_PAGES` |
+| | QR campaign pages | — | — | `MLHUB_NO_PLAN_MAX_QR_CODES` |
+| | Marketing templates | — | — | `MLHUB_NO_PLAN_MAX_TEMPLATES` |
+| | Gỡ branding MLHUB trên trang công khai | `remove_branding` | `MLHUB_NO_PLAN_REMOVE_BRANDING` | — |
+| **Files** | Thư viện file | `files` | `MLHUB_NO_PLAN_FILES` | `MLHUB_NO_PLAN_MAX_STORAGE_MB`, `MLHUB_NO_PLAN_MAX_FILE_SIZE_MB` |
+| | Image editor / tìm ảnh online | `image_editor`, `search_media_online` | `MLHUB_NO_PLAN_IMAGE_EDITOR`, `MLHUB_NO_PLAN_SEARCH_MEDIA_ONLINE` | — |
+| | Cloud picker (Drive/Dropbox/OneDrive) | `file_google_drive`, … | `MLHUB_NO_PLAN_FILE_GOOGLE_DRIVE`, `…_DROPBOX`, `…_ONEDRIVE` | — |
+| **Account** | Support tickets | `support` | `MLHUB_NO_PLAN_SUPPORT` | — |
+| | Affiliate | `affiliate` | `MLHUB_NO_PLAN_AFFILIATE` | — |
+| | Teams / thành viên | `teams` | `MLHUB_NO_PLAN_TEAMS` | `MLHUB_NO_PLAN_MAX_TEAM_MEMBERS` |
+| **AI Studio** | Campaign Builder (menu AI) | `ai_studio` | `MLHUB_NO_PLAN_AI_STUDIO` | — |
+| | AI Content | `ai_studio_caption_generator` | `MLHUB_NO_PLAN_AI_CAPTION` | — |
+| | Content Planner | `ai_studio_content_planner` | `MLHUB_NO_PLAN_AI_CONTENT_PLANNER` | — |
+| | Repurpose | `ai_studio_repurpose` | `MLHUB_NO_PLAN_AI_REPURPOSE` | — |
+| | AI Image | `ai_studio_image` | `MLHUB_NO_PLAN_AI_IMAGE` | — |
+| **Addon** | Advanced CRM | `advanced_crm` | `MLHUB_NO_PLAN_ADVANCED_CRM` | `MLHUB_NO_PLAN_CRM_TAGS`, `…_SEGMENTS`, `…_TASKS`, `…_AUTOMATIONS`, `…_RETENTION_DAYS` |
+| **Addon** | Google Business | `google_business` | `MLHUB_NO_PLAN_GOOGLE_BUSINESS` | `…_CONNECTIONS`, `…_LOCATIONS`, `…_REVIEW_SYNC`, `…_REVIEW_REPLY`, `…_INSIGHTS`, `…_POSTS` |
+| **Addon** | Email Automation | `email_automation` | `MLHUB_NO_PLAN_EMAIL_AUTOMATION` | `MLHUB_NO_PLAN_MAX_EMAIL_*`, `…_EMAILS_PER_MONTH`, `…_EMAIL_DELAY`, `…_EMAIL_CONDITIONS` |
+| **Addon** | WhatsApp | `whatsapp_notification` | `MLHUB_NO_PLAN_WHATSAPP` | `MLHUB_NO_PLAN_MAX_WHATSAPP_*`, `…_WHATSAPP_MESSAGES_PER_MONTH`, `…_CLOUD_API`, `…_TEMPLATE_MSG` |
+| **Addon** | Webhook / Zapier | `webhook_automation` | `MLHUB_NO_PLAN_WEBHOOK` | `MLHUB_NO_PLAN_MAX_WEBHOOK_*`, `…_WEBHOOKS_PER_MONTH`, `…_HEADERS`, `…_RETRY` |
+| **Addon** | Loyalty & Referral | `loyalty_stamp_cards` | `MLHUB_NO_PLAN_LOYALTY` | `MLHUB_NO_PLAN_MAX_LOYALTY_*`, `…_REFERRAL_CAMPAIGNS`, `…_LOYALTY_REWARDS`, `…_STAFF_REDEEM` |
+| **Addon** | Custom Domains | `qr_custom_domains` | `MLHUB_NO_PLAN_CUSTOM_DOMAINS` | `MLHUB_NO_PLAN_MAX_CUSTOM_DOMAINS` |
+
+#### Mặc định miễn phí (`.env.example`)
+
+**Bật hết** tính năng + addon; hạn mức thấp — đủ trải nghiệm **1 cửa hàng** (1 business, 5 campaign, 100 credit, 200 email/tháng, 50 WhatsApp/tháng, 1 Google location, 1 loyalty card, 1 custom domain, 2 thành viên team…). `MLHUB_NO_PLAN_REMOVE_BRANDING=false` — trang công khai vẫn hiện MLHUB (upsell gói trả phí).
+
+#### Preset showcase từng giai đoạn (tắt bớt trên Coolify)
+
+**Chỉ growth core:** đặt mọi addon `*_…=false` (CRM, Google, Email, WhatsApp, Webhook, Loyalty, Custom Domains) và hạn mức addon `0`.
+
+**Từng addon:** bật lại từng nhóm G→M trong `.env.example` khi muốn demo riêng module đó.
+
+**Tắt hẳn free tier (chỉ bán gói):** `MLHUB_NO_PLAN_ACCESS_ENABLED=false` — user null plan chỉ thấy Packages, dashboard báo Inactive.
+
 ---
 
 ## 2. Review Booster (`AppReviewBooster`)

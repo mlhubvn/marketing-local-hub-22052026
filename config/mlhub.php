@@ -1,5 +1,7 @@
 <?php
 
+use App\Support\Plans\NoPlanAccess;
+
 /**
  * MLHUB bootstrap (không còn Web Installer).
  * Seed + env Coolify thay cho wizard cài đặt lần đầu.
@@ -12,38 +14,12 @@ return [
 
     /*
      * User đăng ký chưa chọn/gán gói (plan_id null): vẫn dùng portal với hạn mức cố định.
-     * Chỉnh trong file này hoặc Coolify env MLHUB_NO_PLAN_ACCESS_* — không cần tạo gói Free trong Admin.
+     * Toàn bộ quyền đọc từ env MLHUB_NO_PLAN_* (Coolify) — xem .env.example và ARCHITECTURE_FEATURE.md §1.1.
      */
     'no_plan_access' => [
         'enabled' => filter_var(env('MLHUB_NO_PLAN_ACCESS_ENABLED', true), FILTER_VALIDATE_BOOL),
-        'label' => env('MLHUB_NO_PLAN_ACCESS_LABEL', 'None'),
-        'permissions' => [
-            'credits_usage' => true,
-            'credits_usage_limit' => (int) env('MLHUB_NO_PLAN_CREDITS_LIMIT', 100),
-            'localboost' => true,
-            'max_businesses' => (int) env('MLHUB_NO_PLAN_MAX_BUSINESSES', 1),
-            'max_campaigns' => (int) env('MLHUB_NO_PLAN_MAX_CAMPAIGNS', 3),
-            'max_landing_pages' => (int) env('MLHUB_NO_PLAN_MAX_LANDING_PAGES', 3),
-            'max_qr_codes' => (int) env('MLHUB_NO_PLAN_MAX_QR_CODES', 10),
-            'max_templates' => (int) env('MLHUB_NO_PLAN_MAX_TEMPLATES', 5),
-            'files' => true,
-            'max_storage_size_mb' => (int) env('MLHUB_NO_PLAN_MAX_STORAGE_MB', 512),
-            'max_file_size_mb' => 32,
-            'image_editor' => true,
-            'support' => true,
-            'ai_studio' => true,
-            'ai_studio_caption_generator' => true,
-            'ai_studio_content_planner' => false,
-            'ai_studio_repurpose' => false,
-            'ai_studio_image' => false,
-            'advanced_crm' => false,
-            'google_business' => false,
-            'email_automation' => false,
-            'whatsapp_notification' => false,
-            'webhook_automation' => false,
-            'loyalty_stamp_cards' => false,
-            'qr_custom_domains' => false,
-        ],
+        'label' => env('MLHUB_NO_PLAN_ACCESS_LABEL', 'Free'),
+        'permissions' => NoPlanAccess::permissionsFromEnv(),
     ],
 
     'license' => [

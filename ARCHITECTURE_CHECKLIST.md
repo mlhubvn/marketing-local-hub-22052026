@@ -53,6 +53,15 @@ Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** (LocalBoost AI
 - Cập nhật `ARCHITECTURE_*.md` + `.cursorrules` nếu thêm module/env (đã quét trong lần sync gần nhất).
 - Cài lần đầu (DB trống): Coolify env `MLHUB_FIRST_USER_EMAIL` + `MLHUB_FIRST_USER_PASSWORD` → container app → `php artisan mlhub:install` (xem `ARCHITECTURE_PROMPT.md` §4.1).
 
+### 1.2.2 Container Exited (10x restarts) sau khi deploy
+
+- **Coolify → Logs** (container app): kéo lên dòng **cuối trước khi thoát** — tìm `ERROR:` hoặc `=== entrypoint:`.
+- **APP_KEY trống** → `ERROR: APP_KEY chưa đặt` — Coolify env: `APP_KEY=base64:...` (sinh bằng `php artisan key:generate --show`).
+- **MySQL** → `Database migration failed` — kiểm tra `DB_HOST` (hostname service MySQL trên Coolify, không phải `127.0.0.1`), `DB_*`, app + MySQL cùng network.
+- **Redis** → `WARN: optimize:clear failed` — sửa `REDIS_HOST` / `REDIS_PASSWORD`; hoặc tạm `CACHE_STORE=file` + `SESSION_DRIVER=file` để lên site (không khuyến nghị lâu dài).
+- **public/storage** → `ERROR: public/storage symlink` — redeploy; volume `mlhub-storage` chỉ mount `/storage`, không mount `public/`.
+- Sau khi container **Running**: chạy một lần `php artisan mlhub:install` (DB trống).
+
 ### 1.2.1 Coolify deploy fail khi clone Git (exit 255, ~17k files)
 
 - **Triệu chứng:** log dừng ở `Updating files: 50–60%` rồi `Deployment failed: exit code 255` trước khi build Docker.
