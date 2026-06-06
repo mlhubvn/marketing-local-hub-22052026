@@ -2,7 +2,7 @@
     .lb-sales {
         --lb-ink: #15201b;
         --lb-muted: #63736b;
-        --lb-paper: #f7faf6;
+        --lb-paper: #fbfaf5;
         --lb-line: #dfe9df;
         --lb-lime: #ffb347;
         --lb-red: #ff5f5f;

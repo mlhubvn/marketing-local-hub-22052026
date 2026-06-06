@@ -49,7 +49,7 @@
         .lb-sales {
             --lb-ink: #15201b;
             --lb-muted: #63736b;
-            --lb-paper: #f7faf6;
+            --lb-paper: #fbfaf5;
             --lb-soft: #edf5ef;
             --lb-line: #dfe9df;
             --lb-lime: #ffb347;
@@ -783,7 +783,7 @@
 
         html[data-theme-resolved='dark'] .lb-sales [style*="#fff"],
         html[data-theme-resolved='dark'] .lb-sales [style*="#fbfaf5"],
-        html[data-theme-resolved='dark'] .lb-sales [style*="#f7faf6"],
+        html[data-theme-resolved='dark'] .lb-sales [style*="#fbfaf5"],
         html[data-theme-resolved='dark'] .lb-sales [style*="#fffefb"],
         html[data-theme-resolved='dark'] .lb-sales [style*="white"] {
             background: rgba(15, 23, 42, .76) !important;

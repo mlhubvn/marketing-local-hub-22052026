@@ -1554,10 +1554,10 @@
     }
 
     html[data-theme-resolved='dark'] .lb-page [style*="#fbfaf5"],
-    html[data-theme-resolved='dark'] .lb-page [style*="#f7faf6"],
+    html[data-theme-resolved='dark'] .lb-page [style*="#fbfaf5"],
     html[data-theme-resolved='dark'] .lb-page [style*="#fffefb"],
     html[data-theme-resolved='dark'] .lb-auth-page [style*="#fbfaf5"],
-    html[data-theme-resolved='dark'] .lb-auth-page [style*="#f7faf6"],
+    html[data-theme-resolved='dark'] .lb-auth-page [style*="#fbfaf5"],
     html[data-theme-resolved='dark'] .lb-auth-page [style*="#fffefb"] {
         background: rgba(15, 23, 42, 0.78) !important;
         border-color: rgba(96, 165, 250, 0.22) !important;
