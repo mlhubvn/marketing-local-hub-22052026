@@ -102,6 +102,8 @@
 
 **Triển khai:** Coolify + Traefik (HTTP→HTTPS, Let's Encrypt), domain `mlhub.vn`/`www.mlhub.vn`, storage gắn volume `mlhub-storage:/var/www/html/storage`. Vì chạy sau proxy nên `TRUSTED_PROXIES` đã được xử lý trong `bootstrap/app.php` — **đừng** hard-code `http://` khi tạo URL, dùng helper sinh URL của Laravel.
 
+**Git / Coolify clone:** **Không** commit `vendor/` (Dockerfile `composer install`). Repo có `.gitignore` — clone fail exit 255 ~17k files → xem `ARCHITECTURE_CHECKLIST.md` §1.2.1.
+
 **Livewire 419 / 504 (production):** Sau deploy, user phải **Ctrl+F5** nếu tab cũ báo "page expired". `SESSION_DOMAIN=.mlhub.vn` + `APP_URL=https://mlhub.vn` bắt buộc trên Coolify. Dashboard portal: **một** `wire:init` (`loadDashboardSections`), không bắn 3 request Livewire song song. `entrypoint.sh` sync Livewire JS + `optimize:clear` → `optimize` mỗi deploy. Tùy chọn: `LIVEWIRE_RELEASE_TOKEN` trên Coolify khi đổi phiên bản lớn. Cache metrics: `PortalGrowthDashboardMetrics::forget($userId)` sau scan/conversion (qua `GrowthToolNotifier` / `recordScan` / review feedback).
 
 **Redis cache (portal dashboard):** `Cache::remember()` cho `PortalGrowthDashboardMetrics` **chỉ lưu mảng scalar** (key `portal.*.v2`), không serialize Eloquent/`Collection` model — tránh `__PHP_Incomplete_Class` sau deploy. `forget()` phải xóa đúng suffix key (vd `recent_activity.v2.{userId}.{limit}` 8→64).

@@ -53,6 +53,13 @@ Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** (LocalBoost AI
 - Cập nhật `ARCHITECTURE_*.md` + `.cursorrules` nếu thêm module/env (đã quét trong lần sync gần nhất).
 - Cài lần đầu (DB trống): Coolify env `MLHUB_FIRST_USER_EMAIL` + `MLHUB_FIRST_USER_PASSWORD` → container app → `php artisan mlhub:install` (xem `ARCHITECTURE_PROMPT.md` §4.1).
 
+### 1.2.1 Coolify deploy fail khi clone Git (exit 255, ~17k files)
+
+- **Triệu chứng:** log dừng ở `Updating files: 50–60%` rồi `Deployment failed: exit code 255` trước khi build Docker.
+- **Nguyên nhân thường gặp:** `vendor/` bị commit lên GitHub (~14k file) — Coolify clone quá nặng/timeout; trong khi `Dockerfile` đã `composer install`.
+- **Cách xử lý (một lần):** repo có `.gitignore` (`/vendor/`) → `git rm -r --cached vendor` → commit + push → redeploy. Sau push, clone chỉ ~2–3k file.
+- **Không** commit `vendor/`, `node_modules/`, `.env`, `storage/*.log`, `bootstrap/cache/*.php`.
+
 ### 1.3 Go-live production lần đầu (sau khi gỡ demo/faker)
 
 > Chạy **một lần** khi DB trống. Mọi biến env giải thích trong `.env.example`.
