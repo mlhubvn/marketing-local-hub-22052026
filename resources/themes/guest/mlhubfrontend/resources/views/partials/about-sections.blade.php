@@ -1,27 +1,32 @@
 @php
     $demoHref = auth()->check() ? route('portal.dashboard') : route('register');
     $missionPillars = [
-        ['fa-chart-line', __('Continuously attract guests and grow revenue.')],
-        ['fa-graduation-cap', __('Continuously train and grow digital-ready staff.')],
+        ['fa-chart-line', __('Continuously attract guests and boost revenue.')],
+        ['fa-graduation-cap', __('Continuously train and nurture digital-ready staff.')],
         ['fa-heart', __('Continuously care for and retain loyal customers.')],
         ['fa-list-check', __('Continuously standardize and build SOP processes.')],
     ];
     $barriers = [
-        ['fa-coins', __('Finance'), __('Cannot afford expensive software systems.')],
-        ['fa-users', __('People'), __('No dedicated online marketing team.')],
-        ['fa-laptop', __('Technology'), __('Fear complex interfaces and tedious steps.')],
-        ['fa-map-location-dot', __('Customers'), __('Invisible on Google Maps—watching tourists walk into rival stores.')],
+        ['fa-bullhorn', __('Wasted ad spend'), __('Burning money on Facebook Ads is expensive—and leads go silent after they ask.')],
+        ['fa-qrcode', __('The VietQR trap'), __('Guests pay and leave; you lose all their data with no way to bring them back.')],
+        ['fa-message-sms', __('The SMS bottleneck'), __('Asking guests to type a phone number feels like hassle; SMS OTP fees eat into your margins.')],
+        ['fa-map-location-dot', __('Invisible on Google Maps'), __('90% of tourists find shops on Maps. Without 5-star reviews, you hand walk-in demand to rivals.')],
     ];
     $solutions = [
-        ['fa-globe', __('Create and manage domains'), __('Launch credible digital identity and trust.')],
-        ['fa-map-location-dot', __('Google Maps coverage'), __('Deploy omnichannel sync to capture walk-in search demand near your store.')],
-        ['fa-qrcode', __('Automation funnel'), __('Closed loop: scan QR for instant voucher → AI nurture messages → customers return to buy.')],
+        ['fa-globe', __('Create and manage .vn domains'), __('Launch credible digital identity and build a trusted online store (e.g. .biz.vn).')],
+        ['fa-map-location-dot', __('Google Maps coverage'), __('Automate 5-star review requests and rank Top 1 in local search to capture tourists near your store.')],
+        ['fa-route', __('O2O automation funnel'), __('Closed loop: scan table QR → one-tap Gmail sign-in → instant voucher → AI nurture messages → customers return to buy.')],
     ];
     $benefits = [
-        ['fa-robot', __('Hands-free operations'), __('AI handles repetitive work and frees you from manual bookkeeping.')],
-        ['fa-display', __('One-screen simplicity'), __('Everything on a single screen—even older users navigate smoothly.')],
-        ['fa-person-walking', __('Real foot traffic'), __('Turn online search instantly into people walking through your door.')],
-        ['fa-tags', __('Right-sized cost'), __('Start with a tiny investment; upgrade (Starter, Growth, Pro) when cash flow grows.')],
+        ['fa-robot', __('Hands-free operations'), __('AI handles repetitive tasks (appointment reminders, thank-you notes, review requests) and frees you from manual bookkeeping.')],
+        ['fa-fingerprint', __('One-tap operations (Zero-Friction)'), __('Remove friction entirely—guests never type; one Google sign-in and they are done.')],
+        ['fa-users-gear', __('Save on staffing'), __('Everything on one screen. Even older shop owners use it smoothly—no extra marketing or IT hire.')],
+    ];
+    $journeyFlow = [
+        ['fa-qrcode', __('Scan table QR')],
+        ['fa-envelope', __('One-tap Gmail sign-in')],
+        ['fa-ticket', __('Instant voucher')],
+        ['fa-sparkles', __('AI nurture messages')],
     ];
 @endphp
 
@@ -32,7 +37,7 @@
             <span class="lb-pill inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('About MLHUB') }}</span>
             <h1 class="lb-serif lb-hero-title mt-6">{{ __('Making Local HUB for Vietnamese local businesses') }}</h1>
             <p class="lb-lead mt-5 max-w-xl" style="color: var(--lb-muted);">
-                {{ __('MLHUB is a Marketing Automation platform tailored for household businesses (SOHO), SMEs, and retail chains. Instead of feature overload, we deliver the most minimal, easy-to-use ecosystem. Every process to find, engage, and nurture customers is now fully automated.') }}
+                {{ __('In today\'s digital economy, most software is too expensive and complex for small shops. MLHUB was built to fill that gap.') }}
             </p>
             <div class="mt-8 flex flex-wrap gap-2">
                 @foreach ([__('Making Local HUB'), __('Marketing Automation'), __('Local O2O'), __('Review Booster')] as $badge)
@@ -121,7 +126,8 @@
                     <i class="fa-light fa-bolt"></i>
                 </span>
             </div>
-            <p class="lb-body mt-5" style="color: var(--lb-muted);">{{ __('MLHUB is a Marketing Automation platform tailored for household businesses (SOHO), SMEs, and retail chains. Instead of feature overload, we deliver the most minimal, easy-to-use ecosystem. Every process to find, engage, and nurture customers is now fully automated.') }}</p>
+            <p class="lb-body mt-5" style="color: var(--lb-muted);">{{ __('In today\'s digital economy, most software is too expensive and complex for small shops. MLHUB was built to fill that gap.') }}</p>
+            <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('MLHUB is a Marketing Automation O2O platform tailored for household businesses (SOHO) and SMEs. Instead of feature overload, we deliver the most minimal ecosystem: turn every table-side QR scan into a fully automated search, engagement, and customer care workflow.') }}</p>
         </article>
 
         <article id="about-vision" class="lb-card lb-about-panel lb-hover rounded-2xl p-6 sm:p-8">
@@ -152,7 +158,7 @@
             <span class="lb-pill inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Market challenges') }}</span>
             <p class="lb-section-index mt-6">03</p>
             <h2 class="lb-serif lb-heading mx-auto mt-3 max-w-2xl">{{ __('Market challenges') }}</h2>
-            <p class="lb-body mx-auto mt-4 max-w-2xl" style="color: var(--lb-muted);">{{ __('Hundreds of thousands of local merchants miss opportunities because of four major barriers:') }}</p>
+            <p class="lb-body mx-auto mt-4 max-w-2xl" style="color: var(--lb-muted);">{{ __('Hundreds of thousands of local merchants in Da Nang are missing opportunities because of four major barriers:') }}</p>
         </div>
         <div class="mt-10 grid gap-4 sm:grid-cols-2">
             @foreach ($barriers as $barrier)
@@ -218,7 +224,7 @@
         <span class="lb-pill mt-4 inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Productivity digitization') }}</span>
         <h2 class="lb-serif lb-heading mx-auto mt-5 max-w-2xl">{{ __('Productivity digitization') }}</h2>
     </div>
-    <div class="mt-10 grid gap-4 md:grid-cols-2">
+    <div class="mt-10 grid gap-4 md:grid-cols-3">
         @foreach ($benefits as $benefit)
             <article class="lb-card lb-step-card lb-hover rounded-2xl p-6">
                 <div class="relative z-10 flex items-center justify-between gap-4">
@@ -243,7 +249,8 @@
                 <span class="lb-pill mt-4 inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Revenue replication') }}</span>
                 <h2 class="lb-serif lb-heading mt-5">{{ __('Revenue replication') }}</h2>
                 <p class="lb-body mt-5" style="color: var(--lb-muted);">{{ __('Digital transformation is not about how much software you buy—it is about how you change the way you operate.') }}</p>
-                <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('MLHUB does not just sell tools; we give you a standard operating process (SOP). Combining automation with the "Making Local" philosophy, we turn your retail store into a systematic business engine—optimizing productivity end to end and ready to replicate revenue at any time.') }}</p>
+                <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('MLHUB does not just sell tools—we give you a standard operating process (SOP). Turn walk-in traffic into owned data, strangers into regulars, and regulars into 5-star ambassadors for your store.') }}</p>
+                <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('With MLHUB, your small retail shop becomes a systematic business engine—ready to replicate revenue at any time.') }}</p>
                 <a href="{{ $demoHref }}" class="mt-8 inline-flex items-center justify-center gap-2 rounded-full px-6 py-4 text-sm font-black text-white transition hover:opacity-90" style="background: var(--lb-red); box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 22px 48px -30px rgba(255,95,95,.9);">
                     <i class="fa-light fa-rocket"></i>
                     {{ __('Start your free trial') }}
@@ -251,11 +258,11 @@
             </div>
             <div class="lb-window relative z-10 overflow-hidden rounded-2xl">
                 <div class="border-b px-5 py-4" style="border-color: var(--lb-line);">
-                    <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ __('Campaign workflow') }}</p>
+                    <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ __('O2O automation funnel') }}</p>
                 </div>
                 <div class="p-5">
                     <div class="grid gap-2 sm:grid-cols-4">
-                        @foreach ([['fa-bullseye-arrow', __('Choose your campaign goal')], ['fa-sparkles', __('AI Campaign Builder')], ['fa-qrcode', __('Create QR codes')], ['fa-chart-line', __('Reports')]] as $flow)
+                        @foreach ($journeyFlow as $flow)
                             <div class="flex flex-col items-center gap-2 rounded-xl border bg-white p-3 text-center" style="border-color: var(--lb-line);">
                                 <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-lime) 26%, #fff); color: #ff5f5f;">
                                     <i class="fa-light {{ $flow[0] }}"></i>
@@ -270,7 +277,7 @@
                                 <span class="lb-bar flex-1 rounded-t-lg" style="--lb-bar-delay: {{ $loop->index * 120 }}ms; height: {{ $bar }}%; background: {{ $loop->even ? 'var(--lb-red)' : 'var(--lb-lime)' }};"></span>
                             @endforeach
                         </div>
-                        <p class="mt-4 text-center text-xs font-bold" style="color: var(--lb-muted);">{{ __('One campaign hub') }}</p>
+                        <p class="mt-4 text-center text-xs font-bold" style="color: var(--lb-muted);">{{ __('Systematic business engine') }}</p>
                     </div>
                 </div>
             </div>
