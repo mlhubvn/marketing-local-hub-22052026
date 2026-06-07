@@ -34,19 +34,19 @@
 <section id="about" class="lb-wrap lb-section lb-about scroll-mt-28">
     <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
         <div>
-            <span class="lb-pill inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('About MLHUB') }}</span>
-            <h1 class="lb-serif lb-hero-title mt-6">{{ __('Making Local HUB for Vietnamese local businesses') }}</h1>
-            <p class="lb-lead mt-5 max-w-xl" style="color: var(--lb-muted);">
+            <span class="lb-pill lb-reveal inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('About MLHUB') }}</span>
+            <h1 class="lb-serif lb-hero-title lb-reveal mt-6" style="--lb-delay: 70ms;">{{ __('Making Local HUB for Vietnamese local businesses') }}</h1>
+            <p class="lb-lead lb-reveal mt-5 max-w-xl" style="--lb-delay: 140ms; color: var(--lb-muted);">
                 {{ __('In today\'s digital economy, most software is too expensive and complex for small shops. MLHUB was built to fill that gap.') }}
             </p>
-            <div class="mt-8 flex flex-wrap gap-2">
+            <div class="lb-reveal mt-8 flex flex-wrap gap-2" style="--lb-delay: 210ms;">
                 @foreach ([__('Making Local HUB'), __('Marketing Automation'), __('Local O2O'), __('Review Booster')] as $badge)
                     <span class="rounded-full border bg-white/90 px-3 py-2 text-xs font-black" style="border-color: var(--lb-line); color: var(--lb-muted);">{{ $badge }}</span>
                 @endforeach
             </div>
         </div>
 
-        <div class="lb-glow relative">
+        <div class="lb-glow lb-reveal relative" style="--lb-delay: 240ms;">
             <div class="lb-window relative z-10 overflow-hidden rounded-2xl">
                 <div class="flex items-center justify-between border-b px-5 py-4" style="border-color: var(--lb-line); background: var(--lb-soft);">
                     <div class="flex items-center gap-1.5">
@@ -115,39 +115,85 @@
     </div>
 </section>
 
-{{-- 01 + 02 --}}
-<section class="lb-wrap lb-section pt-0">
-    <div class="grid gap-6 lg:grid-cols-2">
-        <article id="about-what" class="lb-card lb-feature-hero lb-about-panel lb-hover rounded-2xl p-6 sm:p-8">
+{{-- 01 What is MLHUB? --}}
+<section id="about-what" class="lb-wrap lb-section lb-about-panel scroll-mt-28">
+    <div class="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+        <div>
             <p class="lb-section-index">01</p>
-            <div class="mt-4 flex items-start justify-between gap-4">
-                <h2 class="lb-card-title">{{ __('What is MLHUB?') }}</h2>
+            <span class="lb-pill mt-4 inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('What is MLHUB?') }}</span>
+            <h2 class="lb-serif lb-heading mt-5">{{ __('What is MLHUB?') }}</h2>
+            <p class="lb-body mt-5" style="color: var(--lb-muted);">{{ __('In today\'s digital economy, most software is too expensive and complex for small shops. MLHUB was built to fill that gap.') }}</p>
+            <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('MLHUB is a Marketing Automation O2O platform tailored for household businesses (SOHO) and SMEs. Instead of feature overload, we deliver the most minimal ecosystem: turn every table-side QR scan into a fully automated search, engagement, and customer care workflow.') }}</p>
+            <div class="mt-6 flex flex-wrap gap-2">
+                @foreach ([__('Marketing Automation'), __('Local O2O'), __('Review Booster')] as $badge)
+                    <span class="rounded-full border bg-white/90 px-3 py-2 text-xs font-black" style="border-color: var(--lb-line); color: var(--lb-muted);">{{ $badge }}</span>
+                @endforeach
+            </div>
+        </div>
+        <article class="lb-card lb-feature-hero lb-hover rounded-2xl p-6 sm:p-8">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ __('O2O automation funnel') }}</p>
+                    <h3 class="mt-3 text-2xl font-black">{{ __('Making Local HUB') }}</h3>
+                </div>
                 <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-white" style="background: var(--lb-red);">
                     <i class="fa-light fa-bolt"></i>
                 </span>
             </div>
-            <p class="lb-body mt-5" style="color: var(--lb-muted);">{{ __('In today\'s digital economy, most software is too expensive and complex for small shops. MLHUB was built to fill that gap.') }}</p>
-            <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('MLHUB is a Marketing Automation O2O platform tailored for household businesses (SOHO) and SMEs. Instead of feature overload, we deliver the most minimal ecosystem: turn every table-side QR scan into a fully automated search, engagement, and customer care workflow.') }}</p>
-        </article>
-
-        <article id="about-vision" class="lb-card lb-about-panel lb-hover rounded-2xl p-6 sm:p-8">
-            <p class="lb-section-index">02</p>
-            <h2 class="lb-card-title mt-4">{{ __('Vision & Mission') }}</h2>
-            <p class="lb-body mt-4 font-bold" style="color: var(--lb-ink);">{{ __('Vision: close the technology gap') }}</p>
-            <p class="lb-caption mt-2" style="color: var(--lb-muted);">{{ __('Help every small spa or eatery operate with discipline that rivals large corporations.') }}</p>
-            <p class="lb-body mt-5 font-bold" style="color: var(--lb-ink);">{{ __('Mission "Making Local HUB":') }}</p>
-            <p class="lb-caption mt-2" style="color: var(--lb-muted);">{{ __('Build grassroots strength for the local economy through four solid pillars:') }}</p>
-            <div class="mt-5 grid gap-3 sm:grid-cols-2">
-                @foreach ($missionPillars as $pillar)
-                    <div class="relative z-10 flex gap-3 rounded-xl border bg-white/80 p-3" style="border-color: var(--lb-line);">
-                        <span class="lb-feature-icon inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color: #ff5f5f;">
-                            <i class="fa-light {{ $pillar[0] }}"></i>
+            <div class="mt-6 grid gap-3">
+                @foreach ($journeyFlow as $flow)
+                    <div class="flex items-center gap-3 rounded-xl border bg-white/85 p-3" style="border-color: var(--lb-line);">
+                        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-lime) 28%, #fff); color: #ff5f5f;">
+                            <i class="fa-light {{ $flow[0] }}"></i>
                         </span>
-                        <p class="text-xs font-bold leading-snug" style="color: var(--lb-muted);">{{ $pillar[1] }}</p>
+                        <p class="text-sm font-bold" style="color: var(--lb-muted);">{{ $flow[1] }}</p>
                     </div>
                 @endforeach
             </div>
         </article>
+    </div>
+</section>
+
+{{-- 02 Vision & Mission --}}
+<section id="about-vision" class="lb-wrap lb-section lb-about-panel scroll-mt-28">
+    <div class="text-center">
+        <p class="lb-section-index">02</p>
+        <span class="lb-pill mt-4 inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Vision & Mission') }}</span>
+        <h2 class="lb-serif lb-heading mx-auto mt-5 max-w-2xl">{{ __('Vision & Mission') }}</h2>
+    </div>
+    <div class="mt-10 grid gap-6 lg:grid-cols-2">
+        <article class="lb-card lb-hover rounded-2xl p-6 sm:p-8">
+            <div class="flex items-start gap-4">
+                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-white" style="background: var(--lb-red);">
+                    <i class="fa-light fa-compass"></i>
+                </span>
+                <div>
+                    <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ __('Vision: close the technology gap') }}</p>
+                    <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('Help every small spa or eatery operate with discipline that rivals large corporations.') }}</p>
+                </div>
+            </div>
+        </article>
+        <article class="lb-card lb-feature-hero lb-hover rounded-2xl p-6 sm:p-8">
+            <div class="flex items-start gap-4">
+                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color: #ff5f5f;">
+                    <i class="fa-light fa-flag"></i>
+                </span>
+                <div>
+                    <p class="lb-body font-bold" style="color: var(--lb-ink);">{{ __('Mission "Making Local HUB":') }}</p>
+                    <p class="lb-caption mt-2" style="color: var(--lb-muted);">{{ __('Build grassroots strength for the local economy through four solid pillars:') }}</p>
+                </div>
+            </div>
+        </article>
+    </div>
+    <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        @foreach ($missionPillars as $pillar)
+            <article class="lb-card lb-step-card lb-hover rounded-2xl p-5">
+                <span class="lb-feature-icon relative z-10 inline-flex h-11 w-11 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color: #ff5f5f;">
+                    <i class="fa-light {{ $pillar[0] }}"></i>
+                </span>
+                <p class="relative z-10 mt-4 text-sm font-bold leading-snug" style="color: var(--lb-muted);">{{ $pillar[1] }}</p>
+            </article>
+        @endforeach
     </div>
 </section>
 
