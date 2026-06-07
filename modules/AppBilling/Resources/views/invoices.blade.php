@@ -1,7 +1,10 @@
 @component(theme_view('layouts.app', 'app'), ['title' => __('Invoices')])
     @php
-        $paidCount = $invoices->getCollection()->where('status', 1)->count();
-        $visibleTotal = (float) $invoices->getCollection()->where('status', 1)->sum('amount');
+        $paidOnPage = $invoices->getCollection()->where('status', 1);
+        $paidCount = $paidOnPage->count();
+        $visibleTotal = (float) $paidOnPage->sum('amount');
+        $visibleCurrency = (string) ($paidOnPage->first()?->currency ?: auth()->user()?->plan?->currency ?: '');
+        $visibleTotalFormatted = format_money($visibleTotal, $visibleCurrency !== '' ? $visibleCurrency : null);
     @endphp
 
     <div class="space-y-6">
@@ -20,12 +23,12 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div class="rounded-xl border p-4" style="border-color: rgba(var(--theme-border-color-rgb), .58); background-color: var(--theme-surface-base);">
-                        <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Paid visible') }}</p>
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Paid on this page') }}</p>
                         <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($paidCount) }}</p>
                     </div>
                     <div class="rounded-xl border p-4" style="border-color: rgba(var(--theme-border-color-rgb), .58); background-color: var(--theme-surface-base);">
-                        <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Page total') }}</p>
-                        <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($visibleTotal, 2) }}</p>
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Paid total on this page') }}</p>
+                        <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ $visibleTotalFormatted }}</p>
                     </div>
                     <x-ui.button href="{{ route('portal.billing') }}" variant="outline" class="col-span-2" wire:navigate><i class="fa-light fa-arrow-left"></i>{{ __('Back to billing') }}</x-ui.button>
                 </div>

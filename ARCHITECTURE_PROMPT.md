@@ -13,7 +13,7 @@ Nơi lưu **prompt mẫu** để làm việc với Cursor (kèm plugin **Superpo
 - **Khoanh vùng hẹp:** `@modules/AppBookingPages/...` thay vì cả dự án.
 - **Nói rõ loại việc:** "sửa lỗi" (surgical) hay "tính năng mới" (ưu tiên extension point).
 - **Nhắc ngữ cảnh chuẩn:** "theo `.cursorrules` và `ARCHITECTURE_CHECKLIST.md`".
-- **Bật Superpowers:** gõ `/` trong chat → chọn skill (hoặc nói rõ skill trong prompt — xem §2).
+- **Bật Superpowers:** gõ `/` trong chat → chọn skill (hoặc nói rõ skill — tra **§2.3** quy mô + lớp).
 - **Việc rủi ro:** luôn **kế hoạch trước → duyệt → code** (`writing-plans` → bạn gõ **Duyệt** → `executing-plans`).
 - **Một task một mục tiêu:** đừng gộp nhiều việc không liên quan vào một prompt.
 
@@ -59,24 +59,102 @@ flowchart TD
 
 
 
-### 2.3 Bảng skill — khi nào dùng (MLHUB)
+### 2.3 Bảng skill Superpowers — MLHUB (tra nhanh)
 
+**Chọn skill trong 3 bước:** (1) quy mô lớn/vừa/nhỏ → (2) lớp hạ tầng/backend/frontend → (3) gọi tên skill trong prompt hoặc gõ `/tên-skill`.
 
-| Skill                              | Dùng khi                                        | Không dùng khi               |
-| ---------------------------------- | ----------------------------------------------- | ---------------------------- |
-| **using-superpowers**              | Đầu phiên lớn, chưa quen plugin                 | Đã rõ skill cần dùng         |
-| **brainstorming**                  | Tính năng mới, đổi kiến trúc, nâng cấp upstream | Sửa 1 dòng typo              |
-| **writing-plans**                  | Trước khi code; sau brainstorm                  | Đã có kế hoạch chi tiết      |
-| **executing-plans**                | Sau khi bạn gõ **Duyệt**                        | Chưa duyệt kế hoạch          |
-| **systematic-debugging**           | 419 Livewire, 504, 500, test fail, log ERROR    | Đoán mò sửa ngay             |
-| **test-driven-development**        | Logic mới, bug có thể tái hiện bằng test        | Chỉ đổi chuỗi `lang/vi.json` |
-| **verification-before-completion** | Trước khi bảo “xong” / trước commit             | Chưa chạy pint/test          |
-| **requesting-code-review**         | Xong cụm việc lớn                               | Thay đổi 1 file nhỏ          |
-| **code-reviewer** (subagent)       | Review sau dashboard/auth/infra                 | Mỗi dòng CSS                 |
-| **receiving-code-review**          | Có feedback PR/review cần phân tích             | —                            |
-| **finishing-a-development-branch** | Nhánh xong, cần merge/PR/dọn                    | Giữa chừng task              |
-| **dispatching-parallel-agents**    | 2+ task không phụ thuộc                         | Một bug một file             |
-| **using-git-worktrees**            | Thử nghiệm tách nhánh an toàn                   | Hotfix production nhỏ        |
+**Cách gọi:** gõ `/` → chọn skill (vd `/systematic-debugging`), hoặc viết: `Dùng skill systematic-debugging cho lỗi Redis`. Lệnh cũ `/brainstorm`, `/write-plan` **không dùng** — thay bằng skill cùng tên.
+
+**Thứ tự khi nhiều skill cùng lúc:** brainstorming hoặc systematic-debugging → writing-plans → *(bạn gõ **Duyệt**)* → executing-plans → verification-before-completion → code-reviewer.
+
+```mermaid
+flowchart LR
+  subgraph scale [1. Quy mô]
+    L[Lớn] --> BP[brainstorming + writing-plans]
+    M[Vừa] --> SD[systematic-debugging]
+    S[Nhỏ] --> SUR[surgical + @file]
+  end
+  subgraph layer [2. Lớp]
+    INF[Hạ tầng] --> INFex[entrypoint / Coolify]
+    BE[Backend] --> BEx[modules / migration]
+    FE[Frontend] --> FEx[theme / Livewire / i18n]
+  end
+  scale --> layer
+  layer --> DONE[Gõ skill trong prompt]
+```
+
+---
+
+#### Bước 1 — Chọn theo **quy mô** (lớn → nhỏ)
+
+| Quy mô | Ví dụ trên MLHUB | Skill (theo thứ tự) | Không cần |
+| ------ | ---------------- | ------------------- | --------- |
+| **Lớn** | Tính năng mới, addon marketplace, nâng cấp upstream, đổi `docker-compose` / `entrypoint.sh`, refactor nhiều module | `brainstorming` → `writing-plans` → *(bạn gõ **Duyệt**)* → `executing-plans` → `verification-before-completion` → `code-reviewer` | Bỏ qua plan khi chưa brainstorm |
+| **Vừa** | 419/504 Livewire, Redis/queue fail, migration thiếu bảng, bug nhiều file, auth/reset password | `systematic-debugging` → sửa → `verification-before-completion` | `brainstorming` (trừ khi đổi hướng kiến trúc) |
+| **Nhỏ** | Sửa 1 Blade, 1 key `lang/vi.json`, typo nhãn, format tiền/ngày 1 chỗ | Nói rõ file `@modules/...` — AI làm surgical; thêm `verification-before-completion` nếu đụng logic | `writing-plans`, `executing-plans` |
+
+**Gợi ý nói trong prompt:** `Quy mô: Lớn — thêm module CRM public API` / `Quy mô: Nhỏ — sửa nhãn invoices.blade.php`.
+
+---
+
+#### Bước 2 — Chọn theo **lớp** (hạ tầng → backend → frontend)
+
+| Lớp | Phạm vi MLHUB | Ví dụ `@file` | Skill hay dùng |
+| --- | ------------- | ------------- | -------------- |
+| **Hạ tầng & deploy** | Coolify, Docker, Redis, MySQL, queue worker, `.env.example` | `@entrypoint.sh`, `@docker-compose.yaml`, `@.env.example` | Lớn: `writing-plans`. Lỗi: `systematic-debugging` (log deploy / `laravel.log`) |
+| **Backend** | `modules/*`, migration, Fortify, plan limit, queue job, API/webhook | `@modules/AppBilling/...`, `@config/mlhub.php`, `@database/migrations/` | Bug: `systematic-debugging`. Logic mới: `test-driven-development` (tùy chọn). Xong cụm: `code-reviewer` |
+| **Frontend** | Theme `mlhubfrontend` / `mlhubbackend`, Livewire portal, i18n, marketing guest | `@resources/themes/...`, `@lang/vi.json`, `@app/Livewire/` | Đổi copy: nhỏ, nhắc đồng bộ `en.json` + `vi.json` (`.cursorrules` §3.7). UI lỗi hydration: `systematic-debugging` |
+| **Quy trình / Git** | Nhiều task song song, tách nhánh, gộp PR | — | `dispatching-parallel-agents`, `using-git-worktrees`, `finishing-a-development-branch` |
+
+**Gợi ý nói trong prompt:** `Lớp: Frontend — trang reset password Livewire` / `Lớp: Hạ tầng — container restart 10 lần`.
+
+---
+
+#### Ma trận nhanh — quy mô × lớp (ô đầu tiên = skill mở đầu)
+
+| | **Hạ tầng** | **Backend** | **Frontend** |
+| --- | --- | --- | --- |
+| **Lớn** | writing-plans → executing-plans | brainstorming → writing-plans | brainstorming (+ i18n §3.7 trong plan) |
+| **Vừa** | systematic-debugging | systematic-debugging | systematic-debugging (419/hydration) |
+| **Nhỏ** | — (tránh sửa tay trên server) | @file surgical | @file + `lang/en.json` + `lang/vi.json` |
+
+Sau mọi ô **Lớn / Vừa** có sửa code: thêm **verification-before-completion**. Epic xong: **code-reviewer**.
+
+---
+
+#### Bước 3 — Bảng đầy đủ từng skill
+
+| Skill | Là gì (1 câu) | Dùng khi | Ví dụ MLHUB | Không dùng |
+| ----- | ------------- | -------- | ----------- | ---------- |
+| **using-superpowers** | Cách bật và chọn skill trong Cursor | Phiên đầu, chưa quen `/` | “Đọc skill using-superpowers rồi hướng dẫn tôi chọn skill cho task hôm nay” | Đã chọn skill ở Bước 1–2 |
+| **brainstorming** | Làm rõ yêu cầu trước khi code | Tính năng mới, showcase gói free, đổi luồng đăng ký | “Brainstorm: user plan_id null dùng full addon với hạn mức” | Sửa lỗi đã có log rõ |
+| **writing-plans** | Viết kế hoạch từng bước, **chưa code** | Sau brainstorm; trước đụng `Dockerfile` / migration | “writing-plans cho mlhub:install + bỏ demo” | Đã có plan trong chat, chỉ cần code |
+| **executing-plans** | Thực hiện plan đã **Duyệt** | Bạn gõ **Duyệt** sau `writing-plans` | “executing-plans theo plan ở trên” | Chưa duyệt kế hoạch |
+| **systematic-debugging** | Tìm **nguyên nhân gốc**, cấm đoán mò | 419, 504, Redis DNS, bảng thiếu, reset password fail | “systematic-debugging + log dòng ERROR Redis” | Đổi 1 câu tiếng Việt trong JSON |
+| **test-driven-development** | Viết test fail trước, rồi code | Guard plan, credit, upsert khách — logic dễ tái hiện | “TDD cho PlanLimitGuard ensureCampaign” | Chỉ sửa Blade/CSS |
+| **verification-before-completion** | Chứng minh đã chạy pint/test trước khi báo xong | Trước mọi lần bạn commit | “verification-before-completion trên file vừa sửa” | Chưa sửa file nào |
+| **requesting-code-review** | Soạn checklist review cho người/AI | Xong epic (billing, auth, CRM) | “requesting-code-review cụm no_plan env” | Diff 5 dòng |
+| **code-reviewer** (subagent) | Agent rà soát theo plan + `.cursorrules` | Sau dashboard, auth, deploy, addon mới | “Chạy code-reviewer sau fix reset password” | Mỗi chỉnh màu nút |
+| **receiving-code-review** | Phân tích feedback PR, không sửa mù | Có comment PR / review cần verify | “receiving-code-review: comment về tenant scope” | — |
+| **finishing-a-development-branch** | Merge, PR, dọn nhánh | Nhánh feature xong, cần gộp | “finishing-a-development-branch nhánh showcase-env” | Đang code dở |
+| **dispatching-parallel-agents** | Chạy song song 2+ việc độc lập | Vừa sửa i18n marketing + migration blog | “parallel: frontend home + backend migration” | Một bug một file |
+| **using-git-worktrees** | Clone nhánh riêng, không đụng working tree | Thử nghiệm lớn song song production | “worktree thử refactor AdminPlans” | Hotfix 1 file trên nhánh hiện tại |
+
+---
+
+#### Ghép nhanh — copy vào prompt
+
+```
+MLHUB | Quy mô: Vừa | Lớp: Backend
+Dùng skill systematic-debugging. Evidence: @storage/logs/laravel.log (dòng ERROR).
+Theo .cursorrules — surgical fix. verification-before-completion trước khi báo xong.
+```
+
+```
+MLHUB | Quy mô: Lớn | Lớp: Frontend + Backend
+brainstorming → writing-plans → chờ "Duyệt" → executing-plans.
+Phạm vi: @modules/AppBilling @resources/themes/guest/mlhubfrontend
+```
 
 
 ### 2.4 MASTER PROMPT — Ổn định workspace / nâng cấp (copy nguyên khối)
