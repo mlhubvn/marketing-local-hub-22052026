@@ -1,24 +1,27 @@
 @component(theme_view('layouts.marketing', 'guest'), ['pageTitle' => $pageTitle])
     @include(theme_view('partials.marketing-lb-about-styles', 'guest'))
 
-    <div class="lb-sales lb-about-fullpage">
+    <div class="lb-sales">
         @include(theme_view('partials.about-sections', 'guest'))
     </div>
 
     <script>
         (() => {
-            const root = document.querySelector('.lb-about-fullpage');
+            const root = document.querySelector('.lb-sales');
 
             if (!root || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                 return;
             }
 
             const revealTargets = root.querySelectorAll([
-                '.lb-about-screen .lb-wrap > .grid',
-                '.lb-about-screen .lb-wrap > .text-center',
-                '.lb-about-screen .lb-wrap > .lb-card',
-                '.lb-about-screen .lb-card.lb-final-cta',
-                '.lb-about-chapters',
+                '.lb-section > .grid',
+                '.lb-section > .text-center',
+                '.lb-section > .lb-card',
+                '.lb-workflow-band .lb-wrap > div',
+                '.lb-card',
+                '.lb-window',
+                '.lb-pill',
+                '.lb-proof-visual',
             ].join(','));
 
             revealTargets.forEach((element, index) => {
