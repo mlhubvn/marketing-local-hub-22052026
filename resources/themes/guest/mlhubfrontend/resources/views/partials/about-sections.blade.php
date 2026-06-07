@@ -1,5 +1,14 @@
 @php
     $demoHref = auth()->check() ? route('portal.dashboard') : route('register');
+    $aboutPageUrl = route('guest.about');
+    $aboutChapters = [
+        ['01', '#about-what', __('What is MLHUB?'), 'fa-circle-info'],
+        ['02', '#about-vision', __('Vision & Mission'), 'fa-compass'],
+        ['03', '#about-pain', __('Market challenges'), 'fa-triangle-exclamation'],
+        ['04', '#about-solutions', __('Comprehensive solutions'), 'fa-lightbulb'],
+        ['05', '#about-benefits', __('Productivity digitization'), 'fa-gem'],
+        ['06', '#about-journey', __('Revenue replication'), 'fa-road'],
+    ];
     $missionPillars = [
         ['fa-chart-line', __('Continuously attract guests and boost revenue.')],
         ['fa-graduation-cap', __('Continuously train and nurture digital-ready staff.')],
@@ -30,297 +39,251 @@
     ];
 @endphp
 
-{{-- Hero --}}
-<section id="about" class="lb-wrap lb-section lb-about scroll-mt-28">
-    <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
-        <div>
-            <span class="lb-pill lb-reveal inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('About MLHUB') }}</span>
-            <h1 class="lb-serif lb-hero-title lb-reveal mt-6" style="--lb-delay: 70ms;">{{ __('Making Local HUB for Vietnamese local businesses') }}</h1>
-            <p class="lb-lead lb-reveal mt-5 max-w-xl" style="--lb-delay: 140ms; color: var(--lb-muted);">
-                {{ __('In today\'s digital economy, most software is too expensive and complex for small shops. MLHUB was built to fill that gap.') }}
-            </p>
-            <div class="lb-reveal mt-8 flex flex-wrap gap-2" style="--lb-delay: 210ms;">
-                @foreach ([__('Making Local HUB'), __('Marketing Automation'), __('Local O2O'), __('Review Booster')] as $badge)
-                    <span class="rounded-full border bg-white/90 px-3 py-2 text-xs font-black" style="border-color: var(--lb-line); color: var(--lb-muted);">{{ $badge }}</span>
-                @endforeach
+{{-- Cover hero (editorial — not homepage dashboard) --}}
+<section id="about" class="lb-about-screen lb-about-hero scroll-mt-28">
+    <div class="lb-about-hero-bg" aria-hidden="true"></div>
+    <div class="lb-about-screen-inner">
+        <div class="lb-wrap lb-about-hero-grid w-full">
+            <div class="lb-about-hero-copy">
+                <span class="lb-pill lb-reveal inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('About MLHUB') }}</span>
+                <h1 class="lb-serif lb-hero-title lb-reveal mt-6 max-w-none" style="--lb-delay: 70ms;">{{ __('Making Local HUB for Vietnamese local businesses') }}</h1>
+                <p class="lb-lead lb-reveal mt-5 max-w-xl" style="--lb-delay: 140ms; color: var(--lb-muted);">
+                    {{ __('A six-chapter look at who we are, what we solve, and how MLHUB grows with your shop.') }}
+                </p>
+                <a href="{{ $aboutPageUrl }}#about-what" class="lb-reveal lb-about-hero-cta mt-8 inline-flex items-center gap-2 text-sm font-black transition hover:opacity-80" style="--lb-delay: 210ms; color: var(--lb-red);">
+                    {{ __('Scroll to explore') }}
+                    <i class="fa-light fa-arrow-down"></i>
+                </a>
+            </div>
+
+            <div class="lb-about-orbit-stage lb-reveal" style="--lb-delay: 180ms;" aria-hidden="true">
+                <div class="lb-about-orbit">
+                    <span class="lb-about-orbit-ring"></span>
+                    <span class="lb-about-orbit-ring lb-about-orbit-ring--outer"></span>
+                    <span class="lb-about-orbit-core">
+                        <img
+                            src="{{ asset(config('mlhub.site.hero_mark', 'img/mlhub-hero-mark.svg')) }}"
+                            alt=""
+                            class="h-full w-full object-contain"
+                            width="72"
+                            height="72"
+                            loading="eager"
+                            decoding="async"
+                        >
+                    </span>
+                    @foreach ([['fa-store', '0deg'], ['fa-qrcode', '120deg'], ['fa-star', '240deg']] as $orbitNode)
+                        <span class="lb-about-orbit-node" style="--lb-orbit-angle: {{ $orbitNode[1] }};">
+                            <i class="fa-light {{ $orbitNode[0] }}"></i>
+                        </span>
+                    @endforeach
+                </div>
             </div>
         </div>
 
-        <div class="lb-glow lb-reveal relative" style="--lb-delay: 240ms;">
-            <div class="lb-window relative z-10 overflow-hidden rounded-2xl">
-                <div class="flex items-center justify-between border-b px-5 py-4" style="border-color: var(--lb-line); background: var(--lb-soft);">
-                    <div class="flex items-center gap-1.5">
-                        <span class="lb-dot bg-red-400"></span>
-                        <span class="lb-dot bg-amber-400"></span>
-                        <span class="lb-dot bg-lime-500"></span>
-                    </div>
-                    <span class="rounded-full px-3 py-1 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color: #ff5f5f;">{{ __('Live dashboard') }}</span>
-                </div>
-                <div class="grid gap-0 lg:grid-cols-[5.2rem_minmax(0,1fr)]">
-                    <aside class="hidden border-r px-4 py-4 lg:block" style="border-color: var(--lb-line); background: var(--lb-soft);">
-                        <div class="grid justify-items-center gap-3">
-                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white p-1.5" aria-hidden="true">
-                                <img
-                                    src="{{ asset(config('mlhub.site.hero_mark', 'img/mlhub-hero-mark.svg')) }}"
-                                    alt=""
-                                    class="h-full w-full object-contain"
-                                    width="40"
-                                    height="40"
-                                    loading="lazy"
-                                    decoding="async"
-                                >
-                            </span>
-                            @foreach (['fa-store', 'fa-star', 'fa-qrcode', 'fa-chart-line'] as $index => $icon)
-                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl {{ $index === 0 ? 'text-white' : '' }}" style="{{ $index === 0 ? 'background: var(--lb-red);' : 'background:#fff; color:#ff5f5f;' }}">
-                                    <i class="fa-light {{ $icon }}"></i>
-                                </span>
-                            @endforeach
-                        </div>
-                    </aside>
-                    <main class="p-5">
-                        <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ __('Mission: Making Local HUB') }}</p>
-                        <div class="mt-4 grid gap-3 sm:grid-cols-2">
-                            @foreach ($missionPillars as $pillar)
-                                <div class="rounded-xl border bg-white p-3" style="border-color: var(--lb-line);">
-                                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-lg" style="background: color-mix(in srgb, var(--lb-lime) 28%, #fff); color: #ff5f5f;">
-                                        <i class="fa-light {{ $pillar[0] }}"></i>
-                                    </span>
-                                    <p class="mt-3 text-xs font-bold leading-snug" style="color: var(--lb-muted);">{{ $pillar[1] }}</p>
-                                </div>
-                            @endforeach
-                        </div>
-                        <div class="mt-4 rounded-xl border bg-white p-4" style="border-color: var(--lb-line);">
-                            <div class="flex items-end gap-1.5 h-16">
-                                @foreach ([48, 72, 58, 88, 64, 96, 78, 84] as $bar)
-                                    <span class="lb-bar flex-1 rounded-t-lg" style="--lb-bar-delay: {{ $loop->index * 140 }}ms; height: {{ $bar }}%; background: {{ $loop->even ? 'var(--lb-red)' : 'var(--lb-lime)' }};"></span>
-                                @endforeach
-                            </div>
-                        </div>
-                    </main>
-                </div>
-            </div>
-            <div class="lb-card lb-float absolute -left-4 bottom-16 z-20 hidden rounded-xl p-4 shadow-xl md:block" style="--lb-delay: 180ms;">
-                <p class="text-xs font-black">{{ __('Vision: close the technology gap') }}</p>
-                <p class="mt-1 text-xs" style="color: var(--lb-muted);">{{ __('Growth engine') }}</p>
-            </div>
-            <div class="lb-card lb-float absolute -right-3 top-12 z-20 hidden w-44 rounded-xl p-3 shadow-xl md:block" style="--lb-delay: 360ms;">
-                <div class="flex gap-2.5">
-                    <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm text-white" style="background: var(--lb-red);">
-                        <i class="fa-light fa-store" aria-hidden="true"></i>
-                    </span>
-                    <p class="text-[11px] font-bold leading-snug" style="color: var(--lb-muted);">{{ __('Help every small spa or eatery operate with discipline that rivals large corporations.') }}</p>
-                </div>
-            </div>
-        </div>
+        <nav class="lb-about-chapters lb-reveal w-full" style="--lb-delay: 280ms;" aria-label="{{ __('About MLHUB') }}">
+            @foreach ($aboutChapters as $chapter)
+                <a href="{{ $aboutPageUrl }}{{ $chapter[1] }}" class="lb-about-chapter">
+                    <span class="lb-about-chapter-no">{{ $chapter[0] }}</span>
+                    <span class="lb-about-chapter-icon"><i class="fa-light {{ $chapter[3] }}"></i></span>
+                    <span class="lb-about-chapter-label">{{ $chapter[2] }}</span>
+                </a>
+            @endforeach
+        </nav>
     </div>
 </section>
 
 {{-- 01 What is MLHUB? --}}
-<section id="about-what" class="lb-wrap lb-section lb-about-panel scroll-mt-28">
-    <div class="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-        <div>
-            <p class="lb-section-index">01</p>
-            <span class="lb-pill mt-4 inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('What is MLHUB?') }}</span>
-            <h2 class="lb-serif lb-heading mt-5">{{ __('What is MLHUB?') }}</h2>
-            <p class="lb-body mt-5" style="color: var(--lb-muted);">{{ __('In today\'s digital economy, most software is too expensive and complex for small shops. MLHUB was built to fill that gap.') }}</p>
-            <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('MLHUB is a Marketing Automation O2O platform tailored for household businesses (SOHO) and SMEs. Instead of feature overload, we deliver the most minimal ecosystem: turn every table-side QR scan into a fully automated search, engagement, and customer care workflow.') }}</p>
-            <div class="mt-6 flex flex-wrap gap-2">
-                @foreach ([__('Marketing Automation'), __('Local O2O'), __('Review Booster')] as $badge)
-                    <span class="rounded-full border bg-white/90 px-3 py-2 text-xs font-black" style="border-color: var(--lb-line); color: var(--lb-muted);">{{ $badge }}</span>
-                @endforeach
+<section id="about-what" class="lb-about-screen lb-about-panel scroll-mt-28">
+    <div class="lb-about-screen-inner">
+        <div class="lb-wrap w-full">
+            <div class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+                <div>
+                    <p class="lb-section-index">01</p>
+                    <span class="lb-pill mt-3 inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('What is MLHUB?') }}</span>
+                    <h2 class="lb-serif lb-heading mt-4">{{ __('What is MLHUB?') }}</h2>
+                    <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('In today\'s digital economy, most software is too expensive and complex for small shops. MLHUB was built to fill that gap.') }}</p>
+                    <p class="lb-body mt-3" style="color: var(--lb-muted);">{{ __('MLHUB is a Marketing Automation O2O platform tailored for household businesses (SOHO) and SMEs. Instead of feature overload, we deliver the most minimal ecosystem: turn every table-side QR scan into a fully automated search, engagement, and customer care workflow.') }}</p>
+                </div>
+                <article class="lb-card lb-feature-hero lb-hover rounded-2xl p-5 sm:p-6">
+                    <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ __('O2O automation funnel') }}</p>
+                    <div class="mt-4 grid gap-2.5">
+                        @foreach ($journeyFlow as $flow)
+                            <div class="flex items-center gap-3 rounded-xl border bg-white/85 p-3" style="border-color: var(--lb-line);">
+                                <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm" style="background: color-mix(in srgb, var(--lb-lime) 28%, #fff); color: #ff5f5f;">
+                                    <i class="fa-light {{ $flow[0] }}"></i>
+                                </span>
+                                <p class="text-sm font-bold leading-snug" style="color: var(--lb-muted);">{{ $flow[1] }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+                </article>
             </div>
         </div>
-        <article class="lb-card lb-feature-hero lb-hover rounded-2xl p-6 sm:p-8">
-            <div class="flex items-start justify-between gap-4">
-                <div>
-                    <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ __('O2O automation funnel') }}</p>
-                    <h3 class="mt-3 text-2xl font-black">{{ __('Making Local HUB') }}</h3>
-                </div>
-                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-white" style="background: var(--lb-red);">
-                    <i class="fa-light fa-bolt"></i>
-                </span>
-            </div>
-            <div class="mt-6 grid gap-3">
-                @foreach ($journeyFlow as $flow)
-                    <div class="flex items-center gap-3 rounded-xl border bg-white/85 p-3" style="border-color: var(--lb-line);">
-                        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-lime) 28%, #fff); color: #ff5f5f;">
-                            <i class="fa-light {{ $flow[0] }}"></i>
-                        </span>
-                        <p class="text-sm font-bold" style="color: var(--lb-muted);">{{ $flow[1] }}</p>
-                    </div>
-                @endforeach
-            </div>
-        </article>
     </div>
 </section>
 
 {{-- 02 Vision & Mission --}}
-<section id="about-vision" class="lb-wrap lb-section lb-about-panel scroll-mt-28">
-    <div class="text-center">
-        <p class="lb-section-index">02</p>
-        <span class="lb-pill mt-4 inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Vision & Mission') }}</span>
-        <h2 class="lb-serif lb-heading mx-auto mt-5 max-w-2xl">{{ __('Vision & Mission') }}</h2>
-    </div>
-    <div class="mt-10 grid gap-6 lg:grid-cols-2">
-        <article class="lb-card lb-hover rounded-2xl p-6 sm:p-8">
-            <div class="flex items-start gap-4">
-                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-white" style="background: var(--lb-red);">
-                    <i class="fa-light fa-compass"></i>
-                </span>
-                <div>
-                    <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ __('Vision: close the technology gap') }}</p>
-                    <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('Help every small spa or eatery operate with discipline that rivals large corporations.') }}</p>
-                </div>
+<section id="about-vision" class="lb-about-screen lb-about-panel lb-about-screen--stack scroll-mt-28">
+    <div class="lb-about-screen-inner">
+        <div class="lb-wrap w-full">
+            <div class="text-center">
+                <p class="lb-section-index">02</p>
+                <span class="lb-pill mt-3 inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Vision & Mission') }}</span>
+                <h2 class="lb-serif lb-heading mx-auto mt-4 max-w-2xl">{{ __('Vision & Mission') }}</h2>
             </div>
-        </article>
-        <article class="lb-card lb-feature-hero lb-hover rounded-2xl p-6 sm:p-8">
-            <div class="flex items-start gap-4">
-                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color: #ff5f5f;">
-                    <i class="fa-light fa-flag"></i>
-                </span>
-                <div>
-                    <p class="lb-body font-bold" style="color: var(--lb-ink);">{{ __('Mission "Making Local HUB":') }}</p>
-                    <p class="lb-caption mt-2" style="color: var(--lb-muted);">{{ __('Build grassroots strength for the local economy through four solid pillars:') }}</p>
-                </div>
+            <div class="mt-6 grid gap-4 lg:grid-cols-2">
+                <article class="lb-card lb-hover rounded-2xl p-5 sm:p-6">
+                    <div class="flex items-start gap-3">
+                        <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white" style="background: var(--lb-red);">
+                            <i class="fa-light fa-compass"></i>
+                        </span>
+                        <div>
+                            <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ __('Vision: close the technology gap') }}</p>
+                            <p class="lb-caption mt-3" style="color: var(--lb-muted);">{{ __('Help every small spa or eatery operate with discipline that rivals large corporations.') }}</p>
+                        </div>
+                    </div>
+                </article>
+                <article class="lb-card lb-feature-hero lb-hover rounded-2xl p-5 sm:p-6">
+                    <div class="flex items-start gap-3">
+                        <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color: #ff5f5f;">
+                            <i class="fa-light fa-flag"></i>
+                        </span>
+                        <div>
+                            <p class="lb-body text-sm font-bold" style="color: var(--lb-ink);">{{ __('Mission "Making Local HUB":') }}</p>
+                            <p class="lb-caption mt-2" style="color: var(--lb-muted);">{{ __('Build grassroots strength for the local economy through four solid pillars:') }}</p>
+                        </div>
+                    </div>
+                </article>
             </div>
-        </article>
-    </div>
-    <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        @foreach ($missionPillars as $pillar)
-            <article class="lb-card lb-step-card lb-hover rounded-2xl p-5">
-                <span class="lb-feature-icon relative z-10 inline-flex h-11 w-11 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color: #ff5f5f;">
-                    <i class="fa-light {{ $pillar[0] }}"></i>
-                </span>
-                <p class="relative z-10 mt-4 text-sm font-bold leading-snug" style="color: var(--lb-muted);">{{ $pillar[1] }}</p>
-            </article>
-        @endforeach
+            <div class="mt-4 grid gap-3 grid-cols-2 lg:grid-cols-4">
+                @foreach ($missionPillars as $pillar)
+                    <article class="lb-card lb-step-card lb-hover rounded-2xl p-4">
+                        <span class="lb-feature-icon relative z-10 inline-flex h-10 w-10 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color: #ff5f5f;">
+                            <i class="fa-light {{ $pillar[0] }}"></i>
+                        </span>
+                        <p class="relative z-10 mt-3 text-xs font-bold leading-snug sm:text-sm" style="color: var(--lb-muted);">{{ $pillar[1] }}</p>
+                    </article>
+                @endforeach
+            </div>
+        </div>
     </div>
 </section>
 
 {{-- 03 Market challenges --}}
-<section id="about-pain" class="lb-workflow-band lb-about-panel scroll-mt-28">
-    <div class="lb-wrap">
-        <div class="text-center">
-            <span class="lb-pill inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Market challenges') }}</span>
-            <p class="lb-section-index mt-6">03</p>
-            <h2 class="lb-serif lb-heading mx-auto mt-3 max-w-2xl">{{ __('Market challenges') }}</h2>
-            <p class="lb-body mx-auto mt-4 max-w-2xl" style="color: var(--lb-muted);">{{ __('Hundreds of thousands of local merchants in Da Nang are missing opportunities because of four major barriers:') }}</p>
-        </div>
-        <div class="mt-10 grid gap-4 sm:grid-cols-2">
-            @foreach ($barriers as $barrier)
-                <article class="lb-card lb-feature-row lb-hover rounded-2xl p-5">
-                    <div class="relative z-10 flex items-start gap-4">
-                        <span class="lb-feature-icon inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" style="background: color-mix(in srgb, var(--lb-red) 10%, #fff); color: var(--lb-red);">
-                            <i class="fa-light {{ $barrier[0] }} text-xl"></i>
-                        </span>
-                        <div>
-                            <h3 class="lb-card-title">{{ $barrier[1] }}</h3>
-                            <p class="lb-caption mt-2" style="color: var(--lb-muted);">{{ $barrier[2] }}</p>
+<section id="about-pain" class="lb-about-screen lb-about-panel lb-workflow-band scroll-mt-28">
+    <div class="lb-about-screen-inner">
+        <div class="lb-wrap w-full">
+            <div class="text-center">
+                <span class="lb-pill inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Market challenges') }}</span>
+                <p class="lb-section-index mt-4">03</p>
+                <h2 class="lb-serif lb-heading mx-auto mt-2 max-w-2xl">{{ __('Market challenges') }}</h2>
+                <p class="lb-body mx-auto mt-3 max-w-2xl" style="color: var(--lb-muted);">{{ __('Hundreds of thousands of local merchants in Da Nang are missing opportunities because of four major barriers:') }}</p>
+            </div>
+            <div class="mt-6 grid gap-3 sm:grid-cols-2">
+                @foreach ($barriers as $barrier)
+                    <article class="lb-card lb-feature-row lb-hover rounded-2xl p-4 sm:p-5">
+                        <div class="relative z-10 flex items-start gap-3">
+                            <span class="lb-feature-icon inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-red) 10%, #fff); color: var(--lb-red);">
+                                <i class="fa-light {{ $barrier[0] }}"></i>
+                            </span>
+                            <div>
+                                <h3 class="text-base font-extrabold sm:text-lg">{{ $barrier[1] }}</h3>
+                                <p class="lb-caption mt-1.5" style="color: var(--lb-muted);">{{ $barrier[2] }}</p>
+                            </div>
                         </div>
-                    </div>
-                </article>
-            @endforeach
+                    </article>
+                @endforeach
+            </div>
         </div>
     </div>
 </section>
 
 {{-- 04 Solutions --}}
-<section id="about-solutions" class="lb-wrap lb-section lb-about-panel scroll-mt-28">
-    <div class="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
-        <div class="lg:sticky lg:top-28">
-            <p class="lb-section-index">04</p>
-            <span class="lb-pill mt-4 inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Comprehensive solutions') }}</span>
-            <h2 class="lb-serif lb-heading mt-5">{{ __('Comprehensive solutions') }}</h2>
-            <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('MLHUB focuses on solving root problems with three battle-ready tools:') }}</p>
-            <div class="lb-proof-visual mt-8 rounded-2xl border p-5" style="border-color: var(--lb-line);">
+<section id="about-solutions" class="lb-about-screen lb-about-panel lb-about-screen--stack scroll-mt-28">
+    <div class="lb-about-screen-inner">
+        <div class="lb-wrap w-full">
+            <div class="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+                <div>
+                    <p class="lb-section-index">04</p>
+                    <span class="lb-pill mt-3 inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Comprehensive solutions') }}</span>
+                    <h2 class="lb-serif lb-heading mt-4">{{ __('Comprehensive solutions') }}</h2>
+                    <p class="lb-body mt-3" style="color: var(--lb-muted);">{{ __('MLHUB focuses on solving root problems with three battle-ready tools:') }}</p>
+                </div>
                 <div class="grid gap-3">
-                    @foreach ($solutions as $node)
-                        <div class="lb-proof-node flex items-center gap-3 rounded-2xl bg-white p-4">
-                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-red) 9%, #fff); color: var(--lb-red);">
-                                <i class="fa-light {{ $node[0] }}"></i>
-                            </span>
-                            <p class="text-sm font-black">{{ $node[1] }}</p>
-                        </div>
+                    @foreach ($solutions as $item)
+                        <article class="lb-card lb-feature-row lb-hover rounded-2xl p-4 sm:p-5">
+                            <div class="relative z-10 flex items-start gap-3">
+                                <span class="lb-feature-icon inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color: #ff5f5f;">
+                                    <i class="fa-light {{ $item[0] }}"></i>
+                                </span>
+                                <div>
+                                    <h3 class="text-base font-extrabold sm:text-lg">{{ $item[1] }}</h3>
+                                    <p class="lb-caption mt-1.5" style="color: var(--lb-muted);">{{ $item[2] }}</p>
+                                </div>
+                            </div>
+                        </article>
                     @endforeach
                 </div>
             </div>
-        </div>
-        <div class="grid gap-4">
-            @foreach ($solutions as $item)
-                <article class="lb-card lb-feature-row lb-hover rounded-2xl p-6">
-                    <div class="relative z-10 flex items-start gap-4">
-                        <span class="lb-feature-icon inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color: #ff5f5f;">
-                            <i class="fa-light {{ $item[0] }} text-xl"></i>
-                        </span>
-                        <div>
-                            <h3 class="lb-card-title">{{ $item[1] }}</h3>
-                            <p class="lb-caption mt-2" style="color: var(--lb-muted);">{{ $item[2] }}</p>
-                        </div>
-                    </div>
-                </article>
-            @endforeach
         </div>
     </div>
 </section>
 
 {{-- 05 Benefits --}}
-<section id="about-benefits" class="lb-wrap lb-section lb-about-panel scroll-mt-28">
-    <div class="text-center">
-        <p class="lb-section-index">05</p>
-        <span class="lb-pill mt-4 inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Productivity digitization') }}</span>
-        <h2 class="lb-serif lb-heading mx-auto mt-5 max-w-2xl">{{ __('Productivity digitization') }}</h2>
-    </div>
-    <div class="mt-10 grid gap-4 md:grid-cols-3">
-        @foreach ($benefits as $benefit)
-            <article class="lb-card lb-step-card lb-hover rounded-2xl p-6">
-                <div class="relative z-10 flex items-center justify-between gap-4">
-                    <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl text-white" style="background: var(--lb-red);">
-                        <i class="fa-light {{ $benefit[0] }}"></i>
-                    </span>
-                    <span class="text-sm font-black" style="color: var(--lb-muted);">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
-                </div>
-                <h3 class="relative z-10 mt-5 lb-card-title">{{ $benefit[1] }}</h3>
-                <p class="relative z-10 mt-3 lb-caption" style="color: var(--lb-muted);">{{ $benefit[2] }}</p>
-            </article>
-        @endforeach
+<section id="about-benefits" class="lb-about-screen lb-about-panel scroll-mt-28">
+    <div class="lb-about-screen-inner">
+        <div class="lb-wrap w-full">
+            <div class="text-center">
+                <p class="lb-section-index">05</p>
+                <span class="lb-pill mt-3 inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Productivity digitization') }}</span>
+                <h2 class="lb-serif lb-heading mx-auto mt-4 max-w-2xl">{{ __('Productivity digitization') }}</h2>
+            </div>
+            <div class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach ($benefits as $benefit)
+                    <article class="lb-card lb-step-card lb-hover rounded-2xl p-4 sm:p-5">
+                        <div class="relative z-10 flex items-center justify-between gap-3">
+                            <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl text-white" style="background: var(--lb-red);">
+                                <i class="fa-light {{ $benefit[0] }}"></i>
+                            </span>
+                            <span class="text-sm font-black" style="color: var(--lb-muted);">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                        </div>
+                        <h3 class="relative z-10 mt-4 text-base font-extrabold sm:text-lg">{{ $benefit[1] }}</h3>
+                        <p class="relative z-10 mt-2 lb-caption" style="color: var(--lb-muted);">{{ $benefit[2] }}</p>
+                    </article>
+                @endforeach
+            </div>
+        </div>
     </div>
 </section>
 
 {{-- 06 Journey --}}
-<section id="about-journey" class="lb-wrap lb-section lb-about-panel scroll-mt-28 pb-8">
-    <div class="lb-card lb-final-cta rounded-3xl p-6 sm:p-10">
-        <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
-            <div class="relative z-10">
-                <p class="lb-section-index">06</p>
-                <span class="lb-pill mt-4 inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Revenue replication') }}</span>
-                <h2 class="lb-serif lb-heading mt-5">{{ __('Revenue replication') }}</h2>
-                <p class="lb-body mt-5" style="color: var(--lb-muted);">{{ __('Digital transformation is not about how much software you buy—it is about how you change the way you operate.') }}</p>
-                <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('MLHUB does not just sell tools—we give you a standard operating process (SOP). Turn walk-in traffic into owned data, strangers into regulars, and regulars into 5-star ambassadors for your store.') }}</p>
-                <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('With MLHUB, your small retail shop becomes a systematic business engine—ready to replicate revenue at any time.') }}</p>
-                <a href="{{ $demoHref }}" class="mt-8 inline-flex items-center justify-center gap-2 rounded-full px-6 py-4 text-sm font-black text-white transition hover:opacity-90" style="background: var(--lb-red); box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 22px 48px -30px rgba(255,95,95,.9);">
-                    <i class="fa-light fa-rocket"></i>
-                    {{ __('Start your free trial') }}
-                </a>
-            </div>
-            <div class="lb-window relative z-10 overflow-hidden rounded-2xl">
-                <div class="border-b px-5 py-4" style="border-color: var(--lb-line);">
-                    <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ __('O2O automation funnel') }}</p>
-                </div>
-                <div class="p-5">
-                    <div class="grid gap-2 sm:grid-cols-4">
-                        @foreach ($journeyFlow as $flow)
-                            <div class="flex flex-col items-center gap-2 rounded-xl border bg-white p-3 text-center" style="border-color: var(--lb-line);">
-                                <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl" style="background: color-mix(in srgb, var(--lb-lime) 26%, #fff); color: #ff5f5f;">
-                                    <i class="fa-light {{ $flow[0] }}"></i>
-                                </span>
-                                <span class="line-clamp-2 text-[10px] font-bold leading-tight">{{ $flow[1] }}</span>
-                            </div>
-                        @endforeach
+<section id="about-journey" class="lb-about-screen lb-about-panel lb-about-screen--stack scroll-mt-28">
+    <div class="lb-about-screen-inner">
+        <div class="lb-wrap w-full">
+            <div class="lb-card lb-final-cta rounded-3xl p-5 sm:p-8">
+                <div class="grid gap-6 lg:grid-cols-2 lg:items-center">
+                    <div class="relative z-10">
+                        <p class="lb-section-index">06</p>
+                        <span class="lb-pill mt-3 inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Revenue replication') }}</span>
+                        <h2 class="lb-serif lb-heading mt-4">{{ __('Revenue replication') }}</h2>
+                        <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('Digital transformation is not about how much software you buy—it is about how you change the way you operate.') }}</p>
+                        <p class="lb-body mt-3" style="color: var(--lb-muted);">{{ __('MLHUB does not just sell tools—we give you a standard operating process (SOP). Turn walk-in traffic into owned data, strangers into regulars, and regulars into 5-star ambassadors for your store.') }}</p>
+                        <p class="lb-body mt-3" style="color: var(--lb-muted);">{{ __('With MLHUB, your small retail shop becomes a systematic business engine—ready to replicate revenue at any time.') }}</p>
+                        <a href="{{ $demoHref }}" class="mt-6 inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-black text-white transition hover:opacity-90" style="background: var(--lb-red); box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 22px 48px -30px rgba(255,95,95,.9);">
+                            <i class="fa-light fa-rocket"></i>
+                            {{ __('Start your free trial') }}
+                        </a>
                     </div>
-                    <div class="mt-4 rounded-xl border bg-white p-4" style="border-color: var(--lb-line);">
-                        <div class="flex items-end gap-1.5 h-20">
-                            @foreach ([36, 58, 44, 72, 54, 88, 68, 92, 76, 100] as $bar)
-                                <span class="lb-bar flex-1 rounded-t-lg" style="--lb-bar-delay: {{ $loop->index * 120 }}ms; height: {{ $bar }}%; background: {{ $loop->even ? 'var(--lb-red)' : 'var(--lb-lime)' }};"></span>
+                    <div class="lb-about-flow-panel relative z-10 rounded-2xl border p-4 sm:p-5" style="border-color: var(--lb-line); background: rgba(255,255,252,.72);">
+                        <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ __('O2O automation funnel') }}</p>
+                        <div class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                            @foreach ($journeyFlow as $flow)
+                                <div class="flex flex-col items-center gap-2 rounded-xl border bg-white p-2.5 text-center" style="border-color: var(--lb-line);">
+                                    <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-sm" style="background: color-mix(in srgb, var(--lb-lime) 26%, #fff); color: #ff5f5f;">
+                                        <i class="fa-light {{ $flow[0] }}"></i>
+                                    </span>
+                                    <span class="line-clamp-2 text-[10px] font-bold leading-tight">{{ $flow[1] }}</span>
+                                </div>
                             @endforeach
                         </div>
                         <p class="mt-4 text-center text-xs font-bold" style="color: var(--lb-muted);">{{ __('Systematic business engine') }}</p>

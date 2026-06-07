@@ -24,9 +24,206 @@
         line-height: 1.65;
     }
 
+    .lb-about-fullpage {
+        --lb-about-nav: 5rem;
+        width: 100%;
+    }
+
+    html:has(.lb-about-fullpage) {
+        scroll-snap-type: y proximity;
+    }
+
     .lb-wrap {
-        width: min(1160px, calc(100% - 40px));
+        width: min(1160px, calc(100% - clamp(1.25rem, 4vw, 2.5rem)));
         margin-inline: auto;
+    }
+
+    .lb-about-screen {
+        position: relative;
+        isolation: isolate;
+        width: 100%;
+        min-height: calc(100vh - var(--lb-about-nav));
+        min-height: calc(100dvh - var(--lb-about-nav));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: clamp(1rem, 3vw, 2rem) clamp(0.75rem, 2.5vw, 1.25rem);
+        scroll-snap-align: start;
+        scroll-snap-stop: normal;
+        box-sizing: border-box;
+    }
+
+    .lb-about-screen--stack {
+        align-items: flex-start;
+        padding-top: clamp(1.25rem, 4vh, 2rem);
+        padding-bottom: clamp(1.5rem, 5vh, 2.5rem);
+    }
+
+    .lb-about-screen-inner {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .lb-about-hero {
+        overflow: hidden;
+    }
+
+    .lb-about-hero-bg {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        background:
+            linear-gradient(125deg, rgba(255, 95, 95, .09) 0%, transparent 42%),
+            linear-gradient(305deg, rgba(184, 218, 22, .16) 0%, transparent 48%),
+            radial-gradient(circle at 50% 118%, rgba(255, 179, 71, .18), transparent 52%);
+        pointer-events: none;
+    }
+
+    .lb-about-hero-grid {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        gap: clamp(1.5rem, 4vw, 2.5rem);
+        align-items: center;
+    }
+
+    @media (min-width: 1024px) {
+        .lb-about-hero-grid {
+            grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+        }
+    }
+
+    .lb-about-hero-cta i {
+        animation: lb-about-bounce 2.2s ease-in-out infinite;
+    }
+
+    .lb-about-orbit-stage {
+        display: grid;
+        place-items: center;
+        min-height: clamp(14rem, 38vw, 20rem);
+    }
+
+    .lb-about-orbit {
+        position: relative;
+        width: clamp(14rem, 42vw, 18rem);
+        aspect-ratio: 1;
+    }
+
+    .lb-about-orbit-ring {
+        position: absolute;
+        inset: 8%;
+        border: 1px dashed color-mix(in srgb, var(--lb-red) 34%, var(--lb-line));
+        border-radius: 999px;
+        animation: lb-about-orbit-spin 28s linear infinite;
+    }
+
+    .lb-about-orbit-ring--outer {
+        inset: 0;
+        border-color: color-mix(in srgb, var(--lb-lime) 42%, var(--lb-line));
+        animation-direction: reverse;
+        animation-duration: 36s;
+    }
+
+    .lb-about-orbit-core {
+        position: absolute;
+        inset: 32%;
+        display: grid;
+        place-items: center;
+        border-radius: 1.35rem;
+        border: 1px solid var(--lb-line);
+        background: rgba(255, 255, 252, .94);
+        box-shadow: 0 24px 70px -48px rgba(16, 37, 31, .55);
+        padding: 0.85rem;
+    }
+
+    .lb-about-orbit-node {
+        --lb-orbit-angle: 0deg;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 2.65rem;
+        height: 2.65rem;
+        margin: -1.325rem;
+        display: grid;
+        place-items: center;
+        border-radius: 0.9rem;
+        border: 1px solid var(--lb-line);
+        background: #fff;
+        color: #ff5f5f;
+        box-shadow: 0 16px 40px -30px rgba(16, 37, 31, .55);
+        transform: rotate(var(--lb-orbit-angle)) translateY(calc(-1 * clamp(6.8rem, 20vw, 8.6rem))) rotate(calc(-1 * var(--lb-orbit-angle)));
+    }
+
+    .lb-about-chapters {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: repeat(6, minmax(8.5rem, 1fr));
+        gap: 0.65rem;
+        margin-top: clamp(1.25rem, 3vh, 2rem);
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x proximity;
+        padding-bottom: 0.25rem;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    @media (max-width: 1023px) {
+        .lb-about-chapters {
+            grid-template-columns: none;
+            grid-auto-flow: column;
+            grid-auto-columns: minmax(8.75rem, 10.5rem);
+        }
+    }
+
+    .lb-about-chapter {
+        scroll-snap-align: start;
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        border: 1px solid var(--lb-line);
+        border-radius: 1rem;
+        background: rgba(255, 255, 252, .88);
+        padding: 0.75rem;
+        text-decoration: none;
+        color: inherit;
+        transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .lb-about-chapter:hover {
+        transform: translateY(-2px);
+        border-color: color-mix(in srgb, var(--lb-red) 28%, var(--lb-line));
+        box-shadow: 0 20px 50px -38px rgba(16, 37, 31, .5);
+    }
+
+    .lb-about-chapter-no {
+        font-size: 0.68rem;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        color: var(--lb-muted);
+    }
+
+    .lb-about-chapter-icon {
+        display: inline-flex;
+        height: 2rem;
+        width: 2rem;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.65rem;
+        background: color-mix(in srgb, var(--lb-lime) 24%, #fff);
+        color: #ff5f5f;
+        font-size: 0.9rem;
+    }
+
+    .lb-about-chapter-label {
+        font-size: 0.72rem;
+        font-weight: 800;
+        line-height: 1.35;
+        color: var(--lb-ink);
+    }
+
+    .lb-about-flow-panel {
+        box-shadow: 0 20px 60px -44px rgba(16, 37, 31, .45);
     }
 
     .lb-serif {
@@ -142,7 +339,7 @@
     .lb-feature-row {
         position: relative;
         overflow: hidden;
-        min-height: 8.75rem;
+        min-height: 0;
     }
 
     .lb-feature-row::after {
@@ -166,7 +363,7 @@
     .lb-step-card {
         position: relative;
         overflow: hidden;
-        min-height: 11rem;
+        min-height: 0;
     }
 
     .lb-step-card::before {
@@ -198,9 +395,6 @@
     }
 
     .lb-workflow-band {
-        position: relative;
-        overflow: hidden;
-        padding-block: clamp(3.5rem, 7vw, 6rem);
         background:
             radial-gradient(circle at 18% 28%, rgba(255, 95, 95, .12), transparent 24rem),
             radial-gradient(circle at 76% 42%, rgba(184, 218, 22, .2), transparent 22rem);
@@ -287,6 +481,32 @@
         50% { transform: scaleY(1); }
     }
 
+    @keyframes lb-about-orbit-spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    @keyframes lb-about-bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(4px); }
+    }
+
+    @media (max-width: 767px) {
+        .lb-about-screen {
+            align-items: flex-start;
+            padding-top: clamp(1rem, 3vh, 1.5rem);
+            padding-bottom: clamp(1.25rem, 4vh, 2rem);
+        }
+
+        .lb-about-screen:not(.lb-about-hero) .lb-heading {
+            font-size: clamp(1.45rem, 5.5vw, 1.85rem);
+        }
+
+        .lb-about-hero .lb-hero-title {
+            font-size: clamp(1.65rem, 7vw, 2.15rem);
+        }
+    }
+
     html[data-theme-resolved='dark'] .lb-sales {
         --lb-ink: #e8eef7;
         --lb-muted: #94a3b8;
@@ -328,11 +548,41 @@
             linear-gradient(180deg, rgba(15, 23, 42, .92), rgba(11, 21, 38, .86)) !important;
     }
 
+    html[data-theme-resolved='dark'] .lb-about-hero-bg {
+        background:
+            linear-gradient(125deg, rgba(255, 95, 95, .12) 0%, transparent 42%),
+            linear-gradient(305deg, rgba(184, 218, 22, .1) 0%, transparent 48%),
+            radial-gradient(circle at 50% 118%, rgba(255, 179, 71, .08), transparent 52%) !important;
+    }
+
+    html[data-theme-resolved='dark'] .lb-about-orbit-core,
+    html[data-theme-resolved='dark'] .lb-about-orbit-node,
+    html[data-theme-resolved='dark'] .lb-about-chapter {
+        border-color: rgba(96, 165, 250, .22) !important;
+        background: linear-gradient(180deg, rgba(15, 23, 42, .92), rgba(11, 21, 38, .86)) !important;
+    }
+
+    html[data-theme-resolved='dark'] .lb-about-flow-panel {
+        background: linear-gradient(180deg, rgba(15, 23, 42, .88), rgba(11, 21, 38, .82)) !important;
+        border-color: rgba(96, 165, 250, .22) !important;
+    }
+
     @media (prefers-reduced-motion: reduce) {
+        html:has(.lb-about-fullpage) {
+            scroll-snap-type: none;
+        }
+
         .lb-reveal,
         .lb-float,
-        .lb-bar {
+        .lb-bar,
+        .lb-about-orbit-ring,
+        .lb-about-orbit-node,
+        .lb-about-hero-cta i {
             animation: none !important;
+        }
+
+        .lb-about-orbit-node {
+            transform: rotate(var(--lb-orbit-angle)) translateY(calc(-1 * clamp(6.8rem, 20vw, 8.6rem))) rotate(calc(-1 * var(--lb-orbit-angle))) !important;
         }
 
         .lb-scroll {
