@@ -10,8 +10,8 @@ return [
     /** install | update — set bởi mlhub:install / mlhub:update trước db:seed */
     'seeding_mode' => env('MLHUB_SEEDING_MODE', 'install'),
 
-    'locale' => 'vi',
-    'timezone' => 'Asia/Ho_Chi_Minh',
+    'locale' => env('APP_LOCALE', 'vi'),
+    'timezone' => env('APP_TIMEZONE', 'Asia/Ho_Chi_Minh'),
 
     'admin_plan_slug' => env('MLHUB_ADMIN_PLAN_SLUG', 'agency-lifetime'),
 

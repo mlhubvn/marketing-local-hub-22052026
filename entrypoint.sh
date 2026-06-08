@@ -161,6 +161,8 @@ case "$APP_INSTALLED_VALUE" in
             echo "Waiting for database... (${attempt}/${max_attempts})"
             sleep 2
         done
+        php artisan mlhub:sync-env-options --ansi 2>/dev/null \
+            || echo "WARN: mlhub:sync-env-options skipped (chưa có bảng options hoặc lỗi DB)." >&2
         ;;
     *)
         echo "APP_INSTALLED=${APP_INSTALLED_VALUE} → skipping migrate."

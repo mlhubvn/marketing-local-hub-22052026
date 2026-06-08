@@ -4,6 +4,7 @@ namespace Modules\CustomMLHUB\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Modules\CustomMLHUB\Console\Commands\MLHUBInstallCommand;
+use Modules\CustomMLHUB\Console\Commands\MLHUBSyncEnvOptionsCommand;
 use Modules\CustomMLHUB\Console\Commands\MLHUBUpdateCommand;
 
 class CustomMLHUBServiceProvider extends ServiceProvider
@@ -19,6 +20,7 @@ class CustomMLHUBServiceProvider extends ServiceProvider
             $this->commands([
                 MLHUBInstallCommand::class,
                 MLHUBUpdateCommand::class,
+                MLHUBSyncEnvOptionsCommand::class,
             ]);
         }
     }

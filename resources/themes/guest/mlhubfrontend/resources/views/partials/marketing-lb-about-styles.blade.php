@@ -124,7 +124,7 @@
         inset: -1.5rem;
         z-index: -1;
         border-radius: 2rem;
-        background: radial-gradient(circle at 50% 0%, rgba(184, 218, 22, .34), transparent 55%);
+        background: radial-gradient(circle at 50% 0%, rgba(225, 235, 22, .22), transparent 55%);
         filter: blur(18px);
     }
 

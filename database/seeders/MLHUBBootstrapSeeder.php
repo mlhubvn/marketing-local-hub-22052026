@@ -2,10 +2,12 @@
 
 namespace Database\Seeders;
 
+use Database\Support\IdSequence;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Modules\AdminSettings\Support\OptionStore;
+use Modules\CustomMLHUB\Support\MLHUBEnvOptionsSync;
 
 class MLHUBBootstrapSeeder extends Seeder
 {
@@ -39,8 +41,9 @@ class MLHUBBootstrapSeeder extends Seeder
 
     public function run(): void
     {
-        $this->seedSiteOptions();
-        $this->seedLicenseOptions();
+        if (! IdSequence::isUpdateMode()) {
+            $this->seedSiteOptions();
+        }
     }
 
     protected function seedSiteOptions(): void
@@ -78,7 +81,10 @@ class MLHUBBootstrapSeeder extends Seeder
         $options->set('theme_settings.guest.'.$guestTheme, (array) config('mlhub.guest_theme_settings', []));
         $options->set('theme_settings.app.'.$backendTheme, (array) config('mlhub.backend_theme_settings', []));
         $options->set('installer_completed_at', Carbon::now()->toIso8601String());
-        $options->set('system_cron_secure_key', Str::random(16));
+
+        $cronKey = MLHUBEnvOptionsSync::envValue('MLHUB_SYSTEM_CRON_SECURE_KEY');
+
+        $options->set('system_cron_secure_key', $cronKey ?? Str::random(16));
 
         $path = (string) config('custommlhub.site_options_file', database_path('seeders/data/mlhub_site_options.php'));
 
@@ -92,45 +98,6 @@ class MLHUBBootstrapSeeder extends Seeder
             }
         }
 
-        if ($password = env('MAIL_PASSWORD')) {
-            $options->set('smtp_password', $password);
-        }
-    }
-
-    protected function seedLicenseOptions(): void
-    {
-        if (! class_exists(OptionStore::class)) {
-            return;
-        }
-
-        $license = (array) config('mlhub.license', []);
-        $purchaseCode = trim((string) ($license['purchase_code'] ?? ''));
-
-        if ($purchaseCode === '') {
-            return;
-        }
-
-        $verifiedAt = Carbon::now()->toIso8601String();
-        /** @var OptionStore $options */
-        $options = app(OptionStore::class);
-
-        $options->set('license_purchase_code', $purchaseCode);
-        $options->set('license_status', 'verified');
-        $options->set('license_product_id', (string) ($license['product_id'] ?? 10252026));
-        $options->set('license_version', (string) ($license['version'] ?? '1.0.1'));
-        $options->set('license_install_path', (string) ($license['install_path'] ?? './'));
-        $options->set('license_verified_at', $verifiedAt);
-        $options->set('license_meta', [
-            'status' => 1,
-            'message' => 'Addon installation verified.',
-            'module_name' => null,
-            'slug' => 'localboost-ai-review-booster-booking-coupons-feedback-lead-generation-saas',
-            'version' => (string) ($license['version'] ?? '1.0.1'),
-            'license' => (string) ($license['license_type'] ?? 'Extended License'),
-            'domain' => (string) ($license['domain'] ?? 'mlhub.vn'),
-            'product_id' => (int) ($license['product_id'] ?? 10252026),
-            'install_path' => (string) ($license['install_path'] ?? './'),
-        ]);
     }
 }
 

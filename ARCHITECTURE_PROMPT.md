@@ -431,6 +431,9 @@ php artisan tinker
 | ---- | -------- | ------- |
 | `php artisan mlhub:install` | DB mới hoặc muốn **xóa sạch** cài lại | `migrate:fresh` (xóa toàn bộ bảng) → seed từ ID `147123468` → `optimize`. Hỏi xác nhận; `--force` bỏ qua hỏi. Production: tạm `MLHUB_ALLOW_RESET_DEMO=true`. |
 | `php artisan mlhub:update` | Đã có dữ liệu, muốn **cập nhật** sau deploy | `migrate` (migration mới) → seed bổ sung (upsert theo slug/email, **không** xóa user/campaign) → bản ghi seed **mới** nối ID sau max hiện có → `IdSequence::apply()` → `optimize`. |
+| `php artisan mlhub:sync-env-options` | Sau khi đổi env Coolify | Ghi env có giá trị → **Admin → Cài đặt** (`options`). Tự chạy sau `migrate` mỗi deploy (`entrypoint.sh`). |
+
+**Admin Settings ↔ Coolify:** Mật khẩu SMTP, captcha, Stripe, Google OAuth, license… đặt trong **Environment Variables** (xem `.env.example` mục *Admin Settings ↔ Coolify*). Map chi tiết: `modules/CustomMLHUB/config/env_options.php`. Sau `mlhub:install` (xóa DB), cấu hình **khôi phục từ env** — không cần nhập lại tay nếu đã copy đủ biến lên Coolify.
 
 ```bash
 docker exec -it <container_app> sh

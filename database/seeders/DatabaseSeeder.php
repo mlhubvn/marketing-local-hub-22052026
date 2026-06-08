@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Database\Support\IdSequence;
 use Illuminate\Database\Seeder;
+use Modules\CustomMLHUB\Support\MLHUBEnvOptionsSync;
 
 class DatabaseSeeder extends Seeder
 {
@@ -17,5 +18,9 @@ class DatabaseSeeder extends Seeder
         }
 
         IdSequence::apply();
+
+        if (class_exists(MLHUBEnvOptionsSync::class)) {
+            app(MLHUBEnvOptionsSync::class)->apply();
+        }
     }
 }
