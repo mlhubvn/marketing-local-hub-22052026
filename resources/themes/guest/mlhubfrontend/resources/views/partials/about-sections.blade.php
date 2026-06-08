@@ -52,7 +52,7 @@
             </span>
             <h1 class="lb-serif lb-hero-title lb-reveal mt-6" style="--lb-delay: 70ms;">{{ __('Ask MLHUB AI in natural language') }}</h1>
             <p class="lb-lead lb-reveal mt-5 max-w-xl" style="--lb-delay: 140ms; color: var(--lb-muted);">
-                {{ __('Talk to your growth data on Portal Dashboard. Ask in plain language — get answers from campaigns, reviews, and bookings. MCP-style assistant, coming soon.') }}
+                {{ __('Talk to your growth data on Portal Dashboard. Ask in plain language — get answers about campaigns, reviews, and bookings. Smart assistant, coming soon.') }}
             </p>
             <div class="lb-reveal mt-8 flex flex-wrap gap-2" style="--lb-delay: 210ms;">
                 @foreach ($mlhubAiPromptChips as $chip)
@@ -72,45 +72,68 @@
                         </div>
                         <div class="min-w-0">
                             <p class="truncate text-sm font-black">{{ __('LocalBoost AI') }}</p>
-                            <p class="truncate text-[11px] font-bold" style="color: var(--lb-muted);">{{ __('MCP-style preview') }}</p>
+                            <p class="truncate text-[11px] font-bold" style="color: var(--lb-muted);">{{ __('Assistant chat preview') }}</p>
                         </div>
                     </div>
                     <span class="shrink-0 rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em]" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color: #ff5f5f;">{{ __('Coming soon') }}</span>
                 </div>
 
-                <div class="lb-ai-chat__body p-4 sm:p-5">
-                    <div class="lb-ai-chat__messages space-y-3">
-                        @foreach ($mlhubAiChatPreview as $index => $exchange)
-                            <div
-                                class="lb-ai-chat__bubble lb-ai-chat__bubble--user lb-chat-pop ml-auto max-w-[88%] rounded-2xl rounded-br-md px-4 py-3 text-sm font-bold leading-snug"
-                                style="--lb-chat-delay: {{ ($index * 1400) + 300 }}ms;"
-                            >
-                                {{ $exchange[0] }}
-                            </div>
-                            <div
-                                class="lb-ai-chat__bubble lb-ai-chat__bubble--ai lb-chat-pop flex max-w-[92%] gap-3 rounded-2xl rounded-bl-md px-3 py-3 sm:px-4"
-                                style="--lb-chat-delay: {{ ($index * 1400) + 750 }}ms;"
-                            >
-                                <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm text-white" style="background: var(--lb-red);">
-                                    <i class="fa-light fa-sparkles" aria-hidden="true"></i>
+                <div class="grid gap-0 lg:grid-cols-[5.2rem_minmax(0,1fr)]">
+                    <aside class="hidden border-r px-4 py-4 lg:block" style="border-color: var(--lb-line); background: var(--lb-soft);">
+                        <div class="grid justify-items-center gap-3">
+                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white p-1.5" aria-hidden="true">
+                                <img
+                                    src="{{ asset(config('mlhub.site.hero_mark', 'img/mlhub-hero-mark.svg')) }}"
+                                    alt=""
+                                    class="h-full w-full object-contain"
+                                    width="40"
+                                    height="40"
+                                    loading="lazy"
+                                    decoding="async"
+                                >
+                            </span>
+                            @foreach (['fa-store', 'fa-star', 'fa-qrcode', 'fa-chart-line'] as $index => $icon)
+                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl {{ $index === 0 ? 'text-white' : '' }}" style="{{ $index === 0 ? 'background: var(--lb-red);' : 'background:#fff; color:#ff5f5f;' }}">
+                                    <i class="fa-light {{ $icon }}"></i>
                                 </span>
-                                <p class="text-sm font-bold leading-snug" style="color: var(--lb-muted);">{{ $exchange[1] }}</p>
-                            </div>
-                        @endforeach
-                    </div>
+                            @endforeach
+                        </div>
+                    </aside>
 
-                    <div class="lb-ai-chat__composer mt-5 flex items-center gap-3 rounded-2xl border px-4 py-3" style="border-color: var(--lb-line); background: rgba(255,255,255,.92);">
-                        <p class="min-w-0 flex-1 truncate text-sm font-bold" style="color: var(--lb-muted);">{{ __('Type a question…') }}</p>
-                        <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white" style="background: var(--lb-red);">
-                            <i class="fa-light fa-paper-plane-top text-sm" aria-hidden="true"></i>
-                        </span>
+                    <div class="lb-ai-chat__body p-4 sm:p-5">
+                        <div class="lb-ai-chat__messages space-y-3">
+                            @foreach ($mlhubAiChatPreview as $index => $exchange)
+                                <div
+                                    class="lb-ai-chat__bubble lb-ai-chat__bubble--user lb-chat-pop ml-auto max-w-[88%] rounded-2xl rounded-br-md px-4 py-3 text-sm font-bold leading-snug"
+                                    style="--lb-chat-delay: {{ ($index * 1400) + 300 }}ms;"
+                                >
+                                    {{ $exchange[0] }}
+                                </div>
+                                <div
+                                    class="lb-ai-chat__bubble lb-ai-chat__bubble--ai lb-chat-pop flex max-w-[92%] gap-3 rounded-2xl rounded-bl-md px-3 py-3 sm:px-4"
+                                    style="--lb-chat-delay: {{ ($index * 1400) + 750 }}ms;"
+                                >
+                                    <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm text-white" style="background: var(--lb-red);">
+                                        <i class="fa-light fa-robot" aria-hidden="true"></i>
+                                    </span>
+                                    <p class="text-sm font-bold leading-snug" style="color: var(--lb-muted);">{{ $exchange[1] }}</p>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="lb-ai-chat__composer mt-5 flex items-center gap-3 rounded-2xl border px-4 py-3" style="border-color: var(--lb-line); background: rgba(255,255,255,.92);">
+                            <p class="min-w-0 flex-1 truncate text-sm font-bold" style="color: var(--lb-muted);">{{ __('Type a question…') }}</p>
+                            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white" style="background: var(--lb-red);">
+                                <i class="fa-light fa-paper-plane-top text-sm" aria-hidden="true"></i>
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="lb-card lb-float absolute -left-4 bottom-10 z-20 hidden rounded-xl p-4 shadow-xl md:block" style="--lb-delay: 180ms;">
                 <p class="text-xs font-black">{{ __('Portal Dashboard') }}</p>
-                <p class="mt-1 text-xs" style="color: var(--lb-muted);">{{ __('MCP-style preview') }}</p>
+                <p class="mt-1 text-xs" style="color: var(--lb-muted);">{{ __('Assistant chat preview') }}</p>
             </div>
             <div class="lb-card lb-float absolute -right-3 top-10 z-20 hidden w-44 rounded-xl p-3 shadow-xl md:block" style="--lb-delay: 360ms;">
                 <div class="flex gap-2.5">
