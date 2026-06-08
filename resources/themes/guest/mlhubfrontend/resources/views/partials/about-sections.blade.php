@@ -28,87 +28,96 @@
         ['fa-ticket', __('Instant voucher')],
         ['fa-sparkles', __('AI nurture messages')],
     ];
+    $mlhubAiChatPreview = [
+        [__('Any new customers this week?'), __('This week: 12 new customers (+3 vs last week). 8 from Review Booster, 4 from booking pages.')],
+        [__('Summarize running campaigns'), __('3 active campaigns: Review Booster (847 scans), Spring coupon (156 claims), Lead form (23 leads).')],
+        [__('Are this week\'s reviews good?'), __('4.8★ average from 6 new reviews. Positive sentiment — 2 reviews still need a reply.')],
+        [__('What should I do next? / Suggest a new campaign.'), __('Suggest a weekend coupon for repeat guests. I can draft copy and a QR landing page when the assistant launches.')],
+    ];
+    $mlhubAiPromptChips = [
+        __('Any new customers this week?'),
+        __('Summarize running campaigns'),
+        __('Are this week\'s reviews good?'),
+        __('What should I do next? / Suggest a new campaign.'),
+    ];
 @endphp
 
-{{-- Hero --}}
+{{-- Hero: MLHUB AI chat preview --}}
 <section id="about" class="lb-wrap lb-section lb-about scroll-mt-28 pb-4 lg:pb-8">
     <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
         <div>
-            <span class="lb-pill lb-reveal inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('About MLHUB') }}</span>
-            <h1 class="lb-serif lb-hero-title lb-reveal mt-6" style="--lb-delay: 70ms;">{{ __('Making Local HUB for Vietnamese local businesses') }}</h1>
+            <span class="lb-pill lb-reveal inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">
+                <i class="fa-light fa-robot"></i>
+                {{ __('About MLHUB AI') }}
+            </span>
+            <h1 class="lb-serif lb-hero-title lb-reveal mt-6" style="--lb-delay: 70ms;">{{ __('Ask MLHUB AI in natural language') }}</h1>
             <p class="lb-lead lb-reveal mt-5 max-w-xl" style="--lb-delay: 140ms; color: var(--lb-muted);">
-                {{ __('In today\'s digital economy, most software is too expensive and complex for small shops. MLHUB was built to fill that gap.') }}
+                {{ __('Talk to your growth data on Portal Dashboard. Ask in plain language — get answers from campaigns, reviews, and bookings. MCP-style assistant, coming soon.') }}
             </p>
             <div class="lb-reveal mt-8 flex flex-wrap gap-2" style="--lb-delay: 210ms;">
-                @foreach ([__('Making Local HUB'), __('Marketing Automation'), __('Local O2O'), __('Review Booster')] as $badge)
-                    <span class="rounded-full border bg-white/90 px-3 py-2 text-xs font-black" style="border-color: var(--lb-line); color: var(--lb-muted);">{{ $badge }}</span>
+                @foreach ($mlhubAiPromptChips as $chip)
+                    <span class="rounded-full border bg-white/90 px-3 py-2 text-xs font-bold leading-snug" style="border-color: var(--lb-line); color: var(--lb-muted);">{{ $chip }}</span>
                 @endforeach
             </div>
         </div>
 
         <div class="lb-glow lb-reveal relative" style="--lb-delay: 240ms;">
-            <div class="lb-window relative z-10 overflow-hidden rounded-2xl">
-                <div class="flex items-center justify-between border-b px-5 py-4" style="border-color: var(--lb-line); background: var(--lb-soft);">
-                    <div class="flex items-center gap-1.5">
-                        <span class="lb-dot bg-red-400"></span>
-                        <span class="lb-dot bg-amber-400"></span>
-                        <span class="lb-dot bg-lime-500"></span>
+            <div class="lb-window lb-ai-chat relative z-10 overflow-hidden rounded-2xl">
+                <div class="flex items-center justify-between gap-3 border-b px-5 py-4" style="border-color: var(--lb-line); background: var(--lb-soft);">
+                    <div class="flex min-w-0 items-center gap-3">
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <span class="lb-dot bg-red-400"></span>
+                            <span class="lb-dot bg-amber-400"></span>
+                            <span class="lb-dot bg-lime-500"></span>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="truncate text-sm font-black">{{ __('LocalBoost AI') }}</p>
+                            <p class="truncate text-[11px] font-bold" style="color: var(--lb-muted);">{{ __('MCP-style preview') }}</p>
+                        </div>
                     </div>
-                    <span class="rounded-full px-3 py-1 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color: #ff5f5f;">{{ __('Live dashboard') }}</span>
+                    <span class="shrink-0 rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em]" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color: #ff5f5f;">{{ __('Coming soon') }}</span>
                 </div>
-                <div class="grid gap-0 lg:grid-cols-[5.2rem_minmax(0,1fr)]">
-                    <aside class="hidden border-r px-4 py-4 lg:block" style="border-color: var(--lb-line); background: var(--lb-soft);">
-                        <div class="grid justify-items-center gap-3">
-                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white p-1.5" aria-hidden="true">
-                                <img
-                                    src="{{ asset(config('mlhub.site.hero_mark', 'img/mlhub-hero-mark.svg')) }}"
-                                    alt=""
-                                    class="h-full w-full object-contain"
-                                    width="40"
-                                    height="40"
-                                    loading="lazy"
-                                    decoding="async"
-                                >
-                            </span>
-                            @foreach (['fa-store', 'fa-star', 'fa-qrcode', 'fa-chart-line'] as $index => $icon)
-                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl {{ $index === 0 ? 'text-white' : '' }}" style="{{ $index === 0 ? 'background: var(--lb-red);' : 'background:#fff; color:#ff5f5f;' }}">
-                                    <i class="fa-light {{ $icon }}"></i>
-                                </span>
-                            @endforeach
-                        </div>
-                    </aside>
-                    <main class="p-5">
-                        <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ __('Mission: Making Local HUB') }}</p>
-                        <div class="mt-4 grid gap-3 sm:grid-cols-2">
-                            @foreach ($missionPillars as $pillar)
-                                <div class="rounded-xl border bg-white p-3" style="border-color: var(--lb-line);">
-                                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-lg" style="background: color-mix(in srgb, var(--lb-lime) 28%, #fff); color: #ff5f5f;">
-                                        <i class="fa-light {{ $pillar[0] }}"></i>
-                                    </span>
-                                    <p class="mt-3 text-xs font-bold leading-snug" style="color: var(--lb-muted);">{{ $pillar[1] }}</p>
-                                </div>
-                            @endforeach
-                        </div>
-                        <div class="mt-4 rounded-xl border bg-white p-4" style="border-color: var(--lb-line);">
-                            <div class="flex h-16 items-end gap-1.5">
-                                @foreach ([48, 72, 58, 88, 64, 96, 78, 84] as $bar)
-                                    <span class="lb-bar flex-1 rounded-t-lg" style="--lb-bar-delay: {{ $loop->index * 140 }}ms; height: {{ $bar }}%; background: {{ $loop->even ? 'var(--lb-red)' : 'var(--lb-lime)' }};"></span>
-                                @endforeach
+
+                <div class="lb-ai-chat__body p-4 sm:p-5">
+                    <div class="lb-ai-chat__messages space-y-3">
+                        @foreach ($mlhubAiChatPreview as $index => $exchange)
+                            <div
+                                class="lb-ai-chat__bubble lb-ai-chat__bubble--user lb-chat-pop ml-auto max-w-[88%] rounded-2xl rounded-br-md px-4 py-3 text-sm font-bold leading-snug"
+                                style="--lb-chat-delay: {{ ($index * 1400) + 300 }}ms;"
+                            >
+                                {{ $exchange[0] }}
                             </div>
-                        </div>
-                    </main>
+                            <div
+                                class="lb-ai-chat__bubble lb-ai-chat__bubble--ai lb-chat-pop flex max-w-[92%] gap-3 rounded-2xl rounded-bl-md px-3 py-3 sm:px-4"
+                                style="--lb-chat-delay: {{ ($index * 1400) + 750 }}ms;"
+                            >
+                                <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm text-white" style="background: var(--lb-red);">
+                                    <i class="fa-light fa-sparkles" aria-hidden="true"></i>
+                                </span>
+                                <p class="text-sm font-bold leading-snug" style="color: var(--lb-muted);">{{ $exchange[1] }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <div class="lb-ai-chat__composer mt-5 flex items-center gap-3 rounded-2xl border px-4 py-3" style="border-color: var(--lb-line); background: rgba(255,255,255,.92);">
+                        <p class="min-w-0 flex-1 truncate text-sm font-bold" style="color: var(--lb-muted);">{{ __('Type a question…') }}</p>
+                        <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white" style="background: var(--lb-red);">
+                            <i class="fa-light fa-paper-plane-top text-sm" aria-hidden="true"></i>
+                        </span>
+                    </div>
                 </div>
             </div>
-            <div class="lb-card lb-float absolute -left-4 bottom-16 z-20 hidden rounded-xl p-4 shadow-xl md:block" style="--lb-delay: 180ms;">
-                <p class="text-xs font-black">{{ __('Vision: close the technology gap') }}</p>
-                <p class="mt-1 text-xs" style="color: var(--lb-muted);">{{ __('Growth engine') }}</p>
+
+            <div class="lb-card lb-float absolute -left-4 bottom-10 z-20 hidden rounded-xl p-4 shadow-xl md:block" style="--lb-delay: 180ms;">
+                <p class="text-xs font-black">{{ __('Portal Dashboard') }}</p>
+                <p class="mt-1 text-xs" style="color: var(--lb-muted);">{{ __('MCP-style preview') }}</p>
             </div>
-            <div class="lb-card lb-float absolute -right-3 top-12 z-20 hidden w-44 rounded-xl p-3 shadow-xl md:block" style="--lb-delay: 360ms;">
+            <div class="lb-card lb-float absolute -right-3 top-10 z-20 hidden w-44 rounded-xl p-3 shadow-xl md:block" style="--lb-delay: 360ms;">
                 <div class="flex gap-2.5">
                     <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm text-white" style="background: var(--lb-red);">
-                        <i class="fa-light fa-store" aria-hidden="true"></i>
+                        <i class="fa-light fa-comments" aria-hidden="true"></i>
                     </span>
-                    <p class="text-[11px] font-bold leading-snug" style="color: var(--lb-muted);">{{ __('Help every small spa or eatery operate with discipline that rivals large corporations.') }}</p>
+                    <p class="text-[11px] font-bold leading-snug" style="color: var(--lb-muted);">{{ __('Ask about customers, campaigns, and reviews — right on your dashboard.') }}</p>
                 </div>
             </div>
         </div>

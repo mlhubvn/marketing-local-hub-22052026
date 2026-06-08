@@ -242,6 +242,52 @@
         animation-delay: var(--lb-delay, 0ms);
     }
 
+    .lb-ai-chat__body {
+        background:
+            radial-gradient(circle at 100% 0%, rgba(255, 95, 95, .06), transparent 14rem),
+            radial-gradient(circle at 0% 100%, rgba(184, 218, 22, .12), transparent 12rem),
+            #fffefb;
+        max-height: min(34rem, 72vh);
+        overflow: hidden;
+    }
+
+    .lb-ai-chat__messages {
+        max-height: min(26rem, 58vh);
+        overflow: hidden;
+        mask-image: linear-gradient(180deg, #000 82%, transparent 100%);
+    }
+
+    .lb-ai-chat__bubble--user {
+        background: color-mix(in srgb, var(--lb-red) 10%, #fff);
+        color: var(--lb-ink);
+        border: 1px solid color-mix(in srgb, var(--lb-red) 18%, var(--lb-line));
+    }
+
+    .lb-ai-chat__bubble--ai {
+        background: rgba(255, 255, 255, .94);
+        border: 1px solid var(--lb-line);
+        box-shadow: 0 16px 40px -34px rgba(16, 37, 31, .45);
+    }
+
+    .lb-chat-pop {
+        opacity: 0;
+        transform: translateY(14px) scale(.96);
+        animation: lb-chat-pop .58s cubic-bezier(.16, 1, .3, 1) both;
+        animation-delay: var(--lb-chat-delay, 0ms);
+    }
+
+    @keyframes lb-chat-pop {
+        from {
+            opacity: 0;
+            transform: translateY(14px) scale(.96);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
     .lb-scroll {
         opacity: 0;
         transform: translateY(34px) scale(.985);
@@ -318,11 +364,25 @@
             linear-gradient(180deg, rgba(15, 23, 42, .92), rgba(11, 21, 38, .86)) !important;
     }
 
+    html[data-theme-resolved='dark'] .lb-ai-chat__body,
+    html[data-theme-resolved='dark'] .lb-ai-chat__bubble--ai,
+    html[data-theme-resolved='dark'] .lb-ai-chat__composer {
+        background: linear-gradient(180deg, rgba(15, 23, 42, .92), rgba(11, 21, 38, .86)) !important;
+    }
+
+    html[data-theme-resolved='dark'] .lb-ai-chat__bubble--user {
+        background: rgba(255, 95, 95, .12) !important;
+        border-color: rgba(255, 95, 95, .24) !important;
+    }
+
     @media (prefers-reduced-motion: reduce) {
         .lb-reveal,
         .lb-float,
-        .lb-bar {
+        .lb-bar,
+        .lb-chat-pop {
             animation: none !important;
+            opacity: 1 !important;
+            transform: none !important;
         }
 
         .lb-scroll {
