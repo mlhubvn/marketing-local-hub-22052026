@@ -291,6 +291,12 @@
                     </div>
                 </article>
             @endforeach
+            <div class="flex justify-end">
+                <a href="{{ route('guest.solutions') }}" class="inline-flex items-center gap-2 text-sm font-black transition hover:opacity-80" style="color: var(--lb-red);">
+                    {{ __('See more other features') }}
+                    <i class="fa-light fa-arrow-right-long" aria-hidden="true"></i>
+                </a>
+            </div>
         </div>
     </div>
 </section>
