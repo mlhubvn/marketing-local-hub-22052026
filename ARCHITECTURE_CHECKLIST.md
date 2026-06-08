@@ -51,7 +51,7 @@ Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** (LocalBoost AI
 - Admin → Marketplace / Modules: module mới hiển thị và bật (vd `AppLoyaltyStampCards` qua `providers.marketplace.php`).
 - Portal: vào menu CRM, Email automation, Loyalty cards, Reports — không 500.
 - Cập nhật `ARCHITECTURE_*.md` + `.cursorrules` nếu thêm module/env (đã quét trong lần sync gần nhất).
-- Cài lần đầu (DB trống): Coolify env `MLHUB_FIRST_USER_EMAIL` + `MLHUB_FIRST_USER_PASSWORD` → container app → `php artisan mlhub:install` (xem `ARCHITECTURE_PROMPT.md` §4.1).
+- Cài lần đầu / cài lại sạch: `php artisan mlhub:install` (xóa toàn bộ DB + seed lại). Cập nhật giữ dữ liệu: `php artisan mlhub:update`. Chi tiết: `ARCHITECTURE_PROMPT.md` §4.1.
 
 ### 1.2.2 Container Exited (10x restarts) sau khi deploy
 
@@ -61,7 +61,7 @@ Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** (LocalBoost AI
 - **Redis** → `WARN: optimize:clear failed` hoặc log `getaddrinfo for … failed: Temporary failure in name resolution` — `REDIS_HOST` trỏ hostname **cũ** (Redis đã tạo lại trên Coolify) hoặc app chưa link Redis service. **Coolify:** mở resource **Redis** → copy **Internal Hostname** mới → app **Environment Variables** → `REDIS_HOST=` (chỉ hostname, không `redis://`, không port). `REDIS_PASSWORD` = mật khẩu Redis (một lần, không prefix `REDIS_PASSWORD=` lặp). App + Redis cùng network. Redeploy. Queue worker (`queue:work`) cần Redis sống — nếu chưa sửa kịp: tạm `CACHE_STORE=file` + `SESSION_DRIVER=file` (không khuyến nghị lâu dài).
 - **blog_rss_sources missing** → migration `2026_06_06_120000_ensure_blog_rss_tables` — redeploy (`migrate --force`). Cron `blogs:rss-import` sẽ hết ERROR sau migrate.
 - **public/storage** → `ERROR: public/storage symlink` — redeploy; volume `mlhub-storage` chỉ mount `/storage`, không mount `public/`.
-- Sau khi container **Running**: chạy một lần `php artisan mlhub:install` (DB trống).
+- Sau khi container **Running**: chạy một lần `php artisan mlhub:install` (cài sạch từ đầu).
 
 ### 1.2.1 Coolify deploy fail khi clone Git (exit 255, ~17k files)
 
@@ -76,9 +76,9 @@ Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** (LocalBoost AI
 
 1. **Coolify → Environment Variables:** điền `APP_KEY`, `MLHUB_FIRST_USER_*`, `MLHUB_LICENSE_PURCHASE_CODE`, `DB_*`, `REDIS_*`, `MAIL_PASSWORD`, `SESSION_DOMAIN=.mlhub.vn`, `APP_INSTALLED=true`, `MLHUB_ALLOW_RESET_DEMO=false`.
 2. **Commit + push** GitHub → đợi Coolify build xong (log: migrate OK, Livewire JS synced).
-3. **Container app** (Coolify Terminal): `cd /var/www/html && php artisan mlhub:install`
+3. **Container app** (Coolify Terminal): `cd /var/www/html && php artisan mlhub:install` (xác nhận xóa DB; production cần tạm `MLHUB_ALLOW_RESET_DEMO=true`).
 4. **Kiểm tra:** đăng nhập `MLHUB_FIRST_USER_EMAIL` → Admin + Portal; portal trống (không business demo); ngày/tiền format VN.
-5. **Sau go-live:** chỉ push code → redeploy (không chạy lại `mlhub:install` trừ DB mới).
+5. **Sau go-live:** push code → redeploy (entrypoint tự `migrate`). Bổ sung seed/migration mới mà **giữ dữ liệu**: `php artisan mlhub:update`. Chỉ `mlhub:install` khi muốn **xóa sạch** và cài lại.
 
 ---
 

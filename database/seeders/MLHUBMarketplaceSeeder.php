@@ -22,8 +22,8 @@ class MLHUBMarketplaceSeeder extends Seeder
                 'package_key' => $row['package_key'],
             ]);
 
-            if (! $package->exists) {
-                $package->id = IdSequence::at((int) $row['offset']);
+            if (! $package->exists && ($id = IdSequence::idForNewSeed((int) $row['offset'])) !== null) {
+                $package->id = $id;
             }
 
             $package->fill([

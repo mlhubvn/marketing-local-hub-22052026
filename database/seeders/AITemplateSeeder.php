@@ -49,10 +49,8 @@ class AITemplateSeeder extends Seeder
                 'id_secure' => $idSecure,
             ]);
 
-            if (! $template->exists) {
-                $template->id = $legacyId >= IdSequence::startingId()
-                    ? $legacyId
-                    : IdSequence::fromLegacy($legacyId);
+            if (! $template->exists && ($id = IdSequence::idForNewSeedFromLegacy($legacyId)) !== null) {
+                $template->id = $id;
             }
 
             $template->cate_id = $this->resolveCategoryIdByName(

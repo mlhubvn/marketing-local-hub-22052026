@@ -46,6 +46,35 @@ class IdSequence
         return self::at(max(0, $legacyId - 1));
     }
 
+    public static function isUpdateMode(): bool
+    {
+        return config('mlhub.seeding_mode') === 'update';
+    }
+
+    /**
+     * PK cho bản ghi seed mới: install = cố định theo offset; update = null (MySQL AUTO_INCREMENT).
+     *
+     * @return int|null
+     */
+    public static function idForNewSeed(int $installOffset): ?int
+    {
+        return self::isUpdateMode() ? null : self::at($installOffset);
+    }
+
+    /**
+     * PK cho template seed từ legacy pack (install) hoặc AUTO_INCREMENT (update).
+     */
+    public static function idForNewSeedFromLegacy(int $legacyId): ?int
+    {
+        if (self::isUpdateMode()) {
+            return null;
+        }
+
+        return $legacyId >= self::startingId()
+            ? $legacyId
+            : self::fromLegacy($legacyId);
+    }
+
     /**
      * Set AUTO_INCREMENT on every eligible MySQL table so the next insert uses >= STARTING_ID.
      */

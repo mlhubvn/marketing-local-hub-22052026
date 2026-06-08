@@ -41,8 +41,8 @@ class MLHUBFoundationSeeder extends Seeder
         foreach ($languages as $language) {
             $record = Language::query()->firstOrNew(['code' => $language['code']]);
 
-            if (! $record->exists) {
-                $record->id = IdSequence::at($language['offset']);
+            if (! $record->exists && ($id = IdSequence::idForNewSeed($language['offset'])) !== null) {
+                $record->id = $id;
             }
 
             $record->fill([

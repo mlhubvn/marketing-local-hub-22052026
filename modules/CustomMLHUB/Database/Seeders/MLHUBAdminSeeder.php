@@ -30,19 +30,24 @@ class MLHUBAdminSeeder extends Seeder
 
         $user = User::query()->firstOrNew(['email' => $email]);
 
-        if (! $user->exists) {
-            $user->id = IdSequence::at(0);
+        if (! $user->exists && ($id = IdSequence::idForNewSeed(0)) !== null) {
+            $user->id = $id;
         }
 
-        $user->fill([
+        $payload = [
             'name' => (string) ($profile['name'] ?? 'MLHUB Admin'),
             'username' => (string) ($profile['username'] ?? 'mlhubadmin'),
-            'password' => Hash::make($password),
             'locale' => (string) ($profile['locale'] ?? 'vi'),
             'timezone' => (string) config('mlhub.timezone', 'Asia/Ho_Chi_Minh'),
             'is_super_admin' => true,
             'email_verified_at' => now(),
-        ])->save();
+        ];
+
+        if (! $user->exists) {
+            $payload['password'] = Hash::make($password);
+        }
+
+        $user->fill($payload)->save();
 
         if (class_exists(AffiliateService::class)) {
             $affiliate = app(AffiliateService::class);

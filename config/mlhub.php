@@ -7,6 +7,9 @@ use App\Support\Plans\NoPlanAccess;
  * Seed + env Coolify thay cho wizard cài đặt lần đầu.
  */
 return [
+    /** install | update — set bởi mlhub:install / mlhub:update trước db:seed */
+    'seeding_mode' => env('MLHUB_SEEDING_MODE', 'install'),
+
     'locale' => 'vi',
     'timezone' => 'Asia/Ho_Chi_Minh',
 

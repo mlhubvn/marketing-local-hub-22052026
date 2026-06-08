@@ -44,23 +44,7 @@
 
 {{-- Hero: MLHUB AI chat preview --}}
 <section id="mlhub-ai-mcp" class="lb-wrap lb-section lb-about scroll-mt-28 pb-4 lg:pb-8">
-    <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
-        <div>
-            <span class="lb-pill lb-reveal inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">
-                <i class="fa-light fa-robot"></i>
-                {{ __('About MLHUB AI') }}
-            </span>
-            <h1 class="lb-serif lb-hero-title lb-reveal mt-6" style="--lb-delay: 70ms;">{{ __('Ask MLHUB AI in natural language') }}</h1>
-            <p class="lb-lead lb-reveal mt-5 max-w-xl" style="--lb-delay: 140ms; color: var(--lb-muted);">
-                {{ __('Talk to your growth data on Portal Dashboard. Ask in plain language — get answers about campaigns, reviews, and bookings. Smart assistant, coming soon.') }}
-            </p>
-            <div class="lb-reveal mt-8 flex flex-wrap gap-2" style="--lb-delay: 210ms;">
-                @foreach ($mlhubAiPromptChips as $chip)
-                    <span class="rounded-full border bg-white/90 px-3 py-2 text-xs font-bold leading-snug" style="border-color: var(--lb-line); color: var(--lb-muted);">{{ $chip }}</span>
-                @endforeach
-            </div>
-        </div>
-
+    <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
         <div class="lb-glow lb-reveal relative" style="--lb-delay: 240ms;">
             <div class="lb-window lb-ai-chat relative z-10 overflow-hidden rounded-2xl">
                 <div class="flex items-center justify-between gap-3 border-b px-5 py-4" style="border-color: var(--lb-line); background: var(--lb-soft);">
@@ -142,6 +126,22 @@
                     </span>
                     <p class="text-[11px] font-bold leading-snug" style="color: var(--lb-muted);">{{ __('Ask about customers, campaigns, and reviews — right on your dashboard.') }}</p>
                 </div>
+            </div>
+        </div>
+
+        <div>
+            <span class="lb-pill lb-reveal inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">
+                <i class="fa-light fa-robot"></i>
+                {{ __('About MLHUB AI') }}
+            </span>
+            <h1 class="lb-serif lb-hero-title lb-reveal mt-6" style="--lb-delay: 70ms;">{{ __('Ask MLHUB AI in natural language') }}</h1>
+            <p class="lb-lead lb-reveal mt-5 max-w-xl" style="--lb-delay: 140ms; color: var(--lb-muted);">
+                {{ __('Talk to your growth data on Portal Dashboard. Ask in plain language — get answers about campaigns, reviews, and bookings. Smart assistant, coming soon.') }}
+            </p>
+            <div class="lb-reveal mt-8 flex flex-wrap gap-2" style="--lb-delay: 210ms;">
+                @foreach ($mlhubAiPromptChips as $chip)
+                    <span class="rounded-full border bg-white/90 px-3 py-2 text-xs font-bold leading-snug" style="border-color: var(--lb-line); color: var(--lb-muted);">{{ $chip }}</span>
+                @endforeach
             </div>
         </div>
     </div>

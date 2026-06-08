@@ -16,8 +16,8 @@ class PlanSeeder extends Seeder
 
             $record = AdminPlan::query()->firstOrNew(['slug' => $plan['slug']]);
 
-            if (! $record->exists) {
-                $record->id = IdSequence::at($index);
+            if (! $record->exists && ($id = IdSequence::idForNewSeed($index)) !== null) {
+                $record->id = $id;
             }
 
             $record->fill($plan)->save();

@@ -2,47 +2,51 @@
 
 namespace Modules\CustomMLHUB\Console\Commands;
 
+use Database\Support\IdSequence;
 use Illuminate\Console\Command;
-use Modules\AdminUser\Models\User;
+use Modules\CustomMLHUB\Support\MLHUBArtisanTasks;
 
 class MLHUBInstallCommand extends Command
 {
     protected $signature = 'mlhub:install
-                            {--force : Cho phép seed khi DB đã có user (không wipe)}';
+                            {--force : Bỏ qua xác nhận xóa toàn bộ database}';
 
-    protected $description = 'Cài đặt MLHUB lần đầu: migrate + seed (gói, AI templates, admin từ env).';
+    protected $description = 'Cài đặt MLHUB từ đầu: xóa sạch database, migrate + seed (gói, AI templates, admin từ env).';
 
     public function handle(): int
     {
-        $email = trim((string) config('custommlhub.first_user.email', ''));
-        $password = (string) config('custommlhub.first_user.password', '');
-
-        if ($email === '' || $password === '') {
+        if (MLHUBArtisanTasks::firstUserCredentialsMissing()) {
             $this->error('Thiếu MLHUB_FIRST_USER_EMAIL hoặc MLHUB_FIRST_USER_PASSWORD trong Environment Variables.');
 
             return self::FAILURE;
         }
 
-        if (User::query()->exists() && ! $this->option('force')) {
-            $this->error('DB đã có user. Chỉ chạy lại nếu cần bổ sung seed (dùng --force) hoặc wipe DB thủ công trên staging.');
+        if (MLHUBArtisanTasks::destructiveResetBlocked()) {
+            $this->error('Production đang chặn xóa DB. Đặt tạm MLHUB_ALLOW_RESET_DEMO=true trên Coolify, redeploy, rồi chạy lại lệnh này.');
+            $this->line('Sau khi cài xong, đặt lại MLHUB_ALLOW_RESET_DEMO=false.');
 
             return self::FAILURE;
         }
 
-        $this->info('Đang migrate...');
-        $this->call('migrate', ['--force' => true]);
+        if (! $this->option('force') && ! $this->confirm('XÓA TOÀN BỘ database và cài lại từ đầu?', false)) {
+            $this->warn('Đã hủy. Dùng mlhub:update nếu chỉ cần cập nhật mà giữ dữ liệu.');
 
-        $this->info('Đang seed (gói, cấu hình VN, super admin, marketplace)...');
-        $this->call('db:seed', ['--force' => true]);
+            return self::FAILURE;
+        }
 
-        $this->call('optimize:clear');
-        $this->call('optimize');
+        $this->warn('Đang xóa sạch database và migrate lại...');
+        $this->call('migrate:fresh', ['--force' => true]);
+
+        MLHUBArtisanTasks::seed($this, 'install');
+        MLHUBArtisanTasks::optimize($this);
+
+        $email = trim((string) config('custommlhub.first_user.email', ''));
 
         $this->newLine();
-        $this->info('Hoàn tất cài đặt MLHUB.');
+        $this->info('Hoàn tất cài đặt MLHUB (database mới).');
         $this->line("Đăng nhập super admin: {$email}");
         $this->line('Giao diện: frontend = mlhubfrontend, backend = mlhubbackend.');
-        $this->line('ID sequence: '.(string) config('custommlhub.starting_id', 147123468).' (AUTO_INCREMENT sau seed).');
+        $this->line('ID sequence: '.(string) IdSequence::startingId().' (bắt đầu từ ID này).');
 
         return self::SUCCESS;
     }

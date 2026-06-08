@@ -425,19 +425,25 @@ php artisan tinker
 
 **Module `CustomMLHUB`:** site options VN (`format_date` `d/m/Y`, VND, timezone), seeder admin, email/template packs hệ thống. Script dev Việt hóa AI templates: `modules/CustomMLHUB/Scripts/`.
 
-#### A. Một lệnh (trong container app — khuyến nghị)
+#### A. Hai lệnh MLHUB (trong container app)
+
+| Lệnh | Khi dùng | Hành vi |
+| ---- | -------- | ------- |
+| `php artisan mlhub:install` | DB mới hoặc muốn **xóa sạch** cài lại | `migrate:fresh` (xóa toàn bộ bảng) → seed từ ID `147123468` → `optimize`. Hỏi xác nhận; `--force` bỏ qua hỏi. Production: tạm `MLHUB_ALLOW_RESET_DEMO=true`. |
+| `php artisan mlhub:update` | Đã có dữ liệu, muốn **cập nhật** sau deploy | `migrate` (migration mới) → seed bổ sung (upsert theo slug/email, **không** xóa user/campaign) → bản ghi seed **mới** nối ID sau max hiện có → `IdSequence::apply()` → `optimize`. |
 
 ```bash
 docker exec -it <container_app> sh
 cd /var/www/html
-php artisan mlhub:install
+php artisan mlhub:install    # cài sạch — XÓA HẾT dữ liệu
+php artisan mlhub:update     # cập nhật — GIỮ dữ liệu cũ
 ```
 
-Lệnh trên: `migrate --force` → `db:seed --force` (foundation, plans, AI templates, bootstrap site/license, marketplace, super admin, system extras) → `IdSequence::apply()` → `optimize`. **Không** seed dữ liệu demo / QR volume / business mẫu.
+**Không** seed dữ liệu demo / QR volume / business mẫu.
 
 #### B. Deploy thường (đã cài xong)
 
-Push GitHub → Coolify redeploy → `entrypoint.sh` chỉ **migrate** + optimize. Không chạy lại seed.
+Push GitHub → Coolify redeploy → `entrypoint.sh` chỉ **migrate** + optimize. Không tự chạy seed. Chạy thủ công `mlhub:update` khi cần đồng bộ seed/migration mới mà giữ dữ liệu khách.
 
 #### C. DB trống từ SQL (khi cần)
 
@@ -446,7 +452,7 @@ DROP DATABASE default;
 CREATE DATABASE default CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-Sau đó: `php artisan mlhub:install`.
+Sau đó: `php artisan mlhub:install` (hoặc import SQL đã chuẩn hóa ID rồi `mlhub:update` để đồng bộ seed).
 
 #### D. Sau cài — kiểm tra
 

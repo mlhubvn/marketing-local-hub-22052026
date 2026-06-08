@@ -52,8 +52,8 @@ class AITemplateCategorySeeder extends Seeder
         foreach ($categories as $index => $category) {
             $record = AiTemplateCategory::query()->firstOrNew(['id_secure' => $category['id_secure']]);
 
-            if (! $record->exists) {
-                $record->id = IdSequence::at($index);
+            if (! $record->exists && ($id = IdSequence::idForNewSeed($index)) !== null) {
+                $record->id = $id;
             }
 
             $record->fill(array_merge($category, ['changed' => $changedAt]))->save();

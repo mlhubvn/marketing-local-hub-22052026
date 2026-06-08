@@ -10,7 +10,7 @@
 #   4. If APP_INSTALLED=true → wait for DB and run `php artisan migrate --force`.
 #      Gồm migration trong modules/* (CRM, Email automation, Loyalty, …) sau khi cập nhật upstream.
 #      MLHUB không còn Web Installer — luôn giữ APP_INSTALLED=true trên Coolify.
-#      Cài lần đầu (DB trống): chạy thủ công `php artisan mlhub:install` trong container app.
+#      Cài sạch DB: `php artisan mlhub:install` | Cập nhật giữ dữ liệu: `php artisan mlhub:update`
 #   5. Clear every Laravel cache surface and re-warm against the new code.
 #   6. exec the CMD (apache2-foreground).
 
