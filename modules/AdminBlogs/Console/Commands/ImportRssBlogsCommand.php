@@ -3,6 +3,8 @@
 namespace Modules\AdminBlogs\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Modules\AdminBlogs\Models\BlogRssSource;
 use Modules\AdminBlogs\Support\RssImportService;
@@ -15,8 +17,43 @@ class ImportRssBlogsCommand extends Command
 
     public function handle(RssImportService $service): int
     {
-        if (! Schema::hasTable('blog_rss_sources')) {
+        $hasBlogRssSources = Schema::hasTable('blog_rss_sources');
+        $hasBlogRssImports = Schema::hasTable('blog_rss_imports');
+        $ensureMigrationRan = DB::table('migrations')
+            ->where('migration', '2026_06_06_120000_ensure_blog_rss_tables')
+            ->exists();
+        $repairMigrationRan = DB::table('migrations')
+            ->where('migration', '2026_06_08_160000_repair_missing_blog_rss_tables')
+            ->exists();
+
+        $diagnostics = [
+            'hasBlogRssSources' => $hasBlogRssSources,
+            'hasBlogRssImports' => $hasBlogRssImports,
+            'ensureMigrationRan' => $ensureMigrationRan,
+            'repairMigrationRan' => $repairMigrationRan,
+            'appEnv' => config('app.env'),
+        ];
+
+        // #region agent log
+        Log::info('blogs:rss-import diagnostics', $diagnostics);
+        @file_put_contents(
+            base_path('debug-30216d.log'),
+            json_encode([
+                'sessionId' => '30216d',
+                'runId' => 'post-fix',
+                'hypothesisId' => 'H1-H4',
+                'location' => 'ImportRssBlogsCommand.php:handle',
+                'message' => 'blogs:rss-import diagnostics',
+                'data' => $diagnostics,
+                'timestamp' => (int) round(microtime(true) * 1000),
+            ])."\n",
+            FILE_APPEND
+        );
+        // #endregion
+
+        if (! $hasBlogRssSources) {
             $this->warn('Table blog_rss_sources is missing — run php artisan migrate --force then retry.');
+            Log::warning('blogs:rss-import skipped: blog_rss_sources table missing', $diagnostics);
 
             return self::SUCCESS;
         }
