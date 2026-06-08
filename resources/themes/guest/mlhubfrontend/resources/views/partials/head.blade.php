@@ -134,8 +134,8 @@
         --lb-text-lg: 1.125rem;
         --lb-text-xl: 1.25rem;
         --lb-text-2xl: 1.5rem;
-        --lb-text-h1: clamp(1.875rem, 2.2vw + 1rem, 2.875rem);
-        --lb-text-h2: clamp(1.625rem, 1.6vw + 1.1rem, 2.375rem);
+        --lb-text-h1: clamp(1.625rem, 1.6vw + 1rem, 2.25rem);
+        --lb-text-h2: clamp(1.5rem, 1.2vw + 1rem, 2rem);
         --lb-text-h3: clamp(1.25rem, 1vw + 0.95rem, 1.75rem);
         background: var(--lb-paper);
         color: var(--lb-ink);
@@ -159,6 +159,11 @@
         font-weight: 800;
         line-height: 1.2;
         max-width: min(100%, 42rem);
+    }
+
+    .lb-page .lb-hero-title {
+        line-height: 1.25;
+        max-width: none;
     }
 
     .lb-heading,

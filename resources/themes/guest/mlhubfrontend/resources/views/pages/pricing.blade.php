@@ -149,7 +149,7 @@
                         <i class="fa-light fa-credit-card"></i>
                         {{ __('Pricing') }}
                     </span>
-                    <h1 class="lb-serif lb-hero-title lb-reveal mt-7 max-w-4xl">{{ __('Simple plans for growing local businesses') }}</h1>
+                    <h1 class="lb-serif lb-hero-title lb-reveal mt-7">{{ __('Simple plans for growing local businesses') }}</h1>
                     <p class="lb-copy mt-6 max-w-2xl text-lg">{{ __('Choose the workspace size that fits your team. Manage campaign pages, QR codes, reviews, bookings, coupons, leads, AI credits and reporting from one connected platform.') }}</p>
                 </div>
 
