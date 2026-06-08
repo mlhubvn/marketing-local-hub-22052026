@@ -1,7 +1,0 @@
-{
-    "name": "PaymentYooMoney",
-    "alias": "paymentyoomoney",
-    "providers": [
-        "Modules\\PaymentYooMoney\\Providers\\PaymentYooMoneyServiceProvider"
-    ]
-}

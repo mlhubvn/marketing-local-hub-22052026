@@ -1,7 +1,0 @@
-{
-    "name": "PaymentRazorpay",
-    "alias": "paymentrazorpay",
-    "providers": [
-        "Modules\\PaymentRazorpay\\Providers\\PaymentRazorpayServiceProvider"
-    ]
-}

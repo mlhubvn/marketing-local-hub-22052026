@@ -9,7 +9,7 @@ Tài liệu mô tả cách backend Laravel 13 được tổ chức, các add-on/
 LocalBoost AI là một **Modular Monolith** (khối nguyên một process nhưng chia module):
 
 - `app/` — **lớp vỏ (shell) mỏng**: auth, trang marketing khách, bootstrap MLHUB (`config/mlhub.php`, `mlhub:install`), các registry toàn cục, middleware.
-- `modules/` — **79 module** (29 `Admin`*, 36 `App*`, 14 `Payment*`) chứa hầu hết Model, Livewire, Route, Service.
+- `modules/` — **68 module** (29 `Admin`*, 36 `App*`, 3 `Payment*`) chứa hầu hết Model, Livewire, Route, Service.
 - `resources/themes/` — tầng trình bày (xem `ARCHITECTURE_FRONTEND.md`).
 - `bootstrap/providers.php` — **tự động phát hiện** mọi module và nạp Service Provider của chúng.
 
@@ -60,7 +60,7 @@ Nguyên tắc cốt lõi:
 | ---------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Admin`*   | Super-admin / cấu hình          | `AdminUser`, `AdminPlans`, `AdminThemes`, `AdminSettings`, `AdminLanguages`, `AdminMarketplace`, `AdminCrons`, `AdminCoupons`, `AdminPayment`*, `AdminCredits`, `AdminAI*`, `AdminCache`, `AdminLog` (xem/tải/xoá log tại `admin/settings/log`, route `admin-log.index`, chỉ admin)                                                                                                                         |
 | `App*`     | Portal khách hàng               | Growth: `AppQRCampaigns`, `AppReviewBooster`, `AppBookingPages`, `AppCouponCampaigns`, `AppFeedbackForms`, `AppLeadForms`. Mở rộng: `AppAdvancedCustomerCrm`, `AppEmailAutomation`, `AppLoyaltyStampCards`, `AppLocalAnalytics`. Core: `AppBusinessProfiles`, `AppCustomers`, `AppLandingPages`, `AppTeams`, `AppCredits`, `AppPayments`, `AppBilling`, `AppAI*`, `AppGoogleBusiness`, `AppIntegrations`, … |
-| `Payment*` | Plugin cổng thanh toán (**14**) | `PaymentStripe`, `PaymentPaypal`, `PaymentRazorpay`, `PaymentPaystack`, `PaymentFlutterwave`, `PaymentInstamojo`, `PaymentIyzico`, `Payment2Checkout`, `PaymentCCAvenue`, `PaymentSslCommerz`, `PaymentYooMoney`, `PaymentPaytm`, `PaymentPayU`, `PaymentPayTR`                                                                                                                                             |
+| `Payment*` | Plugin cổng thanh toán (**3** — MLHUB VN) | `PaymentStripe`, `PaymentPaypal`, `Payment2Checkout` (+ `AppPayments` manual transfer). Đã gỡ cổng Ấn Độ/Phi/Thổ/Nga (`PaymentRazorpay`, `PaymentPaystack`, …) — tích hợp VNPay/MoMo sau qua module mới.                                                                                                                                             |
 
 
 **Cấu trúc điển hình một module** (vd `modules/AppReviewBooster/`):

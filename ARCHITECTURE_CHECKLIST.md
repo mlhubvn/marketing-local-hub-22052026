@@ -42,7 +42,7 @@ Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** (LocalBoost AI
 - Lệnh artisan cần chạy khi deploy (vd `migrate --force`, `config:cache`) phải nằm trong `entrypoint.sh` / quy trình build, **không** chạy tay trên server.
 - Thay đổi biến môi trường production: cập nhật trong **Coolify UI (env)** đồng thời phản ánh khóa tương ứng vào `.env.example` ở repo để tài liệu hóa — **không** sửa `.env` trực tiếp trên container.
 
-> Tham chiếu môi trường thật: `.env.example` (MLHUB, locale `vi`, MySQL, session/queue/cache = `redis`, mail `smtp` qua Emailit, theme `mlhubfrontend` / `mlhubbackend`, **79 module**).
+> Tham chiếu môi trường thật: `.env.example` (MLHUB, locale `vi`, MySQL, session/queue/cache = `redis`, mail `smtp` qua Emailit, theme `mlhubfrontend` / `mlhubbackend`, **68 module**).
 
 ### 1.2 Sau khi cập nhật phiên bản tác giả / cài module mới
 

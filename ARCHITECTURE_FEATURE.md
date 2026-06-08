@@ -47,7 +47,7 @@ Review Booster, Booking, Coupons, Feedback, Lead Forms **không độc lập ho�
 - Người dùng/quyền: `Modules\AdminUser\Models\User`, `EnsureAdminAccess`, `AdminPermissionCatalog`.
 - Gói & hạn mức: `Modules\AdminPlans` (`AdminPlan`, `Pricing` facade), `App\Support\Plans\PlanLimitGuard`, middleware `ResolveUserPlanState`.
 - Workspace: `Modules\AppTeams\Support\TeamWorkspaceAccess`.
-- Thanh toán: `Modules\AppPayments` + **14** module `Payment*` + `AdminPaymentSubscriptions`.
+- Thanh toán: `Modules\AppPayments` (manual) + **3** module `Payment*` (`Stripe`, `Paypal`, `2Checkout`) + `AdminPaymentSubscriptions`. Cổng Ấn Độ/Phi/Thổ/Nga đã gỡ — chuẩn bị tích hợp VN sau.
 
 **Ma trận độ sẵn sàng:**
 
