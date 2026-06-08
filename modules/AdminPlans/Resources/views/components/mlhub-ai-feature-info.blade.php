@@ -25,7 +25,7 @@
             style="display: none; {{ $tone === 'guest' ? 'border-color: var(--lb-line); background-color: rgba(255,255,255,0.98);' : 'border-color: rgba(var(--theme-border-color-rgb),0.68); background-color: var(--theme-surface-overlay);' }}"
         >
             <p class="text-xs font-bold leading-6" style="{{ $tone === 'guest' ? 'color: var(--lb-ink);' : 'color: var(--theme-header-text-color);' }}">
-                {{ __('MLHUB AI assistant (MCP-style chat) on Portal Dashboard lets local businesses ask in natural language. Examples:') }}
+                {{ __('MLHUB AI assistant preview (MCP-style chat, coming soon). On Portal Dashboard you will ask in natural language. Examples:') }}
             </p>
             <ul class="mt-3 space-y-2 text-xs leading-5" style="{{ $tone === 'guest' ? 'color: var(--lb-muted);' : 'color: var(--theme-muted-text-color);' }}">
                 <li>• {{ __('Any new customers this week?') }}</li>

@@ -170,15 +170,13 @@
                 @foreach ($planTypes as $typeKey => $typeLabel)
                     @foreach (collect($pricing[$typeKey] ?? []) as $plan)
                         @php
-                            use Modules\AdminPlans\Support\PlanFeatureOrder;
-
                             $isFreePlan = (bool) ($plan['free_plan'] ?? false);
                             $planTarget = $plan['model']->slug ?? $plan['id'];
-                            $outerFeatureKeys = PlanFeatureOrder::outerFeatureKeys($plan['features'] ?? []);
-                            $promotedSubFeatures = PlanFeatureOrder::promotedSubFeatures($plan['features'] ?? [], $outerFeatureKeys);
-                            $visibleFeatureKeys = PlanFeatureOrder::visibleFeatureKeys($plan['features'] ?? [], $promotedSubFeatures);
-                            $visibleSubFeatureCount = PlanFeatureOrder::visibleSubFeatureCountResolver($visibleFeatureKeys);
-                            $featureItems = PlanFeatureOrder::orderedPublicFeatures(
+                            $outerFeatureKeys = \Modules\AdminPlans\Support\PlanFeatureOrder::outerFeatureKeys($plan['features'] ?? []);
+                            $promotedSubFeatures = \Modules\AdminPlans\Support\PlanFeatureOrder::promotedSubFeatures($plan['features'] ?? [], $outerFeatureKeys);
+                            $visibleFeatureKeys = \Modules\AdminPlans\Support\PlanFeatureOrder::visibleFeatureKeys($plan['features'] ?? [], $promotedSubFeatures);
+                            $visibleSubFeatureCount = \Modules\AdminPlans\Support\PlanFeatureOrder::visibleSubFeatureCountResolver($visibleFeatureKeys);
+                            $featureItems = \Modules\AdminPlans\Support\PlanFeatureOrder::orderedPublicFeatures(
                                 $plan['features'] ?? [],
                                 $promotedSubFeatures,
                                 $visibleSubFeatureCount,

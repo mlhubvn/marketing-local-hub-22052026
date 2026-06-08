@@ -106,13 +106,11 @@
 	                                </a>
                                 @endif
                                 @php
-                                    use Modules\AdminPlans\Support\PlanFeatureOrder;
-
-                                    $outerFeatureKeys = PlanFeatureOrder::outerFeatureKeys($plan['features'] ?? []);
-                                    $promotedSubFeatures = PlanFeatureOrder::promotedSubFeatures($plan['features'] ?? [], $outerFeatureKeys);
-                                    $visibleFeatureKeys = PlanFeatureOrder::visibleFeatureKeys($plan['features'] ?? [], $promotedSubFeatures);
-                                    $visibleSubFeatureCount = PlanFeatureOrder::visibleSubFeatureCountResolver($visibleFeatureKeys);
-                                    $orderedPlanFeatures = PlanFeatureOrder::orderedPublicFeatures(
+                                    $outerFeatureKeys = \Modules\AdminPlans\Support\PlanFeatureOrder::outerFeatureKeys($plan['features'] ?? []);
+                                    $promotedSubFeatures = \Modules\AdminPlans\Support\PlanFeatureOrder::promotedSubFeatures($plan['features'] ?? [], $outerFeatureKeys);
+                                    $visibleFeatureKeys = \Modules\AdminPlans\Support\PlanFeatureOrder::visibleFeatureKeys($plan['features'] ?? [], $promotedSubFeatures);
+                                    $visibleSubFeatureCount = \Modules\AdminPlans\Support\PlanFeatureOrder::visibleSubFeatureCountResolver($visibleFeatureKeys);
+                                    $orderedPlanFeatures = \Modules\AdminPlans\Support\PlanFeatureOrder::orderedPublicFeatures(
                                         $plan['features'] ?? [],
                                         $promotedSubFeatures,
                                         $visibleSubFeatureCount,
