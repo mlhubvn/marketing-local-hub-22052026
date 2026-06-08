@@ -170,91 +170,19 @@
                 @foreach ($planTypes as $typeKey => $typeLabel)
                     @foreach (collect($pricing[$typeKey] ?? []) as $plan)
                         @php
+                            use Modules\AdminPlans\Support\PlanFeatureOrder;
+
                             $isFreePlan = (bool) ($plan['free_plan'] ?? false);
                             $planTarget = $plan['model']->slug ?? $plan['id'];
-                            $outerFeatureLabels = collect($plan['features'] ?? [])
-                                ->map(fn ($item) => strtolower(trim((string) ($item['label'] ?? $item))))
-                                ->filter()
-                                ->all();
-                            $promotedSubFeatureLabels = [
-                                'credits',
-                                'max qr codes',
-                                'businesses',
-                                'campaigns',
-                                'landing pages',
-                                'qr codes',
-                                'templates',
-                                'remove branding',
-                                'team member',
-                            ];
-                            $promotedSubFeatures = collect($plan['features'] ?? [])
-                                ->flatMap(fn ($item) => collect($item['subfeature'] ?? [])->flatMap(fn ($group) => $group['items'] ?? []))
-                                ->filter(function ($sub) use ($outerFeatureLabels, $promotedSubFeatureLabels) {
-                                    $label = strtolower(trim((string) ($sub['label'] ?? '')));
-
-                                    return in_array($label, $promotedSubFeatureLabels, true) && ! in_array($label, $outerFeatureLabels, true);
-                                })
-                                ->values();
-                            $visibleFeatureLabels = array_values(array_unique(array_merge(
-                                $outerFeatureLabels,
-                                $promotedSubFeatures->map(fn ($item) => strtolower(trim((string) ($item['label'] ?? ''))))->all()
-                            )));
-                            $visibleSubFeatureCount = function (array $item) use (&$visibleFeatureLabels): int {
-                                return collect($item['subfeature'] ?? [])
-                                    ->flatMap(fn ($group) => $group['items'] ?? [])
-                                    ->filter(function ($sub) use ($visibleFeatureLabels) {
-                                        $label = strtolower(trim((string) ($sub['label'] ?? '')));
-
-                                        return $label !== ''
-                                            && ! in_array($label, $visibleFeatureLabels, true)
-                                            && stripos($label, 'approval') === false
-                                            && stripos($label, 'approvals') === false;
-                                    })
-                                    ->count();
-                            };
-                            $featureOrder = [
-                                'access features' => 10,
-                                'localboost ai' => 11,
-                                'businesses' => 12,
-                                'campaigns' => 13,
-                                'landing pages' => 14,
-                                'qr codes' => 15,
-                                'templates' => 16,
-                                'remove branding' => 17,
-                                'ai studio' => 60,
-                                'team member' => 70,
-                                'credits' => 80,
-                                'premium support' => 90,
-                            ];
-                            $featureItems = collect($plan['features'] ?? [])
-                                ->merge($promotedSubFeatures)
-                                ->filter(function ($item) use ($visibleSubFeatureCount) {
-                                    $label = strtolower(trim((string) ($item['label'] ?? $item)));
-
-                                    if ($label === '' || stripos($label, 'approval') !== false || stripos($label, 'approvals') !== false) {
-                                        return false;
-                                    }
-
-                                    if (($item['key'] ?? null) === 'access_feature' || $label === 'access features') {
-                                        return false;
-                                    }
-
-                                    if ($label === 'url shortener') {
-                                        return false;
-                                    }
-
-                                    if (($item['key'] ?? null) === 'access_feature' && $visibleSubFeatureCount($item) === 0) {
-                                        return false;
-                                    }
-
-                                    if (($item['type'] ?? null) === 'group' && $visibleSubFeatureCount($item) === 0) {
-                                        return false;
-                                    }
-
-                                    return true;
-                                })
-                                ->sortBy(fn ($item) => $featureOrder[strtolower(trim((string) ($item['label'] ?? $item)))] ?? 80)
-                                ->values();
+                            $outerFeatureKeys = PlanFeatureOrder::outerFeatureKeys($plan['features'] ?? []);
+                            $promotedSubFeatures = PlanFeatureOrder::promotedSubFeatures($plan['features'] ?? [], $outerFeatureKeys);
+                            $visibleFeatureKeys = PlanFeatureOrder::visibleFeatureKeys($plan['features'] ?? [], $promotedSubFeatures);
+                            $visibleSubFeatureCount = PlanFeatureOrder::visibleSubFeatureCountResolver($visibleFeatureKeys);
+                            $featureItems = PlanFeatureOrder::orderedPublicFeatures(
+                                $plan['features'] ?? [],
+                                $promotedSubFeatures,
+                                $visibleSubFeatureCount,
+                            );
                         @endphp
 
                         <article x-cloak class="lb-card lb-pricing-card lb-hover lb-reveal relative flex h-full min-h-[34rem] flex-col p-6 {{ $plan['featured'] ? 'lb-shimmer is-featured' : '' }}" style="--lb-delay: {{ 80 * $loop->index }}ms;" x-show="type === {{ $typeKey }}" x-transition>
@@ -297,6 +225,7 @@
                                                         {{ $feature['display'] }}
                                                     </span>
                                                 @endif
+                                                @include('adminplans::components.mlhub-ai-feature-info', ['feature' => $feature, 'tone' => 'guest'])
                                             </div>
                                         </div>
                                     </div>

@@ -118,121 +118,18 @@
                                         </div>
 
                                         @php
-                                            $outerFeatureLabels = collect($plan['features'] ?? [])
-                                                ->map(fn ($item) => strtolower(trim((string) ($item['label'] ?? $item))))
-                                                ->filter()
-                                                ->all();
-                                            $promotedSubFeatureLabels = [
-                                                'max. bio pages',
-                                                'remove link bio branding',
-                                                'credits',
-                                                'max qr codes',
-                                                'monthly qr scans',
-                                                'dynamic rules per qr',
-                                                'qr bulk generation',
-                                                'max bulk rows',
-                                                'short link quota',
-                                                'monthly clicks',
-                                                'bulk import',
-                                                'bulk rows per import',
-                                                'analytics retention',
-                                                'custom short codes',
-                                                'password links',
-                                                'expiration and click caps',
-                                                'advanced routing',
-                                                'api and webhooks',
-                                                'api keys',
-                                                'webhooks',
-                                            ];
-                                            $promotedSubFeatures = collect($plan['features'] ?? [])
-                                                ->flatMap(fn ($item) => collect($item['subfeature'] ?? [])->flatMap(fn ($group) => $group['items'] ?? []))
-                                                ->filter(function ($sub) use ($outerFeatureLabels, $promotedSubFeatureLabels) {
-                                                    $label = strtolower(trim((string) ($sub['label'] ?? '')));
-                                                    return in_array($label, $promotedSubFeatureLabels, true) && ! in_array($label, $outerFeatureLabels, true);
-                                                })
-                                                ->values();
-                                            $visibleFeatureLabels = array_values(array_unique(array_merge(
-                                                $outerFeatureLabels,
-                                                $promotedSubFeatures->map(fn ($item) => strtolower(trim((string) ($item['label'] ?? ''))))->all()
-                                            )));
-                                            $visibleSubFeatureCount = function (array $item) use (&$visibleFeatureLabels): int {
-                                                return collect($item['subfeature'] ?? [])
-                                                    ->flatMap(fn ($group) => $group['items'] ?? [])
-                                                    ->filter(function ($sub) use ($visibleFeatureLabels) {
-                                                        $label = strtolower(trim((string) ($sub['label'] ?? '')));
+                                            use Modules\AdminPlans\Support\PlanFeatureOrder;
 
-                                                        return $label !== ''
-                                                            && ! in_array($label, $visibleFeatureLabels, true)
-                                                            && stripos($label, 'approval') === false
-                                                            && stripos($label, 'approvals') === false;
-                                                    })
-                                                    ->count();
-                                            };
-                                            $featureOrder = [
-                                                'access features' => 10,
-                                                'localboost ai' => 11,
-                                                'businesses' => 12,
-                                                'campaigns' => 13,
-                                                'landing pages' => 14,
-                                                'qr codes' => 15,
-                                                'templates' => 16,
-                                                'remove branding' => 17,
-                                                'link bio' => 20,
-                                                'max. bio pages' => 21,
-                                                'link bio templates' => 22,
-                                                'ai bio assistant' => 23,
-                                                'link bio analytics' => 24,
-                                                'link bio a/b testing' => 25,
-                                                'remove link bio branding' => 26,
-                                                'advanced qr codes' => 30,
-                                                'max qr codes' => 31,
-                                                'monthly qr scans' => 32,
-                                                'dynamic rules per qr' => 33,
-                                                'qr bulk generation' => 34,
-                                                'max bulk rows' => 35,
-                                                'pre-printed qr' => 36,
-                                                'ai qr codes' => 37,
-                                                'credits per ai qr request' => 38,
-                                                'brand kit' => 50,
-                                                'custom domains' => 51,
-                                                'tracking pixels' => 52,
-                                                'utm presets' => 53,
-                                                'short links' => 54,
-                                                'monthly clicks' => 55,
-                                                'bulk import' => 56,
-                                                'bulk rows per import' => 57,
-                                                'api and webhooks' => 58,
-                                                'advanced routing' => 59,
-                                                'ai studio' => 60,
-                                                'url shortener' => 61,
-                                                'team member' => 70,
-                                                'credits' => 80,
-                                                'premium support' => 90,
-                                            ];
-                                            $orderedPlanFeatures = collect($plan['features'] ?? [])
-                                                ->merge($promotedSubFeatures)
-                                                ->filter(function ($item) use ($visibleSubFeatureCount) {
-                                                    $label = strtolower(trim((string) ($item['label'] ?? $item)));
-                                                    if ($label === '' || stripos($label, 'approval') !== false || stripos($label, 'approvals') !== false) {
-                                                        return false;
-                                                    }
-
-                                                    if ($label === 'url shortener') {
-                                                        return false;
-                                                    }
-
-                                                    if (($item['key'] ?? null) === 'access_feature' && $visibleSubFeatureCount($item) === 0) {
-                                                        return false;
-                                                    }
-
-                                                    if (($item['type'] ?? null) === 'group' && $visibleSubFeatureCount($item) === 0) {
-                                                        return false;
-                                                    }
-
-                                                    return true;
-                                                })
-                                                ->sortBy(fn ($item) => $featureOrder[strtolower(trim((string) ($item['label'] ?? $item)))] ?? 80)
-                                                ->values();
+                                            $outerFeatureKeys = PlanFeatureOrder::outerFeatureKeys($plan['features'] ?? []);
+                                            $promotedSubFeatures = PlanFeatureOrder::promotedSubFeatures($plan['features'] ?? [], $outerFeatureKeys);
+                                            $visibleFeatureKeys = PlanFeatureOrder::visibleFeatureKeys($plan['features'] ?? [], $promotedSubFeatures);
+                                            $visibleSubFeatureCount = PlanFeatureOrder::visibleSubFeatureCountResolver($visibleFeatureKeys);
+                                            $orderedPlanFeatures = PlanFeatureOrder::orderedPublicFeatures(
+                                                $plan['features'] ?? [],
+                                                $promotedSubFeatures,
+                                                $visibleSubFeatureCount,
+                                                hideUrlShortener: true,
+                                            );
                                         @endphp
 
                                         <div class="mt-6 flex-1 space-y-3">
@@ -251,6 +148,7 @@
                                                                 {{ $feature['display'] }}
                                                             </span>
                                                         @endif
+                                                        @include('adminplans::components.mlhub-ai-feature-info', ['feature' => $feature, 'tone' => 'portal'])
                                                         @if (!empty($feature['subfeature']))
                                                             <div x-data="{ open: false }" class="relative">
                                                                 <button type="button" x-on:mouseenter="open = true" x-on:mouseleave="open = false" class="inline-flex h-7 w-7 items-center justify-center rounded-full transition" style="background-color: rgba(var(--theme-border-color-rgb),0.12); color: var(--theme-muted-text-color);">
@@ -260,10 +158,11 @@
                                                                     @foreach (($feature['subfeature'] ?? []) as $tabGroup)
                                                                         @php
                                                                             $visibleSubItems = collect($tabGroup['items'] ?? [])
-                                                                                ->filter(function ($sub) use ($visibleFeatureLabels) {
+                                                                                ->filter(function ($sub) use ($visibleFeatureKeys) {
+                                                                                    $key = (string) ($sub['key'] ?? '');
                                                                                     $label = strtolower(trim((string) ($sub['label'] ?? '')));
-                                                                                    return $label !== ''
-                                                                                        && ! in_array($label, $visibleFeatureLabels, true)
+                                                                                    return $key !== ''
+                                                                                        && ! in_array($key, $visibleFeatureKeys, true)
                                                                                         && stripos($label, 'approval') === false
                                                                                         && stripos($label, 'approvals') === false;
                                                                                 });
