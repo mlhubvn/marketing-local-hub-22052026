@@ -43,7 +43,7 @@
 @endphp
 
 {{-- Hero: MLHUB AI chat preview --}}
-<section id="about" class="lb-wrap lb-section lb-about scroll-mt-28 pb-4 lg:pb-8">
+<section id="mlhub-ai-mcp" class="lb-wrap lb-section lb-about scroll-mt-28 pb-4 lg:pb-8">
     <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
         <div>
             <span class="lb-pill lb-reveal inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">

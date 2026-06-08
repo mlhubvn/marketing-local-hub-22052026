@@ -25,7 +25,7 @@
             ].join(','));
 
             revealTargets.forEach((element, index) => {
-                if (element.classList.contains('lb-reveal') || element.closest('#about')) {
+                if (element.classList.contains('lb-reveal') || element.closest('#mlhub-ai-mcp')) {
                     return;
                 }
 

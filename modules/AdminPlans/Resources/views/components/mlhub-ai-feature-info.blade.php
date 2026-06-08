@@ -33,6 +33,14 @@
                 <li>• {{ __('Are this week\'s reviews good?') }}</li>
                 <li>• {{ __('What should I do next? / Suggest a new campaign.') }}</li>
             </ul>
+            <a
+                href="{{ route('guest.about') }}#mlhub-ai-mcp"
+                class="mt-4 inline-flex items-center gap-2 text-xs font-black transition hover:opacity-80"
+                style="{{ $tone === 'guest' ? 'color: #ff5f5f;' : 'color: var(--theme-accent-color, #ff5f5f);' }}"
+            >
+                {{ __('See MLHUB AI preview') }}
+                <i class="fa-light fa-arrow-right text-[10px]"></i>
+            </a>
         </div>
     </div>
 @endif

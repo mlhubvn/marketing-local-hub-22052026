@@ -191,7 +191,7 @@
                             <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ \Modules\AdminPlans\Support\CatalogLocalization::resolve($plan['name'] ?? '-') }}</p>
                             <p class="lb-copy lb-plan-desc mt-5 text-sm">{{ $plan['desc'] ? \Modules\AdminPlans\Support\CatalogLocalization::resolve($plan['desc']) : __('A practical plan for local campaign pages, QR campaigns, AI copy, reports, and team usage.') }}</p>
                             <div class="mt-5">
-                                <span class="lb-serif lb-plan-price text-6xl">
+                                <span class="lb-serif lb-plan-price text-4xl">
                                     {{ $isFreePlan ? format_money(0, $plan['currency'] ?? null) : format_money((float) ($plan['price'] ?? 0), $plan['currency'] ?? null) }}
                                 </span>
                                 <span class="text-sm font-bold" style="color: var(--lb-muted);">/{{ strtolower($typeLabel) }}</span>

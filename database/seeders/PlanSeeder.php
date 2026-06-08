@@ -38,7 +38,7 @@ class PlanSeeder extends Seeder
                 'free_plan' => false,
                 'trial_day' => 7,
                 'position' => 10,
-                'desc' => 'For new businesses starting to automate Facebook and Instagram posts.',
+                'desc' => 'For new local businesses starting campaign pages, QR codes, and review growth.',
                 'permissions' => $this->starterPermissions(),
             ],
             [
@@ -52,7 +52,7 @@ class PlanSeeder extends Seeder
                 'free_plan' => false,
                 'trial_day' => 10,
                 'position' => 20,
-                'desc' => 'For businesses that need recurring campaigns, post queues, and smart content workflows.',
+                'desc' => 'For growing local businesses running recurring campaigns, bookings, and reports.',
                 'permissions' => $this->growthPermissions(),
             ],
             [
@@ -66,7 +66,7 @@ class PlanSeeder extends Seeder
                 'free_plan' => false,
                 'trial_day' => 14,
                 'position' => 30,
-                'desc' => 'For teams managing multiple brands, campaigns, and large marketing pipelines.',
+                'desc' => 'For teams managing multiple brands, campaigns, and full marketing pipelines.',
                 'permissions' => $this->agencyPermissions(),
             ],
             [
@@ -80,7 +80,7 @@ class PlanSeeder extends Seeder
                 'free_plan' => false,
                 'trial_day' => 14,
                 'position' => 10,
-                'desc' => 'Annual savings for businesses that want predictable, steady marketing costs.',
+                'desc' => 'Annual plan for local businesses that want stable costs and steady marketing growth.',
                 'permissions' => $this->starterPermissions(),
             ],
             [
@@ -94,7 +94,7 @@ class PlanSeeder extends Seeder
                 'free_plan' => false,
                 'trial_day' => 21,
                 'position' => 20,
-                'desc' => 'Yearly value for teams scaling automation, publishing schedules, and AI workflows.',
+                'desc' => 'Yearly plan for teams scaling campaigns, automation, and AI-driven local workflows.',
                 'permissions' => $this->growthPermissions(),
             ],
             [
@@ -108,7 +108,7 @@ class PlanSeeder extends Seeder
                 'free_plan' => false,
                 'trial_day' => 30,
                 'position' => 30,
-                'desc' => 'Full-year agency capacity for many workspaces, channels, and large-scale marketing ops.',
+                'desc' => 'Full-year plan for agencies running many workspaces and large-scale marketing ops.',
                 'permissions' => $this->agencyPermissions(),
             ],
             [
@@ -122,7 +122,7 @@ class PlanSeeder extends Seeder
                 'free_plan' => false,
                 'trial_day' => 30,
                 'position' => 10,
-                'desc' => 'One-time payment for small businesses that need a long-term MLHUB foundation.',
+                'desc' => 'One-time payment for small shops building a long-term MLHUB local growth base.',
                 'permissions' => $this->starterPermissions(),
             ],
             [
@@ -136,7 +136,7 @@ class PlanSeeder extends Seeder
                 'free_plan' => false,
                 'trial_day' => 45,
                 'position' => 20,
-                'desc' => 'Lifetime access for active businesses that need AI, automation, and high publishing throughput.',
+                'desc' => 'Lifetime access for active businesses needing AI, automation, and higher volume.',
                 'permissions' => $this->growthPermissions(),
             ],
             [
@@ -150,7 +150,7 @@ class PlanSeeder extends Seeder
                 'free_plan' => false,
                 'trial_day' => 60,
                 'position' => 30,
-                'desc' => 'Premium lifetime package for operators managing many clients, assets, and automations.',
+                'desc' => 'Lifetime plan for operators managing many clients, assets, and automations.',
                 'permissions' => $this->agencyPermissions(),
             ],
         ];
