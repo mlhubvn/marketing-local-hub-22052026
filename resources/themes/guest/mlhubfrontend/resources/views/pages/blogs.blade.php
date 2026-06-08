@@ -115,7 +115,7 @@
                     <span class="lb-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">
                         <i class="fa-light fa-newspaper"></i>{{ __('Blog') }}
                     </span>
-                    <h1 class="lb-serif lb-hero-title mt-7">{{ __('Playbooks for local campaign growth') }}</h1>
+                    <h1 class="lb-serif lb-hero-title lb-reveal mt-7">{{ __('Playbooks for local campaign growth') }}</h1>
                     <p class="lb-copy mt-5 max-w-xl text-lg">{{ __('Read practical notes on review campaigns, booking pages, coupon claims, feedback flows, lead capture, QR pages, AI copy, and growth reports.') }}</p>
 
                     <form method="GET" action="{{ route('guest.blogs') }}" class="lb-card mt-8 rounded-2xl p-4">
@@ -161,7 +161,7 @@
                                 <div class="flex flex-col justify-between p-6 sm:p-8">
                                     <div>
                                         <p class="text-[10px] font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">{{ $featuredPost->publishedAtFormatted('Y-m-d') ?: $featuredPost->createdAtFormatted('Y-m-d') }}</p>
-                                        <h2 class="lb-serif mt-4 text-4xl leading-none"><a href="{{ route('guest.blog-show', $featuredPost->slug) }}">{{ $featuredPost->titleForLocale() }}</a></h2>
+                                        <h2 class="lb-serif lb-heading mt-4"><a href="{{ route('guest.blog-show', $featuredPost->slug) }}">{{ $featuredPost->titleForLocale() }}</a></h2>
                                         <p class="lb-copy mt-4 text-sm">{{ $featuredPost->contentPreview(240) }}</p>
                                     </div>
                                     <a href="{{ route('guest.blog-show', $featuredPost->slug) }}" class="lb-button-soft mt-6 inline-flex w-max items-center rounded-full px-5 py-3 text-sm font-black">
@@ -177,7 +177,7 @@
                         <div class="flex flex-wrap items-start justify-between gap-4">
                             <div>
                                 <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ __('Popular topics') }}</p>
-                                <h3 class="lb-serif mt-2 text-3xl leading-none">{{ __('Learn the workflows that move local growth') }}</h3>
+                                <h3 class="lb-serif lb-subheading mt-2">{{ __('Learn the workflows that move local growth') }}</h3>
                             </div>
                             <span class="rounded-full px-3 py-1 text-xs font-black" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color:#ff5f5f;">{{ $blogs->total() }} {{ __('posts') }}</span>
                         </div>
@@ -206,7 +206,7 @@
             <div class="mt-14 flex items-end justify-between gap-4">
                 <div>
                     <p class="text-xs font-black uppercase tracking-[0.2em]" style="color:#ff5f5f;">{{ __('Latest') }}</p>
-                    <h2 class="lb-serif mt-3 text-4xl leading-none">{{ __('Recent articles and operating notes') }}</h2>
+                    <h2 class="lb-serif lb-heading mt-3">{{ __('Recent articles and operating notes') }}</h2>
                 </div>
                 <span class="hidden rounded-full border bg-white px-4 py-2 text-sm font-bold md:inline-flex" style="border-color: var(--lb-line); color: var(--lb-muted);">{{ $blogs->total() }} {{ __('posts') }}</span>
             </div>
@@ -244,7 +244,7 @@
                                 }
                             @endphp
                             <p class="text-[10px] font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">{{ $categoryName }}</p>
-                            <h3 class="lb-serif mt-3 text-2xl leading-none"><a href="{{ route('guest.blog-show', $blog->slug) }}">{{ $blog->titleForLocale() }}</a></h3>
+                            <h3 class="lb-serif lb-card-title mt-3"><a href="{{ route('guest.blog-show', $blog->slug) }}">{{ $blog->titleForLocale() }}</a></h3>
                             <p class="lb-copy mt-3 text-sm">{{ $blog->contentPreview(150) }}</p>
                         </div>
                     </article>

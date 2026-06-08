@@ -70,7 +70,7 @@
                     <span class="lb-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">
                         <i class="fa-light fa-message-lines"></i>{{ __('Contact') }}
                     </span>
-                    <h1 class="lb-serif lb-hero-title mt-7">{{ __('Talk to LocalBoost AI') }}</h1>
+                    <h1 class="lb-serif lb-hero-title lb-reveal mt-7">{{ __('Talk to LocalBoost AI') }}</h1>
                     <p class="lb-copy mt-6 max-w-2xl text-lg">{{ __('Need help with campaigns, QR pages, reviews, bookings, AI credits, reports, billing or your team workspace? Send us a message and we will help you choose the right path.') }}</p>
                     <div class="mt-8 flex flex-wrap gap-3">
                         <a href="mailto:{{ $contactEmail }}" class="lb-button inline-flex items-center gap-2 px-6 py-4 text-sm font-black"><i class="fa-light fa-envelope"></i>{{ __('Email support') }}</a>
@@ -99,7 +99,7 @@
                     <div class="mt-8 flex items-start justify-between gap-4">
                         <div>
                             <p class="text-xs font-black uppercase tracking-[0.18em]" style="color: var(--lb-muted);">{{ __('Contact details') }}</p>
-                            <h2 class="lb-serif mt-2 text-4xl">{{ $companyName }}</h2>
+                            <h2 class="lb-serif lb-heading mt-2">{{ $companyName }}</h2>
                         </div>
                         <span class="rounded-full px-3 py-1 text-xs font-black" style="background:#dcfce7; color:#047857; white-space: nowrap;">{{ __('Online') }}</span>
                     </div>

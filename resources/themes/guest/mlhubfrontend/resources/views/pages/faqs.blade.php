@@ -6,7 +6,7 @@
                     <span class="lb-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">
                         <i class="fa-light fa-circle-question"></i>{{ __('FAQs') }}
                     </span>
-                    <h1 class="lb-serif lb-heading mt-7">{{ __('Answers for local growth SaaS buyers') }}</h1>
+                    <h1 class="lb-serif lb-hero-title lb-reveal mt-7">{{ __('Answers for local growth SaaS buyers') }}</h1>
                     <p class="lb-copy mt-5">{{ __('Search setup, plan limits, campaign pages, QR codes, AI credits, teams, reports, and selling the script as SaaS.') }}</p>
 
                     <form method="GET" action="{{ route('guest.faqs') }}" class="mt-7 space-y-3">
@@ -24,7 +24,7 @@
                             <button type="button" x-on:click="openFaq = openFaq === {{ $loop->index }} ? -1 : {{ $loop->index }}" class="flex w-full items-start justify-between gap-4 text-left">
                                 <div>
                                     <p class="text-[10px] font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">{{ __('Question') }} {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</p>
-                                    <h2 class="lb-serif mt-2 text-3xl leading-none">{{ $faq->titleForLocale() }}</h2>
+                                    <h2 class="lb-serif lb-subheading mt-2">{{ $faq->titleForLocale() }}</h2>
                                 </div>
                                 <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition" style="background: color-mix(in srgb, var(--lb-lime) 28%, #fff); color:#ff5f5f;" x-bind:class="openFaq === {{ $loop->index }} ? 'rotate-45' : ''">
                                     <i class="fa-light fa-plus"></i>

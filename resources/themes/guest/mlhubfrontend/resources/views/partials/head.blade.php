@@ -120,41 +120,70 @@
 
     .lb-page,
     .lb-auth-page {
-        --lb-ink: #2d1810;
-        --lb-muted: #8a7068;
-        --lb-paper: #fffbf8;
-        --lb-soft: #fff5f0;
-        --lb-line: #ffe5dc;
+        --lb-ink: #15201b;
+        --lb-muted: #63736b;
+        --lb-paper: #fbfaf5;
+        --lb-soft: #edf5ef;
+        --lb-line: #dfe9df;
         --lb-lime: #ffb347;
         --lb-red: #ff5f5f;
-        --lb-moss: #c2410c;
+        --lb-moss: #5b8c04;
+        --lb-text-xs: 0.75rem;
+        --lb-text-sm: 0.875rem;
+        --lb-text-base: 1rem;
+        --lb-text-lg: 1.125rem;
+        --lb-text-xl: 1.25rem;
+        --lb-text-2xl: 1.5rem;
+        --lb-text-h1: clamp(1.875rem, 2.2vw + 1rem, 2.875rem);
+        --lb-text-h2: clamp(1.625rem, 1.6vw + 1.1rem, 2.375rem);
+        --lb-text-h3: clamp(1.25rem, 1vw + 0.95rem, 1.75rem);
         background: var(--lb-paper);
         color: var(--lb-ink);
+        font-family: var(--theme-font-sans);
+        font-size: var(--lb-text-base);
+        line-height: 1.65;
     }
 
     .lb-wrap {
-        width: min(1120px, calc(100% - 40px));
+        width: min(1160px, calc(100% - 40px));
         margin-inline: auto;
     }
 
     .lb-serif {
         font-family: var(--theme-font-sans);
-        letter-spacing: -0.045em;
+        letter-spacing: -0.03em;
     }
 
     .lb-hero-title {
-        font-size: clamp(3.1rem, 8vw, 6rem);
-        line-height: 0.95;
+        font-size: var(--lb-text-h1);
+        font-weight: 800;
+        line-height: 1.2;
+        max-width: min(100%, 42rem);
     }
 
-    .lb-heading {
-        font-size: clamp(2.6rem, 5vw, 4rem);
-        line-height: 0.96;
+    .lb-heading,
+    .lb-section-title {
+        font-size: var(--lb-text-h2);
+        font-weight: 800;
+        line-height: 1.12;
+    }
+
+    .lb-subheading {
+        font-size: var(--lb-text-h3);
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .lb-card-title {
+        font-size: var(--lb-text-xl);
+        font-weight: 800;
+        line-height: 1.3;
     }
 
     .lb-copy {
         color: var(--lb-muted);
-        line-height: 1.8;
+        font-size: var(--lb-text-base);
+        line-height: 1.65;
     }
 
     .lb-card,
@@ -169,8 +198,11 @@
     }
 
     .lb-pill {
-        border: 1px solid rgba(95, 127, 7, 0.18);
-        background: color-mix(in srgb, var(--lb-lime) 24%, #fff);
+        font-size: var(--lb-text-xs);
+        font-weight: 700 !important;
+        letter-spacing: 0.06em;
+        border: 1px solid rgba(255, 95, 95, .18);
+        background: color-mix(in srgb, var(--lb-lime) 26%, #fff);
         color: #ff5f5f;
     }
 

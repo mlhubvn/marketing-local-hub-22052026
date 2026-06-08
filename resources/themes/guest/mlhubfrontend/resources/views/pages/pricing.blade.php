@@ -149,7 +149,7 @@
                         <i class="fa-light fa-credit-card"></i>
                         {{ __('Pricing') }}
                     </span>
-                    <h1 class="lb-serif lb-hero-title mt-7 max-w-4xl">{{ __('Simple plans for growing local businesses') }}</h1>
+                    <h1 class="lb-serif lb-hero-title lb-reveal mt-7 max-w-4xl">{{ __('Simple plans for growing local businesses') }}</h1>
                     <p class="lb-copy mt-6 max-w-2xl text-lg">{{ __('Choose the workspace size that fits your team. Manage campaign pages, QR codes, reviews, bookings, coupons, leads, AI credits and reporting from one connected platform.') }}</p>
                 </div>
 
@@ -238,7 +238,7 @@
                 <div class="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
                     <div>
                         <span class="lb-pill inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Plan controls') }}</span>
-                        <h2 class="lb-serif mt-5 text-4xl leading-none sm:text-5xl">{{ __('Scale usage without changing tools') }}</h2>
+                        <h2 class="lb-serif lb-heading mt-5">{{ __('Scale usage without changing tools') }}</h2>
                         <p class="lb-copy mt-5 text-base">{{ __('Plans control the limits that matter for local marketing teams: businesses, campaigns, landing pages, QR codes, AI usage, team seats and branding.') }}</p>
                     </div>
                     <div class="rounded-2xl border bg-white/80 p-5" style="border-color: var(--lb-line);">
