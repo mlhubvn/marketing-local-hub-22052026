@@ -225,6 +225,35 @@
                 <x-ui.button type="button" variant="outline" onclick="window.location.href='{{ route('portal.google-business.connect') }}'" :disabled="! $configured"><i class="fa-brands fa-google"></i>{{ __('Connect Google') }}</x-ui.button>
             </div>
 
+            @if ($connections->isNotEmpty())
+                <div class="divide-y border-b" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
+                    @foreach ($connections as $connection)
+                        <div class="flex flex-col gap-4 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+                            <div>
+                                <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $connection->google_account_email ?: __('Google account') }}</p>
+                                <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">
+                                    {{ $connection->locations_count }} {{ __('locations') }} &middot; {{ ucfirst($connection->status) }}
+                                    @if ($connection->last_synced_at)
+                                        &middot; {{ __('Last synced') }} {{ $connection->last_synced_at->diffForHumans() }}
+                                    @endif
+                                </p>
+                                @if ($connection->last_error)
+                                    <p class="mt-2 text-xs" style="color: var(--theme-danger-color);">{{ __('Last sync error') }}: {{ $connection->last_error }}</p>
+                                @endif
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <x-ui.button type="button" variant="primary" size="sm" wire:click="syncConnection({{ $connection->id }})" wire:loading.attr="disabled" wire:target="syncConnection({{ $connection->id }})">
+                                    <span wire:loading.remove wire:target="syncConnection({{ $connection->id }})" class="inline-flex items-center gap-2"><i class="fa-light fa-rotate"></i>{{ __('Refresh locations') }}</span>
+                                    <span wire:loading wire:target="syncConnection({{ $connection->id }})" class="inline-flex items-center gap-2"><i class="fa-light fa-spinner-third fa-spin"></i>{{ __('Loading...') }}</span>
+                                </x-ui.button>
+                                <x-ui.button type="button" variant="outline" size="sm" wire:click="toggleConnectionAutoSync({{ $connection->id }})"><i class="fa-light fa-clock-rotate-left"></i>{{ $connection->auto_sync ? __('Auto sync on') : __('Auto sync off') }}</x-ui.button>
+                                <x-ui.button type="button" variant="danger" size="sm" wire:click="disconnect({{ $connection->id }})" wire:confirm="{{ __('Disconnect this Google account?') }}"><i class="fa-light fa-trash"></i>{{ __('Disconnect') }}</x-ui.button>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
             @if (! empty($locationCandidates))
                 <div class="border-b p-5" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
                     <div class="rounded-[1rem] border" style="border-color: rgba(var(--theme-accent-rgb), .24); background: linear-gradient(135deg, rgba(var(--theme-accent-rgb), .08), transparent 45%), var(--theme-surface-base);">
@@ -299,8 +328,19 @@
                     </div>
                 @empty
                     <div class="px-5 py-12 text-center">
-                        <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('No Google locations added yet') }}</p>
-                        <p class="mx-auto mt-2 max-w-md text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('Connect Google, then choose the locations you want to manage. LocalBoost will not import every Google location automatically.') }}</p>
+                        @if ($connections->isNotEmpty())
+                            <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Google account connected — load your Maps listings') }}</p>
+                            <p class="mx-auto mt-2 max-w-md text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('Click Refresh locations above to fetch your Google Business listings, then choose which location to add and manage.') }}</p>
+                            @if ($connections->first())
+                                <x-ui.button type="button" class="mt-5" wire:click="syncConnection({{ $connections->first()->id }})" wire:loading.attr="disabled" wire:target="syncConnection({{ $connections->first()->id }})">
+                                    <span wire:loading.remove wire:target="syncConnection({{ $connections->first()->id }})" class="inline-flex items-center gap-2"><i class="fa-light fa-rotate"></i>{{ __('Refresh locations') }}</span>
+                                    <span wire:loading wire:target="syncConnection({{ $connections->first()->id }})" class="inline-flex items-center gap-2"><i class="fa-light fa-spinner-third fa-spin"></i>{{ __('Loading...') }}</span>
+                                </x-ui.button>
+                            @endif
+                        @else
+                            <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('No Google locations added yet') }}</p>
+                            <p class="mx-auto mt-2 max-w-md text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('Connect Google, then choose the locations you want to manage. LocalBoost will not import every Google location automatically.') }}</p>
+                        @endif
                     </div>
                 @endforelse
             </div>

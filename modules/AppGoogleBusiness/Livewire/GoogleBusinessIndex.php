@@ -165,11 +165,18 @@ class GoogleBusinessIndex extends Component
                 'connection_id' => $connection->id,
                 'locations' => $this->locationCandidates,
             ]);
+            $connection->forceFill(['last_error' => null])->save();
             $this->tab = 'locations';
             $this->statusMessage = __('Choose which Google locations you want to add and manage. :count locations are available.', ['count' => count($this->locationCandidates)]);
             $this->errorMessage = '';
         } catch (Throwable $exception) {
-            $this->errorMessage = $exception->getMessage();
+            $client = app(GoogleBusinessClient::class);
+            $message = $client->isQuotaExceeded($exception)
+                ? __('Google API rate limit reached. Please wait about one minute and try again.')
+                : $exception->getMessage();
+
+            $connection->forceFill(['last_error' => $message])->save();
+            $this->errorMessage = $message;
         }
     }
 

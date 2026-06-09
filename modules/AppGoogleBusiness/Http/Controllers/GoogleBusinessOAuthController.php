@@ -58,7 +58,7 @@ class GoogleBusinessOAuthController extends Controller
                     ]));
             }
 
-            $connection = GoogleBusinessConnection::query()->updateOrCreate(
+            GoogleBusinessConnection::query()->updateOrCreate(
                 [
                     'team_id' => auth()->id(),
                     'google_account_email' => $googleAccountEmail,
@@ -74,31 +74,9 @@ class GoogleBusinessOAuthController extends Controller
                 ]
             );
 
-            try {
-                $candidates = $client->fetchLocationCandidates($connection);
-                $request->session()->put('google_business_location_candidates', [
-                    'connection_id' => $connection->id,
-                    'locations' => $candidates,
-                ]);
-
-                return redirect()
-                    ->route('portal.google-business', ['tab' => 'locations'])
-                    ->with('google_business_status', __('Google Business Profile connected. Choose which locations you want to add and manage. :count locations are available.', ['count' => count($candidates)]));
-            } catch (Throwable $locationException) {
-                $connection->forceFill(['last_error' => $locationException->getMessage()])->save();
-
-                if ($client->isQuotaExceeded($locationException)) {
-                    return redirect()
-                        ->route('portal.google-business', ['tab' => 'locations'])
-                        ->with('google_business_status', __('Google account connected. Google is temporarily limiting requests — wait about one minute, then click Refresh locations.'));
-                }
-
-                return redirect()
-                    ->route('portal.google-business', ['tab' => 'locations'])
-                    ->with('google_business_error', __('Google account connected, but locations could not be loaded yet: :message', [
-                        'message' => $locationException->getMessage(),
-                    ]));
-            }
+            return redirect()
+                ->route('portal.google-business', ['tab' => 'locations'])
+                ->with('google_business_status', __('Google account connected. Click Refresh locations to load your Google Maps listings.'));
         } catch (Throwable $exception) {
             return redirect()->route('portal.google-business')->with('google_business_error', $exception->getMessage());
         }
