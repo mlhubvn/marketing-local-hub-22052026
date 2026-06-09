@@ -39,10 +39,31 @@ return [
 
   // Captcha (Admin → Captcha)
     ['env' => 'MLHUB_CAPTCHA_TYPE', 'option' => 'captcha_type'],
+    ['env' => 'MLHUB_CLOUDFLARE_TURNSTILE_STATUS', 'option' => 'auth_cloudflare_turnstile_status', 'transform' => 'bool01'],
     ['env' => 'MLHUB_CLOUDFLARE_TURNSTILE_SITE_KEY', 'option' => 'auth_cloudflare_turnstile_site_key'],
     ['env' => 'MLHUB_CLOUDFLARE_TURNSTILE_SECRET_KEY', 'option' => 'auth_cloudflare_turnstile_secret_key'],
+    ['env' => 'MLHUB_GOOGLE_RECAPTCHA_STATUS', 'option' => 'auth_google_recaptcha_status', 'transform' => 'bool01'],
     ['env' => 'MLHUB_GOOGLE_RECAPTCHA_SITE_KEY', 'option' => 'auth_google_recaptcha_site_key'],
     ['env' => 'MLHUB_GOOGLE_RECAPTCHA_SECRET_KEY', 'option' => 'auth_google_recaptcha_secret_key'],
+
+  // Authentication (Admin → Authentication Rules — /admin/settings/auth)
+    ['env' => 'MLHUB_AUTH_LANDING_PAGE_STATUS', 'option' => 'auth_landing_page_status', 'transform' => 'bool01'],
+    ['env' => 'MLHUB_AUTH_SIGNUP_PAGE_STATUS', 'option' => 'auth_signup_page_status', 'transform' => 'bool01'],
+    ['env' => 'MLHUB_AUTH_ACTIVATION_EMAIL_STATUS', 'option' => 'auth_activation_email_new_user_status', 'transform' => 'bool01'],
+    ['env' => 'MLHUB_AUTH_WELCOME_EMAIL_STATUS', 'option' => 'auth_welcome_email_new_user_status', 'transform' => 'bool01'],
+    ['env' => 'MLHUB_AUTH_USER_CHANGE_EMAIL_STATUS', 'option' => 'auth_user_change_email_status', 'transform' => 'bool01'],
+    ['env' => 'MLHUB_AUTH_USER_CHANGE_USERNAME_STATUS', 'option' => 'auth_user_change_username_status', 'transform' => 'bool01'],
+    ['env' => 'MLHUB_AUTH_TWO_FACTOR_STATUS', 'option' => 'auth_two_factor_authentication_status', 'transform' => 'bool01'],
+    ['env' => 'MLHUB_AUTH_GOOGLE_LOGIN_STATUS', 'option' => 'auth_google_login_status', 'transform' => 'bool01'],
+    ['env' => 'MLHUB_AUTH_GOOGLE_LOGIN_CLIENT_ID', 'option' => 'auth_google_login_client_id'],
+    ['env' => 'MLHUB_AUTH_GOOGLE_LOGIN_CLIENT_SECRET', 'option' => 'auth_google_login_client_secret'],
+    ['env' => 'MLHUB_AUTH_FACEBOOK_LOGIN_STATUS', 'option' => 'auth_facebook_login_status', 'transform' => 'bool01'],
+    ['env' => 'MLHUB_AUTH_FACEBOOK_LOGIN_APP_ID', 'option' => 'auth_facebook_login_app_id'],
+    ['env' => 'MLHUB_AUTH_FACEBOOK_LOGIN_APP_SECRET', 'option' => 'auth_facebook_login_app_secret'],
+    ['env' => 'MLHUB_AUTH_FACEBOOK_LOGIN_APP_VERSION', 'option' => 'auth_facebook_login_app_version'],
+    ['env' => 'MLHUB_AUTH_X_LOGIN_STATUS', 'option' => 'auth_x_login_status', 'transform' => 'bool01'],
+    ['env' => 'MLHUB_AUTH_X_LOGIN_CLIENT_ID', 'option' => 'auth_x_login_client_id'],
+    ['env' => 'MLHUB_AUTH_X_LOGIN_CLIENT_SECRET', 'option' => 'auth_x_login_client_secret'],
 
   // Google Analytics (Admin → Analytics)
     ['env' => 'MLHUB_GOOGLE_ANALYTICS_STATUS', 'option' => 'google_analytics_status', 'transform' => 'bool01'],
@@ -50,7 +71,8 @@ return [
     ['env' => 'MLHUB_GOOGLE_ANALYTICS_TRACK_GUEST', 'option' => 'google_analytics_track_guest', 'transform' => 'bool01'],
     ['env' => 'MLHUB_GOOGLE_ANALYTICS_TRACK_APP', 'option' => 'google_analytics_track_app', 'transform' => 'bool01'],
 
-  // Google Business OAuth (Portal integration + Admin Integrations)
+  // Google Business OAuth (Portal integration + Admin → API Integration)
+    ['env' => 'MLHUB_GOOGLE_BUSINESS_STATUS', 'option' => 'integration_google_business_profile_status', 'transform' => 'bool01'],
     ['env' => 'GOOGLE_BUSINESS_CLIENT_ID', 'option' => 'integration_google_business_profile_client_id'],
     ['env' => 'GOOGLE_BUSINESS_CLIENT_SECRET', 'option' => 'integration_google_business_profile_client_secret'],
 

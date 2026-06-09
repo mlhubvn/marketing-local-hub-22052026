@@ -45,8 +45,70 @@ class MLHUBEnvOptionsSync
         }
 
         $this->syncLicenseMeta($options);
+        $this->syncProviderStatusFromCredentials($options);
 
         return $applied;
+    }
+
+    protected function syncProviderStatusFromCredentials(OptionStore $options): void
+    {
+        $providers = [
+            [
+                'status_option' => 'auth_google_login_status',
+                'status_env' => 'MLHUB_AUTH_GOOGLE_LOGIN_STATUS',
+                'id_option' => 'auth_google_login_client_id',
+                'secret_option' => 'auth_google_login_client_secret',
+            ],
+            [
+                'status_option' => 'auth_facebook_login_status',
+                'status_env' => 'MLHUB_AUTH_FACEBOOK_LOGIN_STATUS',
+                'id_option' => 'auth_facebook_login_app_id',
+                'secret_option' => 'auth_facebook_login_app_secret',
+            ],
+            [
+                'status_option' => 'auth_x_login_status',
+                'status_env' => 'MLHUB_AUTH_X_LOGIN_STATUS',
+                'id_option' => 'auth_x_login_client_id',
+                'secret_option' => 'auth_x_login_client_secret',
+            ],
+            [
+                'status_option' => 'integration_google_business_profile_status',
+                'status_env' => 'MLHUB_GOOGLE_BUSINESS_STATUS',
+                'id_option' => 'integration_google_business_profile_client_id',
+                'secret_option' => 'integration_google_business_profile_client_secret',
+            ],
+        ];
+
+        foreach ($providers as $provider) {
+            if (self::envValue((string) $provider['status_env']) !== null) {
+                continue;
+            }
+
+            $clientId = trim((string) $options->get((string) $provider['id_option'], ''));
+            $clientSecret = trim((string) $options->get((string) $provider['secret_option'], ''));
+
+            if ($clientId !== '' && $clientSecret !== '') {
+                $options->set((string) $provider['status_option'], '1');
+            }
+        }
+
+        if (self::envValue('MLHUB_CLOUDFLARE_TURNSTILE_STATUS') === null) {
+            $turnstileSiteKey = trim((string) $options->get('auth_cloudflare_turnstile_site_key', ''));
+            $turnstileSecretKey = trim((string) $options->get('auth_cloudflare_turnstile_secret_key', ''));
+
+            if ($turnstileSiteKey !== '' && $turnstileSecretKey !== '') {
+                $options->set('auth_cloudflare_turnstile_status', '1');
+            }
+        }
+
+        if (self::envValue('MLHUB_GOOGLE_RECAPTCHA_STATUS') === null) {
+            $recaptchaSiteKey = trim((string) $options->get('auth_google_recaptcha_site_key', ''));
+            $recaptchaSecretKey = trim((string) $options->get('auth_google_recaptcha_secret_key', ''));
+
+            if ($recaptchaSiteKey !== '' && $recaptchaSecretKey !== '') {
+                $options->set('auth_google_recaptcha_status', '1');
+            }
+        }
     }
 
     public static function envValue(string $key): ?string
