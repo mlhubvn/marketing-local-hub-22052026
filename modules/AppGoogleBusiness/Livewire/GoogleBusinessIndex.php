@@ -19,6 +19,7 @@ use Modules\AppGoogleBusiness\Models\GoogleBusinessPost;
 use Modules\AppGoogleBusiness\Models\GoogleBusinessPostLog;
 use Modules\AppGoogleBusiness\Models\GoogleReview;
 use Modules\AppGoogleBusiness\Support\GoogleAutoReplyService;
+use Modules\AppGoogleBusiness\Support\GoogleBusinessAccess;
 use Modules\AppGoogleBusiness\Support\GoogleBusinessClient;
 use Throwable;
 
@@ -648,14 +649,12 @@ class GoogleBusinessIndex extends Component
             ->where('google_location_id', (string) ($candidate['google_location_id'] ?? ''))
             ->exists();
 
-        if (! $alreadyImported) {
-            $limit = (int) (auth()->user()?->planLimit('max_google_business_locations', -1) ?? -1);
-            $used = GoogleBusinessLocation::query()->where('team_id', auth()->id())->count();
+        if (! GoogleBusinessAccess::canImportGoogleLocation($alreadyImported)) {
+            $this->errorMessage = __('Your current plan allows up to :limit Google locations.', [
+                'limit' => GoogleBusinessAccess::locationLimit(),
+            ]);
 
-            if ($limit >= 0 && $used >= $limit) {
-                $this->errorMessage = __('Your current plan allows up to :limit Google locations.', ['limit' => $limit]);
-                return;
-            }
+            return;
         }
 
         $location = app(GoogleBusinessClient::class)->importLocation(

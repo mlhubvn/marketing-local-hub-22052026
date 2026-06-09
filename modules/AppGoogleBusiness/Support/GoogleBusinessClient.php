@@ -465,7 +465,7 @@ class GoogleBusinessClient
 
         if (! $existing && class_exists('Modules\\AdminUser\\Models\\User')) {
             $user = \Modules\AdminUser\Models\User::query()->find($connection->team_id);
-            $limit = (int) ($user?->planLimit('max_google_business_locations', -1) ?? -1);
+            $limit = GoogleBusinessAccess::locationLimit($user);
             $used = GoogleBusinessLocation::query()->where('team_id', $connection->team_id)->count();
 
             if ($limit >= 0 && $used >= $limit) {

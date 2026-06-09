@@ -48,8 +48,8 @@ class AppGoogleBusinessServiceProvider extends ServiceProvider
             'order' => 149,
             'default' => false,
             'fields' => [
-                ['key' => 'max_google_business_connections', 'label' => __('Google connections'), 'type' => 'number', 'default' => 0],
-                ['key' => 'max_google_business_locations', 'label' => __('Google locations'), 'type' => 'number', 'default' => 0],
+                ['key' => 'max_google_business_connections', 'label' => __('Google connections (Free plan only)'), 'type' => 'number', 'default' => 0, 'description' => __('Paid plans use the Businesses limit instead.')],
+                ['key' => 'max_google_business_locations', 'label' => __('Google locations (Free plan only)'), 'type' => 'number', 'default' => 0, 'description' => __('Paid plans use the Businesses limit instead.')],
                 ['key' => 'google_review_sync', 'label' => __('Google review sync'), 'type' => 'boolean', 'default' => false],
                 ['key' => 'google_review_reply', 'label' => __('Publish review replies'), 'type' => 'boolean', 'default' => false],
                 ['key' => 'google_business_insights', 'label' => __('Google insights'), 'type' => 'boolean', 'default' => false],

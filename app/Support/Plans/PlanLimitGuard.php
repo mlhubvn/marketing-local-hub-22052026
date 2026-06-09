@@ -186,21 +186,41 @@ class PlanLimitGuard
         $googleConnectionModel = 'Modules\\AppGoogleBusiness\\Models\\GoogleBusinessConnection';
         $googleLocationModel = 'Modules\\AppGoogleBusiness\\Models\\GoogleBusinessLocation';
 
+        $googleAccessClass = 'Modules\\AppGoogleBusiness\\Support\\GoogleBusinessAccess';
+
         if (
             class_exists($googleConnectionModel)
             && class_exists($googleLocationModel)
+            && class_exists($googleAccessClass)
             && $user?->canUsePlanFeature('google_business')
         ) {
+            $connectionUsed = $googleConnectionModel::query()->where('team_id', $user?->id)->count();
+            $connectionLimit = $googleAccessClass::connectionLimit($user);
+            $locationUsed = $googleLocationModel::query()->where('team_id', $user?->id)->count();
+            $locationLimit = $googleAccessClass::locationLimit($user);
+
             $rows['google_business_connections'] = [
                 'label' => 'Google connections',
                 'key' => 'max_google_business_connections',
-                'used' => $googleConnectionModel::query()->where('team_id', $user?->id)->count(),
+                'used' => $connectionUsed,
+                'limit' => $connectionLimit,
+                'remaining' => $connectionLimit < 0 ? null : max(0, $connectionLimit - $connectionUsed),
+                'unlimited' => $connectionLimit < 0,
+                'percent' => $connectionLimit > 0 ? min(100, (int) round(($connectionUsed / $connectionLimit) * 100)) : ($connectionLimit < 0 ? 100 : 0),
+                'is_full' => $connectionLimit >= 0 && $connectionUsed >= $connectionLimit,
+                'precomputed' => true,
             ];
 
             $rows['google_business_locations'] = [
                 'label' => 'Google locations',
                 'key' => 'max_google_business_locations',
-                'used' => $googleLocationModel::query()->where('team_id', $user?->id)->count(),
+                'used' => $locationUsed,
+                'limit' => $locationLimit,
+                'remaining' => $locationLimit < 0 ? null : max(0, $locationLimit - $locationUsed),
+                'unlimited' => $locationLimit < 0,
+                'percent' => $locationLimit > 0 ? min(100, (int) round(($locationUsed / $locationLimit) * 100)) : ($locationLimit < 0 ? 100 : 0),
+                'is_full' => $locationLimit >= 0 && $locationUsed >= $locationLimit,
+                'precomputed' => true,
             ];
         }
 

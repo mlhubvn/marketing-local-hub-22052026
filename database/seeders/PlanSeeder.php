@@ -530,7 +530,8 @@ class PlanSeeder extends Seeder
 
         $permissions['google_business'] = $this->truthy($permissions['google_business'] ?? false)
             || $this->truthy($permissions['max_google_business_connections'] ?? 0)
-            || $this->truthy($permissions['max_google_business_locations'] ?? 0);
+            || $this->truthy($permissions['max_google_business_locations'] ?? 0)
+            || $this->truthy($permissions['max_businesses'] ?? 0);
 
         $permissions['advanced_crm'] = $this->truthy($permissions['advanced_crm'] ?? false)
             || $this->truthy($permissions['customer_tags'] ?? 0)
