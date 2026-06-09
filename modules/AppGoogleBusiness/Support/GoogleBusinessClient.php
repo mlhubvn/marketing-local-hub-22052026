@@ -4,11 +4,14 @@ namespace Modules\AppGoogleBusiness\Support;
 
 use App\Support\GrowthToolNotifier;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Modules\AdminSettings\Support\OptionStore;
 use RuntimeException;
+use Throwable;
 use Modules\AppGoogleBusiness\Models\GoogleBusinessConnection;
 use Modules\AppGoogleBusiness\Models\GoogleBusinessLocation;
 use Modules\AppGoogleBusiness\Models\GoogleBusinessPost;
@@ -73,12 +76,16 @@ class GoogleBusinessClient
 
     public function fetchLocationCandidates(GoogleBusinessConnection $connection): array
     {
-        $accounts = $this->api($connection)
-            ->get('https://mybusinessaccountmanagement.googleapis.com/v1/accounts')
-            ->throw()
+        $accounts = $this->googleRequest($connection, 'GET', 'https://mybusinessaccountmanagement.googleapis.com/v1/accounts')
             ->json('accounts', []);
 
+        $importedLocationIds = GoogleBusinessLocation::query()
+            ->where('connection_id', $connection->id)
+            ->pluck('google_location_id')
+            ->flip();
+
         $candidates = [];
+        $accountIndex = 0;
 
         foreach ($accounts as $account) {
             $accountId = Str::after((string) ($account['name'] ?? ''), 'accounts/');
@@ -87,12 +94,11 @@ class GoogleBusinessClient
                 continue;
             }
 
-            $locations = $this->api($connection)
-                ->get("https://mybusinessbusinessinformation.googleapis.com/v1/accounts/{$accountId}/locations", [
-                    'readMask' => 'name,title,storefrontAddress,phoneNumbers,websiteUri,categories,regularHours,metadata',
-                ])
-                ->throw()
-                ->json('locations', []);
+            if ($accountIndex > 0) {
+                usleep(300000);
+            }
+
+            $locations = $this->fetchAccountLocations($connection, $accountId);
 
             foreach ($locations as $location) {
                 $locationName = (string) ($location['name'] ?? '');
@@ -105,18 +111,30 @@ class GoogleBusinessClient
                     'name' => (string) ($location['title'] ?? $locationId),
                     'address' => $this->addressFromPayload($location),
                     'category' => (string) data_get($location, 'categories.primaryCategory.displayName', ''),
-                    'already_imported' => GoogleBusinessLocation::query()
-                        ->where('connection_id', $connection->id)
-                        ->where('google_location_id', $locationId)
-                        ->exists(),
+                    'already_imported' => $importedLocationIds->has($locationId),
                     'payload' => $location,
                 ];
             }
+
+            $accountIndex++;
         }
 
-        $connection->forceFill(['last_synced_at' => now(), 'status' => 'connected'])->save();
+        $connection->forceFill(['last_synced_at' => now(), 'status' => 'connected', 'last_error' => null])->save();
 
         return $candidates;
+    }
+
+    public function isQuotaExceeded(Throwable $exception): bool
+    {
+        if ($exception instanceof RequestException && $exception->response?->status() === 429) {
+            return true;
+        }
+
+        $message = strtolower($exception->getMessage());
+
+        return str_contains($message, '429')
+            || str_contains($message, 'quota exceeded')
+            || str_contains($message, 'rate limit');
     }
 
     public function importLocation(GoogleBusinessConnection $connection, string $accountId, array $payload): GoogleBusinessLocation
@@ -126,10 +144,11 @@ class GoogleBusinessClient
 
     public function syncReviews(GoogleBusinessLocation $location): int
     {
-        $reviews = $this->api($location->connection)
-            ->get("https://mybusiness.googleapis.com/v4/accounts/{$location->google_account_id}/locations/{$location->google_location_id}/reviews")
-            ->throw()
-            ->json('reviews', []);
+        $reviews = $this->googleRequest(
+            $location->connection,
+            'GET',
+            "https://mybusiness.googleapis.com/v4/accounts/{$location->google_account_id}/locations/{$location->google_location_id}/reviews"
+        )->json('reviews', []);
 
         foreach ($reviews as $review) {
             $reviewName = (string) ($review['name'] ?? '');
@@ -175,11 +194,12 @@ class GoogleBusinessClient
     {
         $location = $review->googleLocation;
 
-        $this->api($location->connection)
-            ->put("https://mybusiness.googleapis.com/v4/accounts/{$location->google_account_id}/locations/{$location->google_location_id}/reviews/{$review->google_review_id}/reply", [
-                'comment' => $reply,
-            ])
-            ->throw();
+        $this->googleRequest(
+            $location->connection,
+            'PUT',
+            "https://mybusiness.googleapis.com/v4/accounts/{$location->google_account_id}/locations/{$location->google_location_id}/reviews/{$review->google_review_id}/reply",
+            ['comment' => $reply]
+        );
 
         $review->forceFill([
             'reply' => $reply,
@@ -196,11 +216,15 @@ class GoogleBusinessClient
         $this->validatePostForPublish($post);
         $payload = $this->postPayload($post);
 
-        $response = $this->api($location->connection)
-            ->post("https://mybusiness.googleapis.com/v4/accounts/{$location->google_account_id}/locations/{$location->google_location_id}/localPosts", $payload);
-
-        if (! $response->successful()) {
-            throw new RuntimeException($this->googleErrorMessage((array) $response->json(), $response->body(), $post));
+        try {
+            $response = $this->googleRequest(
+                $location->connection,
+                'POST',
+                "https://mybusiness.googleapis.com/v4/accounts/{$location->google_account_id}/locations/{$location->google_location_id}/localPosts",
+                $payload
+            );
+        } catch (RuntimeException $exception) {
+            throw new RuntimeException($this->googleErrorMessage([], $exception->getMessage(), $post));
         }
 
         $response = $response->json();
@@ -318,6 +342,88 @@ class GoogleBusinessClient
         }
 
         return Http::timeout(45)->acceptJson()->withToken((string) $connection->access_token);
+    }
+
+    protected function googleRequest(GoogleBusinessConnection $connection, string $method, string $url, array $payload = []): Response
+    {
+        $pending = $this->api($connection)->retry(4, function (int $attempt, Throwable $exception): int {
+            if ($exception instanceof RequestException && $exception->response?->status() === 429) {
+                return min(8000, 1000 * (2 ** max(0, $attempt - 1)));
+            }
+
+            throw $exception;
+        });
+
+        $response = match (strtoupper($method)) {
+            'GET' => $pending->get($url, $payload),
+            'POST' => $pending->post($url, $payload),
+            'PUT' => $pending->put($url, $payload),
+            default => throw new RuntimeException(__('Unsupported Google API request method.')),
+        };
+
+        if ($response->status() === 429 || $this->responseIndicatesQuota($response)) {
+            throw new RuntimeException($this->quotaExceededMessage());
+        }
+
+        if (! $response->successful()) {
+            throw new RuntimeException($this->responseErrorMessage($response));
+        }
+
+        return $response;
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    protected function fetchAccountLocations(GoogleBusinessConnection $connection, string $accountId): array
+    {
+        $locations = [];
+        $pageToken = null;
+
+        do {
+            $query = [
+                'readMask' => 'name,title,storefrontAddress,phoneNumbers,websiteUri,categories,regularHours,metadata',
+                'pageSize' => 100,
+            ];
+
+            if ($pageToken) {
+                $query['pageToken'] = $pageToken;
+                usleep(250000);
+            }
+
+            $payload = $this->googleRequest(
+                $connection,
+                'GET',
+                "https://mybusinessbusinessinformation.googleapis.com/v1/accounts/{$accountId}/locations",
+                $query
+            )->json();
+
+            $locations = array_merge($locations, (array) ($payload['locations'] ?? []));
+            $pageToken = (string) ($payload['nextPageToken'] ?? '');
+        } while ($pageToken !== '');
+
+        return $locations;
+    }
+
+    protected function quotaExceededMessage(): string
+    {
+        return __('Google API rate limit reached. Please wait about one minute and try again.');
+    }
+
+    protected function responseIndicatesQuota(Response $response): bool
+    {
+        $message = strtolower((string) data_get($response->json(), 'error.message', $response->body()));
+
+        return str_contains($message, 'quota exceeded') || str_contains($message, 'rate limit');
+    }
+
+    protected function responseErrorMessage(Response $response): string
+    {
+        if ($response->status() === 429 || $this->responseIndicatesQuota($response)) {
+            return $this->quotaExceededMessage();
+        }
+
+        return (string) (data_get($response->json(), 'error.message')
+            ?: data_get($response->json(), 'error_description')
+            ?: $response->body());
     }
 
     protected function refresh(GoogleBusinessConnection $connection): void

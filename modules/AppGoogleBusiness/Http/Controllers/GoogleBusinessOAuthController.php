@@ -61,18 +61,35 @@ class GoogleBusinessOAuthController extends Controller
                     'expires_at' => now()->addSeconds((int) ($token['expires_in'] ?? 3600)),
                     'status' => 'connected',
                     'scopes' => explode(' ', (string) ($token['scope'] ?? GoogleBusinessClient::SCOPE)),
+                    'last_error' => null,
                 ]
             );
 
-            $candidates = $client->fetchLocationCandidates($connection);
-            $request->session()->put('google_business_location_candidates', [
-                'connection_id' => $connection->id,
-                'locations' => $candidates,
-            ]);
+            try {
+                $candidates = $client->fetchLocationCandidates($connection);
+                $request->session()->put('google_business_location_candidates', [
+                    'connection_id' => $connection->id,
+                    'locations' => $candidates,
+                ]);
 
-            return redirect()
-                ->route('portal.google-business', ['tab' => 'locations'])
-                ->with('google_business_status', __('Google Business Profile connected. Choose which locations you want to add and manage. :count locations are available.', ['count' => count($candidates)]));
+                return redirect()
+                    ->route('portal.google-business', ['tab' => 'locations'])
+                    ->with('google_business_status', __('Google Business Profile connected. Choose which locations you want to add and manage. :count locations are available.', ['count' => count($candidates)]));
+            } catch (Throwable $locationException) {
+                $connection->forceFill(['last_error' => $locationException->getMessage()])->save();
+
+                if ($client->isQuotaExceeded($locationException)) {
+                    return redirect()
+                        ->route('portal.google-business', ['tab' => 'locations'])
+                        ->with('google_business_status', __('Google account connected. Google is temporarily limiting requests — wait about one minute, then click Refresh locations.'));
+                }
+
+                return redirect()
+                    ->route('portal.google-business', ['tab' => 'locations'])
+                    ->with('google_business_error', __('Google account connected, but locations could not be loaded yet: :message', [
+                        'message' => $locationException->getMessage(),
+                    ]));
+            }
         } catch (Throwable $exception) {
             return redirect()->route('portal.google-business')->with('google_business_error', $exception->getMessage());
         }
