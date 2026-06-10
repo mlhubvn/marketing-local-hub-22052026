@@ -8,6 +8,7 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Modules\AdminSettings\Support\OptionStore;
 use RuntimeException;
@@ -127,7 +128,7 @@ class GoogleBusinessClient
     public function isQuotaExceeded(Throwable $exception): bool
     {
         if ($exception instanceof RequestException && $exception->response?->status() === 429) {
-            return true;
+            return ! $this->isApiAccessPending($this->parseGoogleErrorResponse($exception->response));
         }
 
         $message = strtolower($exception->getMessage());
@@ -135,6 +136,62 @@ class GoogleBusinessClient
         return str_contains($message, '429')
             || str_contains($message, 'quota exceeded')
             || str_contains($message, 'rate limit');
+    }
+
+    public function friendlyApiErrorMessage(Throwable $exception): string
+    {
+        if ($exception instanceof RequestException && $exception->response) {
+            return $this->friendlyApiErrorFromResponse($exception->response);
+        }
+
+        return $exception->getMessage();
+    }
+
+    public function isGoogleCloudSetupError(Throwable $exception): bool
+    {
+        if ($exception instanceof RequestException && $exception->response) {
+            $parsed = $this->parseGoogleErrorResponse($exception->response);
+
+            return $this->isApiAccessPending($parsed) || $this->isApiDisabledMessage($parsed['message']);
+        }
+
+        return false;
+    }
+
+    public function logApiFailure(string $context, Throwable $exception, ?GoogleBusinessConnection $connection = null): void
+    {
+        $response = $exception instanceof RequestException ? $exception->response : null;
+
+        Log::warning($context, array_filter([
+            'connection_id' => $connection?->id,
+            'team_id' => $connection?->team_id,
+            'http_status' => $response?->status(),
+            'google_error_status' => data_get($response?->json(), 'error.status'),
+            'google_error_code' => data_get($response?->json(), 'error.code'),
+            'google_error_message' => data_get($response?->json(), 'error.message'),
+            'exception_message' => $exception->getMessage(),
+        ]));
+    }
+
+    public function friendlyApiErrorFromResponse(Response $response): string
+    {
+        $parsed = $this->parseGoogleErrorResponse($response);
+
+        if ($this->isApiDisabledMessage($parsed['message'])) {
+            return __('Enable My Business Account Management API and My Business Business Information API in Google Cloud Console, then try again.');
+        }
+
+        if ($this->isApiAccessPending($parsed)) {
+            return __('Google has not approved Business Profile API access for your Cloud project yet. Submit "Application For Basic API Access" in Google Business Profile API support, enable billing, and wait for approval (quota 300 QPM).');
+        }
+
+        if ($response->status() === 429 || $this->responseIndicatesQuota($response)) {
+            return $this->quotaExceededMessage();
+        }
+
+        return (string) (data_get($response->json(), 'error.message')
+            ?: data_get($response->json(), 'error_description')
+            ?: $response->body());
     }
 
     public function importLocation(GoogleBusinessConnection $connection, string $accountId, array $payload): GoogleBusinessLocation
@@ -347,8 +404,16 @@ class GoogleBusinessClient
     protected function googleRequest(GoogleBusinessConnection $connection, string $method, string $url, array $payload = []): Response
     {
         $pending = $this->api($connection)->retry(4, function (int $attempt, Throwable $exception): int {
-            if ($exception instanceof RequestException && $exception->response?->status() === 429) {
-                return min(8000, 1000 * (2 ** max(0, $attempt - 1)));
+            if ($exception instanceof RequestException && $exception->response) {
+                $parsed = $this->parseGoogleErrorResponse($exception->response);
+
+                if ($this->isApiAccessPending($parsed) || $this->isApiDisabledMessage($parsed['message'])) {
+                    throw $exception;
+                }
+
+                if ($exception->response->status() === 429) {
+                    return min(8000, 1000 * (2 ** max(0, $attempt - 1)));
+                }
             }
 
             throw $exception;
@@ -361,12 +426,8 @@ class GoogleBusinessClient
             default => throw new RuntimeException(__('Unsupported Google API request method.')),
         };
 
-        if ($response->status() === 429 || $this->responseIndicatesQuota($response)) {
-            throw new RuntimeException($this->quotaExceededMessage());
-        }
-
         if (! $response->successful()) {
-            throw new RuntimeException($this->responseErrorMessage($response));
+            throw new RuntimeException($this->friendlyApiErrorFromResponse($response));
         }
 
         return $response;
@@ -408,22 +469,52 @@ class GoogleBusinessClient
         return __('Google API rate limit reached. Please wait about one minute and try again.');
     }
 
+    /** @return array{code: int, status: string, message: string} */
+    protected function parseGoogleErrorResponse(?Response $response): array
+    {
+        if (! $response) {
+            return ['code' => 0, 'status' => '', 'message' => ''];
+        }
+
+        return [
+            'code' => (int) data_get($response->json(), 'error.code', $response->status()),
+            'status' => strtolower((string) data_get($response->json(), 'error.status', '')),
+            'message' => strtolower((string) (data_get($response->json(), 'error.message', '') ?: $response->body())),
+        ];
+    }
+
+    /** @param array{code: int, status: string, message: string} $parsed */
+    protected function isApiAccessPending(array $parsed): bool
+    {
+        $message = $parsed['message'];
+
+        if (str_contains($message, 'access not configured')
+            || str_contains($message, 'accessnotconfigured')
+            || str_contains($message, 'has not been approved')
+            || str_contains($message, 'request access')
+            || str_contains($message, 'caller does not have permission')
+            || preg_match("/limit\\s*'?0'?(\\s|$)/", $message) === 1
+        ) {
+            return true;
+        }
+
+        return $parsed['status'] === 'resource_exhausted'
+            && str_contains($message, 'quota')
+            && preg_match("/limit\\s*'?0'?(\\s|$)/", $message) === 1;
+    }
+
+    protected function isApiDisabledMessage(string $message): bool
+    {
+        return str_contains($message, 'has not been used in project')
+            || str_contains($message, 'it is disabled')
+            || str_contains($message, 'service_disabled');
+    }
+
     protected function responseIndicatesQuota(Response $response): bool
     {
         $message = strtolower((string) data_get($response->json(), 'error.message', $response->body()));
 
         return str_contains($message, 'quota exceeded') || str_contains($message, 'rate limit');
-    }
-
-    protected function responseErrorMessage(Response $response): string
-    {
-        if ($response->status() === 429 || $this->responseIndicatesQuota($response)) {
-            return $this->quotaExceededMessage();
-        }
-
-        return (string) (data_get($response->json(), 'error.message')
-            ?: data_get($response->json(), 'error_description')
-            ?: $response->body());
     }
 
     protected function refresh(GoogleBusinessConnection $connection): void

@@ -171,9 +171,8 @@ class GoogleBusinessIndex extends Component
             $this->errorMessage = '';
         } catch (Throwable $exception) {
             $client = app(GoogleBusinessClient::class);
-            $message = $client->isQuotaExceeded($exception)
-                ? __('Google API rate limit reached. Please wait about one minute and try again.')
-                : $exception->getMessage();
+            $client->logApiFailure('google_business.sync_connection_failed', $exception, $connection);
+            $message = $client->friendlyApiErrorMessage($exception);
 
             $connection->forceFill(['last_error' => $message])->save();
             $this->errorMessage = $message;
@@ -1291,6 +1290,7 @@ class GoogleBusinessIndex extends Component
             'businesses' => LocalBusiness::query()->where('user_id', auth()->id())->orderBy('name')->get(),
             'configured' => $this->isGoogleConfigured(),
             'callbackUrl' => route('portal.google-business.callback'),
+            'googleCloudSetupRequired' => $this->googleCloudSetupRequired($connections),
             'hasTables' => Schema::hasTable('lb_google_business_connections'),
         ])->layout(theme_view('layouts.app', 'app'), [
             'title' => __('Google Business'),
@@ -1319,6 +1319,26 @@ class GoogleBusinessIndex extends Component
         }
 
         return filled($clientId) && filled($clientSecret);
+    }
+
+    protected function googleCloudSetupRequired($connections): bool
+    {
+        foreach ($connections as $connection) {
+            $error = (string) $connection->last_error;
+
+            if ($error === '') {
+                continue;
+            }
+
+            if (str_contains($error, 'Application For Basic API Access')
+                || str_contains($error, 'My Business Account Management API')
+                || str_contains($error, 'Business Profile API access')
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected function autoReplyToneOptions(): array

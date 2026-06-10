@@ -32,6 +32,13 @@
         </section>
     @endif
 
+    @if ($configured && $googleCloudSetupRequired)
+        <section class="rounded-[1.15rem] border p-5" style="border-color: rgba(var(--theme-warning-color-rgb), .32); background-color: color-mix(in srgb, var(--theme-warning-color) 9%, var(--theme-surface-overlay));">
+            <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Google account connected — waiting for Google Cloud API approval') }}</p>
+            <p class="mt-2 text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('MLHUB saved your Google login. Google must approve Business Profile API access for your Cloud project before locations can load. Enable the two Business Profile APIs, link billing, and submit Application For Basic API Access. After approval (quota 300 QPM), click Refresh locations again.') }}</p>
+        </section>
+    @endif
+
     <section class="relative overflow-hidden rounded-[1.15rem] border" style="border-color: rgba(var(--theme-border-color-rgb), .68); background-color: color-mix(in srgb, var(--theme-surface-overlay) 98%, transparent);">
         <div
             wire:loading.flex

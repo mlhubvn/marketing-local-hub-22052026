@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'google_business' => [
+        'client_id' => env('GOOGLE_BUSINESS_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_BUSINESS_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_BUSINESS_REDIRECT_URI'),
+    ],
+
 ];
