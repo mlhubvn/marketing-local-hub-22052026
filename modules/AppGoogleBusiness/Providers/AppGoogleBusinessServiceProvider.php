@@ -2,6 +2,7 @@
 
 namespace Modules\AppGoogleBusiness\Providers;
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
 use Modules\AdminCrons\Support\SystemCronRegistry;
 
@@ -22,6 +23,20 @@ class AppGoogleBusinessServiceProvider extends ServiceProvider
             \Modules\AppGoogleBusiness\Console\SyncGoogleBusinessReviewsCommand::class,
         ]);
 
+        if ($this->app->runningInConsole()) {
+            $this->app->booted(function (): void {
+                $this->app->make(Schedule::class)
+                    ->command('google-business:sync-reviews')
+                    ->everyFifteenMinutes()
+                    ->withoutOverlapping();
+
+                $this->app->make(Schedule::class)
+                    ->command('google-business:publish-scheduled-posts')
+                    ->everyFiveMinutes()
+                    ->withoutOverlapping();
+            });
+        }
+
         $this->registerAdminIntegrationItem();
         $this->registerCronTask();
 
@@ -33,8 +48,8 @@ class AppGoogleBusinessServiceProvider extends ServiceProvider
             'order' => 149,
             'default' => false,
             'fields' => [
-                ['key' => 'max_google_business_connections', 'label' => __('Google connections'), 'type' => 'number', 'default' => 0],
-                ['key' => 'max_google_business_locations', 'label' => __('Google locations'), 'type' => 'number', 'default' => 0],
+                ['key' => 'max_google_business_connections', 'label' => __('Google connections (Free plan only)'), 'type' => 'number', 'default' => 0, 'description' => __('Paid plans use the Businesses limit instead.')],
+                ['key' => 'max_google_business_locations', 'label' => __('Google locations (Free plan only)'), 'type' => 'number', 'default' => 0, 'description' => __('Paid plans use the Businesses limit instead.')],
                 ['key' => 'google_review_sync', 'label' => __('Google review sync'), 'type' => 'boolean', 'default' => false],
                 ['key' => 'google_review_reply', 'label' => __('Publish review replies'), 'type' => 'boolean', 'default' => false],
                 ['key' => 'google_business_insights', 'label' => __('Google insights'), 'type' => 'boolean', 'default' => false],
@@ -43,7 +58,7 @@ class AppGoogleBusinessServiceProvider extends ServiceProvider
         ]);
 
         register_user_sidebar_section('google-business', __('Google Business'), 500);
-        $googleBusinessVisible = fn (): bool => ! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('google_business') ?? false);
+        $googleBusinessVisible = fn (): bool => (bool) auth()->user()?->canUsePlanFeature('google_business');
         $googleBusinessPath = trim((string) config('modules.appgooglebusiness.route_prefix', 'portal/integrations/google-business'), '/');
 
         foreach ([

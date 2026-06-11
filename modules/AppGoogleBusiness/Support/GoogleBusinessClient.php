@@ -4,11 +4,15 @@ namespace Modules\AppGoogleBusiness\Support;
 
 use App\Support\GrowthToolNotifier;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Modules\AdminSettings\Support\OptionStore;
 use RuntimeException;
+use Throwable;
 use Modules\AppGoogleBusiness\Models\GoogleBusinessConnection;
 use Modules\AppGoogleBusiness\Models\GoogleBusinessLocation;
 use Modules\AppGoogleBusiness\Models\GoogleBusinessPost;
@@ -73,12 +77,16 @@ class GoogleBusinessClient
 
     public function fetchLocationCandidates(GoogleBusinessConnection $connection): array
     {
-        $accounts = $this->api($connection)
-            ->get('https://mybusinessaccountmanagement.googleapis.com/v1/accounts')
-            ->throw()
+        $accounts = $this->googleRequest($connection, 'GET', 'https://mybusinessaccountmanagement.googleapis.com/v1/accounts')
             ->json('accounts', []);
 
+        $importedLocationIds = GoogleBusinessLocation::query()
+            ->where('connection_id', $connection->id)
+            ->pluck('google_location_id')
+            ->flip();
+
         $candidates = [];
+        $accountIndex = 0;
 
         foreach ($accounts as $account) {
             $accountId = Str::after((string) ($account['name'] ?? ''), 'accounts/');
@@ -87,12 +95,11 @@ class GoogleBusinessClient
                 continue;
             }
 
-            $locations = $this->api($connection)
-                ->get("https://mybusinessbusinessinformation.googleapis.com/v1/accounts/{$accountId}/locations", [
-                    'readMask' => 'name,title,storefrontAddress,phoneNumbers,websiteUri,categories,regularHours,metadata',
-                ])
-                ->throw()
-                ->json('locations', []);
+            if ($accountIndex > 0) {
+                usleep(300000);
+            }
+
+            $locations = $this->fetchAccountLocations($connection, $accountId);
 
             foreach ($locations as $location) {
                 $locationName = (string) ($location['name'] ?? '');
@@ -105,18 +112,86 @@ class GoogleBusinessClient
                     'name' => (string) ($location['title'] ?? $locationId),
                     'address' => $this->addressFromPayload($location),
                     'category' => (string) data_get($location, 'categories.primaryCategory.displayName', ''),
-                    'already_imported' => GoogleBusinessLocation::query()
-                        ->where('connection_id', $connection->id)
-                        ->where('google_location_id', $locationId)
-                        ->exists(),
+                    'already_imported' => $importedLocationIds->has($locationId),
                     'payload' => $location,
                 ];
             }
+
+            $accountIndex++;
         }
 
-        $connection->forceFill(['last_synced_at' => now(), 'status' => 'connected'])->save();
+        $connection->forceFill(['last_synced_at' => now(), 'status' => 'connected', 'last_error' => null])->save();
 
         return $candidates;
+    }
+
+    public function isQuotaExceeded(Throwable $exception): bool
+    {
+        if ($exception instanceof RequestException && $exception->response?->status() === 429) {
+            return ! $this->isApiAccessPending($this->parseGoogleErrorResponse($exception->response));
+        }
+
+        $message = strtolower($exception->getMessage());
+
+        return str_contains($message, '429')
+            || str_contains($message, 'quota exceeded')
+            || str_contains($message, 'rate limit');
+    }
+
+    public function friendlyApiErrorMessage(Throwable $exception): string
+    {
+        if ($exception instanceof RequestException && $exception->response) {
+            return $this->friendlyApiErrorFromResponse($exception->response);
+        }
+
+        return $exception->getMessage();
+    }
+
+    public function isGoogleCloudSetupError(Throwable $exception): bool
+    {
+        if ($exception instanceof RequestException && $exception->response) {
+            $parsed = $this->parseGoogleErrorResponse($exception->response);
+
+            return $this->isApiAccessPending($parsed) || $this->isApiDisabledMessage($parsed['message']);
+        }
+
+        return false;
+    }
+
+    public function logApiFailure(string $context, Throwable $exception, ?GoogleBusinessConnection $connection = null): void
+    {
+        $response = $exception instanceof RequestException ? $exception->response : null;
+
+        Log::warning($context, array_filter([
+            'connection_id' => $connection?->id,
+            'team_id' => $connection?->team_id,
+            'http_status' => $response?->status(),
+            'google_error_status' => data_get($response?->json(), 'error.status'),
+            'google_error_code' => data_get($response?->json(), 'error.code'),
+            'google_error_message' => data_get($response?->json(), 'error.message'),
+            'exception_message' => $exception->getMessage(),
+        ]));
+    }
+
+    public function friendlyApiErrorFromResponse(Response $response): string
+    {
+        $parsed = $this->parseGoogleErrorResponse($response);
+
+        if ($this->isApiDisabledMessage($parsed['message'])) {
+            return __('Enable My Business Account Management API and My Business Business Information API in Google Cloud Console, then try again.');
+        }
+
+        if ($this->isApiAccessPending($parsed)) {
+            return __('Google has not approved Business Profile API access for your Cloud project yet. Submit "Application For Basic API Access" in Google Business Profile API support, enable billing, and wait for approval (quota 300 QPM).');
+        }
+
+        if ($response->status() === 429 || $this->responseIndicatesQuota($response)) {
+            return $this->quotaExceededMessage();
+        }
+
+        return (string) (data_get($response->json(), 'error.message')
+            ?: data_get($response->json(), 'error_description')
+            ?: $response->body());
     }
 
     public function importLocation(GoogleBusinessConnection $connection, string $accountId, array $payload): GoogleBusinessLocation
@@ -126,10 +201,11 @@ class GoogleBusinessClient
 
     public function syncReviews(GoogleBusinessLocation $location): int
     {
-        $reviews = $this->api($location->connection)
-            ->get("https://mybusiness.googleapis.com/v4/accounts/{$location->google_account_id}/locations/{$location->google_location_id}/reviews")
-            ->throw()
-            ->json('reviews', []);
+        $reviews = $this->googleRequest(
+            $location->connection,
+            'GET',
+            "https://mybusiness.googleapis.com/v4/accounts/{$location->google_account_id}/locations/{$location->google_location_id}/reviews"
+        )->json('reviews', []);
 
         foreach ($reviews as $review) {
             $reviewName = (string) ($review['name'] ?? '');
@@ -175,11 +251,12 @@ class GoogleBusinessClient
     {
         $location = $review->googleLocation;
 
-        $this->api($location->connection)
-            ->put("https://mybusiness.googleapis.com/v4/accounts/{$location->google_account_id}/locations/{$location->google_location_id}/reviews/{$review->google_review_id}/reply", [
-                'comment' => $reply,
-            ])
-            ->throw();
+        $this->googleRequest(
+            $location->connection,
+            'PUT',
+            "https://mybusiness.googleapis.com/v4/accounts/{$location->google_account_id}/locations/{$location->google_location_id}/reviews/{$review->google_review_id}/reply",
+            ['comment' => $reply]
+        );
 
         $review->forceFill([
             'reply' => $reply,
@@ -196,11 +273,15 @@ class GoogleBusinessClient
         $this->validatePostForPublish($post);
         $payload = $this->postPayload($post);
 
-        $response = $this->api($location->connection)
-            ->post("https://mybusiness.googleapis.com/v4/accounts/{$location->google_account_id}/locations/{$location->google_location_id}/localPosts", $payload);
-
-        if (! $response->successful()) {
-            throw new RuntimeException($this->googleErrorMessage((array) $response->json(), $response->body(), $post));
+        try {
+            $response = $this->googleRequest(
+                $location->connection,
+                'POST',
+                "https://mybusiness.googleapis.com/v4/accounts/{$location->google_account_id}/locations/{$location->google_location_id}/localPosts",
+                $payload
+            );
+        } catch (RuntimeException $exception) {
+            throw new RuntimeException($this->googleErrorMessage([], $exception->getMessage(), $post));
         }
 
         $response = $response->json();
@@ -320,6 +401,122 @@ class GoogleBusinessClient
         return Http::timeout(45)->acceptJson()->withToken((string) $connection->access_token);
     }
 
+    protected function googleRequest(GoogleBusinessConnection $connection, string $method, string $url, array $payload = []): Response
+    {
+        $pending = $this->api($connection)->retry(4, function (int $attempt, Throwable $exception): int {
+            if ($exception instanceof RequestException && $exception->response) {
+                $parsed = $this->parseGoogleErrorResponse($exception->response);
+
+                if ($this->isApiAccessPending($parsed) || $this->isApiDisabledMessage($parsed['message'])) {
+                    throw $exception;
+                }
+
+                if ($exception->response->status() === 429) {
+                    return min(8000, 1000 * (2 ** max(0, $attempt - 1)));
+                }
+            }
+
+            throw $exception;
+        });
+
+        $response = match (strtoupper($method)) {
+            'GET' => $pending->get($url, $payload),
+            'POST' => $pending->post($url, $payload),
+            'PUT' => $pending->put($url, $payload),
+            default => throw new RuntimeException(__('Unsupported Google API request method.')),
+        };
+
+        if (! $response->successful()) {
+            throw new RuntimeException($this->friendlyApiErrorFromResponse($response));
+        }
+
+        return $response;
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    protected function fetchAccountLocations(GoogleBusinessConnection $connection, string $accountId): array
+    {
+        $locations = [];
+        $pageToken = null;
+
+        do {
+            $query = [
+                'readMask' => 'name,title,storefrontAddress,phoneNumbers,websiteUri,categories,regularHours,metadata',
+                'pageSize' => 100,
+            ];
+
+            if ($pageToken) {
+                $query['pageToken'] = $pageToken;
+                usleep(250000);
+            }
+
+            $payload = $this->googleRequest(
+                $connection,
+                'GET',
+                "https://mybusinessbusinessinformation.googleapis.com/v1/accounts/{$accountId}/locations",
+                $query
+            )->json();
+
+            $locations = array_merge($locations, (array) ($payload['locations'] ?? []));
+            $pageToken = (string) ($payload['nextPageToken'] ?? '');
+        } while ($pageToken !== '');
+
+        return $locations;
+    }
+
+    protected function quotaExceededMessage(): string
+    {
+        return __('Google API rate limit reached. Please wait about one minute and try again.');
+    }
+
+    /** @return array{code: int, status: string, message: string} */
+    protected function parseGoogleErrorResponse(?Response $response): array
+    {
+        if (! $response) {
+            return ['code' => 0, 'status' => '', 'message' => ''];
+        }
+
+        return [
+            'code' => (int) data_get($response->json(), 'error.code', $response->status()),
+            'status' => strtolower((string) data_get($response->json(), 'error.status', '')),
+            'message' => strtolower((string) (data_get($response->json(), 'error.message', '') ?: $response->body())),
+        ];
+    }
+
+    /** @param array{code: int, status: string, message: string} $parsed */
+    protected function isApiAccessPending(array $parsed): bool
+    {
+        $message = $parsed['message'];
+
+        if (str_contains($message, 'access not configured')
+            || str_contains($message, 'accessnotconfigured')
+            || str_contains($message, 'has not been approved')
+            || str_contains($message, 'request access')
+            || str_contains($message, 'caller does not have permission')
+            || preg_match("/limit\\s*'?0'?(\\s|$)/", $message) === 1
+        ) {
+            return true;
+        }
+
+        return $parsed['status'] === 'resource_exhausted'
+            && str_contains($message, 'quota')
+            && preg_match("/limit\\s*'?0'?(\\s|$)/", $message) === 1;
+    }
+
+    protected function isApiDisabledMessage(string $message): bool
+    {
+        return str_contains($message, 'has not been used in project')
+            || str_contains($message, 'it is disabled')
+            || str_contains($message, 'service_disabled');
+    }
+
+    protected function responseIndicatesQuota(Response $response): bool
+    {
+        $message = strtolower((string) data_get($response->json(), 'error.message', $response->body()));
+
+        return str_contains($message, 'quota exceeded') || str_contains($message, 'rate limit');
+    }
+
     protected function refresh(GoogleBusinessConnection $connection): void
     {
         if (! filled($connection->refresh_token)) {
@@ -359,7 +556,7 @@ class GoogleBusinessClient
 
         if (! $existing && class_exists('Modules\\AdminUser\\Models\\User')) {
             $user = \Modules\AdminUser\Models\User::query()->find($connection->team_id);
-            $limit = (int) ($user?->planLimit('max_google_business_locations', -1) ?? -1);
+            $limit = GoogleBusinessAccess::locationLimit($user);
             $used = GoogleBusinessLocation::query()->where('team_id', $connection->team_id)->count();
 
             if ($limit >= 0 && $used >= $limit) {
@@ -470,6 +667,12 @@ class GoogleBusinessClient
         if (! filled($this->clientId()) || ! filled($this->clientSecret())) {
             throw new RuntimeException(__('Google Business OAuth is not configured. Set GOOGLE_BUSINESS_CLIENT_ID and GOOGLE_BUSINESS_CLIENT_SECRET.'));
         }
+
+        if (! $this->redirectUriIsValid()) {
+            throw new RuntimeException(__('Google Business OAuth redirect URI is missing. Set APP_URL=https://mlhub.vn on Coolify or GOOGLE_BUSINESS_REDIRECT_URI to :url', [
+                'url' => route('portal.google-business.callback'),
+            ]));
+        }
     }
 
     protected function clientId(): string
@@ -484,7 +687,27 @@ class GoogleBusinessClient
 
     public function redirectUri(): string
     {
-        return (string) config('services.google_business.redirect', route('portal.google-business.callback'));
+        $configured = trim((string) config('services.google_business.redirect', ''));
+
+        if (filled($configured)) {
+            return $configured;
+        }
+
+        return route('portal.google-business.callback');
+    }
+
+    protected function redirectUriIsValid(): bool
+    {
+        $redirectUri = $this->redirectUri();
+
+        if (! filled($redirectUri)) {
+            return false;
+        }
+
+        $scheme = parse_url($redirectUri, PHP_URL_SCHEME);
+
+        return in_array($scheme, ['http', 'https'], true)
+            && filled(parse_url($redirectUri, PHP_URL_HOST));
     }
 
     protected function setting(string $key, string $envKey): string
