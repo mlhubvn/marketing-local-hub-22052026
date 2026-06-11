@@ -129,9 +129,11 @@ class SocialLoginController extends Controller
 
     protected function buildGoogleAuthorizationUrl(array $config, string $state): string
     {
+        $redirectUri = $this->absoluteCallbackUrl((string) $config['callback']);
+
         $query = http_build_query([
             'client_id' => $config['client_id'],
-            'redirect_uri' => $config['callback'],
+            'redirect_uri' => $redirectUri,
             'response_type' => 'code',
             'scope' => 'openid email profile',
             'state' => $state,
@@ -139,6 +141,21 @@ class SocialLoginController extends Controller
         ]);
 
         return 'https://accounts.google.com/o/oauth2/v2/auth?'.$query;
+    }
+
+    protected function absoluteCallbackUrl(string $callback): string
+    {
+        $callback = trim($callback);
+
+        if ($callback === '') {
+            throw new \RuntimeException(__('Google login redirect URI is missing. Set APP_URL=https://mlhub.vn on Coolify.'));
+        }
+
+        if (! str_starts_with($callback, 'http://') && ! str_starts_with($callback, 'https://')) {
+            throw new \RuntimeException(__('Google login redirect URI must be absolute. Set APP_URL=https://mlhub.vn on Coolify.'));
+        }
+
+        return $callback;
     }
 
     protected function buildFacebookAuthorizationUrl(array $config, string $state): string

@@ -667,6 +667,12 @@ class GoogleBusinessClient
         if (! filled($this->clientId()) || ! filled($this->clientSecret())) {
             throw new RuntimeException(__('Google Business OAuth is not configured. Set GOOGLE_BUSINESS_CLIENT_ID and GOOGLE_BUSINESS_CLIENT_SECRET.'));
         }
+
+        if (! $this->redirectUriIsValid()) {
+            throw new RuntimeException(__('Google Business OAuth redirect URI is missing. Set APP_URL=https://mlhub.vn on Coolify or GOOGLE_BUSINESS_REDIRECT_URI to :url', [
+                'url' => route('portal.google-business.callback'),
+            ]));
+        }
     }
 
     protected function clientId(): string
@@ -681,7 +687,27 @@ class GoogleBusinessClient
 
     public function redirectUri(): string
     {
-        return (string) config('services.google_business.redirect', route('portal.google-business.callback'));
+        $configured = trim((string) config('services.google_business.redirect', ''));
+
+        if (filled($configured)) {
+            return $configured;
+        }
+
+        return route('portal.google-business.callback');
+    }
+
+    protected function redirectUriIsValid(): bool
+    {
+        $redirectUri = $this->redirectUri();
+
+        if (! filled($redirectUri)) {
+            return false;
+        }
+
+        $scheme = parse_url($redirectUri, PHP_URL_SCHEME);
+
+        return in_array($scheme, ['http', 'https'], true)
+            && filled(parse_url($redirectUri, PHP_URL_HOST));
     }
 
     protected function setting(string $key, string $envKey): string
