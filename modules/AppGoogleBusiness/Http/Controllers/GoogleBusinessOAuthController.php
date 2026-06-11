@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Str;
 use Modules\AppGoogleBusiness\Models\GoogleBusinessConnection;
-use Modules\AppGoogleBusiness\Support\GoogleBusinessAccess;
 use Modules\AppGoogleBusiness\Support\GoogleBusinessClient;
 use Throwable;
 
@@ -15,13 +14,14 @@ class GoogleBusinessOAuthController extends Controller
 {
     public function connect(Request $request, GoogleBusinessClient $client): RedirectResponse
     {
-        abort_unless(auth()->user()?->canUsePlanFeature('google_business'), 403);
+        abort_unless(! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('google_business') ?? false), 403);
 
         try {
-            if (! GoogleBusinessAccess::canConnectGoogleAccount()) {
-                return redirect()
-                    ->route('portal.google-business')
-                    ->with('google_business_error', __('Your current plan does not include Google Business connections.'));
+            $limit = (int) (auth()->user()?->planLimit('max_google_business_connections', -1) ?? -1);
+            $used = GoogleBusinessConnection::query()->where('team_id', auth()->id())->count();
+
+            if ($limit >= 0 && $used >= $limit) {
+                return redirect()->route('portal.google-business')->with('google_business_error', __('Your current plan allows up to :limit Google connections.', ['limit' => $limit]));
             }
 
             $state = Str::random(40);
@@ -35,7 +35,7 @@ class GoogleBusinessOAuthController extends Controller
 
     public function callback(Request $request, GoogleBusinessClient $client): RedirectResponse
     {
-        abort_unless(auth()->user()?->canUsePlanFeature('google_business'), 403);
+        abort_unless(! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('google_business') ?? false), 403);
 
         if (! hash_equals((string) $request->session()->pull('google_business_oauth_state'), (string) $request->query('state'))) {
             return redirect()->route('portal.google-business')->with('google_business_error', __('Invalid Google OAuth state. Please try again.'));
@@ -48,20 +48,11 @@ class GoogleBusinessOAuthController extends Controller
         try {
             $token = $client->exchangeCode((string) $request->query('code'));
             $profile = $client->userInfo((string) $token['access_token']);
-            $googleAccountEmail = (string) ($profile['email'] ?? '');
 
-            if (! GoogleBusinessAccess::canConnectGoogleAccount($googleAccountEmail)) {
-                return redirect()
-                    ->route('portal.google-business', ['tab' => 'locations'])
-                    ->with('google_business_error', __('Your plan allows up to :limit Google account(s). Disconnect an existing account before connecting another.', [
-                        'limit' => GoogleBusinessAccess::connectionLimit(),
-                    ]));
-            }
-
-            GoogleBusinessConnection::query()->updateOrCreate(
+            $connection = GoogleBusinessConnection::query()->updateOrCreate(
                 [
                     'team_id' => auth()->id(),
-                    'google_account_email' => $googleAccountEmail,
+                    'google_account_email' => (string) ($profile['email'] ?? ''),
                 ],
                 [
                     'user_id' => auth()->id(),
@@ -70,13 +61,18 @@ class GoogleBusinessOAuthController extends Controller
                     'expires_at' => now()->addSeconds((int) ($token['expires_in'] ?? 3600)),
                     'status' => 'connected',
                     'scopes' => explode(' ', (string) ($token['scope'] ?? GoogleBusinessClient::SCOPE)),
-                    'last_error' => null,
                 ]
             );
 
+            $candidates = $client->fetchLocationCandidates($connection);
+            $request->session()->put('google_business_location_candidates', [
+                'connection_id' => $connection->id,
+                'locations' => $candidates,
+            ]);
+
             return redirect()
                 ->route('portal.google-business', ['tab' => 'locations'])
-                ->with('google_business_status', __('Google account connected. Click Refresh locations to load your Google Maps listings.'));
+                ->with('google_business_status', __('Google Business Profile connected. Choose which locations you want to add and manage. :count locations are available.', ['count' => count($candidates)]));
         } catch (Throwable $exception) {
             return redirect()->route('portal.google-business')->with('google_business_error', $exception->getMessage());
         }

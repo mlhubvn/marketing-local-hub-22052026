@@ -32,13 +32,6 @@
         </section>
     @endif
 
-    @if ($configured && $googleCloudSetupRequired)
-        <section class="rounded-[1.15rem] border p-5" style="border-color: rgba(var(--theme-warning-color-rgb), .32); background-color: color-mix(in srgb, var(--theme-warning-color) 9%, var(--theme-surface-overlay));">
-            <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Google account connected — waiting for Google Cloud API approval') }}</p>
-            <p class="mt-2 text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('MLHUB saved your Google login. Google must approve Business Profile API access for your Cloud project before locations can load. Enable the two Business Profile APIs, link billing, and submit Application For Basic API Access. After approval (quota 300 QPM), click Refresh locations again.') }}</p>
-        </section>
-    @endif
-
     <section class="relative overflow-hidden rounded-[1.15rem] border" style="border-color: rgba(var(--theme-border-color-rgb), .68); background-color: color-mix(in srgb, var(--theme-surface-overlay) 98%, transparent);">
         <div
             wire:loading.flex
@@ -146,7 +139,7 @@
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ $card['label'] }}</p>
-                                    <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ is_numeric($card['value']) ? format_number_locale((float) $card['value']) : $card['value'] }}</p>
+                                    <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ $card['value'] }}</p>
                                 </div>
                                 <div class="flex h-10 w-10 items-center justify-center rounded-xl" style="background-color: color-mix(in srgb, {{ $card['tone'] }} 10%, white); color: {{ $card['tone'] }};">
                                     <i class="fa-light {{ $card['icon'] }}"></i>
@@ -232,35 +225,6 @@
                 <x-ui.button type="button" variant="outline" onclick="window.location.href='{{ route('portal.google-business.connect') }}'" :disabled="! $configured"><i class="fa-brands fa-google"></i>{{ __('Connect Google') }}</x-ui.button>
             </div>
 
-            @if ($connections->isNotEmpty())
-                <div class="divide-y border-b" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
-                    @foreach ($connections as $connection)
-                        <div class="flex flex-col gap-4 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
-                            <div>
-                                <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $connection->google_account_email ?: __('Google account') }}</p>
-                                <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">
-                                    {{ $connection->locations_count }} {{ __('locations') }} &middot; {{ ucfirst($connection->status) }}
-                                    @if ($connection->last_synced_at)
-                                        &middot; {{ __('Last synced') }} {{ $connection->last_synced_at->diffForHumans() }}
-                                    @endif
-                                </p>
-                                @if ($connection->last_error)
-                                    <p class="mt-2 text-xs" style="color: var(--theme-danger-color);">{{ __('Last sync error') }}: {{ $connection->last_error }}</p>
-                                @endif
-                            </div>
-                            <div class="flex flex-wrap gap-2">
-                                <x-ui.button type="button" variant="primary" size="sm" wire:click="syncConnection({{ $connection->id }})" wire:loading.attr="disabled" wire:target="syncConnection({{ $connection->id }})">
-                                    <span wire:loading.remove wire:target="syncConnection({{ $connection->id }})" class="inline-flex items-center gap-2"><i class="fa-light fa-rotate"></i>{{ __('Refresh locations') }}</span>
-                                    <span wire:loading wire:target="syncConnection({{ $connection->id }})" class="inline-flex items-center gap-2"><i class="fa-light fa-spinner-third fa-spin"></i>{{ __('Loading...') }}</span>
-                                </x-ui.button>
-                                <x-ui.button type="button" variant="outline" size="sm" wire:click="toggleConnectionAutoSync({{ $connection->id }})"><i class="fa-light fa-clock-rotate-left"></i>{{ $connection->auto_sync ? __('Auto sync on') : __('Auto sync off') }}</x-ui.button>
-                                <x-ui.button type="button" variant="danger" size="sm" wire:click="disconnect({{ $connection->id }})" wire:confirm="{{ __('Disconnect this Google account?') }}"><i class="fa-light fa-trash"></i>{{ __('Disconnect') }}</x-ui.button>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-
             @if (! empty($locationCandidates))
                 <div class="border-b p-5" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
                     <div class="rounded-[1rem] border" style="border-color: rgba(var(--theme-accent-rgb), .24); background: linear-gradient(135deg, rgba(var(--theme-accent-rgb), .08), transparent 45%), var(--theme-surface-base);">
@@ -335,19 +299,8 @@
                     </div>
                 @empty
                     <div class="px-5 py-12 text-center">
-                        @if ($connections->isNotEmpty())
-                            <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Google account connected — load your Maps listings') }}</p>
-                            <p class="mx-auto mt-2 max-w-md text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('Click Refresh locations above to fetch your Google Business listings, then choose which location to add and manage.') }}</p>
-                            @if ($connections->first())
-                                <x-ui.button type="button" class="mt-5" wire:click="syncConnection({{ $connections->first()->id }})" wire:loading.attr="disabled" wire:target="syncConnection({{ $connections->first()->id }})">
-                                    <span wire:loading.remove wire:target="syncConnection({{ $connections->first()->id }})" class="inline-flex items-center gap-2"><i class="fa-light fa-rotate"></i>{{ __('Refresh locations') }}</span>
-                                    <span wire:loading wire:target="syncConnection({{ $connections->first()->id }})" class="inline-flex items-center gap-2"><i class="fa-light fa-spinner-third fa-spin"></i>{{ __('Loading...') }}</span>
-                                </x-ui.button>
-                            @endif
-                        @else
-                            <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('No Google locations added yet') }}</p>
-                            <p class="mx-auto mt-2 max-w-md text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('Connect Google, then choose the locations you want to manage. LocalBoost will not import every Google location automatically.') }}</p>
-                        @endif
+                        <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('No Google locations added yet') }}</p>
+                        <p class="mx-auto mt-2 max-w-md text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('Connect Google, then choose the locations you want to manage. LocalBoost will not import every Google location automatically.') }}</p>
                     </div>
                 @endforelse
             </div>
@@ -393,7 +346,7 @@
                             <div class="flex items-center justify-between gap-3">
                                 <div>
                                     <p class="text-[11px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ $card['label'] }}</p>
-                                    <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ is_numeric($card['value']) ? format_number_locale((float) $card['value']) : $card['value'] }}</p>
+                                    <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ $card['value'] }}</p>
                                 </div>
                                 <span class="flex h-9 w-9 items-center justify-center rounded-xl" style="background-color: color-mix(in srgb, {{ $card['tone'] }} 10%, white); color: {{ $card['tone'] }};"><i class="fa-light {{ $card['icon'] }}"></i></span>
                             </div>
@@ -457,7 +410,7 @@
                         <article class="grid overflow-hidden rounded-[1rem] border shadow-sm lg:grid-cols-[minmax(0,1fr)_minmax(24rem,0.82fr)]" style="border-color: rgba(var(--theme-border-color-rgb), .58); background-color: var(--theme-surface-base);">
                             <div class="p-4 lg:border-r" style="border-color: rgba(var(--theme-border-color-rgb), .52);">
                                 <div class="flex flex-wrap items-start gap-3">
-                                    <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">{{ str($review->reviewer_name ?: 'G')->substr(0, 1)->upper() }}</span>
+                                    <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold" style="background-color: rgba(var(--theme-accent-rgb), .12); color: var(--theme-accent);">{{ str($review->reviewer_name ?: 'G')->substr(0, 1)->upper() }}</span>
                                     <div class="min-w-0 flex-1">
                                         <div class="flex flex-wrap items-center gap-2">
                                             <p class="font-semibold leading-6" style="color: var(--theme-header-text-color);">{{ $review->reviewer_name ?: __('Google user') }}</p>
@@ -468,7 +421,7 @@
                                 </div>
                                 <p class="mt-2 flex flex-wrap items-center gap-2 text-xs" style="color: var(--theme-muted-text-color);">
                                     @if ($review->review_created_at)
-                                        <span>{{ format_datetime_locale($review->review_created_at) }}</span>
+                                        <span>{{ $review->review_created_at->format('Y-m-d H:i') }}</span>
                                     @endif
                                     <span class="inline-flex items-center gap-1"><i class="fa-brands fa-google"></i>{{ __('Synced from Google') }}</span>
                                     @if ($review->last_synced_at)
@@ -569,7 +522,7 @@
                                 style="{{ $postStatus === $statusTab['key'] ? 'background-color: rgba(var(--theme-accent-rgb), .14); color: var(--theme-accent); border-color: rgba(var(--theme-accent-rgb), .28);' : 'color: var(--theme-muted-text-color); border-color: transparent;' }}"
                             >
                                 {{ $statusTab['label'] }}
-                                <span class="ml-2 rounded-full px-2 py-0.5 text-xs" style="background-color: rgba(var(--theme-accent-rgb), .10);">{{ format_number_locale($statusTab['count']) }}</span>
+                                <span class="ml-2 rounded-full px-2 py-0.5 text-xs" style="background-color: rgba(var(--theme-accent-rgb), .10);">{{ number_format($statusTab['count']) }}</span>
                             </button>
                         @endforeach
                     </div>
@@ -622,10 +575,10 @@
                                             <td class="px-5 py-4"><x-ui.badge variant="neutral">{{ str($post->type)->headline() }}</x-ui.badge></td>
                                             <td class="px-5 py-4" style="color: var(--theme-muted-text-color);">
                                                 @if ($post->scheduled_at && $post->status === 'scheduled')
-                                                    <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_datetime_locale($post->scheduled_at) }}</p>
+                                                    <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $post->scheduled_at->format('M j, Y g:i A') }}</p>
                                                     <p class="mt-1 text-xs">{{ $post->scheduled_at->diffForHumans() }}</p>
                                                 @elseif ($post->published_at)
-                                                    <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_datetime_locale($post->published_at) }}</p>
+                                                    <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $post->published_at->format('M j, Y g:i A') }}</p>
                                                     <p class="mt-1 text-xs">{{ __('Published') }}</p>
                                                 @else
                                                     <span class="text-xs">{{ __('Not scheduled') }}</span>
@@ -674,7 +627,7 @@
                             </table>
                         </div>
                         <div class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
-                            <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($googlePosts->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($googlePosts->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($googlePosts->total()) }}</span> {{ __('posts') }}</p>
+                            <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ __('Showing') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($googlePosts->firstItem()) }}</span> - <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($googlePosts->lastItem()) }}</span> {{ __('of') }} <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ number_format($googlePosts->total()) }}</span> {{ __('posts') }}</p>
                             <div class="flex items-center gap-2">
                                 <x-ui.button type="button" variant="outline" wire:click="previousPage('googlePostsPage')" wire:loading.attr="disabled" wire:target="previousPage,nextPage" :disabled="$googlePosts->onFirstPage()">
                                     <i class="fa-light fa-arrow-left" wire:loading.remove wire:target="previousPage('googlePostsPage')"></i>
@@ -941,7 +894,7 @@
                                 style="{{ $autoReplyRuleStatus === $stat['key'] ? 'background-color: rgba(var(--theme-accent-rgb), .14); color: var(--theme-accent); border-color: rgba(var(--theme-accent-rgb), .28);' : 'color: var(--theme-muted-text-color); border-color: transparent;' }}"
                             >
                                 {{ $stat['label'] }}
-                                <span class="ml-2 rounded-full px-2 py-0.5 text-xs" style="background-color: rgba(var(--theme-accent-rgb), .10);">{{ format_number_locale($stat['count']) }}</span>
+                                <span class="ml-2 rounded-full px-2 py-0.5 text-xs" style="background-color: rgba(var(--theme-accent-rgb), .10);">{{ number_format($stat['count']) }}</span>
                             </button>
                         @endforeach
                         <button
@@ -951,7 +904,7 @@
                             style="color: var(--theme-muted-text-color); border-color: transparent;"
                         >
                             {{ __('Logs') }}
-                            <span class="ml-2 rounded-full px-2 py-0.5 text-xs" style="background-color: rgba(var(--theme-accent-rgb), .10);">{{ format_number_locale($autoReplyLogs->count()) }}</span>
+                            <span class="ml-2 rounded-full px-2 py-0.5 text-xs" style="background-color: rgba(var(--theme-accent-rgb), .10);">{{ number_format($autoReplyLogs->count()) }}</span>
                         </button>
                     </div>
 
@@ -1188,7 +1141,7 @@
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ $card['label'] }}</p>
-                                    <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ is_numeric($card['value']) ? format_number_locale((float) $card['value']) : $card['value'] }}</p>
+                                    <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ $card['value'] }}</p>
                                 </div>
                                 <div class="flex h-10 w-10 items-center justify-center rounded-xl" style="background-color: color-mix(in srgb, {{ $card['tone'] }} 10%, white); color: {{ $card['tone'] }};"><i class="fa-light {{ $card['icon'] }}"></i></div>
                             </div>
@@ -1314,7 +1267,7 @@
                                 @empty
                                     <div class="px-5 py-6">
                                         <div class="flex items-start gap-3 rounded-2xl border p-4" style="border-color: rgba(var(--theme-success-color-rgb), .22); background: linear-gradient(135deg, rgba(var(--theme-success-color-rgb), .08), transparent 45%), var(--theme-surface-base);">
-                                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);"><i class="fa-light fa-shield-check"></i></span>
+                                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style="background-color: rgba(var(--theme-success-color-rgb), .12); color: var(--theme-success-color);"><i class="fa-light fa-shield-check"></i></span>
                                             <div>
                                                 <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('No low-score reviews need attention') }}</p>
                                                 <p class="mt-1 text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('Reviews rated 3 stars or below will appear here when they need a response.') }}</p>

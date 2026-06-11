@@ -19,7 +19,6 @@ use Modules\AppGoogleBusiness\Models\GoogleBusinessPost;
 use Modules\AppGoogleBusiness\Models\GoogleBusinessPostLog;
 use Modules\AppGoogleBusiness\Models\GoogleReview;
 use Modules\AppGoogleBusiness\Support\GoogleAutoReplyService;
-use Modules\AppGoogleBusiness\Support\GoogleBusinessAccess;
 use Modules\AppGoogleBusiness\Support\GoogleBusinessClient;
 use Throwable;
 
@@ -144,8 +143,6 @@ class GoogleBusinessIndex extends Component
 
     public function mount(): void
     {
-        abort_unless(auth()->user()?->canUsePlanFeature('google_business'), 403);
-
         $this->statusMessage = (string) session('google_business_status', '');
         $this->errorMessage = (string) session('google_business_error', '');
         $this->locationCandidates = array_values((array) data_get(session('google_business_location_candidates', []), 'locations', []));
@@ -165,17 +162,11 @@ class GoogleBusinessIndex extends Component
                 'connection_id' => $connection->id,
                 'locations' => $this->locationCandidates,
             ]);
-            $connection->forceFill(['last_error' => null])->save();
             $this->tab = 'locations';
             $this->statusMessage = __('Choose which Google locations you want to add and manage. :count locations are available.', ['count' => count($this->locationCandidates)]);
             $this->errorMessage = '';
         } catch (Throwable $exception) {
-            $client = app(GoogleBusinessClient::class);
-            $client->logApiFailure('google_business.sync_connection_failed', $exception, $connection);
-            $message = $client->friendlyApiErrorMessage($exception);
-
-            $connection->forceFill(['last_error' => $message])->save();
-            $this->errorMessage = $message;
+            $this->errorMessage = $exception->getMessage();
         }
     }
 
@@ -473,7 +464,7 @@ class GoogleBusinessIndex extends Component
 
     public function saveGooglePost(string $publish = 'draft'): void
     {
-        abort_unless(auth()->user()?->canUsePlanFeature('google_business_posts'), 403);
+        abort_unless(! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('google_business_posts') ?? false), 403);
 
         $payload = $this->validate([
             'postLocationId' => ['required', 'integer'],
@@ -545,7 +536,7 @@ class GoogleBusinessIndex extends Component
 
     public function publishGooglePost(int $postId): void
     {
-        abort_unless(auth()->user()?->canUsePlanFeature('google_business_posts'), 403);
+        abort_unless(! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('google_business_posts') ?? false), 403);
 
         $post = GoogleBusinessPost::query()
             ->where('team_id', auth()->id())
@@ -655,12 +646,14 @@ class GoogleBusinessIndex extends Component
             ->where('google_location_id', (string) ($candidate['google_location_id'] ?? ''))
             ->exists();
 
-        if (! GoogleBusinessAccess::canImportGoogleLocation($alreadyImported)) {
-            $this->errorMessage = __('Your current plan allows up to :limit Google locations.', [
-                'limit' => GoogleBusinessAccess::locationLimit(),
-            ]);
+        if (! $alreadyImported) {
+            $limit = (int) (auth()->user()?->planLimit('max_google_business_locations', -1) ?? -1);
+            $used = GoogleBusinessLocation::query()->where('team_id', auth()->id())->count();
 
-            return;
+            if ($limit >= 0 && $used >= $limit) {
+                $this->errorMessage = __('Your current plan allows up to :limit Google locations.', ['limit' => $limit]);
+                return;
+            }
         }
 
         $location = app(GoogleBusinessClient::class)->importLocation(
@@ -780,7 +773,7 @@ class GoogleBusinessIndex extends Component
     public function syncReviews(int $locationId): void
     {
         $location = $this->locationQuery()->findOrFail($locationId);
-        abort_unless(auth()->user()?->canUsePlanFeature('google_review_sync'), 403);
+        abort_unless(! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('google_review_sync') ?? false), 403);
 
         if (! $location->is_managed) {
             $this->errorMessage = __('Click Manage on this Google location before syncing reviews.');
@@ -804,7 +797,7 @@ class GoogleBusinessIndex extends Component
 
     public function publishReply(int $reviewId): void
     {
-        abort_unless(auth()->user()?->canUsePlanFeature('google_review_reply'), 403);
+        abort_unless(! auth()->user()?->plan || (auth()->user()?->canUsePlanFeature('google_review_reply') ?? false), 403);
 
         $review = GoogleReview::query()
             ->where('team_id', auth()->id())
@@ -1139,7 +1132,7 @@ class GoogleBusinessIndex extends Component
             foreach ($months as $key => $monthRows) {
                 $date = \Carbon\Carbon::createFromFormat('Y-m', $key);
 
-                $trendLabels[] = format_date_locale($date, 'm/Y');
+                $trendLabels[] = $date->format('M Y');
                 $newReviewSeries[] = $monthRows->count();
                 $repliedSeries[] = $monthRows->filter(fn ($review) => filled($review->reply) || filled($review->local_reply))->count();
                 $lowScoreSeries[] = $monthRows->where('rating', '<=', 3)->count();
@@ -1153,7 +1146,7 @@ class GoogleBusinessIndex extends Component
                 $key = $date->format('Y-m-d');
                 $dayRows = $analyticsReviews->filter(fn ($review) => $review->review_created_at && $review->review_created_at->format('Y-m-d') === $key);
 
-                $trendLabels[] = format_date_locale($date, 'd/m');
+                $trendLabels[] = $date->format($trendDays > 30 ? 'M j' : 'j M');
                 $newReviewSeries[] = $dayRows->count();
                 $repliedSeries[] = $dayRows->filter(fn ($review) => filled($review->reply) || filled($review->local_reply))->count();
                 $lowScoreSeries[] = $dayRows->where('rating', '<=', 3)->count();
@@ -1289,8 +1282,7 @@ class GoogleBusinessIndex extends Component
             'autoReplyLanguageOptions' => $this->autoReplyLanguageComboboxOptions(),
             'businesses' => LocalBusiness::query()->where('user_id', auth()->id())->orderBy('name')->get(),
             'configured' => $this->isGoogleConfigured(),
-            'callbackUrl' => app(GoogleBusinessClient::class)->redirectUri(),
-            'googleCloudSetupRequired' => $this->googleCloudSetupRequired($connections),
+            'callbackUrl' => route('portal.google-business.callback'),
             'hasTables' => Schema::hasTable('lb_google_business_connections'),
         ])->layout(theme_view('layouts.app', 'app'), [
             'title' => __('Google Business'),
@@ -1319,26 +1311,6 @@ class GoogleBusinessIndex extends Component
         }
 
         return filled($clientId) && filled($clientSecret);
-    }
-
-    protected function googleCloudSetupRequired($connections): bool
-    {
-        foreach ($connections as $connection) {
-            $error = (string) $connection->last_error;
-
-            if ($error === '') {
-                continue;
-            }
-
-            if (str_contains($error, 'Application For Basic API Access')
-                || str_contains($error, 'My Business Account Management API')
-                || str_contains($error, 'Business Profile API access')
-            ) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     protected function autoReplyToneOptions(): array

@@ -3,7 +3,6 @@
 namespace Modules\AppGoogleBusiness\Console;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Schema;
 use Modules\AppGoogleBusiness\Models\GoogleBusinessPost;
 use Modules\AppGoogleBusiness\Models\GoogleBusinessPostLog;
 use Modules\AppGoogleBusiness\Support\GoogleBusinessClient;
@@ -17,10 +16,6 @@ class PublishScheduledGoogleBusinessPostsCommand extends Command
 
     public function handle(GoogleBusinessClient $client): int
     {
-        if (! Schema::hasTable((new GoogleBusinessPost)->getTable())) {
-            return self::SUCCESS;
-        }
-
         $limit = max(1, min(200, (int) $this->option('limit')));
         $published = 0;
         $failed = 0;
