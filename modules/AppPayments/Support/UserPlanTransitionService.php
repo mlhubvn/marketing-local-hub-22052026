@@ -4,6 +4,8 @@ namespace Modules\AppPayments\Support;
 
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Modules\AdminPaymentHistory\Models\PaymentHistory;
 use Modules\AdminPlans\Models\AdminPlan;
@@ -130,26 +132,65 @@ class UserPlanTransitionService
 
     public function activateDuePlans(): int
     {
-        if (! Schema::hasTable('users')) {
+        $table = (new User)->getTable();
+
+        if (! $this->usersTableReady($table)) {
+            Log::warning('plans:activate-scheduled skipped', [
+                'reason' => 'users_table_not_ready',
+                'table' => $table,
+                'has_table' => Schema::hasTable($table),
+                'has_next_plan_id' => Schema::hasTable($table) && Schema::hasColumn($table, 'next_plan_id'),
+                'has_plan_expires_at' => Schema::hasTable($table) && Schema::hasColumn($table, 'plan_expires_at'),
+            ]);
+
             return 0;
         }
 
         $count = 0;
 
-        User::query()
-            ->whereNotNull('next_plan_id')
-            ->whereNotNull('plan_expires_at')
-            ->where('plan_expires_at', '<=', now())
-            ->orderBy('id')
-            ->chunkById(100, function ($users) use (&$count): void {
-                foreach ($users as $user) {
-                    if ($this->activateScheduledPlanIfDue($user)) {
-                        $count++;
+        try {
+            User::query()
+                ->whereNotNull('next_plan_id')
+                ->whereNotNull('plan_expires_at')
+                ->where('plan_expires_at', '<=', now())
+                ->orderBy('id')
+                ->chunkById(100, function ($users) use (&$count): void {
+                    foreach ($users as $user) {
+                        if ($this->activateScheduledPlanIfDue($user)) {
+                            $count++;
+                        }
                     }
-                }
-            });
+                });
+        } catch (QueryException $exception) {
+            if ($this->isMissingUsersTableException($exception)) {
+                Log::warning('plans:activate-scheduled skipped', [
+                    'reason' => 'users_table_missing_at_runtime',
+                    'message' => $exception->getMessage(),
+                ]);
+
+                return 0;
+            }
+
+            throw $exception;
+        }
 
         return $count;
+    }
+
+    protected function usersTableReady(string $table): bool
+    {
+        if (! Schema::hasTable($table)) {
+            return false;
+        }
+
+        return Schema::hasColumn($table, 'next_plan_id')
+            && Schema::hasColumn($table, 'plan_expires_at');
+    }
+
+    protected function isMissingUsersTableException(QueryException $exception): bool
+    {
+        return $exception->getCode() === '42S02'
+            || str_contains($exception->getMessage(), 'Base table or view not found');
     }
 
     public function resolvePlanWindow(AdminPlan $plan, ?CarbonInterface $startAt = null, int $carrySeconds = 0, bool $useTrialDays = false): array
