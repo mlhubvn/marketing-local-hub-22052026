@@ -3,7 +3,10 @@
 namespace Modules\AdminCache\Actions;
 
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 use Modules\AdminCache\Actions\Contracts\CacheAction;
+use Modules\AdminCache\Support\RedisConnectionResolver;
+use RuntimeException;
 
 class ClearApplicationCacheAction implements CacheAction
 {
@@ -49,7 +52,29 @@ class ClearApplicationCacheAction implements CacheAction
 
     public function handle(): string
     {
+        $cacheStore = (string) config('cache.default', 'file');
+        $redisConnection = null;
+
+        if ($cacheStore === 'redis') {
+            $redisConnection = RedisConnectionResolver::cacheConnectionName();
+            $pingError = RedisConnectionResolver::ping($redisConnection);
+
+            if ($pingError !== null) {
+                throw new RuntimeException(__('Could not reach Redis for application cache (:connection). Check REDIS_HOST, REDIS_USERNAME, and REDIS_PASSWORD on Coolify. Error: :message', [
+                    'connection' => $redisConnection,
+                    'message' => $pingError,
+                ]));
+            }
+
+            RedisConnectionResolver::flush($redisConnection);
+        }
+
         Artisan::call('cache:clear');
+
+        Log::info('admin_cache.application_cache_cleared', [
+            'cache_store' => $cacheStore,
+            'redis_connection' => $redisConnection,
+        ]);
 
         return __('Application cache cleared successfully.');
     }

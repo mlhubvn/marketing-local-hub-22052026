@@ -5,6 +5,41 @@
                 <x-ui.alert :variant="$statusVariant" :title="$statusVariant === 'success' ? __('Completed') : __('Action failed')" :description="$statusMessage" />
             @endif
 
+            @if (($redisDiagnostics['session_driver'] ?? '') === 'redis' || ($redisDiagnostics['cache_store'] ?? '') === 'redis')
+                <x-ui.alert
+                    variant="neutral"
+                    :title="__('Redis status')"
+                    :description="__('Session and cache use separate Redis databases. Clear sessions targets the session database; application cache clear targets the cache database.')"
+                >
+                    <dl class="mt-3 grid gap-2 text-xs sm:grid-cols-2" style="color: var(--theme-muted-text-color);">
+                        @if (($redisDiagnostics['session_driver'] ?? '') === 'redis')
+                            <div>
+                                <dt class="font-semibold" style="color: var(--theme-header-text-color);">{{ __('Session Redis') }}</dt>
+                                <dd>{{ $redisDiagnostics['session_redis_connection'] ?? '—' }} / DB {{ $redisDiagnostics['session_redis_database'] ?? '—' }}
+                                    @if (! empty($redisDiagnostics['session_redis_ping_error']))
+                                        <span style="color: var(--theme-danger-color);"> — {{ $redisDiagnostics['session_redis_ping_error'] }}</span>
+                                    @else
+                                        <span style="color: var(--theme-success-color);"> — {{ __('Connected') }}</span>
+                                    @endif
+                                </dd>
+                            </div>
+                        @endif
+                        @if (($redisDiagnostics['cache_store'] ?? '') === 'redis')
+                            <div>
+                                <dt class="font-semibold" style="color: var(--theme-header-text-color);">{{ __('Cache Redis') }}</dt>
+                                <dd>{{ $redisDiagnostics['cache_redis_connection'] ?? '—' }} / DB {{ $redisDiagnostics['cache_redis_database'] ?? '—' }}
+                                    @if (! empty($redisDiagnostics['cache_redis_ping_error']))
+                                        <span style="color: var(--theme-danger-color);"> — {{ $redisDiagnostics['cache_redis_ping_error'] }}</span>
+                                    @else
+                                        <span style="color: var(--theme-success-color);"> — {{ __('Connected') }}</span>
+                                    @endif
+                                </dd>
+                            </div>
+                        @endif
+                    </dl>
+                </x-ui.alert>
+            @endif
+
             <div class="grid gap-6 md:grid-cols-2">
                 @foreach ($cacheActions as $action)
                     <div wire:key="cache-action-card-{{ $action['key'] }}">

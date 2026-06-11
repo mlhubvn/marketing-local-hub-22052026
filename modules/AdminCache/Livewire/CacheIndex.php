@@ -7,6 +7,7 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Throwable;
 use Modules\AdminCache\Support\CacheActionRegistry;
+use Modules\AdminCache\Support\RedisConnectionResolver;
 
 #[Title('Cache & session')]
 class CacheIndex extends Component
@@ -45,6 +46,7 @@ class CacheIndex extends Component
             'cacheActions' => $this->actions->gridItems(),
             'optimizeAction' => $this->actions->optimizeItem(),
             'sessionAction' => $this->actions->sessionItem(),
+            'redisDiagnostics' => RedisConnectionResolver::diagnostics(),
         ])->layout(theme_view('layouts.app', 'app'), [
             'title' => __('Cache & session'),
         ]);
