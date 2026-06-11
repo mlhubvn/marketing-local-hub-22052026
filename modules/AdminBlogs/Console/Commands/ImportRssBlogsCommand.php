@@ -26,32 +26,15 @@ class ImportRssBlogsCommand extends Command
             ->where('migration', '2026_06_08_160000_repair_missing_blog_rss_tables')
             ->exists();
 
-        $diagnostics = [
-            'hasBlogRssSources' => $hasBlogRssSources,
-            'hasBlogRssImports' => $hasBlogRssImports,
-            'ensureMigrationRan' => $ensureMigrationRan,
-            'repairMigrationRan' => $repairMigrationRan,
-            'appEnv' => config('app.env'),
-        ];
-
-        // #region agent log
-        Log::info('blogs:rss-import diagnostics', $diagnostics);
-        @file_put_contents(
-            base_path('debug-30216d.log'),
-            json_encode([
-                'sessionId' => '30216d',
-                'runId' => 'post-fix',
-                'hypothesisId' => 'H1-H4',
-                'location' => 'ImportRssBlogsCommand.php:handle',
-                'message' => 'blogs:rss-import diagnostics',
-                'data' => $diagnostics,
-                'timestamp' => (int) round(microtime(true) * 1000),
-            ])."\n",
-            FILE_APPEND
-        );
-        // #endregion
-
         if (! $hasBlogRssSources) {
+            $diagnostics = [
+                'hasBlogRssSources' => $hasBlogRssSources,
+                'hasBlogRssImports' => $hasBlogRssImports,
+                'ensureMigrationRan' => $ensureMigrationRan,
+                'repairMigrationRan' => $repairMigrationRan,
+                'appEnv' => config('app.env'),
+            ];
+
             $this->warn('Table blog_rss_sources is missing — run php artisan migrate --force then retry.');
             Log::warning('blogs:rss-import skipped: blog_rss_sources table missing', $diagnostics);
 

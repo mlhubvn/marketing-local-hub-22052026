@@ -1289,7 +1289,7 @@ class GoogleBusinessIndex extends Component
             'autoReplyLanguageOptions' => $this->autoReplyLanguageComboboxOptions(),
             'businesses' => LocalBusiness::query()->where('user_id', auth()->id())->orderBy('name')->get(),
             'configured' => $this->isGoogleConfigured(),
-            'callbackUrl' => route('portal.google-business.callback'),
+            'callbackUrl' => app(GoogleBusinessClient::class)->redirectUri(),
             'googleCloudSetupRequired' => $this->googleCloudSetupRequired($connections),
             'hasTables' => Schema::hasTable('lb_google_business_connections'),
         ])->layout(theme_view('layouts.app', 'app'), [

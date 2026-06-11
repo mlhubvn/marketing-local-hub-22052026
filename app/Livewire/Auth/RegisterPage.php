@@ -7,11 +7,14 @@ use App\Concerns\PasswordValidationRules;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\Rule;
+use Laravel\Fortify\Fortify;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Modules\AdminUser\Actions\Fortify\CreateNewUser;
 use Modules\AdminUser\Concerns\ProfileValidationRules;
+use Modules\AdminUser\Models\User;
 
 #[Title('Register')]
 class RegisterPage extends Component
@@ -42,7 +45,7 @@ class RegisterPage extends Component
         $this->timezone = (string) config('app.timezone', 'UTC');
     }
 
-    public function register(CreateNewUser $creator)
+    public function register(CreateNewUser $creator): mixed
     {
         $validated = $this->validate($this->rules(), [], [
             'accept_terms' => __('terms and conditions'),
@@ -85,7 +88,16 @@ class RegisterPage extends Component
         Auth::guard(config('fortify.guard'))->login($user);
         request()->session()->regenerate();
 
-        return redirect()->intended(\Laravel\Fortify\Fortify::redirects('register') ?? config('fortify.home'));
+        return $this->redirect($this->registerRedirectUrl($user), navigate: false);
+    }
+
+    protected function registerRedirectUrl(User $user): string
+    {
+        if (auth_activation_email_enabled() && ! $user->hasVerifiedEmail() && Route::has('verification.notice')) {
+            return route('verification.notice');
+        }
+
+        return Fortify::redirects('register') ?? config('fortify.home');
     }
 
     protected function rules(): array

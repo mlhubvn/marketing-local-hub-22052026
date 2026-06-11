@@ -4,10 +4,11 @@ namespace App\Notifications;
 
 use App\Support\Mail\AuthMailMessageBuilder;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class WelcomeNewUserNotification extends Notification
+class WelcomeNewUserNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 

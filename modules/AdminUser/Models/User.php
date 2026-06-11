@@ -2,6 +2,7 @@
 
 namespace Modules\AdminUser\Models;
 
+use App\Notifications\QueuedVerifyEmail;
 use App\Support\Plans\NoPlanAccess;
 use App\Support\Storage\StorageDriverManager;
 use Carbon\Carbon;
@@ -371,5 +372,10 @@ class User extends Authenticatable implements MustVerifyEmail, HasLocalePreferen
     public function hasAvailableCredits(string $actionKey, int $quantity = 1): bool
     {
         return app(CreditService::class)->canConsume($this, $actionKey, $quantity);
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new QueuedVerifyEmail);
     }
 }
