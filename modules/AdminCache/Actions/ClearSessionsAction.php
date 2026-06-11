@@ -4,6 +4,7 @@ namespace Modules\AdminCache\Actions;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
 use Modules\AdminCache\Actions\Contracts\CacheAction;
@@ -54,13 +55,19 @@ class ClearSessionsAction implements CacheAction
     public function handle(): string
     {
         $driver = (string) config('session.driver', 'file');
+        $redisConnection = null;
 
         match ($driver) {
             'file' => $this->clearFileSessions(),
             'database' => $this->clearDatabaseSessions(),
-            'redis' => $this->clearRedisSessions(),
+            'redis' => $redisConnection = $this->clearRedisSessions(),
             default => throw new RuntimeException(__('Session clear is not supported for the current session driver: :driver', ['driver' => $driver])),
         };
+
+        Log::info('admin_cache.sessions_cleared', [
+            'driver' => $driver,
+            'redis_connection' => $redisConnection,
+        ]);
 
         return __('All sessions cleared successfully. All users have been logged out.');
     }
@@ -87,8 +94,30 @@ class ClearSessionsAction implements CacheAction
         DB::table($table)->delete();
     }
 
-    protected function clearRedisSessions(): void
+    protected function clearRedisSessions(): string
     {
-        Redis::connection(config('session.connection'))->flushdb();
+        $connection = $this->resolveSessionRedisConnection();
+        Redis::connection($connection)->flushdb();
+
+        return $connection;
+    }
+
+    protected function resolveSessionRedisConnection(): string
+    {
+        if (filled(config('session.connection'))) {
+            return (string) config('session.connection');
+        }
+
+        $storeName = (string) (config('session.store') ?: config('session.driver', 'redis'));
+        $store = config("cache.stores.{$storeName}");
+
+        if (! is_array($store)) {
+            return 'default';
+        }
+
+        return match ($store['driver'] ?? '') {
+            'redis' => (string) ($store['connection'] ?? 'cache'),
+            default => 'default',
+        };
     }
 }
