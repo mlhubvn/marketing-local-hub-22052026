@@ -1,12 +1,13 @@
-<section class="w-full">
+<section class="w-full" wire:key="admin-cache-index-{{ config('livewire.release_token', 'default') }}">
     <x-settings.layout :heading="__('Cache & session')" :subheading="__('Clear application caches and manage sessions safely.')">
         <div class="space-y-6">
             @if ($statusMessage)
-                <x-ui.alert :variant="$statusVariant" :title="$statusVariant === 'success' ? __('Completed') : __('Action failed')" :description="$statusMessage" />
+                <x-ui.alert wire:key="cache-status-{{ md5($statusMessage.$statusVariant) }}" :variant="$statusVariant" :title="$statusVariant === 'success' ? __('Completed') : __('Action failed')" :description="$statusMessage" />
             @endif
 
             @if (($redisDiagnostics['session_driver'] ?? '') === 'redis' || ($redisDiagnostics['cache_store'] ?? '') === 'redis')
                 <x-ui.alert
+                    wire:key="cache-redis-diagnostics"
                     variant="neutral"
                     :title="__('Redis status')"
                     :description="__('Session and cache use separate Redis databases. Clear sessions targets the session database; application cache clear targets the cache database.')"
@@ -48,115 +49,63 @@
                             :description="__($action['description'])"
                             body-class="p-6"
                         >
-                            <x-ui.dialog wire:key="cache-action-dialog-{{ $action['key'] }}" :title="__($action['confirm_title'])" :description="__($action['confirm'])" width="sm">
-                                <x-slot:trigger>
-                                    <x-ui.button
-                                        type="button"
-                                        :variant="$action['variant']"
-                                        block
-                                        wire:loading.attr="disabled"
-                                        wire:target="runAction"
-                                    >
-                                        <i class="fa-light {{ $action['icon'] }}"></i>
-                                        <span>{{ __($action['button']) }}</span>
-                                    </x-ui.button>
-                                </x-slot:trigger>
-
-                                <x-slot:footer>
-                                    <div class="flex justify-end gap-3">
-                                        <x-ui.button type="button" variant="outline" x-on:click="open = false">{{ __('Cancel') }}</x-ui.button>
-                                        <x-ui.button
-                                            type="button"
-                                            variant="secondary"
-                                            wire:click="runAction('{{ $action['key'] }}')"
-                                            wire:loading.attr="disabled"
-                                            wire:target="runAction"
-                                            x-on:click="open = false"
-                                        >
-                                            {{ __('Continue') }}
-                                        </x-ui.button>
-                                    </div>
-                                </x-slot:footer>
-                            </x-ui.dialog>
+                            <x-ui.button
+                                type="button"
+                                :variant="$action['variant']"
+                                block
+                                wire:click="runAction('{{ $action['key'] }}')"
+                                wire:confirm="{{ __($action['confirm_title']).'|'.__($action['confirm']) }}"
+                                wire:loading.attr="disabled"
+                                wire:target="runAction"
+                            >
+                                <i class="fa-light {{ $action['icon'] }}"></i>
+                                <span>{{ __($action['button']) }}</span>
+                            </x-ui.button>
                         </x-theme.section-card>
                     </div>
                 @endforeach
             </div>
 
             <x-theme.section-card
+                wire:key="cache-action-card-{{ $optimizeAction['key'] }}"
                 :title="__($optimizeAction['title'])"
                 :description="__($optimizeAction['description'])"
                 body-class="p-6"
             >
-                <x-ui.dialog wire:key="cache-action-dialog-{{ $optimizeAction['key'] }}" :title="__($optimizeAction['confirm_title'])" :description="__($optimizeAction['confirm'])" width="sm">
-                    <x-slot:trigger>
-                        <x-ui.button
-                            type="button"
-                            :variant="$optimizeAction['variant']"
-                            block
-                            wire:loading.attr="disabled"
-                            wire:target="runAction"
-                        >
-                            <i class="fa-light {{ $optimizeAction['icon'] }}"></i>
-                            <span>{{ __($optimizeAction['button']) }}</span>
-                        </x-ui.button>
-                    </x-slot:trigger>
-
-                    <x-slot:footer>
-                        <div class="flex justify-end gap-3">
-                            <x-ui.button type="button" variant="outline" x-on:click="open = false">{{ __('Cancel') }}</x-ui.button>
-                            <x-ui.button
-                                type="button"
-                                variant="secondary"
-                                wire:click="runAction('{{ $optimizeAction['key'] }}')"
-                                wire:loading.attr="disabled"
-                                wire:target="runAction"
-                                x-on:click="open = false"
-                            >
-                                {{ __('Continue') }}
-                            </x-ui.button>
-                        </div>
-                    </x-slot:footer>
-                </x-ui.dialog>
+                <x-ui.button
+                    type="button"
+                    :variant="$optimizeAction['variant']"
+                    block
+                    wire:click="runAction('{{ $optimizeAction['key'] }}')"
+                    wire:confirm="{{ __($optimizeAction['confirm_title']).'|'.__($optimizeAction['confirm']) }}"
+                    wire:loading.attr="disabled"
+                    wire:target="runAction"
+                >
+                    <i class="fa-light {{ $optimizeAction['icon'] }}"></i>
+                    <span>{{ __($optimizeAction['button']) }}</span>
+                </x-ui.button>
             </x-theme.section-card>
 
             <x-ui.alert
+                wire:key="cache-action-card-{{ $sessionAction['key'] }}"
                 variant="danger"
                 inline
                 :title="__($sessionAction['title'])"
                 :description="__($sessionAction['description'])"
             >
                 <div class="mt-4">
-                    <x-ui.dialog wire:key="cache-action-dialog-{{ $sessionAction['key'] }}" :title="__($sessionAction['confirm_title'])" :description="__($sessionAction['confirm'])" width="sm">
-                        <x-slot:trigger>
-                            <x-ui.button
-                                type="button"
-                                :variant="$sessionAction['variant']"
-                                block
-                                wire:loading.attr="disabled"
-                                wire:target="runAction"
-                            >
-                                <i class="fa-light {{ $sessionAction['icon'] }}"></i>
-                                <span>{{ __($sessionAction['button']) }}</span>
-                            </x-ui.button>
-                        </x-slot:trigger>
-
-                        <x-slot:footer>
-                            <div class="flex justify-end gap-3">
-                                <x-ui.button type="button" variant="outline" x-on:click="open = false">{{ __('Cancel') }}</x-ui.button>
-                                <x-ui.button
-                                    type="button"
-                                    variant="secondary"
-                                    wire:click="runAction('{{ $sessionAction['key'] }}')"
-                                    wire:loading.attr="disabled"
-                                    wire:target="runAction"
-                                    x-on:click="open = false"
-                                >
-                                    {{ __('Continue') }}
-                                </x-ui.button>
-                            </div>
-                        </x-slot:footer>
-                    </x-ui.dialog>
+                    <x-ui.button
+                        type="button"
+                        :variant="$sessionAction['variant']"
+                        block
+                        wire:click="runAction('{{ $sessionAction['key'] }}')"
+                        wire:confirm="{{ __($sessionAction['confirm_title']).'|'.__($sessionAction['confirm']) }}"
+                        wire:loading.attr="disabled"
+                        wire:target="runAction"
+                    >
+                        <i class="fa-light {{ $sessionAction['icon'] }}"></i>
+                        <span>{{ __($sessionAction['button']) }}</span>
+                    </x-ui.button>
                 </div>
             </x-ui.alert>
         </div>
