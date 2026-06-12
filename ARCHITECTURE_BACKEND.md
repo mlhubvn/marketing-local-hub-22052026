@@ -311,7 +311,7 @@ Thứ tự rất quan trọng:
 
 - Điền `DB_HOST`/`DB_PASSWORD` thật (đang trống trong mẫu).
 - (Backlog bảo mật) Gắn captcha vào 5 form growth-tool công khai — xem `ARCHITECTURE_FEATURE.md`.
-- Queue worker chạy — `entrypoint.sh` tự start `php artisan queue:work` (chạy nền, user `www-data`, vòng lặp tự restart) khi `APP_INSTALLED=true`; tắt bằng `RUN_QUEUE_WORKER=false` nếu dùng worker service Coolify riêng.
+- Queue + scheduler — `docker/supervisord.conf` chạy `queue:work` và `schedule:work` khi `APP_INSTALLED=true`; tắt queue bằng `RUN_QUEUE_WORKER=false` nếu dùng worker service Coolify riêng.
 - Redis sống & `REDIS_PASSWORD` đặt đúng trong Coolify; chỉ cần migrate `failed_jobs`/`job_batches` (không cần `sessions`/`cache`/`jobs`).
 - Scheduler/cron đã bật (xem `AdminCrons` + `routes/console.php`). CRM: cân nhắc lịch `crm:process-automations`, `crm:cleanup-activities`, `crm:lifecycle` (module `AppAdvancedCustomerCrm`).
 - Cấu hình cổng thanh toán + webhook URL thật cho từng `Payment*` đang dùng.

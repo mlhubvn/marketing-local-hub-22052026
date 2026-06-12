@@ -1,0 +1,66 @@
+# =============================================================================
+# MLHUB — Mẫu docker-compose (CHỈ application — tham chiếu Coolify)
+# =============================================================================
+# Production Coolify: MySQL và Redis là resource RIÊNG (khối 2 + 3).
+# App kết nối qua internal hostname trong Environment Variables:
+#   DB_HOST, REDIS_HOST (không phải 127.0.0.1 trong container app).
+#
+# Coolify thường tự sinh docker-compose khi deploy — file này để:
+#   - AI / dev hiểu cấu trúc tối thiểu
+#   - So sánh với bản export Coolify (tránh commit bản có ID resource cũ)
+#
+# Không commit secret. Env thật: Coolify → Environment Variables.
+# =============================================================================
+
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: unless-stopped
+        expose:
+            - '80'
+        env_file:
+            - .env
+        networks:
+            coolify:
+                aliases:
+                    - mlhub-app
+        volumes:
+            - mlhub-storage:/var/www/html/storage
+        labels:
+            - traefik.enable=true
+            - traefik.http.middlewares.gzip.compress=true
+            - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+            - traefik.http.routers.http-mlhub.entryPoints=http
+            - traefik.http.routers.http-mlhub.middlewares=redirect-to-https
+            - traefik.http.routers.http-mlhub.rule=Host(`mlhub.vn`) && PathPrefix(`/`)
+            - traefik.http.routers.http-mlhub.service=mlhub-app
+            - traefik.http.routers.http-www-mlhub.entryPoints=http
+            - traefik.http.routers.http-www-mlhub.middlewares=redirect-to-https
+            - traefik.http.routers.http-www-mlhub.rule=Host(`www.mlhub.vn`) && PathPrefix(`/`)
+            - traefik.http.routers.http-www-mlhub.service=mlhub-app
+            - traefik.http.routers.https-mlhub.entryPoints=https
+            - traefik.http.routers.https-mlhub.middlewares=gzip
+            - traefik.http.routers.https-mlhub.rule=Host(`mlhub.vn`) && PathPrefix(`/`)
+            - traefik.http.routers.https-mlhub.service=mlhub-app
+            - traefik.http.routers.https-mlhub.tls.certresolver=letsencrypt
+            - traefik.http.routers.https-mlhub.tls=true
+            - traefik.http.routers.https-www-mlhub.entryPoints=https
+            - traefik.http.routers.https-www-mlhub.middlewares=gzip
+            - traefik.http.routers.https-www-mlhub.rule=Host(`www.mlhub.vn`) && PathPrefix(`/`)
+            - traefik.http.routers.https-www-mlhub.service=mlhub-app
+            - traefik.http.routers.https-www-mlhub.tls.certresolver=letsencrypt
+            - traefik.http.routers.https-www-mlhub.tls=true
+            - traefik.http.services.mlhub-app.loadbalancer.server.port=80
+
+networks:
+    coolify:
+        external: true
+        name: coolify
+        attachable: true
+
+volumes:
+    mlhub-storage:
+        name: mlhub-storage
+        external: false

@@ -70,6 +70,12 @@ Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** (LocalBoost AI
 - **Cách xử lý (một lần):** repo có `.gitignore` (`/vendor/`) → `git rm -r --cached vendor` → commit + push → redeploy. Sau push, clone chỉ ~2–3k file.
 - **Không** commit `vendor/`, `node_modules/`, `.env`, `storage/*.log`, `bootstrap/cache/*.php`.
 
+### 1.2.3 Cài code gốc lên Coolify
+
+> Repo gốc từ dev, chưa custom. Prompt ngắn: `ARCHITECTURE_FRESH_START_MASTER_PROMPT.md`.
+
+Coolify: Application + MySQL + Redis (3 khối riêng) → copy env lên tab Environment Variables → deploy → làm theo lệnh installer trong repo gốc.
+
 ### 1.3 Go-live production lần đầu (sau khi gỡ demo/faker)
 
 > Chạy **một lần** khi DB trống. Mọi biến env giải thích trong `.env.example`.

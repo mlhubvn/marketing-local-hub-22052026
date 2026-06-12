@@ -2,6 +2,8 @@
 
 Nơi lưu **prompt mẫu** để làm việc với Cursor (kèm plugin **Superpowers**) và **cheatsheet lệnh** (Laravel / Docker / Coolify) cho dự án MLHUB. Mở file này mỗi khi bắt đầu phiên làm việc, chọn luồng §2 rồi copy prompt §3.
 
+> **Workspace mới (Codex / code gốc):** copy prompt trong `ARCHITECTURE_VIBECODE_BOOTSTRAP_PROMPT.md` — AI tự quét repo và sinh `.cursorrules` + bộ `ARCHITECTURE_*.md`.
+>
 > Đọc kèm: `.cursorrules`, `ARCHITECTURE_CHECKLIST.md`, `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_FEATURE.md`.
 > Mọi prompt nên đính kèm `@file` đúng chỗ thay vì `@Codebase` để tiết kiệm tài nguyên.
 > **Commit / push / redeploy Coolify do chủ dự án làm thủ công** — AI chỉ sửa local + soạn commit message.
@@ -227,7 +229,13 @@ After deploy checklist:
 Do not run migrate:fresh on production. Document new env keys in .env.example only.
 ```
 
-### 2.7 Sau khi AI báo “xong” (chủ dự án)
+### 2.8 MASTER PROMPT — Cài code gốc lên Coolify
+
+Dùng khi có **code gốc từ dev**, chưa tùy biến — chỉ cần AI quét repo và hướng dẫn/cấu hình deploy Coolify (App + MySQL + Redis riêng).
+
+Copy khối prompt trong `ARCHITECTURE_FRESH_START_MASTER_PROMPT.md`.
+
+### 2.9 Sau khi AI báo "xong" (chủ dự án)
 
 1. Đọc tóm tắt file đổi + **commit message gợi ý**.
 2. Coolify **Environment Variables** (nếu AI liệt kê).
