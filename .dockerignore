@@ -41,7 +41,6 @@ pest.xml
 # Docs / meta (not needed in production image)
 ARCHITECTURE_*.md
 .cursorrules
-codex/
 
 # Large or one-off local artifacts
 storage/*.log
