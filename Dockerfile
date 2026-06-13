@@ -27,7 +27,7 @@ LABEL description="Laravel 13 + Livewire 4 — Apache, PHP 8.3, Supervisor (queu
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public \
     COMPOSER_ALLOW_SUPERUSER=1 \
-    MAKEFLAGS=-j1
+    MAKEFLAGS=-j2
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates \
@@ -40,7 +40,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libpng-dev \
         libzip-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j1 \
+    && docker-php-ext-install -j2 \
         bcmath \
         exif \
         gd \
