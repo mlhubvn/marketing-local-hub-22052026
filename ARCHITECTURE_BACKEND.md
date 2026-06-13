@@ -9,7 +9,7 @@ Tài liệu mô tả cách backend Laravel 13 được tổ chức, các add-on/
 LocalBoost AI là một **Modular Monolith** (khối nguyên một process nhưng chia module):
 
 - `app/` — **lớp vỏ (shell) mỏng**: auth, trang marketing khách, bootstrap MLHUB (`config/mlhub.php`, `mlhub:install`), các registry toàn cục, middleware.
-- `modules/` — **68 module** (29 `Admin`*, 36 `App*`, 3 `Payment*`) chứa hầu hết Model, Livewire, Route, Service.
+- `modules/` — **72 module** (31 `Admin*`, 37 `App*`, 3 `Payment*`, 1 `Custom*`) chứa hầu hết Model, Livewire, Route, Service.
 - `resources/themes/` — tầng trình bày (xem `ARCHITECTURE_FRONTEND.md`).
 - `bootstrap/providers.php` — **tự động phát hiện** mọi module và nạp Service Provider của chúng.
 
@@ -102,7 +102,7 @@ return array_values(array_unique(array_merge(
 )));
 ```
 
-> **Hệ quả:** Để thêm một add-on, chỉ cần (a) thả thư mục module có `module.json` vào `modules/` (tự nạp), hoặc (b) thêm provider vào `bootstrap/providers.marketplace.php` nếu marketplace yêu cầu. **Không bao giờ sửa `bootstrap/providers.php`.** Sau cập nhật upstream: chạy deploy → `migrate --force` trong `entrypoint.sh` áp migration module mới (`lb_email_`*, `lb_loyalty_`*, `lb_crm_*`, …).
+> **Hệ quả:** Để thêm một add-on, chỉ cần (a) thả thư mục module có `module.json` vào `modules/` (tự nạp), hoặc (b) thêm provider vào `bootstrap/providers.marketplace.php` nếu marketplace yêu cầu. **Không bao giờ sửa `bootstrap/providers.php`.** Sau cập nhật upstream: chạy deploy → `migrate --force` trong `docker/entrypoint.sh` áp migration module mới (`lb_email_`*, `lb_loyalty_`*, `lb_crm_*`, …).
 
 ### 3.2 Service Provider của module làm gì
 
@@ -264,7 +264,7 @@ Thứ tự rất quan trọng:
 | `database/seeders/`                              | `DatabaseSeeder`, `PlanSeeder`, `MLHUBBootstrapSeeder`, `MLHUBMarketplaceSeeder`, `AITemplateCategorySeeder`, `AITemplateSeeder` (data ở `database/seeders/data/`). Admin + extras: `modules/CustomMLHUB/Database/Seeders/`. |
 
 
-- **Settings hệ thống:** `Modules\AdminSettings\Support\OptionStore` (key/value lưu DB).
+- **Settings hệ thống:** `Modules\AdminSettings\Support\OptionStore` (key/value lưu DB). Hiện một số secret tích hợp được sync từ Coolify vào options dạng plaintext; đây là backlog bảo mật cần migration mã hóa riêng, không mở rộng thêm secret plaintext mới.
 - **Engine campaign dùng chung:** bảng `lb_campaigns` (model `QrCampaign`) phục vụ tất cả growth tool qua cột `type` + JSON `settings`. Các bảng vệ tinh: `lb_review_feedbacks`, `lb_bookings`, `lb_coupon_redemptions`, `lb_feedback_responses`, `lb_lead_submissions`, `lb_qr_scans`…
 - **Engine DB thực tế (từ `.env.example`):** `DB_CONNECTION=mysql` (cổng 3306). Viết migration/raw query theo cú pháp **MySQL**. Bảng nghiệp vụ dùng tiền tố `lb_*`. **Session/cache/queue chạy trên Redis** (không cần bảng `sessions`/`cache`/`cache_locks`/`jobs` trong MySQL); riêng `failed_jobs` và `job_batches` vẫn nằm ở MySQL theo mặc định của Laravel.
 
@@ -274,7 +274,7 @@ Thứ tự rất quan trọng:
 | Khía cạnh           | Cấu hình                                                         | Tác động                                                                                                                                                                                                                                                                                 |
 | ------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Locale              | `APP_LOCALE=vi`, fallback `vi`, `APP_TIMEZONE=Asia/Ho_Chi_Minh`  | App mặc định Tiếng Việt; chuỗi mới vẫn dùng key tiếng Anh trong `__()` rồi dịch ở `lang/vi.json`                                                                                                                                                                                         |
-| Session/Queue/Cache | đều `redis` (phpredis)                                           | Chạy trên Redis (`REDIS_HOST` = service nội bộ Coolify, password trong Coolify env). **Bắt buộc** chạy queue worker + đảm bảo Redis sống                                                                                                                                                 |
+| Session/Queue/Cache | đều `redis` (phpredis)                                           | Tách bắt buộc: queue/default DB0, cache + lock DB1, session DB2. `REDIS_URL` (nếu dùng) chỉ áp dụng queue/default, cấm query/DB path mã hóa; database path phải trống hoặc đúng `/0`. AdminCache dùng parser Laravel và từ chối `FLUSHDB` khi các concern trùng DB. **Bắt buộc** đúng một queue worker và Redis sống |
 | Mail                | `MAIL_MAILER=smtp` (Emailit)                                     | ✅ Đã cấu hình `smtp.emailit.com:587`, user `emailit`, password = API key (đặt trong Coolify env). Dùng cho verify email, reset mật khẩu, email automation. **Lưu ý:** thông báo growth-tool (Lead/Feedback/Booking/Coupon) là **in-app** qua `NotificationService`, không phụ thuộc mail |
 | Storage             | `FILESYSTEM_DISK=public` (S3 trống)                              | Upload nằm ở disk `public`; bật S3 nếu cần scale                                                                                                                                                                                                                                         |
 | Cookie              | `SESSION_SECURE_COOKIE=true`                                     | Chỉ chạy đúng dưới HTTPS                                                                                                                                                                                                                                                                 |
@@ -289,7 +289,7 @@ Thứ tự rất quan trọng:
 - **Laravel Fortify** + trang Livewire (`app/Livewire/Auth/*`), gắn view trong `App\Providers\FortifyServiceProvider`.
 - Action cụ thể: `Modules\AdminUser\Actions\Fortify\{CreateNewUser, UpdateUserProfileInformation, UpdateUserPassword, ResetUserPassword}`.
 - 2FA qua `TwoFactorAuthenticatable` + `pragmarx/google2fa`.
-- Cổng admin: `EnsureAdminAccess`; quyền chi tiết theo `role->permissions` + `AdminPermissionCatalog::permissionForRoute()`.
+- Cổng admin: `EnsureAdminAccess`; quyền chi tiết theo `role->permissions` + `AdminPermissionCatalog::permissionForRoute()`. Super-admin chỉ từ cờ `is_super_admin` hoặc role `super-admin`, không suy quyền từ username.
 - Mạo danh (impersonate): `canImpersonate()` / `isImpersonating()` (session `impersonator_id`).
 
 ---
@@ -311,8 +311,8 @@ Thứ tự rất quan trọng:
 
 - Điền `DB_HOST`/`DB_PASSWORD` thật (đang trống trong mẫu).
 - (Backlog bảo mật) Gắn captcha vào 5 form growth-tool công khai — xem `ARCHITECTURE_FEATURE.md`.
-- Queue + scheduler — `docker/supervisord.conf` chạy `queue:work` và `schedule:work` khi `APP_INSTALLED=true`; tắt queue bằng `RUN_QUEUE_WORKER=false` nếu dùng worker service Coolify riêng.
-- Redis sống & `REDIS_PASSWORD` đặt đúng trong Coolify; chỉ cần migrate `failed_jobs`/`job_batches` (không cần `sessions`/`cache`/`jobs`).
+- Queue + scheduler — `docker/supervisord.conf` chạy `queue:work` và `schedule:work` khi `APP_INSTALLED=true`; tắt queue bằng `RUN_QUEUE_WORKER=false` nếu dùng worker service Coolify riêng. `QUEUE_WORKER_TIMEOUT` phải là số dương và nhỏ hơn `REDIS_QUEUE_RETRY_AFTER`.
+- Redis sống & `REDIS_PASSWORD` đặt đúng trong Coolify; queue/default DB0, cache + lock DB1, session DB2. Chỉ cần migrate `failed_jobs`/`job_batches` (không cần `sessions`/`cache`/`jobs`).
 - Scheduler/cron đã bật (xem `AdminCrons` + `routes/console.php`). CRM: cân nhắc lịch `crm:process-automations`, `crm:cleanup-activities`, `crm:lifecycle` (module `AppAdvancedCustomerCrm`).
 - Cấu hình cổng thanh toán + webhook URL thật cho từng `Payment*` đang dùng.
 - Cân nhắc bật S3 (`FILESYSTEM_DISK`/`AWS_*`) nếu cần scale; kiểm tra signed URL hoạt động sau Traefik.

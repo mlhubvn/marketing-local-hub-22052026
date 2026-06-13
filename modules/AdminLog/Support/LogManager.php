@@ -134,7 +134,10 @@ class LogManager
     {
         $path = $this->resolve($file);
 
-        file_put_contents($path, '');
+        if (@file_put_contents($path, '') === false) {
+            throw new RuntimeException(__('Log file :name could not be cleared.', ['name' => basename($path)]));
+        }
+
         $this->forgetFilesCache();
 
         return __('Log file :name cleared successfully.', ['name' => basename($path)]);
@@ -144,7 +147,10 @@ class LogManager
     {
         $path = $this->resolve($file);
 
-        @unlink($path);
+        if (! @unlink($path)) {
+            throw new RuntimeException(__('Log file :name could not be deleted.', ['name' => basename($path)]));
+        }
+
         $this->forgetFilesCache();
 
         return __('Log file :name deleted successfully.', ['name' => basename($file)]);

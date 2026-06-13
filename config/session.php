@@ -73,7 +73,10 @@ return [
     |
     */
 
-    'connection' => env('SESSION_CONNECTION'),
+    'connection' => env(
+        'SESSION_CONNECTION',
+        env('SESSION_DRIVER', 'database') === 'redis' ? 'session' : null,
+    ),
 
     /*
     |--------------------------------------------------------------------------

@@ -2,7 +2,7 @@
 
 > Tài liệu này được sinh ra bằng cách **quét trực tiếp codebase thực tế**. Mọi quy tắc dưới đây phản ánh đúng phong cách của lập trình viên gốc. Khi bạn (AI) viết hoặc sửa code, **bắt buộc bám sát các mẫu này** — không tự sáng tạo phong cách mới.
 
-Đây là một ứng dụng **Laravel 13 + Livewire 4 dạng modular monolith**. Phần lớn nghiệp vụ nằm trong `modules/` (**68 module**: 29 `Admin*`, 36 `App*`, 3 `Payment*`), `app/` chỉ là lớp vỏ (shell) mỏng.
+Đây là một ứng dụng **Laravel 13 + Livewire 4 dạng modular monolith**. Phần lớn nghiệp vụ nằm trong `modules/` (**72 module**: 31 `Admin*`, 37 `App*`, 3 `Payment*`, 1 `Custom*`), `app/` chỉ là lớp vỏ (shell) mỏng.
 
 ---
 
@@ -21,9 +21,9 @@
 
 `Cursor IDE (local)` → commit/push → `GitHub (source of truth)` → webhook → `Coolify (auto build: docker-compose + .env + Traefik HTTP→HTTPS)` tại `mlhub.vn`.
 
-- ⛔ **TUYỆT ĐỐI KHÔNG** đề xuất can thiệp thủ công bằng dòng lệnh trên server Coolify (SSH, sửa file/chạy lệnh trên container).
-- Mọi thay đổi hạ tầng phải thể hiện bằng **code/config tại local** (`docker-compose.yaml`, `Dockerfile`, `entrypoint.sh`, `.env.example`, migration) → commit → push → để Coolify tự build.
-- Lệnh deploy (`migrate --force`, `config:cache`…) thuộc `entrypoint.sh`/pipeline, không gõ tay trên server.
+- ⛔ **TUYỆT ĐỐI KHÔNG** đề xuất can thiệp thủ công bằng dòng lệnh trên server Coolify (SSH, sửa file/chạy lệnh trên container), ngoại trừ lệnh cài đặt một lần `mlhub:install` đã được chủ dự án phê duyệt rõ ràng.
+- Mọi thay đổi hạ tầng phải thể hiện bằng **code/config tại local** (`docker-compose.yaml`, `Dockerfile`, `docker/entrypoint.sh`, `.env.example`, migration) → commit → push → để Coolify tự build.
+- Lệnh deploy (`migrate --force`, `config:cache`…) thuộc `docker/entrypoint.sh`/pipeline, không gõ tay trên server.
 
 ### 0.2 Quy ước làm việc với chủ dự án (CỐ ĐỊNH — đọc kỹ)
 
@@ -31,7 +31,7 @@
 
 1. **Chủ dự án ra lệnh, AI tự quyết & xử lý.** Chủ dự án không rành dev/bảo mật → **KHÔNG bày nhiều phương án để chọn**. Tự chọn hướng tốt nhất (an toàn, chuẩn production), tự thực thi, rồi đưa lại **các bước đơn giản để chủ dự án làm theo**. Chỉ hỏi khi thiếu thông tin bắt buộc (bí mật, quyết định nghiệp vụ) — hỏi 1 câu rõ ràng.
 2. **Sau khi xử lý, BẮT BUỘC đồng bộ các file hệ thống liên quan** (chỉ sửa file nào thực sự bị ảnh hưởng, không sửa thừa):
-   `.cursorrules`, `.env.example`, `.htaccess`, `docker-compose.yaml`, `Dockerfile`, `entrypoint.sh`, `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_FEATURE.md`, `ARCHITECTURE_CHECKLIST.md`, `ARCHITECTURE_PROMPT.md`.
+   `.cursorrules`, `.env.example`, `.htaccess`, `docker-compose.yaml`, `Dockerfile`, `docker/entrypoint.sh`, `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_FEATURE.md`, `ARCHITECTURE_CHECKLIST.md`, `ARCHITECTURE_PROMPT.md`.
 3. **Nếu cần cấu hình trên Coolify → hướng dẫn từng bước theo đúng tab Coolify**: General, Advanced, Environment Variables, Persistent Storage, Git Source, Servers, Scheduled Tasks, Webhooks, Preview Deployments, Healthcheck, Rollback, Resource Limits, Resource Operations, Metrics, Tags, Danger Zone. Nói rõ tab nào, ô nào, giá trị gì.
 4. **Commit GitHub + Deploy do CHỦ DỰ ÁN làm thủ công.** AI **KHÔNG** tự `git commit`/`git push`/deploy. AI chỉ sửa file tại local + soạn sẵn **commit message gợi ý**; chủ dự án tự đẩy để kịp copy log nếu lỗi. Khi xong một cụm việc, tóm tắt "đã đổi file nào" + gợi ý commit message.
 5. **Báo NGAY khi phát hiện vấn đề bảo mật hoặc ảnh hưởng trải nghiệm người dùng** (kể cả ngoài phạm vi task đang làm) — nêu rủi ro bằng lời dễ hiểu + mức độ + cách xử lý đề xuất, để chủ dự án quyết ưu tiên.
@@ -83,7 +83,7 @@
 | `APP_LOCALE` / `APP_FALLBACK_LOCALE` | `vi` | **Mặc định Tiếng Việt.** Mọi chuỗi mới vẫn viết key tiếng Anh trong `__()`, rồi dịch trong `lang/vi.json` |
 | `APP_TIMEZONE` | `Asia/Ho_Chi_Minh` | Dùng khi tính giờ hiển thị; vẫn lưu UTC trong DB |
 | `DB_CONNECTION` | **`mysql`** (3306) | Viết migration/raw query theo MySQL (không phải SQLite) |
-| `SESSION_DRIVER` / `QUEUE_CONNECTION` / `CACHE_STORE` | đều **`redis`** (phpredis) | Session/cache/queue chạy trên **Redis** (`REDIS_HOST` = service nội bộ Coolify, password trong Coolify env). Vẫn cần **queue worker** chạy. Không cần bảng `sessions`/`cache`/`jobs` trong MySQL; riêng `failed_jobs` (+ `job_batches`) vẫn ở MySQL theo mặc định. `throttle` rate-limit giờ đếm trên Redis (chính xác hơn cho nhiều instance) |
+| `SESSION_DRIVER` / `QUEUE_CONNECTION` / `CACHE_STORE` | đều **`redis`** (phpredis) | Bắt buộc tách Redis: queue/default DB0, cache + lock DB1, session DB2. Nếu dùng `REDIS_URL`, URL chỉ dành cho queue/default, cấm query string/DB path mã hóa; database path phải trống hoặc đúng `/0`. `FLUSHDB` phải bị từ chối nếu các concern dùng chung DB. |
 | `FILESYSTEM_DISK` | `public` (S3 trống) | Upload dùng disk `public`; chưa bật S3 |
 | `MAIL_MAILER` | **`smtp`** (Emailit) | ✅ Đã cấu hình SMTP qua `smtp.emailit.com:587` (user `emailit`, password = API key đặt trong **Coolify env**, KHÔNG commit). Welcome + verify email đã chạy thật |
 | `THEME_FRONTEND` / `THEME_BACKEND` | `mlhubfrontend` / `mlhubbackend` | Fork `localboostai` + `default`, chỉ phối màu MLHUB |
@@ -104,13 +104,15 @@
 
 **Git / Coolify clone:** **Không** commit `vendor/` (Dockerfile `composer install`). Repo có `.gitignore` — clone fail exit 255 ~17k files → xem `ARCHITECTURE_CHECKLIST.md` §1.2.1.
 
-**Livewire 419 / 504 (production):** Sau deploy, user phải **Ctrl+F5** nếu tab cũ báo "page expired". `SESSION_DOMAIN=.mlhub.vn` + `APP_URL=https://mlhub.vn` bắt buộc trên Coolify. Dashboard portal: **một** `wire:init` (`loadDashboardSections`), không bắn 3 request Livewire song song. `entrypoint.sh` sync Livewire JS + `optimize:clear` → `optimize` mỗi deploy. Tùy chọn: `LIVEWIRE_RELEASE_TOKEN` trên Coolify khi đổi phiên bản lớn. Cache metrics: `PortalGrowthDashboardMetrics::forget($userId)` sau scan/conversion (qua `GrowthToolNotifier` / `recordScan` / review feedback).
+**Livewire 419 / 504 (production):** Sau deploy, user phải **Ctrl+F5** nếu tab cũ báo "page expired". `SESSION_DOMAIN=.mlhub.vn` + `APP_URL=https://mlhub.vn` bắt buộc trên Coolify. Dashboard portal: **một** `wire:init` (`loadDashboardSections`), không bắn 3 request Livewire song song. `docker/entrypoint.sh` sync Livewire JS + `optimize:clear` → `optimize` mỗi deploy. Tùy chọn: `LIVEWIRE_RELEASE_TOKEN` trên Coolify khi đổi phiên bản lớn. `LOG_CHANNEL=stack`, `LOG_STACK=stderr,daily`, `LOG_LEVEL=warning` để Coolify và AdminLog đều thấy 419. Cache metrics: `PortalGrowthDashboardMetrics::forget($userId)` sau scan/conversion (qua `GrowthToolNotifier` / `recordScan` / review feedback).
 
 **Redis cache (portal dashboard):** `Cache::remember()` cho `PortalGrowthDashboardMetrics` **chỉ lưu mảng scalar** (key `portal.*.v2`), không serialize Eloquent/`Collection` model — tránh `__PHP_Incomplete_Class` sau deploy. `forget()` phải xóa đúng suffix key (vd `recent_activity.v2.{userId}.{limit}` 8→64).
 
 **Demo mode:** HTTP POST chặn bởi `PreventDemoModeWriteOperations`; Livewire ghi chặn bởi `DemoModeActionGuard` (hook trong `AppServiceProvider`). Không trùng logic chặn method trong middleware.
 
-**Queue:** Chỉ **một** worker — `RUN_QUEUE_WORKER=true` trong container **hoặc** service Coolify riêng, không cả hai.
+**Queue:** Chỉ **một** worker — `RUN_QUEUE_WORKER=true` trong container **hoặc** service Coolify riêng, không cả hai. `QUEUE_WORKER_TIMEOUT` phải là số dương và nhỏ hơn `REDIS_QUEUE_RETRY_AFTER`.
+
+**Admin auth:** Super-admin chỉ đến từ `is_super_admin=true` hoặc role `super-admin`; tuyệt đối không suy quyền từ username. Luồng profile công khai phải chặn các username đặc quyền (`admin`, `administrator`, `root`, `system`) không phân biệt hoa/thường.
 
 **Brand UI:** Chuỗi hiển thị user-facing luôn **MLHUB**, không "LocalBoost" trên portal/admin.
 
@@ -289,7 +291,7 @@ class FeatureIndex extends Component
 
 ## 7. Việc CẦN người dùng duyệt trước khi làm
 
-- Sửa `composer.json`, `package.json`, `Dockerfile`, `entrypoint.sh`.
+- Sửa `composer.json`, `package.json`, `Dockerfile`, `docker/entrypoint.sh`.
 - Sửa `bootstrap/app.php`, `bootstrap/providers.php`.
 - Chạy `migrate:fresh`, `migrate:rollback`, `db:wipe` (mất dữ liệu).
 - `git push --force` hoặc viết lại lịch sử git.

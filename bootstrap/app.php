@@ -1,12 +1,13 @@
 <?php
 
 use App\Exceptions\DemoModeRestrictedException;
-use Illuminate\Foundation\Application;
-use Illuminate\Foundation\Configuration\Exceptions;
-use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\EnsureAdminAccess;
 use App\Http\Middleware\PreventDemoModeWriteOperations;
 use App\Http\Middleware\ResolveUserPlanState;
+use App\Support\Http\LivewireFailureReporter;
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Modules\AdminLanguages\Http\Middleware\SetLocale;
 use Modules\AdminThemes\Http\Middleware\SetThemeContext;
@@ -43,30 +44,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->reportable(function (\Throwable $exception): void {
-            $request = request();
-
-            if (! $request instanceof Request) {
-                return;
-            }
-
-            $isLivewire = $request->hasHeader('X-Livewire') || is_array($request->input('components'));
-
-            if (! $isLivewire) {
-                return;
-            }
-
-            $status = method_exists($exception, 'getStatusCode')
-                ? (int) $exception->getStatusCode()
-                : 0;
-
-            if ($status === 419) {
-                logger()->warning('Livewire request rejected with 419.', [
-                    'path' => $request->path(),
-                    'exception' => $exception::class,
-                    'message' => $exception->getMessage(),
-                ]);
-            }
+        $exceptions->render(function (Throwable $exception, Request $request): void {
+            LivewireFailureReporter::report($exception, $request);
         });
 
         $exceptions->render(function (DemoModeRestrictedException $exception, Request $request) {

@@ -1,6 +1,14 @@
 <?php
 
 use App\Support\Plans\NoPlanAccess;
+use Database\Seeders\AITemplateCategorySeeder;
+use Database\Seeders\AITemplateSeeder;
+use Database\Seeders\MLHUBBootstrapSeeder;
+use Database\Seeders\MLHUBFoundationSeeder;
+use Database\Seeders\MLHUBMarketplaceSeeder;
+use Database\Seeders\PlanSeeder;
+use Modules\CustomMLHUB\Database\Seeders\MLHUBAdminSeeder;
+use Modules\CustomMLHUB\Database\Seeders\MLHUBSystemExtrasSeeder;
 
 /**
  * MLHUB bootstrap (không còn Web Installer).
@@ -26,7 +34,7 @@ return [
     ],
 
     'license' => [
-        'purchase_code' => env('MLHUB_LICENSE_PURCHASE_CODE', 'd80177d1-4974-4e46-a7f3-564da3bc83f7'),
+        'purchase_code' => env('MLHUB_LICENSE_PURCHASE_CODE', ''),
         'product_id' => (int) env('MLHUB_LICENSE_PRODUCT_ID', 10252026),
         'version' => env('MLHUB_LICENSE_VERSION', '1.0.1'),
         'install_path' => env('MLHUB_LICENSE_INSTALL_PATH', './'),
@@ -51,14 +59,14 @@ return [
     ],
 
     'default_seeders' => [
-        \Database\Seeders\MLHUBFoundationSeeder::class,
-        \Database\Seeders\PlanSeeder::class,
-        \Database\Seeders\AITemplateCategorySeeder::class,
-        \Database\Seeders\AITemplateSeeder::class,
-        \Database\Seeders\MLHUBBootstrapSeeder::class,
-        \Database\Seeders\MLHUBMarketplaceSeeder::class,
-        \Modules\CustomMLHUB\Database\Seeders\MLHUBAdminSeeder::class,
-        \Modules\CustomMLHUB\Database\Seeders\MLHUBSystemExtrasSeeder::class,
+        MLHUBFoundationSeeder::class,
+        PlanSeeder::class,
+        AITemplateCategorySeeder::class,
+        AITemplateSeeder::class,
+        MLHUBBootstrapSeeder::class,
+        MLHUBMarketplaceSeeder::class,
+        MLHUBAdminSeeder::class,
+        MLHUBSystemExtrasSeeder::class,
     ],
 
     'backend_theme_settings' => [

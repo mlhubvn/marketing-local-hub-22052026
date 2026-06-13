@@ -34,14 +34,16 @@ class MLHUBMarketplaceSeeder extends Seeder
                 'version' => $row['version'],
                 'source_type' => $row['source_type'],
                 'product_id' => $row['product_id'],
-                'purchase_code' => $row['purchase_code'],
+                'purchase_code' => $row['purchase_code'] ?? $package->purchase_code,
                 'product_slug' => $row['product_slug'],
                 'license_type' => $row['license_type'],
                 'licensed_domain' => $row['licensed_domain'],
                 'install_path' => $row['install_path'],
                 'providers' => $row['providers'] ?? [],
                 'meta' => $row['meta'] ?? [],
-                'is_active' => true,
+                'is_active' => $package->exists && IdSequence::isUpdateMode()
+                    ? $package->is_active
+                    : true,
                 'installed_at' => $package->installed_at ?? $now,
                 'last_synced_at' => $now,
             ])->save();

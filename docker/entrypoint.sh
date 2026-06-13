@@ -17,6 +17,111 @@ if [ -z "${APP_KEY:-}" ] || [ "$APP_KEY" = "base64:" ] || [ "$APP_KEY" = "(đặ
     exit 1
 fi
 
+is_uint() {
+    case "${1:-}" in
+        ''|*[!0-9]*) return 1 ;;
+        *) return 0 ;;
+    esac
+}
+
+redis_default_db="${REDIS_DB:-0}"
+redis_url="${REDIS_URL:-}"
+redis_url_path="${redis_url%%\#*}"
+redis_url_without_scheme="${redis_url_path#*://}"
+redis_url_database_path=""
+
+case "$redis_url_without_scheme" in
+    */*) redis_url_database_path="/${redis_url_without_scheme#*/}" ;;
+esac
+
+if [ -n "$redis_url" ]; then
+    case "$redis_url" in
+        *\?*)
+            echo "ERROR: REDIS_URL must not contain query parameters; use dedicated REDIS_* variables instead." >&2
+            exit 1
+            ;;
+    esac
+
+    case "$redis_url_database_path" in
+        *%*)
+            echo "ERROR: REDIS_URL database path must be an unencoded integer." >&2
+            exit 1
+            ;;
+        ''|'/0') ;;
+        *)
+            echo "ERROR: REDIS_URL database path must be exactly /0 when present." >&2
+            exit 1
+            ;;
+    esac
+fi
+
+if [ "$redis_url_database_path" = "/0" ]; then
+    redis_default_db="0"
+fi
+
+redis_cache_db="${REDIS_CACHE_DB:-1}"
+redis_session_db="${REDIS_SESSION_DB:-2}"
+
+if [ "${QUEUE_CONNECTION:-database}" = "redis" ] && [ "${REDIS_QUEUE_CONNECTION:-default}" != "default" ]; then
+    echo "ERROR: REDIS_QUEUE_CONNECTION must be default for the documented DB0/DB1/DB2 isolation." >&2
+    exit 1
+fi
+
+if [ "${CACHE_STORE:-database}" = "redis" ] && [ "${REDIS_CACHE_CONNECTION:-cache}" != "cache" ]; then
+    echo "ERROR: REDIS_CACHE_CONNECTION must be cache for the documented DB0/DB1/DB2 isolation." >&2
+    exit 1
+fi
+
+if [ "${CACHE_STORE:-database}" = "redis" ] && [ "${REDIS_CACHE_LOCK_CONNECTION:-cache}" != "cache" ]; then
+    echo "ERROR: REDIS_CACHE_LOCK_CONNECTION must be cache for the documented DB0/DB1/DB2 isolation." >&2
+    exit 1
+fi
+
+if [ "${SESSION_DRIVER:-database}" = "redis" ] && [ "${SESSION_CONNECTION:-session}" != "session" ]; then
+    echo "ERROR: SESSION_CONNECTION must be session for the documented DB0/DB1/DB2 isolation." >&2
+    exit 1
+fi
+
+if [ "${QUEUE_CONNECTION:-database}" = "redis" ] && [ "$redis_default_db" != "0" ]; then
+    echo "ERROR: Redis queue/default must use Redis DB 0; effective DB is ${redis_default_db}." >&2
+    exit 1
+fi
+
+if [ "${CACHE_STORE:-database}" = "redis" ] && [ "$redis_cache_db" != "1" ]; then
+    echo "ERROR: Redis cache and locks must use Redis DB 1; effective DB is ${redis_cache_db}." >&2
+    exit 1
+fi
+
+if [ "${SESSION_DRIVER:-database}" = "redis" ] && [ "$redis_session_db" != "2" ]; then
+    echo "ERROR: Redis sessions must use Redis DB 2; effective DB is ${redis_session_db}." >&2
+    exit 1
+fi
+
+if [ "${QUEUE_CONNECTION:-database}" = "redis" ] && [ "${CACHE_STORE:-database}" = "redis" ] && [ "$redis_default_db" = "$redis_cache_db" ]; then
+    echo "ERROR: Redis queue/default and cache share DB ${redis_default_db}; refusing to start." >&2
+    exit 1
+fi
+
+if [ "${QUEUE_CONNECTION:-database}" = "redis" ] && [ "${SESSION_DRIVER:-database}" = "redis" ] && [ "$redis_default_db" = "$redis_session_db" ]; then
+    echo "ERROR: Redis queue/default and session share DB ${redis_default_db}; refusing to start." >&2
+    exit 1
+fi
+
+if [ "${CACHE_STORE:-database}" = "redis" ] && [ "${SESSION_DRIVER:-database}" = "redis" ] && [ "$redis_cache_db" = "$redis_session_db" ]; then
+    echo "ERROR: Redis cache and session share DB ${redis_cache_db}; refusing to start." >&2
+    exit 1
+fi
+
+queue_timeout="${QUEUE_WORKER_TIMEOUT:-80}"
+queue_retry_after="${REDIS_QUEUE_RETRY_AFTER:-90}"
+
+if [ "${QUEUE_CONNECTION:-database}" = "redis" ]; then
+    if ! is_uint "$queue_timeout" || [ "$queue_timeout" -eq 0 ] || ! is_uint "$queue_retry_after" || [ "$queue_retry_after" -eq 0 ] || [ "$queue_timeout" -ge "$queue_retry_after" ]; then
+        echo "ERROR: QUEUE_WORKER_TIMEOUT must be a positive integer smaller than a positive REDIS_QUEUE_RETRY_AFTER." >&2
+        exit 1
+    fi
+fi
+
 log_step "writable directories"
 mkdir -p \
     bootstrap/cache \

@@ -1,82 +1,53 @@
+# MLHUB application definition. Coolify owns production resource IDs and
+# generates runtime labels; this tracked file keeps the intended build shape.
 services:
-    mggu45o8q8aso8stbepn622j-052424581680:
-        image: 'mggu45o8q8aso8stbepn622j:e9e370c64ea5b4883711653f37bd97aaa55c1a25'
-        container_name: mggu45o8q8aso8stbepn622j-052424581680
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
         restart: unless-stopped
         expose:
             - '80'
+        env_file:
+            - .env
         networks:
             coolify:
                 aliases:
-                    - mggu45o8q8aso8stbepn622j-052424581680
-        mem_limit: '0'
-        memswap_limit: '0'
-        mem_swappiness: 60
-        mem_reservation: '0'
-        cpus: 0.0
-        cpu_shares: 1024
-        env_file:
-            - .env
+                    - mlhub-app
+        volumes:
+            - mlhub-storage:/var/www/html/storage
         labels:
             - traefik.enable=true
             - traefik.http.middlewares.gzip.compress=true
             - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
-            - traefik.http.routers.http-0-mggu45o8q8aso8stbepn622j.entryPoints=http
-            - traefik.http.routers.http-0-mggu45o8q8aso8stbepn622j.middlewares=redirect-to-https
-            - 'traefik.http.routers.http-0-mggu45o8q8aso8stbepn622j.rule=Host(`mlhub.vn`) && PathPrefix(`/`)'
-            - traefik.http.routers.http-0-mggu45o8q8aso8stbepn622j.service=http-0-mggu45o8q8aso8stbepn622j
-            - traefik.http.routers.http-1-mggu45o8q8aso8stbepn622j.entryPoints=http
-            - traefik.http.routers.http-1-mggu45o8q8aso8stbepn622j.middlewares=redirect-to-https
-            - 'traefik.http.routers.http-1-mggu45o8q8aso8stbepn622j.rule=Host(`www.mlhub.vn`) && PathPrefix(`/`)'
-            - traefik.http.routers.http-1-mggu45o8q8aso8stbepn622j.service=http-1-mggu45o8q8aso8stbepn622j
-            - traefik.http.routers.https-0-mggu45o8q8aso8stbepn622j.entryPoints=https
-            - traefik.http.routers.https-0-mggu45o8q8aso8stbepn622j.middlewares=gzip
-            - 'traefik.http.routers.https-0-mggu45o8q8aso8stbepn622j.rule=Host(`mlhub.vn`) && PathPrefix(`/`)'
-            - traefik.http.routers.https-0-mggu45o8q8aso8stbepn622j.service=https-0-mggu45o8q8aso8stbepn622j
-            - traefik.http.routers.https-0-mggu45o8q8aso8stbepn622j.tls.certresolver=letsencrypt
-            - traefik.http.routers.https-0-mggu45o8q8aso8stbepn622j.tls=true
-            - traefik.http.routers.https-1-mggu45o8q8aso8stbepn622j.entryPoints=https
-            - traefik.http.routers.https-1-mggu45o8q8aso8stbepn622j.middlewares=gzip
-            - 'traefik.http.routers.https-1-mggu45o8q8aso8stbepn622j.rule=Host(`www.mlhub.vn`) && PathPrefix(`/`)'
-            - traefik.http.routers.https-1-mggu45o8q8aso8stbepn622j.service=https-1-mggu45o8q8aso8stbepn622j
-            - traefik.http.routers.https-1-mggu45o8q8aso8stbepn622j.tls.certresolver=letsencrypt
-            - traefik.http.routers.https-1-mggu45o8q8aso8stbepn622j.tls=true
-            - traefik.http.services.http-0-mggu45o8q8aso8stbepn622j.loadbalancer.server.port=80
-            - traefik.http.services.http-1-mggu45o8q8aso8stbepn622j.loadbalancer.server.port=80
-            - traefik.http.services.https-0-mggu45o8q8aso8stbepn622j.loadbalancer.server.port=80
-            - traefik.http.services.https-1-mggu45o8q8aso8stbepn622j.loadbalancer.server.port=80
-            - 'caddy_0.encode=zstd gzip'
-            - 'caddy_0.handle_path.0_reverse_proxy={{upstreams 80}}'
-            - 'caddy_0.handle_path=/*'
-            - caddy_0.header=-Server
-            - 'caddy_0.try_files={path} /index.html /index.php'
-            - 'caddy_0=https://mlhub.vn'
-            - 'caddy_1.encode=zstd gzip'
-            - 'caddy_1.handle_path.1_reverse_proxy={{upstreams 80}}'
-            - 'caddy_1.handle_path=/*'
-            - caddy_1.header=-Server
-            - 'caddy_1.try_files={path} /index.html /index.php'
-            - 'caddy_1=https://www.mlhub.vn'
-            - caddy_ingress_network=coolify
-            - coolify.managed=true
-            - coolify.version=4.1.2
-            - coolify.applicationId=17
-            - coolify.type=application
-            - coolify.name=mggu45o8q8aso8stbepn622j
-            - coolify.resourceName=marketing-local-hub-22052026main-mlhub-vn
-            - coolify.projectName=marketing-local-hub-mlhub
-            - coolify.serviceName=marketing-local-hub-22052026main-mlhub-vn
-            - coolify.environmentName=production
-            - coolify.pullRequestId=0
-        ports:
-            - '3001:80'
-        volumes:
-            - 'mlhub-storage:/var/www/html/storage'
+            - traefik.http.routers.http-mlhub.entryPoints=http
+            - traefik.http.routers.http-mlhub.middlewares=redirect-to-https
+            - traefik.http.routers.http-mlhub.rule=Host(`mlhub.vn`) && PathPrefix(`/`)
+            - traefik.http.routers.http-mlhub.service=mlhub-app
+            - traefik.http.routers.http-www-mlhub.entryPoints=http
+            - traefik.http.routers.http-www-mlhub.middlewares=redirect-to-https
+            - traefik.http.routers.http-www-mlhub.rule=Host(`www.mlhub.vn`) && PathPrefix(`/`)
+            - traefik.http.routers.http-www-mlhub.service=mlhub-app
+            - traefik.http.routers.https-mlhub.entryPoints=https
+            - traefik.http.routers.https-mlhub.middlewares=gzip
+            - traefik.http.routers.https-mlhub.rule=Host(`mlhub.vn`) && PathPrefix(`/`)
+            - traefik.http.routers.https-mlhub.service=mlhub-app
+            - traefik.http.routers.https-mlhub.tls.certresolver=letsencrypt
+            - traefik.http.routers.https-mlhub.tls=true
+            - traefik.http.routers.https-www-mlhub.entryPoints=https
+            - traefik.http.routers.https-www-mlhub.middlewares=gzip
+            - traefik.http.routers.https-www-mlhub.rule=Host(`www.mlhub.vn`) && PathPrefix(`/`)
+            - traefik.http.routers.https-www-mlhub.service=mlhub-app
+            - traefik.http.routers.https-www-mlhub.tls.certresolver=letsencrypt
+            - traefik.http.routers.https-www-mlhub.tls=true
+            - traefik.http.services.mlhub-app.loadbalancer.server.port=80
+
 networks:
     coolify:
         external: true
         name: coolify
         attachable: true
+
 volumes:
     mlhub-storage:
         name: mlhub-storage

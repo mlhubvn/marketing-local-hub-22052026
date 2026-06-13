@@ -10,16 +10,20 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Validator;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+
 #[Title('User Dashboard')]
 class Dashboard extends Component
 {
     public array $growthMetrics = [];
+
     public bool $metricsLoaded = false;
 
     public array $recentActivity = [];
+
     public array $topCampaigns = [];
 
     public int $recentActivityLimit = 8;
+
     public bool $recentActivityHasMore = false;
 
     public ?string $dashboardLoadError = null;
@@ -47,7 +51,7 @@ class Dashboard extends Component
         $growthDashboard = [
             'metrics' => $this->growthMetrics,
         ];
-        $onboarding = $this->onboarding($userId, $growthDashboard);
+        $onboarding = $this->onboarding($growthDashboard);
 
         $planUsage = $user
             ? Cache::remember(
@@ -138,7 +142,7 @@ class Dashboard extends Component
         $this->loadRecentActivity();
     }
 
-    protected function onboarding(?int $userId, array $growthDashboard): array
+    protected function onboarding(array $growthDashboard): array
     {
         $metrics = $growthDashboard['metrics'] ?? [];
         $businesses = (int) ($metrics['businesses'] ?? 0);

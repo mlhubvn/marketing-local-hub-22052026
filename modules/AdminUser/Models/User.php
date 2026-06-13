@@ -7,30 +7,30 @@ use App\Support\Plans\NoPlanAccess;
 use App\Support\Storage\StorageDriverManager;
 use Carbon\Carbon;
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Translation\HasLocalePreference;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
-use Modules\AdminPlans\Models\AdminPlan;
 use Modules\AdminPaymentSubscriptions\Models\PaymentSubscription;
+use Modules\AdminPlans\Models\AdminPlan;
+use Modules\AdminUser\Support\AdminPermissionCatalog;
 use Modules\AppAffiliate\Models\AffiliateCommission;
 use Modules\AppAffiliate\Models\AffiliateProfile;
 use Modules\AppAffiliate\Models\AffiliateWithdrawal;
 use Modules\AppCredits\Support\CreditService;
-use Modules\AdminUser\Support\AdminPermissionCatalog;
 
 #[Fillable(['name', 'username', 'email', 'referral_code', 'referred_by_user_id', 'avatar_path', 'avatar_disk', 'locale', 'timezone', 'role_id', 'is_super_admin', 'plan_id', 'next_plan_id', 'plan_started_at', 'plan_expires_at', 'password'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
-class User extends Authenticatable implements MustVerifyEmail, HasLocalePreference
+class User extends Authenticatable implements HasLocalePreference, MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
@@ -187,7 +187,6 @@ class User extends Authenticatable implements MustVerifyEmail, HasLocalePreferen
     public function isSuperAdmin(): bool
     {
         return $this->is_super_admin
-            || $this->username === 'admin'
             || $this->role?->slug === 'super-admin';
     }
 

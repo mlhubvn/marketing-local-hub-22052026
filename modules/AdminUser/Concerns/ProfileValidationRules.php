@@ -2,6 +2,7 @@
 
 namespace Modules\AdminUser\Concerns;
 
+use Closure;
 use Illuminate\Validation\Rule;
 use Modules\AdminUser\Models\User;
 
@@ -42,6 +43,12 @@ trait ProfileValidationRules
             'min:3',
             'max:50',
             'alpha_dash',
+            Rule::notIn(['admin', 'administrator', 'root', 'system']),
+            function (string $attribute, mixed $value, Closure $fail): void {
+                if (in_array(strtolower((string) $value), ['admin', 'administrator', 'root', 'system'], true)) {
+                    $fail(__('The :attribute is reserved.', ['attribute' => $attribute]));
+                }
+            },
             $userId === null
                 ? Rule::unique(User::class)
                 : Rule::unique(User::class)->ignore($userId),

@@ -37,16 +37,16 @@ Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** (LocalBoost AI
 
 ### ⛔ Quy tắc bất di bất dịch về hạ tầng
 
-- **TUYỆT ĐỐI KHÔNG** đề xuất can thiệp thủ công bằng dòng lệnh trực tiếp trên server Coolify (SSH, sửa file trên container, chạy lệnh tay…).
-- **Mọi thay đổi hạ tầng phải thể hiện bằng code/config tại local**: sửa `docker-compose.yaml`, `Dockerfile`, `entrypoint.sh`, biến trong `.env`/`.env.example`, hoặc migration trong repo → commit → push → để Coolify tự build.
-- Lệnh artisan cần chạy khi deploy (vd `migrate --force`, `config:cache`) phải nằm trong `entrypoint.sh` / quy trình build, **không** chạy tay trên server.
+- **TUYỆT ĐỐI KHÔNG** đề xuất can thiệp thủ công bằng dòng lệnh trực tiếp trên server Coolify (SSH, sửa file trên container, chạy lệnh tay…), ngoại trừ lệnh cài đặt một lần `mlhub:install` đã được chủ dự án phê duyệt rõ ràng.
+- **Mọi thay đổi hạ tầng phải thể hiện bằng code/config tại local**: sửa `docker-compose.yaml`, `Dockerfile`, `docker/entrypoint.sh`, biến trong `.env`/`.env.example`, hoặc migration trong repo → commit → push → để Coolify tự build.
+- Lệnh artisan cần chạy khi deploy (vd `migrate --force`, `config:cache`) phải nằm trong `docker/entrypoint.sh` / quy trình build, **không** chạy tay trên server.
 - Thay đổi biến môi trường production: cập nhật trong **Coolify UI (env)** đồng thời phản ánh khóa tương ứng vào `.env.example` ở repo để tài liệu hóa — **không** sửa `.env` trực tiếp trên container.
 
-> Tham chiếu môi trường thật: `.env.example` (MLHUB, locale `vi`, MySQL, session/queue/cache = `redis`, mail `smtp` qua Emailit, theme `mlhubfrontend` / `mlhubbackend`, **68 module**).
+> Tham chiếu môi trường thật: `.env.example` (MLHUB, locale `vi`, MySQL, session/queue/cache = `redis` tách DB0/1/2, mail `smtp` qua Emailit, theme `mlhubfrontend` / `mlhubbackend`, **72 module**).
 
 ### 1.2 Sau khi cập nhật phiên bản tác giả / cài module mới
 
-- Commit/push → Coolify redeploy (để `entrypoint.sh` chạy `migrate --force` — gồm migration trong `modules/*/Database/Migrations`).
+- Commit/push → Coolify redeploy (để `docker/entrypoint.sh` chạy `migrate --force` — gồm migration trong `modules/*/Database/Migrations`).
 - Kiểm tra log deploy: không lỗi migration (`lb_email_`*, `lb_loyalty_*`, `lb_crm_*`, …).
 - Admin → Marketplace / Modules: module mới hiển thị và bật (vd `AppLoyaltyStampCards` qua `providers.marketplace.php`).
 - Portal: vào menu CRM, Email automation, Loyalty cards, Reports — không 500.
@@ -85,6 +85,13 @@ Coolify: Application + MySQL + Redis (3 khối riêng) → copy env lên tab Env
 3. **Container app** (Coolify Terminal): `cd /var/www/html && php artisan mlhub:install` (xác nhận xóa DB; production cần tạm `MLHUB_ALLOW_RESET_DEMO=true`).
 4. **Kiểm tra:** đăng nhập `MLHUB_FIRST_USER_EMAIL` → Admin + Portal; portal trống (không business demo); ngày/tiền format VN.
 5. **Sau go-live:** push code → redeploy (entrypoint tự `migrate`). Bổ sung seed/migration mới mà **giữ dữ liệu**: `php artisan mlhub:update`. Chỉ `mlhub:install` khi muốn **xóa sạch** và cài lại.
+
+### 1.4 Khi phát hiện secret từng bị commit
+
+1. Xoay ngay credential tại từng nhà cung cấp/Coolify: DB, Redis, mail, OAuth, captcha, license và tài khoản admin.
+2. Với `APP_KEY`, kiểm kê dữ liệu mã hóa/2FA trước khi đổi; không đổi mù trên production.
+3. Redeploy qua Coolify, kiểm tra login, queue, mail, OAuth và Admin → Logs.
+4. Chỉ viết lại Git history/force-push sau khi credential đã xoay và có phê duyệt riêng; không coi xóa khỏi file hiện tại là đã hết lộ.
 
 ---
 
@@ -155,7 +162,7 @@ Với các nhóm việc dưới đây, AI **PHẢI dừng lại, trình bày k�
 - Mô tả: bảng/cột nào thêm/sửa/xóa, kiểu dữ liệu, index, ràng buộc.
 - Khẳng định **chỉ thêm mới hoặc cột nullable** với bảng `lb_`* đang có dữ liệu; nêu rõ nếu phải đổi/xóa cột.
 - **TUYỆT ĐỐI** không đề xuất `migrate:fresh`, `migrate:rollback`, `db:wipe` trên môi trường có dữ liệu thật.
-- Nêu kế hoạch chạy migration qua pipeline (`entrypoint.sh` / `migrate --force` khi build), **không** chạy tay trên Coolify.
+- Nêu kế hoạch chạy migration qua pipeline (`docker/entrypoint.sh` / `migrate --force` khi build), **không** chạy tay trên Coolify.
 - Có phương án rollback an toàn.
 
 ### 3.2 🔴 Payment (cổng thanh toán / subscription / credit)
@@ -173,7 +180,7 @@ Với các nhóm việc dưới đây, AI **PHẢI dừng lại, trình bày k�
 
 ### 3.4 🟠 Refactor lớn / đổi kiến trúc / đụng core
 
-- Sửa `bootstrap/app.php`, `bootstrap/providers.php`, `composer.json`, `package.json`, `Dockerfile`, `entrypoint.sh`, `docker-compose.yaml`, `config/*.php` → cần duyệt trước.
+- Sửa `bootstrap/app.php`, `bootstrap/providers.php`, `composer.json`, `package.json`, `Dockerfile`, `docker/entrypoint.sh`, `docker-compose.yaml`, `config/*.php` → cần duyệt trước.
 - Trình bày phương án thay thế bằng điểm mở rộng (`modules/Custom`*, `providers.marketplace.php`, `routes/custom.php`) nếu có.
 
 > Khi không chắc thuộc nhóm nào → mặc định **hỏi trước, code sau**.
@@ -204,7 +211,7 @@ php artisan view:clear             # xóa cache Blade sau khi sửa view
 php artisan config:clear           # khi đổi config/env lúc dev
 ```
 
-> Trên production: các lệnh tương ứng (`migrate --force`, `config:cache`…) do pipeline Coolify/`entrypoint.sh` đảm nhiệm — không gõ tay trên server.
+> Trên production: các lệnh tương ứng (`migrate --force`, `config:cache`…) do pipeline Coolify/`docker/entrypoint.sh` đảm nhiệm — không gõ tay trên server.
 
 ### 5.1 Rà soát định dạng số / ngày / tiền (chuẩn Việt Nam)
 
@@ -238,4 +245,3 @@ rg "\{\{\s*\$[^}]*\['value'\]\s*\}\}" modules --glob "*.blade.php"
 **Thứ tự sửa:** component dùng chung (`resources/views/components/`, `resources/themes/app/*/components/`) → module `App*` (portal) → `Admin*` → chart JS dùng `MLHUB_FORMAT`.
 
 **Không tạo file script** trong repo cho việc này — chỉ chạy lệnh grep khi cần (tránh file rác quên commit).
-
