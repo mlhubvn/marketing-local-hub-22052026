@@ -21,10 +21,11 @@ return [
     'locale' => env('APP_LOCALE', 'vi'),
     'timezone' => env('APP_TIMEZONE', 'Asia/Ho_Chi_Minh'),
 
-    'admin_plan_slug' => env('MLHUB_ADMIN_PLAN_SLUG', 'agency-lifetime'),
+    'admin_plan_slug' => env('MLHUB_ADMIN_PLAN_SLUG', 'mlhub-partner-lifetime'),
 
     /*
-     * User đăng ký chưa chọn/gán gói (plan_id null): vẫn dùng portal với hạn mức cố định.
+     * Fallback cho user legacy/manual chưa gán gói (plan_id null): vẫn dùng portal với hạn mức cố định.
+     * User đăng ký mới được tự động gán default_signup_plan.
      * Toàn bộ quyền đọc từ env MLHUB_NO_PLAN_* (Coolify) — xem .env.example và ARCHITECTURE_FEATURE.md §1.1.
      */
     'no_plan_access' => [

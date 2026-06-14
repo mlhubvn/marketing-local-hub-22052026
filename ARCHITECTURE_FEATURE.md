@@ -69,9 +69,9 @@ Review Booster, Booking, Coupons, Feedback, Lead Forms **không độc lập ho�
 - Rà soát ma trận quyền team (owner/member, module bật/tắt).
 - `.env` production: `APP_DEBUG=false`, `APP_URL=https://mlhub.vn`, `SESSION_DOMAIN=.mlhub.vn`, `TRUSTED_PROXIES`, queue worker (một nguồn), S3/mail thật; sau deploy user **Ctrl+F5** nếu Livewire 419.
 
-### 1.1 Showcase — user chưa gán gói (`plan_id null`)
+### 1.1 Fallback — user legacy/manual chưa gán gói (`plan_id null`)
 
-User đăng ký mới **không chọn gói** → `plan_id` null. Bật `MLHUB_NO_PLAN_ACCESS_ENABLED=true` để họ vẫn dùng portal với hạn mức cố định (không cần tạo gói Free trong Admin → Plans).
+User đăng ký mới được tự động gán plan có `default_signup_plan=true`; catalog chính thức dùng `mlhub-free-da-nang` làm gói mặc định. `MLHUB_NO_PLAN_ACCESS_ENABLED=true` chỉ là fallback để tài khoản legacy hoặc tài khoản tạo thủ công còn `plan_id=null` vẫn dùng portal với hạn mức cố định.
 
 **Cơ chế:** `User::canUsePlanFeature()` / `planLimit()` đọc `config/mlhub.php` → `no_plan_access.permissions` (build từ env `MLHUB_NO_PLAN_*` qua `NoPlanAccess::permissionsFromEnv()`). Sidebar addon chỉ hiện khi cờ tương ứng `true`; vào URL trực tiếp khi tắt → `403`.
 
@@ -513,4 +513,3 @@ Phần này liệt kê các việc bảo mật còn lại bằng ngôn ngữ d�
 - **Phải làm:** thêm `throttle:10,1` (và captcha nếu cần) giống `AppBookingPages/Routes/web.php`.
 
 > Thứ tự gợi ý: **14.1 (captcha growth) → 14.7 (loyalty throttle) → 14.4 (IDOR) → 14.2/14.3 → 14.5/14.6**. Mỗi mục một task — prompt mẫu trong `ARCHITECTURE_PROMPT.md`.
-

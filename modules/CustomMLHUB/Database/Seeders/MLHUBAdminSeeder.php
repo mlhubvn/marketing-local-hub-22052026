@@ -59,7 +59,7 @@ class MLHUBAdminSeeder extends Seeder
             app(PersonalTeamProvisioner::class)->ensureForUser($user);
         }
 
-        $planSlug = trim((string) config('mlhub.admin_plan_slug', 'agency-lifetime'));
+        $planSlug = trim((string) config('mlhub.admin_plan_slug', 'mlhub-partner-lifetime'));
         $plan = $planSlug !== ''
             ? AdminPlan::query()->where('slug', $planSlug)->where('status', true)->first()
             : null;

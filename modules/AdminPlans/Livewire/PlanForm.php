@@ -3,8 +3,8 @@
 namespace Modules\AdminPlans\Livewire;
 
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Modules\AdminPlans\Models\AdminPlan;
@@ -39,7 +39,7 @@ class PlanForm extends Component
 
     public function mount(?AdminPlan $plan = null): void
     {
-        $this->plan = $plan?->exists ? $plan : new AdminPlan();
+        $this->plan = $plan?->exists ? $plan : new AdminPlan;
         $this->isEditing = $this->plan->exists;
 
         $this->form = [
@@ -92,7 +92,10 @@ class PlanForm extends Component
             'trial_day' => $validated['form']['trial_day'] ?? 0,
             'position' => $validated['form']['position'] ?? 0,
             'desc' => $validated['form']['desc'] ?? '',
-            'permissions' => $this->permissionSchema()->normalize($this->permissionsState),
+            'permissions' => array_replace(
+                (array) ($this->plan?->permissions ?? []),
+                $this->permissionSchema()->normalize($this->permissionsState),
+            ),
         ];
 
         if ($this->isEditing) {
