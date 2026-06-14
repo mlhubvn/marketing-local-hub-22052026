@@ -188,7 +188,7 @@ class ManualPaymentForm extends Component
                 ->map(fn (AdminPlan $plan) => [
                     'key' => (string) $plan->id,
                     'label' => $plan->name,
-                    'description' => trim(strtoupper($plan->currency).' '.number_format((float) $plan->price, 2).' / '.match ((int) $plan->type) {
+                    'description' => trim(format_money((float) $plan->price, (string) $plan->currency).' / '.match ((int) $plan->type) {
                         2 => __('Yearly'),
                         3 => __('Lifetime'),
                         default => __('Monthly'),

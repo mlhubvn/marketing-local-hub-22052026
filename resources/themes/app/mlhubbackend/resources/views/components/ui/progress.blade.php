@@ -12,7 +12,7 @@
     @if ($label)
         <div class="flex items-center justify-between gap-4 text-sm">
             <span class="font-medium" style="color: var(--theme-header-text-color);">{{ $label }}</span>
-            <span style="color: var(--theme-muted-text-color);">{{ format_number_locale($percentage, 0) }}%</span>
+            <span style="color: var(--theme-muted-text-color);">{{ format_percent_locale($percentage) }}</span>
         </div>
     @endif
 

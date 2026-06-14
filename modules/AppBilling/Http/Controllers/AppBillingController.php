@@ -3,9 +3,9 @@
 namespace Modules\AppBilling\Http\Controllers;
 
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Modules\AdminPaymentHistory\Models\PaymentHistory;
 use Modules\AdminPaymentSubscriptions\Models\PaymentSubscription;
@@ -142,7 +142,7 @@ class AppBillingController extends Controller
         $user = $request->user();
         $appName = (string) config('app.name', 'Stackposts');
         $createdAt = $invoice->createdAtFormatted() ?: 'N/A';
-        $amount = ($invoice->currency ?: 'USD').' '.format_number_locale((float) $invoice->amount, 2);
+        $amount = format_money((float) $invoice->amount, $invoice->currency ?: 'USD');
 
         $pdf = $pdfBuilder->make([
             'app_name' => $appName,

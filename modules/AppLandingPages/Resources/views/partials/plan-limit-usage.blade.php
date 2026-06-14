@@ -32,7 +32,7 @@
             </div>
             <div class="shrink-0 rounded-xl border px-3 py-2 text-right" style="border-color: rgba(var(--theme-border-color-rgb), .54); background-color: var(--theme-surface-overlay);">
                 <p class="text-[10px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('Usage') }}</p>
-                <p class="mt-1 text-lg font-semibold leading-none" style="color: var(--theme-header-text-color);">{{ $overallPercent }}%</p>
+                <p class="mt-1 text-lg font-semibold leading-none" style="color: var(--theme-header-text-color);">{{ format_percent_locale($overallPercent) }}</p>
             </div>
         </div>
 
@@ -93,7 +93,7 @@
             <div class="flex items-end justify-between gap-3">
                 <div>
                     <p class="text-xs font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Usage') }}</p>
-                    <p class="mt-1 text-3xl font-semibold tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ $overallPercent }}%</p>
+                    <p class="mt-1 text-3xl font-semibold tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ format_percent_locale($overallPercent) }}</p>
                 </div>
                 <p class="text-sm font-semibold" style="color: var(--theme-muted-text-color);">{{ format_number_locale($totalUsed) }}/{{ format_number_locale($totalLimit) }}</p>
             </div>

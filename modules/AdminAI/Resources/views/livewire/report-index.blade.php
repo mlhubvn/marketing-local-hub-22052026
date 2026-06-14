@@ -15,7 +15,7 @@
     <x-ui.metric-strip
         :items="[
             ['label' => __('Requests'), 'value' => format_number_locale($metrics['total_requests']), 'description' => __('Provider count: :count', ['count' => format_number_locale($metrics['provider_count'])]), 'progress' => 100, 'tone' => 'var(--theme-accent)'],
-            ['label' => __('Success rate'), 'value' => $metrics['success_rate'].'%', 'description' => format_number_locale($metrics['successful_requests']).' '.__('successful calls'), 'progress' => $metrics['success_rate'], 'tone' => 'var(--theme-success-color)'],
+            ['label' => __('Success rate'), 'value' => format_percent_locale($metrics['success_rate']), 'description' => format_number_locale($metrics['successful_requests']).' '.__('successful calls'), 'progress' => $metrics['success_rate'], 'tone' => 'var(--theme-success-color)'],
             ['label' => __('Tokens'), 'value' => format_number_locale($metrics['total_tokens']), 'description' => __('Tracked model count: :count', ['count' => format_number_locale($metrics['model_count'])]), 'progress' => $metrics['total_tokens'] > 0 ? 100 : 0, 'tone' => 'var(--theme-warning-color)'],
             ['label' => __('Cost'), 'value' => '$'.format_number_locale($metrics['estimated_cost'], 4), 'description' => __('Failed requests: :count', ['count' => format_number_locale($metrics['failed_requests'])]), 'progress' => $metrics['estimated_cost'] > 0 ? 100 : 0, 'tone' => 'var(--theme-danger-color)'],
             ['label' => __('Latency'), 'value' => format_number_locale($metrics['avg_latency']).'ms', 'description' => __('Average latency for requests with timing data.'), 'progress' => $metrics['avg_latency'] > 0 ? 100 : 0, 'tone' => '#0ea5e9'],

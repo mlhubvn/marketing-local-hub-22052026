@@ -89,7 +89,7 @@
             ['label' => __('Published'), 'value' => $stats['published'], 'description' => __('Live forms'), 'icon' => 'fa-light fa-circle-check'],
             ['label' => __('Visits'), 'value' => $stats['visits'], 'description' => __('QR scans & link visits'), 'icon' => 'fa-light fa-chart-line'],
             ['label' => __('Leads'), 'value' => $stats['all_leads'], 'description' => __('All captured contacts'), 'icon' => 'fa-light fa-address-book'],
-            ['label' => __('Lead Rate'), 'value' => $stats['lead_rate'].'%', 'description' => __('Leads / visits'), 'icon' => 'fa-light fa-percent'],
+            ['label' => __('Lead Rate'), 'value' => format_percent_locale($stats['lead_rate']), 'description' => __('Leads / visits'), 'icon' => 'fa-light fa-percent'],
         ] as $metric)
             <article class="relative overflow-hidden rounded-[1rem] border p-4" style="border-color: rgba(var(--theme-border-color-rgb), 0.62); background: linear-gradient(145deg, rgba(var(--theme-accent-rgb),0.07), transparent 44%), color-mix(in srgb, var(--theme-surface-overlay) 98%, transparent);">
                 <span class="absolute inset-x-0 top-0 h-1" style="background-color: var(--theme-warning-color);"></span>

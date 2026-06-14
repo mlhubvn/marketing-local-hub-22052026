@@ -17,8 +17,7 @@ class AdminManualPaymentController extends Controller
 {
     public function __construct(
         protected ManualPaymentService $manualPaymentService
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): View
     {
@@ -69,7 +68,7 @@ class AdminManualPaymentController extends Controller
 
     public function create(): View
     {
-        return view('adminmanualpayments::create', $this->formData(new ManualPayment()));
+        return view('adminmanualpayments::create', $this->formData(new ManualPayment));
     }
 
     public function store(Request $request): RedirectResponse
@@ -247,7 +246,7 @@ class AdminManualPaymentController extends Controller
             ->map(fn (AdminPlan $plan) => [
                 'value' => (string) $plan->id,
                 'label' => $plan->name,
-                'description' => trim(strtoupper($plan->currency).' '.number_format((float) $plan->price, 2).' · '.match ((int) $plan->type) {
+                'description' => trim(format_money((float) $plan->price, (string) $plan->currency).' · '.match ((int) $plan->type) {
                     2 => __('Yearly'),
                     3 => __('Lifetime'),
                     default => __('Monthly'),

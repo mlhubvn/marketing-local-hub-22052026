@@ -1768,7 +1768,7 @@
                                 <div>
                                     <div class="mb-1.5 flex items-center justify-between gap-3 text-sm">
                                         <span style="color: var(--theme-header-text-color);">{{ __('File ratio') }}</span>
-                                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ $fileShare }}%</span>
+                                        <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_percent_locale($fileShare) }}</span>
                                     </div>
                                     <div class="h-1.5 overflow-hidden rounded-full" style="background: rgba(var(--theme-border-color-rgb),0.2);">
                                         <div class="h-full rounded-full" style="width: {{ $fileShare }}%; background: linear-gradient(90deg, rgba(var(--theme-accent-rgb),0.58), var(--theme-accent));"></div>

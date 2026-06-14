@@ -3,7 +3,7 @@
         ['label' => __('Subscriptions'), 'value' => format_number_locale($summary['total']), 'description' => __('Total recurring subscription records in the system.'), 'tone' => 'var(--theme-accent)', 'progress' => 100],
         ['label' => __('Active'), 'value' => format_number_locale($summary['active']), 'description' => __('Subscriptions currently marked active.'), 'tone' => '#10b981', 'progress' => max(8, $summary['total'] > 0 ? (int) round(($summary['active'] / max($summary['total'], 1)) * 100) : 8)],
         ['label' => __('Cancelled'), 'value' => format_number_locale($summary['cancelled']), 'description' => __('Subscriptions cancelled or ended.'), 'tone' => '#f43f5e', 'progress' => max(8, $summary['total'] > 0 ? (int) round(($summary['cancelled'] / max($summary['total'], 1)) * 100) : 8)],
-        ['label' => __('Active MRR'), 'value' => format_number_locale($summary['monthly_value'], 2), 'description' => __('Sum of active subscription amounts.'), 'tone' => '#64748b', 'progress' => $summary['monthly_value'] > 0 ? 100 : 8],
+        ['label' => __('Active MRR'), 'value' => format_money($summary['monthly_value']), 'description' => __('Sum of active subscription amounts.'), 'tone' => '#64748b', 'progress' => $summary['monthly_value'] > 0 ? 100 : 8],
     ];
 
     $statusLabels = [
@@ -91,7 +91,7 @@
                         <x-ui.table-cell><div class="space-y-1"><p class="font-medium" style="color: var(--theme-header-text-color);">{{ $subscription->plan?->name ?: __('No plan') }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $subscription->service ?: __('Unknown service') }}</p></div></x-ui.table-cell>
                         <x-ui.table-cell>{{ $subscription->source ?: __('N/A') }}</x-ui.table-cell>
                         <x-ui.table-cell><p class="max-w-[12rem] truncate text-sm" style="color: var(--theme-header-text-color);" title="{{ $subscription->customer_id }}">{{ $subscription->customer_id ?: __('N/A') }}</p></x-ui.table-cell>
-                        <x-ui.table-cell><p class="font-medium" style="color: var(--theme-header-text-color);">{{ $subscription->currency ?: 'USD' }} {{ format_number_locale((float) $subscription->amount, 2) }}</p></x-ui.table-cell>
+                        <x-ui.table-cell><p class="font-medium" style="color: var(--theme-header-text-color);">{{ format_money((float) $subscription->amount, $subscription->currency ?: 'USD') }}</p></x-ui.table-cell>
                         <x-ui.table-cell><div class="space-y-1"><p class="text-sm" style="color: var(--theme-muted-text-color);">{{ $subscription->createdAtFormatted() ?: __('N/A') }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ __('Updated') }}: {{ $subscription->changedAtFormatted() ?: __('N/A') }}</p></div></x-ui.table-cell>
                         <x-ui.table-cell><x-ui.badge :variant="$subscription->statusVariant()">{{ $subscription->statusLabel() }}</x-ui.badge></x-ui.table-cell>
                         <x-ui.table-cell>

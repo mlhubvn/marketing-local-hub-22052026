@@ -77,7 +77,7 @@
             <div class="flex items-end justify-between gap-3">
                 <div>
                     <p class="text-xs font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Usage') }}</p>
-                    <p class="mt-1 text-3xl font-semibold tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ $usagePercent }}%</p>
+                    <p class="mt-1 text-3xl font-semibold tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ format_percent_locale($usagePercent) }}</p>
                 </div>
                 <p class="text-sm font-semibold" style="color: var(--theme-muted-text-color);">{{ $storageLabel }}</p>
             </div>

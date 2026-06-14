@@ -102,7 +102,7 @@
                                 <div class="mt-4 h-2 overflow-hidden rounded-full" style="background-color: rgba(var(--theme-border-color-rgb), .4);">
                                     <div class="h-full rounded-full" style="width: {{ $replyPercent }}%; background: linear-gradient(90deg, rgba(var(--theme-accent-rgb), .72), var(--theme-accent));"></div>
                                 </div>
-                                <p class="mt-2 text-xs" style="color: var(--theme-muted-text-color);">{{ $replyPercent }}% {{ __('of reviews handled or drafted') }}</p>
+                                <p class="mt-2 text-xs" style="color: var(--theme-muted-text-color);">{{ format_percent_locale($replyPercent) }} {{ __('of reviews handled or drafted') }}</p>
                             </div>
                         </div>
                     </div>
@@ -136,11 +136,11 @@
 
                 <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                     @foreach ([
-                        ['label' => __('Locations'), 'value' => $analyticsSummary['locations'], 'icon' => 'fa-location-dot', 'progress' => $analyticsSummary['locations'] > 0 ? 100 : 8, 'tone' => '#0ea5e9'],
-                        ['label' => __('Managed'), 'value' => $analyticsSummary['managed_locations'], 'icon' => 'fa-circle-check', 'progress' => $analyticsSummary['locations'] > 0 ? max(8, (int) round(($analyticsSummary['managed_locations'] / $analyticsSummary['locations']) * 100)) : 8, 'tone' => 'var(--theme-accent)'],
-                        ['label' => __('Mapped'), 'value' => $analyticsSummary['mapped_locations'], 'icon' => 'fa-diagram-project', 'progress' => max(8, $mappedPercent), 'tone' => 'var(--theme-success-color)'],
-                        ['label' => __('Reviews'), 'value' => $analyticsSummary['total_reviews'], 'icon' => 'fa-star', 'progress' => $analyticsSummary['total_reviews'] > 0 ? 100 : 8, 'tone' => '#d97706'],
-                        ['label' => __('Not replied'), 'value' => $analyticsSummary['not_replied'], 'icon' => 'fa-reply-clock', 'progress' => max(8, 100 - $replyPercent), 'tone' => $analyticsSummary['not_replied'] > 0 ? 'var(--theme-warning-color)' : 'var(--theme-success-color)'],
+                        ['label' => __('Locations'), 'value' => format_number_locale($analyticsSummary['locations']), 'icon' => 'fa-location-dot', 'progress' => $analyticsSummary['locations'] > 0 ? 100 : 8, 'tone' => '#0ea5e9'],
+                        ['label' => __('Managed'), 'value' => format_number_locale($analyticsSummary['managed_locations']), 'icon' => 'fa-circle-check', 'progress' => $analyticsSummary['locations'] > 0 ? max(8, (int) round(($analyticsSummary['managed_locations'] / $analyticsSummary['locations']) * 100)) : 8, 'tone' => 'var(--theme-accent)'],
+                        ['label' => __('Mapped'), 'value' => format_number_locale($analyticsSummary['mapped_locations']), 'icon' => 'fa-diagram-project', 'progress' => max(8, $mappedPercent), 'tone' => 'var(--theme-success-color)'],
+                        ['label' => __('Reviews'), 'value' => format_number_locale($analyticsSummary['total_reviews']), 'icon' => 'fa-star', 'progress' => $analyticsSummary['total_reviews'] > 0 ? 100 : 8, 'tone' => '#d97706'],
+                        ['label' => __('Not replied'), 'value' => format_number_locale($analyticsSummary['not_replied']), 'icon' => 'fa-reply-clock', 'progress' => max(8, 100 - $replyPercent), 'tone' => $analyticsSummary['not_replied'] > 0 ? 'var(--theme-warning-color)' : 'var(--theme-success-color)'],
                     ] as $card)
                         <div class="rounded-xl border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb), .58); background-color: var(--theme-surface-base);">
                             <div class="flex items-start justify-between gap-3">
@@ -382,12 +382,12 @@
                 </div>
                 <div class="grid gap-3 border-b px-5 py-4 sm:grid-cols-2 xl:grid-cols-6" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
                     @foreach ([
-                        ['label' => __('Total'), 'value' => $reviewSummary['total'], 'icon' => 'fa-star', 'tone' => '#d97706'],
-                        ['label' => __('Avg rating'), 'value' => $reviewSummary['average'], 'icon' => 'fa-ranking-star', 'tone' => 'var(--theme-success-color)'],
-                        ['label' => __('Unreplied'), 'value' => $reviewSummary['unreplied'], 'icon' => 'fa-reply-clock', 'tone' => 'var(--theme-warning-color)'],
-                        ['label' => __('Drafts'), 'value' => $reviewSummary['drafts'], 'icon' => 'fa-pen-field', 'tone' => 'var(--theme-accent)'],
-                        ['label' => __('Replied'), 'value' => $reviewSummary['replied'], 'icon' => 'fa-circle-check', 'tone' => 'var(--theme-success-color)'],
-                        ['label' => __('Low-score'), 'value' => $reviewSummary['low_score'], 'icon' => 'fa-triangle-exclamation', 'tone' => 'var(--theme-danger-color)'],
+                        ['label' => __('Total'), 'value' => format_number_locale($reviewSummary['total']), 'icon' => 'fa-star', 'tone' => '#d97706'],
+                        ['label' => __('Avg rating'), 'value' => format_number_locale($reviewSummary['average'], 1), 'icon' => 'fa-ranking-star', 'tone' => 'var(--theme-success-color)'],
+                        ['label' => __('Unreplied'), 'value' => format_number_locale($reviewSummary['unreplied']), 'icon' => 'fa-reply-clock', 'tone' => 'var(--theme-warning-color)'],
+                        ['label' => __('Drafts'), 'value' => format_number_locale($reviewSummary['drafts']), 'icon' => 'fa-pen-field', 'tone' => 'var(--theme-accent)'],
+                        ['label' => __('Replied'), 'value' => format_number_locale($reviewSummary['replied']), 'icon' => 'fa-circle-check', 'tone' => 'var(--theme-success-color)'],
+                        ['label' => __('Low-score'), 'value' => format_number_locale($reviewSummary['low_score']), 'icon' => 'fa-triangle-exclamation', 'tone' => 'var(--theme-danger-color)'],
                     ] as $card)
                         <div class="rounded-xl border p-3" style="border-color: rgba(var(--theme-border-color-rgb), .58); background-color: var(--theme-surface-base);">
                             <div class="flex items-center justify-between gap-3">
@@ -1175,14 +1175,14 @@
 
                 <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                     @foreach ([
-                        ['label' => __('Managed locations'), 'value' => $analyticsSummary['managed_locations'], 'icon' => 'fa-location-check', 'tone' => 'var(--theme-accent)'],
-                        ['label' => __('Total reviews'), 'value' => $reviewAnalytics['total'], 'icon' => 'fa-star', 'tone' => '#d97706'],
-                        ['label' => __('Average rating'), 'value' => $reviewAnalytics['average_rating'], 'icon' => 'fa-ranking-star', 'tone' => 'var(--theme-success-color)'],
-                        ['label' => __('Reply rate'), 'value' => $reviewAnalytics['reply_rate'].'%', 'icon' => 'fa-reply', 'tone' => '#0ea5e9'],
-                        ['label' => __('Not replied'), 'value' => $reviewAnalytics['not_replied'], 'icon' => 'fa-reply-clock', 'tone' => 'var(--theme-warning-color)'],
-                        ['label' => __('Low-score'), 'value' => $reviewAnalytics['low_score'], 'icon' => 'fa-triangle-exclamation', 'tone' => 'var(--theme-danger-color)'],
-                        ['label' => __('Auto replies'), 'value' => $reviewAnalytics['auto_replies'], 'icon' => 'fa-wand-magic-sparkles', 'tone' => 'var(--theme-accent)'],
-                        ['label' => __('Failed replies'), 'value' => $reviewAnalytics['failed_replies'], 'icon' => 'fa-circle-xmark', 'tone' => 'var(--theme-danger-color)'],
+                        ['label' => __('Managed locations'), 'value' => format_number_locale($analyticsSummary['managed_locations']), 'icon' => 'fa-location-check', 'tone' => 'var(--theme-accent)'],
+                        ['label' => __('Total reviews'), 'value' => format_number_locale($reviewAnalytics['total']), 'icon' => 'fa-star', 'tone' => '#d97706'],
+                        ['label' => __('Average rating'), 'value' => format_number_locale($reviewAnalytics['average_rating'], 1), 'icon' => 'fa-ranking-star', 'tone' => 'var(--theme-success-color)'],
+                        ['label' => __('Reply rate'), 'value' => format_percent_locale($reviewAnalytics['reply_rate']), 'icon' => 'fa-reply', 'tone' => '#0ea5e9'],
+                        ['label' => __('Not replied'), 'value' => format_number_locale($reviewAnalytics['not_replied']), 'icon' => 'fa-reply-clock', 'tone' => 'var(--theme-warning-color)'],
+                        ['label' => __('Low-score'), 'value' => format_number_locale($reviewAnalytics['low_score']), 'icon' => 'fa-triangle-exclamation', 'tone' => 'var(--theme-danger-color)'],
+                        ['label' => __('Auto replies'), 'value' => format_number_locale($reviewAnalytics['auto_replies']), 'icon' => 'fa-wand-magic-sparkles', 'tone' => 'var(--theme-accent)'],
+                        ['label' => __('Failed replies'), 'value' => format_number_locale($reviewAnalytics['failed_replies']), 'icon' => 'fa-circle-xmark', 'tone' => 'var(--theme-danger-color)'],
                     ] as $card)
                         <div class="rounded-xl border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb), .58); background-color: var(--theme-surface-base);">
                             <div class="flex items-start justify-between gap-3">
@@ -1233,7 +1233,7 @@
                                     <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Reply Performance') }}</p>
                                     <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('How the review reply queue is moving.') }}</p>
                                 </div>
-                                <x-ui.badge :variant="$reviewAnalytics['reply_rate'] >= 70 ? 'success' : 'warning'">{{ $reviewAnalytics['reply_rate'] }}%</x-ui.badge>
+                                <x-ui.badge :variant="$reviewAnalytics['reply_rate'] >= 70 ? 'success' : 'warning'">{{ format_percent_locale($reviewAnalytics['reply_rate']) }}</x-ui.badge>
                             </div>
                             <div class="mt-5 space-y-4">
                                 @foreach ([
@@ -1246,7 +1246,7 @@
                                     <div>
                                         <div class="flex items-center justify-between gap-3 text-sm">
                                             <span style="color: var(--theme-muted-text-color);">{{ $row['label'] }}</span>
-                                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ $row['value'] }}</span>
+                                            <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($row['value']) }}</span>
                                         </div>
                                         <div class="mt-2 h-2 overflow-hidden rounded-full" style="background-color: rgba(var(--theme-border-color-rgb), .36);">
                                             <div class="h-full rounded-full" style="width: {{ $percent }}%; background-color: {{ $row['tone'] }};"></div>
@@ -1254,7 +1254,7 @@
                                     </div>
                                 @endforeach
                             </div>
-                            <p class="mt-5 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Auto reply success rate') }}: {{ $reviewAnalytics['auto_reply_success_rate'] }}%</p>
+                            <p class="mt-5 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Auto reply success rate') }}: {{ format_percent_locale($reviewAnalytics['auto_reply_success_rate']) }}</p>
                         </div>
 
                         <div class="rounded-[1rem] border" style="border-color: rgba(var(--theme-border-color-rgb), .58); background-color: var(--theme-surface-base);">

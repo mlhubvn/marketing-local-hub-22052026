@@ -177,7 +177,7 @@
                                 <td class="px-5 py-4"><p class="font-semibold uppercase" style="color: var(--theme-header-text-color);">{{ $payment->id_secure ?: __('N/A') }}</p><p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $payment->transaction_id }}</p></td>
                                 <td class="px-5 py-4">{{ $payment->plan?->name ?: __('N/A') }}</td>
                                 <td class="px-5 py-4">{{ $payment->from ?: __('N/A') }}</td>
-                                <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ ($payment->currency ?: 'USD').' '.format_number_locale((float) $payment->amount, 2) }}</td>
+                                <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_money((float) $payment->amount, $payment->currency ?: 'USD') }}</td>
                                 <td class="px-5 py-4"><x-ui.badge :variant="$payment->statusVariant()">{{ $payment->statusLabel() }}</x-ui.badge></td>
                                 <td class="px-5 py-4">{{ $payment->createdAtFormatted() ?: __('N/A') }}</td>
                             </tr>

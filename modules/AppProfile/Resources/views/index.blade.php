@@ -95,7 +95,7 @@
                             <div class="grid gap-3 sm:grid-cols-3 lg:min-w-[360px]">
                                 <div class="rounded-[1rem] border px-4 py-3" style="border-color: rgba(var(--theme-accent-rgb), 0.14); background: rgba(var(--theme-accent-rgb), 0.06);">
                                     <p class="text-[11px] font-semibold uppercase tracking-[0.2em]" style="color: var(--theme-muted-text-color);">{{ __('Profile strength') }}</p>
-                                    <p class="mt-3 text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ $profileCompletionPercent }}%</p>
+                                    <p class="mt-3 text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_percent_locale($profileCompletionPercent) }}</p>
                                 </div>
 
                                 <div class="rounded-[1rem] border px-4 py-3" style="border-color: var(--theme-border-color); background: var(--theme-surface-base);">

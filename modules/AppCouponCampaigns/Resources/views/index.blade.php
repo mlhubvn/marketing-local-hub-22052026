@@ -62,7 +62,7 @@
                     @foreach ([
                         ['label' => __('Claimed'), 'value' => $stats['claimed']],
                         ['label' => __('Used'), 'value' => $stats['used']],
-                        ['label' => __('Rate'), 'value' => format_number_locale((float) $stats['redemption_rate'], 1).'%'],
+                        ['label' => __('Rate'), 'value' => format_percent_locale((float) $stats['redemption_rate'])],
                     ] as $item)
                         <div class="rounded-lg border px-3 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
                             <p class="text-xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ is_numeric($item['value']) ? format_number_locale((float) $item['value']) : $item['value'] }}</p>
@@ -80,7 +80,7 @@
             ['label' => __('Visits'), 'value' => $stats['visits'], 'description' => __('QR scans & link visits'), 'icon' => 'fa-light fa-chart-line'],
             ['label' => __('Coupon Claims'), 'value' => $stats['claims'], 'description' => __('Customers claimed codes'), 'icon' => 'fa-light fa-ticket'],
             ['label' => __('Coupons Used'), 'value' => $stats['used'], 'description' => __('Marked redeemed'), 'icon' => 'fa-light fa-badge-check'],
-            ['label' => __('Redemption Rate'), 'value' => $stats['redemption_rate'].'%', 'description' => __('Used / claims'), 'icon' => 'fa-light fa-percent'],
+            ['label' => __('Redemption Rate'), 'value' => format_percent_locale($stats['redemption_rate']), 'description' => __('Used / claims'), 'icon' => 'fa-light fa-percent'],
         ] as $metric)
             <article class="relative overflow-hidden rounded-[1.1rem] border p-4" style="border-color: rgba(var(--theme-border-color-rgb), 0.62); background: linear-gradient(145deg, rgba(var(--theme-accent-rgb),0.07), transparent 44%), color-mix(in srgb, var(--theme-surface-overlay) 98%, transparent);">
                 <span class="absolute inset-x-0 top-0 h-1" style="background-color: var(--theme-warning-color);"></span>

@@ -51,7 +51,7 @@
                     <div class="h-2 flex-1 overflow-hidden rounded-full" style="{{ $resolvedProgressTrackStyle }}">
                         <div class="h-full rounded-full" style="width: {{ $progress }}%; background-color: {{ $tone }};"></div>
                     </div>
-                    <span class="text-xs font-semibold" style="color: var(--theme-muted-text-color);">{{ $progress }}%</span>
+                    <span class="text-xs font-semibold" style="color: var(--theme-muted-text-color);">{{ format_percent_locale($progress) }}</span>
                 </div>
             @endif
         </div>

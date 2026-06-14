@@ -6,8 +6,8 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Title;
 use Livewire\Component;
-use Modules\AdminSettings\Support\OptionStore;
 use Modules\AdminPlans\Support\CurrencyCatalog;
+use Modules\AdminSettings\Support\OptionStore;
 
 #[Title('General settings')]
 class General extends Component
@@ -165,11 +165,11 @@ class General extends Component
         return [
             [
                 'value' => 'vi_VN',
-                'label' => number_format($sample, 0, ',', '.').' ('.__('Vietnamese').')',
+                'label' => format_number_locale($sample, 0, ',', '.').' ('.__('Vietnamese').')',
             ],
             [
                 'value' => 'en_US',
-                'label' => number_format($sample, 0, '.', ',').' ('.__('US / International').')',
+                'label' => format_number_locale($sample, 0, '.', ',').' ('.__('US / International').')',
             ],
         ];
     }

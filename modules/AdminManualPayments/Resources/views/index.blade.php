@@ -10,7 +10,7 @@
         $metricCards = [
             ['label' => __('Total'), 'value' => format_number_locale($summary['total']), 'description' => __('All manual payment requests currently stored.'), 'icon' => 'fa-light fa-wallet', 'tone' => 'var(--theme-accent)', 'progress' => $summary['total'] > 0 ? 100 : 0],
             ['label' => __('Pending'), 'value' => format_number_locale($summary['pending']), 'description' => __('Requests waiting for finance review.'), 'icon' => 'fa-light fa-hourglass-half', 'tone' => 'rgb(217 119 6)', 'progress' => $summary['total'] > 0 ? (int) round(($summary['pending'] / max($summary['total'], 1)) * 100) : 0],
-            ['label' => __('Approved Gross'), 'value' => format_number_locale($summary['gross'], 2), 'description' => __('Approved manual payment amount total.'), 'icon' => 'fa-light fa-circle-check', 'tone' => 'rgb(5 150 105)', 'progress' => $summary['gross'] > 0 ? 100 : 0],
+            ['label' => __('Approved Gross'), 'value' => format_money($summary['gross']), 'description' => __('Approved manual payment amount total.'), 'icon' => 'fa-light fa-circle-check', 'tone' => 'rgb(5 150 105)', 'progress' => $summary['gross'] > 0 ? 100 : 0],
         ];
     @endphp
 

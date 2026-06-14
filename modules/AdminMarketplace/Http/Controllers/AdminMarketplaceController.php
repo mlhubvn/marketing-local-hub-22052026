@@ -2,17 +2,17 @@
 
 namespace Modules\AdminMarketplace\Http\Controllers;
 
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Routing\Controller;
-use RuntimeException;
-use Throwable;
 use Modules\AdminMarketplace\Models\MarketplacePackage;
 use Modules\AdminMarketplace\Services\MarketplacePackageService;
 use Modules\AdminMarketplace\Services\ShopProductCatalogService;
+use RuntimeException;
+use Throwable;
 
 class AdminMarketplaceController extends Controller
 {
@@ -29,7 +29,7 @@ class AdminMarketplaceController extends Controller
         Cache::forget(self::DASHBOARD_UPDATE_NOTICE_CACHE_KEY);
 
         return back()
-            ->with('status', __('Marketplace synced successfully. :count package(s) found.', ['count' => number_format($count)]));
+            ->with('status', __('Marketplace synced successfully. :count package(s) found.', ['count' => format_number_locale($count)]));
     }
 
     public function install(Request $request): RedirectResponse

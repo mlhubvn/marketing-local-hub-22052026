@@ -193,7 +193,7 @@
                 <div class="border-t px-5 py-4 first:border-t-0 sm:border-l sm:first:border-l-0 sm:border-t-0" style="border-color: rgba(var(--theme-border-color-rgb), 0.56); background: color-mix(in srgb, var(--theme-surface-soft) 88%, transparent);">
                     <p class="text-sm" style="color: var(--theme-muted-text-color);">{{ $stat['label'] ?? '--' }}</p>
                     <p class="mt-2 text-[1.75rem] font-semibold leading-none" style="color: var(--theme-header-text-color);">
-                        {{ format_number_locale((float) ($stat['value'] ?? 0), (int) ($stat['decimals'] ?? 0)) }}{{ $stat['suffix'] ?? '' }}
+                        {{ ($stat['suffix'] ?? '') === '%' ? format_percent_locale((float) ($stat['value'] ?? 0)) : format_number_locale((float) ($stat['value'] ?? 0), (int) ($stat['decimals'] ?? 0)).($stat['suffix'] ?? '') }}
                     </p>
                 </div>
             @endforeach

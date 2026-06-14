@@ -1,23 +1,27 @@
 <?php
 
-use App\Support\TimezoneCatalog;
 use App\Support\Dashboard\AdminDashboardRegistry;
-use Modules\AdminPlans\Support\CurrencyCatalog;
 use App\Support\Dashboard\UserDashboardRegistry;
-use App\Support\Navigation\SidebarRegistry;
 use App\Support\Navigation\HeaderRegistry;
+use App\Support\Navigation\SidebarRegistry;
 use App\Support\Plans\PlanPermissionRegistry;
+use App\Support\TimezoneCatalog;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Optional;
 use Laravel\Fortify\Features;
 use Modules\AdminLanguages\Support\WorldLanguageCatalog;
+use Modules\AdminPlans\Support\CurrencyCatalog;
 use Modules\AdminSettings\Support\OptionStore;
 use Modules\AdminUser\Models\AuditLog;
+use Modules\AdminUser\Models\User;
 use Modules\AppAffiliate\Support\AffiliateService;
+use Modules\AppCredits\Models\CreditUsageLog;
 use Modules\AppCredits\Support\CreditActionRegistry;
-use Modules\AppCredits\Support\CreditSettings;
 use Modules\AppCredits\Support\CreditService;
+use Modules\AppCredits\Support\CreditSettings;
 use Modules\AppCredits\Support\CreditTopupService;
 use Modules\AppPublishing\Support\PublishingProviderPaletteRegistry;
-use Modules\AppTeams\Support\TeamWorkspaceAccess;
 
 if (! function_exists('sidebar_registry')) {
     function sidebar_registry(): SidebarRegistry
@@ -104,14 +108,14 @@ if (! function_exists('register_admin_dashboard_item')) {
 }
 
 if (! function_exists('admin_dashboard_items')) {
-    function admin_dashboard_items(?\Illuminate\Contracts\Auth\Authenticatable $user = null, ?string $region = null): array
+    function admin_dashboard_items(?Authenticatable $user = null, ?string $region = null): array
     {
         return admin_dashboard_registry()->items($user, $region);
     }
 }
 
 if (! function_exists('admin_dashboard_layout')) {
-    function admin_dashboard_layout(?\Illuminate\Contracts\Auth\Authenticatable $user = null): array
+    function admin_dashboard_layout(?Authenticatable $user = null): array
     {
         return admin_dashboard_registry()->layout($user);
     }
@@ -132,14 +136,14 @@ if (! function_exists('register_user_dashboard_item')) {
 }
 
 if (! function_exists('user_dashboard_items')) {
-    function user_dashboard_items(?\Illuminate\Contracts\Auth\Authenticatable $user = null, ?string $region = null): array
+    function user_dashboard_items(?Authenticatable $user = null, ?string $region = null): array
     {
         return user_dashboard_registry()->items($user, $region);
     }
 }
 
 if (! function_exists('user_dashboard_layout')) {
-    function user_dashboard_layout(?\Illuminate\Contracts\Auth\Authenticatable $user = null): array
+    function user_dashboard_layout(?Authenticatable $user = null): array
     {
         return user_dashboard_registry()->layout($user);
     }
@@ -209,14 +213,14 @@ if (! function_exists('credit_topup_service')) {
 }
 
 if (! function_exists('credit_summary')) {
-    function credit_summary(?\Modules\AdminUser\Models\User $user): array
+    function credit_summary(?User $user): array
     {
         return credit_service()->summary($user);
     }
 }
 
 if (! function_exists('consume_credits')) {
-    function consume_credits(?\Modules\AdminUser\Models\User $user, string $actionKey, array $attributes = []): \Modules\AppCredits\Models\CreditUsageLog
+    function consume_credits(?User $user, string $actionKey, array $attributes = []): CreditUsageLog
     {
         return credit_service()->consume($user, $actionKey, $attributes);
     }
@@ -258,14 +262,14 @@ if (! function_exists('timezone_label')) {
 }
 
 if (! function_exists('save_admin_dashboard_layout')) {
-    function save_admin_dashboard_layout(?\Illuminate\Contracts\Auth\Authenticatable $user, array $itemIds): void
+    function save_admin_dashboard_layout(?Authenticatable $user, array $itemIds): void
     {
         admin_dashboard_registry()->saveLayout($user, $itemIds);
     }
 }
 
 if (! function_exists('save_user_dashboard_layout')) {
-    function save_user_dashboard_layout(?\Illuminate\Contracts\Auth\Authenticatable $user, array $itemIds): void
+    function save_user_dashboard_layout(?Authenticatable $user, array $itemIds): void
     {
         user_dashboard_registry()->saveLayout($user, $itemIds);
     }
@@ -524,7 +528,7 @@ if (! function_exists('format_date_locale')) {
      */
     function format_date_locale(mixed $date, ?string $format = null): string
     {
-        while ($date instanceof Illuminate\Support\Optional) {
+        while ($date instanceof Optional) {
             $date = $date->value();
         }
 
@@ -536,7 +540,7 @@ if (! function_exists('format_date_locale')) {
             return '';
         }
 
-        if ($date instanceof Illuminate\Support\Optional) {
+        if ($date instanceof Optional) {
             return '';
         }
 
@@ -545,8 +549,8 @@ if (! function_exists('format_date_locale')) {
         }
 
         $carbon = $date instanceof DateTimeInterface
-            ? Illuminate\Support\Carbon::instance($date)
-            : Illuminate\Support\Carbon::parse($date);
+            ? Carbon::instance($date)
+            : Carbon::parse($date);
 
         $settings = platform_format_settings();
         $format ??= (string) $settings['format_date'];
@@ -564,7 +568,7 @@ if (! function_exists('format_datetime_locale')) {
      */
     function format_datetime_locale(mixed $date, ?string $format = null): string
     {
-        while ($date instanceof Illuminate\Support\Optional) {
+        while ($date instanceof Optional) {
             $date = $date->value();
         }
 
@@ -576,7 +580,7 @@ if (! function_exists('format_datetime_locale')) {
             return '';
         }
 
-        if ($date instanceof Illuminate\Support\Optional) {
+        if ($date instanceof Optional) {
             return '';
         }
 
@@ -585,8 +589,8 @@ if (! function_exists('format_datetime_locale')) {
         }
 
         $carbon = $date instanceof DateTimeInterface
-            ? Illuminate\Support\Carbon::instance($date)
-            : Illuminate\Support\Carbon::parse($date);
+            ? Carbon::instance($date)
+            : Carbon::parse($date);
 
         $settings = platform_format_settings();
         $format ??= (string) $settings['format_datetime'];
@@ -646,15 +650,19 @@ if (! function_exists('format_number_locale')) {
     /**
      * Số hiển thị theo Admin → General (dấu chấm nghìn, phẩy thập phân cho Việt Nam).
      */
-    function format_number_locale(int|float $value, int $decimals = 0): string
-    {
+    function format_number_locale(
+        int|float $value,
+        int $decimals = 0,
+        ?string $decimalSeparator = null,
+        ?string $thousandsSeparator = null,
+    ): string {
         $settings = platform_format_settings();
 
         return number_format(
             (float) $value,
             max(0, $decimals),
-            (string) $settings['decimal_separator'],
-            (string) $settings['thousands_separator'],
+            $decimalSeparator ?? (string) $settings['decimal_separator'],
+            $thousandsSeparator ?? (string) $settings['thousands_separator'],
         );
     }
 }
@@ -677,11 +685,11 @@ if (! function_exists('format_price_locale')) {
 
 if (! function_exists('format_percent_locale')) {
     /**
-     * Tỷ lệ % làm tròn số nguyên không âm (vd. 8,7% → 9%).
+     * Tỷ lệ % làm tròn số nguyên (vd. 8,7% → 9%).
      */
     function format_percent_locale(int|float $value): string
     {
-        return format_number_locale(max(0, (int) round((float) $value)), 0).'%';
+        return format_number_locale((int) round((float) $value), 0).'%';
     }
 }
 
@@ -696,8 +704,8 @@ if (! function_exists('format_carbon_display')) {
         }
 
         $carbon = $date instanceof DateTimeInterface
-            ? Illuminate\Support\Carbon::instance($date)
-            : Illuminate\Support\Carbon::parse($date);
+            ? Carbon::instance($date)
+            : Carbon::parse($date);
 
         $formatted = match ($format) {
             'Y-m-d' => format_date_locale($carbon),

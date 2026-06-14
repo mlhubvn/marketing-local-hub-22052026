@@ -191,7 +191,7 @@
                 <div class="flex items-end justify-between gap-3">
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Progress') }}</p>
-                        <p class="mt-1 text-3xl font-semibold tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ $onboardingPercent }}%</p>
+                        <p class="mt-1 text-3xl font-semibold tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ format_percent_locale($onboardingPercent) }}</p>
                     </div>
                     <p class="text-sm font-semibold" style="color: var(--theme-muted-text-color);">{{ (int) ($onboarding['completed'] ?? 0) }}/{{ (int) ($onboarding['total'] ?? count($onboardingSteps)) }}</p>
                 </div>
@@ -240,7 +240,7 @@
             ['label' => __('Active Campaigns'), 'value' => $growthMetrics['active_campaigns'] ?? 0, 'description' => __('Published funnels'), 'icon' => 'fa-light fa-bullhorn', 'accent' => '#0f766e'],
             ['label' => __('Visits'), 'value' => $growthMetrics['visits'] ?? 0, 'description' => __('Tracked page views'), 'icon' => 'fa-light fa-eye', 'accent' => '#0f766e'],
             ['label' => __('Review Clicks'), 'value' => $growthMetrics['review_clicks'] ?? 0, 'description' => __('Public review actions'), 'icon' => 'fa-light fa-star', 'accent' => '#d97706'],
-            ['label' => __('Conversion Rate'), 'value' => ($growthMetrics['conversion_rate'] ?? 0).'%', 'description' => __('Conversions / visits'), 'icon' => 'fa-light fa-chart-simple', 'accent' => '#0f766e'],
+            ['label' => __('Conversion Rate'), 'value' => format_percent_locale($growthMetrics['conversion_rate'] ?? 0), 'description' => __('Conversions / visits'), 'icon' => 'fa-light fa-chart-simple', 'accent' => '#0f766e'],
             ['label' => __('Leads'), 'value' => $growthMetrics['leads'] ?? 0, 'description' => __('Lead forms'), 'icon' => 'fa-light fa-user-plus', 'accent' => '#0f766e'],
             ['label' => __('Bookings'), 'value' => $growthMetrics['bookings'] ?? 0, 'description' => __('Appointment requests'), 'icon' => 'fa-light fa-calendar-check', 'accent' => '#0f766e'],
             ['label' => __('Coupon Claims'), 'value' => $growthMetrics['coupon_claims'] ?? 0, 'description' => __('Claimed offers'), 'icon' => 'fa-light fa-ticket', 'accent' => '#d97706'],
@@ -299,7 +299,7 @@
                                             <td class="px-5 py-4" style="color: var(--theme-muted-text-color);">{{ $row['business_name'] ?: __('No business') }}</td>
                                             <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($row['visits']) }}</td>
                                             <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($row['conversions']) }}</td>
-                                            <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ $row['conversion_rate'] }}%</td>
+                                            <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_percent_locale($row['conversion_rate']) }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

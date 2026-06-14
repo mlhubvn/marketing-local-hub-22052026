@@ -121,7 +121,7 @@
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Published') }}</p>
                     </div>
                     <div class="border px-3 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.46); background-color: color-mix(in srgb, var(--theme-surface-overlay) 78%, transparent);">
-                        <p class="text-xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ $stats['conversion_rate'] }}%</p>
+                        <p class="text-xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_percent_locale($stats['conversion_rate']) }}</p>
                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Conversion Rate') }}</p>
                     </div>
                 </div>
@@ -136,7 +136,7 @@
             ['label' => __('Draft'), 'value' => $stats['draft'], 'description' => __('Not public yet'), 'icon' => 'fa-light fa-pen-to-square'],
             ['label' => __('Visits'), 'value' => $stats['visits'], 'description' => __('Tracked page views'), 'icon' => 'fa-light fa-eye'],
             ['label' => __('Conversions'), 'value' => $stats['conversions'], 'description' => __('Forms and CTA actions'), 'icon' => 'fa-light fa-bullseye-arrow'],
-            ['label' => __('Conversion Rate'), 'value' => $stats['conversion_rate'].'%', 'description' => __('Conversions / visits'), 'icon' => 'fa-light fa-percent'],
+            ['label' => __('Conversion Rate'), 'value' => format_percent_locale($stats['conversion_rate']), 'description' => __('Conversions / visits'), 'icon' => 'fa-light fa-percent'],
         ] as $metric)
             <article class="relative overflow-hidden rounded-[1rem] border p-4" style="border-color: rgba(var(--theme-border-color-rgb), 0.62); background: linear-gradient(145deg, rgba(var(--theme-accent-rgb),0.07), transparent 44%), color-mix(in srgb, var(--theme-surface-overlay) 98%, transparent);">
                 <span class="absolute inset-x-0 top-0 h-1" style="background-color: var(--theme-warning-color);"></span>

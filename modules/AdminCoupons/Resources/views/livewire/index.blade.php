@@ -160,8 +160,8 @@
                         </x-ui.table-cell>
                         <x-ui.table-cell>
                             <div class="space-y-1">
-                                <p class="text-sm" style="color: var(--theme-header-text-color);">{{ $coupon->startDateFormatted() ?: __('N/A') }}</p>
-                                <p class="text-xs" style="color: var(--theme-muted-text-color);">{{ __('Until') }}: {{ $coupon->endDateFormatted() }}</p>
+                                <p class="text-sm" style="color: var(--theme-header-text-color);">{{ format_date_locale($coupon->startDateFormatted()) ?: __('N/A') }}</p>
+                                <p class="text-xs" style="color: var(--theme-muted-text-color);">{{ __('Until') }}: {{ (int) $coupon->end_date === -1 ? __('No expiry') : format_date_locale($coupon->endDateFormatted()) }}</p>
                             </div>
                         </x-ui.table-cell>
                         <x-ui.table-cell>

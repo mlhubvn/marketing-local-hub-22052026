@@ -69,7 +69,7 @@
         ],
         [
             'label' => __('Refund rate'),
-            'value' => format_number_locale((float) $info['refund_rate'], 2).'%',
+            'value' => format_percent_locale((float) $info['refund_rate']),
             'description' => __('Refunded transaction share in current period.'),
             'tone' => '#f43f5e',
             'progress' => min(100, max(8, (int) round($info['refund_rate']))),
@@ -183,7 +183,7 @@
                     {{ __('Range') }}: {{ $rangeLabel }}
                 </span>
                 <span class="inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium" style="border-color: var(--theme-border-color); color: var(--theme-muted-text-color);">
-                    {{ __('Income growth') }}: {{ $info['income_growth'] >= 0 ? '+' : '' }}{{ $info['income_growth'] }}%
+                    {{ __('Income growth') }}: {{ $info['income_growth'] >= 0 ? '+' : '' }}{{ format_percent_locale($info['income_growth']) }}
                 </span>
                 <span class="inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium" style="border-color: var(--theme-border-color); color: var(--theme-muted-text-color);">
                     {{ __('Active days') }}: {{ format_number_locale((int) $info['active_days']) }}
@@ -294,4 +294,3 @@
         @endif
     </x-ui.section-card>
 </div>
-

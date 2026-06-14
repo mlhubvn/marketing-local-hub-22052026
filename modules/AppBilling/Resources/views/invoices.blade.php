@@ -42,7 +42,7 @@
                     <h2 class="mt-2 text-xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ __('Invoice history') }}</h2>
                     <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('All recorded billing rows belonging to the current account.') }}</p>
                 </div>
-                <x-ui.badge variant="neutral">{{ __('Page') }} {{ $invoices->currentPage() }} / {{ $invoices->lastPage() }}</x-ui.badge>
+                <x-ui.badge variant="neutral">{{ __('Page') }} {{ format_number_locale($invoices->currentPage()) }} / {{ format_number_locale($invoices->lastPage()) }}</x-ui.badge>
             </div>
 
             <div class="overflow-x-auto">
@@ -69,7 +69,7 @@
                                 <td class="px-5 py-4"><span class="font-mono text-xs" style="color: var(--theme-muted-text-color);">{{ $invoice->transaction_id ?: __('N/A') }}</span></td>
                                 <td class="px-5 py-4">{{ $invoice->plan?->name ?: __('N/A') }}</td>
                                 <td class="px-5 py-4">{{ $invoice->from ?: __('N/A') }}</td>
-                                <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ ($invoice->currency ?: 'USD').' '.format_number_locale((float) $invoice->amount, 2) }}</td>
+                                <td class="px-5 py-4 font-semibold" style="color: var(--theme-header-text-color);">{{ format_money((float) $invoice->amount, $invoice->currency ?: 'USD') }}</td>
                                 <td class="px-5 py-4"><x-ui.badge :variant="$invoice->statusVariant()">{{ $invoice->statusLabel() }}</x-ui.badge></td>
                                 <td class="px-5 py-4">{{ $invoice->createdAtFormatted() ?: __('N/A') }}</td>
                                 <td class="px-5 py-4 text-right">

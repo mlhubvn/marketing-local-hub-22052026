@@ -87,6 +87,9 @@
                                     <div class="mt-2 flex items-center gap-1 text-xs whitespace-nowrap" style="color: var(--theme-muted-text-color);">
                                         <span>{{ __('Expire:') }}</span>
                                         <span class="font-semibold" style="color: var(--theme-header-text-color);">{{ $planCard['expiry'] }}</span>
+                                        <span class="inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[11px] font-semibold whitespace-nowrap {{ $planCard['badge_tone'] === 'success' ? 'bg-emerald-400/12 text-emerald-500' : 'bg-slate-400/10 text-slate-500 dark:text-slate-300' }}">
+                                            {{ $planCard['badge'] }}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -94,9 +97,6 @@
                             <div class="mt-3 flex items-center justify-between gap-2 text-xs">
                                 <span style="color: var(--theme-muted-text-color);">{{ __('Credits used') }}</span>
                                 <span style="color: var(--theme-header-text-color);">{{ $planCard['credits_used_label'] }} / {{ $planCard['credits_limit_label'] }}</span>
-                                <span class="inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[11px] font-semibold whitespace-nowrap {{ $planCard['badge_tone'] === 'success' ? 'bg-emerald-400/12 text-emerald-500' : 'bg-slate-400/10 text-slate-500 dark:text-slate-300' }}">
-                                    {{ $planCard['badge'] }}
-                                </span>
                             </div>
 
                             <div class="mt-2 h-2 overflow-hidden rounded-full" style="background: color-mix(in srgb, var(--theme-sidebar-bg) 72%, black 28%);">

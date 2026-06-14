@@ -191,7 +191,7 @@
 
                                     <div class="rounded-[1rem] border px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb), 0.42); background-color: color-mix(in srgb, var(--theme-surface-base) 94%, transparent);">
                                         <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Progress') }}</p>
-                                        <p class="mt-2 text-xl font-semibold" style="color: var(--theme-header-text-color);">{{ (int) ($result['progress'] ?? 0) }}%</p>
+                                        <p class="mt-2 text-xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_percent_locale((int) ($result['progress'] ?? 0)) }}</p>
                                         <div class="mt-3 h-2.5 overflow-hidden rounded-full" style="background-color: rgba(var(--theme-border-color-rgb), 0.18);">
                                             <div class="h-full rounded-full transition-all duration-500" style="width: {{ max(6, min(100, (int) ($result['progress'] ?? 0))) }}%; background: linear-gradient(90deg, rgba(var(--theme-accent-rgb), 0.55), var(--theme-accent));"></div>
                                         </div>

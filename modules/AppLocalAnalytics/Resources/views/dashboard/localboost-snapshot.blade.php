@@ -36,7 +36,7 @@
 
                 <div class="rounded-[0.95rem] border px-4 py-3 text-right" style="border-color: rgba(var(--theme-border-color-rgb),0.58); background: color-mix(in srgb, var(--theme-surface-base) 88%, rgba(var(--theme-accent-rgb),0.05));">
                     <p class="text-[10px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Conversion rate') }}</p>
-                    <p class="mt-1 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ $conversionRate }}%</p>
+                    <p class="mt-1 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_percent_locale($conversionRate) }}</p>
                 </div>
             </div>
         </div>

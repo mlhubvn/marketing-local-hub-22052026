@@ -96,7 +96,7 @@
                                 <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                                     <div class="rounded-[1.1rem] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.42); background: color-mix(in srgb, var(--theme-surface-base) 90%, rgba(var(--theme-accent-rgb),0.03));">
                                         <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Success rate') }}</p>
-                                        <p class="mt-2 text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ $successRate }}%</p>
+                                        <p class="mt-2 text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_percent_locale($successRate) }}</p>
                                         <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Share of AI requests that completed successfully') }}</p>
                                     </div>
 

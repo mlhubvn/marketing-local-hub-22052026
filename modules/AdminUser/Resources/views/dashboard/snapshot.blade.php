@@ -90,7 +90,7 @@
 
                             <div class="rounded-[var(--theme-card-radius,1.15rem)] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.44); background: color-mix(in srgb, var(--theme-surface-base) 88%, rgba(var(--theme-accent-rgb),0.04));">
                                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Growth share') }}</p>
-                                <p class="mt-2 text-[1.75rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ $signupShare }}%</p>
+                                <p class="mt-2 text-[1.75rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_percent_locale($signupShare) }}</p>
                                 <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Current users added during the last 7 days') }}</p>
                             </div>
                         </div>
@@ -134,7 +134,7 @@
 
                     <div class="rounded-[calc(var(--theme-card-radius,1.15rem)-0.2rem)] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.42); background: color-mix(in srgb, var(--theme-surface-base) 90%, rgba(var(--theme-accent-rgb),0.03));">
                         <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('7-day share') }}</p>
-                        <p class="mt-2 text-[1.55rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ $signupShare }}%</p>
+                        <p class="mt-2 text-[1.55rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_percent_locale($signupShare) }}</p>
                         <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Portion of users created recently') }}</p>
                     </div>
                 </div>

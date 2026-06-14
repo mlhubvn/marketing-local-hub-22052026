@@ -37,10 +37,10 @@ class Coupon extends Model
     public function discountLabel(): string
     {
         if ((int) $this->type === 2) {
-            return number_format((float) $this->discount, 2);
+            return format_money((float) $this->discount);
         }
 
-        return rtrim(rtrim(number_format((float) $this->discount, 2), '0'), '.').' %';
+        return format_percent_locale((float) $this->discount);
     }
 
     public function statusLabel(): string
@@ -55,7 +55,7 @@ class Coupon extends Model
 
     public function usageLimitLabel(): string
     {
-        return (int) $this->usage_limit === -1 ? __('Unlimited') : number_format((int) $this->usage_limit);
+        return (int) $this->usage_limit === -1 ? __('Unlimited') : format_number_locale((int) $this->usage_limit);
     }
 
     public function startDateFormatted(string $format = 'Y-m-d'): ?string

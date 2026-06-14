@@ -454,18 +454,18 @@
                     <div class="grid gap-3 sm:grid-cols-2">
                         <div class="rounded-2xl px-4 py-4" style="background: rgba(59,130,246,0.08);">
                             <p class="text-xs uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Regular') }}</p>
-                            <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">${{ format_number_locale($product['price_regular_license'], 2) }}</p>
+                            <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_money($product['price_regular_license'], 'USD') }}</p>
                         </div>
                         <div class="rounded-2xl px-4 py-4" style="background: rgba(16,185,129,0.08);">
                             <p class="text-xs uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Extended') }}</p>
-                            <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">${{ format_number_locale($product['price_extended_license'], 2) }}</p>
+                            <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_money($product['price_extended_license'], 'USD') }}</p>
                         </div>
                     </div>
 
                     @if ($product['price_renew_support'] > 0)
                         <div class="rounded-2xl px-4 py-4" style="background: rgba(245,158,11,0.08);">
                             <p class="text-xs uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Renew support') }}</p>
-                            <p class="mt-2 text-xl font-semibold" style="color: var(--theme-header-text-color);">${{ format_number_locale($product['price_renew_support'], 2) }}</p>
+                            <p class="mt-2 text-xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_money($product['price_renew_support'], 'USD') }}</p>
                         </div>
                     @endif
 

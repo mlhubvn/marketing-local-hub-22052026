@@ -370,11 +370,11 @@
                         <div class="grid gap-2 sm:grid-cols-2">
                             <div class="rounded-2xl px-4 py-3" style="background: rgba(59,130,246,0.08);">
                                 <p class="text-xs uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Regular') }}</p>
-                                <p class="mt-2 text-lg font-semibold" style="color: var(--theme-header-text-color);">${{ format_number_locale($product['price_regular_license'], 2) }}</p>
+                                <p class="mt-2 text-lg font-semibold" style="color: var(--theme-header-text-color);">{{ format_money($product['price_regular_license'], 'USD') }}</p>
                             </div>
                             <div class="rounded-2xl px-4 py-3" style="background: rgba(16,185,129,0.08);">
                                 <p class="text-xs uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Extended') }}</p>
-                                <p class="mt-2 text-lg font-semibold" style="color: var(--theme-header-text-color);">${{ format_number_locale($product['price_extended_license'], 2) }}</p>
+                                <p class="mt-2 text-lg font-semibold" style="color: var(--theme-header-text-color);">{{ format_money($product['price_extended_license'], 'USD') }}</p>
                             </div>
                         </div>
 

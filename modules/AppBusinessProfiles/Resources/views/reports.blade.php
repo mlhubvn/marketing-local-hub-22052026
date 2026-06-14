@@ -16,7 +16,7 @@
 
             <div class="rounded-[1.15rem] border p-4" style="border-color: rgba(var(--theme-border-color-rgb),0.62); background-color: color-mix(in srgb, var(--theme-surface-base) 86%, transparent);">
                 <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Conversion rate') }}</p>
-                <p class="mt-4 text-5xl font-semibold tracking-[-0.06em]" style="color: var(--theme-header-text-color);">{{ $totals['conversion_rate'] }}%</p>
+                <p class="mt-4 text-5xl font-semibold tracking-[-0.06em]" style="color: var(--theme-header-text-color);">{{ format_percent_locale($totals['conversion_rate']) }}</p>
                 <p class="mt-2 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ __('Total conversions divided by visits or QR scans.') }}</p>
             </div>
         </div>
@@ -58,7 +58,7 @@
             ['label' => __('Coupons'), 'value' => $totals['coupons'], 'icon' => 'fa-light fa-ticket'],
             ['label' => __('Feedback'), 'value' => $totals['feedback'], 'icon' => 'fa-light fa-message-lines'],
             ['label' => __('QR Scans'), 'value' => $totals['qr_scans'], 'icon' => 'fa-light fa-qrcode'],
-            ['label' => __('Conversion Rate'), 'value' => $totals['conversion_rate'].'%', 'icon' => 'fa-light fa-chart-line'],
+            ['label' => __('Conversion Rate'), 'value' => format_percent_locale($totals['conversion_rate']), 'icon' => 'fa-light fa-chart-line'],
         ] as $metric)
             <article class="rounded-[1.1rem] border p-4" style="border-color: rgba(var(--theme-border-color-rgb), 0.62); background:
                 linear-gradient(145deg, rgba(var(--theme-accent-rgb),0.075), transparent 42%),
@@ -211,7 +211,7 @@
                                                 <td class="py-3 pr-4">{{ format_number_locale($row['coupons']) }}</td>
                                                 <td class="py-3 pr-4">{{ format_number_locale($row['review_clicks']) }}</td>
                                                 <td class="py-3 pr-4">{{ format_number_locale($row['feedback']) }}</td>
-                                                <td class="py-3">{{ $row['conversion_rate'] }}%</td>
+                                                <td class="py-3">{{ format_percent_locale($row['conversion_rate']) }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -257,7 +257,7 @@
                         ['label' => __('Negative feedback'), 'value' => $reviewPerformance['negative']],
                         ['label' => __('Google Review clicks'), 'value' => $reviewPerformance['review_clicks']],
                         ['label' => __('Average rating'), 'value' => $reviewPerformance['average_rating']],
-                        ['label' => __('Review conversion'), 'value' => $reviewPerformance['conversion_rate'].'%'],
+                        ['label' => __('Review conversion'), 'value' => format_percent_locale($reviewPerformance['conversion_rate'])],
                     ]" />
                 </x-report-card>
             </div>
@@ -273,7 +273,7 @@
                                         <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ $source['source'] }}</p>
                                     </div>
                                     <p>{{ format_number_locale($source['leads']) }} {{ __('leads') }}</p>
-                                    <p>{{ $source['conversion_rate'] }}%</p>
+                                    <p>{{ format_percent_locale($source['conversion_rate']) }}</p>
                                     <p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $source['last_lead'] ? \Carbon\Carbon::parse($source['last_lead'])->diffForHumans() : __('No lead') }}</p>
                                 </div>
                             @endforeach
@@ -293,7 +293,7 @@
                             ['label' => __('Confirmed'), 'value' => $bookingPerformance['confirmed']],
                             ['label' => __('Cancelled'), 'value' => $bookingPerformance['cancelled']],
                             ['label' => __('Completed'), 'value' => $bookingPerformance['completed']],
-                            ['label' => __('Booking conversion'), 'value' => $bookingPerformance['conversion_rate'].'%'],
+                            ['label' => __('Booking conversion'), 'value' => format_percent_locale($bookingPerformance['conversion_rate'])],
                         ]" />
                     @else
                         <x-report-empty :title="__('No booking performance yet')" :description="__('Booking performance will appear after your first booking campaign.')" />
@@ -308,8 +308,8 @@
                             ['label' => __('Coupon claims'), 'value' => $couponPerformance['claims']],
                             ['label' => __('Coupons used'), 'value' => $couponPerformance['used']],
                             ['label' => __('Expired coupons'), 'value' => $couponPerformance['expired']],
-                            ['label' => __('Redemption rate'), 'value' => $couponPerformance['redemption_rate'].'%'],
-                            ['label' => __('Coupon conversion'), 'value' => $couponPerformance['conversion_rate'].'%'],
+                            ['label' => __('Redemption rate'), 'value' => format_percent_locale($couponPerformance['redemption_rate'])],
+                            ['label' => __('Coupon conversion'), 'value' => format_percent_locale($couponPerformance['conversion_rate'])],
                         ]" />
                     @else
                         <x-report-empty :title="__('No coupon performance yet')" :description="__('Coupon performance will appear after your first coupon campaign.')" />

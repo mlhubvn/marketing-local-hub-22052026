@@ -67,6 +67,6 @@ class ManualPayment extends Model
 
     public function amountLabel(): string
     {
-        return number_format((float) $this->amount, 2).' '.strtoupper((string) $this->currency);
+        return format_money((float) $this->amount, (string) $this->currency);
     }
 }

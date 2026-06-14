@@ -46,7 +46,7 @@
             <div class="flex items-start justify-between gap-4">
                 <div>
                     <p class="text-[11px] font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ __('Recurring summary') }}</p>
-                    <p class="mt-2 text-[2.2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($metrics['active_volume'], 2) }}</p>
+                    <p class="mt-2 text-[2.2rem] font-semibold tracking-[-0.05em]" style="color: var(--theme-header-text-color);">{{ format_money($metrics['active_volume']) }}</p>
                     <p class="mt-2 text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('Current recurring billing amount from active subscriptions.') }}</p>
                 </div>
                 <div class="rounded-[var(--theme-card-radius,1.15rem)] border px-4 py-3 text-right" style="border-color: rgba(var(--theme-border-color-rgb),0.52); background: color-mix(in srgb, var(--theme-surface-base) 88%, rgba(var(--theme-accent-rgb),0.04));">

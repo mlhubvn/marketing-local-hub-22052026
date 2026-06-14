@@ -3,7 +3,7 @@
         ['label' => __('Total'), 'value' => format_number_locale($summary['total']), 'description' => __('All manual payment requests currently stored.'), 'tone' => 'var(--theme-accent)', 'progress' => 100],
         ['label' => __('Pending'), 'value' => format_number_locale($summary['pending']), 'description' => __('Requests waiting for finance review.'), 'tone' => '#f59e0b', 'progress' => max(8, $summary['total'] > 0 ? (int) round(($summary['pending'] / max($summary['total'], 1)) * 100) : 8)],
         ['label' => __('Approved'), 'value' => format_number_locale($summary['approved']), 'description' => __('Requests already approved and applied.'), 'tone' => '#10b981', 'progress' => max(8, $summary['total'] > 0 ? (int) round(($summary['approved'] / max($summary['total'], 1)) * 100) : 8)],
-        ['label' => __('Approved Gross'), 'value' => format_number_locale($summary['gross'], 2), 'description' => __('Approved manual payment amount total.'), 'tone' => '#64748b', 'progress' => $summary['gross'] > 0 ? 100 : 8],
+        ['label' => __('Approved Gross'), 'value' => format_money($summary['gross']), 'description' => __('Approved manual payment amount total.'), 'tone' => '#64748b', 'progress' => $summary['gross'] > 0 ? 100 : 8],
     ];
 
     $statusLabels = [

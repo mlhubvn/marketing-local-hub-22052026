@@ -5,6 +5,7 @@ namespace Modules\AppPayments\Support;
 use Modules\AdminPaymentHistory\Models\PaymentHistory;
 use Modules\AdminPaymentSubscriptions\Models\PaymentSubscription;
 use Modules\AdminPlans\Models\AdminPlan;
+use Modules\AdminPlans\Support\CurrencyCatalog;
 use Modules\AdminSettings\Support\OptionStore;
 use Modules\AdminUser\Models\User;
 use Modules\AppPayments\Notifications\PaymentEventNotification;
@@ -67,14 +68,15 @@ class PaymentNotificationService
         $currency = $paymentHistory?->currency
             ?? $subscription?->currency
             ?? $result?->currency;
+        $currencyCode = CurrencyCatalog::normalizeCode($currency ?: 'USD');
 
         return array_merge([
             'name' => (string) ($user->name ?: $user->username ?: 'User'),
             'username' => (string) ($user->username ?: ''),
             'email' => (string) ($user->email ?: ''),
             'plan' => (string) ($plan?->name ?: $paymentHistory?->plan?->name ?: $subscription?->plan?->name ?: __('your plan')),
-            'amount' => $amount !== null ? format_number_locale((float) $amount, 2) : '0.00',
-            'currency' => (string) ($currency ?: 'USD'),
+            'amount' => format_number_locale((float) ($amount ?? 0), CurrencyCatalog::decimalsFor($currencyCode)),
+            'currency' => CurrencyCatalog::symbolFor($currencyCode),
             'gateway' => (string) ($paymentHistory?->from ?: $subscription?->service ?: ($extra['gateway'] ?? 'payment gateway')),
             'transaction_id' => (string) ($paymentHistory?->transaction_id ?: $result?->transactionId ?: ($extra['transaction_id'] ?? 'N/A')),
             'subscription_id' => (string) ($subscription?->subscription_id ?: $result?->subscriptionId ?: ($extra['subscription_id'] ?? '')),

@@ -126,7 +126,7 @@
                                 color-mix(in srgb, var(--theme-surface-base) 95%, transparent);">
                                 <div class="flex items-center justify-between gap-3">
                                     <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $slot['label'] }}</p>
-                                    <span class="text-xs uppercase tracking-[0.16em]" style="color: var(--theme-accent);">{{ $slot['confidence'] }}%</span>
+                                    <span class="text-xs uppercase tracking-[0.16em]" style="color: var(--theme-accent);">{{ format_percent_locale($slot['confidence']) }}</span>
                                 </div>
                                 <x-ui.progress class="mt-3" :value="(int) ($slot['confidence'] ?? 0)" :max="100" />
                                 @foreach (($slot['reasons'] ?? []) as $reason)

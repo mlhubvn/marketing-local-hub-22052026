@@ -97,7 +97,7 @@
                 <div class="mt-3 space-y-2">
                     <div class="flex items-center justify-between gap-3 text-xs font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">
                         <span>{{ __('Credits used') }}</span>
-                        <span>{{ $creditsUsedPercent }}%</span>
+                        <span>{{ format_percent_locale($creditsUsedPercent) }}</span>
                     </div>
                     <div class="h-2 overflow-hidden rounded-full bg-slate-200/70 dark:bg-slate-800">
                         <div class="h-full rounded-full" style="width: {{ $creditsUsedPercent }}%; background: linear-gradient(90deg, var(--theme-accent,#2563eb) 0%, color-mix(in srgb, var(--theme-accent,#2563eb) 72%, #8b5cf6 28%) 100%);"></div>

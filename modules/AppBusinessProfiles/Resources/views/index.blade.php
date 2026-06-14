@@ -140,7 +140,7 @@
                                         {{ trans_choice('{0} No campaigns yet|{1} :count campaign|[2,*] :count campaigns', $business->campaigns_count, ['count' => format_number_locale($business->campaigns_count)]) }}
                                     </p>
                                 </div>
-                                <span class="rounded-full px-2.5 py-1 text-xs font-semibold" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">{{ $readyPercent }}%</span>
+                                <span class="rounded-full px-2.5 py-1 text-xs font-semibold" style="background-color: rgba(var(--theme-accent-rgb),0.12); color: var(--theme-accent);">{{ format_percent_locale($readyPercent) }}</span>
                             </div>
                             <div class="mt-3 h-2 overflow-hidden rounded-full" style="background-color: rgba(var(--theme-border-color-rgb),0.26);">
                                 <div class="h-full rounded-full transition-all" style="width: {{ $readyPercent }}%; background: var(--theme-brand-gradient);"></div>

@@ -15,7 +15,7 @@ class CurrencyCatalog
     ];
 
     /**
-     * Currencies that render the symbol after the amount (e.g. "490.000 ₫").
+     * Currencies that render the symbol after the amount (e.g. "490.000 đ").
      *
      * @var array<int, string>
      */
@@ -170,7 +170,7 @@ class CurrencyCatalog
             'UYU' => ['code' => 'UYU', 'name' => 'Uruguayan Peso', 'symbol' => '$U'],
             'UZS' => ['code' => 'UZS', 'name' => 'Uzbekistani Som', 'symbol' => 'soʻm'],
             'VES' => ['code' => 'VES', 'name' => 'Venezuelan Bolivar', 'symbol' => 'Bs.'],
-            'VND' => ['code' => 'VND', 'name' => 'Vietnamese Dong', 'symbol' => '₫'],
+            'VND' => ['code' => 'VND', 'name' => 'Vietnamese Dong', 'symbol' => 'đ'],
             'VUV' => ['code' => 'VUV', 'name' => 'Vanuatu Vatu', 'symbol' => 'VT'],
             'WST' => ['code' => 'WST', 'name' => 'Samoan Tala', 'symbol' => 'WS$'],
             'XAF' => ['code' => 'XAF', 'name' => 'Central African CFA Franc', 'symbol' => 'FCFA'],
@@ -229,6 +229,7 @@ class CurrencyCatalog
             '£' => 'GBP',
             '¥' => 'JPY',
             '₹' => 'INR',
+            'đ' => 'VND',
             '₫' => 'VND',
             '₽' => 'RUB',
             '₩' => 'KRW',
@@ -292,7 +293,7 @@ class CurrencyCatalog
      * Format a monetary amount according to the currency's locale conventions.
      *
      * Examples:
-     *  - VND: 490.000 ₫   (dot thousands, no decimals, symbol after the amount)
+     *  - VND: 490.000 đ   (dot thousands, no decimals, symbol after the amount)
      *  - USD: $490,000.00 (comma thousands, two decimals, symbol before the amount)
      */
     public static function format(float|int|string|null $amount, ?string $value = null): string

@@ -86,13 +86,13 @@
                                 <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                                     <div class="rounded-[1.1rem] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.42); background: color-mix(in srgb, var(--theme-surface-base) 90%, rgba(var(--theme-accent-rgb),0.03));">
                                         <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Active coverage') }}</p>
-                                        <p class="mt-2 text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ $activeCoverage }}%</p>
+                                        <p class="mt-2 text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_percent_locale($activeCoverage) }}</p>
                                         <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Share of plans currently assignable to customers') }}</p>
                                     </div>
 
                                     <div class="rounded-[1.1rem] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.42); background: color-mix(in srgb, var(--theme-surface-base) 90%, rgba(var(--theme-accent-rgb),0.03));">
                                         <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Featured mix') }}</p>
-                                        <p class="mt-2 text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ $featuredShare }}%</p>
+                                        <p class="mt-2 text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_percent_locale($featuredShare) }}</p>
                                         <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Portion of catalog intentionally highlighted in pricing') }}</p>
                                     </div>
 
@@ -104,7 +104,7 @@
 
                                     <div class="rounded-[1.1rem] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.42); background: color-mix(in srgb, var(--theme-surface-base) 90%, rgba(var(--theme-accent-rgb),0.03));">
                                         <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Free entry point') }}</p>
-                                        <p class="mt-2 text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ $freeShare }}%</p>
+                                        <p class="mt-2 text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_percent_locale($freeShare) }}</p>
                                         <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('How much of the catalog is reserved for free acquisition or onboarding.') }}</p>
                                     </div>
                                 </div>

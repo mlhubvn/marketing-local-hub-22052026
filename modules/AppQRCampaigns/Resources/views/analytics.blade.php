@@ -63,7 +63,7 @@
             ['label' => __('Total scans'), 'value' => format_number_locale($metrics['total_scans']), 'description' => __('All tracked QR opens'), 'icon' => 'fa-light fa-qrcode', 'tone' => 'accent'],
             ['label' => __('Unique visitors'), 'value' => format_number_locale($metrics['unique_visitors']), 'description' => __('Distinct IP addresses'), 'icon' => 'fa-light fa-users', 'tone' => 'success'],
             ['label' => __('Conversions'), 'value' => format_number_locale($metrics['conversions']), 'description' => __('Submitted actions from this QR'), 'icon' => 'fa-light fa-bullseye-pointer', 'tone' => 'warning'],
-            ['label' => __('Conversion rate'), 'value' => $metrics['conversion_rate'].'%', 'description' => __('Conversions divided by scans'), 'icon' => 'fa-light fa-percent', 'tone' => 'accent'],
+            ['label' => __('Conversion rate'), 'value' => format_percent_locale($metrics['conversion_rate']), 'description' => __('Conversions divided by scans'), 'icon' => 'fa-light fa-percent', 'tone' => 'accent'],
         ] as $metric)
             @php
                 $toneColor = match ($metric['tone']) {

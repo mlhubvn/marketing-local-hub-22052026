@@ -17,8 +17,8 @@
         $metricCards = [
             ['label' => __('Visible users'), 'value' => format_number_locale($totalUsers), 'description' => __('Users matching the current filters.'), 'tone' => 'var(--theme-accent)', 'progress' => 100],
             ['label' => __('Recent signups'), 'value' => format_number_locale($recentUsers), 'description' => __('Created in the last 7 days.'), 'tone' => '#10b981', 'progress' => $loadedUsers > 0 ? max(8, (int) round(($recentUsers / $loadedUsers) * 100)) : 8],
-            ['label' => __('Role coverage'), 'value' => $roleCoverage.'%', 'description' => format_number_locale($usersWithRoles).' '.__('mapped accounts'), 'tone' => '#f59e0b', 'progress' => max(8, $roleCoverage)],
-            ['label' => __('Plan coverage'), 'value' => $planCoverage.'%', 'description' => format_number_locale($usersWithPlans).' '.__('accounts with plans'), 'tone' => '#64748b', 'progress' => max(8, $planCoverage)],
+            ['label' => __('Role coverage'), 'value' => format_percent_locale($roleCoverage), 'description' => format_number_locale($usersWithRoles).' '.__('mapped accounts'), 'tone' => '#f59e0b', 'progress' => max(8, $roleCoverage)],
+            ['label' => __('Plan coverage'), 'value' => format_percent_locale($planCoverage), 'description' => format_number_locale($usersWithPlans).' '.__('accounts with plans'), 'tone' => '#64748b', 'progress' => max(8, $planCoverage)],
         ];
 
         $controlLinks = [
@@ -122,7 +122,7 @@
 
                     <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                         <div class="flex flex-wrap items-center gap-3">
-                            <x-ui.badge variant="success">{{ $completionRate }}% {{ __('email-ready') }}</x-ui.badge>
+                            <x-ui.badge variant="success">{{ format_percent_locale($completionRate) }} {{ __('email-ready') }}</x-ui.badge>
                             <x-ui.badge variant="warning">{{ format_number_locale($priorityUsers) }} {{ __('need review') }}</x-ui.badge>
                             <x-ui.badge variant="primary">{{ format_number_locale($localeCoverage) }} {{ __('locales') }}</x-ui.badge>
                             <x-ui.badge variant="neutral">{{ format_number_locale($loadedUsers) }} {{ __('loaded') }}</x-ui.badge>

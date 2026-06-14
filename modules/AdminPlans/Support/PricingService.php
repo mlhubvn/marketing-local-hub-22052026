@@ -287,7 +287,7 @@ class PricingService
         }
 
         if (is_numeric($value)) {
-            return number_format((float) $value, 0, '.', ',');
+            return format_number_locale((float) $value);
         }
 
         return (string) $value;

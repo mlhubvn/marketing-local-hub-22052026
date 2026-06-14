@@ -930,7 +930,7 @@
                                                 <div>
                                                     <div class="flex items-center justify-between gap-2">
                                                         <p class="min-w-0 text-[10px] font-bold leading-none whitespace-nowrap" style="color: var(--lb-muted);">{{ __($progress[0]) }}</p>
-                                                        <p class="shrink-0 text-[10px] font-black tabular-nums" style="color: #ff5f5f;">{{ $progress[1] }}%</p>
+                                                        <p class="shrink-0 text-[10px] font-black tabular-nums" style="color: #ff5f5f;">{{ format_percent_locale($progress[1]) }}</p>
                                                     </div>
                                                     <div class="mt-1.5 h-1.5 overflow-hidden rounded-full" style="background: color-mix(in srgb, var(--lb-line) 55%, #fff);">
                                                         <span class="block h-full rounded-full transition-[width] duration-700" style="width: {{ $progress[1] }}%; background: {{ $loop->even ? 'var(--lb-red)' : 'var(--lb-lime)' }};"></span>

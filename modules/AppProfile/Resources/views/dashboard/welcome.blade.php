@@ -82,7 +82,7 @@
                         </div>
                         <div class="text-right">
                             <p class="text-xs font-semibold uppercase" style="color: var(--theme-muted-text-color);">{{ __('Usage') }}</p>
-                            <p class="mt-1 text-xl font-semibold" style="color: var(--theme-header-text-color);">{{ $usagePercent }}%</p>
+                            <p class="mt-1 text-xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_percent_locale($usagePercent) }}</p>
                         </div>
                     </div>
                     <div class="mt-4 h-2 overflow-hidden rounded-full" style="background-color: rgba(245,158,11,0.16);">
