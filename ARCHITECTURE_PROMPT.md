@@ -431,7 +431,7 @@ php artisan tinker
 | `MLHUB_FIRST_USER_PASSWORD`   | Mật khẩu mạnh (Coolify — không commit)                 |
 | `MLHUB_FIRST_USER_NAME`       | Tên hiển thị (tuỳ chọn)                                |
 | `MLHUB_CONTACT_EMAIL`         | Email liên hệ site (thường trùng admin)                |
-| `MLHUB_ADMIN_PLAN_SLUG`       | `agency-lifetime`                                      |
+| `MLHUB_ADMIN_PLAN_SLUG`       | `mlhub-partner-lifetime`                               |
 | `MLHUB_STARTING_ID`           | `147123468` (AUTO_INCREMENT sau seed)                  |
 | `MLHUB_LICENSE_PURCHASE_CODE` | Mã license Stackposts (Coolify)                        |
 | `MLHUB_LICENSE_DOMAIN`        | `mlhub.vn`                                             |
@@ -448,7 +448,7 @@ php artisan tinker
 | Lệnh                                 | Khi dùng                                    | Hành vi                                                                                                                                                                                                                                |
 | ------------------------------------ | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `php artisan mlhub:install`          | DB mới hoặc muốn **xóa sạch** cài lại       | `migrate:fresh` (xóa toàn bộ bảng) → seed từ ID `147123468` → `optimize`. Hỏi xác nhận; `--force` bỏ qua hỏi. Production: tạm `MLHUB_ALLOW_RESET_DEMO=true`.                                                                           |
-| `php artisan mlhub:update`           | Đã có dữ liệu, muốn **cập nhật** sau deploy | `migrate` (migration mới) → seed bổ sung (không xóa user/campaign; plan giữ giá/trạng thái/quyền đã chỉnh và chỉ bổ sung permission key còn thiếu) → bản ghi seed **mới** nối ID sau max hiện có → `IdSequence::apply()` → `optimize`. |
+| `php artisan mlhub:update`           | Đã có dữ liệu, muốn **cập nhật** sau deploy | `migrate` (migration mới) → seed đồng bộ catalog official `mlhub-*`, giữ nguyên plan legacy/custom và không xóa user/campaign → bản ghi seed **mới** nối ID sau max hiện có → `IdSequence::apply()` → `optimize`. |
 | `php artisan mlhub:sync-env-options` | Sau khi đổi env Coolify                     | Ghi env có giá trị → **Admin → Cài đặt** (`options`). Tự chạy sau `migrate` mỗi deploy (`docker/entrypoint.sh`).                                                                                                                       |
 
 
@@ -1024,7 +1024,7 @@ php artisan tinker
 | `MLHUB_FIRST_USER_PASSWORD`   | Mật khẩu mạnh (Coolify — không commit)                 |
 | `MLHUB_FIRST_USER_NAME`       | Tên hiển thị (tuỳ chọn)                                |
 | `MLHUB_CONTACT_EMAIL`         | Email liên hệ site (thường trùng admin)                |
-| `MLHUB_ADMIN_PLAN_SLUG`       | `agency-lifetime`                                      |
+| `MLHUB_ADMIN_PLAN_SLUG`       | `mlhub-partner-lifetime`                               |
 | `MLHUB_STARTING_ID`           | `147123468` (AUTO_INCREMENT sau seed)                  |
 | `MLHUB_LICENSE_PURCHASE_CODE` | Mã license Stackposts (Coolify)                        |
 | `MLHUB_LICENSE_DOMAIN`        | `mlhub.vn`                                             |
@@ -1041,7 +1041,7 @@ php artisan tinker
 | Lệnh                                 | Khi dùng                                    | Hành vi                                                                                                                                                                                                                                |
 | ------------------------------------ | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `php artisan mlhub:install`          | DB mới hoặc muốn **xóa sạch** cài lại       | `migrate:fresh` (xóa toàn bộ bảng) → seed từ ID `147123468` → `optimize`. Hỏi xác nhận; `--force` bỏ qua hỏi. Production: tạm `MLHUB_ALLOW_RESET_DEMO=true`.                                                                           |
-| `php artisan mlhub:update`           | Đã có dữ liệu, muốn **cập nhật** sau deploy | `migrate` (migration mới) → seed bổ sung (không xóa user/campaign; plan giữ giá/trạng thái/quyền đã chỉnh và chỉ bổ sung permission key còn thiếu) → bản ghi seed **mới** nối ID sau max hiện có → `IdSequence::apply()` → `optimize`. |
+| `php artisan mlhub:update`           | Đã có dữ liệu, muốn **cập nhật** sau deploy | `migrate` (migration mới) → seed đồng bộ catalog official `mlhub-*`, giữ nguyên plan legacy/custom và không xóa user/campaign → bản ghi seed **mới** nối ID sau max hiện có → `IdSequence::apply()` → `optimize`. |
 | `php artisan mlhub:sync-env-options` | Sau khi đổi env Coolify                     | Ghi env có giá trị → **Admin → Cài đặt** (`options`). Tự chạy sau `migrate` mỗi deploy (`docker/entrypoint.sh`).                                                                                                                       |
 
 
@@ -1675,4 +1675,3 @@ Rules:
 - Keep patch minimal.
 - After changes: pint/test relevant, then summary + commit message.
 ```
-

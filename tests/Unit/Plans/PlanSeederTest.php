@@ -1,6 +1,7 @@
 <?php
 
 use Database\Seeders\PlanSeeder;
+use Database\Support\IdSequence;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -88,6 +89,24 @@ test('seeding is idempotent by slug', function (): void {
 
     expect(DB::table('plans')->count())->toBe(13)
         ->and(DB::table('plans')->distinct()->count('slug'))->toBe(13);
+});
+
+test('seeding on a legacy catalog does not collide with deterministic ids', function (): void {
+    createPlansTableForSeederTests();
+
+    DB::table('plans')->insert([
+        'id' => IdSequence::at(0),
+        'name' => 'Legacy Starter',
+        'slug' => 'starter-monthly',
+        'status' => true,
+        'permissions' => json_encode([]),
+    ]);
+
+    (new PlanSeeder)->run();
+
+    expect(DB::table('plans')->count())->toBe(14)
+        ->and(DB::table('plans')->where('slug', 'starter-monthly')->exists())->toBeTrue()
+        ->and(DB::table('plans')->where('slug', 'mlhub-free-da-nang')->exists())->toBeTrue();
 });
 
 test('update mode updates official plans without deleting custom plans', function (): void {

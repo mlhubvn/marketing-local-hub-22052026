@@ -21,7 +21,11 @@ class PlanSeeder extends Seeder
                 $slug = (string) $plan['slug'];
                 $plan['permissions'] = $this->normalizePermissions($plan['permissions']);
 
-                if (! AdminPlan::query()->where('slug', $slug)->exists() && ($id = IdSequence::idForNewSeed($index)) !== null) {
+                if (
+                    ! AdminPlan::query()->where('slug', $slug)->exists()
+                    && ($id = IdSequence::idForNewSeed($index)) !== null
+                    && ! AdminPlan::query()->whereKey($id)->exists()
+                ) {
                     $plan['id'] = $id;
                 }
 
