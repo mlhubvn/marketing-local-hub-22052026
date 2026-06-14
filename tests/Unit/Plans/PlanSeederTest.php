@@ -47,18 +47,18 @@ test('seeds the official 13 plan MLHUB catalog with one default signup plan', fu
 
     $expected = [
         'mlhub-free-da-nang' => [0, 3, true, true, true, 0, 0],
-        'mlhub-starter-monthly' => [4, 1, false, false, false, 10, 7],
-        'mlhub-starter-yearly' => [40, 2, false, false, false, 11, 14],
-        'mlhub-starter-lifetime' => [99, 3, false, false, false, 12, 0],
-        'mlhub-growth-monthly' => [9, 1, false, false, true, 20, 10],
-        'mlhub-growth-yearly' => [90, 2, false, false, false, 21, 21],
-        'mlhub-growth-lifetime' => [249, 3, false, false, false, 22, 0],
-        'mlhub-pro-monthly' => [29, 1, false, false, true, 30, 14],
-        'mlhub-pro-yearly' => [290, 2, false, false, false, 31, 30],
-        'mlhub-pro-lifetime' => [799, 3, false, false, false, 32, 0],
-        'mlhub-partner-monthly' => [99, 1, false, false, false, 40, 14],
-        'mlhub-partner-yearly' => [990, 2, false, false, false, 41, 30],
-        'mlhub-partner-lifetime' => [2499, 3, false, false, false, 42, 0],
+        'mlhub-starter-monthly' => [199000, 1, false, false, false, 10, 7],
+        'mlhub-starter-yearly' => [1990000, 2, false, false, false, 11, 14],
+        'mlhub-starter-lifetime' => [5990000, 3, false, false, false, 12, 0],
+        'mlhub-growth-monthly' => [349000, 1, false, false, true, 20, 10],
+        'mlhub-growth-yearly' => [3490000, 2, false, false, false, 21, 21],
+        'mlhub-growth-lifetime' => [9990000, 3, false, false, false, 22, 0],
+        'mlhub-pro-monthly' => [749000, 1, false, false, true, 30, 14],
+        'mlhub-pro-yearly' => [7490000, 2, false, false, false, 31, 30],
+        'mlhub-pro-lifetime' => [21990000, 3, false, false, false, 32, 0],
+        'mlhub-partner-monthly' => [1249000, 1, false, false, false, 40, 14],
+        'mlhub-partner-yearly' => [12490000, 2, false, false, false, 41, 30],
+        'mlhub-partner-lifetime' => [36990000, 3, false, false, false, 42, 0],
     ];
 
     expect(DB::table('plans')->count())->toBe(13)
@@ -77,7 +77,7 @@ test('seeds the official 13 plan MLHUB catalog with one default signup plan', fu
             ->and((bool) $plan->featured)->toBe($featured)
             ->and((int) $plan->position)->toBe($position)
             ->and((int) $plan->trial_day)->toBe($trialDay)
-            ->and($plan->currency)->toBe('USD');
+            ->and($plan->currency)->toBe('VND');
     }
 });
 
@@ -138,8 +138,8 @@ test('update mode updates official plans without deleting custom plans', functio
         ->and(DB::table('plans')->where('slug', 'mlhub-starter-monthly')->first())
         ->name->toBe('MLHUB Starter Monthly')
         ->status->toBe('1')
-        ->currency->toBe('USD')
-        ->price->toBe(4)
+        ->currency->toBe('VND')
+        ->price->toBe(199000)
         ->default_signup_plan->toBe(0)
         ->and(DB::table('plans')->where('slug', 'mlhub-free-da-nang')->value('default_signup_plan'))->toBe(1);
 });
