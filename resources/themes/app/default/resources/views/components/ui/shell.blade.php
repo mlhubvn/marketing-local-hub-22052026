@@ -54,7 +54,7 @@
             ? min(100, (int) round(($sidebarCreditsUsed / $sidebarCreditLimit) * 100))
             : null;
         $sidebarPlanCard = [
-            'name' => $sidebarUser?->portalPlanLabel() ?? __('No plan assigned'),
+            'name' => $sidebarUser?->portalPlanSidebarLabel() ?? __('No plan assigned'),
             'badge' => $sidebarUser?->portalPlanStatusLabel() ?? __('Inactive'),
             'badge_tone' => $sidebarUser?->portalPlanStatusTone() ?? 'neutral',
             'expiry' => (($sidebarExpiry = ($sidebarUser?->isInPlanTrial() ? $sidebarUser?->trialEndsAt() : $sidebarUser?->plan_expires_at)) ? format_date_vn($sidebarExpiry) : __('Unlimited')),

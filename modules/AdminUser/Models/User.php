@@ -290,6 +290,23 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
         return __('No plan assigned');
     }
 
+    public function portalPlanSidebarLabel(): string
+    {
+        if ($this->hasActivePlan() && $this->plan) {
+            if ((bool) ($this->plan->free_plan ?? false)) {
+                return __('MLHUB Free');
+            }
+
+            return (string) $this->plan->name;
+        }
+
+        if ($this->usesNoPlanFreeAccess()) {
+            return __('MLHUB Free');
+        }
+
+        return __('No plan assigned');
+    }
+
     public function portalPlanStatusLabel(): string
     {
         if ($this->isInPlanTrial()) {

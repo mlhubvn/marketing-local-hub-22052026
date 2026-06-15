@@ -23,6 +23,56 @@
         'themes' => 'fa-light fa-swatchbook',
         'settings' => 'fa-light fa-sliders',
     ];
+
+    $sectionIcons = [
+        'overview' => 'fa-light fa-grid-2',
+        'workspace' => 'fa-light fa-link',
+        'local-businesses' => 'fa-light fa-building',
+        'growth-tools' => 'fa-light fa-rocket',
+        'ai-tools' => 'fa-light fa-sparkles',
+        'analytics' => 'fa-light fa-chart-pie',
+        'marketing-assets' => 'fa-light fa-folder-open',
+        'team-billing' => 'fa-light fa-id-card',
+        'automation' => 'fa-light fa-bolt',
+        'crm' => 'fa-light fa-address-book',
+        'google-business' => 'fa-brands fa-google',
+        'content-tools' => 'fa-light fa-pen-nib',
+        'library' => 'fa-light fa-books',
+        'help-desk' => 'fa-light fa-life-ring',
+        'portal' => 'fa-light fa-grid',
+        'dashboard' => 'fa-light fa-gauge',
+        'users' => 'fa-light fa-users',
+        'billing' => 'fa-light fa-coins',
+        'content' => 'fa-light fa-pen-to-square',
+        'system' => 'fa-light fa-sliders',
+        'main' => 'fa-light fa-gauge',
+        'finance' => 'fa-light fa-coins',
+        'localization' => 'fa-light fa-language',
+        'frontend' => 'fa-light fa-palette',
+        'ai-settings' => 'fa-light fa-brain-circuit',
+        'user-portal' => 'fa-light fa-user-group',
+        'default' => 'fa-light fa-layer-group',
+    ];
+
+    $resolveSectionIcon = function (array $section) use ($sectionIcons): string {
+        $iconKey = (string) ($section['icon'] ?? $section['key'] ?? 'default');
+
+        if (str_starts_with($iconKey, 'fa-')) {
+            return $iconKey;
+        }
+
+        return $sectionIcons[$iconKey] ?? $sectionIcons['default'];
+    };
+
+    $sectionHasActiveItem = function (array $section): bool {
+        return collect($section['items'] ?? [])->contains(function (array $item): bool {
+            if ($item['active'] ?? false) {
+                return true;
+            }
+
+            return collect($item['children'] ?? [])->contains(fn (array $child): bool => (bool) ($child['active'] ?? false));
+        });
+    };
 @endphp
 
 @if ($mode === 'mobile')
@@ -46,14 +96,63 @@
                     ->values();
             @endphp
 
-            <section class="{{ $loop->first ? '' : 'border-t pt-4' }}" style="{{ $loop->first ? '' : 'border-color: rgba(var(--theme-border-color-rgb), 0.4);' }}">
+            @php
+                $sectionKey = (string) ($section['key'] ?? 'section-'.$loop->index);
+                $sectionIcon = $resolveSectionIcon($section);
+                $sectionActive = $sectionHasActiveItem($section);
+            @endphp
+
+            <section
+                class="{{ $loop->first ? '' : 'border-t pt-4' }}"
+                style="{{ $loop->first ? '' : 'border-color: rgba(var(--theme-border-color-rgb), 0.4);' }}"
+                x-data="{
+                    sectionKey: @js($sectionKey),
+                    open: true,
+                    init() {
+                        const stored = JSON.parse(localStorage.getItem('app-sidebar-sections') || '{}');
+                        const hasActive = @js($sectionActive);
+
+                        if (hasActive) {
+                            this.open = true;
+
+                            return;
+                        }
+
+                        this.open = stored[this.sectionKey] ?? true;
+                    },
+                    toggleSection() {
+                        this.open = ! this.open;
+                        const stored = JSON.parse(localStorage.getItem('app-sidebar-sections') || '{}');
+                        stored[this.sectionKey] = this.open;
+                        localStorage.setItem('app-sidebar-sections', JSON.stringify(stored));
+                    },
+                }"
+            >
                 @if (! empty($section['label']))
-                    <p class="px-2 text-[11px] font-semibold uppercase tracking-[0.24em]" style="color: var(--theme-muted-text-color);">
-                        {{ $section['label'] }}
-                    </p>
+                    <button
+                        type="button"
+                        class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition hover:bg-[color:rgba(var(--theme-border-color-rgb),0.12)]"
+                        x-on:click="toggleSection()"
+                    >
+                        <span class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md" style="background-color: rgba(var(--theme-border-color-rgb), 0.08); color: var(--theme-muted-text-color);">
+                            <i class="{{ $sectionIcon }} text-[12px]"></i>
+                        </span>
+                        <span class="min-w-0 flex-1 truncate text-[11px] font-semibold uppercase tracking-[0.24em]" style="color: var(--theme-muted-text-color);">
+                            {{ $section['label'] }}
+                        </span>
+                        <span class="inline-flex h-5 w-5 shrink-0 items-center justify-center" style="color: var(--theme-muted-text-color);">
+                            <i class="fa-solid text-[10px]" x-bind:class="open ? 'fa-minus' : 'fa-plus'"></i>
+                        </span>
+                    </button>
                 @endif
 
-                <div class="mt-2 space-y-1">
+                <div
+                    class="mt-2 space-y-1"
+                    x-show="open"
+                    x-transition:enter="transition ease-out duration-160"
+                    x-transition:enter-start="opacity-0 -translate-y-1"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                >
                     @foreach ($sectionItems as $mobileLink)
                         @php
                             $iconKey = $mobileLink['mobile_icon'] ?? 'dashboard';
@@ -118,30 +217,87 @@
     </div>
 @else
     @foreach ($sections as $section)
-        <section class="{{ $loop->first ? '' : 'mt-2.5 border-t border-slate-300/65 pt-2.5 dark:border-slate-800' }}" @if (! $loop->first) style="border-color: var(--theme-border-color);" @endif>
+        @php
+            $sectionKey = (string) ($section['key'] ?? 'section-'.$loop->index);
+            $sectionIcon = $resolveSectionIcon($section);
+            $sectionActive = $sectionHasActiveItem($section);
+        @endphp
+
+        <section
+            class="{{ $loop->first ? '' : 'mt-2.5 border-t border-slate-300/65 pt-2.5 dark:border-slate-800' }}"
+            @if (! $loop->first) style="border-color: var(--theme-border-color);" @endif
+            x-data="{
+                sectionKey: @js($sectionKey),
+                open: true,
+                init() {
+                    const stored = JSON.parse(localStorage.getItem('app-sidebar-sections') || '{}');
+                    const hasActive = @js($sectionActive);
+
+                    if (hasActive) {
+                        this.open = true;
+
+                        return;
+                    }
+
+                    this.open = stored[this.sectionKey] ?? true;
+                },
+                toggleSection() {
+                    if (! sidebarContentVisible) {
+                        return;
+                    }
+
+                    this.open = ! this.open;
+                    const stored = JSON.parse(localStorage.getItem('app-sidebar-sections') || '{}');
+                    stored[this.sectionKey] = this.open;
+                    localStorage.setItem('app-sidebar-sections', JSON.stringify(stored));
+                },
+            }"
+        >
             @if (! empty($section['label']))
-                <div class="h-5 px-2.5">
-                    <p class="overflow-hidden text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500/90"
+                <button
+                    type="button"
+                    class="group flex w-full items-center gap-2 rounded-lg px-2 py-1 text-left transition hover:bg-[color:rgba(var(--theme-border-color-rgb),0.10)]"
+                    x-on:click="toggleSection()"
+                    x-bind:title="sidebarContentVisible ? @js($section['label']) : ''"
+                >
+                    <span
+                        class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-slate-400 transition group-hover:text-[var(--theme-accent)]"
+                        x-bind:class="sidebarContentVisible ? '' : 'mx-auto'"
+                    >
+                        <i class="{{ $sectionIcon }} text-[11px]"></i>
+                    </span>
+
+                    <span
+                        class="min-w-0 flex-1 truncate text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500/90 group-hover:text-slate-600 dark:group-hover:text-slate-300"
                         x-cloak
                         x-show="sidebarContentVisible"
                         x-transition:enter="transition ease-out duration-140"
                         x-transition:enter-start="opacity-0 -translate-x-1"
-                        x-transition:enter-end="opacity-100 translate-x-0">
+                        x-transition:enter-end="opacity-100 translate-x-0"
+                    >
                         {{ $section['label'] }}
-                    </p>
+                    </span>
 
-                    <div class="flex justify-center overflow-hidden"
+                    <span
+                        class="inline-flex h-5 w-5 shrink-0 items-center justify-center text-slate-400 transition group-hover:text-slate-600 dark:group-hover:text-slate-300"
                         x-cloak
-                        x-show="!sidebarContentVisible"
-                        x-transition:enter="transition ease-out duration-100"
+                        x-show="sidebarContentVisible"
+                        x-transition:enter="transition ease-out duration-120"
                         x-transition:enter-start="opacity-0"
-                        x-transition:enter-end="opacity-100">
-                        <span class="text-slate-400">...</span>
-                    </div>
-                </div>
+                        x-transition:enter-end="opacity-100"
+                    >
+                        <i class="fa-solid text-[10px]" x-bind:class="open ? 'fa-minus' : 'fa-plus'"></i>
+                    </span>
+                </button>
             @endif
 
-            <div class="mt-1 space-y-px">
+            <div
+                class="mt-1 space-y-px"
+                x-show="! sidebarContentVisible || open"
+                x-transition:enter="transition ease-out duration-160"
+                x-transition:enter-start="opacity-0 -translate-y-1"
+                x-transition:enter-end="opacity-100 translate-y-0"
+            >
                 @foreach ($section['items'] as $item)
                     @php
                         $hasChildren = ! empty($item['children']);
