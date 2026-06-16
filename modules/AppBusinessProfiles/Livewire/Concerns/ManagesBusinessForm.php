@@ -3,6 +3,7 @@
 namespace Modules\AppBusinessProfiles\Livewire\Concerns;
 
 use Modules\AppBookingPages\Support\BookingAvailability;
+use Modules\AppBusinessProfiles\Support\BusinessTypeCatalog;
 
 trait ManagesBusinessForm
 {
@@ -50,6 +51,7 @@ trait ManagesBusinessForm
     protected function businessPayload(): array
     {
         $payload = $this->validate($this->rules());
+        $payload['type'] = BusinessTypeCatalog::normalizeType($payload['type'] ?? 'Other');
         $payload['opening_hours'] = $this->normalizedOpeningHours();
 
         return $payload;
@@ -81,36 +83,21 @@ trait ManagesBusinessForm
 
     protected function typeOptions(): array
     {
-        return [
-            __('Restaurant'),
-            __('Coffee shop'),
-            __('Bakery'),
-            __('Bar / Pub'),
-            __('Food truck'),
-            __('Salon'),
-            __('Barbershop'),
-            __('Spa'),
-            __('Nail studio'),
-            __('Clinic'),
-            __('Dentist'),
-            __('Chiropractor'),
-            __('Optical store'),
-            __('Pharmacy'),
-            __('Gym'),
-            __('Yoga studio'),
-            __('Fitness coach'),
-            __('Local store'),
-            __('Boutique'),
-            __('Auto repair'),
-            __('Car wash'),
-            __('Real estate office'),
-            __('Hotel'),
-            __('Event venue'),
-            __('Education center'),
-            __('Pet grooming'),
-            __('Agency client'),
-            __('Professional service'),
-            __('Other'),
-        ];
+        return BusinessTypeCatalog::typeOptions();
+    }
+
+    protected function groupedTypeOptions(): array
+    {
+        return BusinessTypeCatalog::groupedOptions();
+    }
+
+    protected function popularTypeOptions(): array
+    {
+        return BusinessTypeCatalog::popularOptions();
+    }
+
+    protected function typeMetadata(?string $type = null): array
+    {
+        return BusinessTypeCatalog::metadataFor($type ?? $this->type);
     }
 }

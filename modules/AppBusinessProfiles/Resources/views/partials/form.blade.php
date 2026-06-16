@@ -10,8 +10,12 @@
             address: @js($address),
             google_maps_url: @js($google_maps_url),
         },
+        typeLabels: @js($typeOptions),
         filled(value) {
             return String(value || '').trim() !== '';
+        },
+        typeLabel(type) {
+            return this.typeLabels[type] || type || '';
         },
         get completionPercent() {
             let completed = 0;
@@ -45,110 +49,199 @@
             </div>
             <div class="grid gap-4 p-5 md:grid-cols-[minmax(0,1fr)_20rem]">
                 <x-ui.input x-model="form.name" wire:model="name" name="name" :label="__('Business name')" :error="$errors->first('name')" />
-                <x-ui.field :label="__('Business type')" :error="$errors->first('type')" :help="__('Search an industry or type a custom value.')">
-                    <div
-                        class="relative"
-                        x-data="{
-                            open: false,
-                            search: form.type,
-                            options: @js(array_values($typeOptions)),
-                            get filtered() {
-                                const query = String(this.search || '').toLowerCase().trim();
+                {{-- Enhanced industry picker: popular quick picks + grouped search dropdown --}}
+                <div
+                    x-data="{
+                        selectedType: @js($type),
+                        search: '',
+                        open: false,
+                        showAll: false,
+                        typeLabels: @js($typeOptions),
+                        popularOptions: @js($popularTypeOptions),
+                        groupedOptions: @js($groupedTypeOptions),
+                        aliasMap: @js(\Modules\AppBusinessProfiles\Support\BusinessTypeCatalog::searchAliases()),
 
-                                if (! query) {
-                                    return this.options.slice(0, 12);
+                        get selectedLabel() {
+                            return this.typeLabels[this.selectedType] || this.selectedType || '';
+                        },
+
+                        get searchResults() {
+                            const q = String(this.search || '').toLowerCase().trim();
+                            if (! q) return null;
+
+                            const results = [];
+                            const seen = new Set();
+
+                            for (const [type, label] of Object.entries(this.typeLabels)) {
+                                if (label.toLowerCase().includes(q) || type.toLowerCase().includes(q)) {
+                                    if (! seen.has(type)) {
+                                        seen.add(type);
+                                        results.push({ type, label });
+                                    }
                                 }
+                            }
 
-                                const exact = this.options.find((option) => option.toLowerCase() === query);
-
-                                if (exact) {
-                                    return [
-                                        exact,
-                                        ...this.options.filter((option) => option !== exact),
-                                    ].slice(0, 12);
+                            for (const [alias, type] of Object.entries(this.aliasMap)) {
+                                if (alias.toLowerCase().includes(q) && ! seen.has(type)) {
+                                    seen.add(type);
+                                    results.push({ type, label: this.typeLabels[type] || type });
                                 }
+                            }
 
-                                return this.options
-                                    .filter((option) => option.toLowerCase().includes(query))
-                                    .slice(0, 12);
-                            },
-                            choose(option) {
-                                this.search = option;
-                                form.type = option;
-                                $wire.set('type', option, false);
-                                this.open = false;
-                            },
-                        }"
-                        x-on:click.outside="open = false"
-                    >
-                        <div class="relative">
-                            <i class="fa-light fa-briefcase pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm" style="color: var(--theme-muted-text-color);"></i>
-                            <input
-                                x-model="search"
-                                wire:model="type"
-                                x-on:focus="open = true"
-                                x-on:input="form.type = search; $wire.set('type', search, false); open = true"
-                                x-on:keydown.escape.prevent="open = false"
-                                x-on:keydown.enter.prevent="filtered.length ? choose(filtered[0]) : open = false"
-                                name="type"
-                                class="h-11 w-full rounded-xl border pl-10 pr-10 text-sm outline-none transition focus:border-[var(--theme-accent)] focus:ring-4 focus:ring-[color:rgba(var(--theme-accent-rgb),0.10)]"
-                                style="border-color: var(--theme-border-color); background-color: var(--theme-input-surface); color: var(--theme-input-text);"
-                                placeholder="{{ __('Search business type...') }}"
-                                autocomplete="off"
-                            >
-                            <button
-                                type="button"
-                                class="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg transition"
-                                style="color: var(--theme-muted-text-color);"
-                                x-on:click="open = ! open"
-                            >
-                                <i class="fa-light fa-chevron-down text-xs transition" x-bind:class="open ? 'rotate-180' : ''"></i>
-                            </button>
+                            return results.slice(0, 10);
+                        },
+
+                        choose(type) {
+                            this.selectedType = type;
+                            this.search = '';
+                            this.open = false;
+                            form.type = type;
+                            $wire.set('type', type, false);
+                        },
+                    }"
+                    x-on:click.outside="open = false"
+                >
+                    <div class="space-y-3">
+                        {{-- Label + help --}}
+                        <div>
+                            <label class="block text-sm font-medium" style="color: var(--theme-header-text-color);">
+                                {{ __('Main business industry') }}
+                            </label>
+                            <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">
+                                {{ __('Choose the industry that best matches your main activity. MLHUB will suggest the right templates, campaigns, and reports for you.') }}
+                            </p>
+                            @error('type')
+                                <p class="mt-1 text-xs font-medium" style="color: var(--theme-danger-color);">{{ $message }}</p>
+                            @enderror
                         </div>
 
-                        <div
-                            x-cloak
-                            x-show="open"
-                            x-transition:enter="transition ease-out duration-120"
-                            x-transition:enter-start="opacity-0 translate-y-1"
-                            x-transition:enter-end="opacity-100 translate-y-0"
-                            class="absolute z-50 mt-2 max-h-72 w-full overflow-hidden rounded-2xl border shadow-[0_24px_70px_-38px_rgba(var(--theme-border-color-rgb),0.95)]"
-                            style="border-color: rgba(var(--theme-border-color-rgb),0.72); background-color: color-mix(in srgb, var(--theme-surface-overlay) 99%, transparent);"
-                        >
-                            <div class="border-b px-3 py-2" style="border-color: rgba(var(--theme-border-color-rgb),0.56);">
-                                <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Industries') }}</p>
+                        {{-- Current selection badge --}}
+                        <div x-show="selectedType" class="flex items-center gap-2">
+                            <span class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-semibold" style="border-color: rgba(var(--theme-accent-rgb),0.25); background-color: rgba(var(--theme-accent-rgb),0.08); color: var(--theme-accent);">
+                                <i class="fa-light fa-check text-[10px]"></i>
+                                <span x-text="selectedLabel"></span>
+                            </span>
+                        </div>
+
+                        {{-- Popular quick picks --}}
+                        <div>
+                            <p class="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('Popular industries') }}</p>
+                            <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                                @foreach ($popularTypeOptions as $popular)
+                                    <button
+                                        type="button"
+                                        x-on:click="choose(@js($popular['type']))"
+                                        x-bind:class="selectedType === @js($popular['type']) ? 'ring-2 ring-[color:var(--theme-accent)]' : ''"
+                                        class="flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs font-medium transition hover:border-[color:rgba(var(--theme-accent-rgb),0.4)] hover:bg-[color:rgba(var(--theme-accent-rgb),0.06)]"
+                                        style="border-color: rgba(var(--theme-border-color-rgb),0.58); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);"
+                                    >
+                                        <i class="fa-light {{ $popular['icon'] }} w-4 shrink-0" style="color: var(--theme-accent);"></i>
+                                        <span class="leading-4">{{ $popular['label'] }}</span>
+                                    </button>
+                                @endforeach
                             </div>
-                            <div class="max-h-60 overflow-y-auto p-2">
-                                <template x-if="filtered.length">
-                                    <div class="space-y-1">
-                                        <template x-for="option in filtered" :key="option">
-                                            <button
-                                                type="button"
-                                                class="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition hover:bg-[color:rgba(var(--theme-accent-rgb),0.08)]"
-                                                style="color: var(--theme-header-text-color);"
-                                                x-on:click="choose(option)"
-                                            >
-                                                <span x-text="option"></span>
-                                                <i class="fa-light fa-check text-xs" style="color: var(--theme-accent);" x-show="String(search || '').toLowerCase() === option.toLowerCase()"></i>
-                                            </button>
+                        </div>
+
+                        {{-- Search + grouped dropdown --}}
+                        <div class="relative">
+                            <p class="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('View all industries') }}</p>
+                            <div class="relative">
+                                <i class="fa-light fa-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm" style="color: var(--theme-muted-text-color);"></i>
+                                <input
+                                    x-model="search"
+                                    x-on:focus="open = true; showAll = false"
+                                    x-on:input="open = true; showAll = false"
+                                    x-on:keydown.escape.prevent="open = false; search = ''"
+                                    x-on:keydown.enter.prevent="searchResults && searchResults.length ? choose(searchResults[0].type) : null"
+                                    class="h-11 w-full rounded-xl border pl-10 pr-10 text-sm outline-none transition focus:border-[var(--theme-accent)] focus:ring-4 focus:ring-[color:rgba(var(--theme-accent-rgb),0.10)]"
+                                    style="border-color: var(--theme-border-color); background-color: var(--theme-input-surface); color: var(--theme-input-text);"
+                                    placeholder="{{ __('Search industry...') }}"
+                                    autocomplete="off"
+                                >
+                                <button
+                                    type="button"
+                                    x-on:click="showAll = ! showAll; open = showAll; search = ''"
+                                    class="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg transition"
+                                    style="color: var(--theme-muted-text-color);"
+                                    :title="@js(__('View all industries'))"
+                                >
+                                    <i class="fa-light fa-chevron-down text-xs transition" x-bind:class="open ? 'rotate-180' : ''"></i>
+                                </button>
+                            </div>
+
+                            <div
+                                x-cloak
+                                x-show="open"
+                                x-transition:enter="transition ease-out duration-120"
+                                x-transition:enter-start="opacity-0 translate-y-1"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                class="absolute z-50 mt-2 max-h-80 w-full overflow-hidden rounded-2xl border shadow-[0_24px_70px_-38px_rgba(var(--theme-border-color-rgb),0.95)]"
+                                style="border-color: rgba(var(--theme-border-color-rgb),0.72); background-color: color-mix(in srgb, var(--theme-surface-overlay) 99%, transparent);"
+                            >
+                                {{-- Search results panel --}}
+                                <template x-if="searchResults !== null">
+                                    <div class="max-h-80 overflow-y-auto">
+                                        <template x-if="searchResults.length">
+                                            <div class="p-2">
+                                                <p class="px-2 pb-1.5 pt-1 text-[10px] font-semibold uppercase tracking-[0.15em]" style="color: var(--theme-muted-text-color);">{{ __('Search results') }}</p>
+                                                <template x-for="item in searchResults" :key="item.type">
+                                                    <button
+                                                        type="button"
+                                                        class="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition hover:bg-[color:rgba(var(--theme-accent-rgb),0.08)]"
+                                                        style="color: var(--theme-header-text-color);"
+                                                        x-on:click="choose(item.type)"
+                                                    >
+                                                        <span x-text="item.label"></span>
+                                                        <i class="fa-light fa-check text-xs shrink-0" style="color: var(--theme-accent);" x-show="selectedType === item.type"></i>
+                                                    </button>
+                                                </template>
+                                            </div>
+                                        </template>
+                                        <template x-if="! searchResults.length">
+                                            <div class="px-4 py-5 text-center text-sm" style="color: var(--theme-muted-text-color);">
+                                                <i class="fa-light fa-circle-question mb-2 block text-2xl" style="color: var(--theme-accent);"></i>
+                                                {{ __('No results found') }}
+                                                <p class="mt-1 text-xs">{{ __('If unsure, select Other. MLHUB can help you classify later.') }}</p>
+                                            </div>
                                         </template>
                                     </div>
                                 </template>
-                                <template x-if="! filtered.length">
-                                    <button
-                                        type="button"
-                                        class="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium"
-                                        style="color: var(--theme-header-text-color); background-color: rgba(var(--theme-accent-rgb),0.08);"
-                                        x-on:click="form.type = search; $wire.set('type', search, false); open = false"
-                                    >
-                                        <i class="fa-light fa-plus" style="color: var(--theme-accent);"></i>
-                                        <span>{{ __('Use custom type') }}: <strong x-text="search"></strong></span>
-                                    </button>
+
+                                {{-- Grouped all-industries panel --}}
+                                <template x-if="searchResults === null">
+                                    <div class="max-h-80 overflow-y-auto">
+                                        <template x-for="group in groupedOptions" :key="group.group">
+                                            <div>
+                                                <div class="sticky top-0 flex items-center gap-2 border-b px-3 py-2" style="border-color: rgba(var(--theme-border-color-rgb),0.40); background-color: color-mix(in srgb, var(--theme-surface-soft) 95%, transparent);">
+                                                    <i class="fa-light text-xs" x-bind:class="group.icon" style="color: var(--theme-accent);"></i>
+                                                    <p class="text-[10px] font-semibold uppercase tracking-[0.15em]" style="color: var(--theme-muted-text-color);" x-text="group.label"></p>
+                                                </div>
+                                                <div class="p-2">
+                                                    <template x-for="item in Object.values(group.options)" :key="item.type">
+                                                        <button
+                                                            type="button"
+                                                            class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition hover:bg-[color:rgba(var(--theme-accent-rgb),0.08)]"
+                                                            style="color: var(--theme-header-text-color);"
+                                                            x-on:click="choose(item.type)"
+                                                        >
+                                                            <i class="fa-light w-4 shrink-0 text-sm" x-bind:class="item.icon" style="color: var(--theme-muted-text-color);"></i>
+                                                            <span x-text="item.label"></span>
+                                                            <i class="fa-light fa-check ml-auto text-xs shrink-0" style="color: var(--theme-accent);" x-show="selectedType === item.type"></i>
+                                                        </button>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
                                 </template>
                             </div>
                         </div>
+
+                        <p class="text-[11px] leading-4" style="color: var(--theme-muted-text-color);">
+                            {{ __('If unsure, select Other. MLHUB can help you classify later.') }}
+                        </p>
                     </div>
-                </x-ui.field>
+                </div>
             </div>
         </section>
 
@@ -300,7 +393,7 @@
                     </div>
                     <div class="min-w-0">
                         <p class="truncate text-sm font-semibold" style="color: var(--theme-header-text-color);" x-text="filled(form.name) ? form.name : @js(__('Business name'))"></p>
-                        <p class="mt-1 text-xs uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);" x-text="form.type || @js(__('Business type'))"></p>
+                        <p class="mt-1 text-xs uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);" x-text="typeLabel(form.type) || @js(__('Business type'))"></p>
                     </div>
                 </div>
                 <div class="mt-4 space-y-2 text-xs" style="color: var(--theme-muted-text-color);">
