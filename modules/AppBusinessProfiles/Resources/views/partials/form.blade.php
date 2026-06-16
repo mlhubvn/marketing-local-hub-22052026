@@ -189,19 +189,10 @@
                             @enderror
                         </div>
 
-                        <div x-show="selectedType" x-cloak class="flex flex-wrap items-center gap-2">
-                            <span class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-semibold" style="border-color: rgba(var(--theme-accent-rgb),0.25); background-color: rgba(var(--theme-accent-rgb),0.08); color: var(--theme-accent);">
-                                <i class="fa-light fa-check text-[10px]"></i>
-                                <span x-text="activeGroupLabel" x-show="activeGroupLabel"></span>
-                                <span x-show="activeGroupLabel && selectedLabel" class="opacity-60">·</span>
-                                <span x-text="selectedLabel"></span>
-                            </span>
-                        </div>
-
                         {{-- Step 1: main industry group --}}
                         <div>
                             <p class="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('Main industry group') }}</p>
-                            <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                            <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                                 <template x-for="group in groupedOptions" :key="group.group">
                                     <button
                                         type="button"
@@ -244,6 +235,19 @@
 
                         <div x-show="! selectedGroup && ! isSearching" x-cloak class="rounded-xl border px-4 py-3 text-xs leading-5" style="border-color: rgba(var(--theme-border-color-rgb),0.56); background-color: color-mix(in srgb, var(--theme-surface-soft) 92%, transparent); color: var(--theme-muted-text-color);">
                             {{ __('Select a main industry group first, then choose the specific industry below.') }}
+                        </div>
+
+                        {{-- Selected industry summary --}}
+                        <div x-show="selectedType" x-cloak>
+                            <p class="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('Selected industry') }}</p>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold" style="border-color: rgba(var(--theme-accent-rgb),0.25); background-color: rgba(var(--theme-accent-rgb),0.08); color: var(--theme-accent);">
+                                    <i class="fa-light fa-check text-[10px]"></i>
+                                    <span x-text="activeGroupLabel" x-show="activeGroupLabel"></span>
+                                    <span x-show="activeGroupLabel && selectedLabel" class="opacity-60">·</span>
+                                    <span x-text="selectedLabel"></span>
+                                </span>
+                            </div>
                         </div>
 
                         {{-- Optional global search shortcut --}}
@@ -353,9 +357,17 @@
                             ? 'border-color: rgba(var(--theme-border-color-rgb),0.48); background-color: color-mix(in srgb, var(--theme-surface-soft) 88%, transparent);'
                             : 'border-color: rgba(var(--theme-border-color-rgb),0.56); background-color: color-mix(in srgb, var(--theme-surface-base) 90%, transparent);'"
                     >
-                        <div class="flex items-center justify-between gap-3">
-                            <x-ui.checkbox wire:model.live="opening_hours.{{ $day }}.is_closed" :label="$label.' '.__('closed')" />
-                            <span x-show="closed" class="rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]" style="border-color: rgba(var(--theme-border-color-rgb), .58); color: var(--theme-muted-text-color); background-color: var(--theme-surface-overlay);">{{ __('Closed') }}</span>
+                        <div class="flex flex-col gap-2 sm:justify-center">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $label }}</p>
+                                <span
+                                    x-show="closed"
+                                    x-cloak
+                                    class="rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em]"
+                                    style="border-color: rgba(var(--theme-border-color-rgb), .58); color: var(--theme-muted-text-color); background-color: var(--theme-surface-overlay);"
+                                >{{ __('Closed') }}</span>
+                            </div>
+                            <x-ui.checkbox wire:model.live="opening_hours.{{ $day }}.is_closed" :label="__('Closed all day')" minimal />
                         </div>
                         <div x-bind:class="closed ? 'pointer-events-none opacity-45' : ''">
                             <x-ui.time-picker
