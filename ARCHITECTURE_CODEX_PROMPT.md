@@ -2,7 +2,7 @@
 
 > Dùng với **Codex CLI** hoặc Codex trong IDE. Copy prompt bên dưới, điền phạm vi `@file`, **không** quét toàn repo.
 >
-> Đọc kèm: `.cursorrules`, `ARCHITECTURE_CHECKLIST.md`, `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FEATURE.md`, `ARCHITECTURE_PROMPT.md` §3.9.
+> Đọc kèm: `.cursorrules`, `ARCHITECTURE_CHECKLIST.md`, `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_MODULE.md` (route/bảng/model/plan từng module), `ARCHITECTURE_FEATURE.md`, `ARCHITECTURE_PROMPT.md` §10.
 >
 > **Quy tắc cố định:** Codex chỉ sửa local — không `git commit`, không `git push`, không SSH server, không `migrate:fresh`/`db:wipe` trên production.
 
@@ -36,8 +36,8 @@ MLHUB | Codex Full Audit | Bảo mật + Hiệu suất + Tối ưu | CHƯA CODE.
 - .cursorrules (§0 production, §3 vibecode, tenant scope, Redis/Livewire)
 - ARCHITECTURE_CHECKLIST.md (§2.D rủi ro, §3 plan trước)
 - ARCHITECTURE_BACKEND.md
+- ARCHITECTURE_MODULE.md (route/bảng/model/plan/public endpoint từng module)
 - ARCHITECTURE_FEATURE.md (§14 backlog bảo mật, growth tools, loyalty)
-- ARCHITECTURE_PROMPT.md §3.9
 
 Stack: PHP 8.3, Eloquent trực tiếp (không Repository), Blade+Livewire+Alpine, Tailwind v4.
 Deploy: GitHub → Coolify → docker/entrypoint.sh. Không SSH vá tay server.
@@ -217,6 +217,7 @@ Output: P0/P1/P2 + env Coolify tab cần kiểm tra + checklist sau redeploy. Ch
 MLHUB | Codex Module Audit | @modules/<TênModule>/ | CHƯA CODE.
 
 Module: <AppReviewBooster | AppBookingPages | AppBilling | …>
+Tra trước ARCHITECTURE_MODULE.md (§3/§12/§13/§14) cho route prefix, bảng, plan key, public endpoint của module.
 
 Đọc toàn bộ trong module (không quét repo khác trừ import/shared):
 - Routes/web.php (portal + public)
@@ -280,7 +281,7 @@ Quy tắc:
 Sau khi sửa:
 1. vendor/bin/pint --dirty
 2. php artisan test (hoặc --filter=<nhóm>)
-3. Task Completion Report (ARCHITECTURE_PROMPT.md §3.9.14)
+3. Task Completion Report (ARCHITECTURE_PROMPT.md §2.9)
 4. Commit message gợi ý
 ```
 

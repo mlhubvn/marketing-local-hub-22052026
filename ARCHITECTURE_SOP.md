@@ -2,7 +2,7 @@
 
 > **Mục đích:** Tài liệu này kết hợp (1) quy trình vận hành SOP cho onboarding hộ kinh doanh Đà Nẵng và (2) **bản đồ tham chiếu codebase thực tế** — module, bảng DB, tham số JSON, trigger automation, route, KPI, env — để team triển khai dữ liệu mẫu / template / preset không bỏ sót tính năng đã có trong code.
 >
-> **Nguồn sự thật kỹ thuật:** `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FEATURE.md`, `ARCHITECTURE_CHECKLIST.md`, quét trực tiếp `modules/`, `app/`, `.env.example` (cập nhật 2026-06).
+> **Nguồn sự thật kỹ thuật:** catalog module đầy đủ → `ARCHITECTURE_MODULE.md`; kiến trúc → `ARCHITECTURE_BACKEND.md`; độ sẵn sàng/backlog → `ARCHITECTURE_FEATURE.md`; quy trình → `ARCHITECTURE_CHECKLIST.md`. Quét trực tiếp `modules/`, `app/`, `.env.example` (cập nhật 2026-06). File SOP tập trung vào **onboarding + mapping SOP → code**, không lặp catalog module.
 >
 > **Thương hiệu:** Hiển thị user-facing = **MLHUB**; path/route/config = **mlhub** (không dùng LocalBoost trên UI production).
 
@@ -959,92 +959,13 @@ Chủ hộ chọn ngành + mục tiêu → hệ thống gợi ý template pack, 
 | Cài đặt VN       | `modules/CustomMLHUB/` — `mlhub:install`, `mlhub:update`, `mlhub:sync-env-options`                               |
 
 
-**Quy ước bảng:** mọi bảng nghiệp vụ có tiền tố `lb_`. Tenant scope: `user_id` (hoặc `TeamWorkspaceAccess::workspaceOwnerUserId()` cho workspace/AI).
+**Quy ước bảng:** tiền tố `lb_` áp dụng cho engine growth/business/CRM (`lb_campaigns`, `lb_businesses`, `lb_customers`, `lb_loyalty_*`…). **Không phổ quát** — bảng hệ thống (`users`, `plans`, `options`, `payment_*`, `credit_*`, `files`, `affiliate_*`, `ai_*`, `custom_domains`) không dùng `lb_`. Tenant scope: `user_id` (hoặc `TeamWorkspaceAccess::workspaceOwnerUserId()` cho workspace/AI).
 
 ---
 
-# 12. Catalog module đầy đủ
+# 12. Catalog module
 
-## 12.1. Admin* (quản trị — prefix route `admin/`)
-
-
-| Module                     | Route chính                                           | Chức năng                                  |
-| -------------------------- | ----------------------------------------------------- | ------------------------------------------ |
-| AdminDashboard             | `admin/dashboard`                                     | Tổng quan admin                            |
-| AdminUser                  | `admin/users`, `admin/user-roles`, `admin/user-teams` | User, role, team, auth rules               |
-| AdminPlans                 | `admin/plans`                                         | Gói cước + permissions JSON                |
-| AdminCredits               | `admin/credits/`*                                     | Gói credit, ledger, usage                  |
-| AdminCoupons               | `admin/coupons`                                       | Mã giảm giá billing                        |
-| AdminPayment*              | `admin/payment-`*                                     | Lịch sử, subscription, report              |
-| AdminThemes                | `admin/themes`                                        | Theme, custom CSS/JS                       |
-| AdminSettings              | `admin/settings/*`                                    | General, analytics, security, static pages |
-| AdminCaptcha               | `admin/captcha`                                       | Turnstile / reCAPTCHA v2                   |
-| AdminAI / AdminAITemplate* | `admin/settings/ai-config`, `admin/ai-*`              | Cấu hình AI, template, usage               |
-| AdminLanguages             | `admin/languages`                                     | Đa ngôn ngữ                                |
-| AdminBlogs / AdminFaqs     | `admin/blogs`, `admin/faqs`                           | CMS                                        |
-| AdminSupport               | `admin/support`                                       | Ticket hỗ trợ                              |
-| AdminLog                   | `admin/log`                                           | Xem `laravel.log`                          |
-| AdminMarketplace           | `admin/marketplace`                                   | License Stackposts                         |
-| AdminCrons / AdminCache    | `admin/crons`, `admin/cache`                          | Cron, cache                                |
-| AdminNotifications         | `admin/notifications`                                 | Push notification                          |
-| AdminFiles                 | `admin/files`                                         | Media library admin                        |
-| AdminIntegrations          | `admin/integrations`                                  | Hub tích hợp                               |
-
-
-## 12.2. App* (portal — prefix `portal/`)
-
-
-| Module                   | Route prefix                              | Model / bảng chính                                |
-| ------------------------ | ----------------------------------------- | ------------------------------------------------- |
-| AppBusinessProfiles      | `portal/businesses`                       | `lb_businesses`                                   |
-| AppBusinessLocations     | nested `.../locations`                    | `lb_locations`                                    |
-| AppCustomers             | `portal/customers`                        | `lb_customers`                                    |
-| AppReviewBooster         | `portal/review-booster`                   | `lb_campaigns` type=review, `lb_review_feedbacks` |
-| AppBookingPages          | `portal/booking-pages`                    | `lb_booking_services`, `lb_bookings`              |
-| AppCouponCampaigns       | `portal/coupon-campaigns`                 | `lb_coupon_redemptions`                           |
-| AppFeedbackForms         | `portal/feedback-forms`                   | `lb_feedback_responses`                           |
-| AppLeadForms             | `portal/lead-forms`                       | `lb_lead_submissions`                             |
-| AppQRCampaigns           | `portal/qr-campaigns`                     | `lb_campaigns`, `lb_qr_scans`                     |
-| AppLandingPages          | `portal/landing-pages`                    | `lb_landing_pages`                                |
-| AppMarketingTemplates    | `portal/marketing-templates`              | `lb_marketing_templates`, packs                   |
-| AppLoyaltyStampCards     | `portal/loyalty-cards`                    | `lb_loyalty_*`, `lb_referral_*`                   |
-| AppAdvancedCustomerCrm   | `portal/crm`                              | `lb_customer_*`, `lb_crm_*`                       |
-| AppEmailAutomation       | `portal/email-automation`                 | `lb_email_*`                                      |
-| AppWebhookAutomation     | `portal/webhook-automation`               | `lb_webhook_*`                                    |
-| AppWhatsAppNotification  | `portal/whatsapp-*`                       | `lb_whatsapp_*`                                   |
-| AppLocalAnalytics        | `portal/reports`                          | Báo cáo tổng hợp                                  |
-| AppGoogleBusiness        | `portal/integrations/google-business`     | `lb_google_*`                                     |
-| AppAIStudio + AppAI*     | `portal/ai-studio/*`                      | AI jobs, prompts                                  |
-| AppBilling / AppPayments | `portal/billing`, `portal/payment/{plan}` | Checkout                                          |
-| AppCredits               | `portal/credits`                          | Credit balance                                    |
-| AppTeams                 | `portal/teams`                            | Workspace                                         |
-| AppFiles                 | `portal/files`                            | Media                                             |
-| AppCustomDomain          | `portal/qr-codes/domains`                 | Custom domain QR                                  |
-| AppSupport / AppProfile  | `portal/support`, `portal/profile`        | Hỗ trợ, hồ sơ                                     |
-
-
-## 12.3. Payment*
-
-
-| Module           | Gateway key                  | Loại                  |
-| ---------------- | ---------------------------- | --------------------- |
-| AppPayments      | `manual`                     | Chuyển khoản thủ công |
-| PaymentStripe    | `stripe`, `stripe_recurring` | Thẻ                   |
-| PaymentPaypal    | `paypal`, `paypal_recurring` | PayPal                |
-| Payment2Checkout | `2checkout`                  | 2Checkout             |
-
-
-## 12.4. CustomMLHUB
-
-
-| Thành phần | Chi tiết                                                            |
-| ---------- | ------------------------------------------------------------------- |
-| Command    | `mlhub:install`, `mlhub:update`, `mlhub:sync-env-options`           |
-| Config     | `config/custommlhub.php`, `config/env_options.php`                  |
-| Seeder     | `MLHUBAdminSeeder`, `MLHUBSystemExtrasSeeder`, `PlanSeeder`         |
-| Env        | `MLHUB_FIRST_USER_*`, `MLHUB_STARTING_ID`, `MLHUB_SYNC_ENV_OPTIONS` |
-| Data       | `Database/data/mlhub_site_options.php`                              |
-
+> **Danh sách module đầy đủ (72) + route prefix / model / bảng / plan key / public endpoint / trạng thái production → `ARCHITECTURE_MODULE.md`** (nguồn sự thật duy nhất, §3 catalog). File SOP không lặp catalog module để tránh lệch nhau. Các phần dưới đây (§13–§22) chỉ giữ phần **mapping SOP → code** (engine growth, automation, dashboard, plan, credit) cần cho onboarding/vận hành.
 
 ---
 
@@ -1383,18 +1304,19 @@ Chưa có entity `dashboard_preset` — triển khai bằng:
 ## 19.2. AI modules & routes
 
 
-| Module              | Route                         | Credit action                  |
-| ------------------- | ----------------------------- | ------------------------------ |
-| AppAIStudio         | `portal/ai-studio`            | Campaign builder, review reply |
-| AppAIContent        | `portal/ai-studio/ai-content` | captions                       |
-| AppAIRepurpose      | `portal/ai-studio/repurpose`  | repurpose                      |
-| AppAIContentPlanner | `portal/ai-studio/planner`    | calendar                       |
-| AppAIImage          | `portal/ai-studio/image`      | image                          |
-| AppAIVideo          | `portal/ai-studio/video`      | video                          |
-| AppAIReview         | `portal/ai-studio/review`     | review content                 |
-| AppAIBestTime       | `portal/ai-studio/timing`     | best time                      |
-| AppAISemanticSearch | `portal/ai-studio/search`     | search                         |
+| Module              | Route                         | Credit action                  | Trạng thái        |
+| ------------------- | ----------------------------- | ------------------------------ | ----------------- |
+| AppAIStudio         | `portal/ai-studio`            | Campaign builder, review reply | ✅ Active          |
+| AppAIContent        | `portal/ai-studio/ai-content` | captions                       | ✅ Active          |
+| AppAIRepurpose      | `portal/ai-studio/repurpose`  | repurpose                      | 🟡 Active          |
+| AppAIContentPlanner | `portal/ai-studio/planner`    | calendar                       | 🟡 Active          |
+| AppAIImage          | `portal/ai-studio/image`      | image                          | 🟡 Active          |
+| AppAIVideo          | *(config `…/video`)*          | video                          | 🔴 Dormant (no route) |
+| AppAIReview         | *(config `…/review`)*         | review content                 | 🔴 Dormant (no route) |
+| AppAIBestTime       | *(config `…/timing`)*         | best time                      | 🔴 Dormant (no route) |
+| AppAISemanticSearch | *(config `…/search`)*         | search                         | 🔴 Dormant (no route) |
 
+> **4 module dormant**: provider không `loadRoutesFrom` → route không truy cập được; credit action chưa `register_credit_action`. Chi tiết: `ARCHITECTURE_MODULE.md` §8, backlog `ARCHITECTURE_FEATURE.md` §7.
 
 ---
 
@@ -1483,14 +1405,16 @@ Chi tiết từng biến: `.env.example`, `ARCHITECTURE_PROMPT.md` §4.
 ## C. Tài liệu liên quan
 
 
-| File                        | Nội dung                                |
-| --------------------------- | --------------------------------------- |
-| `ARCHITECTURE_BACKEND.md`   | Kiến trúc Laravel, middleware, registry |
-| `ARCHITECTURE_FEATURE.md`   | Độ sẵn sàng production, backlog         |
-| `ARCHITECTURE_FRONTEND.md`  | Blade, Livewire, theme, Tailwind        |
-| `ARCHITECTURE_CHECKLIST.md` | Quy trình task, an toàn deploy          |
-| `ARCHITECTURE_PROMPT.md`    | Prompt mẫu, bootstrap `mlhub:install`   |
-| `.cursorrules`              | Quy tắc AI agent                        |
+| File                         | Nội dung                                       |
+| ---------------------------- | ---------------------------------------------- |
+| `ARCHITECTURE_BACKEND.md`    | Kiến trúc Laravel, middleware, registry        |
+| `ARCHITECTURE_MODULE.md`     | **Bản đồ 72 module: route/bảng/model/plan**    |
+| `ARCHITECTURE_FEATURE.md`    | Độ sẵn sàng production, backlog                |
+| `ARCHITECTURE_FRONTEND.md`   | Blade, Livewire, theme, Tailwind               |
+| `ARCHITECTURE_CHECKLIST.md`  | Quy trình task, an toàn deploy                 |
+| `ARCHITECTURE_PROMPT.md`     | Prompt mẫu (dùng chay), bootstrap `mlhub:install` |
+| `ARCHITECTURE_CODEX_PROMPT.md` | Prompt Codex audit/diff review               |
+| `.cursorrules`               | Quy tắc AI agent                               |
 
 
 ## D. Gap / chưa có trong code (khi làm SOP cần custom)

@@ -1,9 +1,19 @@
 # MLHUB AI — Quy trình làm việc & Checklist (Vibecode)
 
-Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** (LocalBoost AI / Stackposts) khi làm việc với Cursor. Mục tiêu: code **ổn định, đúng phong cách lập trình viên gốc, an toàn cho production, và tiết kiệm tài nguyên đọc lại dự án**.
+Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** khi làm việc với Cursor. Mục tiêu: code **ổn định, đúng phong cách lập trình viên gốc, an toàn cho production, và tiết kiệm tài nguyên đọc lại dự án**.
 
-> Đọc kèm: `.cursorrules` (luật cứng), `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_FEATURE.md`, `ARCHITECTURE_PROMPT.md` (prompt mẫu + **Superpowers** §2 + cheatsheet lệnh).
+> Đọc kèm: `.cursorrules` (luật cứng), `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_MODULE.md` (route/bảng/model/plan từng module), `ARCHITECTURE_FEATURE.md` (độ sẵn sàng/backlog), `ARCHITECTURE_PROMPT.md` (prompt mẫu dùng chay + cheatsheet lệnh).
 > **Bắt buộc:** đọc lướt file này trước khi bắt tay vào bất kỳ Task / tính năng mới nào.
+
+> **Workflow chuẩn (dùng chay Cursor):** việc lớn/rủi ro → **Plan → Duyệt → Code → Verify → Review**; bug → **Evidence/log → root cause → surgical fix → verify**; việc nhỏ → surgical ngay với `@file`. Superpowers (nếu bật) chỉ **tùy chọn**, không bắt buộc.
+
+### 0. Phân loại task theo quy mô
+
+| Quy mô | Ví dụ | Quy trình |
+| --- | --- | --- |
+| **Nhỏ** | 1 chuỗi i18n, 1 format số, sửa 1 Blade, đổi nhãn menu | Surgical ngay với `@file` → format → báo cáo. Không cần plan dài. |
+| **Vừa** | Thêm 1 field, 1 Livewire action, 1 validation, 1 view module | Khoanh vùng module → code vibecode → verify §2.C/D → báo cáo. |
+| **Lớn / rủi ro** | Migration/schema, payment/credit, xóa dữ liệu, refactor core, module mới | **BẮT BUỘC plan trước + chờ "Duyệt"** (§3) → code → verify → review. |
 
 ---
 
@@ -142,6 +152,7 @@ Thực hiện tuần tự cho **mỗi** task. Bước nào không áp dụng th�
 - **Spam:** endpoint công khai mới đã có `throttle`/captcha chưa?
 - **Demo mode:** action ghi Livewire mới còn tương thích `DemoModeActionGuard`?
 - **Bí mật:** không commit `.env`, khóa API, file trong `storage/`.
+- **Tài liệu:** nếu thêm/đổi module, route, bảng, permission, env → cập nhật `ARCHITECTURE_MODULE.md` (§3/§12/§13/§14) + `ARCHITECTURE_*.md` liên quan **trong cùng commit**.
 - Liệt kê rõ cho người dùng: route mới / permission mới / migration mới / **biến `.env` mới** (kèm cập nhật `.env.example`).
 
 ### Giai đoạn E — Commit & Đẩy lên pipeline
@@ -160,7 +171,7 @@ Với các nhóm việc dưới đây, AI **PHẢI dừng lại, trình bày k�
 ### 3.1 🔴 Database Migration / thay đổi schema
 
 - Mô tả: bảng/cột nào thêm/sửa/xóa, kiểu dữ liệu, index, ràng buộc.
-- Khẳng định **chỉ thêm mới hoặc cột nullable** với bảng `lb_`* đang có dữ liệu; nêu rõ nếu phải đổi/xóa cột.
+- Khẳng định **chỉ thêm mới hoặc cột nullable** với **bảng đang có dữ liệu** (cả `lb_*` lẫn bảng hệ thống `users`/`plans`/`payment_*`…); nêu rõ nếu phải đổi/xóa cột. Kiểm tra tên bảng thật: `ARCHITECTURE_MODULE.md` §13.
 - **TUYỆT ĐỐI** không đề xuất `migrate:fresh`, `migrate:rollback`, `db:wipe` trên môi trường có dữ liệu thật.
 - Nêu kế hoạch chạy migration qua pipeline (`docker/entrypoint.sh` / `migrate --force` khi build), **không** chạy tay trên Coolify.
 - Có phương án rollback an toàn.
@@ -187,17 +198,24 @@ Với các nhóm việc dưới đây, AI **PHẢI dừng lại, trình bày k�
 
 ---
 
-## 4. Tóm tắt 7 bước Vibecode (bản rút gọn — kèm Superpowers)
+## 4. Tóm tắt luồng Vibecode (dùng chay Cursor)
 
-1. **Chọn skill** — xem `ARCHITECTURE_PROMPT.md` §2 (bug → `systematic-debugging`; feature → `brainstorming` → `writing-plans` → **Duyệt** → `executing-plans`).
-2. **Phân tích hẹp** — `@file` đúng chỗ, đọc `ARCHITECTURE_*.md`, không quét toàn dự án.
-3. **Bám tiền tố module** — `App`* / `Admin*` / `Payment*`.
-4. **Phân loại việc** — bug fix (surgical) vs feature mới (extension point §5 `.cursorrules`).
-5. **Code đúng vibe** — `.cursorrules` §3, scope tenant, guard plan/credit.
-6. **Format + verify** — `pint` → `php artisan test` → skill `verification-before-completion` → rà §2.D.
-7. **Review** — cụm lớn: subagent `code-reviewer` hoặc skill `requesting-code-review`.
-8. **Deploy** — commit/push (chủ dự án) → Coolify → user **Ctrl+F5** nếu Livewire 419 sau deploy.
+1. **Phân tích hẹp** — `@file` đúng chỗ, đọc `ARCHITECTURE_MODULE.md` + phần liên quan trong `ARCHITECTURE_*.md`, **không** quét toàn dự án. Bám tiền tố module (`App*`/`Admin*`/`Payment*`/`Custom*`).
+2. **Phân loại việc** — nhỏ/vừa (surgical ngay) vs lớn/rủi ro (**Plan → Duyệt → Code** — §3) vs bug (**evidence/log → root cause → surgical fix**).
+3. **Code đúng vibe** — `.cursorrules` §3-§5, scope tenant (`auth()->id()`/workspace owner), guard plan/credit, public form có throttle/captcha.
+4. **Format + verify** — `vendor/bin/pint --dirty` → `php artisan test` (nếu đụng logic) → `view:clear` (nếu đổi Blade) → rà §2.D (IDOR/spam/demo/secret/docs).
+5. **Báo cáo** — file changed, migration/route/permission/env mới (+ cập nhật `.env.example`/`ARCHITECTURE_MODULE.md`), deploy impact, test đã/chưa chạy, rủi ro, **commit message gợi ý**. Không nói đã test/deploy nếu chưa làm.
+6. **Review** (cụm lớn) — đọc lại diff; nếu cần đánh giá độc lập dùng subagent `bugbot`/`security-review` hoặc Codex (`ARCHITECTURE_CODEX_PROMPT.md`).
+7. **Deploy** — commit/push + Redeploy **do chủ dự án làm**; sau deploy user **Ctrl+F5** nếu Livewire 419.
    - Docker build fail `exit 255` giữa bước `docker-php-ext-install` (log cắt ở intl/opcache): thường **OOM** trên VPS nhỏ — repo đã có `.dockerignore` (bỏ `vendor/` khỏi context) + `Dockerfile` dùng `-j1`/`MAKEFLAGS=-j1`. Nếu vẫn fail: tăng RAM/swap server hoặc bật **Runtime only** cho `APP_ENV` trên Coolify.
+
+> *(Tùy chọn)* Nếu bật Superpowers: bug → `systematic-debugging`; feature → `brainstorming` → `writing-plans` → **Duyệt** → `executing-plans` → `verification-before-completion` → `requesting-code-review`. **Không bắt buộc.**
+
+### 4.1 Triage nhanh lỗi production (419 / 504 / 500)
+
+- **419 Page expired (Livewire):** thường do snapshot cũ sau deploy → user **Ctrl+F5**. Kiểm tra `APP_URL=https://mlhub.vn` + `SESSION_DOMAIN=.mlhub.vn`; `docker/entrypoint.sh` đã sync Livewire JS + `optimize`. Đổi lớn → đặt `LIVEWIRE_RELEASE_TOKEN`.
+- **504 Gateway timeout:** request quá lâu (AI/queue đồng bộ, query nặng). Đẩy việc nặng qua queue; kiểm tra Redis/queue worker sống.
+- **500 Internal error:** **Admin → Cài đặt → Logs** (module `AdminLog`) hoặc Coolify Logs → tìm dòng `ERROR/CRITICAL` → tìm root cause → surgical fix theo vibecode. Lỗi thoáng qua sau deploy (snapshot) thì nêu trạng thái, không sửa thừa.
 
 ---
 

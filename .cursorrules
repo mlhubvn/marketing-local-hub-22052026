@@ -1,313 +1,98 @@
 # MLHUB AI — Quy tắc cho AI Agent
 
-> Tài liệu này được sinh ra bằng cách **quét trực tiếp codebase thực tế**. Mọi quy tắc dưới đây phản ánh đúng phong cách của lập trình viên gốc. Khi bạn (AI) viết hoặc sửa code, **bắt buộc bám sát các mẫu này** — không tự sáng tạo phong cách mới.
-
-Đây là một ứng dụng **Laravel 13 + Livewire 4 dạng modular monolith**. Phần lớn nghiệp vụ nằm trong `modules/` (**72 module**: 31 `Admin*`, 37 `App*`, 3 `Payment*`, 1 `Custom*`), `app/` chỉ là lớp vỏ (shell) mỏng.
-
----
-
-## 0. Bối cảnh dự án (RẤT QUAN TRỌNG)
-
-- **BẮT BUỘC:** Luôn đọc lướt qua **`ARCHITECTURE_CHECKLIST.md`** trước khi bắt tay vào thực hiện bất kỳ Task / tính năng mới nào. File đó là quy trình vận hành chuẩn (workflow, quy tắc an toàn, luồng triển khai). Prompt mẫu + **Superpowers** (Cursor): **`ARCHITECTURE_PROMPT.md` §2**.
-- Mục tiêu hiện tại: **chuẩn bị phát hành production**. Bạn được phép sửa lỗi (bug) trong `modules/` và `app/` khi cần, nhưng:
-  - Sửa **tối thiểu, đúng trọng tâm** (surgical). Không refactor diện rộng nếu không được yêu cầu.
-  - **Bắt chước y hệt** phong cách file đang sửa (xem §3 "Vibecode").
-- Tính năng **mới hoàn toàn** thì ưu tiên dùng các điểm mở rộng (extension points, §5) thay vì nhét vào core, để an toàn khi cập nhật từ marketplace.
-- Khi không chắc chắn về phạm vi, kiến trúc, hoặc cách làm có nhiều lựa chọn → **hỏi lại người dùng trước khi code**.
-
-> **CÁCH LÀM VIỆC VỚI CHỦ DỰ ÁN (cố định):** Chủ dự án **không rành dev/bảo mật**. Tuyệt đối **KHÔNG đưa ra nhiều phương án để họ chọn**. Với mỗi vấn đề, **tự quyết định một hướng tốt nhất** (an toàn, đúng chuẩn production), **tự thực thi**, rồi đưa lại **danh sách bước bấm/chạy đơn giản** để họ làm theo. Chỉ hỏi lại khi thật sự thiếu thông tin bắt buộc (vd: bí mật, quyết định nghiệp vụ) — và khi hỏi thì hỏi 1 câu rõ ràng, không bày ma trận lựa chọn kỹ thuật.
-
-### 0.1 Luồng triển khai (Deployment Pipeline) — ghi nhớ cố định
-
-`Cursor IDE (local)` → commit/push → `GitHub (source of truth)` → webhook → `Coolify (auto build: docker-compose + .env + Traefik HTTP→HTTPS)` tại `mlhub.vn`.
-
-- ⛔ **TUYỆT ĐỐI KHÔNG** đề xuất can thiệp thủ công bằng dòng lệnh trên server Coolify (SSH, sửa file/chạy lệnh trên container), ngoại trừ lệnh cài đặt một lần `mlhub:install` đã được chủ dự án phê duyệt rõ ràng.
-- Mọi thay đổi hạ tầng phải thể hiện bằng **code/config tại local** (`docker-compose.yaml`, `Dockerfile`, `docker/entrypoint.sh`, `.env.example`, migration) → commit → push → để Coolify tự build.
-- Lệnh deploy (`migrate --force`, `config:cache`…) thuộc `docker/entrypoint.sh`/pipeline, không gõ tay trên server.
-
-### 0.2 Quy ước làm việc với chủ dự án (CỐ ĐỊNH — đọc kỹ)
-
-> ⚠️ **Dự án ĐÃ CHẠY PRODUCTION (live, có người dùng thật).** Mọi thay đổi phải ưu tiên **an toàn dữ liệu, bảo mật và trải nghiệm người dùng**. Không thử nghiệm rủi ro trên code đang chạy.
-
-1. **Chủ dự án ra lệnh, AI tự quyết & xử lý.** Chủ dự án không rành dev/bảo mật → **KHÔNG bày nhiều phương án để chọn**. Tự chọn hướng tốt nhất (an toàn, chuẩn production), tự thực thi, rồi đưa lại **các bước đơn giản để chủ dự án làm theo**. Chỉ hỏi khi thiếu thông tin bắt buộc (bí mật, quyết định nghiệp vụ) — hỏi 1 câu rõ ràng.
-2. **Sau khi xử lý, BẮT BUỘC đồng bộ các file hệ thống liên quan** (chỉ sửa file nào thực sự bị ảnh hưởng, không sửa thừa):
-   `.cursorrules`, `.env.example`, `.htaccess`, `docker-compose.yaml`, `Dockerfile`, `docker/entrypoint.sh`, `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_FEATURE.md`, `ARCHITECTURE_CHECKLIST.md`, `ARCHITECTURE_PROMPT.md`.
-3. **Nếu cần cấu hình trên Coolify → hướng dẫn từng bước theo đúng tab Coolify**: General, Advanced, Environment Variables, Persistent Storage, Git Source, Servers, Scheduled Tasks, Webhooks, Preview Deployments, Healthcheck, Rollback, Resource Limits, Resource Operations, Metrics, Tags, Danger Zone. Nói rõ tab nào, ô nào, giá trị gì.
-4. **Commit GitHub + Deploy do CHỦ DỰ ÁN làm thủ công.** AI **KHÔNG** tự `git commit`/`git push`/deploy. AI chỉ sửa file tại local + soạn sẵn **commit message gợi ý**; chủ dự án tự đẩy để kịp copy log nếu lỗi. Khi xong một cụm việc, tóm tắt "đã đổi file nào" + gợi ý commit message.
-5. **Báo NGAY khi phát hiện vấn đề bảo mật hoặc ảnh hưởng trải nghiệm người dùng** (kể cả ngoài phạm vi task đang làm) — nêu rủi ro bằng lời dễ hiểu + mức độ + cách xử lý đề xuất, để chủ dự án quyết ưu tiên.
-6. **Khi chủ dự án đưa nội dung log** (`laravel.log` dán vào repo, hoặc xem qua **Admin → Cài đặt → Logs** = module `AdminLog` tại `admin/settings/log`): tự rà mọi dòng `ERROR/CRITICAL`, **fix luôn lỗi code** theo phong cách vibecode; lỗi nào đã vá / chỉ thoáng qua (vd Livewire "children" do snapshot cũ sau deploy) thì nêu rõ trạng thái thay vì sửa thừa. Chủ dự án **không dùng `.gitignore`**, tự loại `laravel.log` thủ công khi commit — đừng tạo `.gitignore` trừ khi được yêu cầu.
-
-### 0.3 Quy tắc quản lý diff với upstream (CỐ ĐỊNH)
-
-- Ưu tiên tuyệt đối: **sửa trên file hiện có** để dễ `git diff`/`compare` với repo gốc khi nâng cấp phiên bản.
-- **Không tạo file/class/module mới cho logic ứng dụng** nếu có thể gộp vào `app/`, `modules/`, `resources/themes/` hiện hữu.
-- Khi có yêu cầu tính năng, **phải ưu tiên file/module tạo sẵn trước**, chỉ mở rộng trong file hiện có nếu đáp ứng được.
-- Chỉ tạo file mới khi thật sự bắt buộc (seed data/doc đặc thù dự án) và phải ghi rõ lý do trong `ARCHITECTURE_*.md`.
-- Nếu buộc phải tạo file logic mới, ưu tiên đặt trong `modules/Custom...` theo đúng khu vực cần chỉnh (ví dụ `modules/CustomMLHUB`, `modules/CustomReviewBooster`) để tách rõ phần custom.
-- Nếu lỡ tạo file logic mới, phải gộp lại vào file cũ tương ứng và xóa file phát sinh trước khi bàn giao.
-- **Quy tắc thương hiệu (bắt buộc — chỉ 2 dạng, không trộn):**
-  - **`MLHUB`** (viết hoa toàn bộ): chuỗi hiển thị user-facing, class/constant/env prefix (`MLHUBAdminSeeder`, `MLHUB_FIRST_USER_EMAIL`, module `CustomMLHUB`).
-  - **`mlhub`** (viết thường toàn bộ): đường dẫn file, route, artisan command, domain, config key, theme slug (`config/mlhub.php`, `mlhub:install`, `mlhub.vn`, `mlhubfrontend`, `custommlhub`).
-  - **Cấm tuyệt đối:** `Mlhub`, `MLHub`, `mlHub`, `MlHub` hoặc bất kỳ mix-case nào khác — ảnh hưởng nhận diện thương hiệu khi gọi vốn.
+> Quy tắc **ngắn, mạnh, thực dụng** cho dự án **MLHUB** — Laravel 13 + Livewire 4, modular monolith, **đang chạy production thật tại `mlhub.vn`**. Đọc lướt file này + `ARCHITECTURE_CHECKLIST.md` trước mỗi task.
+>
+> **Bản đồ tài liệu:** kiến trúc hệ thống → `ARCHITECTURE_BACKEND.md`; giao diện → `ARCHITECTURE_FRONTEND.md`; **từng module (route/bảng/model/plan)** → `ARCHITECTURE_MODULE.md`; tính năng & độ sẵn sàng/backlog → `ARCHITECTURE_FEATURE.md`; SOP onboarding → `ARCHITECTURE_SOP.md`; quy trình & checklist → `ARCHITECTURE_CHECKLIST.md`; prompt mẫu → `ARCHITECTURE_PROMPT.md` / `ARCHITECTURE_CODEX_PROMPT.md`; env → `.env.example`.
 
 ---
 
-## 1. Stack công nghệ (KHÔNG đổi nếu không được duyệt)
+## 0. Cách làm việc với chủ dự án (cố định)
 
-| Thành phần | Phiên bản / Công nghệ |
-|------------|------------------------|
-| PHP | `^8.3` |
-| Laravel Framework | `^13.0` |
-| Livewire | `^4.1` (full-page components qua `Route::livewire`) |
-| Auth | Laravel **Fortify** `^1.34` + 2FA (`TwoFactorAuthenticatable`) |
-| AI | `laravel/ai` `^0.4.2` (kèm `prism-php/prism`) |
-| Thanh toán | `stripe/stripe-php` `15.0` + **3** cổng `Payment*` (`Stripe`, `Paypal`, `2Checkout`) + manual (`AppPayments`) |
-| Lưu trữ | `league/flysystem-aws-s3-v3`, `aws/aws-sdk-php` |
-| PDF | `barryvdh/laravel-dompdf` |
-| Dịch | `stichoza/google-translate-php` |
-| Frontend | **Blade + Livewire 4 + Alpine.js** (KHÔNG có React/Vue SPA) |
-| CSS | **Tailwind CSS v4** (`@import "tailwindcss"` + `@theme`), token qua CSS variables |
-| Icon | **Font Awesome** dạng `fa-light fa-*` |
-| Build asset | **Vite** theo từng theme (qua helper `theme_vite()`), KHÔNG có `package.json`/`vite.config.js` ở gốc dự án |
-| Test | **Pest** `^4.4` (+ pest-plugin-laravel) |
-| Lint / format | **Laravel Pint** (preset `laravel`) |
-| Ngày giờ | **`CarbonImmutable`** (đặt làm mặc định trong `AppServiceProvider`) |
-
-> Mỗi module có thể tự khai báo dependency riêng — luôn kiểm tra `composer.json` trước khi thêm package.
-
-### 1.1 Môi trường runtime thực tế (chốt từ `.env.example` — KHÔNG cần đọc lại dự án)
-
-| Khóa | Giá trị | Ý nghĩa cho vibecode |
-|------|---------|----------------------|
-| `APP_NAME` / `APP_URL` | `MLHUB` / `https://mlhub.vn` | Brand thật là **MLHUB**, không phải "LocalBoost/Stackposts" khi hiển thị |
-| `APP_LOCALE` / `APP_FALLBACK_LOCALE` | `vi` | **Mặc định Tiếng Việt.** Mọi chuỗi mới vẫn viết key tiếng Anh trong `__()`, rồi dịch trong `lang/vi.json` |
-| `APP_TIMEZONE` | `Asia/Ho_Chi_Minh` | Dùng khi tính giờ hiển thị; vẫn lưu UTC trong DB |
-| `DB_CONNECTION` | **`mysql`** (3306) | Viết migration/raw query theo MySQL (không phải SQLite) |
-| `SESSION_DRIVER` / `QUEUE_CONNECTION` / `CACHE_STORE` | đều **`redis`** (phpredis) | Bắt buộc tách Redis: queue/default DB0, cache + lock DB1, session DB2. Nếu dùng `REDIS_URL`, URL chỉ dành cho queue/default, cấm query string/DB path mã hóa; database path phải trống hoặc đúng `/0`. `FLUSHDB` phải bị từ chối nếu các concern dùng chung DB. |
-| `FILESYSTEM_DISK` | `public` (S3 trống) | Upload dùng disk `public`; chưa bật S3 |
-| `MAIL_MAILER` | **`smtp`** (Emailit) | ✅ Đã cấu hình SMTP qua `smtp.emailit.com:587` (user `emailit`, password = API key đặt trong **Coolify env**, KHÔNG commit). Welcome + verify email đã chạy thật |
-| `THEME_FRONTEND` / `THEME_BACKEND` | `mlhubfrontend` / `mlhubbackend` | Fork `localboostai` + `default`, chỉ phối màu MLHUB |
-| `APP_DEMO` | `false` | Demo mode đã tắt cho production |
-| `APP_INSTALLED` | `true` | **Luôn true** trên Coolify — không còn Web Installer |
-| `MLHUB_ALLOW_RESET_DEMO` | `false` | `true` tạm chỉ khi cần `db:wipe`/`migrate:fresh` trên staging (production luôn `false`) |
-| `MLHUB_FIRST_USER_EMAIL` / `MLHUB_FIRST_USER_PASSWORD` | Coolify env | Super admin lần đầu — không commit mật khẩu |
-| `MLHUB_STARTING_ID` | `147123468` | AUTO_INCREMENT sau `db:seed` (`IdSequence`) |
-| `GOOGLE_BUSINESS_CLIENT_ID/SECRET` | Coolify env | OAuth addon Google Business |
-
-**Bootstrap lần đầu (DB trống):** đặt `MLHUB_FIRST_USER_*` trên Coolify → `php artisan mlhub:install` trong container app. Chi tiết: `ARCHITECTURE_PROMPT.md` §4.1, module `modules/CustomMLHUB/`. Giải thích từng biến env: `.env.example`.
-
-**Captcha:** module `AdminCaptcha` hỗ trợ **Google reCAPTCHA v2** và **Cloudflare Turnstile** (mặc định Turnstile). Cấu hình lưu trong **`OptionStore` (Admin → Captcha)**, **KHÔNG phải `.env`** (key: `captcha_type`, `auth_cloudflare_turnstile_*`, `auth_google_recaptcha_*`). Helper dùng lại: `captcha_render()`, `captcha_verify(request())`, `with_captcha_validation($rules)`. Hiện captcha đã gắn vào **trang auth** (login/register/forgot/reset); **chưa** gắn vào 5 form growth-tool công khai (xem backlog trong `ARCHITECTURE_FEATURE.md`).
-
-**Rate-limit:** 5 route POST growth-tool (`booking-pages.submit`, `coupon-campaigns.claim`, `feedback-forms.submit`, `lead-forms.submit`, `review-booster.feedback`) đã có `throttle:10,1`. Route public Loyalty/Referral (`loyalty-cards.stamp`, `referral-campaigns.link`, `referral-links.convert`) **chưa** có throttle — xem backlog `ARCHITECTURE_FEATURE.md`. Endpoint công khai mới → **bắt buộc** kèm `throttle` tương tự.
-
-**Triển khai:** Coolify + Traefik (HTTP→HTTPS, Let's Encrypt), domain `mlhub.vn`/`www.mlhub.vn`, storage gắn volume `mlhub-storage:/var/www/html/storage`. Vì chạy sau proxy nên `TRUSTED_PROXIES` đã được xử lý trong `bootstrap/app.php` — **đừng** hard-code `http://` khi tạo URL, dùng helper sinh URL của Laravel.
-
-**Git / Coolify clone:** **Không** commit `vendor/` (Dockerfile `composer install`). Repo có `.gitignore` — clone fail exit 255 ~17k files → xem `ARCHITECTURE_CHECKLIST.md` §1.2.1.
-
-**Livewire 419 / 504 (production):** Sau deploy, user phải **Ctrl+F5** nếu tab cũ báo "page expired". `SESSION_DOMAIN=.mlhub.vn` + `APP_URL=https://mlhub.vn` bắt buộc trên Coolify. Dashboard portal: **một** `wire:init` (`loadDashboardSections`), không bắn 3 request Livewire song song. `docker/entrypoint.sh` sync Livewire JS + `optimize:clear` → `optimize` mỗi deploy. Tùy chọn: `LIVEWIRE_RELEASE_TOKEN` trên Coolify khi đổi phiên bản lớn. `LOG_CHANNEL=stack`, `LOG_STACK=stderr,daily`, `LOG_LEVEL=warning` để Coolify và AdminLog đều thấy 419. Cache metrics: `PortalGrowthDashboardMetrics::forget($userId)` sau scan/conversion (qua `GrowthToolNotifier` / `recordScan` / review feedback).
-
-**Redis cache (portal dashboard):** `Cache::remember()` cho `PortalGrowthDashboardMetrics` **chỉ lưu mảng scalar** (key `portal.*.v2`), không serialize Eloquent/`Collection` model — tránh `__PHP_Incomplete_Class` sau deploy. `forget()` phải xóa đúng suffix key (vd `recent_activity.v2.{userId}.{limit}` 8→64).
-
-**Demo mode:** HTTP POST chặn bởi `PreventDemoModeWriteOperations`; Livewire ghi chặn bởi `DemoModeActionGuard` (hook trong `AppServiceProvider`). Không trùng logic chặn method trong middleware.
-
-**Queue:** Chỉ **một** worker — `RUN_QUEUE_WORKER=true` trong container **hoặc** service Coolify riêng, không cả hai. `QUEUE_WORKER_TIMEOUT` phải là số dương và nhỏ hơn `REDIS_QUEUE_RETRY_AFTER`.
-
-**Admin auth:** Super-admin chỉ đến từ `is_super_admin=true` hoặc role `super-admin`; tuyệt đối không suy quyền từ username. Luồng profile công khai phải chặn các username đặc quyền (`admin`, `administrator`, `root`, `system`) không phân biệt hoa/thường.
-
-**Brand UI:** Chuỗi hiển thị user-facing luôn **MLHUB**, không "LocalBoost" trên portal/admin.
+- Chủ dự án **không rành dev/bảo mật**. **KHÔNG bày nhiều phương án kỹ thuật để chọn.** Tự quyết hướng tốt nhất (an toàn, chuẩn production), tự thực thi, rồi đưa lại **các bước bấm/chạy đơn giản** để họ làm theo. Chỉ hỏi khi thiếu thông tin **bắt buộc** (secret, quyết định nghiệp vụ) — hỏi 1 câu rõ ràng.
+- **Commit / push / deploy do CHỦ DỰ ÁN làm thủ công.** AI chỉ sửa file local + soạn **commit message gợi ý**.
+- Phát hiện rủi ro bảo mật/UX (kể cả ngoài task) → **báo ngay** bằng lời dễ hiểu + mức độ (P0/P1/P2) + cách xử lý đề xuất.
+- Sau khi xử lý xong: **đồng bộ tài liệu liên quan** (`.cursorrules`, `.env.example`, `ARCHITECTURE_*.md`) — chỉ file thực sự bị ảnh hưởng.
 
 ---
 
-## 2. Quy ước đặt tên (trích từ code thực tế)
+## 1. Production safety (BẮT BUỘC)
 
-### 2.0 Thương hiệu MLHUB (chỉ 2 dạng — bắt buộc)
-
-| Dạng | Dùng cho | Ví dụ đúng |
-|------|----------|------------|
-| `MLHUB` | UI, class, constant, env prefix | `MLHUB Admin`, `MLHUBAdminSeeder`, `MLHUB_FIRST_USER_EMAIL`, `CustomMLHUB` |
-| `mlhub` | file path, route, artisan, domain, config key | `config/mlhub.php`, `mlhub:install`, `mlhub.vn`, `mlhubfrontend`, `custommlhub` |
-
-**Cấm:** `Mlhub`, `MLHub`, `mlHub`, `MlHub` — kể cả tên file/thư mục/class mới.
-
-### 2.1 Module
-- Thư mục module: **PascalCase** có tiền tố cố định:
-  - `Admin*` → khu quản trị/super-admin (`AdminUser`, `AdminPlans`, `AdminThemes`…).
-  - `App*` → khu portal khách hàng (`AppReviewBooster`, `AppBookingPages`, `AppQRCampaigns`…).
-  - `Payment*` → plugin cổng thanh toán (`PaymentStripe`, `PaymentPaypal`…).
-- Namespace PSR-4: `Modules\{TenModule}\...` ↔ `modules/{TenModule}/...` (đã khai báo trong `composer.json`).
-- Mỗi module có `module.json`: `{ "name", "providers": [...], "priority": <int> }`. `priority` cao = boot sau (ghi đè registry sau cùng).
-
-### 2.2 Lớp (class)
-- Service Provider: `{TenModule}ServiceProvider` trong `Providers/`.
-- Livewire: `{Tinhnang}Index`, `{Tinhnang}Analytics`… đặt trong `Livewire/`, có attribute `#[Title('...')]`.
-- Controller: `{Tinhnang}Controller` trong `Http/Controllers/`, **chỉ dùng cho** webhook, submit form công khai, download, redirect.
-- Model: danh từ số ít (`QrCampaign`, `ReviewFeedback`, `Booking`, `LeadSubmission`).
-- `Support/`: helper/catalog/registry **không trạng thái** (`BookingAvailability`, `PageTemplateCatalog`, `PlanLimitGuard`).
-- `Services/`: workflow có giao dịch/side-effect (`LandingPageFactory`, `CreditService`, `NotificationService`).
-
-### 2.3 Database
-- **MỌI bảng đều có tiền tố `lb_`**: `lb_campaigns`, `lb_review_feedbacks`, `lb_bookings`, `lb_coupon_redemptions`…
-- Khai báo bằng `protected $table = 'lb_...';` rõ ràng trong từng model.
-- Khóa ngoại: `user_id`, `business_id`, `campaign_id` (snake_case).
-
-### 2.4 Route & config
-- Tên route: dot notation. Portal: `portal.{tinh-nang}` (vd `portal.review-booster`). Endpoint công khai: `{tinh-nang}.{hanh-dong}` (vd `review-booster.feedback`, `qr-campaigns.public`).
-- Prefix lấy từ config: `config('modules.{alias}.route_prefix', 'portal/...')`.
-- Alias config & view namespace = **tên module viết thường liền** (`modules.appreviewbooster`, `view('appreviewbooster::index')`).
-
-### 2.5 Biến & thuộc tính
-- Thuộc tính Livewire public: **snake_case** khớp tên cột (`$business_id`, `$google_review_url`, `$thank_you_message`).
-- Thuộc tính điều khiển UI: **camelCase** (`$editingId`, `$businessFilter`, `$perPage`, `$statusMessage`).
-- Biến cục bộ / tham số: **camelCase**.
+- AI **KHÔNG** `git commit` / `git push` / redeploy. **KHÔNG** SSH server, **KHÔNG** sửa file/chạy lệnh tay trên container Coolify.
+- **KHÔNG** `migrate:fresh` / `migrate:rollback` / `db:wipe` trên môi trường có dữ liệu (production/staging). Ngoại lệ duy nhất: `php artisan mlhub:install` đã được chủ dự án phê duyệt rõ ràng cho DB trống.
+- Mọi thay đổi hạ tầng **thể hiện bằng code/config local** (`docker-compose.yaml`, `Dockerfile`, `docker/entrypoint.sh`, `.env.example`, migration) → commit → push → Coolify auto-build. Lệnh deploy (`migrate --force`, `optimize`) nằm trong `docker/entrypoint.sh`, không gõ tay.
+- **Luồng deploy:** Cursor (local) → GitHub (source of truth) → webhook → Coolify (docker-compose + .env + Traefik HTTP→HTTPS) tại `mlhub.vn`.
+- **KHÔNG** commit `.env`, secret, file `storage/`, `vendor/`, `node_modules/`. Đổi env production: sửa trên **Coolify → Environment Variables** + phản ánh key (placeholder) vào `.env.example`.
+- Cần duyệt trước khi sửa: `bootstrap/app.php`, `bootstrap/providers.php`, `composer.json`, `Dockerfile`, `docker/entrypoint.sh`, `docker-compose.yaml`, `config/*.php`.
 
 ---
 
-## 3. "VIBECODE" — Bắt buộc bắt chước phong cách lập trình viên gốc
+## 2. Scope discipline
 
-> Khi viết mới HOẶC sửa code, bạn PHẢI sao chép phong cách của file/module xung quanh. Đây là quy tắc cứng. Vi phạm = sai.
-
-### 3.1 Định dạng & cú pháp
-- Thụt lề **4 dấu cách**. Dấu `{` cùng dòng với khai báo hàm (chuẩn PSR-12 / Pint Laravel).
-- **KHÔNG** thêm `declare(strict_types=1);` — phần lớn module gốc **không** dùng. Chỉ giữ nếu file đó đã có sẵn.
-- Luôn khai báo **kiểu trả về** (`: void`, `: string`, `: View`, `: array`, `: BelongsTo`…) và **kiểu thuộc tính** (typed properties).
-- Dùng **constructor property promotion** khi inject dependency.
-- Dùng `match (...)` thay cho chuỗi `if/elseif` khi ánh xạ giá trị.
-- Dùng **toán tử spread** để gộp mảng khi tạo bản ghi: `Model::query()->create([... $payload, 'user_id' => auth()->id()])`.
-- Import: theo Pint (preset `laravel`). Một số file gốc nhóm `use App\...` sau `use Illuminate\...` — khi sửa file, **giữ nguyên thứ tự import sẵn có của file đó**, đừng sắp lại toàn bộ.
-
-### 3.2 Bình luận (comment)
-- Lập trình viên gốc viết comment **rất ít**, chỉ giải thích *lý do/ngữ cảnh* khó hiểu (vd ghi chú về dữ liệu legacy trong `TeamWorkspaceAccess`, ghi chú proxy trong `bootstrap/app.php`).
-- **TUYỆT ĐỐI KHÔNG** thêm comment kể lể từng dòng làm gì (`// tạo bản ghi`, `// kiểm tra null`). Code phải tự diễn đạt.
-- Dùng PHPDoc dạng `/** @return array<int, string> */` cho mảng có cấu trúc, đúng như code gốc.
-
-### 3.3 Eloquent & truy vấn
-- Luôn bắt đầu bằng `Model::query()->...` (không gọi static `Model::where(...)` trực tiếp).
-- Model dùng `protected $guarded = [];` (mở mass-assignment). Casts ưu tiên dạng **method** `protected function casts(): array` (mẫu mới); một vài model cũ dùng property `protected $casts = []` — giữ nguyên kiểu của file đang sửa.
-- Truy cập JSON settings bằng `data_get($model->settings, 'key', $default)`, không truy cập mảng trực tiếp.
-- Điều kiện động dùng `->when($cond, fn ($query) => ...)`.
-
-### 3.4 Đa người dùng (tenant scoping) — KHÔNG được quên
-- **Mọi** truy vấn dữ liệu người dùng phải scope theo chủ sở hữu: `->where('user_id', auth()->id())`.
-- Các module AI/workspace scope theo `workspaceOwnerUserId()` (xem `TeamWorkspaceAccess`).
-- Tải bản ghi để sửa/xóa: `Model::query()->where('user_id', auth()->id())->findOrFail($id)` — không bao giờ `findOrFail` trần.
-
-### 3.5 Xử lý lỗi (theo đúng mẫu gốc)
-- **Form công khai (controller):** `abort_unless($campaign->type === 'x', 404)` để chặn sai loại; `$request->validate([...])`; trả `back()->with('key', ...)` hoặc `back()->withErrors([...])->withInput()`.
-- **Giới hạn gói (plan):** ném `Illuminate\Validation\ValidationException::withMessages(['plan' => __('...')])` (xem `PlanLimitGuard`). Gọi `app(PlanLimitGuard::class)->ensureXxxCanBeCreated(auth()->user())` **trước khi** tạo bản ghi.
-- **AI / dịch vụ ngoài:** bọc `try { ... } catch (Throwable $e) { ... }` và **luôn có fallback** (xem `AIContentIndex::generate` — sinh nội dung dự phòng khi AI lỗi, không để vỡ UI).
-- **Phản hồi UI Livewire:** đặt `$this->statusMessage = __('...')` và/hoặc `$this->dispatch('app-toast', type: 'success', message: ...)`.
-- Văn bản hiển thị **luôn** bọc `__()`.
-
-### 3.6 Cấu trúc một Livewire component (mẫu chuẩn)
-```php
-#[Title('...')]
-class FeatureIndex extends Component
-{
-    use WithPagination;            // khi có danh sách phân trang
-
-    public string $field = '';     // public props (snake_case khớp cột)
-    public ?int $editingId = null; // camelCase cho state UI
-    public ?string $statusMessage = null;
-
-    public function mount(): void { /* khởi tạo */ }
-    public function updatedSearch(): void { $this->resetPage(); }
-
-    public function save(): void
-    {
-        $payload = $this->validate([ /* rules inline */ ]);
-        // scope theo auth()->id(), guard plan, tạo/cập nhật
-        $this->dispatch('app-toast', type: 'success', message: __('Saved.'));
-    }
-
-    public function render(): View
-    {
-        return view('alias::index', [ /* data */ ])
-            ->layout(theme_view('layouts.app', 'app'), ['title' => __('...')]);
-    }
-}
-```
-
-### 3.7 Chỉnh nội dung hiển thị (copy / marketing / PDF brief) — BẮT BUỘC đồng bộ i18n + dọn code
-
-> Áp dụng **mỗi khi** đổi chữ trên Blade/Livewire/theme guest (`mlhubfrontend`), menu, trang marketing (`home`, `about`, `solutions`, `pricing`…), hoặc theo file brief PDF của chủ dự án. **Không** coi việc sửa Blade là xong nếu chưa xử lý `lang/en.json` + `lang/vi.json`.
-
-**Quy trình cố định (cùng một task, không tách lệnh):**
-
-1. **Key tiếng Anh trong code:** Mọi chuỗi user-facing bọc `__('English sentence as key')` — key = câu tiếng Anh chuẩn, tự nhiên (không hard-code tiếng Việt trong Blade).
-2. **`lang/en.json`:** Thêm/cập nhật entry — **key** và **value** tiếng Anh trùng nhau (trừ khi EN cần khác key vì lịch sử; ưu tiên key mới đúng nghĩa).
-3. **`lang/vi.json`:** Thêm/cập nhật bản dịch tiếng Việt — lấy đúng wording từ brief/PDF của chủ dự án; nếu chỉ có VI thì AI **tự viết lại câu EN** tương đương rồi mới gắn key.
-4. **Xóa / đổi copy:** Gỡ `__()` trong Blade → **xóa key tương ứng** khỏi **cả** `en.json` và `vi.json` (tránh key mồ côi). Đổi nội dung → cập nhật value cả hai file (hoặc key mới + xóa key cũ nếu đổi câu hoàn toàn).
-5. **Rà soát sạch code (bắt buộc trước bàn giao):**
-   - `rg "__\('"` / grep key mới trong file vừa sửa — mọi key đều có mặt trong `en.json` **và** `vi.json`.
-   - Không để chuỗi tiếng Việt/Anh thô trong Blade (ngoại lệ: **MLHUB**, tên riêng, mã route, class CSS).
-   - Menu/anchor đổi nhãn → đồng bộ `marketing-nav*.blade.php`, section `id`, và key i18n liên quan.
-   - Validate JSON: parse được (`node -e "JSON.parse(...)"` hoặc tương đương).
-   - Không commit script tạm `storage/*.mjs` dùng một lần — gộp thẳng vào JSON hoặc xóa script sau khi merge.
-6. **Báo cáo ngắn cho chủ dự án:** liệt kê file Blade + `lang/en.json` + `lang/vi.json` đã đụng; nêu key đã xóa (nếu có).
-
-**Thứ tự ưu tiên nguồn chữ:** brief/PDF chủ dự án (VI) → EN chuyên nghiệp tương đương → code `__()` → hai file JSON.
+- **Một task một mục tiêu.** Không gộp nhiều việc không liên quan.
+- **Khoanh vùng file/module** (`@modules/...`). **Không quét toàn repo** nếu không cần — ưu tiên đọc `ARCHITECTURE_*.md` đã có.
+- **Sửa tối thiểu, đúng trọng tâm (surgical).** Không refactor diện rộng nếu không được yêu cầu.
+- **Ưu tiên sửa file hiện có** để dễ `git diff` với upstream. **KHÔNG tạo file/class/module mới** nếu gộp được vào file hiện hữu.
+- Nếu **buộc** tạo file logic mới → đặt trong `modules/Custom...` đúng khu vực + **báo cáo lý do**. Lỡ tạo file thừa thì gộp lại + xóa trước khi bàn giao.
+- Tính năng **mới** → ưu tiên điểm mở rộng: registry helper → `modules/Custom*` → rebind container → `routes/custom.php` → `bootstrap/providers.marketplace.php`. **Không** sửa core nếu không cần.
 
 ---
 
-## 4. Kiến trúc — các mẫu đang dùng
+## 3. Laravel / Backend rules
 
-- **Modular monolith**: tự động nạp module qua `bootstrap/providers.php` (quét `modules/*`, đọc `module.json`, sắp theo `priority`, gộp `bootstrap/providers.marketplace.php`). **KHÔNG** sửa `bootstrap/providers.php`.
-- **KHÔNG có Repository pattern.** Tầng dữ liệu = Eloquent trực tiếp; điều phối = `Support/` (helper/registry) + `Services/` (workflow). Đừng thêm Repository.
-- **Registry pattern** là điểm mở rộng chính (singleton đăng ký trong `AppServiceProvider`, module gọi helper trong `boot()`):
-  - Sidebar/menu: `register_sidebar_item`, `register_user_sidebar_item`, `register_user_sidebar_section`.
-  - Dashboard widget: `register_admin_dashboard_item`, `register_user_dashboard_item`.
-  - Gói & giới hạn: `register_plan_permission`, `\Pricing::add([...])` (trong `$this->app->booted()`).
-  - Credit AI: `register_credit_action`, `consume_credits()`, `credit_service()`.
-  - Cron: `afterResolving(SystemCronRegistry::class, ...)`.
-  - Thanh toán: `PaymentGatewayDefinition` + `PaymentGatewaySettingsRegistry::register(...)`.
-- **Livewire-first**: trang = Livewire component; Controller chỉ cho public form/webhook/download.
-- **Engine dùng chung `lb_campaigns`**: 5 growth tool (Review Booster, Booking, Coupons, Feedback, Lead) đều lưu vào model `QrCampaign` với cột `type` ('review'|'booking'|'coupon'|'feedback'|'lead'|'url') + JSON `settings`. Public route đi qua `QrCampaignPublicController::show` rồi rẽ nhánh theo `type`. **Khi thêm growth tool mới, theo đúng mẫu này.**
-- **Module portal mở rộng (upstream mới, không dùng `lb_campaigns`)**: `AppAdvancedCustomerCrm` (`portal/crm`), `AppEmailAutomation` (`portal/email-automation`), `AppLoyaltyStampCards` (`portal/loyalty-cards` + public `/loyalty/*`, `/referral/*`, `/r/*`), `AppLocalAnalytics` (`portal/reports`). `AppLoyaltyStampCards` còn đăng ký thêm trong `bootstrap/providers.marketplace.php`.
+- **Laravel 13 + Livewire 4 + Fortify (2FA).** PHP `^8.3`. **KHÔNG** đổi stack nếu chưa duyệt.
+- **Eloquent trực tiếp — KHÔNG thêm Repository layer.** Điều phối: `Support/` (helper không trạng thái) + `Services/` (workflow). Bắt đầu query bằng `Model::query()->...`; đọc JSON bằng `data_get()`.
+- **Tenant scope BẮT BUỘC:** mọi truy vấn dữ liệu người dùng `->where('user_id', auth()->id())` (hoặc `workspaceOwnerUserId()` cho workspace/AI). Tải để sửa/xóa: `Model::query()->where('user_id', auth()->id())->findOrFail($id)` — **không** `findOrFail` trần. Lưu ý cột chủ sở hữu khác nhau (`user_id`, `team_id`, `owner_user_id`).
+- **Plan/credit guard BẮT BUỘC khi đụng tính năng trả phí:** `app(PlanLimitGuard::class)->ensureXxxCanBeCreated(...)` trước khi tạo bản ghi; tính năng AI: `credit_service()->ensureCanConsume()` → `try/catch (Throwable)` + fallback → `consume_credits()` khi thành công. Feature gate qua `canUsePlanFeature()` / `planLimit()`.
+- **Public route phải có `throttle` (và cân nhắc captcha) nếu là form POST.** Endpoint công khai mới → bắt buộc kèm `throttle:10,1` như growth tool.
+- **KHÔNG hard-code secret** trong code/log. Secret tích hợp lưu Coolify env → seed vào `OptionStore` qua `mlhub:sync-env-options`.
+- **Xử lý lỗi đúng mẫu:** `abort_unless(...,404)` cho public sai loại; `ValidationException::withMessages(['plan'=>...])` cho limit; `try/catch (Throwable)` + fallback cho AI/dịch vụ ngoài; phản hồi UI qua `$this->dispatch('app-toast', ...)`.
+- **Bảng DB:** tiền tố `lb_` **chỉ** cho engine growth/business/CRM (`lb_campaigns`, `lb_businesses`, `lb_customers`, `lb_loyalty_*`, …). **Nhiều bảng KHÔNG dùng `lb_`** (`users`, `plans`, `teams`, `credit_*`, `files`, `payment_*`, `ai_*`, `affiliate_*`, `custom_domains`). Luôn kiểm tra `protected $table` thật. Viết migration theo **MySQL**.
+- **Redis:** session/cache/queue đều Redis — queue/default DB0, cache+lock DB1, session DB2 (entrypoint chặn nếu trùng DB). Đúng **một** queue worker. `QUEUE_WORKER_TIMEOUT` < `REDIS_QUEUE_RETRY_AFTER`.
+- **Admin auth:** super-admin chỉ từ `is_super_admin=true` hoặc role `super-admin` — **không** suy quyền từ username. Username đặc quyền (`admin`, `administrator`, `root`, `system`) bị chặn ở profile công khai.
 
 ---
 
-## 5. Điểm mở rộng an toàn (cho TÍNH NĂNG MỚI)
+## 4. Frontend rules
 
-Ưu tiên theo thứ tự:
-1. **Helper registry** (không tạo class mới): các `register_*` ở §4.
-2. **Module mới** `modules/Custom{Feature}/` — tự động được nạp. Copy layout của `modules/AppReviewBooster/`. Đặt `priority > 20`.
-3. **Rebind container** trong `app/Custom/Providers/CustomServiceProvider::register()`: `$this->app->bind(\Modules\X\Service::class, \App\Custom\...::class)`.
-4. **Route tùy biến** trong `routes/custom.php` (nạp từ provider của bạn), KHÔNG sửa `Routes/web.php` của module core.
-5. **View composer** hoặc clone Blade vào module custom.
-
-Đăng ký provider tùy biến bằng cách **thêm** class name vào `bootstrap/providers.marketplace.php` (file này đã được `bootstrap/providers.php` require sẵn). KHÔNG sửa `bootstrap/providers.php`.
-
----
-
-## 6. Frontend (tóm tắt — chi tiết ở `ARCHITECTURE_FRONTEND.md`)
-
-- Blade + Livewire 4 + Alpine (`x-data` inline). KHÔNG thêm framework SPA.
-- Component dùng lại: `<x-ui.*>` (theo theme), `<x-shared.*>` (xuyên theme). KHÔNG dựng lại cái đã có.
-- Màu sắc dùng token CSS: `var(--theme-accent-rgb)`, `var(--theme-header-text-color)`… KHÔNG hard-code màu.
-- Asset nạp qua `theme_vite('app', ['assets/js/app.js', ...])`.
-- White-label / branding nhỏ: Admin → Themes → **Custom CSS / Custom JS** (không cần build lại).
+- **Blade + Livewire 4 + Alpine + Tailwind v4.** **KHÔNG thêm React/Vue/SPA.**
+- **Dùng lại** `<x-ui.*>`, `<x-layout.*>`, `<x-theme.*>`, `<x-ai.*>`, `<x-shared.*>` — không dựng lại cái đã có. Màu dùng token `var(--theme-*)`, **không** hard-code màu.
+- Theme active: guest `mlhubfrontend`, backend `mlhubbackend` (fork `localboostai`/`default` — **không** sửa bản gốc). Asset qua `theme_vite()`.
+- **Text user-facing BẮT BUỘC bọc `__()`** (key = câu tiếng Anh tự nhiên). Không hard-code tiếng Việt/Anh thô trong Blade (trừ MLHUB, tên riêng, route, class CSS).
+- **Đồng bộ i18n trong cùng task:** thêm/sửa/xóa key trong **cả** `lang/en.json` (key+value EN) **và** `lang/vi.json` (bản dịch VI). Xóa copy trong Blade → xóa key ở cả hai file (tránh key mồ côi). Validate JSON parse được.
+- Số/ngày/tiền: dùng `format_number_locale` / `format_money` / `format_date_locale` — **không** `number_format` trần trong Blade.
+- White-label nhỏ: **Admin → Themes → Custom CSS/JS** thay vì sửa file.
 
 ---
 
-## 7. Việc CẦN người dùng duyệt trước khi làm
+## 5. MLHUB branding (chỉ 2 dạng — không trộn)
 
-- Sửa `composer.json`, `package.json`, `Dockerfile`, `docker/entrypoint.sh`.
-- Sửa `bootstrap/app.php`, `bootstrap/providers.php`.
-- Chạy `migrate:fresh`, `migrate:rollback`, `db:wipe` (mất dữ liệu).
-- `git push --force` hoặc viết lại lịch sử git.
-- Commit `.env`, khóa API, hay file trong `storage/`.
-- Refactor diện rộng / đổi kiến trúc.
+- **`MLHUB`** (hoa toàn bộ): user-facing, class/constant/env prefix (`MLHUBAdminSeeder`, `MLHUB_FIRST_USER_EMAIL`, module `CustomMLHUB`).
+- **`mlhub`** (thường toàn bộ): file path, route, artisan, domain, config key (`config/mlhub.php`, `mlhub:install`, `mlhub.vn`, `mlhubfrontend`).
+- **CẤM tuyệt đối** `Mlhub` / `MLHub` / `mlHub` / `MlHub` — kể cả tên class/method/file mới.
+- User-facing luôn **MLHUB**, **không** dùng "LocalBoost" trên UI production. **Không thêm text LocalBoost mới** vào Blade/theme/i18n.
 
 ---
 
-## 8. Checklist trước mỗi thay đổi
+## 6. Workflow (dùng chay Cursor — không bắt buộc plugin)
 
-> Quy trình đầy đủ (theo từng Task, quy tắc an toàn, lệnh) nằm ở **`ARCHITECTURE_CHECKLIST.md`** — đọc lướt trước khi bắt đầu.
+- **Task lớn / tính năng mới / đụng schema-payment-infra:** **Plan trước → chờ chủ dự án gõ "Duyệt" → Code → Verify → Review.** Trình bày kế hoạch (file/route/model/migration/permission/env mới) trước khi viết code.
+- **Bug (419/504/500/logic):** lấy **evidence/log** (Admin → Logs hoặc `laravel.log`) → tìm **root cause** (không đoán mò) → **surgical fix** → verify.
+- **Việc nhỏ (1 Blade, 1 key i18n, 1 format):** làm surgical ngay với `@file`, không cần plan dài.
+- **Việc rủi ro → BẮT BUỘC plan trước:** migration/schema, payment/subscription/credit, xóa dữ liệu hàng loạt, refactor lớn/đụng core. (Chi tiết: `ARCHITECTURE_CHECKLIST.md` §3.)
+- **Sau khi sửa, báo cáo:** (1) file changed, (2) migration/route/permission/**env** mới (kèm cập nhật `.env.example`), (3) deploy impact, (4) verification đã chạy (pint/test) + chưa chạy được & lý do, (5) rủi ro còn lại, (6) **commit message gợi ý**. **Không** nói đã test nếu chưa chạy test; **không** nói đã deploy nếu chưa deploy.
+- **Verify trước khi báo xong:** `vendor/bin/pint --dirty` trên file đã sửa; `php artisan test` (hoặc filter) nếu đụng logic; `php artisan view:clear` nếu đổi Blade. Chạy ở **local**, không production.
+- *(Tùy chọn)* Nếu bật plugin Superpowers, có thể map: brainstorming → writing-plans → executing-plans → verification-before-completion → code-reviewer. **Không bắt buộc** — workflow dùng chay ở trên là chính.
 
-1. Đây là **sửa lỗi** (được sửa core, surgical) hay **tính năng mới** (ưu tiên extension point §5)?
+---
+
+## 7. Checklist nhanh trước mỗi thay đổi
+
+1. Bug fix (surgical, được sửa core) hay tính năng mới (ưu tiên extension point)?
 2. Đã scope theo `auth()->id()` / workspace owner chưa?
-3. Đã guard plan limit + credit (nếu là tính năng dùng tài nguyên/AI) chưa?
-4. Mọi chuỗi đã bọc `__()` chưa? Đã **cập nhật đủ `lang/en.json` + `lang/vi.json`** và xóa key mồ côi chưa? (xem §3.7)
-5. Phong cách (thụt lề, comment, kiểu, xử lý lỗi) có **khớp file xung quanh** không?
-6. Chạy `vendor/bin/pint` trên file đã sửa. Có migration/route/permission/env mới thì liệt kê ra cho người dùng.
-7. Số/ngày/tiền hiển thị dùng `format_number_locale` / `format_money` / `format_date_locale` — không `number_format` trần trong Blade. Rà soát: **`ARCHITECTURE_CHECKLIST.md` §5.1**.
+3. Đã guard plan limit + credit (nếu dùng tài nguyên/AI) chưa?
+4. Public form mới đã có `throttle`/captcha chưa?
+5. Chuỗi đã bọc `__()` + đồng bộ `lang/en.json` + `lang/vi.json` + xóa key mồ côi chưa?
+6. Phong cách khớp file xung quanh (4 space, không `declare(strict_types=1)` nếu file gốc không có, typed return, `match()`, comment tối thiểu)?
+7. Casing thương hiệu đúng (`MLHUB`/`mlhub`)? Không thêm LocalBoost user-facing?
+8. `vendor/bin/pint` file đã sửa; liệt kê migration/route/permission/env mới.
+9. Cập nhật `ARCHITECTURE_MODULE.md` (+ `ARCHITECTURE_*.md` liên quan) nếu thêm/đổi module/route/bảng/permission/env.

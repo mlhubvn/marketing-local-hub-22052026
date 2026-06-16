@@ -2,11 +2,13 @@
 
 Tài liệu mô tả cách backend Laravel 13 được tổ chức, các add-on/module tích hợp vào core ra sao, logic SaaS/đa người dùng, và luồng API/middleware. Nội dung dựa trên **mã nguồn thực tế** của dự án.
 
+> **Phạm vi:** file này nói **kiến trúc cấp hệ thống**. Chi tiết từng module (route/bảng/model/plan/public endpoint) → `ARCHITECTURE_MODULE.md`. Độ sẵn sàng & backlog → `ARCHITECTURE_FEATURE.md`. Tránh lặp catalog module ở đây.
+
 ---
 
 ## 1. Tổng quan kiến trúc
 
-LocalBoost AI là một **Modular Monolith** (khối nguyên một process nhưng chia module):
+MLHUB là một **Modular Monolith** (khối nguyên một process nhưng chia module):
 
 - `app/` — **lớp vỏ (shell) mỏng**: auth, trang marketing khách, bootstrap MLHUB (`config/mlhub.php`, `mlhub:install`), các registry toàn cục, middleware.
 - `modules/` — **72 module** (31 `Admin*`, 37 `App*`, 3 `Payment*`, 1 `Custom*`) chứa hầu hết Model, Livewire, Route, Service.
@@ -72,7 +74,7 @@ Providers/AppReviewBoosterServiceProvider.php
 Routes/web.php
 Http/Controllers/                   # chỉ cho public form / webhook / download
 Livewire/                           # các trang full-page
-Models/                             # Eloquent (bảng có tiền tố lb_)
+Models/                             # Eloquent (lb_ cho growth/business; kiểm tra $table thật)
 Support/                            # catalog, helper không trạng thái
 Services/                           # workflow (một số module)
 Resources/views/                    # loadViewsFrom(..., 'appreviewbooster')
@@ -89,10 +91,10 @@ Mỗi lần boot, file này thực hiện:
 
 1. Quét toàn bộ thư mục `modules/*` (`glob` + `sort`).
 2. Với mỗi module, đọc `module.json` → lấy `providers[]`, `files[]` (tùy chọn), `priority` (mặc định `0`).
-3. Nếu `providers` rỗng → fallback theo quy ước `Modules\{Name}\Providers\{Name}ServiceProvider`.
+3. Nếu không có `module.json` **hoặc** `providers` rỗng → fallback theo quy ước `Modules\{Name}\Providers\{Name}ServiceProvider`. **4 module không có `module.json`** dùng cách này: `AdminAffiliate`, `AdminMenuBuilder`, `AdminSettings`, `AppAffiliate` (thêm `AdminCache`, `AdminLanguages`, `AdminLog`, `AdminSystemInformation` có `module.json` nhưng không khai `providers[]`).
 4. `require_once` `Support/helpers.php` của module nếu tồn tại (auto-load helper).
 5. Sắp xếp theo `priority` tăng dần, rồi theo tên.
-6. Gộp thêm danh sách provider từ `bootstrap/providers.marketplace.php` (hiện: `AppLoyaltyStampCards`).
+6. Gộp thêm danh sách provider từ `bootstrap/providers.marketplace.php` (hiện: `CustomMLHUB`, `AppLoyaltyStampCards`).
 
 ```php
 return array_values(array_unique(array_merge(
@@ -260,14 +262,14 @@ Thứ tự rất quan trọng:
 
 | Đường dẫn                                        | Vai trò                                                                                                                                   |
 | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `database/migrations/2026_*_create_database.php` | Schema nền (baseline) — **bảng dùng tiền tố `lb_`**.                                                                                      |
+| `database/migrations/2026_*_create_database.php` | Schema nền (baseline). Engine growth/business dùng tiền tố `lb_`; bảng hệ thống (`users`, `plans`, `options`…) **không** dùng `lb_`.       |
 | `modules/*/Database/Migrations/`                 | Migration tăng dần riêng từng module.                                                                                                     |
 | `database/seeders/`                              | `DatabaseSeeder`, `PlanSeeder`, `MLHUBBootstrapSeeder`, `MLHUBMarketplaceSeeder`, `AITemplateCategorySeeder`, `AITemplateSeeder` (data ở `database/seeders/data/`). Admin + extras: `modules/CustomMLHUB/Database/Seeders/`. |
 
 
 - **Settings hệ thống:** `Modules\AdminSettings\Support\OptionStore` (key/value lưu DB). Hiện một số secret tích hợp được sync từ Coolify vào options dạng plaintext; đây là backlog bảo mật cần migration mã hóa riêng, không mở rộng thêm secret plaintext mới.
 - **Engine campaign dùng chung:** bảng `lb_campaigns` (model `QrCampaign`) phục vụ tất cả growth tool qua cột `type` + JSON `settings`. Các bảng vệ tinh: `lb_review_feedbacks`, `lb_bookings`, `lb_coupon_redemptions`, `lb_feedback_responses`, `lb_lead_submissions`, `lb_qr_scans`…
-- **Engine DB thực tế (từ `.env.example`):** `DB_CONNECTION=mysql` (cổng 3306). Viết migration/raw query theo cú pháp **MySQL**. Bảng nghiệp vụ dùng tiền tố `lb_*`. **Session/cache/queue chạy trên Redis** (không cần bảng `sessions`/`cache`/`cache_locks`/`jobs` trong MySQL); riêng `failed_jobs` và `job_batches` vẫn nằm ở MySQL theo mặc định của Laravel.
+- **Engine DB thực tế (từ `.env.example`):** `DB_CONNECTION=mysql` (cổng 3306). Viết migration/raw query theo cú pháp **MySQL**. **Tiền tố `lb_` KHÔNG phổ quát** — chỉ engine growth/business/CRM (`lb_campaigns`, `lb_businesses`, `lb_customers`, `lb_loyalty_*`, `lb_crm_*`, `lb_email_*`, `lb_google_*`…). Nhiều bảng **không** dùng `lb_`: `users`, `plans`, `teams`, `options`, `coupons`, `payment_*`, `credit_*`, `files`, `affiliate_*`, `ai_*`, `custom_domains`. **Luôn kiểm tra `protected $table` thật** (bản đồ đầy đủ: `ARCHITECTURE_MODULE.md` §13). **Session/cache/queue chạy trên Redis** (không cần bảng `sessions`/`cache`/`cache_locks`/`jobs` trong MySQL); riêng `failed_jobs` và `job_batches` vẫn nằm ở MySQL theo mặc định của Laravel.
 
 ### 6.1 Môi trường runtime & triển khai (chốt từ `.env.example` + `docker-compose.yaml`)
 
@@ -297,12 +299,13 @@ Thứ tự rất quan trọng:
 
 ## 8. AI & Credits
 
-- Dùng `laravel/ai` + `prism-php/prism` từ các module `AdminAI`, `AppAI*`.
+- Dùng `laravel/ai` + `prism-php/prism` từ các module `AdminAI`, `AppAI*`. **Provider/API key AI lưu trong Admin Settings (OptionStore), KHÔNG trong `.env`.**
 - Mọi tính năng AI **bắt buộc**:
   1. Kiểm tra cờ tính năng/feature gate.
   2. `credit_service()->ensureCanConsume($planOwner, 'action_key')` trước khi gọi LLM.
   3. Bọc `try/catch (Throwable)` và **có fallback** (xem `AppAIContent\Livewire\AIContentIndex`).
   4. `consume_credits($planOwner, 'action_key', [...])` sau khi thành công.
+- **Credit action chỉ đăng ký trong `AppAIStudio`** (5 key: caption/repurpose/plan-calendar/review-reply cost 1, image cost 3). **4 module AI dormant** (`AppAIVideo`, `AppAIReview`, `AppAIBestTime`, `AppAISemanticSearch`) không nạp route + credit action chưa register — xem `ARCHITECTURE_MODULE.md` §8.
 
 ---
 

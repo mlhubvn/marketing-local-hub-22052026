@@ -135,8 +135,10 @@ Các quy ước thực tế trong code:
 
 ## 5. Frontend khách / marketing (khu guest)
 
-- Theme: `resources/themes/guest/localboostai/`.
+- Theme **đang active**: `resources/themes/guest/mlhubfrontend/` (fork `localboostai` — **không** sửa bản gốc).
 - Trang: `resources/views/pages/*.blade.php` **bên trong theme guest đang active** (pricing, blogs, contact, faqs, home).
+
+> **⚠️ Backlog P2 (branding):** còn sót chuỗi user-facing **"LocalBoost"/"LocalBoost AI"** trong theme guest active (`mlhubfrontend/.../partials/about-sections.blade.php`, `partials/head.blade.php`) và `modules/AppMarketingTemplates/Resources/views/index.blade.php`. UI production phải hiển thị **MLHUB**. Sửa ở task code riêng (đổi chuỗi + đồng bộ `lang/en.json`/`lang/vi.json`), **không** trong task tài liệu này. Cũng còn `isMlhubAiFeature()` (casing sai `Mlhub`) trong `modules/AdminPlans/Support/PlanFeatureOrder.php` — xem `ARCHITECTURE_FEATURE.md` §14.
 - Layout: `layouts/app.blade.php` với `theme_vite('guest', [...])`.
 - View auth của Fortify được bind trong `App\Providers\FortifyServiceProvider` tới các Livewire component, vốn dùng layout của theme guest.
 

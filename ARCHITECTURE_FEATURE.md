@@ -1,6 +1,8 @@
 # MLHUB AI — Bản đồ Tính năng & Độ sẵn sàng Production
 
-Tài liệu đánh giá **hệ thống lõi**, **5 growth tool** (engine `lb_campaigns`), **AI Campaign**, và **4 module portal mở rộng** sau cập nhật upstream (CRM, Email automation, Loyalty/Referral, Báo cáo). Dùng làm **lộ trình chuẩn bị phát hành**. Mỗi mục gồm: Tổng quan → Luồng kỹ thuật → Ma trận độ sẵn sàng → Việc cần làm.
+Tài liệu đánh giá **hệ thống lõi**, **5 growth tool** (engine `lb_campaigns`), **AI Campaign**, và **module portal mở rộng** sau cập nhật upstream (CRM, Email automation, Loyalty/Referral, Báo cáo). Dùng làm **lộ trình chuẩn bị phát hành**. Mỗi mục gồm: Tổng quan → Luồng kỹ thuật → Ma trận độ sẵn sàng → Việc cần làm.
+
+> **Phạm vi:** file này nói **độ sẵn sàng & backlog**. Danh sách module/route/bảng/permission đầy đủ → `ARCHITECTURE_MODULE.md`. Kiến trúc hệ thống → `ARCHITECTURE_BACKEND.md`.
 
 > **Quy ước trạng thái:**
 >
@@ -300,6 +302,8 @@ User đăng ký mới được tự động gán plan có `default_signup_plan=t
 - Test giới hạn rate khi gọi LLM hàng loạt (makeShorter/Longer gọi `generate` lại).
 - Lưu ý: AI Campaign phụ thuộc `AppAIStudio` — đảm bảo module này được cài/bật.
 
+> **4 module AI dormant 🔴:** `AppAIVideo`, `AppAIReview`, `AppAIBestTime`, `AppAISemanticSearch` còn trên đĩa nhưng **không nạp route** (boot không `loadRoutesFrom`) và credit action (`ai_studio_generate_video`/`review_content`/`best_time`/`semantic_search`) **chưa `register_credit_action`**. Quyết định: **gỡ hẳn** (giảm bề mặt rủi ro) hoặc hoàn thiện trong task code riêng. Backlog P2.
+
 ---
 
 ## 8. QR Code (`AppQRCampaigns`)
@@ -507,9 +511,19 @@ Phần này liệt kê các việc bảo mật còn lại bằng ngôn ngữ d�
 - **Vấn đề:** Mọi lượt truy cập (kể cả bot) đều được tính là 1 scan → số liệu phân tích bị thổi phồng.
 - **Phải làm:** lọc user-agent bot trong `recordScan`, hoặc đẩy việc ghi scan qua queue để không làm chậm redirect.
 
-### 14.7 Rate-limit Loyalty/Referral public 🟠
+### 14.7 Rate-limit Loyalty/Referral + Landing public 🟠
 
-- **Vấn đề:** POST `/loyalty/.../stamp`, `/referral/.../link`, `/r/.../convert` chưa có `throttle` (khác 5 growth tool).
-- **Phải làm:** thêm `throttle:10,1` (và captcha nếu cần) giống `AppBookingPages/Routes/web.php`.
+- **Vấn đề:** các POST công khai sau **chưa có `throttle`** (khác 5 growth tool đã có `throttle:10,1`):
+  - `loyalty-cards.stamp` (`/loyalty/{slug}/stamp`)
+  - `referral-campaigns.link` (`/referral/{slug}/link`)
+  - `referral-links.convert` (`/r/{code}/convert`)
+  - `landing-pages.submit` (`POST /lp/{slug}`) — **mới phát hiện**, form landing page công khai cũng nhận submit không giới hạn.
+- **Phải làm:** thêm `throttle:10,1` (và captcha nếu cần) giống `AppBookingPages/Routes/web.php`. Danh sách public endpoint + trạng thái throttle: `ARCHITECTURE_MODULE.md` §12.
 
-> Thứ tự gợi ý: **14.1 (captcha growth) → 14.7 (loyalty throttle) → 14.4 (IDOR) → 14.2/14.3 → 14.5/14.6**. Mỗi mục một task — prompt mẫu trong `ARCHITECTURE_PROMPT.md`.
+### 14.8 Branding & casing còn sót (P2 — UI production) 🟠
+
+- **LocalBoost user-facing:** còn chuỗi "LocalBoost"/"LocalBoost AI" trong theme guest active `mlhubfrontend` (`partials/about-sections.blade.php`, `partials/head.blade.php`) và `modules/AppMarketingTemplates/Resources/views/index.blade.php`. UI production phải là **MLHUB**.
+- **Casing sai `Mlhub`:** `modules/AdminPlans/Support/PlanFeatureOrder.php` có `isMlhubAiFeature()` — vi phạm quy tắc thương hiệu (chỉ `MLHUB`/`mlhub`).
+- **Phải làm (task code riêng, không phải task docs):** đổi chuỗi user-facing sang MLHUB + đồng bộ `lang/en.json`/`lang/vi.json`; đổi tên method `isMlhubAiFeature()` → `isMLHUBAiFeature()` (đúng casing thương hiệu) cùng mọi nơi gọi. Vì đụng code nghiệp vụ → cần plan + duyệt.
+
+> Thứ tự gợi ý: **14.1 (captcha growth) → 14.7 (loyalty/landing throttle) → 14.4 (IDOR) → 14.2/14.3 → 14.5/14.6 → 14.8 (branding)**. Mỗi mục một task — prompt mẫu trong `ARCHITECTURE_PROMPT.md`.
