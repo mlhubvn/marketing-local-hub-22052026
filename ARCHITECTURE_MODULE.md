@@ -39,6 +39,8 @@ Dùng để tra nhanh khi làm việc với một module mà **không cần qué
 ## 3. Module catalog tổng hợp (72)
 
 > `mj` = có `module.json`. `prio` = priority. Trạng thái = sẵn sàng production.
+>
+> **Lưu ý route:** Một số module có legacy alias route dạng `settings/*`; xem phần chi tiết từng module để biết route đầy đủ.
 
 ### 3.1 Admin* (31) — khu quản trị, prefix `admin/`
 

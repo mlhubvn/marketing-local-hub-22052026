@@ -44,7 +44,7 @@ Nguyên tắc cốt lõi:
 | `app/Livewire/DemoModeActionGuard.php`                                                                                 | Chặn Livewire write khi `APP_DEMO=true`.                                                                                                                                                                                                                                                                |
 | `app/Support/Navigation/`                                                                                              | `SidebarRegistry`, `HeaderRegistry`.                                                                                                                                                                                                                                                                    |
 | `app/Support/Dashboard/`                                                                                               | `AdminDashboardRegistry`, `UserDashboardRegistry`.                                                                                                                                                                                                                                                      |
-| `app/Support/Plans/`                                                                                                   | `PlanPermissionRegistry`, `**PlanLimitGuard`** (kiểm soát hạn mức tạo bản ghi).                                                                                                                                                                                                                         |
+| `app/Support/Plans/`                                                                                                   | `PlanPermissionRegistry`, `PlanLimitGuard` (kiểm soát hạn mức tạo bản ghi).                                                                                                                                                                                                                             |
 | `app/Support/Storage/`                                                                                                 | `StorageDriverManager`, `SocialAvatarStore`.                                                                                                                                                                                                                                                            |
 | `app/Support/helpers.php`                                                                                              | Helper toàn cục (auto-load qua `composer.json`). Định dạng VN: `format_number_locale`, `format_money`, `format_date_locale`, `format_datetime_locale`, `format_carbon_display` (map pattern `Y-m-d` cũ → locale), `platform_format_settings()`; JS: `platform_format_config()` → `window.MLHUB_FORMAT`. Rà soát: `ARCHITECTURE_CHECKLIST.md` §5.1. |
 | `app/Concerns/`                                                                                                        | Trait `HasLocalizedAttributes`, `PasswordValidationRules`.                                                                                                                                                                                                                                              |
@@ -154,7 +154,7 @@ Hệ thống **không** dùng tách database; tenant được cô lập bằng *
 
 ### 4.1 Người dùng & quyền
 
-- Model người dùng: `**Modules\AdminUser\Models\User`** (`extends Authenticatable`, implements `MustVerifyEmail`, `HasLocalePreference`, dùng `TwoFactorAuthenticatable`).
+- Model người dùng: `Modules\AdminUser\Models\User` (`extends Authenticatable`, implements `MustVerifyEmail`, `HasLocalePreference`, dùng `TwoFactorAuthenticatable`).
 - Phân biệt 2 thế giới:
   - **Quản trị**: `is_super_admin` / `role_id` → `canAccessAdmin()`, `hasPermission()` (kiểm tra theo `role->permissions`, hỗ trợ wildcard `*` và `prefix.`*). Cổng: middleware `EnsureAdminAccess`.
   - **Khách hàng (portal)**: scope theo `user_id`.
@@ -172,7 +172,7 @@ Hệ thống **không** dùng tách database; tenant được cô lập bằng *
   - `$user->hasActivePlan()` — còn hạn không.
   - `$user->canUsePlanFeature('localboost')` — gói còn hạn **và** bật cờ tính năng.
   - `$user->planLimit('max_campaigns', -1)` — hạn mức (-1 = không giới hạn).
-- `**App\Support\Plans\PlanLimitGuard`** là chốt chặn trước khi tạo bản ghi:
+- `App\Support\Plans\PlanLimitGuard` là chốt chặn trước khi tạo bản ghi:
   - `ensureBusinessCanBeCreated`, `ensureCampaignCanBeCreated`, `ensureLandingPageCanBeCreated`, `ensureQrCodeCanBeCreated`, `ensureTemplateCanBeCreated`.
   - Vượt hạn mức → ném `ValidationException::withMessages(['plan' => ...])` (hiện lên form).
   - `usageSummary()` tổng hợp mức dùng (businesses, campaigns, landing pages, QR, templates, credits, email, Google…), **dò động** module có tồn tại bằng `class_exists()` + `Schema::hasColumn()` để không vỡ khi thiếu add-on.
@@ -181,7 +181,7 @@ Hệ thống **không** dùng tách database; tenant được cô lập bằng *
 
 - `Modules\AppTeams\Support\TeamWorkspaceAccess` quản lý ngữ cảnh team:
   - `activeTeam($user)` đọc `session('portal_team_id')` rồi xác thực quyền sở hữu/thành viên.
-  - `**workspaceOwnerUserId($user)`** — trả về ID chủ workspace (chủ team nếu đang trong team, ngược lại chính user). Dữ liệu dùng chung của workspace (vd lịch sử AI) scope theo ID này.
+  - `workspaceOwnerUserId($user)` — trả về ID chủ workspace (chủ team nếu đang trong team, ngược lại chính user). Dữ liệu dùng chung của workspace (vd lịch sử AI) scope theo ID này.
   - `enabledModules`, `teamHasModule`, `permissionsForUser`, `hasPermission`, `managedAccountIds` — phân quyền chi tiết theo từng thành viên team.
 - Chủ team **bỏ qua** mọi giới hạn workspace (`userBypassesWorkspaceRestrictions`).
 

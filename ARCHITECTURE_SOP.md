@@ -954,7 +954,7 @@ Chủ hộ chọn ngành + mục tiêu → hệ thống gợi ý template pack, 
 | ---------------- | ---------------------------------------------------------------------------------------------------------------- |
 | Shell            | `app/` — auth, middleware, `PortalGrowthDashboardMetrics`, `GrowthToolNotifier`, `PlanLimitGuard`                |
 | Nghiệp vụ        | `modules/` — 72 module (31 Admin*, 37 App*, 3 Payment*, 1 Custom*)                                               |
-| Theme            | `resources/themes/mlhubfrontend`, `mlhubbackend`                                                                 |
+| Theme            | `resources/themes/guest/mlhubfrontend`, `resources/themes/app/mlhubbackend`                                      |
 | Bootstrap module | `bootstrap/providers.php` (auto-scan), `bootstrap/providers.marketplace.php` (CustomMLHUB, AppLoyaltyStampCards) |
 | Cài đặt VN       | `modules/CustomMLHUB/` — `mlhub:install`, `mlhub:update`, `mlhub:sync-env-options`                               |
 
@@ -986,7 +986,7 @@ Chủ hộ chọn ngành + mục tiêu → hệ thống gợi ý template pack, 
 
 **Luồng public:** `QrCampaignPublicController::show` → `recordScan()` → redirect `url` / `LandingPage` published / view theo `type`.
 
-**Rate-limit:** tất cả POST public = `throttle:10,1` (10 req/phút/IP).
+**Rate-limit:** 5 POST công khai của growth tool đã có `throttle:10,1` (10 req/phút/IP): review feedback, booking submit, coupon claim, feedback form submit, lead submit. Các POST còn lại (`landing-pages.submit`, loyalty public, referral public) **chưa** có throttle — xem backlog `ARCHITECTURE_FEATURE.md §14`.
 
 ## 13.2. Cột `lb_campaigns`
 
