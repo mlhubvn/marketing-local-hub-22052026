@@ -1633,6 +1633,8 @@ Cách sửa ưu tiên:
 | lời nhắc           | Câu lệnh AI                       |
 | đường dẫn nhập     | Quy trình nhập / Luồng nhập       |
 
+> **Lưu ý case-sensitivity khi global replace:** Khi chạy global replace trong `vi.json`, phải kiểm cả biến thể chữ thường và chữ hoa đầu câu. Ví dụ: `thẻ tag` và `Thẻ tag`, `mã mã giảm giá` và `Mã mã giảm giá`, `tăng cường đánh giá` và `Tăng cường đánh giá`. Không chỉ replace lowercase.
+
 
 ---
 
