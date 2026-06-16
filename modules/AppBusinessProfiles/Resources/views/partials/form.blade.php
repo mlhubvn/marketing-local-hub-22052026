@@ -47,27 +47,87 @@
                 </div>
                 <x-ui.badge variant="primary">{{ __('Step 1') }}</x-ui.badge>
             </div>
-            <div class="grid gap-4 p-5 md:grid-cols-[minmax(0,1fr)_20rem]">
+            <div class="space-y-5 p-5">
                 <x-ui.input x-model="form.name" wire:model="name" name="name" :label="__('Business name')" :error="$errors->first('name')" />
-                {{-- Enhanced industry picker: popular quick picks + grouped search dropdown --}}
+
+                {{-- Two-step industry picker: main group → specific sub-industry --}}
                 <div
                     x-data="{
                         selectedType: @js($type),
+                        selectedGroup: null,
                         search: '',
-                        open: false,
-                        showAll: false,
                         typeLabels: @js($typeOptions),
-                        popularOptions: @js($popularTypeOptions),
                         groupedOptions: @js($groupedTypeOptions),
                         aliasMap: @js(\Modules\AppBusinessProfiles\Support\BusinessTypeCatalog::searchAliases()),
+
+                        init() {
+                            this.syncGroupFromType(this.selectedType);
+                        },
+
+                        syncGroupFromType(type) {
+                            if (! type) {
+                                return;
+                            }
+
+                            for (const group of this.groupedOptions) {
+                                const options = Object.values(group.options || {});
+                                if (options.some((item) => item.type === type)) {
+                                    this.selectedGroup = group.group;
+                                    return;
+                                }
+                            }
+                        },
+
+                        groupForType(type) {
+                            for (const group of this.groupedOptions) {
+                                const options = Object.values(group.options || {});
+                                if (options.some((item) => item.type === type)) {
+                                    return group.group;
+                                }
+                            }
+
+                            return null;
+                        },
+
+                        groupLabel(groupCode) {
+                            const group = this.groupedOptions.find((item) => item.group === groupCode);
+
+                            return group?.label || '';
+                        },
 
                         get selectedLabel() {
                             return this.typeLabels[this.selectedType] || this.selectedType || '';
                         },
 
+                        get activeGroup() {
+                            if (! this.selectedGroup) {
+                                return null;
+                            }
+
+                            return this.groupedOptions.find((group) => group.group === this.selectedGroup) || null;
+                        },
+
+                        get activeGroupLabel() {
+                            return this.activeGroup?.label || '';
+                        },
+
+                        get subOptions() {
+                            if (! this.activeGroup) {
+                                return [];
+                            }
+
+                            return Object.values(this.activeGroup.options || {});
+                        },
+
+                        get isSearching() {
+                            return String(this.search || '').trim() !== '';
+                        },
+
                         get searchResults() {
                             const q = String(this.search || '').toLowerCase().trim();
-                            if (! q) return null;
+                            if (! q) {
+                                return [];
+                            }
 
                             const results = [];
                             const seen = new Set();
@@ -76,7 +136,7 @@
                                 if (label.toLowerCase().includes(q) || type.toLowerCase().includes(q)) {
                                     if (! seen.has(type)) {
                                         seen.add(type);
-                                        results.push({ type, label });
+                                        results.push({ type, label, group: this.groupForType(type) });
                                     }
                                 }
                             }
@@ -84,25 +144,39 @@
                             for (const [alias, type] of Object.entries(this.aliasMap)) {
                                 if (alias.toLowerCase().includes(q) && ! seen.has(type)) {
                                     seen.add(type);
-                                    results.push({ type, label: this.typeLabels[type] || type });
+                                    results.push({
+                                        type,
+                                        label: this.typeLabels[type] || type,
+                                        group: this.groupForType(type),
+                                    });
                                 }
                             }
 
-                            return results.slice(0, 10);
+                            return results.slice(0, 12);
+                        },
+
+                        selectGroup(groupCode) {
+                            this.selectedGroup = groupCode;
+                            this.search = '';
+
+                            const stillValid = this.subOptions.some((item) => item.type === this.selectedType);
+                            if (! stillValid) {
+                                this.selectedType = '';
+                                form.type = '';
+                                $wire.set('type', '', false);
+                            }
                         },
 
                         choose(type) {
                             this.selectedType = type;
                             this.search = '';
-                            this.open = false;
+                            this.syncGroupFromType(type);
                             form.type = type;
                             $wire.set('type', type, false);
                         },
                     }"
-                    x-on:click.outside="open = false"
                 >
-                    <div class="space-y-3">
-                        {{-- Label + help --}}
+                    <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium" style="color: var(--theme-header-text-color);">
                                 {{ __('Main business industry') }}
@@ -115,123 +189,105 @@
                             @enderror
                         </div>
 
-                        {{-- Current selection badge --}}
-                        <div x-show="selectedType" class="flex items-center gap-2">
+                        <div x-show="selectedType" x-cloak class="flex flex-wrap items-center gap-2">
                             <span class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-semibold" style="border-color: rgba(var(--theme-accent-rgb),0.25); background-color: rgba(var(--theme-accent-rgb),0.08); color: var(--theme-accent);">
                                 <i class="fa-light fa-check text-[10px]"></i>
+                                <span x-text="activeGroupLabel" x-show="activeGroupLabel"></span>
+                                <span x-show="activeGroupLabel && selectedLabel" class="opacity-60">·</span>
                                 <span x-text="selectedLabel"></span>
                             </span>
                         </div>
 
-                        {{-- Popular quick picks --}}
+                        {{-- Step 1: main industry group --}}
                         <div>
-                            <p class="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('Popular industries') }}</p>
-                            <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                                @foreach ($popularTypeOptions as $popular)
+                            <p class="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('Main industry group') }}</p>
+                            <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                                <template x-for="group in groupedOptions" :key="group.group">
                                     <button
                                         type="button"
-                                        x-on:click="choose(@js($popular['type']))"
-                                        x-bind:class="selectedType === @js($popular['type']) ? 'ring-2 ring-[color:var(--theme-accent)]' : ''"
+                                        x-on:click="selectGroup(group.group)"
+                                        x-bind:class="selectedGroup === group.group ? 'ring-2 ring-[color:var(--theme-accent)] border-[color:rgba(var(--theme-accent-rgb),0.45)] bg-[color:rgba(var(--theme-accent-rgb),0.08)]' : ''"
                                         class="flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs font-medium transition hover:border-[color:rgba(var(--theme-accent-rgb),0.4)] hover:bg-[color:rgba(var(--theme-accent-rgb),0.06)]"
                                         style="border-color: rgba(var(--theme-border-color-rgb),0.58); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);"
                                     >
-                                        <i class="fa-light {{ $popular['icon'] }} w-4 shrink-0" style="color: var(--theme-accent);"></i>
-                                        <span class="leading-4">{{ $popular['label'] }}</span>
+                                        <i class="fa-light w-4 shrink-0" x-bind:class="group.icon" style="color: var(--theme-accent);"></i>
+                                        <span class="leading-4" x-text="group.label"></span>
                                     </button>
-                                @endforeach
+                                </template>
                             </div>
                         </div>
 
-                        {{-- Search + grouped dropdown --}}
-                        <div class="relative">
-                            <p class="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('View all industries') }}</p>
+                        {{-- Step 2: specific sub-industry within selected group --}}
+                        <div x-show="selectedGroup && ! isSearching" x-cloak>
+                            <p class="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">
+                                {{ __('Specific industry') }}
+                                <span class="normal-case tracking-normal font-normal" style="color: var(--theme-muted-text-color);" x-show="activeGroupLabel">
+                                    — <span x-text="activeGroupLabel"></span>
+                                </span>
+                            </p>
+                            <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                                <template x-for="item in subOptions" :key="item.type">
+                                    <button
+                                        type="button"
+                                        x-on:click="choose(item.type)"
+                                        x-bind:class="selectedType === item.type ? 'ring-2 ring-[color:var(--theme-accent)] border-[color:rgba(var(--theme-accent-rgb),0.45)] bg-[color:rgba(var(--theme-accent-rgb),0.08)]' : ''"
+                                        class="flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs font-medium transition hover:border-[color:rgba(var(--theme-accent-rgb),0.4)] hover:bg-[color:rgba(var(--theme-accent-rgb),0.06)]"
+                                        style="border-color: rgba(var(--theme-border-color-rgb),0.58); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);"
+                                    >
+                                        <i class="fa-light w-4 shrink-0 text-sm" x-bind:class="item.icon" style="color: var(--theme-accent);"></i>
+                                        <span class="leading-4" x-text="item.label"></span>
+                                        <i class="fa-light fa-check ml-auto text-xs shrink-0" style="color: var(--theme-accent);" x-show="selectedType === item.type"></i>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div x-show="! selectedGroup && ! isSearching" x-cloak class="rounded-xl border px-4 py-3 text-xs leading-5" style="border-color: rgba(var(--theme-border-color-rgb),0.56); background-color: color-mix(in srgb, var(--theme-surface-soft) 92%, transparent); color: var(--theme-muted-text-color);">
+                            {{ __('Select a main industry group first, then choose the specific industry below.') }}
+                        </div>
+
+                        {{-- Optional global search shortcut --}}
+                        <div>
+                            <p class="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('Or search industry') }}</p>
                             <div class="relative">
                                 <i class="fa-light fa-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm" style="color: var(--theme-muted-text-color);"></i>
                                 <input
                                     x-model="search"
-                                    x-on:focus="open = true; showAll = false"
-                                    x-on:input="open = true; showAll = false"
-                                    x-on:keydown.escape.prevent="open = false; search = ''"
-                                    x-on:keydown.enter.prevent="searchResults && searchResults.length ? choose(searchResults[0].type) : null"
-                                    class="h-11 w-full rounded-xl border pl-10 pr-10 text-sm outline-none transition focus:border-[var(--theme-accent)] focus:ring-4 focus:ring-[color:rgba(var(--theme-accent-rgb),0.10)]"
+                                    x-on:keydown.escape.prevent="search = ''"
+                                    x-on:keydown.enter.prevent="searchResults.length ? choose(searchResults[0].type) : null"
+                                    class="h-11 w-full rounded-xl border pl-10 pr-4 text-sm outline-none transition focus:border-[var(--theme-accent)] focus:ring-4 focus:ring-[color:rgba(var(--theme-accent-rgb),0.10)]"
                                     style="border-color: var(--theme-border-color); background-color: var(--theme-input-surface); color: var(--theme-input-text);"
                                     placeholder="{{ __('Search industry...') }}"
                                     autocomplete="off"
                                 >
-                                <button
-                                    type="button"
-                                    x-on:click="showAll = ! showAll; open = showAll; search = ''"
-                                    class="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg transition"
-                                    style="color: var(--theme-muted-text-color);"
-                                    :title="@js(__('View all industries'))"
-                                >
-                                    <i class="fa-light fa-chevron-down text-xs transition" x-bind:class="open ? 'rotate-180' : ''"></i>
-                                </button>
                             </div>
 
-                            <div
-                                x-cloak
-                                x-show="open"
-                                x-transition:enter="transition ease-out duration-120"
-                                x-transition:enter-start="opacity-0 translate-y-1"
-                                x-transition:enter-end="opacity-100 translate-y-0"
-                                class="absolute z-50 mt-2 max-h-80 w-full overflow-hidden rounded-2xl border shadow-[0_24px_70px_-38px_rgba(var(--theme-border-color-rgb),0.95)]"
-                                style="border-color: rgba(var(--theme-border-color-rgb),0.72); background-color: color-mix(in srgb, var(--theme-surface-overlay) 99%, transparent);"
-                            >
-                                {{-- Search results panel --}}
-                                <template x-if="searchResults !== null">
-                                    <div class="max-h-80 overflow-y-auto">
-                                        <template x-if="searchResults.length">
-                                            <div class="p-2">
-                                                <p class="px-2 pb-1.5 pt-1 text-[10px] font-semibold uppercase tracking-[0.15em]" style="color: var(--theme-muted-text-color);">{{ __('Search results') }}</p>
-                                                <template x-for="item in searchResults" :key="item.type">
-                                                    <button
-                                                        type="button"
-                                                        class="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition hover:bg-[color:rgba(var(--theme-accent-rgb),0.08)]"
-                                                        style="color: var(--theme-header-text-color);"
-                                                        x-on:click="choose(item.type)"
-                                                    >
-                                                        <span x-text="item.label"></span>
-                                                        <i class="fa-light fa-check text-xs shrink-0" style="color: var(--theme-accent);" x-show="selectedType === item.type"></i>
-                                                    </button>
-                                                </template>
-                                            </div>
-                                        </template>
-                                        <template x-if="! searchResults.length">
-                                            <div class="px-4 py-5 text-center text-sm" style="color: var(--theme-muted-text-color);">
-                                                <i class="fa-light fa-circle-question mb-2 block text-2xl" style="color: var(--theme-accent);"></i>
-                                                {{ __('No results found') }}
-                                                <p class="mt-1 text-xs">{{ __('If unsure, select Other. MLHUB can help you classify later.') }}</p>
-                                            </div>
+                            <div x-show="isSearching" x-cloak class="mt-2 overflow-hidden rounded-2xl border" style="border-color: rgba(var(--theme-border-color-rgb),0.72); background-color: color-mix(in srgb, var(--theme-surface-overlay) 99%, transparent);">
+                                <template x-if="searchResults.length">
+                                    <div class="max-h-72 overflow-y-auto p-2">
+                                        <template x-for="item in searchResults" :key="item.type">
+                                            <button
+                                                type="button"
+                                                class="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition hover:bg-[color:rgba(var(--theme-accent-rgb),0.08)]"
+                                                style="color: var(--theme-header-text-color);"
+                                                x-on:click="choose(item.type)"
+                                            >
+                                                <span>
+                                                    <span x-text="item.label"></span>
+                                                    <span class="ml-1 text-[11px]" style="color: var(--theme-muted-text-color);" x-show="item.group">
+                                                        (<span x-text="groupLabel(item.group)"></span>)
+                                                    </span>
+                                                </span>
+                                                <i class="fa-light fa-check text-xs shrink-0" style="color: var(--theme-accent);" x-show="selectedType === item.type"></i>
+                                            </button>
                                         </template>
                                     </div>
                                 </template>
-
-                                {{-- Grouped all-industries panel --}}
-                                <template x-if="searchResults === null">
-                                    <div class="max-h-80 overflow-y-auto">
-                                        <template x-for="group in groupedOptions" :key="group.group">
-                                            <div>
-                                                <div class="sticky top-0 flex items-center gap-2 border-b px-3 py-2" style="border-color: rgba(var(--theme-border-color-rgb),0.40); background-color: color-mix(in srgb, var(--theme-surface-soft) 95%, transparent);">
-                                                    <i class="fa-light text-xs" x-bind:class="group.icon" style="color: var(--theme-accent);"></i>
-                                                    <p class="text-[10px] font-semibold uppercase tracking-[0.15em]" style="color: var(--theme-muted-text-color);" x-text="group.label"></p>
-                                                </div>
-                                                <div class="p-2">
-                                                    <template x-for="item in Object.values(group.options)" :key="item.type">
-                                                        <button
-                                                            type="button"
-                                                            class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition hover:bg-[color:rgba(var(--theme-accent-rgb),0.08)]"
-                                                            style="color: var(--theme-header-text-color);"
-                                                            x-on:click="choose(item.type)"
-                                                        >
-                                                            <i class="fa-light w-4 shrink-0 text-sm" x-bind:class="item.icon" style="color: var(--theme-muted-text-color);"></i>
-                                                            <span x-text="item.label"></span>
-                                                            <i class="fa-light fa-check ml-auto text-xs shrink-0" style="color: var(--theme-accent);" x-show="selectedType === item.type"></i>
-                                                        </button>
-                                                    </template>
-                                                </div>
-                                            </div>
-                                        </template>
+                                <template x-if="! searchResults.length">
+                                    <div class="px-4 py-5 text-center text-sm" style="color: var(--theme-muted-text-color);">
+                                        <i class="fa-light fa-circle-question mb-2 block text-2xl" style="color: var(--theme-accent);"></i>
+                                        {{ __('No results found') }}
+                                        <p class="mt-1 text-xs">{{ __('If unsure, select Other. MLHUB can help you classify later.') }}</p>
                                     </div>
                                 </template>
                             </div>
