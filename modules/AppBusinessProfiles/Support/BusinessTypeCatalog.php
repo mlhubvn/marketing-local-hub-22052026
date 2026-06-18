@@ -970,4 +970,54 @@ class BusinessTypeCatalog
 
         return 'Other';
     }
+
+    /**
+     * User-facing labels for recommended campaign goals (UI chips).
+     *
+     * @return array<string, string>
+     */
+    public static function campaignGoalLabels(): array
+    {
+        return [
+            'review'    => __('Industry goal: Review'),
+            'coupon'    => __('Industry goal: Coupon'),
+            'feedback'  => __('Industry goal: Feedback'),
+            'loyalty'   => __('Industry goal: Loyalty'),
+            'lead'      => __('Industry goal: Lead'),
+            'retention' => __('Industry goal: Retention'),
+            'booking'   => __('Industry goal: Booking'),
+            'referral'  => __('Industry goal: Referral'),
+        ];
+    }
+
+    /**
+     * User-facing labels for alternative-data signal chips.
+     *
+     * @return array<string, string>
+     */
+    public static function alternativeDataSignalLabels(): array
+    {
+        return [
+            'qr_scan'          => __('Industry signal: QR scan'),
+            'review'             => __('Industry signal: Review'),
+            'lead_form'          => __('Industry signal: Lead form'),
+            'booking'            => __('Industry signal: Booking'),
+            'coupon'             => __('Industry signal: Coupon'),
+            'loyalty'            => __('Industry signal: Loyalty'),
+            'referral'           => __('Industry signal: Referral'),
+            'crm_activity'       => __('Industry signal: CRM activity'),
+            'customer_profile'   => __('Industry signal: Customer profile'),
+            'supplier_order'     => __('Industry signal: Supplier order'),
+            'delivery_log'       => __('Industry signal: Delivery log'),
+            'inventory_light'    => __('Industry signal: Inventory snapshot'),
+            'payment_signal'     => __('Industry signal: Payment signal'),
+            'invoice_signal'     => __('Industry signal: Invoice signal'),
+            'location_density'   => __('Industry signal: Location density'),
+            'seasonality'        => __('Industry signal: Seasonality'),
+            'staff_capacity'     => __('Industry signal: Staff capacity'),
+            'price_band'         => __('Industry signal: Price band'),
+            'repeat_rate'        => __('Industry signal: Repeat rate'),
+            'risk_flag'          => __('Industry signal: Risk flag'),
+        ];
+    }
 }

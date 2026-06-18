@@ -107,7 +107,7 @@
                 style="{{ $loop->first ? '' : 'border-color: rgba(var(--theme-border-color-rgb), 0.4);' }}"
                 x-data="{
                     sectionKey: @js($sectionKey),
-                    open: true,
+                    open: false,
                     init() {
                         const stored = JSON.parse(localStorage.getItem('app-sidebar-sections') || '{}');
                         const hasActive = @js($sectionActive);
@@ -118,7 +118,7 @@
                             return;
                         }
 
-                        this.open = stored[this.sectionKey] ?? true;
+                        this.open = stored[this.sectionKey] ?? false;
                     },
                     toggleSection() {
                         this.open = ! this.open;
@@ -228,7 +228,7 @@
             @if (! $loop->first) style="border-color: var(--theme-border-color);" @endif
             x-data="{
                 sectionKey: @js($sectionKey),
-                open: true,
+                open: false,
                 init() {
                     const stored = JSON.parse(localStorage.getItem('app-sidebar-sections') || '{}');
                     const hasActive = @js($sectionActive);
@@ -239,7 +239,7 @@
                         return;
                     }
 
-                    this.open = stored[this.sectionKey] ?? true;
+                    this.open = stored[this.sectionKey] ?? false;
                 },
                 toggleSection() {
                     if (! sidebarContentVisible) {

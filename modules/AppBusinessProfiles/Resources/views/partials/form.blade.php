@@ -11,6 +11,8 @@
             google_maps_url: @js($google_maps_url),
         },
         taxonomy: @js($industryTaxonomy),
+        goalLabels: @js(\Modules\AppBusinessProfiles\Support\BusinessTypeCatalog::campaignGoalLabels()),
+        signalLabels: @js(\Modules\AppBusinessProfiles\Support\BusinessTypeCatalog::alternativeDataSignalLabels()),
         showAll: false,
         industrySearch: '',
         selectedGroup: @js($industry_group_code),
@@ -39,6 +41,14 @@
 
         pretty(code) {
             return String(code || '').replace(/_/g, ' ');
+        },
+
+        goalLabel(code) {
+            return this.goalLabels[code] || this.pretty(code);
+        },
+
+        signalLabel(code) {
+            return this.signalLabels[code] || this.pretty(code);
         },
 
         get completionPercent() {
@@ -312,12 +322,12 @@
                             <span>{{ __('MLHUB avoids medical or treatment claims for this industry.') }}</span>
                         </div>
 
-                        <div class="mt-3 grid gap-3 sm:grid-cols-2" x-show="recommendedGoals.length || recommendedSignals.length">
+                        <div class="mt-3 space-y-3" x-show="recommendedGoals.length || recommendedSignals.length">
                             <div x-show="recommendedGoals.length">
                                 <p class="text-[10px] font-semibold uppercase tracking-[0.12em]" style="color: var(--theme-muted-text-color);">{{ __('Recommended setup') }}</p>
                                 <div class="mt-1.5 flex flex-wrap gap-1.5">
                                     <template x-for="goal in recommendedGoals" :key="goal">
-                                        <span class="rounded-md border px-2 py-0.5 text-[10px] capitalize" style="border-color: rgba(var(--theme-border-color-rgb),0.5); color: var(--theme-header-text-color);" x-text="pretty(goal)"></span>
+                                        <span class="rounded-md border px-2 py-0.5 text-[10px]" style="border-color: rgba(var(--theme-border-color-rgb),0.5); color: var(--theme-header-text-color);" x-text="goalLabel(goal)"></span>
                                     </template>
                                 </div>
                             </div>
@@ -325,7 +335,7 @@
                                 <p class="text-[10px] font-semibold uppercase tracking-[0.12em]" style="color: var(--theme-muted-text-color);">{{ __('Alternative data signals') }}</p>
                                 <div class="mt-1.5 flex flex-wrap gap-1.5">
                                     <template x-for="signal in recommendedSignals" :key="signal">
-                                        <span class="rounded-md border px-2 py-0.5 text-[10px] capitalize" style="border-color: rgba(var(--theme-border-color-rgb),0.5); color: var(--theme-muted-text-color);" x-text="pretty(signal)"></span>
+                                        <span class="rounded-md border px-2 py-0.5 text-[10px]" style="border-color: rgba(var(--theme-border-color-rgb),0.5); color: var(--theme-muted-text-color);" x-text="signalLabel(signal)"></span>
                                     </template>
                                 </div>
                             </div>
