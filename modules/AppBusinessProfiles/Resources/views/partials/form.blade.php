@@ -17,11 +17,11 @@
         industrySearch: '',
         selectedGroup: @js($industry_group_code),
         selectedCategory: @js($industry_category_code),
-        expanded: {},
+        activePickerGroup: @js($industry_group_code ?: ''),
 
         init() {
             if (this.selectedGroup) {
-                this.expanded[this.selectedGroup] = true;
+                this.activePickerGroup = this.selectedGroup;
             }
         },
 
@@ -72,9 +72,26 @@
                 return this.taxonomy;
             }
 
+            return this.featuredGroups;
+        },
+
+        get featuredGroups() {
             return this.taxonomy
                 .filter((group) => group.is_priority)
-                .sort((a, b) => (a.priority_order ?? 99) - (b.priority_order ?? 99));
+                .sort((a, b) => (a.priority_order ?? 99) - (b.priority_order ?? 99))
+                .slice(0, 8);
+        },
+
+        get activePickerGroupData() {
+            return this.activePickerGroup ? this.groupByCode(this.activePickerGroup) : null;
+        },
+
+        get activePickerGroupLabel() {
+            return this.activePickerGroupData?.label || '';
+        },
+
+        get activePickerCategories() {
+            return this.activePickerGroupData?.categories || [];
         },
 
         get isSearchingIndustry() {
@@ -147,19 +164,15 @@
             return group ? (group.signals || []) : [];
         },
 
-        isExpanded(code) {
-            return !! this.expanded[code];
-        },
-
-        toggleExpand(code) {
-            this.expanded[code] = ! this.expanded[code];
+        selectGroup(groupCode) {
+            this.activePickerGroup = this.activePickerGroup === groupCode ? '' : groupCode;
         },
 
         chooseIndustry(groupCode, categoryCode) {
             this.selectedGroup = groupCode;
             this.selectedCategory = categoryCode;
+            this.activePickerGroup = groupCode;
             this.industrySearch = '';
-            this.expanded[groupCode] = true;
 
             $wire.set('industry_group_code', groupCode, false);
             $wire.set('industry_category_code', categoryCode, false);
@@ -243,17 +256,22 @@
                         </template>
                     </div>
 
-                    {{-- Groups (priority by default, all when expanded) --}}
-                    <div x-show="! isSearchingIndustry" x-cloak class="space-y-3">
-                        <div class="flex items-center justify-between gap-3">
-                            <p class="text-[11px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">
-                                <span x-show="! showAll">{{ __('Popular industries') }}</span>
-                                <span x-show="showAll" x-cloak>{{ __('Main industry group') }}</span>
-                            </p>
+                    {{-- Industry groups: icon grid + sub-categories panel --}}
+                    <div x-show="! isSearchingIndustry" x-cloak class="space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">
+                                    <span x-show="! showAll">{{ __('Popular industries') }}</span>
+                                    <span x-show="showAll" x-cloak>{{ __('Main industry group') }}</span>
+                                </p>
+                                <p x-show="! showAll" class="mt-1 text-[11px]" style="color: var(--theme-accent);">
+                                    <i class="fa-light fa-location-dot mr-1"></i>{{ __('Da Nang - Quang Nam priority') }}
+                                </p>
+                            </div>
                             <button
                                 type="button"
-                                x-on:click="showAll = ! showAll"
-                                class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-semibold transition hover:bg-[color:rgba(var(--theme-accent-rgb),0.08)]"
+                                x-on:click="showAll = ! showAll; if (! showAll && activePickerGroup && ! featuredGroups.some((g) => g.code === activePickerGroup)) { activePickerGroup = ''; }"
+                                class="inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-semibold transition hover:bg-[color:rgba(var(--theme-accent-rgb),0.08)]"
                                 style="border-color: rgba(var(--theme-accent-rgb),0.25); color: var(--theme-accent);"
                             >
                                 <i class="fa-light text-[10px]" x-bind:class="showAll ? 'fa-chevron-up' : 'fa-layer-group'"></i>
@@ -262,46 +280,71 @@
                             </button>
                         </div>
 
-                        <p x-show="! showAll" class="text-[11px]" style="color: var(--theme-accent);">
-                            <i class="fa-light fa-location-dot mr-1"></i>{{ __('Da Nang - Quang Nam priority') }}
-                        </p>
-
-                        <div class="space-y-2">
+                        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
                             <template x-for="group in visibleGroups" :key="group.code">
-                                <div class="rounded-xl border" style="border-color: rgba(var(--theme-border-color-rgb),0.58); background-color: var(--theme-surface-overlay);">
+                                <button
+                                    type="button"
+                                    x-on:click="selectGroup(group.code)"
+                                    x-bind:class="activePickerGroup === group.code
+                                        ? 'ring-2 ring-[color:var(--theme-accent)] border-[color:rgba(var(--theme-accent-rgb),0.45)] bg-[color:rgba(var(--theme-accent-rgb),0.08)]'
+                                        : (selectedGroup === group.code && selectedCategory ? 'border-[color:rgba(var(--theme-accent-rgb),0.35)]' : '')"
+                                    class="group relative flex flex-col items-center gap-2.5 rounded-2xl border px-2 py-4 text-center transition hover:border-[color:rgba(var(--theme-accent-rgb),0.4)] hover:bg-[color:rgba(var(--theme-accent-rgb),0.05)]"
+                                    style="border-color: rgba(var(--theme-border-color-rgb),0.58); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);"
+                                >
+                                    <span
+                                        class="relative flex h-14 w-14 items-center justify-center rounded-2xl transition group-hover:scale-[1.03]"
+                                        style="background-color: rgba(var(--theme-accent-rgb),0.10); color: var(--theme-accent);"
+                                        x-bind:style="activePickerGroup === group.code ? 'background-color: rgba(var(--theme-accent-rgb),0.18); color: var(--theme-accent);' : ''"
+                                    >
+                                        <i class="fa-light text-[1.65rem]" x-bind:class="group.icon"></i>
+                                        <span
+                                            x-show="group.compliance_sensitive"
+                                            x-cloak
+                                            class="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border"
+                                            style="border-color: rgba(var(--theme-warning-color-rgb),0.45); background-color: rgba(var(--theme-warning-color-rgb),0.12); color: var(--theme-warning-color);"
+                                        >
+                                            <i class="fa-light fa-shield-halved text-[9px]"></i>
+                                        </span>
+                                        <span
+                                            x-show="selectedGroup === group.code && selectedCategory"
+                                            x-cloak
+                                            class="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full"
+                                            style="background-color: var(--theme-accent); color: white;"
+                                        >
+                                            <i class="fa-light fa-check text-[9px]"></i>
+                                        </span>
+                                    </span>
+                                    <span class="min-h-[2.5rem] px-1 text-[11px] font-semibold leading-snug line-clamp-2" x-text="group.label"></span>
+                                </button>
+                            </template>
+                        </div>
+
+                        {{-- Sub-categories for selected group --}}
+                        <div
+                            x-show="activePickerGroup && activePickerCategories.length"
+                            x-collapse
+                            x-cloak
+                            class="overflow-hidden rounded-2xl border"
+                            style="border-color: rgba(var(--theme-accent-rgb),0.22); background-color: color-mix(in srgb, var(--theme-surface-overlay) 96%, rgba(var(--theme-accent-rgb),0.04));"
+                        >
+                            <div class="border-b px-4 py-3" style="border-color: rgba(var(--theme-border-color-rgb),0.42);">
+                                <p class="text-[10px] font-semibold uppercase tracking-[0.12em]" style="color: var(--theme-muted-text-color);">{{ __('Specific industry') }}</p>
+                                <p class="mt-1 text-sm font-semibold" style="color: var(--theme-header-text-color);" x-text="activePickerGroupLabel"></p>
+                            </div>
+                            <div class="grid grid-cols-1 gap-2 p-3 sm:grid-cols-2 lg:grid-cols-3">
+                                <template x-for="category in activePickerCategories" :key="category.code">
                                     <button
                                         type="button"
-                                        x-on:click="toggleExpand(group.code)"
-                                        class="flex w-full items-center gap-2.5 px-3.5 py-3 text-left text-sm font-medium transition hover:bg-[color:rgba(var(--theme-accent-rgb),0.05)]"
-                                        x-bind:class="selectedGroup === group.code ? 'text-[color:var(--theme-accent)]' : ''"
-                                        style="color: var(--theme-header-text-color);"
+                                        x-on:click="chooseIndustry(activePickerGroup, category.code)"
+                                        x-bind:class="selectedCategory === category.code ? 'ring-2 ring-[color:var(--theme-accent)] border-[color:rgba(var(--theme-accent-rgb),0.45)] bg-[color:rgba(var(--theme-accent-rgb),0.08)]' : ''"
+                                        class="flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs font-medium transition hover:border-[color:rgba(var(--theme-accent-rgb),0.4)] hover:bg-[color:rgba(var(--theme-accent-rgb),0.06)]"
+                                        style="border-color: rgba(var(--theme-border-color-rgb),0.5); background-color: var(--theme-surface-base); color: var(--theme-header-text-color);"
                                     >
-                                        <i class="fa-light w-4 shrink-0" x-bind:class="group.icon" style="color: var(--theme-accent);"></i>
-                                        <span class="leading-5" x-text="group.label"></span>
-                                        <span x-show="group.compliance_sensitive" x-cloak class="rounded-full border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em]" style="border-color: rgba(var(--theme-warning-color-rgb),0.4); color: var(--theme-warning-color);">
-                                            <i class="fa-light fa-shield-halved"></i>
-                                        </span>
-                                        <i class="fa-light ml-auto text-xs shrink-0 transition-transform" x-bind:class="isExpanded(group.code) ? 'fa-chevron-up' : 'fa-chevron-down'" style="color: var(--theme-muted-text-color);"></i>
+                                        <span class="leading-4" x-text="category.label"></span>
+                                        <i class="fa-light fa-check ml-auto text-xs shrink-0" style="color: var(--theme-accent);" x-show="selectedCategory === category.code"></i>
                                     </button>
-
-                                    <div x-show="isExpanded(group.code)" x-collapse x-cloak class="border-t px-3 pb-3 pt-3" style="border-color: rgba(var(--theme-border-color-rgb),0.42);">
-                                        <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                                            <template x-for="category in group.categories" :key="category.code">
-                                                <button
-                                                    type="button"
-                                                    x-on:click="chooseIndustry(group.code, category.code)"
-                                                    x-bind:class="selectedCategory === category.code ? 'ring-2 ring-[color:var(--theme-accent)] border-[color:rgba(var(--theme-accent-rgb),0.45)] bg-[color:rgba(var(--theme-accent-rgb),0.08)]' : ''"
-                                                    class="flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-xs font-medium transition hover:border-[color:rgba(var(--theme-accent-rgb),0.4)] hover:bg-[color:rgba(var(--theme-accent-rgb),0.06)]"
-                                                    style="border-color: rgba(var(--theme-border-color-rgb),0.5); background-color: var(--theme-surface-base); color: var(--theme-header-text-color);"
-                                                >
-                                                    <span class="leading-4" x-text="category.label"></span>
-                                                    <i class="fa-light fa-check ml-auto text-xs shrink-0" style="color: var(--theme-accent);" x-show="selectedCategory === category.code"></i>
-                                                </button>
-                                            </template>
-                                        </div>
-                                    </div>
-                                </div>
-                            </template>
+                                </template>
+                            </div>
                         </div>
                     </div>
 
