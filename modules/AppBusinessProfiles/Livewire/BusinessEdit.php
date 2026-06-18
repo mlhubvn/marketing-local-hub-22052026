@@ -21,7 +21,11 @@ class BusinessEdit extends Component
 
         $this->business = $business;
         $this->name = (string) $business->name;
-        $this->type = (string) $business->type;
+        $this->hydrateIndustrySelection(
+            $business->type,
+            $business->industry_group_code,
+            $business->industry_category_code,
+        );
         $this->phone = (string) $business->phone;
         $this->email = (string) $business->email;
         $this->website = (string) $business->website;
@@ -40,9 +44,8 @@ class BusinessEdit extends Component
     public function render(): View
     {
         return view('appbusinessprofiles::edit', [
-            'typeOptions'        => $this->typeOptions(),
-            'groupedTypeOptions' => $this->groupedTypeOptions(),
-            'popularTypeOptions' => $this->popularTypeOptions(),
+            'industryTaxonomy'   => $this->industryTaxonomy(),
+            'priorityGroupCodes' => $this->priorityGroupCodes(),
         ])->layout(theme_view('layouts.app', 'app'), [
             'title' => __('Edit Business'),
         ]);

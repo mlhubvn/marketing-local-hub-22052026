@@ -29,9 +29,8 @@ class BusinessCreate extends Component
     public function render(): View
     {
         return view('appbusinessprofiles::create', [
-            'typeOptions'        => $this->typeOptions(),
-            'groupedTypeOptions' => $this->groupedTypeOptions(),
-            'popularTypeOptions' => $this->popularTypeOptions(),
+            'industryTaxonomy'   => $this->industryTaxonomy(),
+            'priorityGroupCodes' => $this->priorityGroupCodes(),
         ])->layout(theme_view('layouts.app', 'app'), [
             'title' => __('Create Business'),
         ]);

@@ -19,6 +19,7 @@ class LocalBusiness extends Model
             'social_links' => 'array',
             'opening_hours' => 'array',
             'qr_design' => 'array',
+            'industry_metadata' => 'array',
         ];
     }
 

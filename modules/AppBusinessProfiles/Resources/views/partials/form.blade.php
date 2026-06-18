@@ -10,13 +10,37 @@
             address: @js($address),
             google_maps_url: @js($google_maps_url),
         },
-        typeLabels: @js($typeOptions),
+        taxonomy: @js($industryTaxonomy),
+        showAll: false,
+        industrySearch: '',
+        selectedGroup: @js($industry_group_code),
+        selectedCategory: @js($industry_category_code),
+        expanded: {},
+
+        init() {
+            if (this.selectedGroup) {
+                this.expanded[this.selectedGroup] = true;
+            }
+        },
+
         filled(value) {
             return String(value || '').trim() !== '';
         },
-        typeLabel(type) {
-            return this.typeLabels[type] || type || '';
+
+        fold(value) {
+            return String(value || '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/đ/g, 'd')
+                .replace(/Đ/g, 'd')
+                .toLowerCase()
+                .trim();
         },
+
+        pretty(code) {
+            return String(code || '').replace(/_/g, ' ');
+        },
+
         get completionPercent() {
             let completed = 0;
             if (this.filled(this.form.name)) completed++;
@@ -27,9 +51,111 @@
 
             return Math.round((completed / 5) * 100);
         },
+
         initials() {
             const value = this.filled(this.form.name) ? this.form.name : 'LB';
             return String(value).trim().slice(0, 2).toUpperCase();
+        },
+
+        get visibleGroups() {
+            if (this.showAll) {
+                return this.taxonomy;
+            }
+
+            return this.taxonomy
+                .filter((group) => group.is_priority)
+                .sort((a, b) => (a.priority_order ?? 99) - (b.priority_order ?? 99));
+        },
+
+        get isSearchingIndustry() {
+            return this.fold(this.industrySearch) !== '';
+        },
+
+        get industryResults() {
+            const q = this.fold(this.industrySearch);
+            if (! q) {
+                return [];
+            }
+
+            const out = [];
+            for (const group of this.taxonomy) {
+                for (const category of group.categories) {
+                    const haystack = this.fold(category.label) + ' '
+                        + this.fold(category.aliases) + ' '
+                        + this.fold(category.code) + ' '
+                        + this.fold(group.label);
+
+                    if (haystack.includes(q)) {
+                        out.push({ ...category, group_code: group.code, group_label: group.label });
+                    }
+                }
+            }
+
+            return out.slice(0, 30);
+        },
+
+        groupByCode(code) {
+            return this.taxonomy.find((group) => group.code === code) || null;
+        },
+
+        categoryByCode(code) {
+            for (const group of this.taxonomy) {
+                const category = group.categories.find((item) => item.code === code);
+                if (category) {
+                    return { ...category, group_code: group.code, group_label: group.label };
+                }
+            }
+            return null;
+        },
+
+        get selectedCategoryData() {
+            return this.selectedCategory ? this.categoryByCode(this.selectedCategory) : null;
+        },
+
+        get selectedGroupLabel() {
+            const group = this.groupByCode(this.selectedGroup);
+            return group ? group.label : '';
+        },
+
+        get selectedCategoryLabel() {
+            const category = this.selectedCategoryData;
+            return category ? category.label : '';
+        },
+
+        get complianceSensitive() {
+            const category = this.selectedCategoryData;
+            return category ? !! category.compliance_sensitive : false;
+        },
+
+        get recommendedGoals() {
+            const group = this.groupByCode(this.selectedGroup);
+            return group ? (group.default_campaign_goals || []) : [];
+        },
+
+        get recommendedSignals() {
+            const group = this.groupByCode(this.selectedGroup);
+            return group ? (group.signals || []) : [];
+        },
+
+        isExpanded(code) {
+            return !! this.expanded[code];
+        },
+
+        toggleExpand(code) {
+            this.expanded[code] = ! this.expanded[code];
+        },
+
+        chooseIndustry(groupCode, categoryCode) {
+            this.selectedGroup = groupCode;
+            this.selectedCategory = categoryCode;
+            this.industrySearch = '';
+            this.expanded[groupCode] = true;
+
+            $wire.set('industry_group_code', groupCode, false);
+            $wire.set('industry_category_code', categoryCode, false);
+
+            const category = this.categoryByCode(categoryCode);
+            this.form.type = category ? category.legacy_type : '';
         },
     }"
 >
@@ -50,257 +176,165 @@
             <div class="space-y-5 p-5">
                 <x-ui.input x-model="form.name" wire:model="name" name="name" :label="__('Business name')" :error="$errors->first('name')" />
 
-                {{-- Two-step industry picker: main group → specific sub-industry --}}
-                <div
-                    x-data="{
-                        selectedType: @js($type),
-                        selectedGroup: null,
-                        search: '',
-                        typeLabels: @js($typeOptions),
-                        groupedOptions: @js($groupedTypeOptions),
-                        aliasMap: @js(\Modules\AppBusinessProfiles\Support\BusinessTypeCatalog::searchAliases()),
+                {{-- Industry picker: priority groups → view all → expandable sub-industries + search --}}
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium" style="color: var(--theme-header-text-color);">
+                            {{ __('Main business industry') }}
+                        </label>
+                        <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">
+                            {{ __('Choose the industry that best matches your main activity. MLHUB will suggest the right templates, campaigns, and reports for you.') }}
+                        </p>
+                        @error('industry_category_code')
+                            <p class="mt-1 text-xs font-medium" style="color: var(--theme-danger-color);">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                        init() {
-                            this.syncGroupFromType(this.selectedType);
-                        },
+                    {{-- Search --}}
+                    <div class="relative">
+                        <i class="fa-light fa-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm" style="color: var(--theme-muted-text-color);"></i>
+                        <input
+                            x-model="industrySearch"
+                            x-on:keydown.escape.prevent="industrySearch = ''"
+                            x-on:keydown.enter.prevent="industryResults.length ? chooseIndustry(industryResults[0].group_code, industryResults[0].code) : null"
+                            class="h-11 w-full rounded-xl border pl-10 pr-4 text-sm outline-none transition focus:border-[var(--theme-accent)] focus:ring-4 focus:ring-[color:rgba(var(--theme-accent-rgb),0.10)]"
+                            style="border-color: var(--theme-border-color); background-color: var(--theme-input-surface); color: var(--theme-input-text);"
+                            placeholder="{{ __('Search industry...') }}"
+                            autocomplete="off"
+                        >
+                    </div>
 
-                        syncGroupFromType(type) {
-                            if (! type) {
-                                return;
-                            }
-
-                            for (const group of this.groupedOptions) {
-                                const options = Object.values(group.options || {});
-                                if (options.some((item) => item.type === type)) {
-                                    this.selectedGroup = group.group;
-                                    return;
-                                }
-                            }
-                        },
-
-                        groupForType(type) {
-                            for (const group of this.groupedOptions) {
-                                const options = Object.values(group.options || {});
-                                if (options.some((item) => item.type === type)) {
-                                    return group.group;
-                                }
-                            }
-
-                            return null;
-                        },
-
-                        groupLabel(groupCode) {
-                            const group = this.groupedOptions.find((item) => item.group === groupCode);
-
-                            return group?.label || '';
-                        },
-
-                        get selectedLabel() {
-                            return this.typeLabels[this.selectedType] || this.selectedType || '';
-                        },
-
-                        get activeGroup() {
-                            if (! this.selectedGroup) {
-                                return null;
-                            }
-
-                            return this.groupedOptions.find((group) => group.group === this.selectedGroup) || null;
-                        },
-
-                        get activeGroupLabel() {
-                            return this.activeGroup?.label || '';
-                        },
-
-                        get subOptions() {
-                            if (! this.activeGroup) {
-                                return [];
-                            }
-
-                            return Object.values(this.activeGroup.options || {});
-                        },
-
-                        get isSearching() {
-                            return String(this.search || '').trim() !== '';
-                        },
-
-                        get searchResults() {
-                            const q = String(this.search || '').toLowerCase().trim();
-                            if (! q) {
-                                return [];
-                            }
-
-                            const results = [];
-                            const seen = new Set();
-
-                            for (const [type, label] of Object.entries(this.typeLabels)) {
-                                if (label.toLowerCase().includes(q) || type.toLowerCase().includes(q)) {
-                                    if (! seen.has(type)) {
-                                        seen.add(type);
-                                        results.push({ type, label, group: this.groupForType(type) });
-                                    }
-                                }
-                            }
-
-                            for (const [alias, type] of Object.entries(this.aliasMap)) {
-                                if (alias.toLowerCase().includes(q) && ! seen.has(type)) {
-                                    seen.add(type);
-                                    results.push({
-                                        type,
-                                        label: this.typeLabels[type] || type,
-                                        group: this.groupForType(type),
-                                    });
-                                }
-                            }
-
-                            return results.slice(0, 12);
-                        },
-
-                        selectGroup(groupCode) {
-                            this.selectedGroup = groupCode;
-                            this.search = '';
-
-                            const stillValid = this.subOptions.some((item) => item.type === this.selectedType);
-                            if (! stillValid) {
-                                this.selectedType = '';
-                                form.type = '';
-                                $wire.set('type', '', false);
-                            }
-                        },
-
-                        choose(type) {
-                            this.selectedType = type;
-                            this.search = '';
-                            this.syncGroupFromType(type);
-                            form.type = type;
-                            $wire.set('type', type, false);
-                        },
-                    }"
-                >
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium" style="color: var(--theme-header-text-color);">
-                                {{ __('Main business industry') }}
-                            </label>
-                            <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">
-                                {{ __('Choose the industry that best matches your main activity. MLHUB will suggest the right templates, campaigns, and reports for you.') }}
-                            </p>
-                            @error('type')
-                                <p class="mt-1 text-xs font-medium" style="color: var(--theme-danger-color);">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        {{-- Step 1: main industry group --}}
-                        <div>
-                            <p class="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('Main industry group') }}</p>
-                            <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                                <template x-for="group in groupedOptions" :key="group.group">
+                    {{-- Search results --}}
+                    <div x-show="isSearchingIndustry" x-cloak class="overflow-hidden rounded-2xl border" style="border-color: rgba(var(--theme-border-color-rgb),0.72); background-color: color-mix(in srgb, var(--theme-surface-overlay) 99%, transparent);">
+                        <template x-if="industryResults.length">
+                            <div class="max-h-80 overflow-y-auto p-2">
+                                <template x-for="item in industryResults" :key="item.group_code + '::' + item.code">
                                     <button
                                         type="button"
-                                        x-on:click="selectGroup(group.group)"
-                                        x-bind:class="selectedGroup === group.group ? 'ring-2 ring-[color:var(--theme-accent)] border-[color:rgba(var(--theme-accent-rgb),0.45)] bg-[color:rgba(var(--theme-accent-rgb),0.08)]' : ''"
-                                        class="flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs font-medium transition hover:border-[color:rgba(var(--theme-accent-rgb),0.4)] hover:bg-[color:rgba(var(--theme-accent-rgb),0.06)]"
-                                        style="border-color: rgba(var(--theme-border-color-rgb),0.58); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);"
+                                        class="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition hover:bg-[color:rgba(var(--theme-accent-rgb),0.08)]"
+                                        style="color: var(--theme-header-text-color);"
+                                        x-on:click="chooseIndustry(item.group_code, item.code)"
+                                    >
+                                        <span>
+                                            <span x-text="item.label"></span>
+                                            <span class="ml-1 text-[11px]" style="color: var(--theme-muted-text-color);">(<span x-text="item.group_label"></span>)</span>
+                                        </span>
+                                        <i class="fa-light fa-check text-xs shrink-0" style="color: var(--theme-accent);" x-show="selectedCategory === item.code"></i>
+                                    </button>
+                                </template>
+                            </div>
+                        </template>
+                        <template x-if="! industryResults.length">
+                            <div class="px-4 py-5 text-center text-sm" style="color: var(--theme-muted-text-color);">
+                                <i class="fa-light fa-circle-question mb-2 block text-2xl" style="color: var(--theme-accent);"></i>
+                                {{ __('No results found') }}
+                                <p class="mt-1 text-xs">{{ __('If unsure, select Other. MLHUB can help you classify later.') }}</p>
+                            </div>
+                        </template>
+                    </div>
+
+                    {{-- Groups (priority by default, all when expanded) --}}
+                    <div x-show="! isSearchingIndustry" x-cloak class="space-y-3">
+                        <div class="flex items-center justify-between gap-3">
+                            <p class="text-[11px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">
+                                <span x-show="! showAll">{{ __('Popular industries') }}</span>
+                                <span x-show="showAll" x-cloak>{{ __('Main industry group') }}</span>
+                            </p>
+                            <button
+                                type="button"
+                                x-on:click="showAll = ! showAll"
+                                class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-semibold transition hover:bg-[color:rgba(var(--theme-accent-rgb),0.08)]"
+                                style="border-color: rgba(var(--theme-accent-rgb),0.25); color: var(--theme-accent);"
+                            >
+                                <i class="fa-light text-[10px]" x-bind:class="showAll ? 'fa-chevron-up' : 'fa-layer-group'"></i>
+                                <span x-show="! showAll">{{ __('View all industries') }}</span>
+                                <span x-show="showAll" x-cloak>{{ __('Show popular industries') }}</span>
+                            </button>
+                        </div>
+
+                        <p x-show="! showAll" class="text-[11px]" style="color: var(--theme-accent);">
+                            <i class="fa-light fa-location-dot mr-1"></i>{{ __('Da Nang - Quang Nam priority') }}
+                        </p>
+
+                        <div class="space-y-2">
+                            <template x-for="group in visibleGroups" :key="group.code">
+                                <div class="rounded-xl border" style="border-color: rgba(var(--theme-border-color-rgb),0.58); background-color: var(--theme-surface-overlay);">
+                                    <button
+                                        type="button"
+                                        x-on:click="toggleExpand(group.code)"
+                                        class="flex w-full items-center gap-2.5 px-3.5 py-3 text-left text-sm font-medium transition hover:bg-[color:rgba(var(--theme-accent-rgb),0.05)]"
+                                        x-bind:class="selectedGroup === group.code ? 'text-[color:var(--theme-accent)]' : ''"
+                                        style="color: var(--theme-header-text-color);"
                                     >
                                         <i class="fa-light w-4 shrink-0" x-bind:class="group.icon" style="color: var(--theme-accent);"></i>
-                                        <span class="leading-4" x-text="group.label"></span>
+                                        <span class="leading-5" x-text="group.label"></span>
+                                        <span x-show="group.compliance_sensitive" x-cloak class="rounded-full border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em]" style="border-color: rgba(var(--theme-warning-color-rgb),0.4); color: var(--theme-warning-color);">
+                                            <i class="fa-light fa-shield-halved"></i>
+                                        </span>
+                                        <i class="fa-light ml-auto text-xs shrink-0 transition-transform" x-bind:class="isExpanded(group.code) ? 'fa-chevron-up' : 'fa-chevron-down'" style="color: var(--theme-muted-text-color);"></i>
                                     </button>
-                                </template>
-                            </div>
-                        </div>
 
-                        {{-- Step 2: specific sub-industry within selected group --}}
-                        <div x-show="selectedGroup && ! isSearching" x-cloak>
-                            <p class="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">
-                                {{ __('Specific industry') }}
-                                <span class="normal-case tracking-normal font-normal" style="color: var(--theme-muted-text-color);" x-show="activeGroupLabel">
-                                    — <span x-text="activeGroupLabel"></span>
-                                </span>
-                            </p>
-                            <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                                <template x-for="item in subOptions" :key="item.type">
-                                    <button
-                                        type="button"
-                                        x-on:click="choose(item.type)"
-                                        x-bind:class="selectedType === item.type ? 'ring-2 ring-[color:var(--theme-accent)] border-[color:rgba(var(--theme-accent-rgb),0.45)] bg-[color:rgba(var(--theme-accent-rgb),0.08)]' : ''"
-                                        class="flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs font-medium transition hover:border-[color:rgba(var(--theme-accent-rgb),0.4)] hover:bg-[color:rgba(var(--theme-accent-rgb),0.06)]"
-                                        style="border-color: rgba(var(--theme-border-color-rgb),0.58); background-color: var(--theme-surface-overlay); color: var(--theme-header-text-color);"
-                                    >
-                                        <i class="fa-light w-4 shrink-0 text-sm" x-bind:class="item.icon" style="color: var(--theme-accent);"></i>
-                                        <span class="leading-4" x-text="item.label"></span>
-                                        <i class="fa-light fa-check ml-auto text-xs shrink-0" style="color: var(--theme-accent);" x-show="selectedType === item.type"></i>
-                                    </button>
-                                </template>
-                            </div>
-                        </div>
-
-                        <div x-show="! selectedGroup && ! isSearching" x-cloak class="rounded-xl border px-4 py-3 text-xs leading-5" style="border-color: rgba(var(--theme-border-color-rgb),0.56); background-color: color-mix(in srgb, var(--theme-surface-soft) 92%, transparent); color: var(--theme-muted-text-color);">
-                            {{ __('Select a main industry group first, then choose the specific industry below.') }}
-                        </div>
-
-                        {{-- Selected industry summary --}}
-                        <div x-show="selectedType" x-cloak>
-                            <p class="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('Selected industry') }}</p>
-                            <div class="flex flex-wrap items-center gap-2">
-                                <span class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold" style="border-color: rgba(var(--theme-accent-rgb),0.25); background-color: rgba(var(--theme-accent-rgb),0.08); color: var(--theme-accent);">
-                                    <i class="fa-light fa-check text-[10px]"></i>
-                                    <span x-text="activeGroupLabel" x-show="activeGroupLabel"></span>
-                                    <span x-show="activeGroupLabel && selectedLabel" class="opacity-60">·</span>
-                                    <span x-text="selectedLabel"></span>
-                                </span>
-                            </div>
-                        </div>
-
-                        {{-- Optional global search shortcut --}}
-                        <div>
-                            <p class="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('Or search industry') }}</p>
-                            <div class="relative">
-                                <i class="fa-light fa-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm" style="color: var(--theme-muted-text-color);"></i>
-                                <input
-                                    x-model="search"
-                                    x-on:keydown.escape.prevent="search = ''"
-                                    x-on:keydown.enter.prevent="searchResults.length ? choose(searchResults[0].type) : null"
-                                    class="h-11 w-full rounded-xl border pl-10 pr-4 text-sm outline-none transition focus:border-[var(--theme-accent)] focus:ring-4 focus:ring-[color:rgba(var(--theme-accent-rgb),0.10)]"
-                                    style="border-color: var(--theme-border-color); background-color: var(--theme-input-surface); color: var(--theme-input-text);"
-                                    placeholder="{{ __('Search industry...') }}"
-                                    autocomplete="off"
-                                >
-                            </div>
-
-                            <div x-show="isSearching" x-cloak class="mt-2 overflow-hidden rounded-2xl border" style="border-color: rgba(var(--theme-border-color-rgb),0.72); background-color: color-mix(in srgb, var(--theme-surface-overlay) 99%, transparent);">
-                                <template x-if="searchResults.length">
-                                    <div class="max-h-72 overflow-y-auto p-2">
-                                        <template x-for="item in searchResults" :key="item.type">
-                                            <button
-                                                type="button"
-                                                class="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition hover:bg-[color:rgba(var(--theme-accent-rgb),0.08)]"
-                                                style="color: var(--theme-header-text-color);"
-                                                x-on:click="choose(item.type)"
-                                            >
-                                                <span>
-                                                    <span x-text="item.label"></span>
-                                                    <span class="ml-1 text-[11px]" style="color: var(--theme-muted-text-color);" x-show="item.group">
-                                                        (<span x-text="groupLabel(item.group)"></span>)
-                                                    </span>
-                                                </span>
-                                                <i class="fa-light fa-check text-xs shrink-0" style="color: var(--theme-accent);" x-show="selectedType === item.type"></i>
-                                            </button>
-                                        </template>
+                                    <div x-show="isExpanded(group.code)" x-collapse x-cloak class="border-t px-3 pb-3 pt-3" style="border-color: rgba(var(--theme-border-color-rgb),0.42);">
+                                        <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                            <template x-for="category in group.categories" :key="category.code">
+                                                <button
+                                                    type="button"
+                                                    x-on:click="chooseIndustry(group.code, category.code)"
+                                                    x-bind:class="selectedCategory === category.code ? 'ring-2 ring-[color:var(--theme-accent)] border-[color:rgba(var(--theme-accent-rgb),0.45)] bg-[color:rgba(var(--theme-accent-rgb),0.08)]' : ''"
+                                                    class="flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-xs font-medium transition hover:border-[color:rgba(var(--theme-accent-rgb),0.4)] hover:bg-[color:rgba(var(--theme-accent-rgb),0.06)]"
+                                                    style="border-color: rgba(var(--theme-border-color-rgb),0.5); background-color: var(--theme-surface-base); color: var(--theme-header-text-color);"
+                                                >
+                                                    <span class="leading-4" x-text="category.label"></span>
+                                                    <i class="fa-light fa-check ml-auto text-xs shrink-0" style="color: var(--theme-accent);" x-show="selectedCategory === category.code"></i>
+                                                </button>
+                                            </template>
+                                        </div>
                                     </div>
-                                </template>
-                                <template x-if="! searchResults.length">
-                                    <div class="px-4 py-5 text-center text-sm" style="color: var(--theme-muted-text-color);">
-                                        <i class="fa-light fa-circle-question mb-2 block text-2xl" style="color: var(--theme-accent);"></i>
-                                        {{ __('No results found') }}
-                                        <p class="mt-1 text-xs">{{ __('If unsure, select Other. MLHUB can help you classify later.') }}</p>
-                                    </div>
-                                </template>
-                            </div>
+                                </div>
+                            </template>
                         </div>
-
-                        <p class="text-[11px] leading-4" style="color: var(--theme-muted-text-color);">
-                            {{ __('If unsure, select Other. MLHUB can help you classify later.') }}
-                        </p>
                     </div>
+
+                    {{-- Selected industry summary --}}
+                    <div x-show="selectedCategory" x-cloak class="rounded-2xl border p-4" style="border-color: rgba(var(--theme-accent-rgb),0.22); background-color: rgba(var(--theme-accent-rgb),0.06);">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('Selected industry') }}</p>
+                        <div class="mt-2 flex flex-wrap items-center gap-2">
+                            <span class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold" style="border-color: rgba(var(--theme-accent-rgb),0.25); background-color: var(--theme-surface-overlay); color: var(--theme-accent);">
+                                <i class="fa-light fa-check text-[10px]"></i>
+                                <span x-text="selectedGroupLabel"></span>
+                                <span class="opacity-60">·</span>
+                                <span x-text="selectedCategoryLabel"></span>
+                            </span>
+                        </div>
+
+                        <div x-show="complianceSensitive" x-cloak class="mt-3 flex items-start gap-2 rounded-xl border px-3 py-2 text-[11px] leading-5" style="border-color: rgba(var(--theme-warning-color-rgb),0.3); background-color: rgba(var(--theme-warning-color-rgb),0.08); color: var(--theme-muted-text-color);">
+                            <i class="fa-light fa-shield-halved mt-0.5" style="color: var(--theme-warning-color);"></i>
+                            <span>{{ __('MLHUB avoids medical or treatment claims for this industry.') }}</span>
+                        </div>
+
+                        <div class="mt-3 grid gap-3 sm:grid-cols-2" x-show="recommendedGoals.length || recommendedSignals.length">
+                            <div x-show="recommendedGoals.length">
+                                <p class="text-[10px] font-semibold uppercase tracking-[0.12em]" style="color: var(--theme-muted-text-color);">{{ __('Recommended setup') }}</p>
+                                <div class="mt-1.5 flex flex-wrap gap-1.5">
+                                    <template x-for="goal in recommendedGoals" :key="goal">
+                                        <span class="rounded-md border px-2 py-0.5 text-[10px] capitalize" style="border-color: rgba(var(--theme-border-color-rgb),0.5); color: var(--theme-header-text-color);" x-text="pretty(goal)"></span>
+                                    </template>
+                                </div>
+                            </div>
+                            <div x-show="recommendedSignals.length">
+                                <p class="text-[10px] font-semibold uppercase tracking-[0.12em]" style="color: var(--theme-muted-text-color);">{{ __('Alternative data signals') }}</p>
+                                <div class="mt-1.5 flex flex-wrap gap-1.5">
+                                    <template x-for="signal in recommendedSignals" :key="signal">
+                                        <span class="rounded-md border px-2 py-0.5 text-[10px] capitalize" style="border-color: rgba(var(--theme-border-color-rgb),0.5); color: var(--theme-muted-text-color);" x-text="pretty(signal)"></span>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-[11px] leading-4" style="color: var(--theme-muted-text-color);">
+                        {{ __('If unsure, select Other. MLHUB can help you classify later.') }}
+                    </p>
                 </div>
             </div>
         </section>
@@ -461,7 +495,7 @@
                     </div>
                     <div class="min-w-0">
                         <p class="truncate text-sm font-semibold" style="color: var(--theme-header-text-color);" x-text="filled(form.name) ? form.name : @js(__('Business name'))"></p>
-                        <p class="mt-1 text-xs uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);" x-text="typeLabel(form.type) || @js(__('Business type'))"></p>
+                        <p class="mt-1 text-xs uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);" x-text="selectedCategoryLabel || @js(__('Business type'))"></p>
                     </div>
                 </div>
                 <div class="mt-4 space-y-2 text-xs" style="color: var(--theme-muted-text-color);">

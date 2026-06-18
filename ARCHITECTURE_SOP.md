@@ -656,6 +656,8 @@ public static function normalizeType(string $type): string
 
 Đảm bảo type lưu về đúng key hiện tại.
 
+> **Cập nhật taxonomy `2026.06` (đã triển khai):** `BusinessTypeCatalog` giờ là source of truth cho cây ngành Alternative Data — **18 nhóm** (9 nhóm ưu tiên Đà Nẵng–Quảng Nam) + full cây ngành con. API chính: `taxonomyTree()`, `priorityGroupCodes()`, `groupMeta()/categoryMeta()`, `resolveSelection($group,$category)` (chuẩn hóa + snapshot metadata + suy `legacy_type`), `inferFromLegacyType($type)` (suy group/category cho hộ cũ chỉ có `type`). Các method cũ `groupedOptions()/popularOptions()` đã thay bằng `taxonomyTree()`; `metadataFor()/searchAliases()/normalizeType()/typeOptions()` vẫn giữ để tương thích legacy. Onboarding lưu `industry_group_code` + `industry_category_code` + `taxonomy_version` (cột mới trên `lb_businesses`); `industry_metadata` chỉ là snapshot, **không** phải source of truth. Nhóm `health_dental_fitness` (+ `nutrition_wellness_coach`, `pharmacy_retail`, `pharma_medical_wholesale`) có `compliance_sensitive=true` → không gợi ý template claim điều trị.
+
 ---
 
 ## 2.12. Quy tắc triển khai an toàn
