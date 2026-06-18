@@ -73,6 +73,9 @@
             return collect($item['children'] ?? [])->contains(fn (array $child): bool => (bool) ($child['active'] ?? false));
         });
     };
+
+    /** Parent sections expanded on first visit (before localStorage preference). */
+    $defaultOpenSidebarSections = ['overview', 'local-businesses', 'team-billing'];
 @endphp
 
 @if ($mode === 'mobile')
@@ -100,6 +103,7 @@
                 $sectionKey = (string) ($section['key'] ?? 'section-'.$loop->index);
                 $sectionIcon = $resolveSectionIcon($section);
                 $sectionActive = $sectionHasActiveItem($section);
+                $defaultSectionOpen = in_array($sectionKey, $defaultOpenSidebarSections, true);
             @endphp
 
             <section
@@ -107,7 +111,7 @@
                 style="{{ $loop->first ? '' : 'border-color: rgba(var(--theme-border-color-rgb), 0.4);' }}"
                 x-data="{
                     sectionKey: @js($sectionKey),
-                    open: false,
+                    open: @js($defaultSectionOpen),
                     init() {
                         const stored = JSON.parse(localStorage.getItem('app-sidebar-sections') || '{}');
                         const hasActive = @js($sectionActive);
@@ -118,7 +122,7 @@
                             return;
                         }
 
-                        this.open = stored[this.sectionKey] ?? false;
+                        this.open = stored[this.sectionKey] ?? @js($defaultSectionOpen);
                     },
                     toggleSection() {
                         this.open = ! this.open;
@@ -221,6 +225,7 @@
             $sectionKey = (string) ($section['key'] ?? 'section-'.$loop->index);
             $sectionIcon = $resolveSectionIcon($section);
             $sectionActive = $sectionHasActiveItem($section);
+            $defaultSectionOpen = in_array($sectionKey, $defaultOpenSidebarSections, true);
         @endphp
 
         <section
@@ -228,7 +233,7 @@
             @if (! $loop->first) style="border-color: var(--theme-border-color);" @endif
             x-data="{
                 sectionKey: @js($sectionKey),
-                open: false,
+                open: @js($defaultSectionOpen),
                 init() {
                     const stored = JSON.parse(localStorage.getItem('app-sidebar-sections') || '{}');
                     const hasActive = @js($sectionActive);
@@ -239,7 +244,7 @@
                         return;
                     }
 
-                    this.open = stored[this.sectionKey] ?? false;
+                    this.open = stored[this.sectionKey] ?? @js($defaultSectionOpen);
                 },
                 toggleSection() {
                     if (! sidebarContentVisible) {
