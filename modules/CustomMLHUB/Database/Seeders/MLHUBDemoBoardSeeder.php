@@ -1318,6 +1318,12 @@ class MLHUBDemoBoardSeeder extends Seeder
             $business = $businesses[$i % count($businesses)];
             $campaign = $campaigns !== [] ? $campaigns[$i % count($campaigns)] : null;
             $createdAt = $this->timeline->at($i + 83, $count);
+            $status = ['published', 'scheduled', 'failed'][$i % 3];
+            // Bài "scheduled" phải đặt lịch trong tương lai để cron publish-scheduled-posts
+            // bỏ qua (không gọi API Google thật trên dữ liệu demo).
+            $scheduledAt = $status === 'scheduled'
+                ? CarbonImmutable::now()->addDays(3 + ($i % 21))
+                : $createdAt->addDays(1);
 
             $rows[] = [
                 'team_id' => $userId,
@@ -1336,11 +1342,11 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'terms' => 'Dữ liệu mô phỏng chỉ dùng cho demo.',
                 'start_at' => $createdAt,
                 'end_at' => $createdAt->addDays(14 + ($i % 9)),
-                'status' => ['published', 'scheduled', 'failed'][$i % 3],
+                'status' => $status,
                 'search_url' => 'https://example.invalid/search',
-                'error_message' => $i % 3 === 2 ? 'Simulated failure log, no API call.' : null,
-                'scheduled_at' => $createdAt->addDays(1),
-                'published_at' => $i % 3 === 0 ? $createdAt->addDays(1) : null,
+                'error_message' => $status === 'failed' ? 'Simulated failure log, no API call.' : null,
+                'scheduled_at' => $scheduledAt,
+                'published_at' => $status === 'published' ? $createdAt->addDays(1) : null,
                 'created_at' => $createdAt,
                 'updated_at' => $createdAt->addDays(1),
             ];

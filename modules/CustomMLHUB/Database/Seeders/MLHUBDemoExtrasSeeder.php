@@ -250,7 +250,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
                 'feed_url' => $source['feed_url'],
                 'blog_category_id' => $categoryId ? (int) $categoryId : null,
                 'tag_ids' => [],
-                'status' => true,
+                'status' => false,
                 'auto_publish' => false,
                 'ai_improve' => false,
                 'ai_auto_translate' => false,
@@ -699,6 +699,37 @@ class MLHUBDemoExtrasSeeder extends Seeder
             $this->writer->insertRows('ai_image_jobs', $rows);
         }
 
+        if ($this->writer->hasTable('ai_video_jobs') && $this->countOwned('ai_video_jobs', 'owner_user_id', $userId) === 0) {
+            $rows = [];
+            $statuses = ['completed', 'completed', 'processing', 'completed'];
+            for ($i = 0; $i < 4; $i++) {
+                $createdAt = $this->timeline->at($i + 18, 4);
+                $status = $statuses[$i % count($statuses)];
+                $rows[] = [
+                    'owner_user_id' => $userId,
+                    'requested_by_user_id' => $userId,
+                    'team_id' => null,
+                    'file_id' => null,
+                    'external_video_id' => 'demo-vid-'.$userId.'-'.$i,
+                    'provider' => 'demo',
+                    'model' => 'demo-video-v1',
+                    'status' => $status,
+                    'progress' => $status === 'completed' ? 100 : 60,
+                    'duration' => ['15', '30', '20', '45'][$i % 4],
+                    'format' => 'mp4',
+                    'size' => ['9:16', '1:1', '16:9', '9:16'][$i % 4],
+                    'prompt' => 'Tạo video ngắn giới thiệu ưu đãi và không gian quán tại Đà Nẵng (mô phỏng).',
+                    'metadata' => ['demo' => true, 'simulate_only' => true],
+                    'last_polled_at' => $createdAt->addMinutes(5),
+                    'completed_at' => $status === 'completed' ? $createdAt->addMinutes(8) : null,
+                    'failed_at' => null,
+                    'created_at' => $createdAt,
+                    'updated_at' => $createdAt,
+                ];
+            }
+            $this->writer->insertRows('ai_video_jobs', $rows);
+        }
+
         if ($this->writer->hasTable('ai_usage_logs') && $this->countOwned('ai_usage_logs', 'user_id', $userId) === 0) {
             $rows = [];
             for ($i = 0; $i < 24; $i++) {
@@ -807,6 +838,62 @@ class MLHUBDemoExtrasSeeder extends Seeder
                     'rating' => [5, 4, 5, 4, 3][$i % 5],
                     'created_at' => CarbonImmutable::now()->subDays(20 - $i),
                     'updated_at' => CarbonImmutable::now(),
+                ]);
+            }
+        }
+
+        if ($this->writer->hasTable('lb_template_packs')
+            && $this->writer->hasTable('lb_template_pack_items')
+            && ! DB::table('lb_template_pack_items')->whereIn('template_id', $templateIds)->exists()) {
+            $packCreatedAt = CarbonImmutable::now()->subDays(45);
+            $packId = $this->writer->insert('lb_template_packs', [
+                'team_id' => null,
+                'name' => 'Bộ mẫu marketing địa phương Đà Nẵng',
+                'slug' => DemoContentCatalog::slug('Bo mau marketing', 'pack-'.$userId),
+                'category' => 'local-business',
+                'description' => 'Bộ sưu tập mẫu landing page, email và tin nhắn dùng cho hộ kinh doanh tại Đà Nẵng (dữ liệu demo).',
+                'preview_image' => null,
+                'source' => 'custom',
+                'visibility' => 'private',
+                'status' => 'active',
+                'version' => '1.0.0',
+                'install_count' => 12 + ($userId % 7),
+                'created_at' => $packCreatedAt,
+                'updated_at' => CarbonImmutable::now(),
+            ]);
+
+            if ($packId) {
+                $itemRows = [];
+                foreach ($templateIds as $i => $templateId) {
+                    $itemRows[] = [
+                        'pack_id' => (int) $packId,
+                        'template_id' => $templateId,
+                        'sort_order' => $i,
+                        'created_at' => $packCreatedAt,
+                        'updated_at' => $packCreatedAt,
+                    ];
+                }
+                $this->writer->insertRows('lb_template_pack_items', $itemRows);
+            }
+        }
+
+        if ($this->writer->hasTable('lb_template_imports')
+            && ! DB::table('lb_template_imports')->where('file_name', 'like', 'mlhub-demo-'.$userId.'-%')->exists()) {
+            $importStatuses = ['completed', 'completed', 'failed'];
+            for ($i = 0; $i < 3; $i++) {
+                $status = $importStatuses[$i % count($importStatuses)];
+                $createdAt = CarbonImmutable::now()->subDays(35 - $i * 7);
+                $this->writer->insert('lb_template_imports', [
+                    'team_id' => null,
+                    'file_name' => 'mlhub-demo-'.$userId.'-'.($i + 1).'.mlhub-template.json',
+                    'status' => $status,
+                    'imported_count' => $status === 'completed' ? 4 + $i : 0,
+                    'failed_count' => $status === 'failed' ? 2 : 0,
+                    'error_log' => $status === 'failed'
+                        ? ['errors' => ['Một số mẫu thiếu trường bắt buộc nên bị bỏ qua (mô phỏng).']]
+                        : null,
+                    'created_at' => $createdAt,
+                    'updated_at' => $createdAt->addMinutes(2),
                 ]);
             }
         }
