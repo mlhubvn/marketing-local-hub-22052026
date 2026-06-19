@@ -28,9 +28,19 @@ class RssImportService
             return ['created' => 0, 'skipped' => 0, 'message' => __('Source is not due yet.')];
         }
 
-        $response = Http::timeout(30)
-            ->accept('application/rss+xml, application/xml, text/xml, application/atom+xml')
-            ->get($source->feed_url);
+        try {
+            $response = Http::timeout(30)
+                ->accept('application/rss+xml, application/xml, text/xml, application/atom+xml')
+                ->get($source->feed_url);
+        } catch (\Throwable $exception) {
+            $source->update([
+                'last_checked_at' => $now,
+                'last_error' => __('Could not fetch the RSS feed.'),
+                'changed' => $now,
+            ]);
+
+            return ['created' => 0, 'skipped' => 0, 'message' => __('Could not fetch the RSS feed.')];
+        }
 
         if (! $response->successful()) {
             $source->update([
