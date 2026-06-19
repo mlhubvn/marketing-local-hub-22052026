@@ -23,6 +23,9 @@ class MLHUBDemoExtrasSeeder extends Seeder
 
     protected DemoTimeline $timeline;
 
+    /** @var array<int, int|null> Cache team id thật theo user để tránh tạo trùng. */
+    protected array $teamIdCache = [];
+
     public function run(): void
     {
         $this->writer = new SafeTableWriter;
@@ -934,13 +937,89 @@ class MLHUBDemoExtrasSeeder extends Seeder
         }
     }
 
+    /**
+     * Tạo (hoặc lấy) 1 team workspace thật cho demo user trả phí, kèm bản ghi
+     * pivot owner. Trả về id của teams.id để các bảng team_* trỏ đúng khóa ngoại.
+     */
+    protected function resolveTeamId(int $userId, string $username): ?int
+    {
+        if (array_key_exists($userId, $this->teamIdCache)) {
+            return $this->teamIdCache[$userId];
+        }
+
+        if (! $this->writer->hasTable('teams')) {
+            return $this->teamIdCache[$userId] = null;
+        }
+
+        $existing = DB::table('teams')->where('owner_user_id', $userId)->value('id');
+
+        if ($existing) {
+            return $this->teamIdCache[$userId] = (int) $existing;
+        }
+
+        $user = DB::table('users')->where('id', $userId)->first();
+        $displayName = (string) ($user->name ?? $username);
+        $createdAt = CarbonImmutable::now()->subMonths(8);
+
+        $teamId = $this->writer->insert('teams', [
+            'name' => 'Đội ngũ '.$displayName,
+            'slug' => 'team-'.$username.'-'.$userId,
+            'description' => 'Workspace demo của '.$displayName.' trên MLHUB.',
+            'enabled_modules' => null,
+            'owner_user_id' => $userId,
+            'created_at' => $createdAt,
+            'updated_at' => CarbonImmutable::now(),
+        ]);
+
+        if (! $teamId) {
+            return $this->teamIdCache[$userId] = null;
+        }
+
+        if ($this->writer->hasTable('team_user')
+            && ! DB::table('team_user')->where('team_id', (int) $teamId)->where('user_id', $userId)->exists()) {
+            $this->writer->insert('team_user', [
+                'team_id' => (int) $teamId,
+                'user_id' => $userId,
+                'role' => 'owner',
+                'permissions' => null,
+                'managed_account_ids' => null,
+                'created_at' => $createdAt,
+                'updated_at' => CarbonImmutable::now(),
+            ]);
+        }
+
+        return $this->teamIdCache[$userId] = (int) $teamId;
+    }
+
+    /** Lấy team id đã tồn tại của user (không tạo mới). */
+    protected function existingTeamId(int $userId): ?int
+    {
+        if (array_key_exists($userId, $this->teamIdCache) && $this->teamIdCache[$userId]) {
+            return $this->teamIdCache[$userId];
+        }
+
+        if (! $this->writer->hasTable('teams')) {
+            return null;
+        }
+
+        $id = DB::table('teams')->where('owner_user_id', $userId)->value('id');
+
+        return $id ? (int) $id : null;
+    }
+
     protected function seedTeamWorkspace(int $userId, string $username, bool $isPaid): void
     {
         if (! $isPaid || ! $this->writer->hasTable('team_conversations')) {
             return;
         }
 
-        if ($this->countOwned('team_conversations', 'team_id', $userId) > 0) {
+        $teamId = $this->resolveTeamId($userId, $username);
+
+        if (! $teamId) {
+            return;
+        }
+
+        if ($this->countOwned('team_conversations', 'team_id', $teamId) > 0) {
             return;
         }
 
@@ -955,7 +1034,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
         foreach ($rooms as $i => $room) {
             $createdAt = CarbonImmutable::now()->subDays(50 - $i * 5);
             $conversationId = $this->writer->insert('team_conversations', [
-                'team_id' => $userId,
+                'team_id' => $teamId,
                 'created_by_user_id' => $userId,
                 'type' => 'room',
                 'title' => $room,
@@ -999,11 +1078,11 @@ class MLHUBDemoExtrasSeeder extends Seeder
             }
         }
 
-        if ($this->writer->hasTable('team_invitations') && $this->countOwned('team_invitations', 'team_id', $userId) === 0) {
+        if ($this->writer->hasTable('team_invitations') && $this->countOwned('team_invitations', 'team_id', $teamId) === 0) {
             $roles = ['member', 'editor', 'viewer'];
             for ($i = 0; $i < 3; $i++) {
                 $this->writer->insert('team_invitations', [
-                    'team_id' => $userId,
+                    'team_id' => $teamId,
                     'invited_by_user_id' => $userId,
                     'accepted_by_user_id' => null,
                     'email' => 'thanhvien'.($i + 1).'+'.$username.'@mlhub.vn',
@@ -1027,7 +1106,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
             for ($i = 0; $i < 14; $i++) {
                 $createdAt = $this->timeline->at($i + 16, 14);
                 $rows[] = [
-                    'team_id' => $userId,
+                    'team_id' => $teamId,
                     'owner_user_id' => $userId,
                     'actor_user_id' => $userId,
                     'subject_type' => 'demo',
@@ -1451,7 +1530,13 @@ class MLHUBDemoExtrasSeeder extends Seeder
             return;
         }
 
-        if ($this->writer->hasTable('team_post_comments') && $this->countOwned('team_post_comments', 'team_id', $userId) === 0) {
+        $teamId = $this->existingTeamId($userId);
+
+        if (! $teamId) {
+            return;
+        }
+
+        if ($this->writer->hasTable('team_post_comments') && $this->countOwned('team_post_comments', 'team_id', $teamId) === 0) {
             $rows = [];
             $messages = [
                 'Bài này ổn rồi, mình duyệt đăng nhé.',
@@ -1461,7 +1546,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
             foreach (array_slice($postIds, 0, 9) as $i => $postId) {
                 $createdAt = $this->timeline->at($i + 14, 9);
                 $rows[] = [
-                    'team_id' => $userId,
+                    'team_id' => $teamId,
                     'post_id' => (int) $postId,
                     'user_id' => $userId,
                     'message' => $messages[$i % count($messages)],
@@ -1473,14 +1558,14 @@ class MLHUBDemoExtrasSeeder extends Seeder
             $this->writer->insertRows('team_post_comments', $rows);
         }
 
-        if ($this->writer->hasTable('team_post_reviews') && $this->countOwned('team_post_reviews', 'team_id', $userId) === 0) {
+        if ($this->writer->hasTable('team_post_reviews') && $this->countOwned('team_post_reviews', 'team_id', $teamId) === 0) {
             $rows = [];
             $statuses = ['approved', 'pending', 'approved', 'changes_requested'];
             foreach (array_slice($postIds, 0, 8) as $i => $postId) {
                 $createdAt = $this->timeline->at($i + 16, 8);
                 $status = $statuses[$i % count($statuses)];
                 $rows[] = [
-                    'team_id' => $userId,
+                    'team_id' => $teamId,
                     'post_id' => (int) $postId,
                     'submitted_by_user_id' => $userId,
                     'decided_by_user_id' => $status === 'pending' ? null : $userId,
