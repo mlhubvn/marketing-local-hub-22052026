@@ -3,6 +3,7 @@
 namespace Modules\CustomMLHUB\Support;
 
 use Illuminate\Console\Command;
+use Modules\CustomMLHUB\Database\Seeders\MLHUBDemoBoardSeeder;
 
 class MLHUBArtisanTasks
 {
@@ -12,6 +13,14 @@ class MLHUBArtisanTasks
 
         $command->info('Đang seed (gói, cấu hình VN, super admin, marketplace)...');
         $command->call('db:seed', ['--force' => true]);
+
+        if ($mode === 'install' && class_exists(MLHUBDemoBoardSeeder::class)) {
+            $command->info('Dang seed demo BOD MLHUB...');
+            $command->call('db:seed', [
+                '--class' => MLHUBDemoBoardSeeder::class,
+                '--force' => true,
+            ]);
+        }
     }
 
     public static function optimize(Command $command): void
