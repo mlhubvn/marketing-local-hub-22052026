@@ -34,7 +34,7 @@
             </div>
         </div>
         <div class="overflow-hidden border border-blueGray-200 rounded-3xl bg-white bg-opacity-90">
-            <div class="localboost-pricing-grid flex flex-wrap">
+            <div class="mlhub-pricing-grid flex flex-wrap">
                 @foreach($planTypes as $typeKey => $typeLabel)
                     @php
                         $plans = $pricing[$typeKey] ?? [];
@@ -52,7 +52,7 @@
                              x-transition
                              style="display: none; z-index: {{ 10 - $index }}">
 
-                            <div class="localboost-pricing-card relative h-full px-9 pt-8 pb-11 {{ !empty($plan['featured']) ? 'is-featured' : '' }}" style="backdrop-filter: blur(46px);">
+                            <div class="mlhub-pricing-card relative h-full px-9 pt-8 pb-11 {{ !empty($plan['featured']) ? 'is-featured' : '' }}" style="backdrop-filter: blur(46px);">
 
                                 {{-- Ribbon Featured --}}
                                 @if(!empty($plan['featured']))

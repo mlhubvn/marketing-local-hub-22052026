@@ -56,7 +56,7 @@
 
 - **Blade + Livewire 4 + Alpine + Tailwind v4.** **KHÔNG thêm React/Vue/SPA.**
 - **Dùng lại** `<x-ui.*>`, `<x-layout.*>`, `<x-theme.*>`, `<x-ai.*>`, `<x-shared.*>` — không dựng lại cái đã có. Màu dùng token `var(--theme-*)`, **không** hard-code màu.
-- Theme active: guest `mlhubfrontend`, backend `mlhubbackend` (fork `localboostai`/`default` — **không** sửa bản gốc). Asset qua `theme_vite()`.
+- Theme active: guest `mlhubfrontend`, backend `mlhubbackend` (base guest `mlhubdefault`, fork app `default` — **không** sửa bản gốc). Asset qua `theme_vite()`.
 - **Text user-facing BẮT BUỘC bọc `__()`** (key = câu tiếng Anh tự nhiên). Không hard-code tiếng Việt/Anh thô trong Blade (trừ MLHUB, tên riêng, route, class CSS).
 - **Đồng bộ i18n trong cùng task:** thêm/sửa/xóa key trong **cả** `lang/en.json` (key+value EN) **và** `lang/vi.json` (bản dịch VI). Xóa copy trong Blade → xóa key ở cả hai file (tránh key mồ côi). Validate JSON parse được.
 - Số/ngày/tiền: dùng `format_number_locale` / `format_money` / `format_date_locale` — **không** `number_format` trần trong Blade.

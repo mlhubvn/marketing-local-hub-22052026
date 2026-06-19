@@ -23,7 +23,7 @@ class AppCouponCampaignsServiceProvider extends ServiceProvider
             'active_when' => ['portal.coupon-campaigns'],
             'icon' => 'fa-light fa-ticket',
             'order' => 30,
-            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('localboost') ?? true,
+            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('mlhub') ?? true,
         ]);
 
     }

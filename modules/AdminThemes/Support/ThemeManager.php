@@ -71,10 +71,10 @@ class ThemeManager
             throw new InvalidArgumentException("Theme area [{$area}] is not configured.");
         }
 
-        $name = (string) $this->optionStore->get(
+        $name = $this->normalizeThemeName((string) $this->optionStore->get(
             $definition['option_key'] ?? "{$area}_theme",
             $definition['fallback'] ?? 'default'
-        );
+        ));
 
         $theme = $this->registry->find($area, $name)
             ?? $this->registry->find($area, (string) ($definition['fallback'] ?? 'default'))
@@ -85,5 +85,13 @@ class ThemeManager
         }
 
         return $this->resolved[$area] = $theme;
+    }
+
+    protected function normalizeThemeName(string $name): string
+    {
+        return match ($name) {
+            'localboostai' => 'mlhubdefault',
+            default => $name,
+        };
     }
 }

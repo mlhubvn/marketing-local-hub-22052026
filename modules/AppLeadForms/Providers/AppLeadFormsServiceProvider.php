@@ -23,7 +23,7 @@ class AppLeadFormsServiceProvider extends ServiceProvider
             'active_when' => ['portal.lead-forms'],
             'icon' => 'fa-light fa-clipboard-list-check',
             'order' => 50,
-            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('localboost') ?? true,
+            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('mlhub') ?? true,
         ]);
     }
 }

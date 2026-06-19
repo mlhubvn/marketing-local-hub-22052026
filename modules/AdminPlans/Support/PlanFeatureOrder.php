@@ -6,7 +6,7 @@ use Illuminate\Support\Collection;
 
 class PlanFeatureOrder
 {
-    public const MLHUB_AI_KEY = 'localboost';
+    public const MLHUB_AI_KEY = 'mlhub';
 
     /**
      * @return array<string, int>

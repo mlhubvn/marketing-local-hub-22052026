@@ -142,7 +142,7 @@ class TemplateUseService
             'delay_value' => (int) data_get($settings, 'delay_value', 0),
             'delay_unit' => (string) data_get($settings, 'delay_unit', 'minutes'),
             'condition_json' => (array) data_get($settings, 'conditions', []),
-            'webhook_url' => (string) data_get($settings, 'webhook_url', url('/webhooks/localboost-template')),
+            'webhook_url' => (string) data_get($settings, 'webhook_url', url('/webhooks/mlhub-template')),
             'method' => (string) data_get($settings, 'method', 'POST'),
             'headers_json' => (array) data_get($settings, 'headers', ['Content-Type' => 'application/json']),
             'secret_token' => null,

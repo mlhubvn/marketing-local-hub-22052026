@@ -23,7 +23,7 @@ class AppLandingPagesServiceProvider extends ServiceProvider
             'active_when' => ['portal.landing-pages'],
             'icon' => 'fa-light fa-browser',
             'order' => 10,
-            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('localboost') ?? true,
+            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('mlhub') ?? true,
         ]);
     }
 }

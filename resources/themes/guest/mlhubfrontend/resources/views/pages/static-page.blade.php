@@ -85,7 +85,7 @@
         }
     </style>
 
-    <section class="localboost-shell localboost-section pt-10">
+    <section class="mlhub-shell mlhub-section pt-10">
         <div class="mx-auto max-w-5xl">
             <span class="lb-static-eyebrow inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-[0.18em]">
                 <i class="fa-light fa-file-lines"></i>
@@ -94,7 +94,7 @@
             <h1 class="mt-6 max-w-4xl text-5xl font-extrabold leading-[1.02] tracking-[-0.07em] text-slate-950 md:text-6xl">{{ $pageTitle }}</h1>
             <p class="mt-5 max-w-3xl text-base leading-8 text-slate-600">
                 {{ $pageType === 'social'
-                    ? __('Public destinations connected to the LocalBoostAI brand.')
+                    ? __('Public destinations connected to the MLHUB brand.')
                     : __('Clear public information for customers, buyers, and operators reviewing the platform.') }}
             </p>
 
@@ -106,7 +106,7 @@
                 @endforeach
             </div>
 
-            <div class="localboost-card mt-6 overflow-hidden rounded-[1.6rem]">
+            <div class="mlhub-card mt-6 overflow-hidden rounded-[1.6rem]">
                 <div class="border-b px-7 py-5 md:px-9" style="border-color: rgba(var(--theme-border-color-rgb),0.82);">
                     <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">{{ __('Page content') }}</p>
                 </div>
@@ -119,7 +119,7 @@
                         @if ($socialLinks !== [])
                             <div class="grid gap-4 md:grid-cols-2">
                                 @foreach ($socialLinks as $link)
-                                    <a href="{{ $link['url'] }}" target="_blank" rel="noopener noreferrer" class="localboost-card localboost-hover-lift rounded-[1.2rem] p-5">
+                                    <a href="{{ $link['url'] }}" target="_blank" rel="noopener noreferrer" class="mlhub-card mlhub-hover-lift rounded-[1.2rem] p-5">
                                         <div class="flex items-center gap-4">
                                             <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-[0.9rem]" style="background: color-mix(in srgb, #ff5f5f 9%, #fff); color: #ff5f5f;">
                                                 <i class="{{ $link['icon'] }} text-xl"></i>

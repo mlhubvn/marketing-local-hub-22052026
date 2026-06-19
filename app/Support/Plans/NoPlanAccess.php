@@ -35,7 +35,7 @@ class NoPlanAccess
             'credits_usage' => self::envBool('MLHUB_NO_PLAN_CREDITS_USAGE', true),
             'credits_usage_limit' => self::envInt('MLHUB_NO_PLAN_CREDITS_LIMIT', 100),
 
-            'localboost' => self::envBool('MLHUB_NO_PLAN_LOCALBOOST', true),
+            'mlhub' => self::envBool('MLHUB_NO_PLAN_MLHUB', self::envBool('MLHUB_NO_PLAN_LOCALBOOST', true)),
             'max_businesses' => self::envInt('MLHUB_NO_PLAN_MAX_BUSINESSES', 1),
             'max_campaigns' => self::envInt('MLHUB_NO_PLAN_MAX_CAMPAIGNS', 5),
             'max_landing_pages' => self::envInt('MLHUB_NO_PLAN_MAX_LANDING_PAGES', 5),

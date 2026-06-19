@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 use Modules\AdminPlans\Support\CatalogLocalization;
+use Modules\AdminPlans\Support\PlanFeatureOrder;
 use Modules\AdminUser\Models\User;
 use Modules\AppBusinessProfiles\Models\LocalBusiness;
 use Modules\AppLandingPages\Models\LandingPage;
@@ -14,22 +15,22 @@ use Modules\AppQRCampaigns\Models\QrCampaign;
 
 class PlanLimitGuard
 {
-    public function ensureLocalBoostEnabled(?User $user): void
+    public function ensureMLHUBEnabled(?User $user): void
     {
         if (! $user) {
             return;
         }
 
-        if (! $user->canUsePlanFeature('localboost')) {
+        if (! $user->canUsePlanFeature(PlanFeatureOrder::MLHUB_AI_KEY)) {
             throw ValidationException::withMessages([
-                'plan' => __('Your current plan does not include LocalBoost AI.'),
+                'plan' => __('Your current plan does not include MLHUB AI.'),
             ]);
         }
     }
 
     public function ensureBusinessCanBeCreated(?User $user): void
     {
-        $this->ensureLocalBoostEnabled($user);
+        $this->ensureMLHUBEnabled($user);
 
         $this->ensureBelowLimit(
             $user,
@@ -41,7 +42,7 @@ class PlanLimitGuard
 
     public function ensureCampaignCanBeCreated(?User $user): void
     {
-        $this->ensureLocalBoostEnabled($user);
+        $this->ensureMLHUBEnabled($user);
 
         $this->ensureBelowLimit(
             $user,
@@ -55,7 +56,7 @@ class PlanLimitGuard
 
     public function ensureLandingPageCanBeCreated(?User $user): void
     {
-        $this->ensureLocalBoostEnabled($user);
+        $this->ensureMLHUBEnabled($user);
 
         $this->ensureBelowLimit(
             $user,
@@ -67,7 +68,7 @@ class PlanLimitGuard
 
     public function ensureQrCodeCanBeCreated(?User $user): void
     {
-        $this->ensureLocalBoostEnabled($user);
+        $this->ensureMLHUBEnabled($user);
 
         $this->ensureBelowLimit(
             $user,
@@ -79,7 +80,7 @@ class PlanLimitGuard
 
     public function ensureTemplateCanBeCreated(?User $user): void
     {
-        $this->ensureLocalBoostEnabled($user);
+        $this->ensureMLHUBEnabled($user);
 
         $this->ensureBelowLimit(
             $user,

@@ -15,7 +15,7 @@ class TemplateImportExportService
     public function exportPayload(MarketingTemplate $template): array
     {
         return [
-            'format' => 'localboost-template',
+            'format' => 'mlhub-template',
             'version' => (string) ($template->version ?: '1.0.0'),
             'exported_at' => now()->toIso8601String(),
             'name' => $template->name,

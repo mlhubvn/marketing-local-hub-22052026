@@ -55,7 +55,7 @@
                             <span class="lb-dot bg-lime-500"></span>
                         </div>
                         <div class="min-w-0">
-                            <p class="truncate text-sm font-black">{{ __('LocalBoost AI') }}</p>
+                            <p class="truncate text-sm font-black">{{ __('MLHUB AI') }}</p>
                             <p class="truncate text-[11px] font-bold" style="color: var(--lb-muted);">{{ __('Assistant chat preview') }}</p>
                         </div>
                     </div>

@@ -8,7 +8,7 @@
     $languages = available_languages();
     $options = app(\Modules\AdminSettings\Support\OptionStore::class);
     $settingsTitle = trim((string) $options->get('website_title', ''));
-    $siteTitle = $settingsTitle !== '' && ! str_contains(strtolower($settingsTitle), 'stackposts') ? $settingsTitle : 'LocalBoost AI';
+    $siteTitle = $settingsTitle !== '' && ! str_contains(strtolower($settingsTitle), 'stackposts') ? $settingsTitle : 'MLHUB AI';
     $siteLogoDark = trim((string) ($options->get('website_logo_brand_dark')
         ?: $options->get('website_logo_dark')
         ?: $options->get('website_logo')
@@ -121,16 +121,16 @@
                             <button
                                 type="button"
                                 x-on:click="toggleTheme()"
-                                class="localboost-button-secondary inline-flex items-center justify-center rounded-[var(--theme-button-radius)] px-4 py-3 text-sm font-semibold sm:col-span-2"
+                                class="mlhub-button-secondary inline-flex items-center justify-center rounded-[var(--theme-button-radius)] px-4 py-3 text-sm font-semibold sm:col-span-2"
                             >
                                 <i class="fa-light mr-2" x-bind:class="resolved === 'dark' ? 'fa-sun-bright' : 'fa-moon-stars'"></i>
                                 <span x-text="resolved === 'dark' ? @js(__('Light mode')) : @js(__('Dark mode'))"></span>
                             </button>
                             @auth
-                                <a href="{{ route('portal.dashboard') }}" class="localboost-button-primary inline-flex items-center justify-center rounded-[var(--theme-button-radius)] px-4 py-3 text-sm font-bold">{{ __('Dashboard') }}</a>
+                                <a href="{{ route('portal.dashboard') }}" class="mlhub-button-primary inline-flex items-center justify-center rounded-[var(--theme-button-radius)] px-4 py-3 text-sm font-bold">{{ __('Dashboard') }}</a>
                             @else
-                                <a href="{{ route('login') }}" class="localboost-button-secondary inline-flex items-center justify-center rounded-[var(--theme-button-radius)] px-4 py-3 text-sm font-semibold">{{ __('Log in') }}</a>
-                                <a href="{{ $signupEnabled ? route('register') : route('login') }}" class="localboost-button-primary inline-flex items-center justify-center rounded-[var(--theme-button-radius)] px-4 py-3 text-sm font-bold">{{ __('Sign up') }}</a>
+                                <a href="{{ route('login') }}" class="mlhub-button-secondary inline-flex items-center justify-center rounded-[var(--theme-button-radius)] px-4 py-3 text-sm font-semibold">{{ __('Log in') }}</a>
+                                <a href="{{ $signupEnabled ? route('register') : route('login') }}" class="mlhub-button-primary inline-flex items-center justify-center rounded-[var(--theme-button-radius)] px-4 py-3 text-sm font-bold">{{ __('Sign up') }}</a>
                             @endauth
                         </div>
                     </div>

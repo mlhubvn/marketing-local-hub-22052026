@@ -112,8 +112,8 @@ class AppAdvancedCustomerCrmServiceProvider extends ServiceProvider
             \Pricing::addSubFeatures([
                 'sort' => 170,
                 'parent' => 'features',
-                'tab_id' => 'localboost',
-                'tab_name' => __('LocalBoost AI'),
+                'tab_id' => 'mlhub',
+                'tab_name' => __('MLHUB AI'),
                 'key' => 'advanced_crm',
                 'label' => __('Advanced Customer CRM'),
                 'check' => true,

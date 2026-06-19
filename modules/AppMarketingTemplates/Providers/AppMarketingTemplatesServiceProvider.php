@@ -23,7 +23,7 @@ class AppMarketingTemplatesServiceProvider extends ServiceProvider
             'active_when' => ['portal.marketing-templates'],
             'icon' => 'fa-light fa-grid-2',
             'order' => 30,
-            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('localboost') ?? true,
+            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('mlhub') ?? true,
         ]);
     }
 }

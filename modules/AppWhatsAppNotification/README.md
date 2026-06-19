@@ -1,6 +1,6 @@
 # WhatsApp Notification Addon
 
-WhatsApp Notification sends customer and business follow-up messages through WhatsApp when LocalBoost AI events happen. It is similar to Email Automation, but the action channel is WhatsApp.
+WhatsApp Notification sends customer and business follow-up messages through WhatsApp when MLHUB AI events happen. It is similar to Email Automation, but the action channel is WhatsApp.
 
 This module is built as a detachable addon under `modules/AppWhatsAppNotification`. It owns its routes, migrations, models, Livewire screens, jobs, trigger listeners, plan keys, and pricing registration.
 
@@ -84,7 +84,7 @@ Suggested packaging:
 - Sidebar registration happens inside `AppWhatsAppNotificationServiceProvider`.
 - Pricing and plan permission registration happen inside the same provider.
 - Trigger listeners use `class_exists` checks before binding to optional modules.
-- Removing this module should not break Email Automation, Webhooks, or core LocalBoost pages.
+- Removing this module should not break Email Automation, Webhooks, or core MLHUB pages.
 
 ## Verification
 

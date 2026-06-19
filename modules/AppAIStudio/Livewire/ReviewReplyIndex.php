@@ -113,7 +113,7 @@ class ReviewReplyIndex extends Component
 
             if (function_exists('consume_credits')) {
                 consume_credits($planOwner, 'ai_studio_review_reply', [
-                    'feature' => 'localboost.ai-review-reply',
+                    'feature' => 'mlhub.ai-review-reply',
                     'metadata' => [
                         'rating' => $payload['rating'],
                         'reply_type' => $payload['reply_type'],

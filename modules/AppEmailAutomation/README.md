@@ -1,6 +1,6 @@
 # Email Automation Addon
 
-Email Automation sends customer and business follow-up emails when LocalBoost AI events happen. It provides rule-based email workflows for bookings, coupons, leads, feedback, reviews, and customer records.
+Email Automation sends customer and business follow-up emails when MLHUB AI events happen. It provides rule-based email workflows for bookings, coupons, leads, feedback, reviews, and customer records.
 
 This module is built as a detachable addon under `modules/AppEmailAutomation`. It owns its routes, migrations, models, Livewire screens, jobs, trigger listeners, templates, plan keys, and pricing registration.
 
@@ -71,7 +71,7 @@ Suggested packaging:
 - Sidebar registration happens inside `AppEmailAutomationServiceProvider`.
 - Pricing and plan permission registration happen inside the same provider.
 - Trigger listeners use `class_exists` checks before binding to optional modules.
-- Removing this module should not break WhatsApp, Webhooks, or core LocalBoost pages.
+- Removing this module should not break WhatsApp, Webhooks, or core MLHUB pages.
 
 ## Verification
 

@@ -795,7 +795,7 @@ class AiContentStudioService
         ];
 
         $response = $this->requestJson(
-            feature: 'localboost.ai-campaign-builder',
+            feature: 'mlhub.ai-campaign-builder',
             systemPrompt: 'You are a local marketing strategist for small businesses. Return valid JSON only. Do not use markdown. Do not include explanations outside JSON.',
             userPrompt: trim(implode("\n", [
                 'Create a practical local business campaign plan.',
@@ -870,7 +870,7 @@ class AiContentStudioService
         }
 
         $response = $this->requestJson(
-            feature: 'localboost.ai-review-reply',
+            feature: 'mlhub.ai-review-reply',
             systemPrompt: 'You are a reputation management assistant for local businesses. Return valid JSON only. Do not use markdown. Do not include explanations outside JSON.',
             userPrompt: trim(implode("\n", [
                 'Write customer review replies for a local business.',
@@ -922,7 +922,7 @@ class AiContentStudioService
         ];
 
         $response = $this->requestJson(
-            feature: 'localboost.content-writer',
+            feature: 'mlhub.content-writer',
             systemPrompt: 'You are a local business marketing copywriter. Return valid JSON only. Do not use markdown. Do not include explanations outside JSON.',
             userPrompt: trim(implode("\n", [
                 'Create one reusable marketing content asset for a local business.',

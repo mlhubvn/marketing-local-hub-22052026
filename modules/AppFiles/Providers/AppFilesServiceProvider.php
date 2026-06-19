@@ -42,7 +42,7 @@ class AppFilesServiceProvider extends ServiceProvider
             'visible' => fn () => app(\Modules\AppFiles\Support\FileManager::class)->filesEnabled(auth()->user()),
         ]);
 
-        // Online media search stays available inside Files; it is too generic for the LocalBoost sidebar.
+        // Online media search stays available inside Files; it is too generic for the MLHUB sidebar.
 
         register_admin_dashboard_item('admin-files.snapshot', [
             'title' => 'Files',

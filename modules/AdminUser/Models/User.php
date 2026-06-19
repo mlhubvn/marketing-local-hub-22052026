@@ -331,11 +331,39 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
 
     public function hasPlanFeature(string $feature): bool
     {
-        $value = $this->hasActivePlan()
-            ? ($this->plan?->permissions[$feature] ?? false)
-            : (NoPlanAccess::enabled() ? (NoPlanAccess::permissions()[$feature] ?? false) : false);
+        foreach ($this->planFeatureLookupKeys($feature) as $key) {
+            $value = $this->planPermissions()[$key] ?? false;
 
-        return $value === true || $value === 1 || $value === '1';
+            if ($value === true || $value === 1 || $value === '1') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function planPermissions(): array
+    {
+        if ($this->hasActivePlan()) {
+            return (array) ($this->plan?->permissions ?? []);
+        }
+
+        return NoPlanAccess::enabled() ? NoPlanAccess::permissions() : [];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function planFeatureLookupKeys(string $feature): array
+    {
+        if ($feature === 'mlhub' || $feature === 'localboost') {
+            return ['mlhub', 'localboost'];
+        }
+
+        return [$feature];
     }
 
     public function canUsePlanFeature(string $feature): bool
@@ -369,15 +397,15 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
 
     public function planLimit(string $key, mixed $default = null): mixed
     {
-        if ($this->hasActivePlan()) {
-            return $this->plan?->permissions[$key] ?? $default;
+        foreach ($this->planFeatureLookupKeys($key) as $lookupKey) {
+            $value = $this->planPermissions()[$lookupKey] ?? null;
+
+            if ($value !== null) {
+                return $value;
+            }
         }
 
-        if (! NoPlanAccess::enabled()) {
-            return $default;
-        }
-
-        return NoPlanAccess::permissions()[$key] ?? $default;
+        return $default;
     }
 
     public function creditSummary(): array

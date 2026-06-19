@@ -4,7 +4,7 @@
             <i class="fa-light fa-arrow-left"></i>{{ $business->name }}
         </a>
         <h1 class="mt-4 text-[2rem] font-semibold tracking-[-0.04em] sm:text-[2.45rem]" style="color: var(--theme-header-text-color);">{{ __('Edit business') }}</h1>
-        <p class="mt-3 max-w-2xl text-sm leading-7" style="color: var(--theme-muted-text-color);">{{ __('Keep customer-facing campaign details accurate across all LocalBoost tools.') }}</p>
+        <p class="mt-3 max-w-2xl text-sm leading-7" style="color: var(--theme-muted-text-color);">{{ __('Keep customer-facing campaign details accurate across all MLHUB tools.') }}</p>
     </section>
 
     @include('appbusinessprofiles::partials.form')

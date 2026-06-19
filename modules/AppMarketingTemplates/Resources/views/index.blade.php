@@ -74,7 +74,7 @@
                 </div>
                 <h1 class="mt-4 max-w-3xl text-[2.35rem] font-semibold leading-[1.02] tracking-[-0.055em] sm:text-[3rem]" style="color: var(--theme-header-text-color);">{{ __('Templates') }}</h1>
                 <p class="mt-4 max-w-2xl text-sm leading-7 sm:text-[1rem]" style="color: var(--theme-muted-text-color);">
-                    {{ __('Build campaign, landing page, form, AI content, email, WhatsApp, and automation templates for the whole LocalBoost AI workflow.') }}
+                    {{ __('Build campaign, landing page, form, AI content, email, WhatsApp, and automation templates for the whole MLHUB AI workflow.') }}
                 </p>
                 <div class="mt-6 flex flex-wrap gap-3">
                     <x-ui.button type="button" size="lg" wire:click="openCreateModal" wire:loading.attr="disabled" wire:target="openCreateModal">
@@ -434,7 +434,7 @@
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <h3 class="text-xl font-semibold" style="color: var(--theme-header-text-color);">{{ __('Import template') }}</h3>
-                        <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Paste a .localboost-template.json export or a template pack JSON with a templates array.') }}</p>
+                        <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Paste a .mlhub-template.json export or a template pack JSON with a templates array.') }}</p>
                     </div>
                     <button type="button" wire:click="closeModal" class="inline-flex h-9 w-9 items-center justify-center rounded-full border" style="border-color: var(--theme-border-color); color: var(--theme-muted-text-color);">
                         <i class="fa-light fa-xmark"></i>

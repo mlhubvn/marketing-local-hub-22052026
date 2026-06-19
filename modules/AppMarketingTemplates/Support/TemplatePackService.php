@@ -23,7 +23,7 @@ class TemplatePackService
         }
 
         return [
-            'format' => 'localboost-template-pack',
+            'format' => 'mlhub-template-pack',
             'name' => $pack->name,
             'slug' => $pack->slug,
             'version' => $pack->version,

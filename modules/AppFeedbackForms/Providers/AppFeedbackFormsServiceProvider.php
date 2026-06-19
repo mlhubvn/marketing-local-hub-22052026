@@ -23,7 +23,7 @@ class AppFeedbackFormsServiceProvider extends ServiceProvider
             'active_when' => ['portal.feedback-forms'],
             'icon' => 'fa-light fa-message-lines',
             'order' => 40,
-            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('localboost') ?? true,
+            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('mlhub') ?? true,
         ]);
     }
 }

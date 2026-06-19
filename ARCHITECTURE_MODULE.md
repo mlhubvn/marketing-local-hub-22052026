@@ -32,7 +32,7 @@ Dùng để tra nhanh khi làm việc với một module mà **không cần qué
 - **Cấu trúc điển hình một module:** `module.json`, `Providers/`, `Routes/web.php`, `Http/Controllers/` (chỉ public form/webhook/download), `Livewire/` (trang full-page), `Models/`, `Support/` (helper không trạng thái), `Services/` (workflow), `Resources/views/` (`loadViewsFrom(..., 'aliasthuong')`), `Database/Migrations/`, `config/config.php` (gộp `config('modules.aliasthuong.*')`).
 - **Route prefix:** đa số hard-code trong `Routes/web.php`. Chỉ `AdminDashboard` (`admin/dashboard`) và `AdminUser` (`admin/users`) khai `route_prefix` trong `config/config.php`.
 
-> **Lưu ý bảng DB:** tiền tố `lb_` chỉ áp dụng cho **engine LocalBoost growth + business/customer** (`lb_campaigns`, `lb_businesses`, `lb_customers`, `lb_loyalty_*`, `lb_crm_*`, `lb_email_*`, `lb_google_*`…). **Nhiều bảng KHÔNG dùng `lb_`**: `users`, `plans`, `teams`, `admin_roles`, `audit_logs`, `coupons`, `blogs`, `faqs`, `languages`, `support_tickets`, `notifications`, `options`, `payment_*`, `payment_subscriptions`, `marketplace_packages`, `affiliate_*`, `credit_*`, `files`, `custom_domains`, `ai_templates`, `ai_usage_logs`, `ai_studio_*`, `ai_prompt_histories`, `ai_content_plans`, `ai_image_jobs`. Khi viết query/migration **kiểm tra tên bảng thật trong model** (`protected $table`).
+> **Lưu ý bảng DB:** tiền tố `lb_` chỉ áp dụng cho **engine MLHUB growth + business/customer** (`lb_campaigns`, `lb_businesses`, `lb_customers`, `lb_loyalty_*`, `lb_crm_*`, `lb_email_*`, `lb_google_*`…). **Nhiều bảng KHÔNG dùng `lb_`**: `users`, `plans`, `teams`, `admin_roles`, `audit_logs`, `coupons`, `blogs`, `faqs`, `languages`, `support_tickets`, `notifications`, `options`, `payment_*`, `payment_subscriptions`, `marketplace_packages`, `affiliate_*`, `credit_*`, `files`, `custom_domains`, `ai_templates`, `ai_usage_logs`, `ai_studio_*`, `ai_prompt_histories`, `ai_content_plans`, `ai_image_jobs`. Khi viết query/migration **kiểm tra tên bảng thật trong model** (`protected $table`).
 
 ---
 
@@ -372,7 +372,7 @@ Mẫu plugin: mỗi `Payment*ServiceProvider` (1) khai `PaymentGatewayDefinition
 
 | Plan key                | Module đăng ký          | Limit keys chính                                                                                           | Env fallback (no-plan)                                    |
 | ----------------------- | ----------------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| `localboost`            | AppBusinessProfiles     | `max_businesses`, `max_campaigns`, `max_landing_pages`, `max_qr_codes`, `max_templates`, `remove_branding` | `MLHUB_NO_PLAN_LOCALBOOST` + `MLHUB_NO_PLAN_MAX_*`        |
+| `mlhub`            | AppBusinessProfiles     | `max_businesses`, `max_campaigns`, `max_landing_pages`, `max_qr_codes`, `max_templates`, `remove_branding` | `MLHUB_NO_PLAN_MLHUB` (+ legacy `MLHUB_NO_PLAN_LOCALBOOST`) |
 | `credits_usage`         | (AdminAI sub-feature)   | `credits_usage_limit`, `credit_cost_*`                                                                     | `MLHUB_NO_PLAN_CREDITS_*`                                 |
 | `files`                 | AppFiles                | `max_storage_size_mb`, `max_file_size_mb`, `file_picker`, `image_editor`, `search_media_online`            | `MLHUB_NO_PLAN_FILES`, `..._MAX_STORAGE_MB`, `..._FILE_*` |
 | `ai_studio`             | AppAIStudio             | `ai_studio_caption_generator`, `ai_studio_repurpose`, `ai_studio_content_planner`, `ai_studio_image`       | `MLHUB_NO_PLAN_AI_*`                                      |
@@ -513,7 +513,7 @@ Mỗi module khi test phải có đủ 6 đầu ra:
 
 ### 17.3. Nhóm B — Business core: hồ sơ kinh doanh, địa điểm, khách hàng
 
-**Mục tiêu:** đây là lõi của LocalBoost/FizaMKT. User phải tạo được doanh nghiệp, địa điểm và bắt đầu lưu khách hàng.
+**Mục tiêu:** đây là lõi của MLHUB. User phải tạo được doanh nghiệp, địa điểm và bắt đầu lưu khách hàng.
 
 **Module cần test:**
 

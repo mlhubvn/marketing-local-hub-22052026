@@ -22,12 +22,12 @@ class AppLocalAnalyticsServiceProvider extends ServiceProvider
             'active_when' => ['portal.reports'],
             'icon' => 'fa-light fa-chart-line',
             'order' => 10,
-            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('localboost') ?? true,
+            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('mlhub') ?? true,
         ]);
 
-        register_admin_dashboard_item('localboost.snapshot', [
-            'title' => 'LocalBoost AI',
-            'view' => 'applocalanalytics::dashboard.localboost-snapshot',
+        register_admin_dashboard_item('mlhub.snapshot', [
+            'title' => __('MLHUB AI'),
+            'view' => 'applocalanalytics::dashboard.mlhub-snapshot',
             'width' => 'full',
             'order' => 35,
             'data' => fn () => [

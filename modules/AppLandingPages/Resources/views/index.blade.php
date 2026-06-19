@@ -8,7 +8,7 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=be-vietnam-pro:400,500,600,700,800|manrope:400,500,600,700,800|nunito:400,500,600,700,800|lora:400,500,600,700" rel="stylesheet">
         <script>
-            window.localBoostLandingBlockSorter = function (wire) {
+            window.mlhubLandingBlockSorter = function (wire) {
                 return {
                     sortable: null,
                     init() {
@@ -74,7 +74,7 @@
             'goal' => 'Create copy for a local campaign landing page that converts visitors into leads, bookings, coupon claims, feedback, or review clicks.',
             'offer' => 'Local campaign offer or service',
             'target_customer' => 'Local customers',
-            'details' => 'Generate headline, subheadline, benefits, CTA, FAQ, terms, and thank you message for a LocalBoost landing page.',
+            'details' => 'Generate headline, subheadline, benefits, CTA, FAQ, terms, and thank you message for a MLHUB landing page.',
             'source_type' => 'landing_page',
         ], fn ($value) => filled($value)));
     @endphp

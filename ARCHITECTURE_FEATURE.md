@@ -87,7 +87,7 @@ User đăng ký mới được tự động gán plan có `default_signup_plan=t
 | Nhóm | Tính năng / Addon | Key kiểm tra code | Env bật/tắt | Env hạn mức / phụ |
 | ---- | ----------------- | ----------------- | ----------- | ----------------- |
 | **Credits** | AI credits | `credits_usage` | `MLHUB_NO_PLAN_CREDITS_USAGE` | `MLHUB_NO_PLAN_CREDITS_LIMIT` |
-| **LocalBoost** | Toàn bộ growth + Businesses + Reports | `localboost` | `MLHUB_NO_PLAN_LOCALBOOST` | — |
+| **MLHUB AI** | Toàn bộ growth + Businesses + Reports | `mlhub` | `MLHUB_NO_PLAN_MLHUB` | — |
 | | Review / Booking / Coupon / Feedback / Lead | *(gộp trong `localboost`)* | — | `MLHUB_NO_PLAN_MAX_CAMPAIGNS` |
 | | Hồ sơ doanh nghiệp | — | — | `MLHUB_NO_PLAN_MAX_BUSINESSES` |
 | | Landing pages | — | — | `MLHUB_NO_PLAN_MAX_LANDING_PAGES` |
@@ -522,7 +522,7 @@ Phần này liệt kê các việc bảo mật còn lại bằng ngôn ngữ d�
 
 ### 14.8 Branding & casing còn sót (P2 — UI production) 🟠
 
-- **LocalBoost user-facing:** còn chuỗi "LocalBoost"/"LocalBoost AI" trong theme guest active `mlhubfrontend` (`partials/about-sections.blade.php`, `partials/head.blade.php`) và `modules/AppMarketingTemplates/Resources/views/index.blade.php`. UI production phải là **MLHUB**.
+- **Branding MLHUB:** user-facing và plan permission key đã chuyển sang `mlhub` (alias đọc `localboost` cũ trên DB cho tới khi migration chạy).
 - **Casing sai `Mlhub`:** `modules/AdminPlans/Support/PlanFeatureOrder.php` có `isMlhubAiFeature()` — vi phạm quy tắc thương hiệu (chỉ `MLHUB`/`mlhub`).
 - **Phải làm (task code riêng, không phải task docs):** đổi chuỗi user-facing sang MLHUB + đồng bộ `lang/en.json`/`lang/vi.json`; đổi tên method `isMlhubAiFeature()` → `isMLHUBAiFeature()` (đúng casing thương hiệu) cùng mọi nơi gọi. Vì đụng code nghiệp vụ → cần plan + duyệt.
 

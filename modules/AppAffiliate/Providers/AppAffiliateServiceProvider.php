@@ -34,6 +34,6 @@ class AppAffiliateServiceProvider extends ServiceProvider
             'order' => 180,
         ]);
 
-        // Affiliate remains available by route/settings, but it is not part of the LocalBoost MVP sidebar.
+        // Affiliate remains available by route/settings, but it is not part of the MLHUB MVP sidebar.
     }
 }

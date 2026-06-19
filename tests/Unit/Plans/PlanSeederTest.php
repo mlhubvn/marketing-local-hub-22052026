@@ -162,7 +162,7 @@ test('all official plans use the shared MLHUB permission baseline and AI credit 
 
         expect($permissions)
             ->credits_usage->toBeTrue()
-            ->localboost->toBeTrue()
+            ->mlhub->toBeTrue()
             ->files->toBeTrue()
             ->support->toBeTrue()
             ->image_editor->toBeTrue()

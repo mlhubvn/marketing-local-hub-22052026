@@ -182,7 +182,7 @@ class AITemplateGeneratorService
     protected function systemPrompt(): string
     {
         return implode("\n", [
-            'You are the Template Engine generator for LocalBoost AI, a platform for local-business marketing.',
+            'You are the Template Engine generator for MLHUB AI, a platform for local-business marketing.',
             'Return one complete production-ready template as valid JSON only.',
             'Do not wrap the JSON in markdown.',
             'Use practical copy, realistic local-business defaults, and concise UI-safe text.',
@@ -199,7 +199,7 @@ class AITemplateGeneratorService
      */
     protected function userPrompt(array $payload): string
     {
-        return 'Create a LocalBoost AI template from this brief: '.json_encode([
+        return 'Create a MLHUB AI template from this brief: '.json_encode([
             'business_category' => (string) ($payload['category'] ?? 'local service'),
             'goal' => (string) ($payload['goal'] ?? 'lead'),
             'campaign_type' => (string) ($payload['campaign_type'] ?? 'campaign'),

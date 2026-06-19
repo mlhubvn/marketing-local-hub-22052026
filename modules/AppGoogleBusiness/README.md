@@ -1,6 +1,6 @@
 # Google Business Profile Integration Addon
 
-Google Business Profile Integration Addon connects LocalBoost AI with Google Business Profile so users can import Google locations, map them to LocalBoost businesses, sync reviews, and publish review replies from the portal.
+Google Business Profile Integration Addon connects MLHUB AI with Google Business Profile so users can import Google locations, map them to MLHUB businesses, sync reviews, and publish review replies from the portal.
 
 ## What This Module Does
 
@@ -9,8 +9,8 @@ Google Business Profile Integration Addon connects LocalBoost AI with Google Bus
 - Show a temporary location selection list after Google connect.
 - Store only the Google locations that users choose to add.
 - Let users choose which added Google locations to manage.
-- Map a Google location to an existing LocalBoost business.
-- Create a LocalBoost business from a Google location.
+- Map a Google location to an existing MLHUB business.
+- Create a MLHUB business from a Google location.
 - Stop managing or delete synced Google locations from the workspace.
 - Sync business profile data, opening hours, and reviews.
 - Auto-sync reviews with a cron command.
@@ -20,11 +20,11 @@ Google Business Profile Integration Addon connects LocalBoost AI with Google Bus
 - Publish review replies back to Google.
 - Create local Google Business post drafts.
 - Publish standard, offer, event, and alert posts to Google Business Profile.
-- Link posts to LocalBoost campaigns, booking pages, coupon pages, lead forms, or landing pages by CTA URL.
+- Link posts to MLHUB campaigns, booking pages, coupon pages, lead forms, or landing pages by CTA URL.
 - Store Google post publish logs for audit and troubleshooting.
 - Expose plan and pricing permissions for selling this as a separate addon.
 
-The module is self-contained under `modules/AppGoogleBusiness`. It can be removed without breaking core LocalBoost pages because core references use guarded `class_exists` checks.
+The module is self-contained under `modules/AppGoogleBusiness`. It can be removed without breaking core MLHUB pages because core references use guarded `class_exists` checks.
 
 ## Module Routes
 
@@ -48,7 +48,7 @@ https://your-domain.com/portal/integrations/google-business/callback
 For local development, use your local URL:
 
 ```text
-https://localhost/v12/localboostai/portal/integrations/google-business/callback
+https://localhost/portal/integrations/google-business/callback
 ```
 
 5. Enable/request access for Google Business Profile APIs.
@@ -112,7 +112,7 @@ The module creates these tables:
 | Table | Purpose |
 | --- | --- |
 | `lb_google_business_connections` | OAuth connection and encrypted tokens |
-| `lb_google_business_locations` | Synced Google locations and LocalBoost business mapping |
+| `lb_google_business_locations` | Synced Google locations and MLHUB business mapping |
 | `lb_google_reviews` | Synced Google reviews and reply state |
 | `lb_google_auto_reply_rules` | Auto reply rules by rating, text, location, and business |
 | `lb_google_auto_reply_logs` | Auto reply generation, publish, skipped, and failed logs |
@@ -129,10 +129,10 @@ Google locations from OAuth are first stored temporarily in the session as selec
 
 | State | Meaning |
 | --- | --- |
-| Available | Added to LocalBoost, visible in Locations, but not used for reviews, analytics, auto reply, or cron sync |
+| Available | Added to MLHUB, visible in Locations, but not used for reviews, analytics, auto reply, or cron sync |
 | Managed | Enabled by the user with **Manage**, **Map**, or **Import** |
-| Stopped | Kept in LocalBoost but removed from managed review/analytics/auto-reply workflows |
-| Deleted | Removed from LocalBoost. The Google account stays connected and the location can be synced again later |
+| Stopped | Kept in MLHUB but removed from managed review/analytics/auto-reply workflows |
+| Deleted | Removed from MLHUB. The Google account stays connected and the location can be synced again later |
 
 Newly connected Google locations are shown in a temporary choose-location list. This prevents agencies with many Google locations from accidentally adding every location after OAuth.
 
@@ -161,20 +161,20 @@ Suggested packaging:
 1. Open **Integrations > Google Business**.
 2. Click **Connect Google**.
 3. Complete Google OAuth.
-4. LocalBoost fetches Google locations and redirects to the **Locations** tab.
+4. MLHUB fetches Google locations and redirects to the **Locations** tab.
 5. Choose only the locations this workspace should add.
 6. For each location, use:
-   - **Add to manage** to write the selected Google location into LocalBoost.
+   - **Add to manage** to write the selected Google location into MLHUB.
    - **Manage** to enable reviews, analytics, and auto reply for that location.
-   - **Map** to connect it to an existing LocalBoost business.
-   - **Import** to create a new LocalBoost business from the Google location.
+   - **Map** to connect it to an existing MLHUB business.
+   - **Import** to create a new MLHUB business from the Google location.
    - **Stop** to keep the location synced but remove it from managed workspaces.
-   - **Delete** to remove the synced Google location from LocalBoost.
+   - **Delete** to remove the synced Google location from MLHUB.
 7. Open the **Reviews** tab to sync, filter, draft, and publish Google review replies.
 8. Open the **Auto Reply** tab to create AI reply rules.
 9. Open **Analytics** to monitor review and location performance.
 
-Important: connecting Google does **not** automatically add or manage every Google location. Locations are added to LocalBoost only after the user chooses **Add to manage**.
+Important: connecting Google does **not** automatically add or manage every Google location. Locations are added to MLHUB only after the user chooses **Add to manage**.
 
 ## Google Business Tabs
 
@@ -235,7 +235,7 @@ Auto reply logs record skipped, draft, published, and failed outcomes so API iss
 
 ## Google Business Posts
 
-The **Posts** tab lets users create and publish Google Business Profile Local Posts from LocalBoost.
+The **Posts** tab lets users create and publish Google Business Profile Local Posts from MLHUB.
 
 Supported post types:
 

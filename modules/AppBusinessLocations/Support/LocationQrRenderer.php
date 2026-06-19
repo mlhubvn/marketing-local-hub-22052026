@@ -164,7 +164,7 @@ class LocationQrRenderer
         }
 
         $svg[] = '<rect x="184" y="'.($height - 72).'" width="152" height="34" rx="17" fill="'.$accent.'" fill-opacity="0.12"/>';
-        $svg[] = '<text x="260" y="'.($height - 50).'" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="800" letter-spacing="2" fill="'.$accent.'">LOCALBOOST AI</text>';
+        $svg[] = '<text x="260" y="'.($height - 50).'" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="800" letter-spacing="2" fill="'.$accent.'">MLHUB AI</text>';
         $svg[] = '</svg>';
 
         return implode('', $svg);

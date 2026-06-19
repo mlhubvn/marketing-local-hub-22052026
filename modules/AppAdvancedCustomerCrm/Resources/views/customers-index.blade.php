@@ -8,7 +8,7 @@
             <div>
                 <div class="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]" style="border-color: rgba(var(--theme-border-color-rgb), .62); color: var(--theme-muted-text-color); background-color: color-mix(in srgb, var(--theme-surface-base) 80%, transparent);"><i class="fa-light fa-users-viewfinder"></i>{{ __('Advanced CRM') }}</div>
                 <h1 class="mt-4 text-[2.35rem] font-semibold leading-[1.02] tracking-[-0.055em] sm:text-[3rem]" style="color: var(--theme-header-text-color);">{{ __('CRM Customers') }}</h1>
-                <p class="mt-4 max-w-2xl text-sm leading-7 sm:text-[1rem]" style="color: var(--theme-muted-text-color);">{{ __('Timeline, tags, status, score, notes, tasks, and customer lifecycle context from every LocalBoost touchpoint.') }}</p>
+                <p class="mt-4 max-w-2xl text-sm leading-7 sm:text-[1rem]" style="color: var(--theme-muted-text-color);">{{ __('Timeline, tags, status, score, notes, tasks, and customer lifecycle context from every MLHUB touchpoint.') }}</p>
                 <div class="mt-6 flex flex-wrap gap-3">
                     <a href="{{ route('portal.crm.export.customers') }}" class="inline-flex h-12 items-center justify-center gap-2 rounded-xl border px-5 text-sm font-semibold shadow-[0_12px_24px_-18px_rgba(20,125,120,.75)] transition hover:-translate-y-0.5" style="border-color: rgba(var(--theme-accent-rgb), .28); background-color: var(--theme-accent); color: var(--theme-accent-foreground, #fff);">
                         <i class="fa-light fa-file-csv"></i>{{ __('Export CSV') }}
@@ -124,7 +124,7 @@
                 <div class="flex items-center gap-2">{{ $customers->links() }}</div>
             </div>
         @else
-            <div class="p-8"><x-ui.empty icon="fa-light fa-users-viewfinder" :title="__('No CRM customers found')" :description="__('Customers appear here from LocalBoost forms, bookings, coupons, loyalty, referral, and manual records.')" /></div>
+            <div class="p-8"><x-ui.empty icon="fa-light fa-users-viewfinder" :title="__('No CRM customers found')" :description="__('Customers appear here from MLHUB forms, bookings, coupons, loyalty, referral, and manual records.')" /></div>
         @endif
     </section>
 </div>

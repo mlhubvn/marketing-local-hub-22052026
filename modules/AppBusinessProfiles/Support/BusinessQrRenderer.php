@@ -175,7 +175,7 @@ class BusinessQrRenderer
         }
 
         $svg[] = '<rect x="184" y="'.($height - 72).'" width="152" height="34" rx="17" fill="'.$accent.'" fill-opacity="0.12"/>';
-        $svg[] = '<text x="260" y="'.($height - 50).'" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="800" letter-spacing="2" fill="'.$accent.'">LOCALBOOST AI</text>';
+        $svg[] = '<text x="260" y="'.($height - 50).'" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="800" letter-spacing="2" fill="'.$accent.'">MLHUB AI</text>';
         $svg[] = '</svg>';
 
         return implode('', $svg);
@@ -316,7 +316,7 @@ class BusinessQrRenderer
         $badgeX = 184 * $scale;
         $badgeY = ($height - 72 * $scale);
         $this->gdRoundedRect($image, $badgeX, $badgeY, 152 * $scale, 34 * $scale, 17 * $scale, $this->gdColor($image, $this->hex((string) $design['accent_color'], '#14b8a6'), 35));
-        $this->gdCenterText($image, 'LOCALBOOST AI', 2, $height - 50 * $scale, $accent);
+        $this->gdCenterText($image, 'MLHUB AI', 2, $height - 50 * $scale, $accent);
 
         return $image;
     }

@@ -115,7 +115,7 @@ class EmailAutomationService
             'trigger_event' => $trigger,
             'related_type' => $related::class,
             'related_id' => $related->getKey(),
-            'recipient_email' => $recipient['email'] ?: 'skipped@localboost.invalid',
+            'recipient_email' => $recipient['email'] ?: 'skipped@mlhub.invalid',
             'recipient_name' => $recipient['name'] ?: null,
             'subject' => __('Skipped automation email'),
             'body' => null,

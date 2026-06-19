@@ -334,7 +334,7 @@ class PlanSeeder extends Seeder
             'credit_cost_ai_studio_plan_calendar' => 2,
             'credit_cost_ai_studio_review_reply' => 1,
             'credit_cost_ai_studio_generate_image' => 10,
-            'localboost' => true,
+            'mlhub' => true,
             'max_businesses' => 0,
             'max_campaigns' => 0,
             'max_landing_pages' => 0,

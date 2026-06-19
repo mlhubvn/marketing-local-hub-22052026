@@ -23,7 +23,7 @@ class AppQRCampaignsServiceProvider extends ServiceProvider
             'active_when' => ['portal.qr-campaigns'],
             'icon' => 'fa-light fa-qrcode',
             'order' => 20,
-            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('localboost') ?? true,
+            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('mlhub') ?? true,
         ]);
 
     }

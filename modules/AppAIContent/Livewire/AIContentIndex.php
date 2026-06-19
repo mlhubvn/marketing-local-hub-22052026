@@ -131,7 +131,7 @@ class AIContentIndex extends Component
 
             if (function_exists('consume_credits')) {
                 consume_credits($planOwner, 'ai_studio_generate_captions', [
-                    'feature' => 'localboost.content-writer',
+                    'feature' => 'mlhub.content-writer',
                     'metadata' => [
                         'content_type' => $payload['content_type'],
                         'language' => $payload['language'],

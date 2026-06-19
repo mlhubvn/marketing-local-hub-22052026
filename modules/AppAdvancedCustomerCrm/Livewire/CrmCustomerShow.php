@@ -457,7 +457,7 @@ class CrmCustomerShow extends Component
             'AppLoyaltyStampCards' => __('Loyalty'),
             'AppReferralInviteFriend' => __('Referral'),
             'advanced_crm' => __('Advanced CRM'),
-            default => filled($module) ? str($module)->headline()->toString() : __('LocalBoost'),
+            default => filled($module) ? str($module)->headline()->toString() : __('MLHUB'),
         };
     }
 }

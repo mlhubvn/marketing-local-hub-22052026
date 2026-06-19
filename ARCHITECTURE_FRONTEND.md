@@ -30,8 +30,8 @@ Tài liệu mô tả tầng giao diện & tương tác: stack frontend, luồng 
 ```
 resources/themes/
   app/default/              THEME backend core — KHÔNG sửa
-  guest/localboostai/       THEME marketing/auth core — KHÔNG sửa
-  guest/mlhubfrontend/       theme guest MLHUB (fork localboostai)
+  guest/mlhubdefault/         THEME marketing/auth core — KHÔNG sửa
+  guest/mlhubfrontend/        theme guest MLHUB (fork mlhubdefault)
   shared/                   CSS/JS/plugin dùng chung — KHÔNG sửa
     css/theme-base.css
     js/{highcharts,image-editor,fingerprint,…}.js
@@ -62,13 +62,13 @@ resources/themes/{area}/{name}/
 
 | Area    | Theme mặc định (code) | **Theme đang ACTIVE (env)**            | Dùng cho                                                                      |
 | ------- | --------------------- | -------------------------------------- | ----------------------------------------------------------------------------- |
-| `guest` | `localboostai`        | `**mlhubfrontend`** (`THEME_FRONTEND`) | Home, pricing, blogs, faqs, contact, login/register/reset                     |
+| `guest` | `mlhubdefault`        | `**mlhubfrontend`** (`THEME_FRONTEND`) | Home, pricing, blogs, faqs, contact, login/register/reset                     |
 | `app`   | `default`             | `**mlhubbackend**` (`THEME_BACKEND`)   | Portal (`/portal/*`), admin (`/admin/*`), settings (`/settings/*`), dashboard |
 
 
 Theme đang dùng của mỗi area lưu trong `OptionStore` (`frontend_theme`, `backend_theme`), chỉnh ở **Admin → Themes**, và được khởi tạo từ env `THEME_FRONTEND` / `THEME_BACKEND`.
 
-> **Quan trọng cho vibecode:** khu guest đang dùng `**mlhubfrontend`** (`resources/themes/guest/mlhubfrontend/`, fork `localboostai`). Backend portal dùng `**mlhubbackend**` (fork `default`). Gốc upstream vẫn là `localboostai` / `default` để merge update tác giả. App là **MLHUB** (`mlhub.vn`), locale mặc định `**vi`**. Khi custom UI, ưu tiên sửa file theme/module hiện có; tránh tạo file view/component mới nếu chỉ là đổi định dạng/branding.
+> **Quan trọng cho vibecode:** khu guest đang dùng `**mlhubfrontend`** (`resources/themes/guest/mlhubfrontend/`, fork `mlhubdefault`). Backend portal dùng `**mlhubbackend**` (fork `default`). Gốc upstream vẫn là `mlhubdefault` / `default` để merge update tác giả. App là **MLHUB** (`mlhub.vn`), locale mặc định `**vi`**. Khi custom UI, ưu tiên sửa file theme/module hiện có; tránh tạo file view/component mới nếu chỉ là đổi định dạng/branding.
 
 ### 2.3 Giải quyết theme khi runtime
 
@@ -135,10 +135,10 @@ Các quy ước thực tế trong code:
 
 ## 5. Frontend khách / marketing (khu guest)
 
-- Theme **đang active**: `resources/themes/guest/mlhubfrontend/` (fork `localboostai` — **không** sửa bản gốc).
+- Theme **đang active**: `resources/themes/guest/mlhubfrontend/` (fork `mlhubdefault` — **không** sửa bản gốc).
 - Trang: `resources/views/pages/*.blade.php` **bên trong theme guest đang active** (pricing, blogs, contact, faqs, home).
 
-> **⚠️ Backlog P2 (branding):** còn sót chuỗi user-facing **"LocalBoost"/"LocalBoost AI"** trong theme guest active (`mlhubfrontend/.../partials/about-sections.blade.php`, `partials/head.blade.php`) và `modules/AppMarketingTemplates/Resources/views/index.blade.php`. UI production phải hiển thị **MLHUB**. Sửa ở task code riêng (đổi chuỗi + đồng bộ `lang/en.json`/`lang/vi.json`), **không** trong task tài liệu này. Cũng còn `isMlhubAiFeature()` (casing sai `Mlhub`) trong `modules/AdminPlans/Support/PlanFeatureOrder.php` — xem `ARCHITECTURE_FEATURE.md` §14.
+> **Branding / theme:** guest active = `mlhubfrontend`; base guest = `mlhubdefault` (đổi tên từ `localboostai`). CSS class `localboost-*` trong `mlhubdefault` vẫn là identifier nội bộ — đổi sang `mlhub-*` ở task riêng nếu cần grep sạch.
 - Layout: `layouts/app.blade.php` với `theme_vite('guest', [...])`.
 - View auth của Fortify được bind trong `App\Providers\FortifyServiceProvider` tới các Livewire component, vốn dùng layout của theme guest.
 
@@ -174,10 +174,10 @@ Theo thứ tự "ít rủi ro nhất → nhiều nhất":
 ### 7.3 Clone theme (rebrand toàn diện — khuyến nghị)
 
 1. Copy `resources/themes/app/default` → `resources/themes/app/custom` (đổi `name`, `order` trong `theme.json`).
-2. Copy `resources/themes/guest/localboostai` → `resources/themes/guest/custom` nếu cần đổi cả marketing (mẫu sẵn có: `guest/mlhubfrontend`).
+2. Copy `resources/themes/guest/mlhubdefault` → `resources/themes/guest/custom` nếu cần đổi cả marketing (mẫu sẵn có: `guest/mlhubfrontend`).
 3. Chạy Vite build trong theme custom → output phải vào `public/build/themes/{area}/custom/`.
 4. Kích hoạt ở **Admin → Themes**.
-5. **Không** sửa `default`/`localboostai` sau khi fork — bản fork tự mang theo thay đổi.
+5. **Không** sửa `default`/`mlhubdefault` sau khi fork — bản fork tự mang theo thay đổi.
 
 ### 7.4 Override một view Blade
 
@@ -213,12 +213,12 @@ Theo thứ tự "ít rủi ro nhất → nhiều nhất":
 | Đường dẫn                                                                                                    | Sửa?                                 |
 | ------------------------------------------------------------------------------------------------------------ | ------------------------------------ |
 | `resources/themes/app/default/`**                                                                            | ✗                                    |
-| `resources/themes/guest/localboostai/**`                                                                     | ✗                                    |
+| `resources/themes/guest/mlhubdefault/**`                                                                     | ✗                                    |
 | `resources/themes/shared/**`                                                                                 | ✗                                    |
 | `resources/themes/app/custom/**`, `resources/themes/guest/custom/**` (hoặc `mlhubfrontend` / `mlhubbackend`) | ✓                                    |
 | `modules/{Admin,App,Payment}*/Resources/views/**`                                                            | ✗ (trừ sửa lỗi production, surgical) |
 | `modules/Custom*/Resources/views/**`, `app/Custom/resources/views/**`                                        | ✓                                    |
-| `public/build/themes/app/default/**`, `.../guest/localboostai/**`                                            | ✗                                    |
+| `public/build/themes/app/default/**`, `.../guest/mlhubdefault/**`                                            | ✗                                    |
 | `public/build/themes/{area}/custom/**`                                                                       | ✓ (artifact build)                   |
 
 

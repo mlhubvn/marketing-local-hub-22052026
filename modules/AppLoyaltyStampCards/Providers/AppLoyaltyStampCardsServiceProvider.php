@@ -46,8 +46,8 @@ class AppLoyaltyStampCardsServiceProvider extends ServiceProvider
             \Pricing::addSubFeatures([
                 'sort' => 166,
                 'parent' => 'features',
-                'tab_id' => 'localboost',
-                'tab_name' => __('LocalBoost AI'),
+                'tab_id' => 'mlhub',
+                'tab_name' => __('MLHUB AI'),
                 'key' => 'loyalty_stamp_cards',
                 'label' => __('Loyalty & Referral'),
                 'check' => true,

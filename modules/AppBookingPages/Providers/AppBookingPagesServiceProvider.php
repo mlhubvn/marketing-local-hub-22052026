@@ -23,7 +23,7 @@ class AppBookingPagesServiceProvider extends ServiceProvider
             'active_when' => ['portal.booking-pages'],
             'icon' => 'fa-light fa-calendar-check',
             'order' => 20,
-            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('localboost') ?? true,
+            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('mlhub') ?? true,
         ]);
     }
 }

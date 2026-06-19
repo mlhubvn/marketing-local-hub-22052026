@@ -18,13 +18,13 @@ class AppBusinessProfilesServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
 
         register_plan_permission([
-            'key' => 'localboost',
-            'label' => __('LocalBoost AI'),
+            'key' => 'mlhub',
+            'label' => __('MLHUB AI'),
             'type' => 'config',
             'order' => 60,
             'fields' => [
                 ['key' => 'max_businesses', 'label' => __('Businesses limit'), 'type' => 'number', 'default' => 3, 'description' => __('Maximum local business profiles. Enter -1 for unlimited.')],
-                ['key' => 'max_campaigns', 'label' => __('Campaigns limit'), 'type' => 'number', 'default' => 10, 'description' => __('Maximum LocalBoost campaign pages and growth tool campaigns. Enter -1 for unlimited.')],
+                ['key' => 'max_campaigns', 'label' => __('Campaigns limit'), 'type' => 'number', 'default' => 10, 'description' => __('Maximum MLHUB campaign pages and growth tool campaigns. Enter -1 for unlimited.')],
                 ['key' => 'max_landing_pages', 'label' => __('Landing pages limit'), 'type' => 'number', 'default' => 10, 'description' => __('Maximum public campaign landing pages. Enter -1 for unlimited.')],
                 ['key' => 'max_qr_codes', 'label' => __('QR codes limit'), 'type' => 'number', 'default' => 25, 'description' => __('Maximum QR campaign links. Enter -1 for unlimited.')],
                 ['key' => 'max_templates', 'label' => __('Templates limit'), 'type' => 'number', 'default' => 10, 'description' => __('Maximum custom marketing templates. System templates do not count. Enter -1 for unlimited.')],
@@ -45,15 +45,15 @@ class AppBusinessProfilesServiceProvider extends ServiceProvider
             'active_when' => ['portal.businesses'],
             'icon' => 'fa-light fa-store',
             'order' => 10,
-            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('localboost') ?? true,
+            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('mlhub') ?? true,
         ]);
 
         $this->app->booted(function (): void {
             \Pricing::add([
                 [
                     'sort' => 110,
-                    'key' => 'localboost',
-                    'label' => __('LocalBoost AI'),
+                    'key' => 'mlhub',
+                    'label' => __('MLHUB AI'),
                     'check' => true,
                     'type' => 'boolean',
                     'raw' => 0,
@@ -109,13 +109,13 @@ class AppBusinessProfilesServiceProvider extends ServiceProvider
             ]);
 
             \Pricing::addSubFeatures([
-                ['sort' => 110, 'parent' => 'features', 'tab_id' => 'localboost', 'tab_name' => __('LocalBoost AI'), 'key' => 'localboost', 'label' => __('LocalBoost AI'), 'check' => true, 'type' => 'boolean', 'raw' => 0],
-                ['sort' => 111, 'parent' => 'features', 'tab_id' => 'localboost', 'tab_name' => __('LocalBoost AI'), 'key' => 'max_businesses', 'label' => __('Businesses'), 'check' => true, 'type' => 'number', 'raw' => 0],
-                ['sort' => 112, 'parent' => 'features', 'tab_id' => 'localboost', 'tab_name' => __('LocalBoost AI'), 'key' => 'max_campaigns', 'label' => __('Campaigns'), 'check' => true, 'type' => 'number', 'raw' => 0],
-                ['sort' => 113, 'parent' => 'features', 'tab_id' => 'localboost', 'tab_name' => __('LocalBoost AI'), 'key' => 'max_landing_pages', 'label' => __('Landing Pages'), 'check' => true, 'type' => 'number', 'raw' => 0],
-                ['sort' => 114, 'parent' => 'features', 'tab_id' => 'localboost', 'tab_name' => __('LocalBoost AI'), 'key' => 'max_qr_codes', 'label' => __('QR Codes'), 'check' => true, 'type' => 'number', 'raw' => 0],
-                ['sort' => 115, 'parent' => 'features', 'tab_id' => 'localboost', 'tab_name' => __('LocalBoost AI'), 'key' => 'max_templates', 'label' => __('Templates'), 'check' => true, 'type' => 'number', 'raw' => 0],
-                ['sort' => 116, 'parent' => 'features', 'tab_id' => 'localboost', 'tab_name' => __('LocalBoost AI'), 'key' => 'remove_branding', 'label' => __('Remove Branding'), 'check' => true, 'type' => 'boolean', 'raw' => 0],
+                ['sort' => 110, 'parent' => 'features', 'tab_id' => 'mlhub', 'tab_name' => __('MLHUB AI'), 'key' => 'mlhub', 'label' => __('MLHUB AI'), 'check' => true, 'type' => 'boolean', 'raw' => 0],
+                ['sort' => 111, 'parent' => 'features', 'tab_id' => 'mlhub', 'tab_name' => __('MLHUB AI'), 'key' => 'max_businesses', 'label' => __('Businesses'), 'check' => true, 'type' => 'number', 'raw' => 0],
+                ['sort' => 112, 'parent' => 'features', 'tab_id' => 'mlhub', 'tab_name' => __('MLHUB AI'), 'key' => 'max_campaigns', 'label' => __('Campaigns'), 'check' => true, 'type' => 'number', 'raw' => 0],
+                ['sort' => 113, 'parent' => 'features', 'tab_id' => 'mlhub', 'tab_name' => __('MLHUB AI'), 'key' => 'max_landing_pages', 'label' => __('Landing Pages'), 'check' => true, 'type' => 'number', 'raw' => 0],
+                ['sort' => 114, 'parent' => 'features', 'tab_id' => 'mlhub', 'tab_name' => __('MLHUB AI'), 'key' => 'max_qr_codes', 'label' => __('QR Codes'), 'check' => true, 'type' => 'number', 'raw' => 0],
+                ['sort' => 115, 'parent' => 'features', 'tab_id' => 'mlhub', 'tab_name' => __('MLHUB AI'), 'key' => 'max_templates', 'label' => __('Templates'), 'check' => true, 'type' => 'number', 'raw' => 0],
+                ['sort' => 116, 'parent' => 'features', 'tab_id' => 'mlhub', 'tab_name' => __('MLHUB AI'), 'key' => 'remove_branding', 'label' => __('Remove Branding'), 'check' => true, 'type' => 'boolean', 'raw' => 0],
             ]);
         });
 

@@ -23,7 +23,7 @@ class AppReviewBoosterServiceProvider extends ServiceProvider
             'active_when' => ['portal.review-booster'],
             'icon' => 'fa-light fa-star',
             'order' => 10,
-            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('localboost') ?? true,
+            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('mlhub') ?? true,
         ]);
 
     }

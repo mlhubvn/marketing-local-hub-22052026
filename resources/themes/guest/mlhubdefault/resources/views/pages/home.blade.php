@@ -777,7 +777,7 @@
                         {{ __('Help local businesses get more reviews, bookings, leads, coupon claims and repeat customers.') }}
                     </h2>
                     <p class="lb-reveal mt-5 max-w-xl text-base leading-8" style="--lb-delay: 210ms; color: var(--lb-muted);">
-                        {{ __('LocalBoost AI helps restaurants, salons, clinics, gyms and local shops publish campaign pages, collect customers, generate AI copy, share QR codes and track real growth from one dashboard.') }}
+                        {{ __('MLHUB AI helps restaurants, salons, clinics, gyms and local shops publish campaign pages, collect customers, generate AI copy, share QR codes and track real growth from one dashboard.') }}
                     </p>
 
                     <div class="lb-reveal mt-8 flex flex-wrap gap-3" style="--lb-delay: 280ms;">
@@ -1120,7 +1120,7 @@
                     <div class="relative z-10">
                         <span class="lb-pill inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Campaign workflow') }}</span>
                         <h2 class="lb-serif lb-heading">{{ __('One flow from campaign idea to real customer action') }}</h2>
-                        <p class="mt-5 text-base leading-8" style="color: var(--lb-muted);">{{ __('LocalBoost AI turns a local marketing goal into a public campaign page, a QR code, customer capture, AI content and measurable reports in one connected workflow.') }}</p>
+                        <p class="mt-5 text-base leading-8" style="color: var(--lb-muted);">{{ __('MLHUB AI turns a local marketing goal into a public campaign page, a QR code, customer capture, AI content and measurable reports in one connected workflow.') }}</p>
                         <div class="lb-proof-visual mt-8 rounded-2xl border p-5" style="border-color: var(--lb-line);">
                             <div class="grid gap-3 sm:grid-cols-3">
                                 @foreach ([['fa-bullhorn', __('Campaign')], ['fa-browser', __('Public Page')], ['fa-user-plus', __('Customer')]] as $node)
@@ -1165,7 +1165,7 @@
                     <div>
                         <span class="lb-pill inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Launch your next campaign') }}</span>
                         <h2 class="lb-serif lb-heading mt-5 max-w-3xl">{{ __('Ready to turn local traffic into reviews, bookings and leads?') }}</h2>
-                        <p class="mt-5 max-w-2xl text-base leading-8" style="color: var(--lb-muted);">{{ __('Create campaign pages for reviews, bookings, coupons, leads and feedback, then share them with public links and QR codes while LocalBoost AI tracks every result.') }}</p>
+                        <p class="mt-5 max-w-2xl text-base leading-8" style="color: var(--lb-muted);">{{ __('Create campaign pages for reviews, bookings, coupons, leads and feedback, then share them with public links and QR codes while MLHUB AI tracks every result.') }}</p>
                         <div class="mt-8 flex flex-wrap gap-3">
                             <a href="{{ $demoHref }}" class="lb-button inline-flex items-center justify-center gap-2 px-6 py-4 text-sm font-black">
                                 <i class="fa-light fa-rocket-launch"></i>

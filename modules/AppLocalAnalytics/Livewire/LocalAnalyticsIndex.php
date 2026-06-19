@@ -78,11 +78,11 @@ class LocalAnalyticsIndex extends Component
         $dateScope = fn ($query) => $this->dateRange === 'all' ? $query : $query->where('created_at', '>=', now()->subDays((int) $this->dateRange));
 
         $topCampaigns = $this->topCampaigns($campaigns, $campaignIds, $dateScope);
-        $filename = 'localboost-report-'.now()->format('Ymd-His').'.csv';
+        $filename = 'mlhub-report-'.now()->format('Ymd-His').'.csv';
 
         return response()->streamDownload(function () use ($topCampaigns, $businesses): void {
             $out = fopen('php://output', 'w');
-            fputcsv($out, ['Report', 'LocalBoost AI']);
+            fputcsv($out, ['Report', 'MLHUB AI']);
             fputcsv($out, ['Generated at', now()->toDateTimeString()]);
             fputcsv($out, ['Business filter', $this->businessFilter === 'all' ? 'All businesses' : (string) optional($businesses->firstWhere('id', (int) $this->businessFilter))->name]);
             fputcsv($out, ['Date range', $this->dateRange === 'all' ? 'All time' : 'Last '.$this->dateRange.' days']);

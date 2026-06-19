@@ -8,7 +8,7 @@
     $languages = available_languages();
     $options = app(\Modules\AdminSettings\Support\OptionStore::class);
     $settingsTitle = trim((string) $options->get('website_title', ''));
-    $siteTitle = $settingsTitle !== '' && ! str_contains(strtolower($settingsTitle), 'stackposts') ? $settingsTitle : 'LocalBoost AI';
+    $siteTitle = $settingsTitle !== '' && ! str_contains(strtolower($settingsTitle), 'stackposts') ? $settingsTitle : 'MLHUB AI';
     $siteLogoDark = trim((string) ($options->get('website_logo_brand_dark')
         ?: $options->get('website_logo_dark')
         ?: $options->get('website_logo')

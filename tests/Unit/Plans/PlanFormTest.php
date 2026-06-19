@@ -52,7 +52,7 @@ test('editing a plan preserves permission keys outside the admin form registry',
         'currency' => 'USD',
         'type' => 1,
         'permissions' => [
-            'localboost' => true,
+            'mlhub' => true,
             'max_businesses' => 3,
             'channels' => true,
             'max_channels' => 12,

@@ -1,13 +1,13 @@
 # Webhook & Zapier Automation Addon
 
-Webhook & Zapier Automation lets LocalBoost AI send event payloads to external systems such as Zapier, Make, CRMs, Google Sheets, Slack, Telegram, or custom endpoints.
+Webhook & Zapier Automation lets MLHUB AI send event payloads to external systems such as Zapier, Make, CRMs, Google Sheets, Slack, Telegram, or custom endpoints.
 
 This module is built as a detachable addon under `modules/AppWebhookAutomation`. It owns its routes, migrations, models, Livewire screens, jobs, event listeners, plan keys, and pricing registration.
 
 ## Features
 
 - Create webhook automation rules from the portal.
-- Trigger webhooks from LocalBoost events.
+- Trigger webhooks from MLHUB events.
 - Filter rules by business and simple conditions.
 - Send default JSON payloads to external URLs.
 - Support custom HTTP method, headers, secret token, and retry flag.
@@ -94,7 +94,7 @@ Suggested packaging:
 - Sidebar registration happens inside `AppWebhookAutomationServiceProvider`.
 - Pricing and plan permission registration happen inside the same provider.
 - Trigger listeners use `class_exists` checks before binding to optional modules.
-- Removing this module should not break core LocalBoost pages.
+- Removing this module should not break core MLHUB pages.
 
 ## Verification
 

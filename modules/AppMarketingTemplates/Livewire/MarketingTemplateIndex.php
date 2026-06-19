@@ -795,7 +795,7 @@ class MarketingTemplateIndex extends Component
     {
         $template = $this->userVisibleQuery()->whereKey($id)->firstOrFail();
         $payload = app(TemplateImportExportService::class)->exportPayload($template);
-        $filename = Str::slug($template->name ?: 'template').'.localboost-template.json';
+        $filename = Str::slug($template->name ?: 'template').'.mlhub-template.json';
 
         return response()->streamDownload(function () use ($payload): void {
             echo json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
@@ -810,7 +810,7 @@ class MarketingTemplateIndex extends Component
             return null;
         }
 
-        $filename = Str::slug((string) ($payload['name'] ?? 'template-pack')).'.localboost-template-pack.json';
+        $filename = Str::slug((string) ($payload['name'] ?? 'template-pack')).'.mlhub-template-pack.json';
 
         return response()->streamDownload(function () use ($payload): void {
             echo json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);

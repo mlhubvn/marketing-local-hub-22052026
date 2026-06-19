@@ -23,7 +23,7 @@ class AppSupportServiceProvider extends ServiceProvider
             'order' => 170,
         ]);
 
-        // Support is accessible from account/help surfaces, not the LocalBoost MVP sidebar.
+        // Support is accessible from account/help surfaces, not the MLHUB MVP sidebar.
 
         $this->app->booted(function (): void {
             \Pricing::addSubFeatures([

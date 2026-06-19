@@ -9,7 +9,7 @@
     $siteFavicon = url($faviconPath);
     $faviconMimeType = str_ends_with(strtolower($faviconPath), '.svg') ? 'image/svg+xml' : 'image/png';
     $siteTitle = trim((string) $options->get('website_title', ''));
-    $siteTitle = $siteTitle !== '' ? $siteTitle : 'LocalBoostAI';
+    $siteTitle = $siteTitle !== '' ? $siteTitle : 'MLHUB';
     $cardRadius = theme_setting('card_radius', 'guest', 18);
     $inputRadius = theme_setting('input_radius', 'guest', 14);
     $buttonRadius = theme_setting('button_radius', 'guest', 14);
@@ -101,19 +101,19 @@
         background-size: 36px 36px, 36px 36px, auto;
     }
 
-    .localboost-shell {
+    .mlhub-shell {
         width: min(calc(100% - 1.5rem), var(--theme-page-max-width));
         margin-left: auto;
         margin-right: auto;
     }
 
     @media (min-width: 1024px) {
-        .localboost-shell {
+        .mlhub-shell {
             width: min(calc(100% - 3rem), var(--theme-page-max-width));
         }
     }
 
-    .localboost-section {
+    .mlhub-section {
         padding-top: var(--theme-section-spacing);
         padding-bottom: var(--theme-section-spacing);
     }
@@ -317,7 +317,7 @@
         }
     }
 
-    .localboost-hero-stage {
+    .mlhub-hero-stage {
         position: relative;
         overflow: hidden;
         isolation: isolate;
@@ -328,7 +328,7 @@
         box-shadow: 0 38px 110px -78px rgba(15,23,42,0.5);
     }
 
-    .localboost-hero-stage::before {
+    .mlhub-hero-stage::before {
         content: "";
         position: absolute;
         inset: 0;
@@ -338,10 +338,10 @@
             linear-gradient(90deg, rgba(255,95,95,0.05) 1px, transparent 1px);
         background-size: 28px 28px;
         mask-image: linear-gradient(180deg, black, transparent 86%);
-        animation: localboost-grid-drift 22s linear infinite;
+        animation: mlhub-grid-drift 22s linear infinite;
     }
 
-    .localboost-hero-stage::after {
+    .mlhub-hero-stage::after {
         content: "";
         position: absolute;
         inset: auto 0 0 0;
@@ -352,17 +352,17 @@
         opacity: 0.8;
     }
 
-    .localboost-hero-stat {
+    .mlhub-hero-stat {
         position: relative;
         overflow: hidden;
         border: 1px solid rgba(var(--theme-border-color-rgb), 0.84);
         background: rgba(255,255,255,0.82);
         box-shadow: 0 18px 48px -38px rgba(15,23,42,0.35);
-        animation: localboost-hero-breathe 5.8s ease-in-out infinite;
+        animation: mlhub-hero-breathe 5.8s ease-in-out infinite;
         animation-delay: var(--hero-delay, 0ms);
     }
 
-    .localboost-hero-stat::before {
+    .mlhub-hero-stat::before {
         content: "";
         position: absolute;
         inset: 0 auto 0 0;
@@ -370,31 +370,31 @@
         background: var(--hero-accent, #ff5f5f);
     }
 
-    .localboost-hero-chip {
+    .mlhub-hero-chip {
         border: 1px solid color-mix(in srgb, var(--hero-accent, #ff5f5f) 24%, rgba(var(--theme-border-color-rgb),0.78));
         background:
             linear-gradient(135deg, color-mix(in srgb, var(--hero-accent, #ff5f5f) 12%, white), rgba(255,255,255,0.86));
         box-shadow: 0 14px 38px -32px rgba(15,23,42,0.32);
-        animation: localboost-hero-chip-drift 6.4s ease-in-out infinite;
+        animation: mlhub-hero-chip-drift 6.4s ease-in-out infinite;
         animation-delay: var(--hero-delay, 0ms);
     }
 
-    .localboost-hero-dashboard {
-        animation: localboost-hero-float 7.2s ease-in-out infinite;
+    .mlhub-hero-dashboard {
+        animation: mlhub-hero-float 7.2s ease-in-out infinite;
         transform-origin: center;
     }
 
-    .localboost-hero-float-card {
-        animation: localboost-hero-float 5.8s ease-in-out infinite;
+    .mlhub-hero-float-card {
+        animation: mlhub-hero-float 5.8s ease-in-out infinite;
         animation-delay: var(--hero-delay, 0ms);
     }
 
-    .localboost-hero-qr-dot {
-        animation: localboost-qr-pulse 2.7s ease-in-out infinite;
+    .mlhub-hero-qr-dot {
+        animation: mlhub-qr-pulse 2.7s ease-in-out infinite;
         animation-delay: var(--hero-delay, 0ms);
     }
 
-    .localboost-case-tile {
+    .mlhub-case-tile {
         position: relative;
         min-height: 18rem;
         overflow: hidden;
@@ -406,7 +406,7 @@
         box-shadow: 0 30px 86px -58px rgba(15,23,42,0.45);
     }
 
-    .localboost-case-tile::before {
+    .mlhub-case-tile::before {
         content: "";
         position: absolute;
         inset: 0;
@@ -415,10 +415,10 @@
             linear-gradient(rgba(255,95,95,0.07) 1px, transparent 1px),
             linear-gradient(90deg, rgba(255,95,95,0.07) 1px, transparent 1px);
         background-size: 28px 28px;
-        animation: localboost-grid-drift 20s linear infinite;
+        animation: mlhub-grid-drift 20s linear infinite;
     }
 
-    .localboost-case-tile::after {
+    .mlhub-case-tile::after {
         content: "";
         position: absolute;
         inset: auto 0 0 0;
@@ -427,41 +427,41 @@
         background: linear-gradient(180deg, transparent 0%, rgba(15,23,42,0.18) 24%, rgba(15,23,42,0.68) 100%);
     }
 
-    .localboost-visual-copy {
+    .mlhub-visual-copy {
         text-shadow: 0 3px 18px rgba(15, 23, 42, 0.62), 0 1px 2px rgba(15, 23, 42, 0.72);
     }
 
-    .localboost-case-window {
+    .mlhub-case-window {
         border: 1px solid rgba(255,255,255,0.74);
         background: rgba(255,255,255,0.82);
         box-shadow: 0 22px 52px -38px rgba(15,23,42,0.45);
         backdrop-filter: blur(16px);
-        animation: localboost-hero-float 6.8s ease-in-out infinite;
+        animation: mlhub-hero-float 6.8s ease-in-out infinite;
     }
 
-    .localboost-case-metric {
+    .mlhub-case-metric {
         border: 1px solid rgba(var(--theme-border-color-rgb),0.74);
         background: rgba(255,255,255,0.9);
     }
 
-    .localboost-marquee {
+    .mlhub-marquee {
         overflow: hidden;
         mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
     }
 
-    .localboost-marquee-track {
+    .mlhub-marquee-track {
         display: flex;
         width: max-content;
         gap: 1rem;
-        animation: localboost-marquee 30s linear infinite;
+        animation: mlhub-marquee 30s linear infinite;
     }
 
-    .localboost-marquee-track.is-reverse {
+    .mlhub-marquee-track.is-reverse {
         animation-direction: reverse;
         animation-duration: 36s;
     }
 
-    .localboost-marquee-card {
+    .mlhub-marquee-card {
         min-width: 15rem;
         border: 1px solid rgba(var(--theme-border-color-rgb),0.76);
         background: rgba(255,255,255,0.86);
@@ -469,29 +469,29 @@
         backdrop-filter: blur(16px);
     }
 
-    .localboost-workflow-section {
+    .mlhub-workflow-section {
         margin-top: clamp(-2.5rem, -3vw, -1rem);
     }
 
-    .localboost-card {
+    .mlhub-card {
         border: 1px solid rgba(var(--theme-border-color-rgb), 0.78);
         background: rgba(255, 255, 255, 0.86);
         box-shadow: 0 24px 70px -48px rgba(15, 23, 42, 0.24);
         backdrop-filter: blur(18px);
     }
 
-    .localboost-soft {
+    .mlhub-soft {
         border: 1px solid rgba(var(--theme-border-color-rgb), 0.72);
         background: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(248,250,252,0.72));
     }
 
-    .localboost-premium {
+    .mlhub-premium {
         position: relative;
         overflow: hidden;
         isolation: isolate;
     }
 
-    .localboost-premium::before {
+    .mlhub-premium::before {
         content: "";
         position: absolute;
         inset: 0;
@@ -502,35 +502,35 @@
             linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,250,252,0.82));
     }
 
-    .localboost-hover-lift {
+    .mlhub-hover-lift {
         transition:
             transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
             box-shadow 260ms cubic-bezier(0.22, 1, 0.36, 1),
             border-color 260ms ease;
     }
 
-    .localboost-hover-lift:hover {
+    .mlhub-hover-lift:hover {
         transform: translateY(-6px);
         border-color: rgba(var(--theme-accent-rgb), 0.34);
         box-shadow: 0 34px 90px -56px rgba(15, 23, 42, 0.34);
     }
 
-    .localboost-pricing-grid > :not([hidden]) + :not([hidden]) {
+    .mlhub-pricing-grid > :not([hidden]) + :not([hidden]) {
         box-shadow: inset 1px 0 0 rgba(var(--theme-border-color-rgb), 0.42);
     }
 
-    .localboost-operation-row {
+    .mlhub-operation-row {
         background: rgba(255, 255, 255, 0.72);
         box-shadow: 0 18px 42px -38px rgba(15, 23, 42, 0.28);
     }
 
-    .localboost-operation-row:hover {
+    .mlhub-operation-row:hover {
         background: rgba(248, 250, 252, 0.92);
         transform: translateX(4px);
         border-color: rgba(var(--theme-accent-rgb), 0.32) !important;
     }
 
-    .localboost-image-frame {
+    .mlhub-image-frame {
         position: relative;
         overflow: hidden;
         background:
@@ -540,7 +540,7 @@
         isolation: isolate;
     }
 
-    .localboost-image-frame img {
+    .mlhub-image-frame img {
         width: 100%;
         height: 100%;
         object-fit: cover;
@@ -549,7 +549,7 @@
         transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1), filter 700ms ease;
     }
 
-    .localboost-image-frame::after {
+    .mlhub-image-frame::after {
         content: "";
         position: absolute;
         inset: 0;
@@ -560,19 +560,19 @@
         pointer-events: none;
     }
 
-    .localboost-hover-lift:hover .localboost-image-frame img {
+    .mlhub-hover-lift:hover .mlhub-image-frame img {
         transform: scale(1.07);
         filter: saturate(1.08) contrast(1.03);
     }
 
-    .localboost-glass-badge {
+    .mlhub-glass-badge {
         border: 1px solid rgba(255, 255, 255, 0.42);
         background: rgba(255, 255, 255, 0.86);
         box-shadow: 0 14px 30px -22px rgba(15, 23, 42, 0.45);
         backdrop-filter: blur(14px);
     }
 
-    .localboost-visual {
+    .mlhub-visual {
         position: relative;
         min-height: 100%;
         overflow: hidden;
@@ -582,47 +582,47 @@
             linear-gradient(180deg, #f8fbff, #eaf2fb);
     }
 
-    .localboost-visual-bio,
-    .localboost-visual-retail {
+    .mlhub-visual-bio,
+    .mlhub-visual-retail {
         background:
             linear-gradient(135deg, rgba(255,95,95,0.18), rgba(20,184,166,0.16)),
             linear-gradient(180deg, #f8fbff, #dff4f1);
     }
 
-    .localboost-visual-qr,
-    .localboost-visual-rules {
+    .mlhub-visual-qr,
+    .mlhub-visual-rules {
         background:
             linear-gradient(135deg, rgba(124,58,237,0.16), rgba(255,95,95,0.18)),
             linear-gradient(180deg, #f8fbff, #e8edff);
     }
 
-    .localboost-visual-analytics,
-    .localboost-visual-alerts {
+    .mlhub-visual-analytics,
+    .mlhub-visual-alerts {
         background:
             linear-gradient(135deg, rgba(245,158,11,0.18), rgba(255,95,95,0.16)),
             linear-gradient(180deg, #fffaf0, #eaf2ff);
     }
 
-    .localboost-visual-domain {
+    .mlhub-visual-domain {
         background:
             linear-gradient(135deg, rgba(14,165,233,0.18), rgba(5,150,105,0.16)),
             linear-gradient(180deg, #f0f9ff, #def7ec);
     }
 
-    .localboost-visual-utm {
+    .mlhub-visual-utm {
         background:
             linear-gradient(135deg, rgba(217,119,6,0.18), rgba(236,72,153,0.14)),
             linear-gradient(180deg, #fff7ed, #fdf2f8);
     }
 
-    .localboost-visual-team,
-    .localboost-visual-workspace {
+    .mlhub-visual-team,
+    .mlhub-visual-workspace {
         background:
             linear-gradient(135deg, rgba(124,58,237,0.16), rgba(20,184,166,0.14)),
             linear-gradient(180deg, #f5f3ff, #ecfeff);
     }
 
-    .localboost-visual::after {
+    .mlhub-visual::after {
         content: "";
         position: absolute;
         inset: 0;
@@ -631,7 +631,7 @@
         pointer-events: none;
     }
 
-    .localboost-visual-grid {
+    .mlhub-visual-grid {
         position: absolute;
         inset: 0;
         opacity: 0.66;
@@ -639,19 +639,19 @@
             linear-gradient(rgba(255,95,95,0.07) 1px, transparent 1px),
             linear-gradient(90deg, rgba(255,95,95,0.07) 1px, transparent 1px);
         background-size: 26px 26px;
-        animation: localboost-grid-drift 18s linear infinite;
+        animation: mlhub-grid-drift 18s linear infinite;
     }
 
-    .localboost-phone,
-    .localboost-chart-card,
-    .localboost-route-map,
-    .localboost-dashboard-stack {
+    .mlhub-phone,
+    .mlhub-chart-card,
+    .mlhub-route-map,
+    .mlhub-dashboard-stack {
         position: absolute;
         inset: 1.25rem;
         z-index: 2;
     }
 
-    .localboost-phone {
+    .mlhub-phone {
         width: 11rem;
         max-width: 48%;
         border: 1px solid rgba(var(--theme-border-color-rgb),0.9);
@@ -659,10 +659,10 @@
         background: rgba(255,255,255,0.86);
         padding: 1rem;
         box-shadow: 0 24px 60px -42px rgba(15,23,42,0.44);
-        animation: localboost-float 5.6s ease-in-out infinite;
+        animation: mlhub-float 5.6s ease-in-out infinite;
     }
 
-    .localboost-phone > span {
+    .mlhub-phone > span {
         display: block;
         margin: 0 auto 0.9rem;
         width: 2.25rem;
@@ -671,30 +671,30 @@
         background: #dbe6f3;
     }
 
-    .localboost-avatar {
+    .mlhub-avatar {
         width: 3rem;
         height: 3rem;
         border-radius: 999px;
         background: linear-gradient(135deg, #ff5f5f, #ffb347);
     }
 
-    .localboost-line,
-    .localboost-button-line {
+    .mlhub-line,
+    .mlhub-button-line {
         height: 0.55rem;
         border-radius: 999px;
         background: #dce6f3;
     }
 
-    .localboost-line {
+    .mlhub-line {
         margin-top: 0.6rem;
     }
 
-    .localboost-button-line {
+    .mlhub-button-line {
         background: linear-gradient(90deg, rgba(255,95,95,0.18), rgba(184,218,22,0.24));
     }
 
-    .localboost-floating-qr,
-    .localboost-route-qr {
+    .mlhub-floating-qr,
+    .mlhub-route-qr {
         display: grid;
         grid-template-columns: repeat(7, minmax(0, 1fr));
         grid-template-rows: repeat(7, minmax(0, 1fr));
@@ -705,28 +705,28 @@
         box-shadow: 0 24px 60px -42px rgba(15,23,42,0.5);
     }
 
-    .localboost-floating-qr {
+    .mlhub-floating-qr {
         position: absolute;
         right: 1.2rem;
         top: 2.4rem;
         width: 8.5rem;
         height: 8.5rem;
-        animation: localboost-float 6.4s ease-in-out infinite reverse;
+        animation: mlhub-float 6.4s ease-in-out infinite reverse;
     }
 
-    .localboost-floating-qr span,
-    .localboost-route-qr span {
+    .mlhub-floating-qr span,
+    .mlhub-route-qr span {
         border-radius: 0.16rem;
         background: transparent;
     }
 
-    .localboost-floating-qr span.is-on,
-    .localboost-route-qr span.is-on {
+    .mlhub-floating-qr span.is-on,
+    .mlhub-route-qr span.is-on {
         background: #0f172a;
-        animation: localboost-qr-pulse 2.8s ease-in-out infinite;
+        animation: mlhub-qr-pulse 2.8s ease-in-out infinite;
     }
 
-    .localboost-chart-card {
+    .mlhub-chart-card {
         border: 1px solid rgba(var(--theme-border-color-rgb),0.84);
         border-radius: 1.25rem;
         background: rgba(255,255,255,0.9);
@@ -734,24 +734,24 @@
         box-shadow: 0 24px 60px -42px rgba(15,23,42,0.45);
     }
 
-    .localboost-visual-bar {
+    .mlhub-visual-bar {
         flex: 1;
         border-radius: 999px 999px 0.4rem 0.4rem;
         background: linear-gradient(180deg, #ff5f5f, #ffb347);
         transform-origin: bottom;
-        animation: localboost-bar-rise 3.2s ease-in-out infinite;
+        animation: mlhub-bar-rise 3.2s ease-in-out infinite;
     }
 
-    .localboost-visual-stroke,
-    .localboost-route-path {
+    .mlhub-visual-stroke,
+    .mlhub-route-path {
         stroke: #ff5f5f;
         stroke-width: 4;
         stroke-linecap: round;
         stroke-dasharray: 18 12;
-        animation: localboost-dash 2.8s linear infinite;
+        animation: mlhub-dash 2.8s linear infinite;
     }
 
-    .localboost-route-qr {
+    .mlhub-route-qr {
         position: absolute;
         left: 1.2rem;
         top: 50%;
@@ -761,7 +761,7 @@
         z-index: 3;
     }
 
-    .localboost-route-node {
+    .mlhub-route-node {
         position: absolute;
         z-index: 4;
         transform: translate(-50%, -50%);
@@ -775,7 +775,7 @@
         box-shadow: 0 16px 36px -26px rgba(15,23,42,0.5);
     }
 
-    .localboost-mini-window {
+    .mlhub-mini-window {
         position: absolute;
         inset: 1.25rem;
         border: 1px solid rgba(var(--theme-border-color-rgb),0.86);
@@ -783,36 +783,36 @@
         background: rgba(255,255,255,0.92);
         padding: 1rem;
         box-shadow: 0 24px 60px -42px rgba(15,23,42,0.44);
-        animation: localboost-float 6s ease-in-out infinite;
+        animation: mlhub-float 6s ease-in-out infinite;
     }
 
-    .localboost-domain-visual,
-    .localboost-utm-visual,
-    .localboost-team-visual {
+    .mlhub-domain-visual,
+    .mlhub-utm-visual,
+    .mlhub-team-visual {
         position: absolute;
         inset: 1.25rem;
         z-index: 2;
     }
 
-    .localboost-domain-card,
-    .localboost-utm-card,
-    .localboost-team-card {
+    .mlhub-domain-card,
+    .mlhub-utm-card,
+    .mlhub-team-card {
         border: 1px solid rgba(var(--theme-border-color-rgb),0.86);
         border-radius: 1.15rem;
         background: rgba(255,255,255,0.9);
         box-shadow: 0 24px 60px -42px rgba(15,23,42,0.44);
     }
 
-    .localboost-domain-card {
+    .mlhub-domain-card {
         position: absolute;
         left: 0.6rem;
         right: 1rem;
         top: 2.6rem;
         padding: 1rem;
-        animation: localboost-float 5.8s ease-in-out infinite;
+        animation: mlhub-float 5.8s ease-in-out infinite;
     }
 
-    .localboost-domain-node {
+    .mlhub-domain-node {
         position: absolute;
         right: 1.2rem;
         bottom: 1.4rem;
@@ -825,16 +825,16 @@
         box-shadow: 0 18px 40px -26px rgba(15,23,42,0.55);
     }
 
-    .localboost-utm-card {
+    .mlhub-utm-card {
         position: absolute;
         left: 0.75rem;
         top: 1.35rem;
         width: 72%;
         padding: 1rem;
-        animation: localboost-float 6.2s ease-in-out infinite;
+        animation: mlhub-float 6.2s ease-in-out infinite;
     }
 
-    .localboost-utm-pill {
+    .mlhub-utm-pill {
         display: inline-flex;
         margin: 0.2rem;
         border-radius: 999px;
@@ -845,14 +845,14 @@
         font-weight: 800;
     }
 
-    .localboost-team-card {
+    .mlhub-team-card {
         position: absolute;
         inset: 1rem 0.9rem auto 0.9rem;
         padding: 1rem;
-        animation: localboost-float 5.9s ease-in-out infinite;
+        animation: mlhub-float 5.9s ease-in-out infinite;
     }
 
-    .localboost-member-row {
+    .mlhub-member-row {
         display: flex;
         align-items: center;
         gap: 0.65rem;
@@ -861,19 +861,19 @@
         padding: 0.55rem;
     }
 
-    .localboost-member-avatar {
+    .mlhub-member-avatar {
         width: 1.8rem;
         height: 1.8rem;
         border-radius: 999px;
         background: linear-gradient(135deg, #7c3aed, #14b8a6);
     }
 
-    .localboost-sheen {
+    .mlhub-sheen {
         position: relative;
         overflow: hidden;
     }
 
-    .localboost-sheen::after {
+    .mlhub-sheen::after {
         content: "";
         position: absolute;
         inset: -120% auto -120% -40%;
@@ -884,16 +884,16 @@
         pointer-events: none;
     }
 
-    .localboost-sheen:hover::after {
+    .mlhub-sheen:hover::after {
         opacity: 1;
-        animation: localboost-sheen 1.1s ease;
+        animation: mlhub-sheen 1.1s ease;
     }
 
-    .localboost-flow-line {
+    .mlhub-flow-line {
         position: relative;
     }
 
-    .localboost-flow-line::before {
+    .mlhub-flow-line::before {
         content: "";
         position: absolute;
         left: 1.35rem;
@@ -903,22 +903,22 @@
         background: linear-gradient(180deg, rgba(255,95,95,0.32), rgba(20,184,166,0.18));
     }
 
-    .localboost-data-bars span {
+    .mlhub-data-bars span {
         display: block;
         height: 0.65rem;
         border-radius: 999px;
         background: linear-gradient(90deg, rgba(255,95,95,0.92), rgba(20,184,166,0.88));
         transform-origin: left center;
-        animation: localboost-bar 3.8s ease-in-out infinite;
+        animation: mlhub-bar 3.8s ease-in-out infinite;
     }
 
-    .localboost-button-primary {
+    .mlhub-button-primary {
         background: #ff5f5f;
         color: #ffffff;
         box-shadow: 0 18px 38px -24px rgba(255, 95, 95, 0.62);
     }
 
-    .localboost-auth-primary {
+    .mlhub-auth-primary {
         position: relative;
         overflow: hidden;
         border: 1px solid rgba(var(--theme-accent-rgb), 0.58);
@@ -930,7 +930,7 @@
             0 22px 44px -28px rgba(255, 95, 95, 0.62);
     }
 
-    .localboost-auth-primary::after {
+    .mlhub-auth-primary::after {
         content: "";
         position: absolute;
         inset: 0;
@@ -939,52 +939,52 @@
         transition: transform 520ms ease;
     }
 
-    .localboost-auth-primary:hover {
+    .mlhub-auth-primary:hover {
         transform: translateY(-1px);
         box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.24),
             0 26px 58px -30px rgba(20, 184, 166, 0.72);
     }
 
-    .localboost-auth-primary:hover::after {
+    .mlhub-auth-primary:hover::after {
         transform: translateX(120%);
     }
 
-    .localboost-auth-primary > span {
+    .mlhub-auth-primary > span {
         position: relative;
         z-index: 1;
     }
 
-    .localboost-auth-social {
+    .mlhub-auth-social {
         border-color: rgba(var(--theme-border-color-rgb), 0.9);
         background: rgba(255, 255, 255, 0.78);
         color: #0f172a;
         box-shadow: 0 14px 34px -30px rgba(15, 23, 42, 0.32);
     }
 
-    .localboost-auth-social:hover {
+    .mlhub-auth-social:hover {
         transform: translateY(-1px);
         border-color: rgba(var(--theme-accent-rgb), 0.34);
         background: rgba(255, 255, 255, 0.94);
         box-shadow: 0 20px 46px -34px rgba(15, 23, 42, 0.38);
     }
 
-    .localboost-button-secondary {
+    .mlhub-button-secondary {
         border: 1px solid rgba(var(--theme-border-color-rgb), 0.86);
         background: rgba(255,255,255,0.82);
         color: #0f172a;
         box-shadow: 0 14px 28px -24px rgba(15, 23, 42, 0.28);
     }
 
-    .localboost-gradient-text {
+    .mlhub-gradient-text {
         background: linear-gradient(90deg, #ff5f5f 0%, #ff5f5f 52%, #f59e0b 100%);
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
     }
 
-    .localboost-reveal {
-        --localboost-reveal-delay: 0ms;
+    .mlhub-reveal {
+        --mlhub-reveal-delay: 0ms;
         opacity: 0;
         transform: translate3d(0, 46px, 0) scale(0.975);
         filter: blur(12px);
@@ -992,89 +992,89 @@
             opacity 860ms cubic-bezier(0.22, 1, 0.36, 1),
             transform 860ms cubic-bezier(0.22, 1, 0.36, 1),
             filter 860ms cubic-bezier(0.22, 1, 0.36, 1);
-        transition-delay: var(--localboost-reveal-delay);
+        transition-delay: var(--mlhub-reveal-delay);
         will-change: transform, opacity, filter;
     }
 
-    .localboost-reveal.is-visible {
+    .mlhub-reveal.is-visible {
         opacity: 1;
         transform: translate3d(0, 0, 0);
         filter: blur(0);
     }
 
-    @keyframes localboost-sheen {
+    @keyframes mlhub-sheen {
         0% { transform: rotate(18deg) translateX(-240%); }
         100% { transform: rotate(18deg) translateX(520%); }
     }
 
-    @keyframes localboost-bar {
+    @keyframes mlhub-bar {
         0%, 100% { transform: scaleX(0.72); opacity: 0.72; }
         50% { transform: scaleX(1); opacity: 1; }
     }
 
-    @keyframes localboost-grid-drift {
+    @keyframes mlhub-grid-drift {
         0% { background-position: 0 0, 0 0; }
         100% { background-position: 52px 52px, 52px 52px; }
     }
 
-    @keyframes localboost-float {
+    @keyframes mlhub-float {
         0%, 100% { transform: translate3d(0, 0, 0); }
         50% { transform: translate3d(0, -10px, 0); }
     }
 
-    @keyframes localboost-hero-float {
+    @keyframes mlhub-hero-float {
         0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
         50% { transform: translate3d(0, -8px, 0) rotate(0.18deg); }
     }
 
-    @keyframes localboost-hero-breathe {
+    @keyframes mlhub-hero-breathe {
         0%, 100% { transform: translate3d(0, 0, 0); box-shadow: 0 18px 48px -38px rgba(15,23,42,0.35); }
         50% { transform: translate3d(0, -3px, 0); box-shadow: 0 24px 58px -40px rgba(15,23,42,0.42); }
     }
 
-    @keyframes localboost-hero-chip-drift {
+    @keyframes mlhub-hero-chip-drift {
         0%, 100% { transform: translate3d(0, 0, 0); }
         50% { transform: translate3d(0, -4px, 0); }
     }
 
-    @keyframes localboost-qr-pulse {
+    @keyframes mlhub-qr-pulse {
         0%, 100% { opacity: 0.72; transform: scale(0.96); }
         50% { opacity: 1; transform: scale(1); }
     }
 
-    @keyframes localboost-bar-rise {
+    @keyframes mlhub-bar-rise {
         0%, 100% { transform: scaleY(0.72); opacity: 0.74; }
         50% { transform: scaleY(1); opacity: 1; }
     }
 
-    @keyframes localboost-dash {
+    @keyframes mlhub-dash {
         to { stroke-dashoffset: -60; }
     }
 
-    @keyframes localboost-marquee {
+    @keyframes mlhub-marquee {
         from { transform: translate3d(0, 0, 0); }
         to { transform: translate3d(-50%, 0, 0); }
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .localboost-reveal,
-        .localboost-hover-lift,
-        .localboost-data-bars span,
-        .localboost-sheen::after,
-        .localboost-visual-grid,
-        .localboost-phone,
-        .localboost-floating-qr,
-        .localboost-mini-window,
-        .localboost-visual-bar,
-        .localboost-visual-stroke,
-        .localboost-route-path,
-        .localboost-hero-stage::before,
-        .localboost-hero-stat,
-        .localboost-hero-chip,
-        .localboost-hero-dashboard,
-        .localboost-hero-float-card,
-        .localboost-hero-qr-dot,
-        .localboost-marquee-track {
+        .mlhub-reveal,
+        .mlhub-hover-lift,
+        .mlhub-data-bars span,
+        .mlhub-sheen::after,
+        .mlhub-visual-grid,
+        .mlhub-phone,
+        .mlhub-floating-qr,
+        .mlhub-mini-window,
+        .mlhub-visual-bar,
+        .mlhub-visual-stroke,
+        .mlhub-route-path,
+        .mlhub-hero-stage::before,
+        .mlhub-hero-stat,
+        .mlhub-hero-chip,
+        .mlhub-hero-dashboard,
+        .mlhub-hero-float-card,
+        .mlhub-hero-qr-dot,
+        .mlhub-marquee-track {
             animation: none !important;
             transition: none !important;
             transform: none !important;
@@ -1113,11 +1113,11 @@
         background-size: 36px 36px, 36px 36px, auto, auto, auto;
     }
 
-    html[data-theme-resolved='dark'] .localboost-card,
-    html[data-theme-resolved='dark'] .localboost-soft,
-    html[data-theme-resolved='dark'] .localboost-hero-stage,
-    html[data-theme-resolved='dark'] .localboost-case-tile,
-    html[data-theme-resolved='dark'] .localboost-marquee-card,
+    html[data-theme-resolved='dark'] .mlhub-card,
+    html[data-theme-resolved='dark'] .mlhub-soft,
+    html[data-theme-resolved='dark'] .mlhub-hero-stage,
+    html[data-theme-resolved='dark'] .mlhub-case-tile,
+    html[data-theme-resolved='dark'] .mlhub-marquee-card,
     html[data-theme-resolved='dark'] footer,
     html[data-theme-resolved='dark'] header > div {
         border-color: rgba(96, 165, 250, 0.22) !important;
@@ -1125,14 +1125,14 @@
         box-shadow: 0 34px 100px -72px rgba(0, 0, 0, 0.8);
     }
 
-    html[data-theme-resolved='dark'] .localboost-hero-stage::before,
-    html[data-theme-resolved='dark'] .localboost-case-tile::before {
+    html[data-theme-resolved='dark'] .mlhub-hero-stage::before,
+    html[data-theme-resolved='dark'] .mlhub-case-tile::before {
         background:
             linear-gradient(rgba(96,165,250,0.07) 1px, transparent 1px),
             linear-gradient(90deg, rgba(96,165,250,0.07) 1px, transparent 1px);
     }
 
-    html[data-theme-resolved='dark'] .localboost-main-hero {
+    html[data-theme-resolved='dark'] .mlhub-main-hero {
         overflow: hidden;
         border-color: transparent !important;
         background:
@@ -1141,13 +1141,13 @@
         box-shadow: none !important;
     }
 
-    html[data-theme-resolved='dark'] .localboost-main-hero::before {
+    html[data-theme-resolved='dark'] .mlhub-main-hero::before {
         inset: -1.5rem;
         opacity: 0.55;
         mask-image: radial-gradient(circle at center, black 0%, transparent 76%);
     }
 
-    html[data-theme-resolved='dark'] .localboost-main-hero::after {
+    html[data-theme-resolved='dark'] .mlhub-main-hero::after {
         opacity: 0.28;
         height: 26%;
         filter: blur(12px);
@@ -1205,17 +1205,17 @@
         border-bottom-color: rgba(96, 165, 250, 0.14) !important;
     }
 
-    html[data-theme-resolved='dark'] .localboost-pricing-grid > :not([hidden]) + :not([hidden]) {
+    html[data-theme-resolved='dark'] .mlhub-pricing-grid > :not([hidden]) + :not([hidden]) {
         box-shadow: inset 1px 0 0 rgba(96, 165, 250, 0.08) !important;
     }
 
-    html[data-theme-resolved='dark'] .localboost-pricing-card.is-featured {
+    html[data-theme-resolved='dark'] .mlhub-pricing-card.is-featured {
         background:
             linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(20, 184, 166, 0.08) 48%, rgba(15, 23, 42, 0.9)),
             rgba(15, 23, 42, 0.9) !important;
     }
 
-    html[data-theme-resolved='dark'] .localboost-operation-row {
+    html[data-theme-resolved='dark'] .mlhub-operation-row {
         background:
             linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(11, 21, 38, 0.88)),
             rgba(15, 23, 42, 0.9) !important;
@@ -1223,20 +1223,20 @@
         box-shadow: 0 20px 64px -54px rgba(0, 0, 0, 0.9);
     }
 
-    html[data-theme-resolved='dark'] .localboost-operation-row:hover {
+    html[data-theme-resolved='dark'] .mlhub-operation-row:hover {
         background:
             linear-gradient(135deg, rgba(37, 99, 235, 0.14), rgba(15, 23, 42, 0.94) 46%, rgba(20, 184, 166, 0.08)),
             rgba(15, 23, 42, 0.94) !important;
         border-color: rgba(96, 165, 250, 0.34) !important;
     }
 
-    html[data-theme-resolved='dark'] .localboost-button-secondary {
+    html[data-theme-resolved='dark'] .mlhub-button-secondary {
         background: rgba(15, 23, 42, 0.7);
         color: #e8eef7;
         border-color: rgba(96, 165, 250, 0.26);
     }
 
-    html[data-theme-resolved='dark'] .localboost-auth-primary {
+    html[data-theme-resolved='dark'] .mlhub-auth-primary {
         border-color: rgba(34, 211, 238, 0.28);
         background:
             linear-gradient(135deg, #ff5f5f 0%, #ff8c42 52%, #ffb347 100%) !important;
@@ -1246,7 +1246,7 @@
             0 0 0 1px rgba(96, 165, 250, 0.08);
     }
 
-    html[data-theme-resolved='dark'] .localboost-auth-primary:hover {
+    html[data-theme-resolved='dark'] .mlhub-auth-primary:hover {
         filter: saturate(1.06) brightness(1.04);
         box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.18),
@@ -1254,7 +1254,7 @@
             0 0 0 1px rgba(34, 211, 238, 0.16);
     }
 
-    html[data-theme-resolved='dark'] .localboost-auth-social {
+    html[data-theme-resolved='dark'] .mlhub-auth-social {
         border-color: rgba(96, 165, 250, 0.22);
         background:
             linear-gradient(180deg, rgba(15, 23, 42, 0.82), rgba(11, 21, 38, 0.72));
@@ -1262,7 +1262,7 @@
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
     }
 
-    html[data-theme-resolved='dark'] .localboost-auth-social:hover {
+    html[data-theme-resolved='dark'] .mlhub-auth-social:hover {
         border-color: rgba(34, 211, 238, 0.32);
         background:
             linear-gradient(180deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.78));
@@ -1271,120 +1271,120 @@
             0 18px 46px -36px rgba(20, 184, 166, 0.6);
     }
 
-    html[data-theme-resolved='dark'] header a:not(.localboost-nav-link):hover,
+    html[data-theme-resolved='dark'] header a:not(.mlhub-nav-link):hover,
     html[data-theme-resolved='dark'] header button:hover {
         background-color: rgba(30, 41, 59, 0.78) !important;
         color: #f8fafc !important;
     }
 
-    html[data-theme-resolved='dark'] header .localboost-nav-link:hover {
+    html[data-theme-resolved='dark'] header .mlhub-nav-link:hover {
         background: transparent !important;
         color: #f8fafc !important;
         text-shadow: 0 0 22px rgba(96, 165, 250, 0.36);
     }
 
-    html[data-theme-resolved='dark'] header .localboost-button-primary:hover {
+    html[data-theme-resolved='dark'] header .mlhub-button-primary:hover {
         background: #ff5f5f !important;
         color: #fff !important;
     }
 
-    html[data-theme-resolved='dark'] .localboost-glass-badge,
-    html[data-theme-resolved='dark'] .localboost-case-metric,
-    html[data-theme-resolved='dark'] .localboost-case-window {
+    html[data-theme-resolved='dark'] .mlhub-glass-badge,
+    html[data-theme-resolved='dark'] .mlhub-case-metric,
+    html[data-theme-resolved='dark'] .mlhub-case-window {
         background: rgba(15, 23, 42, 0.78);
         border-color: rgba(96, 165, 250, 0.24);
     }
 
-    html[data-theme-resolved='dark'] .localboost-premium::before {
+    html[data-theme-resolved='dark'] .mlhub-premium::before {
         background:
             linear-gradient(135deg, rgba(37,99,235,0.18), transparent 36%),
             linear-gradient(315deg, rgba(20,184,166,0.16), transparent 38%),
             linear-gradient(180deg, rgba(15,23,42,0.94), rgba(11,21,38,0.86));
     }
 
-    html[data-theme-resolved='dark'] .localboost-hero-stat,
-    html[data-theme-resolved='dark'] .localboost-hero-chip {
+    html[data-theme-resolved='dark'] .mlhub-hero-stat,
+    html[data-theme-resolved='dark'] .mlhub-hero-chip {
         background: rgba(15, 23, 42, 0.78) !important;
         border-color: rgba(96, 165, 250, 0.28) !important;
     }
 
-    html[data-theme-resolved='dark'] .localboost-visual,
-    html[data-theme-resolved='dark'] .localboost-visual-bio,
-    html[data-theme-resolved='dark'] .localboost-visual-retail,
-    html[data-theme-resolved='dark'] .localboost-visual-qr,
-    html[data-theme-resolved='dark'] .localboost-visual-rules,
-    html[data-theme-resolved='dark'] .localboost-visual-analytics,
-    html[data-theme-resolved='dark'] .localboost-visual-alerts,
-    html[data-theme-resolved='dark'] .localboost-visual-domain,
-    html[data-theme-resolved='dark'] .localboost-visual-utm,
-    html[data-theme-resolved='dark'] .localboost-visual-team,
-    html[data-theme-resolved='dark'] .localboost-visual-workspace {
+    html[data-theme-resolved='dark'] .mlhub-visual,
+    html[data-theme-resolved='dark'] .mlhub-visual-bio,
+    html[data-theme-resolved='dark'] .mlhub-visual-retail,
+    html[data-theme-resolved='dark'] .mlhub-visual-qr,
+    html[data-theme-resolved='dark'] .mlhub-visual-rules,
+    html[data-theme-resolved='dark'] .mlhub-visual-analytics,
+    html[data-theme-resolved='dark'] .mlhub-visual-alerts,
+    html[data-theme-resolved='dark'] .mlhub-visual-domain,
+    html[data-theme-resolved='dark'] .mlhub-visual-utm,
+    html[data-theme-resolved='dark'] .mlhub-visual-team,
+    html[data-theme-resolved='dark'] .mlhub-visual-workspace {
         background:
             linear-gradient(135deg, rgba(37,99,235,0.28), rgba(20,184,166,0.18)),
             linear-gradient(180deg, #101d32, #0b1526) !important;
     }
 
-    html[data-theme-resolved='dark'] .localboost-phone,
-    html[data-theme-resolved='dark'] .localboost-chart-card,
-    html[data-theme-resolved='dark'] .localboost-mini-window,
-    html[data-theme-resolved='dark'] .localboost-domain-card,
-    html[data-theme-resolved='dark'] .localboost-utm-card,
-    html[data-theme-resolved='dark'] .localboost-team-card {
+    html[data-theme-resolved='dark'] .mlhub-phone,
+    html[data-theme-resolved='dark'] .mlhub-chart-card,
+    html[data-theme-resolved='dark'] .mlhub-mini-window,
+    html[data-theme-resolved='dark'] .mlhub-domain-card,
+    html[data-theme-resolved='dark'] .mlhub-utm-card,
+    html[data-theme-resolved='dark'] .mlhub-team-card {
         background: rgba(15, 23, 42, 0.78) !important;
         border-color: rgba(96, 165, 250, 0.26) !important;
         box-shadow: 0 24px 70px -46px rgba(0, 0, 0, 0.82);
     }
 
-    html[data-theme-resolved='dark'] .localboost-floating-qr,
-    html[data-theme-resolved='dark'] .localboost-route-qr {
+    html[data-theme-resolved='dark'] .mlhub-floating-qr,
+    html[data-theme-resolved='dark'] .mlhub-route-qr {
         background: rgba(15, 23, 42, 0.88) !important;
         border: 1px solid rgba(96, 165, 250, 0.28);
         box-shadow: 0 24px 70px -44px rgba(0, 0, 0, 0.86);
     }
 
-    html[data-theme-resolved='dark'] .localboost-floating-qr span.is-on,
-    html[data-theme-resolved='dark'] .localboost-route-qr span.is-on {
+    html[data-theme-resolved='dark'] .mlhub-floating-qr span.is-on,
+    html[data-theme-resolved='dark'] .mlhub-route-qr span.is-on {
         background: #e2e8f0;
     }
 
-    html[data-theme-resolved='dark'] .localboost-floating-qr span:not(.is-on),
-    html[data-theme-resolved='dark'] .localboost-route-qr span:not(.is-on) {
+    html[data-theme-resolved='dark'] .mlhub-floating-qr span:not(.is-on),
+    html[data-theme-resolved='dark'] .mlhub-route-qr span:not(.is-on) {
         background: rgba(96, 165, 250, 0.08);
     }
 
-    html[data-theme-resolved='dark'] .localboost-visual::after {
+    html[data-theme-resolved='dark'] .mlhub-visual::after {
         background: linear-gradient(180deg, transparent 32%, rgba(2,6,23,0.16) 48%, rgba(2,6,23,0.76));
     }
 
-    html[data-theme-resolved='dark'] .localboost-line {
+    html[data-theme-resolved='dark'] .mlhub-line {
         background: rgba(148, 163, 184, 0.34);
     }
 
-    html[data-theme-resolved='dark'] .localboost-button-line {
+    html[data-theme-resolved='dark'] .mlhub-button-line {
         background: linear-gradient(90deg, rgba(37,99,235,0.42), rgba(20,184,166,0.46));
     }
 
-    html[data-theme-resolved='dark'] .localboost-avatar,
-    html[data-theme-resolved='dark'] .localboost-member-avatar {
+    html[data-theme-resolved='dark'] .mlhub-avatar,
+    html[data-theme-resolved='dark'] .mlhub-member-avatar {
         box-shadow: 0 0 0 8px rgba(96, 165, 250, 0.08);
     }
 
-    html[data-theme-resolved='dark'] .localboost-utm-pill {
+    html[data-theme-resolved='dark'] .mlhub-utm-pill {
         background: rgba(245, 158, 11, 0.14);
         color: #fed7aa;
     }
 
-    html[data-theme-resolved='dark'] .localboost-member-row {
+    html[data-theme-resolved='dark'] .mlhub-member-row {
         background: rgba(30, 41, 59, 0.7);
     }
 
-    html[data-theme-resolved='dark'] .localboost-image-frame {
+    html[data-theme-resolved='dark'] .mlhub-image-frame {
         background:
             linear-gradient(135deg, rgba(37,99,235,0.22), rgba(20,184,166,0.14)),
             #101d32;
     }
 
-    html[data-theme-resolved='dark'] .localboost-image-frame::after {
+    html[data-theme-resolved='dark'] .mlhub-image-frame::after {
         background:
             linear-gradient(180deg, rgba(2,6,23,0.02), rgba(2,6,23,0.62)),
             linear-gradient(90deg, rgba(37,99,235,0.18), transparent 42%);
@@ -1416,7 +1416,7 @@
     html[data-theme-resolved='dark'] header > div,
     html[data-theme-resolved='dark'] footer,
     html[data-theme-resolved='dark'] footer > div,
-    html[data-theme-resolved='dark'] .localboost-cookie-banner {
+    html[data-theme-resolved='dark'] .mlhub-cookie-banner {
         border-color: rgba(96, 165, 250, 0.22) !important;
         background:
             linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(11, 21, 38, 0.9)) !important;
@@ -1430,26 +1430,26 @@
     html[data-theme-resolved='dark'] header .bg-white\/94,
     html[data-theme-resolved='dark'] footer .bg-white,
     html[data-theme-resolved='dark'] footer .bg-\[\#fbfaf5\],
-    html[data-theme-resolved='dark'] .localboost-cookie-banner .bg-white,
-    html[data-theme-resolved='dark'] .localboost-cookie-banner [style*="255,255,255"] {
+    html[data-theme-resolved='dark'] .mlhub-cookie-banner .bg-white,
+    html[data-theme-resolved='dark'] .mlhub-cookie-banner [style*="255,255,255"] {
         background-color: rgba(15, 23, 42, 0.78) !important;
         background-image: none !important;
         border-color: rgba(96, 165, 250, 0.22) !important;
     }
 
-    html[data-theme-resolved='dark'] .localboost-cookie-decline {
+    html[data-theme-resolved='dark'] .mlhub-cookie-decline {
         color: #dbeafe !important;
         background: rgba(15, 23, 42, 0.78) !important;
         border-color: rgba(96, 165, 250, 0.36) !important;
     }
 
-    html[data-theme-resolved='dark'] .localboost-cookie-decline:hover {
+    html[data-theme-resolved='dark'] .mlhub-cookie-decline:hover {
         color: #ffffff !important;
         background: rgba(30, 41, 59, 0.94) !important;
         border-color: rgba(94, 234, 212, 0.45) !important;
     }
 
-    html[data-theme-resolved='dark'] .localboost-cookie-accept {
+    html[data-theme-resolved='dark'] .mlhub-cookie-accept {
         color: #ffffff !important;
         background: #0f8f83 !important;
         border-color: #14b8a6 !important;
@@ -1673,7 +1673,7 @@
 
 <script>
     (() => {
-        const storageKey = 'localboost-theme-mode';
+        const storageKey = 'mlhub-theme-mode';
         const supportsDark = @js((string) theme_setting('supports_dark_mode', 'guest', '1')) !== '0';
         const allowToggle = @js((string) theme_setting('allow_user_appearance_toggle', 'guest', '1')) !== '0';
         const defaultMode = @js(theme_setting('default_appearance', 'guest', 'light'));
@@ -1730,7 +1730,7 @@
             }
 
             if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                nodes.forEach((node) => node.classList.add('localboost-reveal', 'is-visible'));
+                nodes.forEach((node) => node.classList.add('mlhub-reveal', 'is-visible'));
                 return;
             }
 
@@ -1746,8 +1746,8 @@
             }, { threshold: 0.14 });
 
             nodes.forEach((node, index) => {
-                node.classList.add('localboost-reveal');
-                node.style.setProperty('--localboost-reveal-delay', `${Math.min((index % 6) * 70, 280)}ms`);
+                node.classList.add('mlhub-reveal');
+                node.style.setProperty('--mlhub-reveal-delay', `${Math.min((index % 6) * 70, 280)}ms`);
                 observer.observe(node);
             });
         };

@@ -23,7 +23,7 @@ class AppCustomersServiceProvider extends ServiceProvider
             'active_when' => ['portal.customers'],
             'icon' => 'fa-light fa-address-book',
             'order' => 30,
-            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('localboost') ?? true,
+            'visible' => fn (): bool => auth()->user()?->canUsePlanFeature('mlhub') ?? true,
         ]);
     }
 }

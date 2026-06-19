@@ -281,7 +281,7 @@ class GoogleBusinessIndex extends Component
         $location = $this->locationQuery()->with('business')->findOrFail($locationId);
 
         if (! $location->business) {
-            $this->errorMessage = __('Map this Google location to a LocalBoost business first.');
+            $this->errorMessage = __('Map this Google location to a MLHUB business first.');
             return;
         }
 

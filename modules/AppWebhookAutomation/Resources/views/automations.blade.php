@@ -13,7 +13,7 @@
                     <i class="fa-light fa-webhook"></i>{{ __('Automation') }}
                 </div>
                 <h1 class="mt-4 text-[2.2rem] font-semibold leading-tight tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ __('Webhook Automations') }}</h1>
-                <p class="mt-3 max-w-2xl text-sm leading-7" style="color: var(--theme-muted-text-color);">{{ __('Send LocalBoost lead, booking, coupon, feedback, review, and customer events to Zapier, Make, CRMs, Slack, or any webhook URL.') }}</p>
+                <p class="mt-3 max-w-2xl text-sm leading-7" style="color: var(--theme-muted-text-color);">{{ __('Send MLHUB lead, booking, coupon, feedback, review, and customer events to Zapier, Make, CRMs, Slack, or any webhook URL.') }}</p>
             </div>
             <x-ui.button type="button" size="lg" x-on:click="createOpen = true">
                 <i class="fa-light fa-plus"></i>{{ __('New webhook') }}
@@ -103,7 +103,7 @@
                                 </div>
                             </div>
                             <div class="mt-4">
-                                <x-ui.textarea wire:model="headers" name="headers" rows="4" :label="__('Headers JSON')" :placeholder="'{&quot;X-Source&quot;:&quot;LocalBoost AI&quot;}'">{{ $headers }}</x-ui.textarea>
+                                <x-ui.textarea wire:model="headers" name="headers" rows="4" :label="__('Headers JSON')" :placeholder="'{&quot;X-Source&quot;:&quot;MLHUB AI&quot;}'">{{ $headers }}</x-ui.textarea>
                             </div>
                             <div class="mt-4 flex justify-end">
                                 <x-ui.button type="button" variant="outline" wire:click="test"><i class="fa-light fa-paper-plane"></i>{{ __('Send test webhook') }}</x-ui.button>
