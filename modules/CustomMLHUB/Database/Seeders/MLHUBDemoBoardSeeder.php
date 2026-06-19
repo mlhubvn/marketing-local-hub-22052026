@@ -7,6 +7,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Modules\CustomMLHUB\Support\DemoData\DemoArticleLibrary;
 use Modules\CustomMLHUB\Support\DemoData\DemoContentCatalog;
 use Modules\CustomMLHUB\Support\DemoData\DemoTimeline;
 use Modules\CustomMLHUB\Support\DemoData\SafeTableWriter;
@@ -170,7 +171,7 @@ class MLHUBDemoBoardSeeder extends Seeder
             $this->writer->insert('lb_locations', [
                 'user_id' => $userId,
                 'business_id' => $business->id,
-                'name' => $business->name.' - Diem ban '.(($index % 3) + 1),
+                'name' => $business->name.' - Điểm bán '.(($index % 3) + 1),
                 'phone' => $business->phone ?? null,
                 'email' => $business->email ?? null,
                 'address' => $addresses[($index + 5) % count($addresses)],
@@ -194,12 +195,12 @@ class MLHUBDemoBoardSeeder extends Seeder
 
         $types = ['review', 'coupon', 'lead', 'feedback', 'booking', 'url'];
         $goals = [
-            'review' => 'Xin danh gia that',
-            'coupon' => 'Uu dai quay lai',
-            'lead' => 'Thu khach tiem nang',
-            'feedback' => 'Thu phan hoi rieng tu',
-            'booking' => 'Dat lich tu van',
-            'url' => 'QR gioi thieu co so',
+            'review' => 'Xin đánh giá thật',
+            'coupon' => 'Ưu đãi quay lại',
+            'lead' => 'Thu khách tiềm năng',
+            'feedback' => 'Thu phản hồi riêng tư',
+            'booking' => 'Đặt lịch tư vấn',
+            'url' => 'QR giới thiệu cơ sở',
         ];
         $count = (int) $profile['campaigns'];
 
@@ -221,7 +222,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                     'demo' => true,
                     'mock' => true,
                     'performance' => $strong ? 'strong' : 'weak',
-                    'offer' => $type === 'coupon' ? 'Giam '.(7 + ($i % 19)).'% cho lan ghe tiep theo' : null,
+                    'offer' => $type === 'coupon' ? 'Giảm '.(7 + ($i % 19)).'% cho lần ghé tiếp theo' : null,
                     'positive_threshold' => 4,
                     'simulate_only' => true,
                 ],
@@ -258,14 +259,14 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'business_id' => $business->id,
                 'campaign_id' => $campaign->id,
                 'slug' => "{$username}-landing-".($i + 1),
-                'title' => 'Landing demo '.$business->name.' #'.($i + 1),
+                'title' => 'Trang ưu đãi '.$business->name.' #'.($i + 1),
                 'type' => $campaign->type ?? 'lead',
                 'template' => 'local_campaign',
                 'status' => $i % 23 === 0 ? 'draft' : 'published',
                 'content' => [
-                    'headline' => 'Uu dai va cham soc khach hang tai '.$business->name,
-                    'description' => 'Trang demo MLHUB gom QR, form, CRM va so lieu chuyen doi mo phong.',
-                    'cta' => 'De lai thong tin',
+                    'headline' => 'Ưu đãi và chăm sóc khách hàng tại '.$business->name,
+                    'description' => 'Trang demo MLHUB gồm mã QR, form thu thông tin, CRM và số liệu chuyển đổi mô phỏng.',
+                    'cta' => 'Để lại thông tin',
                 ],
                 'settings' => [
                     'demo' => true,
@@ -309,7 +310,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'phone' => '09'.str_pad((string) (($userId * 19 + $i * 31) % 100000000), 8, '0', STR_PAD_LEFT),
                 'email' => "customer{$i}+{$username}@demo.mlhub.vn",
                 'tags' => $this->customerTags($i),
-                'note' => $i % 13 === 0 ? 'Khach can cham soc lai trong dot demo.' : null,
+                'note' => $i % 13 === 0 ? 'Khách cần chăm sóc lại trong đợt này.' : null,
                 'metadata' => [
                     'demo' => true,
                     'preferred_channel' => ['phone', 'email', 'qr', 'walk_in'][$i % 4],
@@ -354,7 +355,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'user_agent' => 'MLHUB Demo Browser/1.0',
                 'device' => $devices[$i % count($devices)],
                 'country' => 'Vietnam',
-                'city' => ['Da Nang', 'Hoi An', 'Tam Ky', 'Hue'][$i % 4],
+                'city' => ['Đà Nẵng', 'Hội An', 'Tam Kỳ', 'Huế'][$i % 4],
                 'created_at' => $this->timeline->at($i, $count),
             ];
         }
@@ -399,9 +400,9 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'customer_name' => $customer->name,
                 'customer_phone' => $customer->phone,
                 'customer_email' => $customer->email,
-                'message' => $rating >= 4 ? 'Trai nghiem tot, toi se quay lai.' : 'Co diem can cai thien trong quy trinh phuc vu.',
+                'message' => $rating >= 4 ? 'Trải nghiệm tốt, tôi sẽ quay lại.' : 'Có điểm cần cải thiện trong quy trình phục vụ.',
                 'status' => $rating >= 4 ? 'resolved' : 'new',
-                'reply' => $rating >= 4 ? 'Cam on anh/chi da danh gia that cho co so.' : null,
+                'reply' => $rating >= 4 ? 'Cảm ơn anh/chị đã đánh giá thật cho cơ sở.' : null,
                 'replied_at' => $rating >= 4 ? $createdAt->addDays(1) : null,
                 'resolved_at' => $rating >= 4 ? $createdAt->addDays(2) : null,
                 'created_at' => $createdAt,
@@ -434,7 +435,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'customer_name' => $customer->name,
                 'customer_phone' => $customer->phone,
                 'customer_email' => $customer->email,
-                'message' => 'Phan hoi demo ve toc do phuc vu va uu dai lan sau.',
+                'message' => 'Phản hồi về tốc độ phục vụ và mong muốn ưu đãi cho lần sau.',
                 'payload' => ['demo' => true, 'channel' => 'qr_feedback', 'rating' => $rating],
                 'status' => $rating >= 4 ? 'reviewed' : 'open',
                 'resolved_at' => $rating >= 4 ? $createdAt->addDays(1) : null,
@@ -466,7 +467,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'name' => $customer->name,
                 'phone' => $customer->phone,
                 'email' => $customer->email,
-                'message' => 'Toi muon nhan tu van va uu dai phu hop.',
+                'message' => 'Tôi muốn nhận tư vấn và ưu đãi phù hợp.',
                 'payload' => ['demo' => true, 'intent' => ['tu_van', 'uu_dai', 'dat_lich'][$i % 3]],
                 'status' => ['new', 'contacted', 'qualified'][$i % 3],
                 'created_at' => $createdAt,
@@ -487,14 +488,14 @@ class MLHUBDemoBoardSeeder extends Seeder
         }
 
         foreach ($businesses as $index => $business) {
-            foreach (['Tu van nhanh', 'Goi dich vu chinh'] as $serviceIndex => $name) {
+            foreach (['Tư vấn nhanh', 'Gói dịch vụ chính'] as $serviceIndex => $name) {
                 $this->writer->insert('lb_booking_services', [
                     'user_id' => $userId,
                     'business_id' => $business->id,
                     'name' => $name.' - '.$business->name,
                     'duration_minutes' => $serviceIndex === 0 ? 30 : 75,
                     'price' => $serviceIndex === 0 ? 79000 + ($index * 11000) : 219000 + ($index * 17000),
-                    'description' => 'Dich vu demo cho booking page MLHUB.',
+                    'description' => 'Dịch vụ mẫu cho trang đặt lịch MLHUB.',
                     'available_days' => [1, 2, 3, 4, 5, 6],
                     'time_slots' => ['08:30', '10:00', '14:15', '16:30'],
                     'max_bookings_per_slot' => 1 + ($index % 2),
@@ -542,7 +543,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'customer_name' => $customer->name,
                 'customer_phone' => $customer->phone,
                 'customer_email' => $customer->email,
-                'note' => 'Booking demo sinh tu QR/landing page.',
+                'note' => 'Lượt đặt lịch sinh từ mã QR / landing page.',
                 'created_at' => $createdAt,
                 'updated_at' => $createdAt->addHours(4),
             ];
@@ -610,7 +611,7 @@ class MLHUBDemoBoardSeeder extends Seeder
         }
 
         $limit = (int) ($permissions['customer_tags'] ?? 0);
-        $names = ['VIP', 'Moi den', 'Da dung coupon', 'Can goi lai', 'Khach quay lai', 'Review tot', 'Can xu ly', 'Da dat lich', 'Lead nong', 'Khach ngu dong'];
+        $names = ['VIP', 'Mới đến', 'Đã dùng coupon', 'Cần gọi lại', 'Khách quay lại', 'Review tốt', 'Cần xử lý', 'Đã đặt lịch', 'Lead nóng', 'Khách ngủ đông'];
         $count = min(max(0, $limit), count($names));
 
         for ($i = 0; $i < $count; $i++) {
@@ -619,7 +620,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'name' => $names[$i],
                 'slug' => DemoContentCatalog::slug($names[$i], 'demo-'.$userId),
                 'color' => ['#0f766e', '#2563eb', '#dc2626', '#9333ea', '#ca8a04'][$i % 5],
-                'description' => 'Tag CRM demo MLHUB.',
+                'description' => 'Thẻ phân loại khách hàng trong CRM.',
                 'is_system' => false,
                 'created_at' => CarbonImmutable::now()->subDays(43 - $i),
                 'updated_at' => CarbonImmutable::now(),
@@ -664,7 +665,7 @@ class MLHUBDemoBoardSeeder extends Seeder
 
         $limit = (int) ($permissions['customer_segments'] ?? 0);
         $count = min($limit, 9);
-        $names = ['Khach VIP', 'Khach moi 30 ngay', 'Can winback', 'Da dung coupon', 'Dat lich gan day', 'Review thap can goi', 'Lead nong', 'Khach trung thanh', 'Gia tri cao'];
+        $names = ['Khách VIP', 'Khách mới 30 ngày', 'Cần winback', 'Đã dùng coupon', 'Đặt lịch gần đây', 'Review thấp cần gọi', 'Lead nóng', 'Khách trung thành', 'Giá trị cao'];
 
         for ($i = 0; $i < $count; $i++) {
             $business = $businesses[$i % count($businesses)];
@@ -673,7 +674,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'team_id' => $userId,
                 'business_id' => $business->id,
                 'name' => $names[$i],
-                'description' => 'Phan khuc CRM demo cho '.$business->name,
+                'description' => 'Phân khúc khách hàng cho '.$business->name,
                 'filters' => ['demo' => true, 'score_min' => 20 + ($i * 7), 'recent_days' => [7, 30, 90][$i % 3]],
                 'is_dynamic' => $i % 4 !== 0,
                 'color' => ['#0f766e', '#2563eb', '#dc2626'][$i % 3],
@@ -706,8 +707,8 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'business_id' => $customer->business_id ?: $businesses[$i % count($businesses)]->id,
                 'customer_id' => $customer->id,
                 'assigned_to' => $userId,
-                'title' => ['Goi lai khach', 'Gui uu dai', 'Xac nhan lich', 'Hoi tham trai nghiem'][$i % 4],
-                'description' => 'Task demo MLHUB gan voi hanh trinh khach hang.',
+                'title' => ['Gọi lại khách', 'Gửi ưu đãi', 'Xác nhận lịch', 'Hỏi thăm trải nghiệm'][$i % 4],
+                'description' => 'Việc cần làm gắn với hành trình khách hàng.',
                 'type' => ['follow_up', 'booking', 'coupon', 'review'][$i % 4],
                 'priority' => ['low', 'medium', 'high'][$i % 3],
                 'status' => $status,
@@ -740,7 +741,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'business_id' => $customer->business_id ?: $businesses[$i % count($businesses)]->id,
                 'customer_id' => $customer->id,
                 'user_id' => $userId,
-                'note' => 'Ghi chu demo: khach quan tam uu dai va can cham soc lai dung thoi diem.',
+                'note' => 'Ghi chú: khách quan tâm ưu đãi và cần chăm sóc lại đúng thời điểm.',
                 'visibility' => 'team',
                 'pinned' => $i % 19 === 0,
                 'created_at' => $createdAt,
@@ -771,8 +772,8 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'business_id' => $customer->business_id ?: $businesses[$i % count($businesses)]->id,
                 'customer_id' => $customer->id,
                 'type' => $type,
-                'title' => 'Demo '.$type,
-                'description' => 'Hoat dong demo duoc sinh tu luong QR/CRM.',
+                'title' => $this->activityTitle($type),
+                'description' => 'Hoạt động được sinh từ luồng QR / CRM của cơ sở.',
                 'related_type' => 'demo',
                 'related_id' => null,
                 'source_module' => 'CustomMLHUB',
@@ -832,7 +833,7 @@ class MLHUBDemoBoardSeeder extends Seeder
             $automationId = $this->writer->insert('lb_crm_automations', [
                 'team_id' => $userId,
                 'business_id' => $business->id,
-                'name' => 'CRM demo '.$username.' #'.($i + 1),
+                'name' => 'Tự động hóa CRM #'.($i + 1),
                 'trigger_event' => ['customer.created', 'coupon.used', 'booking.completed'][$i % 3],
                 'status' => $i % 5 === 0 ? 'inactive' : 'active',
                 'condition_json' => ['demo' => true, 'score_min' => 30 + ($i * 5)],
@@ -872,11 +873,11 @@ class MLHUBDemoBoardSeeder extends Seeder
                     'team_id' => null,
                     'business_id' => $business->id,
                     'slug' => "{$username}-loyalty-".($i + 1),
-                    'name' => 'The tich diem '.$business->name,
+                    'name' => 'Thẻ tích điểm '.$business->name,
                     'required_stamps' => 7 + ($i % 5),
                     'stamp_method' => 'qr_scan',
                     'customer_identifier' => 'phone',
-                    'reward_title' => 'Qua tang lan ghe tiep theo',
+                    'reward_title' => 'Quà tặng cho lần ghé tiếp theo',
                     'reward_type' => 'coupon',
                     'reward_value' => (string) (9 + ($i % 13)).'%',
                     'expiry_days' => 45 + ($i % 31),
@@ -958,8 +959,8 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'team_id' => null,
                 'business_id' => $business->id,
                 'slug' => "{$username}-referral-".($i + 1),
-                'name' => 'Gioi thieu ban be - '.$business->name,
-                'reward_title' => 'Uu dai gioi thieu',
+                'name' => 'Giới thiệu bạn bè - '.$business->name,
+                'reward_title' => 'Ưu đãi giới thiệu',
                 'reward_type' => 'coupon',
                 'reward_value' => (string) (11 + $i).'%',
                 'required_referrals' => 1 + ($i % 2),
@@ -1032,11 +1033,11 @@ class MLHUBDemoBoardSeeder extends Seeder
                 $id = $this->writer->insert('lb_email_templates', [
                     'user_id' => $userId,
                     'business_id' => $business->id,
-                    'name' => 'Email demo '.$username.' #'.($i + 1),
+                    'name' => 'Mẫu email #'.($i + 1).' - '.$business->name,
                     'type' => ['welcome', 'coupon', 'booking', 'review'][$i % 4],
-                    'subject' => 'Cam on anh/chi da ghe '.$business->name,
-                    'preheader' => 'Noi dung demo khong gui email that.',
-                    'body' => 'Day la email automation mo phong trong bo demo MLHUB.',
+                    'subject' => 'Cảm ơn anh/chị đã ghé '.$business->name,
+                    'preheader' => 'Nội dung mô phỏng, không gửi email thật.',
+                    'body' => 'Đây là email tự động mô phỏng trong bộ dữ liệu demo MLHUB.',
                     'language' => 'vi',
                     'is_system' => false,
                     'status' => 'active',
@@ -1090,11 +1091,11 @@ class MLHUBDemoBoardSeeder extends Seeder
                 $id = $this->writer->insert('lb_whatsapp_templates', [
                     'user_id' => $userId,
                     'business_id' => $business->id,
-                    'name' => 'WhatsApp demo '.$username.' #'.($i + 1),
+                    'name' => 'Mẫu WhatsApp #'.($i + 1).' - '.$business->name,
                     'type' => ['coupon', 'booking', 'review'][$i % 3],
                     'template_name' => 'mlhub_demo_'.$username.'_'.$i,
                     'language' => 'vi',
-                    'body' => 'Tin nhan demo MLHUB, khong gui qua nha cung cap that.',
+                    'body' => 'Tin nhắn mô phỏng MLHUB, không gửi qua nhà cung cấp thật.',
                     'is_system' => false,
                     'status' => 'active',
                     'created_at' => CarbonImmutable::now()->subDays(21 - $i),
@@ -1144,7 +1145,7 @@ class MLHUBDemoBoardSeeder extends Seeder
             $row = [
                 'user_id' => $userId,
                 'business_id' => $business->id,
-                'name' => ucfirst($channel).' demo '.$username.' #'.($i + 1),
+                'name' => $this->channelLabel($channel).' tự động #'.($i + 1),
                 'trigger_event' => ['lead.created', 'coupon.claimed', 'booking.completed', 'review.low'][$i % 4],
                 'status' => $i % 5 === 0 ? 'inactive' : 'active',
                 'delay_type' => $i % 3 === 0 ? 'delay' : 'immediate',
@@ -1287,8 +1288,8 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'google_review_id' => 'mock-review-'.$userId.'-'.$i,
                 'reviewer_name' => DemoContentCatalog::customerNames()[$i % count(DemoContentCatalog::customerNames())],
                 'rating' => $rating,
-                'comment' => $rating >= 4 ? 'Review mock: dich vu on va dang quay lai.' : 'Review mock: can cai thien trai nghiem.',
-                'reply' => $i % 3 === 0 ? 'Cam on anh/chi da gop y. Day la phan hoi mo phong.' : null,
+                'comment' => $rating >= 4 ? 'Dịch vụ ổn, tôi sẽ quay lại ủng hộ.' : 'Cần cải thiện thêm về trải nghiệm phục vụ.',
+                'reply' => $i % 3 === 0 ? 'Cảm ơn anh/chị đã góp ý cho cơ sở.' : null,
                 'reply_status' => $i % 3 === 0 ? 'replied' : 'none',
                 'review_created_at' => $createdAt,
                 'review_updated_at' => $createdAt->addDays(1),
@@ -1327,12 +1328,12 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'google_post_id' => 'mock-post-'.$userId.'-'.$i,
                 'google_post_name' => 'posts/mock-'.$userId.'-'.$i,
                 'type' => ['standard', 'offer', 'event'][$i % 3],
-                'title' => 'Bai dang mock '.$business->name,
-                'summary' => 'Noi dung Google Business Post mo phong cho demo, khong publish that.',
+                'title' => 'Bài đăng Google - '.$business->name,
+                'summary' => 'Nội dung Google Business Post mô phỏng cho demo, không đăng thật.',
                 'cta_type' => ['CALL', 'LEARN_MORE', 'BOOK'][$i % 3],
                 'cta_url' => 'https://example.invalid/mlhub-google-post/'.$userId.'/'.$i,
                 'coupon_code' => $i % 3 === 1 ? 'MOCK'.(100 + $i) : null,
-                'terms' => 'Du lieu mo phong chi dung cho demo.',
+                'terms' => 'Dữ liệu mô phỏng chỉ dùng cho demo.',
                 'start_at' => $createdAt,
                 'end_at' => $createdAt->addDays(14 + ($i % 9)),
                 'status' => ['published', 'scheduled', 'failed'][$i % 3],
@@ -1410,9 +1411,8 @@ class MLHUBDemoBoardSeeder extends Seeder
         foreach ($titles as $i => $title) {
             $slug = DemoContentCatalog::slug($title, 'mlhub-demo');
             $publishedAt = $this->timeline->at($i + 121, count($titles))->timestamp;
-            $excerpt = 'Bai viet demo ve MLHUB, ho kinh doanh, ma QR, review, CRM va tang truong dia phuong.';
-            $content = '<p>Day la noi dung demo duoc viet rieng cho MLHUB, phuc vu trinh bay nha dau tu va doi tac tai Da Nang - Quang Nam.</p>'
-                .'<p>Noi dung nhan manh du lieu khach hang, ma QR, danh gia that, cham soc khach va do hieu qua tang truong.</p>';
+            $excerpt = DemoArticleLibrary::excerpt($title, $i);
+            $content = DemoArticleLibrary::article($title, $i);
             $row = [
                 'id_secure' => substr(hash('sha256', 'blog-'.$slug), 0, 64),
                 'blog_category_id' => $categories !== [] ? $categories[$i % count($categories)] : null,
@@ -1468,13 +1468,13 @@ class MLHUBDemoBoardSeeder extends Seeder
 
         $names = [
             'MLHUB',
-            'Chuyen doi so',
+            'Chuyển đổi số',
             'Google Maps',
             'QR & Review',
             'CRM & Automation',
-            'Ho kinh doanh Da Nang',
-            'Theo nganh nghe',
-            'Du lieu & AI',
+            'Hộ kinh doanh Đà Nẵng',
+            'Theo ngành nghề',
+            'Dữ liệu & AI',
         ];
         $ids = [];
 
@@ -1484,8 +1484,8 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'id_secure' => substr(hash('sha256', 'cat-'.$slug), 0, 64),
                 'name' => $name,
                 'name_translations' => ['vi' => $name, 'en' => $name],
-                'description' => 'Danh muc blog demo MLHUB.',
-                'description_translations' => ['vi' => 'Danh muc blog demo MLHUB.', 'en' => 'MLHUB demo blog category.'],
+                'description' => 'Danh mục blog của MLHUB.',
+                'description_translations' => ['vi' => 'Danh mục blog của MLHUB.', 'en' => 'MLHUB blog category.'],
                 'slug' => $slug,
                 'icon' => 'fa-light fa-folder',
                 'color' => ['#0f766e', '#2563eb', '#dc2626', '#9333ea'][$i % 4],
@@ -1512,7 +1512,7 @@ class MLHUBDemoBoardSeeder extends Seeder
             return [];
         }
 
-        $names = ['ma QR', 'khach hang', 'review that', 'CRM', 'coupon', 'loyalty', 'Google Business', 'AI', 'Da Nang'];
+        $names = ['mã QR', 'khách hàng', 'review thật', 'CRM', 'coupon', 'loyalty', 'Google Business', 'AI', 'Đà Nẵng'];
         $ids = [];
 
         foreach ($names as $i => $name) {
@@ -1521,8 +1521,8 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'id_secure' => substr(hash('sha256', 'tag-'.$slug), 0, 64),
                 'name' => $name,
                 'name_translations' => ['vi' => $name, 'en' => $name],
-                'description' => 'Tag blog demo MLHUB.',
-                'description_translations' => ['vi' => 'Tag blog demo MLHUB.', 'en' => 'MLHUB demo blog tag.'],
+                'description' => 'Thẻ blog của MLHUB.',
+                'description_translations' => ['vi' => 'Thẻ blog của MLHUB.', 'en' => 'MLHUB blog tag.'],
                 'slug' => $slug,
                 'status' => true,
                 'changed' => CarbonImmutable::now()->timestamp,
@@ -1543,12 +1543,13 @@ class MLHUBDemoBoardSeeder extends Seeder
             return 0;
         }
 
-        $questions = DemoContentCatalog::faqQuestions();
+        $questions = DemoArticleLibrary::faqs();
         $count = 0;
 
-        foreach ($questions as $i => $question) {
+        foreach ($questions as $i => $faq) {
+            $question = $faq['q'];
             $slug = DemoContentCatalog::slug($question, 'mlhub-demo-faq');
-            $answer = 'FAQ demo: MLHUB giup co so kinh doanh gom du lieu khach hang, ma QR, review, uu dai, CRM va bao cao. Trong demo, cac kenh tich hop chi la du lieu mo phong va khong gui that.';
+            $answer = $faq['a'];
             $createdAt = $this->timeline->at($i + 151, count($questions))->timestamp;
             $row = [
                 'id_secure' => substr(hash('sha256', 'faq-'.$slug), 0, 32),
@@ -1670,6 +1671,29 @@ class MLHUBDemoBoardSeeder extends Seeder
         return $value % 2 === 0 ? $value + 1 : $value;
     }
 
+    protected function channelLabel(string $channel): string
+    {
+        return match ($channel) {
+            'email' => 'Email',
+            'webhook' => 'Webhook',
+            'whatsapp' => 'WhatsApp',
+            default => ucfirst($channel),
+        };
+    }
+
+    protected function activityTitle(string $type): string
+    {
+        return match ($type) {
+            'qr_scan' => 'Khách quét mã QR',
+            'lead_created' => 'Khách để lại thông tin',
+            'coupon_claimed' => 'Khách nhận mã ưu đãi',
+            'booking_created' => 'Khách đặt lịch dịch vụ',
+            'feedback_received' => 'Khách gửi phản hồi',
+            'review_received' => 'Khách để lại đánh giá',
+            default => 'Hoạt động khách hàng',
+        };
+    }
+
     protected function channelLogRows(
         string $channel,
         int $userId,
@@ -1698,8 +1722,8 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'recipient_email' => $customer?->email ?: 'demo@mlhub.vn',
                 'recipient_phone' => $customer?->phone ?: '0900000000',
                 'recipient_name' => $customer?->name,
-                'subject' => 'Thong bao demo MLHUB',
-                'body' => 'Automation log mo phong, khong gui that.',
+                'subject' => 'Thông báo tự động từ MLHUB',
+                'body' => 'Nhật ký tự động hóa mô phỏng, không gửi thật.',
                 'message_type' => 'text',
                 'template_name' => $channel.'_demo_template',
                 'template_language' => 'vi',
@@ -1746,7 +1770,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'customer_id' => null,
                 'trigger_event' => 'demo.'.$channel,
                 'status' => $statuses[$i % count($statuses)],
-                'message' => 'Automation CRM demo, khong dispatch that.',
+                'message' => 'Tự động hóa CRM mô phỏng, không thực thi thật.',
                 'metadata' => ['demo' => true, 'simulate_only' => true],
                 'created_at' => $createdAt,
                 'updated_at' => $createdAt->addMinutes(5),
@@ -1825,7 +1849,7 @@ class MLHUBDemoBoardSeeder extends Seeder
             return;
         }
 
-        $this->command->info('MLHUB demo BOD data seeded.');
+        $this->command->info('Đã seed dữ liệu demo MLHUB cho 5 tài khoản.');
 
         foreach ($this->summary as $username => $counts) {
             $this->command->line(sprintf(
@@ -1845,6 +1869,6 @@ class MLHUBDemoBoardSeeder extends Seeder
         }
 
         $this->command->line('blogs='.$contentCounts['blogs'].' faqs='.$contentCounts['faqs']);
-        $this->command->line('All outbound channels are simulated; no email, webhook, WhatsApp, or Google API was called.');
+        $this->command->line('Mọi kênh gửi đi đều mô phỏng; không gọi email, webhook, WhatsApp hay Google API thật.');
     }
 }

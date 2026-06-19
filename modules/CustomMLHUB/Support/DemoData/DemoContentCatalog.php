@@ -105,35 +105,35 @@ class DemoContentCatalog
     public static function businessPool(): array
     {
         return [
-            ['group' => 'beauty_personal_care', 'category' => 'spa_massage_wellness', 'type' => 'Spa', 'name' => 'Moc Spa Da Nang'],
-            ['group' => 'beauty_personal_care', 'category' => 'spa_massage_wellness', 'type' => 'Spa', 'name' => 'An Nhien Goi Dau'],
-            ['group' => 'beauty_personal_care', 'category' => 'nail_lash_brow_studio', 'type' => 'Nail studio', 'name' => 'Nail House Hai Chau'],
-            ['group' => 'beauty_personal_care', 'category' => 'hair_salon', 'type' => 'Salon', 'name' => 'Salon Toc Song Han'],
-            ['group' => 'food_beverage', 'category' => 'cafe_milk_tea', 'type' => 'Coffee shop', 'name' => 'Ca Phe Song Han'],
-            ['group' => 'food_beverage', 'category' => 'seafood_local_restaurant', 'type' => 'Restaurant', 'name' => 'Hai San My Khe'],
-            ['group' => 'food_beverage', 'category' => 'restaurant_eatery', 'type' => 'Restaurant', 'name' => 'Bun Cha Ca Hai Chau'],
-            ['group' => 'tourism_hospitality_experience', 'category' => 'homestay_guesthouse', 'type' => 'Hotel', 'name' => 'Homestay An Thuong'],
-            ['group' => 'tourism_hospitality_experience', 'category' => 'villa_resort_stay', 'type' => 'Hotel', 'name' => 'Villa My Khe'],
-            ['group' => 'tourism_hospitality_experience', 'category' => 'local_tour_experience', 'type' => 'Event venue', 'name' => 'Tour Local Hoi An'],
-            ['group' => 'retail_goods', 'category' => 'local_specialty_ocop_retail', 'type' => 'Local store', 'name' => 'Dac San Quang Da'],
-            ['group' => 'retail_goods', 'category' => 'local_specialty_ocop_retail', 'type' => 'Local store', 'name' => 'Qua Tang OCOP Da Nang'],
-            ['group' => 'technical_repair_maintenance', 'category' => 'auto_motor_repair', 'type' => 'Auto repair', 'name' => 'Garage Son Tra'],
-            ['group' => 'technical_repair_maintenance', 'category' => 'electronics_appliance_repair', 'type' => 'Professional service', 'name' => 'Dien Lanh Thanh Khe'],
-            ['group' => 'technical_repair_maintenance', 'category' => 'laundry_dry_cleaning', 'type' => 'Professional service', 'name' => 'Giat Ui Thanh Khe'],
-            ['group' => 'health_dental_fitness', 'category' => 'dental_clinic', 'type' => 'Dentist', 'name' => 'Nha Khoa Hai Chau'],
-            ['group' => 'health_dental_fitness', 'category' => 'gym_fitness_center', 'type' => 'Gym', 'name' => 'Gym Son Tra'],
-            ['group' => 'education_training_coaching', 'category' => 'language_center', 'type' => 'Education center', 'name' => 'Trung Tam Tieng Anh Da Nang'],
-            ['group' => 'professional_b2b_services', 'category' => 'accounting_tax_service', 'type' => 'Professional service', 'name' => 'Ke Toan Quang Da'],
-            ['group' => 'real_estate_rental_property', 'category' => 'rental_room_property', 'type' => 'Real estate office', 'name' => 'Nha Tro Lien Chieu'],
-            ['group' => 'home_construction_interior', 'category' => 'furniture_interior_shop', 'type' => 'Local store', 'name' => 'Noi That Cam Le'],
-            ['group' => 'transport_delivery_logistics', 'category' => 'local_transport_delivery', 'type' => 'Professional service', 'name' => 'Van Chuyen Da Nang'],
-            ['group' => 'digital_creator_online_business', 'category' => 'creator_studio', 'type' => 'Agency client', 'name' => 'Creator Studio An Thuong'],
-            ['group' => 'small_manufacturing_processing_ocop', 'category' => 'ocop_local_production', 'type' => 'Local store', 'name' => 'Hop Tac Xa Nong San Hoa Vang'],
-            ['group' => 'wholesale_distribution', 'category' => 'wholesale_local_goods', 'type' => 'Local store', 'name' => 'Kho Si Quang Nam'],
-            ['group' => 'agriculture_fisheries_local_supply', 'category' => 'local_farm_supply', 'type' => 'Other', 'name' => 'Vuon Rau Hoa Vang'],
-            ['group' => 'culture_entertainment_sports_community', 'category' => 'event_entertainment_venue', 'type' => 'Event venue', 'name' => 'San Khau Cong Dong Son Tra'],
-            ['group' => 'organization_association_public_community', 'category' => 'association_community_group', 'type' => 'Other', 'name' => 'Hoi Quan Khoi Nghiep Dia Phuong'],
-            ['group' => 'other_needs_classification', 'category' => 'multi_industry_business', 'type' => 'Other', 'name' => 'Dich Vu Tong Hop Hai Chau'],
+            ['group' => 'beauty_personal_care', 'category' => 'spa_massage_wellness', 'type' => 'Spa', 'name' => 'Mộc Spa Đà Nẵng'],
+            ['group' => 'beauty_personal_care', 'category' => 'spa_massage_wellness', 'type' => 'Spa', 'name' => 'An Nhiên Gội Đầu Dưỡng Sinh'],
+            ['group' => 'beauty_personal_care', 'category' => 'nail_lash_brow_studio', 'type' => 'Nail studio', 'name' => 'Nail House Hải Châu'],
+            ['group' => 'beauty_personal_care', 'category' => 'hair_salon', 'type' => 'Salon', 'name' => 'Salon Tóc Sông Hàn'],
+            ['group' => 'food_beverage', 'category' => 'cafe_milk_tea', 'type' => 'Coffee shop', 'name' => 'Cà Phê Sông Hàn'],
+            ['group' => 'food_beverage', 'category' => 'seafood_local_restaurant', 'type' => 'Restaurant', 'name' => 'Hải Sản Mỹ Khê'],
+            ['group' => 'food_beverage', 'category' => 'restaurant_eatery', 'type' => 'Restaurant', 'name' => 'Bún Chả Cá Hải Châu'],
+            ['group' => 'tourism_hospitality_experience', 'category' => 'homestay_guesthouse', 'type' => 'Hotel', 'name' => 'Homestay An Thượng'],
+            ['group' => 'tourism_hospitality_experience', 'category' => 'villa_resort_stay', 'type' => 'Hotel', 'name' => 'Villa Mỹ Khê'],
+            ['group' => 'tourism_hospitality_experience', 'category' => 'local_tour_experience', 'type' => 'Event venue', 'name' => 'Tour Trải Nghiệm Hội An'],
+            ['group' => 'retail_goods', 'category' => 'local_specialty_ocop_retail', 'type' => 'Local store', 'name' => 'Đặc Sản Quảng Đà'],
+            ['group' => 'retail_goods', 'category' => 'local_specialty_ocop_retail', 'type' => 'Local store', 'name' => 'Quà Tặng OCOP Đà Nẵng'],
+            ['group' => 'technical_repair_maintenance', 'category' => 'auto_motor_repair', 'type' => 'Auto repair', 'name' => 'Garage Sơn Trà'],
+            ['group' => 'technical_repair_maintenance', 'category' => 'electronics_appliance_repair', 'type' => 'Professional service', 'name' => 'Điện Lạnh Thanh Khê'],
+            ['group' => 'technical_repair_maintenance', 'category' => 'laundry_dry_cleaning', 'type' => 'Professional service', 'name' => 'Giặt Ủi Thanh Khê'],
+            ['group' => 'health_dental_fitness', 'category' => 'dental_clinic', 'type' => 'Dentist', 'name' => 'Nha Khoa Hải Châu'],
+            ['group' => 'health_dental_fitness', 'category' => 'gym_fitness_center', 'type' => 'Gym', 'name' => 'Gym Sơn Trà'],
+            ['group' => 'education_training_coaching', 'category' => 'language_center', 'type' => 'Education center', 'name' => 'Trung Tâm Tiếng Anh Đà Nẵng'],
+            ['group' => 'professional_b2b_services', 'category' => 'accounting_tax_service', 'type' => 'Professional service', 'name' => 'Kế Toán Quảng Đà'],
+            ['group' => 'real_estate_rental_property', 'category' => 'rental_room_property', 'type' => 'Real estate office', 'name' => 'Nhà Trọ Liên Chiểu'],
+            ['group' => 'home_construction_interior', 'category' => 'furniture_interior_shop', 'type' => 'Local store', 'name' => 'Nội Thất Cẩm Lệ'],
+            ['group' => 'transport_delivery_logistics', 'category' => 'local_transport_delivery', 'type' => 'Professional service', 'name' => 'Vận Chuyển Đà Nẵng'],
+            ['group' => 'digital_creator_online_business', 'category' => 'creator_studio', 'type' => 'Agency client', 'name' => 'Creator Studio An Thượng'],
+            ['group' => 'small_manufacturing_processing_ocop', 'category' => 'ocop_local_production', 'type' => 'Local store', 'name' => 'Hợp Tác Xã Nông Sản Hòa Vang'],
+            ['group' => 'wholesale_distribution', 'category' => 'wholesale_local_goods', 'type' => 'Local store', 'name' => 'Kho Sỉ Quảng Nam'],
+            ['group' => 'agriculture_fisheries_local_supply', 'category' => 'local_farm_supply', 'type' => 'Other', 'name' => 'Vườn Rau Hòa Vang'],
+            ['group' => 'culture_entertainment_sports_community', 'category' => 'event_entertainment_venue', 'type' => 'Event venue', 'name' => 'Sân Khấu Cộng Đồng Sơn Trà'],
+            ['group' => 'organization_association_public_community', 'category' => 'association_community_group', 'type' => 'Other', 'name' => 'Hội Quán Khởi Nghiệp Địa Phương'],
+            ['group' => 'other_needs_classification', 'category' => 'multi_industry_business', 'type' => 'Other', 'name' => 'Dịch Vụ Tổng Hợp Hải Châu'],
         ];
     }
 
@@ -143,23 +143,23 @@ class DemoContentCatalog
     public static function addresses(): array
     {
         return [
-            '23 Bach Dang, Hai Chau',
-            '41 Tran Phu, Hai Chau',
-            '87 Nguyen Van Linh, Hai Chau',
-            '58 Le Duan, Hai Chau',
-            '112 Vo Nguyen Giap, Son Tra',
-            '19 Ho Nghinh, Son Tra',
-            '71 Pham Van Dong, Son Tra',
-            '95 Ngo Quyen, Son Tra',
-            '36 An Thuong, Ngu Hanh Son',
-            '63 Chau Thi Vinh Te, Ngu Hanh Son',
-            '144 Dien Bien Phu, Thanh Khe',
-            '29 Ha Huy Tap, Thanh Khe',
-            '202 Nguyen Tat Thanh, Thanh Khe',
-            '78 Cach Mang Thang 8, Cam Le',
-            '15 Ong Ich Duong, Cam Le',
-            '256 Ton Duc Thang, Lien Chieu',
-            '91 Nguyen Luong Bang, Lien Chieu',
+            '23 Bạch Đằng, Hải Châu',
+            '41 Trần Phú, Hải Châu',
+            '87 Nguyễn Văn Linh, Hải Châu',
+            '58 Lê Duẩn, Hải Châu',
+            '112 Võ Nguyên Giáp, Sơn Trà',
+            '19 Hồ Nghinh, Sơn Trà',
+            '71 Phạm Văn Đồng, Sơn Trà',
+            '95 Ngô Quyền, Sơn Trà',
+            '36 An Thượng, Ngũ Hành Sơn',
+            '63 Châu Thị Vĩnh Tế, Ngũ Hành Sơn',
+            '144 Điện Biên Phủ, Thanh Khê',
+            '29 Hà Huy Tập, Thanh Khê',
+            '202 Nguyễn Tất Thành, Thanh Khê',
+            '78 Cách Mạng Tháng 8, Cẩm Lệ',
+            '15 Ông Ích Đường, Cẩm Lệ',
+            '256 Tôn Đức Thắng, Liên Chiểu',
+            '91 Nguyễn Lương Bằng, Liên Chiểu',
         ];
     }
 
@@ -169,10 +169,12 @@ class DemoContentCatalog
     public static function customerNames(): array
     {
         return [
-            'Nguyen Minh Anh', 'Tran Quoc Bao', 'Le Thanh Hang', 'Pham Gia Huy', 'Vo Ngoc Linh',
-            'Hoang Tuan Kiet', 'Dang Phuong Vy', 'Bui Minh Chau', 'Do Anh Thu', 'Huynh Bao Tran',
-            'Phan Hoai Nam', 'Truong Thien An', 'Ngo Khanh Linh', 'Mai Duc Phat', 'Ly Ha My',
-            'Dinh Quang Vinh', 'Cao Ngoc Han', 'Ta Minh Quan', 'Vu Gia Han', 'Lam Thanh Dat',
+            'Nguyễn Minh Anh', 'Trần Quốc Bảo', 'Lê Thanh Hằng', 'Phạm Gia Huy', 'Võ Ngọc Linh',
+            'Hoàng Tuấn Kiệt', 'Đặng Phương Vy', 'Bùi Minh Châu', 'Đỗ Anh Thư', 'Huỳnh Bảo Trân',
+            'Phan Hoài Nam', 'Trương Thiên Ân', 'Ngô Khánh Linh', 'Mai Đức Phát', 'Lý Hà My',
+            'Đinh Quang Vinh', 'Cao Ngọc Hân', 'Tạ Minh Quân', 'Vũ Gia Hân', 'Lâm Thành Đạt',
+            'Nguyễn Thị Kim Ngân', 'Trần Hữu Lộc', 'Lê Bảo Châu', 'Phạm Thúy Vy', 'Võ Hoàng Long',
+            'Hồ Thị Diễm My', 'Đoàn Công Danh', 'Châu Mỹ Duyên', 'Tống Quốc Khánh', 'Lương Thị Bích Trâm',
         ];
     }
 
@@ -181,95 +183,7 @@ class DemoContentCatalog
      */
     public static function blogTitles(): array
     {
-        $topics = [
-            'MLHUB giup ho kinh doanh dia phuong tang truong nhu the nao',
-            'Vi sao ho kinh doanh can mot bo tang truong so gon nhe',
-            'Tu ma QR den CRM: hanh trinh du lieu cua mot co so kinh doanh',
-            'Marketing automation cho ho kinh doanh nen bat dau tu dau',
-            'Chuyen doi so ho kinh doanh tai Da Nang va Quang Nam',
-            'Co hoi tang truong cho spa, salon va cafe tai Da Nang',
-            'Vi sao Google Maps quan trong voi co so kinh doanh dia phuong',
-            'Bai toan du lieu khach hang cho cua hang nho tai Da Nang',
-            'Cach toi uu ho so Google Business cho quan cafe',
-            'Vi sao danh gia that quan trong hon review ao',
-            'Quy trinh xin danh gia khach hang dung cach',
-            'Nhung loi pho bien khi quan ly Google Maps',
-            'Google Maps, review va niem tin dia phuong',
-            'Dung ma QR de thu phan hoi khach hang tai quay',
-            'QR uu dai giup quan an keo khach quay lai ra sao',
-            'Bien luot quet QR thanh du lieu khach hang',
-            'Vi sao feedback xau van la du lieu tot',
-            'Tao form thu khach tiem nang cho ho kinh doanh',
-            'Ma uu dai giup khach quay lai nhu the nao',
-            'Loyalty card cho quan cafe va spa nho',
-            'Giu khach cu re hon tim khach moi',
-            'Thiet ke uu dai khong lam giam gia tri thuong hieu',
-            'Winback campaign cho khach cu sau mua hang',
-            'CRM don gian cho ho kinh doanh',
-            'Phan nhom khach hang theo hanh vi QR va coupon',
-            'Tu dong nhac lich cho spa va salon',
-            'Cham soc khach sau khi dung dich vu bang automation',
-            'Task CRM giup chu ho khong bo sot khach',
-            'Bo tang truong so cho spa va goi dau duong sinh',
-            'Bo tang truong so cho quan cafe',
-            'Bo tang truong so cho nha hang hai san',
-            'Bo tang truong so cho homestay',
-            'Bo tang truong so cho cua hang dac san va OCOP',
-            'Bo tang truong so cho garage va rua xe',
-            'Bo tang truong so cho nha khoa va phong kham',
-            'Bo tang truong so cho trung tam giao duc',
-            'Bo tang truong so cho bat dong san cho thue',
-            'Ho kinh doanh nen theo doi nhung chi so nao',
-            'QR scans, leads, bookings va coupon claims noi len dieu gi',
-            'Bao cao 7 ngay, 30 ngay, 90 ngay cho chu ho',
-            'Cach doc dashboard tang truong dia phuong',
-            'Khi nao chien dich local marketing duoc xem la hieu qua',
-            'AI co the ho tro chu ho kinh doanh ra sao',
-            'Du lieu khach hang dia phuong la tai san tang truong',
-            'Tu feedback den goi y chien dich bang AI',
-            'AI ho tro tra loi review nhu the nao',
-            'Vi sao MLHUB dung du lieu hanh vi thay vi doan mo',
-            'Khong nen mua review ao',
-            'Cach xin danh gia khach hang dung chuan',
-            'Bao ve du lieu khach hang trong ho kinh doanh',
-            'Ton trong quyen rieng tu khi thu thap lead',
-            'Du lieu demo va du lieu that khac nhau nhu the nao',
-            'Quy trinh tao chien dich QR review trong 15 phut',
-            'Tao coupon theo mua vu cho cua hang nho',
-            'Khach quay lai va bai toan cham soc sau mua',
-            'Do hieu qua tang truong bang du lieu gan voi hanh vi',
-            'Cach dung landing page cho mot uu dai dia phuong',
-            'Khi nao nen dung booking page thay vi form lien he',
-            'Lap danh sach khach hang tu lead form nhu the nao',
-            'Phan biet khach moi, khach cu va khach nguy co roi bo',
-            'Lich cham soc khach 30 ngay cho spa nho',
-            'Chien dich review an toan cho nganh nha khoa',
-            'Cach dung CRM task cho dich vu B2B dia phuong',
-            'Mo hinh partner quan ly nhieu co so bang MLHUB',
-            'Tu quan cafe mot diem den chuoi nho nhieu co so',
-            'Cach nhin so lieu scan theo gio cao diem va thap diem',
-            'Cach xu ly review 1 sao mot cach binh tinh',
-            'Tao Google Business post mo phong cho lich noi dung',
-            'Email automation nen gui luc nao de khong lam phien khach',
-            'Webhook demo va webhook that khac nhau o dau',
-            'WhatsApp/Zalo trong demo nen hieu nhu kenh mo phong',
-            'Phan khuc khach hang theo gia tri vong doi',
-            'Cham soc khach VIP bang tag va note CRM',
-            'Gia tri cua feedback rieng tu truoc khi xin Google Review',
-            'Nhung chi so nha dau tu nen nhin trong demo MLHUB',
-            'Cau chuyen du lieu cua mot homestay An Thuong',
-            'Cau chuyen du lieu cua mot tiem nail Hai Chau',
-            'Cau chuyen du lieu cua mot quan hai san My Khe',
-            'Cau chuyen du lieu cua mot cua hang OCOP',
-            'Tai sao so lieu le tu nhien dang tin hon so tron',
-            'Cach doc conversion tu QR sang lead',
-            'Cach doc conversion tu coupon sang khach quay lai',
-            'Mo phong 24 thang du lieu cho demo BOD',
-            'Checklist truoc khi trinh bay dashboard MLHUB',
-            'Loi ich cua tenant scoped data trong SaaS dia phuong',
-        ];
-
-        return array_slice($topics, 0, 86);
+        return DemoArticleLibrary::titles();
     }
 
     /**
@@ -277,78 +191,161 @@ class DemoContentCatalog
      */
     public static function faqQuestions(): array
     {
-        $questions = [
-            'MLHUB la gi?',
-            'MLHUB phu hop voi ai?',
-            'MLHUB co phai phan mem ban hang hay POS khong?',
-            'MLHUB khac gi so voi chay quang cao?',
-            'MLHUB co dung duoc cho ho kinh doanh nho khong?',
-            'Goi Free dung duoc nhung gi?',
-            'Khi nao nen nang len Starter?',
-            'Goi Growth phu hop voi ai?',
-            'Goi Pro khac Growth o diem nao?',
-            'Goi Partner danh cho ai?',
-            'Co the quan ly nhieu co so khong?',
-            'Co the doi goi sau khong?',
-            'Can nhap thong tin gi khi tao co so?',
-            'Co the tao nhieu dia diem khong?',
-            'Nganh nghe dung de lam gi?',
-            'Neu khong thay nganh cua minh thi chon gi?',
-            'MLHUB co tu goi y campaign theo nganh khong?',
-            'QR trong MLHUB dung de lam gi?',
-            'Co the tao QR xin review khong?',
-            'Co the tao QR phat uu dai khong?',
-            'Co the theo doi luot quet QR khong?',
-            'Khach quet QR co can cai app khong?',
-            'Review Booster la gi?',
-            'MLHUB co tao review ao khong?',
-            'Feedback xau duoc xu ly the nao?',
-            'Co the chuyen khach hai long sang Google Review khong?',
-            'Co the xem bao cao review khong?',
-            'Booking Pages dung cho nganh nao?',
-            'Lead Forms dung de thu thong tin gi?',
-            'Coupon Campaigns hoat dong nhu the nao?',
-            'Co phan biet coupon da nhan va da dung khong?',
-            'Co the tao nhieu uu dai cho nhieu co so khong?',
-            'CRM trong MLHUB co kho dung khong?',
-            'Khach hang duoc tao tu dau?',
-            'Co the gan tag khach hang khong?',
-            'Co the tao task cham soc khach khong?',
-            'Customer score la gi?',
-            'Co xem lich su tuong tac cua khach khong?',
-            'MLHUB co tu dong gui email khong?',
-            'Co the tu dong nhac khach quay lai khong?',
-            'Webhook dung de lam gi?',
-            'WhatsApp/Zalo co duoc tich hop khong?',
-            'Automation co gui that trong demo khong?',
-            'MLHUB co ket noi Google Business khong?',
-            'Google Business mock trong demo la gi?',
-            'MLHUB co giup quan ly review Google khong?',
-            'Co tu dong tra loi review khong?',
-            'Co nen mua review Google khong?',
-            'Dashboard hien thi nhung chi so nao?',
-            'Bao cao 7/30/90 ngay dung de lam gi?',
-            'Conversion rate duoc hieu nhu the nao?',
-            'Vi sao so lieu demo khong tron?',
-            'Du lieu khach hang co duoc bao ve khong?',
-            'MLHUB co phu hop voi thi truong Da Nang khong?',
-            'Nhung nganh nao nen dung MLHUB truoc?',
-            'Spa, cafe, homestay dung MLHUB nhu the nao?',
-            'OCOP va dac san co dung duoc MLHUB khong?',
-            'MLHUB co phu hop cho doi tac trien khai nhieu ho kinh doanh khong?',
-            'Du lieu demo co goi API that khong?',
-            'Blog demo trong MLHUB dung de lam gi?',
-            'FAQ demo co the sua lai sau khong?',
-            'Landing page khac QR campaign nhu the nao?',
-            'Loyalty card khac coupon o diem nao?',
-            'Referral campaign phu hop nganh nao?',
-            'Khi nao nen dung CRM segment?',
-            'Task overdue tren CRM co y nghia gi?',
-            'Google review thap co nen tra loi khong?',
-            'AI trong MLHUB co thay chu kinh doanh quyet dinh khong?',
-        ];
+        return array_map(
+            static fn (array $item): string => $item['q'],
+            DemoArticleLibrary::faqs()
+        );
+    }
 
-        return array_slice($questions, 0, 68);
+    /**
+     * Danh mục yêu cầu hỗ trợ (admin dùng chung).
+     *
+     * @return list<string>
+     */
+    public static function supportCategories(): array
+    {
+        return [
+            'Tài khoản & đăng nhập',
+            'Thanh toán & gói dịch vụ',
+            'Mã QR & chiến dịch',
+            'CRM & khách hàng',
+            'Google Business & đánh giá',
+            'Tự động hóa & tích hợp',
+            'Lỗi kỹ thuật',
+            'Góp ý tính năng',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function supportTypes(): array
+    {
+        return ['Câu hỏi', 'Sự cố', 'Yêu cầu tính năng', 'Khiếu nại', 'Hướng dẫn sử dụng'];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function supportLabels(): array
+    {
+        return ['Khẩn cấp', 'Đang chờ khách', 'Đã chuyển kỹ thuật', 'Chờ thanh toán', 'Đã giải quyết'];
+    }
+
+    /**
+     * Tiêu đề + nội dung ticket hỗ trợ demo.
+     *
+     * @return list<array{title: string, content: string}>
+     */
+    public static function supportTickets(): array
+    {
+        return [
+            ['title' => 'Không tạo thêm được chiến dịch QR', 'content' => 'Mình đang dùng gói hiện tại và muốn tạo thêm chiến dịch QR cho cơ sở mới nhưng hệ thống báo đã đạt giới hạn. Nhờ team kiểm tra giúp mình ạ.'],
+            ['title' => 'Nâng gói từ Starter lên Growth', 'content' => 'Cửa hàng mình đang mở thêm chi nhánh, mình muốn nâng lên gói Growth để quản lý nhiều cơ sở. Cho mình hỏi quy trình và chi phí chênh lệch.'],
+            ['title' => 'Khách quét QR nhưng không thấy lượt scan', 'content' => 'Mình test quét mã QR review tại quán nhưng số liệu lượt quét chưa thấy cập nhật trên dashboard. Nhờ kiểm tra giúp mình.'],
+            ['title' => 'Muốn kết nối Google Business Profile', 'content' => 'Mình muốn đồng bộ đánh giá Google về MLHUB để quản lý tập trung. Hiện chưa rõ cách kết nối tài khoản Google của cửa hàng.'],
+            ['title' => 'Xuất danh sách khách hàng ra Excel', 'content' => 'Mình cần xuất toàn bộ danh sách khách hàng đã thu được qua QR để gửi cho kế toán. Có hỗ trợ xuất file không ạ?'],
+            ['title' => 'Email tự động chưa gửi cho khách', 'content' => 'Mình đã bật automation gửi email cảm ơn sau khi khách để lại thông tin nhưng chưa thấy khách nhận được. Nhờ team hỗ trợ kiểm tra cấu hình.'],
+            ['title' => 'Đổi tên miền riêng cho landing page', 'content' => 'Mình muốn dùng tên miền riêng của cửa hàng cho các trang landing thay vì đường dẫn mặc định. Cần làm những bước gì?'],
+            ['title' => 'Góp ý thêm mẫu coupon theo mùa', 'content' => 'Đề xuất MLHUB bổ sung thêm các mẫu coupon theo dịp lễ Tết, mùa du lịch Đà Nẵng để hộ kinh doanh dùng nhanh hơn.'],
+        ];
+    }
+
+    /**
+     * Mẫu thông báo trong ứng dụng.
+     *
+     * @return list<array{type: string, title: string, message: string}>
+     */
+    public static function notificationSamples(): array
+    {
+        return [
+            ['type' => 'success', 'title' => 'Chiến dịch QR đã được kích hoạt', 'message' => 'Chiến dịch xin đánh giá của bạn đã sẵn sàng nhận lượt quét từ khách hàng.'],
+            ['type' => 'info', 'title' => 'Khách hàng mới từ form thu lead', 'message' => 'Có khách hàng mới vừa để lại thông tin qua landing page của bạn.'],
+            ['type' => 'warning', 'title' => 'Đánh giá 2 sao cần phản hồi', 'message' => 'Một đánh giá thấp vừa được ghi nhận. Hãy phản hồi sớm để giữ uy tín cơ sở.'],
+            ['type' => 'success', 'title' => 'Coupon vừa được sử dụng', 'message' => 'Một khách hàng vừa dùng mã ưu đãi tại cơ sở của bạn.'],
+            ['type' => 'info', 'title' => 'Báo cáo tuần đã sẵn sàng', 'message' => 'Báo cáo tăng trưởng 7 ngày của bạn đã được cập nhật trên dashboard.'],
+            ['type' => 'info', 'title' => 'Khách hàng đạt mốc tích điểm', 'message' => 'Một khách quen vừa hoàn thành thẻ tích điểm và đủ điều kiện nhận quà.'],
+            ['type' => 'news', 'title' => 'MLHUB cập nhật tính năng mới', 'message' => 'Bộ tăng trưởng vừa bổ sung mẫu chiến dịch mới phù hợp cho hộ kinh doanh Đà Nẵng.'],
+            ['type' => 'warning', 'title' => 'Gói dịch vụ sắp đến hạn', 'message' => 'Gói của bạn sẽ gia hạn trong vài ngày tới. Kiểm tra thông tin thanh toán để không gián đoạn.'],
+        ];
+    }
+
+    /**
+     * Thông báo phát toàn hệ thống (admin broadcast).
+     *
+     * @return list<array{type: string, title: string, message: string}>
+     */
+    public static function broadcastNotifications(): array
+    {
+        return [
+            ['type' => 'news', 'title' => 'Chào mừng đến với MLHUB', 'message' => 'Cảm ơn bạn đã đồng hành cùng MLHUB. Khám phá bộ tăng trưởng để bắt đầu thu hút và giữ chân khách hàng.'],
+            ['type' => 'news', 'title' => 'Hướng dẫn tạo chiến dịch QR đầu tiên', 'message' => 'Chỉ với vài phút, bạn có thể tạo mã QR xin đánh giá và bắt đầu thu thập dữ liệu khách hàng thật.'],
+            ['type' => 'update', 'title' => 'Cập nhật CRM & phân khúc khách hàng', 'message' => 'MLHUB vừa nâng cấp bộ lọc phân khúc khách hàng giúp bạn chăm sóc đúng nhóm, đúng thời điểm.'],
+        ];
+    }
+
+    /**
+     * Mẫu coupon hệ thống (admin).
+     *
+     * @return list<array{name: string, code: string, type: int, discount: float, plans: array<int, string>}>
+     */
+    public static function coupons(): array
+    {
+        return [
+            ['name' => 'Ưu đãi chào mừng hộ kinh doanh', 'code' => 'MLHUB-WELCOME', 'type' => 1, 'discount' => 20.0, 'plans' => []],
+            ['name' => 'Khuyến mãi mùa du lịch Đà Nẵng', 'code' => 'DANANG-SUMMER', 'type' => 1, 'discount' => 15.0, 'plans' => []],
+            ['name' => 'Giảm giá đối tác triển khai', 'code' => 'PARTNER-2NAM', 'type' => 1, 'discount' => 30.0, 'plans' => []],
+            ['name' => 'Ưu đãi Tết Nguyên Đán', 'code' => 'MLHUB-TET', 'type' => 1, 'discount' => 25.0, 'plans' => []],
+        ];
+    }
+
+    /**
+     * Gói nạp tín dụng AI (admin).
+     *
+     * @return list<array{name: string, slug: string, credits: int, price: float, featured: bool}>
+     */
+    public static function creditPacks(): array
+    {
+        return [
+            ['name' => 'Gói tín dụng Khởi động', 'slug' => 'credit-starter', 'credits' => 500, 'price' => 99000.0, 'featured' => false],
+            ['name' => 'Gói tín dụng Tăng trưởng', 'slug' => 'credit-growth', 'credits' => 2000, 'price' => 299000.0, 'featured' => true],
+            ['name' => 'Gói tín dụng Chuyên nghiệp', 'slug' => 'credit-pro', 'credits' => 5000, 'price' => 599000.0, 'featured' => false],
+            ['name' => 'Gói tín dụng Đối tác', 'slug' => 'credit-partner', 'credits' => 15000, 'price' => 1490000.0, 'featured' => false],
+        ];
+    }
+
+    /**
+     * Vai trò quản trị viên hệ thống (admin RBAC).
+     *
+     * @return list<array{name: string, slug: string, description: string, permissions: array<int, string>}>
+     */
+    public static function adminRoles(): array
+    {
+        return [
+            ['name' => 'Quản trị tối cao', 'slug' => 'super-admin', 'description' => 'Toàn quyền quản trị hệ thống MLHUB.', 'permissions' => ['*']],
+            ['name' => 'Quản lý nội dung', 'slug' => 'content-manager', 'description' => 'Quản lý blog, FAQ và nội dung marketing.', 'permissions' => ['blogs.manage', 'faqs.manage', 'pages.manage']],
+            ['name' => 'Chăm sóc khách hàng', 'slug' => 'support-agent', 'description' => 'Xử lý ticket hỗ trợ và tương tác người dùng.', 'permissions' => ['support.manage', 'users.view']],
+            ['name' => 'Kế toán & thanh toán', 'slug' => 'billing-staff', 'description' => 'Theo dõi thanh toán, hoá đơn và gói dịch vụ.', 'permissions' => ['payments.view', 'plans.view']],
+        ];
+    }
+
+    /**
+     * Tên mẫu marketing template (theo ngành/dịp).
+     *
+     * @return list<array{name: string, type: string, category: string, goal: string, description: string}>
+     */
+    public static function marketingTemplates(): array
+    {
+        return [
+            ['name' => 'Landing ưu đãi quán cà phê', 'type' => 'landing_page', 'category' => 'food_beverage', 'goal' => 'coupon', 'description' => 'Mẫu trang ưu đãi cho quán cà phê, kèm form thu thông tin khách quay lại.'],
+            ['name' => 'Trang xin đánh giá nhà hàng hải sản', 'type' => 'landing_page', 'category' => 'food_beverage', 'goal' => 'review', 'description' => 'Hướng khách hài lòng để lại đánh giá thật cho nhà hàng.'],
+            ['name' => 'Đặt lịch spa & gội đầu dưỡng sinh', 'type' => 'landing_page', 'category' => 'beauty_personal_care', 'goal' => 'booking', 'description' => 'Mẫu trang đặt lịch dịch vụ spa, hiển thị khung giờ và gói dịch vụ.'],
+            ['name' => 'Thu khách tiềm năng cho homestay', 'type' => 'landing_page', 'category' => 'tourism_hospitality_experience', 'goal' => 'lead', 'description' => 'Form thu thông tin khách quan tâm phòng nghỉ và tour trải nghiệm.'],
+            ['name' => 'Chương trình tích điểm khách quen', 'type' => 'landing_page', 'category' => 'general', 'goal' => 'loyalty', 'description' => 'Giới thiệu thẻ tích điểm và phần quà cho khách quay lại.'],
+            ['name' => 'Ưu đãi khai trương cơ sở mới', 'type' => 'landing_page', 'category' => 'general', 'goal' => 'coupon', 'description' => 'Mẫu trang khai trương kèm mã giảm giá có hạn.'],
+            ['name' => 'Giới thiệu bạn bè nhận quà', 'type' => 'landing_page', 'category' => 'general', 'goal' => 'referral', 'description' => 'Mẫu chương trình giới thiệu khách mới đổi ưu đãi.'],
+            ['name' => 'Đặc sản OCOP Đà Nẵng', 'type' => 'landing_page', 'category' => 'retail_goods', 'goal' => 'lead', 'description' => 'Trang giới thiệu sản phẩm đặc sản và thu đơn đặt hàng.'],
+        ];
     }
 
     public static function slug(string $value, string $prefix = ''): string
@@ -362,4 +359,3 @@ class DemoContentCatalog
         return trim($prefix.'-'.$slug, '-');
     }
 }
-
