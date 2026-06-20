@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Modules\AdminMarketplace\Http\Middleware\EnsureMarketplaceUnlocked;
 use Modules\AdminMarketplace\Models\MarketplacePackage;
 use Modules\AdminMarketplace\Services\MarketplacePackageService;
 use Modules\AdminMarketplace\Services\ShopProductCatalogService;
@@ -22,6 +23,13 @@ class AdminMarketplaceController extends Controller
         protected MarketplacePackageService $packages,
         protected ShopProductCatalogService $catalog,
     ) {}
+
+    public function lock(Request $request): RedirectResponse
+    {
+        $request->session()->forget(EnsureMarketplaceUnlocked::SESSION_KEY);
+
+        return redirect()->route('admin-marketplace.lock');
+    }
 
     public function rescan(): RedirectResponse
     {

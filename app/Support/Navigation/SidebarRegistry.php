@@ -348,15 +348,6 @@ class SidebarRegistry
 
     protected function applyMarketplaceModuleBadge(array $item): array
     {
-        $moduleName = trim((string) ($item['source_module'] ?? ''));
-
-        if ($moduleName === '' || ! $this->isMarketplaceModule($moduleName)) {
-            return $item;
-        }
-
-        $item['badge'] = $item['badge'] ?? __('Addon');
-        $item['badge_tone'] = $item['badge_tone'] ?? 'module';
-
         return $item;
     }
 
