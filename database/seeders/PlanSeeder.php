@@ -50,22 +50,34 @@ class PlanSeeder extends Seeder
                 defaultSignupPlan: true,
                 trialDay: 0,
                 position: 0,
-                desc: 'The default free plan for Da Nang household businesses during the pilot phase, with business profiles, QR codes, coupons, landing pages, customer contacts, and a basic dashboard.',
+                desc: $this->planDescription('free'),
                 permissions: $this->freePermissions(),
             ),
-            $this->plan('MLHUB Starter Monthly', 'mlhub-starter-monthly', 199000, 1, false, false, false, 7, 10, 'Essential MLHUB tools for household businesses starting local digital marketing.', $this->starterPermissions(300)),
-            $this->plan('MLHUB Starter Yearly', 'mlhub-starter-yearly', 1990000, 2, false, false, false, 14, 11, 'Essential MLHUB tools for household businesses starting local digital marketing.', $this->starterPermissions(3600)),
-            $this->plan('MLHUB Starter Lifetime', 'mlhub-starter-lifetime', 5990000, 3, false, false, false, 0, 12, 'Essential MLHUB tools for household businesses starting local digital marketing.', $this->starterPermissions(300)),
-            $this->plan('MLHUB Growth Monthly', 'mlhub-growth-monthly', 349000, 1, true, false, false, 10, 20, 'Growth tools, automation, and higher limits for expanding local businesses.', $this->growthPermissions(1000)),
-            $this->plan('MLHUB Growth Yearly', 'mlhub-growth-yearly', 3490000, 2, false, false, false, 21, 21, 'Growth tools, automation, and higher limits for expanding local businesses.', $this->growthPermissions(12000)),
-            $this->plan('MLHUB Growth Lifetime', 'mlhub-growth-lifetime', 9990000, 3, false, false, false, 0, 22, 'Growth tools, automation, and higher limits for expanding local businesses.', $this->growthPermissions(1000)),
-            $this->plan('MLHUB Pro Monthly', 'mlhub-pro-monthly', 749000, 1, true, false, false, 14, 30, 'Advanced automation, AI, CRM, and branding controls for professional teams.', $this->proPermissions(5000)),
-            $this->plan('MLHUB Pro Yearly', 'mlhub-pro-yearly', 7490000, 2, false, false, false, 30, 31, 'Advanced automation, AI, CRM, and branding controls for professional teams.', $this->proPermissions(60000)),
-            $this->plan('MLHUB Pro Lifetime', 'mlhub-pro-lifetime', 21990000, 3, false, false, false, 0, 32, 'Advanced automation, AI, CRM, and branding controls for professional teams.', $this->proPermissions(5000)),
-            $this->plan('MLHUB Partner Monthly', 'mlhub-partner-monthly', 1249000, 1, false, false, false, 14, 40, 'High-capacity MLHUB operations for partners managing many businesses and customers.', $this->partnerPermissions(20000)),
-            $this->plan('MLHUB Partner Yearly', 'mlhub-partner-yearly', 12490000, 2, false, false, false, 30, 41, 'High-capacity MLHUB operations for partners managing many businesses and customers.', $this->partnerPermissions(240000)),
-            $this->plan('MLHUB Partner Lifetime', 'mlhub-partner-lifetime', 36990000, 3, false, false, false, 0, 42, 'High-capacity MLHUB operations for partners managing many businesses and customers.', $this->partnerPermissions(20000)),
+            $this->plan('MLHUB Starter Monthly', 'mlhub-starter-monthly', 199000, 1, false, false, false, 7, 10, $this->planDescription('starter'), $this->starterPermissions(300)),
+            $this->plan('MLHUB Starter Yearly', 'mlhub-starter-yearly', 1990000, 2, false, false, false, 14, 11, $this->planDescription('starter'), $this->starterPermissions(3600)),
+            $this->plan('MLHUB Starter Lifetime', 'mlhub-starter-lifetime', 5990000, 3, false, false, false, 0, 12, $this->planDescription('starter'), $this->starterPermissions(300)),
+            $this->plan('MLHUB Growth Monthly', 'mlhub-growth-monthly', 349000, 1, true, false, false, 10, 20, $this->planDescription('growth'), $this->growthPermissions(1000)),
+            $this->plan('MLHUB Growth Yearly', 'mlhub-growth-yearly', 3490000, 2, false, false, false, 21, 21, $this->planDescription('growth'), $this->growthPermissions(12000)),
+            $this->plan('MLHUB Growth Lifetime', 'mlhub-growth-lifetime', 9990000, 3, false, false, false, 0, 22, $this->planDescription('growth'), $this->growthPermissions(1000)),
+            $this->plan('MLHUB Pro Monthly', 'mlhub-pro-monthly', 749000, 1, true, false, false, 14, 30, $this->planDescription('pro'), $this->proPermissions(5000)),
+            $this->plan('MLHUB Pro Yearly', 'mlhub-pro-yearly', 7490000, 2, false, false, false, 30, 31, $this->planDescription('pro'), $this->proPermissions(60000)),
+            $this->plan('MLHUB Pro Lifetime', 'mlhub-pro-lifetime', 21990000, 3, false, false, false, 0, 32, $this->planDescription('pro'), $this->proPermissions(5000)),
+            $this->plan('MLHUB Partner Monthly', 'mlhub-partner-monthly', 1249000, 1, false, false, false, 14, 40, $this->planDescription('partner'), $this->partnerPermissions(20000)),
+            $this->plan('MLHUB Partner Yearly', 'mlhub-partner-yearly', 12490000, 2, false, false, false, 30, 41, $this->planDescription('partner'), $this->partnerPermissions(240000)),
+            $this->plan('MLHUB Partner Lifetime', 'mlhub-partner-lifetime', 36990000, 3, false, false, false, 0, 42, $this->planDescription('partner'), $this->partnerPermissions(20000)),
         ];
+    }
+
+    protected function planDescription(string $tier): string
+    {
+        return match ($tier) {
+            'free' => 'Free for Da Nang household businesses. Launch profiles, QR campaigns, and landing pages. Track customers and core reports from one dashboard.',
+            'starter' => 'Start digital marketing with one local business. Run QR, coupons, reviews, and lead pages. Enough credits and limits for daily operations.',
+            'growth' => 'Manage multiple locations and campaigns together. Unlock automation, CRM, and higher usage limits. Scale local marketing without switching tools.',
+            'pro' => 'Built for professional teams and agencies. Full AI, CRM, automation, and white-label controls. Run advanced campaigns with reporting and branding.',
+            'partner' => 'For partners operating at large scale. Manage many businesses, clients, and workflows. Highest limits with full MLHUB workspace capacity.',
+            default => '',
+        };
     }
 
     protected function plan(

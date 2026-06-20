@@ -3,6 +3,10 @@
     $planTypes = collect(\Plan::getTypes())->filter(fn ($label, $key) => ! empty($pricing[$key] ?? []));
     $defaultType = (int) ($planTypes->keys()->first() ?? 1);
     $signupEnabled = auth_signup_enabled();
+    $visiblePlanLimit = 3;
+    $planCountsByType = $planTypes->mapWithKeys(
+        fn ($label, $key): array => [$key => count($pricing[$key] ?? [])]
+    )->all();
 @endphp
 
 @component(theme_view('layouts.marketing', 'guest'), ['pageTitle' => $pageTitle])
@@ -48,7 +52,8 @@
         }
 
         .lb-plan-desc {
-            min-height: 4.75rem;
+            min-height: 3.75rem;
+            line-height: 1.45;
         }
 
         .lb-plan-price {
@@ -142,7 +147,15 @@
     </style>
 
     <div class="lb-page">
-        <section class="lb-wrap lb-pricing-hero pb-16 pt-16 lg:pb-24 lg:pt-20" x-data="{ type: {{ $defaultType }} }">
+        <section
+            class="lb-wrap lb-pricing-hero pb-16 pt-16 lg:pb-24 lg:pt-20"
+            x-data="{
+                type: {{ $defaultType }},
+                showAllPlans: false,
+                visibleLimit: {{ $visiblePlanLimit }},
+                planCounts: @js($planCountsByType),
+            }"
+        >
             <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_26rem] lg:items-end">
                 <div class="lb-reveal">
                     <span class="lb-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.18em]">
@@ -157,7 +170,7 @@
                     <div class="lb-card lb-plan-toggle lb-reveal w-max max-w-full justify-self-start rounded-full p-1.5 lg:justify-self-end" style="--lb-delay: 120ms;">
                         <div class="inline-flex max-w-full flex-wrap gap-1">
                             @foreach ($planTypes as $typeKey => $typeLabel)
-                                <button type="button" x-on:click="type = {{ $typeKey }}" class="rounded-full px-5 py-3 text-sm font-black transition" x-bind:class="type === {{ $typeKey }} ? 'text-white' : 'text-neutral-500 hover:bg-neutral-100'" x-bind:style="type === {{ $typeKey }} ? 'background:#ff5f5f;' : ''">
+                                <button type="button" x-on:click="type = {{ $typeKey }}; showAllPlans = false" class="rounded-full px-5 py-3 text-sm font-black transition" x-bind:class="type === {{ $typeKey }} ? 'text-white' : 'text-neutral-500 hover:bg-neutral-100'" x-bind:style="type === {{ $typeKey }} ? 'background:#ff5f5f;' : ''">
                                     {{ $typeLabel }}
                                 </button>
                             @endforeach
@@ -168,7 +181,7 @@
 
             <div class="mt-10 grid gap-5 lg:grid-cols-3">
                 @foreach ($planTypes as $typeKey => $typeLabel)
-                    @foreach (collect($pricing[$typeKey] ?? []) as $plan)
+                    @foreach (collect($pricing[$typeKey] ?? []) as $planIndex => $plan)
                         @php
                             $isFreePlan = (bool) ($plan['free_plan'] ?? false);
                             $planTarget = $plan['model']->slug ?? $plan['id'];
@@ -183,7 +196,7 @@
                             );
                         @endphp
 
-                        <article x-cloak class="lb-card lb-pricing-card lb-hover lb-reveal relative flex h-full min-h-[34rem] flex-col p-6 {{ $plan['featured'] ? 'lb-shimmer is-featured' : '' }}" style="--lb-delay: {{ 80 * $loop->index }}ms;" x-show="type === {{ $typeKey }}" x-transition>
+                        <article x-cloak class="lb-card lb-pricing-card lb-hover lb-reveal relative flex h-full min-h-[34rem] flex-col p-6 {{ $plan['featured'] ? 'lb-shimmer is-featured' : '' }}" style="--lb-delay: {{ 80 * $planIndex }}ms;" x-show="type === {{ $typeKey }} && (showAllPlans || {{ $planIndex }} < visibleLimit)" x-transition>
                             @if ($plan['featured'])
                                 <span class="absolute right-5 top-5 rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.14em]" style="background: var(--lb-lime); color: #334408;">{{ __('Featured') }}</span>
                             @endif
@@ -232,6 +245,18 @@
                         </article>
                     @endforeach
                 @endforeach
+            </div>
+
+            <div class="mt-8 flex justify-center" x-cloak x-show="(planCounts[type] || 0) > visibleLimit">
+                <button
+                    type="button"
+                    class="lb-button-soft inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-sm font-black transition hover:opacity-90"
+                    x-on:click="showAllPlans = ! showAllPlans"
+                    x-bind:aria-expanded="showAllPlans"
+                >
+                    <span x-text="showAllPlans ? @js(__('Show fewer plans')) : @js(__('View all plans'))"></span>
+                    <i class="fa-light text-xs transition" x-bind:class="showAllPlans ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                </button>
             </div>
 
             <div class="lb-card lb-limit-panel lb-reveal mt-12 rounded-3xl p-6 sm:p-8" style="--lb-delay: 240ms;">
