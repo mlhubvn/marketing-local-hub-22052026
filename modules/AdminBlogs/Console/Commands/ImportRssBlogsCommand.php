@@ -3,6 +3,7 @@
 namespace Modules\AdminBlogs\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -28,12 +29,21 @@ class ImportRssBlogsCommand extends Command
 
         $hasBlogRssSources = Schema::hasTable('blog_rss_sources');
         $hasBlogRssImports = Schema::hasTable('blog_rss_imports');
-        $ensureMigrationRan = DB::table('migrations')
-            ->where('migration', '2026_06_06_120000_ensure_blog_rss_tables')
-            ->exists();
-        $repairMigrationRan = DB::table('migrations')
-            ->where('migration', '2026_06_08_160000_repair_missing_blog_rss_tables')
-            ->exists();
+        try {
+            $ensureMigrationRan = DB::table('migrations')
+                ->where('migration', '2026_06_06_120000_ensure_blog_rss_tables')
+                ->exists();
+            $repairMigrationRan = DB::table('migrations')
+                ->where('migration', '2026_06_08_160000_repair_missing_blog_rss_tables')
+                ->exists();
+        } catch (QueryException $exception) {
+            Log::warning('blogs:rss-import skipped', [
+                'reason' => 'migrations_table_missing_at_runtime',
+                'message' => $exception->getMessage(),
+            ]);
+
+            return self::SUCCESS;
+        }
 
         if (! $hasBlogRssSources) {
             $diagnostics = [
