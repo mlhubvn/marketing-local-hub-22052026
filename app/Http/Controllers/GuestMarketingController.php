@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use App\Support\BusinessDirectory\BusinessDirectoryQuery;
 use Modules\AdminBlogs\Models\Blog;
 use Modules\AdminFaqs\Models\Faq;
 use Modules\AdminPlans\Models\AdminPlan;
@@ -118,6 +119,22 @@ class GuestMarketingController extends Controller
     {
         return view(theme_view('pages.contact', 'guest'), [
             'pageTitle' => __('Contact'),
+        ]);
+    }
+
+    public function businessDirectory(Request $request, BusinessDirectoryQuery $directory): View
+    {
+        $search = trim((string) $request->string('q'));
+        $industry = trim((string) $request->string('industry'));
+
+        return view(theme_view('pages.business-directory', 'guest'), [
+            'pageTitle' => __('Business directory'),
+            'businesses' => $directory->paginate($search, $industry !== '' ? $industry : null),
+            'industryOptions' => $directory->industryFilterOptions(),
+            'filters' => [
+                'q' => $search,
+                'industry' => $industry,
+            ],
         ]);
     }
 

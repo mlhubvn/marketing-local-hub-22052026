@@ -204,7 +204,7 @@ Hệ thống **không** dùng tách database; tenant được cô lập bằng *
 
 | File                        | Nội dung                                                                                                                                  |
 | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `routes/web.php`            | `/`, `/pricing`, `/faqs`, `/blogs`, `/contact`, callback social auth, `portal/dashboard`. Nạp thêm `settings.php` + `public-storage.php`. |
+| `routes/web.php`            | `/`, `/pricing`, `/faqs`, `/blogs`, `/directory`, `/contact`, callback social auth, `portal/dashboard`. Nạp thêm `settings.php` + `public-storage.php`. |
 | `routes/console.php`        | Tổng hợp scheduler.                                                                                                                       |
 | `routes/settings.php`       | Route phần Cài đặt.                                                                                                                       |
 | `routes/public-storage.php` | Phân phối file công khai có chữ ký.                                                                                                       |

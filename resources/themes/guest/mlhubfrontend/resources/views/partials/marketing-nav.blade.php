@@ -24,6 +24,7 @@
         ['label' => __('Pricing'), 'href' => route('guest.pricing'), 'icon' => 'fa-credit-card'],
         ['label' => __('Blog'), 'href' => route('guest.blogs'), 'icon' => 'fa-newspaper'],
         ['label' => __('FAQs (FAQ)'), 'href' => route('guest.faqs'), 'icon' => 'fa-circle-question'],
+        ['label' => __('Business directory'), 'href' => route('guest.directory'), 'icon' => 'fa-store'],
     ];
     $homeNavActive = request()->routeIs('home');
     $aboutNavActive = request()->routeIs('guest.about');
@@ -31,7 +32,8 @@
         || request()->routeIs('guest.pricing')
         || request()->routeIs('guest.blogs')
         || request()->routeIs('guest.blog*')
-        || request()->routeIs('guest.faqs');
+        || request()->routeIs('guest.faqs')
+        || request()->routeIs('guest.directory');
     $contactNavActive = request()->routeIs('guest.contact');
 @endphp
 

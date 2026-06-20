@@ -26,12 +26,14 @@
         ['label' => __('Pricing'), 'href' => route('guest.pricing')],
         ['label' => __('Blog'), 'href' => route('guest.blogs')],
         ['label' => __('FAQs (FAQ)'), 'href' => route('guest.faqs')],
+        ['label' => __('Business directory'), 'href' => route('guest.directory')],
     ];
     $resourcesNavActive = request()->routeIs('guest.solutions')
         || request()->routeIs('guest.pricing')
         || request()->routeIs('guest.blogs')
         || request()->routeIs('guest.blog*')
-        || request()->routeIs('guest.faqs');
+        || request()->routeIs('guest.faqs')
+        || request()->routeIs('guest.directory');
     $contactNavActive = request()->routeIs('guest.contact');
 @endphp
 

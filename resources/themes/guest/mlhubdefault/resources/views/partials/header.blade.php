@@ -40,6 +40,12 @@
                                 </a>
                             </li>
                             <li class="mr-9 font-medium hover:text-gray-700">
+                                <a href="{{ url('directory') }}"
+                                   class="{{ request()->is('directory*') ? 'text-indigo-600' : '' }}">
+                                    {{ __("Business directory") }}
+                                </a>
+                            </li>
+                            <li class="mr-9 font-medium hover:text-gray-700">
                                 <a href="{{ url('blogs') }}"
                                    class="{{ request()->is('blogs*') ? 'text-indigo-600' : '' }}">
                                     {{ __("Blog") }}
@@ -171,6 +177,12 @@
                                 <a class="font-medium hover:text-gray-700 {{ request()->is('faqs*') ? 'text-indigo-600' : '' }}"
                                    href="{{ url('faqs') }}">
                                     {{ __("FAQs") }}
+                                </a>
+                            </li>
+                            <li class="mb-12">
+                                <a class="font-medium hover:text-gray-700 {{ request()->is('directory*') ? 'text-indigo-600' : '' }}"
+                                   href="{{ url('directory') }}">
+                                    {{ __("Business directory") }}
                                 </a>
                             </li>
                             <li class="mb-12">

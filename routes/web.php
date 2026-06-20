@@ -21,6 +21,9 @@ Route::get('/pricing', [GuestMarketingController::class, 'pricing'])->name('gues
 Route::get('/faqs', [GuestMarketingController::class, 'faqs'])->name('guest.faqs');
 Route::get('/blogs', [GuestMarketingController::class, 'blogs'])->name('guest.blogs');
 Route::get('/contact', [GuestMarketingController::class, 'contact'])->name('guest.contact');
+Route::get('/directory', [GuestMarketingController::class, 'businessDirectory'])
+    ->middleware('throttle:60,1')
+    ->name('guest.directory');
 Route::get('/blogs/{slug}', [GuestMarketingController::class, 'blogShow'])->name('guest.blog-show');
 Route::get('/privacy-policy', [GuestStaticPageController::class, 'privacyPolicy'])->name('guest.privacy-policy');
 Route::get('/terms-of-use', [GuestStaticPageController::class, 'termsOfUse'])->name('guest.terms-of-use');
