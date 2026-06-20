@@ -123,26 +123,28 @@ class MLHUBDemoBoardSeeder extends Seeder
 
         for ($i = 0; $i < $count; $i++) {
             $source = $candidates[$i % count($candidates)];
-            $suffix = $count > count($candidates) ? ' CS'.($i + 1) : '';
+            $branchDistricts = DemoContentCatalog::branchDistricts();
+            $suffix = $count > count($candidates) ? ' — '.$branchDistricts[$i % count($branchDistricts)] : '';
+            $businessName = $source['name'].$suffix;
             $resolved = $this->resolveIndustry($source);
             $createdAt = $this->timeline->at($i, $count);
 
             $this->writer->insert('lb_businesses', [
                 'user_id' => $userId,
-                'name' => $source['name'].$suffix,
+                'name' => $businessName,
                 'type' => $resolved['legacy_type'],
                 'industry_group_code' => $resolved['group_code'],
                 'industry_category_code' => $resolved['category_code'],
                 'industry_taxonomy_version' => $resolved['taxonomy_version'],
                 'industry_metadata' => $resolved['metadata_snapshot'],
                 'phone' => '090'.str_pad((string) (($userId + $i * 37) % 10000000), 7, '0', STR_PAD_LEFT),
-                'email' => "demo+{$username}+business{$i}@mlhub.vn",
-                'website' => "https://demo.mlhub.vn/{$username}/business-".($i + 1),
+                'email' => DemoContentCatalog::businessContactEmail($username, $i, $businessName),
+                'website' => 'https://'.Str::slug($businessName).'.vn',
                 'address' => $addresses[$i % count($addresses)],
-                'google_maps_url' => "https://maps.google.com/?q=".rawurlencode($source['name'].' Da Nang'),
+                'google_maps_url' => 'https://maps.google.com/?q='.rawurlencode($source['name'].' Da Nang'),
                 'social_links' => [
-                    'facebook' => "https://facebook.com/mlhub.demo.{$username}.".($i + 1),
-                    'instagram' => "https://instagram.com/mlhub_demo_{$username}_".($i + 1),
+                    'facebook' => 'https://facebook.com/'.Str::slug($businessName),
+                    'instagram' => 'https://instagram.com/'.Str::slug($businessName),
                 ],
                 'opening_hours' => $this->openingHours($i),
                 'created_at' => $createdAt,
@@ -217,7 +219,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'name' => $goals[$type].' - '.$business->name,
                 'type' => $type,
                 'status' => $i % 19 === 0 ? 'paused' : 'active',
-                'destination_url' => "https://demo.mlhub.vn/qr/{$username}/{$type}/".($i + 1),
+                'destination_url' => 'https://'.($profile['domain_slug'] ?? $username).'.mlhub.vn/q/'.$type.'/'.($i + 1),
                 'settings' => [
                     'demo' => true,
                     'mock' => true,
@@ -265,7 +267,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'status' => $i % 23 === 0 ? 'draft' : 'published',
                 'content' => [
                     'headline' => 'Ưu đãi và chăm sóc khách hàng tại '.$business->name,
-                    'description' => 'Trang demo MLHUB gồm mã QR, form thu thông tin, CRM và số liệu chuyển đổi mô phỏng.',
+                    'description' => 'Trang ưu đãi gồm mã QR, form thu thông tin khách hàng và báo cáo chuyển đổi theo thời gian thực.',
                     'cta' => 'Để lại thông tin',
                 ],
                 'settings' => [
@@ -291,7 +293,6 @@ class MLHUBDemoBoardSeeder extends Seeder
             return [];
         }
 
-        $names = DemoContentCatalog::customerNames();
         $count = (int) $profile['customers'];
         $rows = [];
 
@@ -299,8 +300,8 @@ class MLHUBDemoBoardSeeder extends Seeder
             $business = $businesses[$i % count($businesses)];
             $firstSeen = $this->timeline->at($i + 5, $count);
             $lastActivity = $this->timeline->at($i + 17, $count);
-            $score = 21 + (($i * 11 + $count) % 77);
-            $name = $names[$i % count($names)].' '.(($i % 43) + 1);
+            $score = DemoContentCatalog::customerScore($i, $userId);
+            $name = DemoContentCatalog::customerDisplayName($i, $userId);
 
             $rows[] = [
                 'user_id' => $userId,
@@ -308,7 +309,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'business_id' => $business->id,
                 'name' => $name,
                 'phone' => '09'.str_pad((string) (($userId * 19 + $i * 31) % 100000000), 8, '0', STR_PAD_LEFT),
-                'email' => "customer{$i}+{$username}@demo.mlhub.vn",
+                'email' => DemoContentCatalog::customerEmail($i, $userId, $name),
                 'tags' => $this->customerTags($i),
                 'note' => $i % 13 === 0 ? 'Khách cần chăm sóc lại trong đợt này.' : null,
                 'metadata' => [
@@ -320,7 +321,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'last_activity_at' => $lastActivity,
                 'last_contacted_at' => $lastActivity->subDays($i % 9),
                 'score' => $score,
-                'lifetime_value' => 79000 + (($i * 137000) % 8700000),
+                'lifetime_value' => DemoContentCatalog::customerLifetimeValue($i, $userId, $score),
                 'created_at' => $firstSeen,
                 'updated_at' => $lastActivity,
             ];
@@ -352,7 +353,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'user_id' => $userId,
                 'campaign_id' => $campaign->id,
                 'ip_address' => '10.'.(($i % 223) + 1).'.'.(($i * 3) % 251).'.'.(($i * 7) % 251),
-                'user_agent' => 'MLHUB Demo Browser/1.0',
+                'user_agent' => DemoContentCatalog::realisticUserAgent($i),
                 'device' => $devices[$i % count($devices)],
                 'country' => 'Vietnam',
                 'city' => ['Đà Nẵng', 'Hội An', 'Tam Kỳ', 'Huế'][$i % 4],
@@ -390,7 +391,7 @@ class MLHUBDemoBoardSeeder extends Seeder
         for ($i = 0; $i < $count; $i++) {
             $customer = $customers[$i % count($customers)];
             $campaign = $reviewCampaigns[$i % count($reviewCampaigns)];
-            $rating = [5, 4, 5, 3, 4, 2, 5, 1, 4][$i % 9];
+            $rating = DemoContentCatalog::reviewRating($i, $userId);
             $createdAt = $this->timeline->at($i + 31, $count);
 
             $rows[] = [
@@ -426,7 +427,7 @@ class MLHUBDemoBoardSeeder extends Seeder
         for ($i = 0; $i < $count; $i++) {
             $customer = $customers[($i * 3) % count($customers)];
             $createdAt = $this->timeline->at($i + 41, $count);
-            $rating = [4, 5, 3, 2, 4, 5, 1][$i % 7];
+            $rating = DemoContentCatalog::reviewRating($i + 3, $userId);
 
             $rows[] = [
                 'user_id' => $userId,
@@ -801,13 +802,14 @@ class MLHUBDemoBoardSeeder extends Seeder
 
         for ($i = 0; $i < $count; $i++) {
             $customer = $customers[$i % count($customers)];
-            $newScore = (int) ($customer->score ?? (31 + ($i % 59)));
+            $newScore = (int) ($customer->score ?? DemoContentCatalog::customerScore($i, $userId));
+            $delta = 2 + (($i * 7 + $userId) % 23);
             $createdAt = $this->timeline->at($i + 18, $count);
 
             $rows[] = [
                 'team_id' => $userId,
                 'customer_id' => $customer->id,
-                'old_score' => max(0, $newScore - (($i % 17) + 3)),
+                'old_score' => max(0, min(100, $newScore - $delta)),
                 'new_score' => $newScore,
                 'reason' => ['qr_scan', 'coupon_used', 'review_rating', 'booking_completed'][$i % 4],
                 'related_type' => 'demo',
@@ -1036,8 +1038,8 @@ class MLHUBDemoBoardSeeder extends Seeder
                     'name' => 'Mẫu email #'.($i + 1).' - '.$business->name,
                     'type' => ['welcome', 'coupon', 'booking', 'review'][$i % 4],
                     'subject' => 'Cảm ơn anh/chị đã ghé '.$business->name,
-                    'preheader' => 'Nội dung mô phỏng, không gửi email thật.',
-                    'body' => 'Đây là email tự động mô phỏng trong bộ dữ liệu demo MLHUB.',
+                    'preheader' => 'Cảm ơn anh/chị đã ghé thăm cơ sở.',
+                    'body' => 'Email cảm ơn khách hàng sau khi để lại thông tin qua mã QR.',
                     'language' => 'vi',
                     'is_system' => false,
                     'status' => 'active',
@@ -1095,7 +1097,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                     'type' => ['coupon', 'booking', 'review'][$i % 3],
                     'template_name' => 'mlhub_demo_'.$username.'_'.$i,
                     'language' => 'vi',
-                    'body' => 'Tin nhắn mô phỏng MLHUB, không gửi qua nhà cung cấp thật.',
+                    'body' => 'Xin chào, cảm ơn anh/chị đã ghé thăm. Mình có ưu đãi dành riêng cho lần quay lại.',
                     'is_system' => false,
                     'status' => 'active',
                     'created_at' => CarbonImmutable::now()->subDays(21 - $i),
@@ -1278,7 +1280,7 @@ class MLHUBDemoBoardSeeder extends Seeder
 
         for ($i = 0; $i < $count; $i++) {
             $location = $locations[$i % count($locations)];
-            $rating = [5, 4, 5, 3, 4, 2, 5, 1, 4, 5, 3][$i % 11];
+            $rating = DemoContentCatalog::reviewRating($i + 11, $userId);
             $createdAt = $this->timeline->at($i + 77, $count);
 
             $rows[] = [
@@ -1286,7 +1288,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'google_business_location_id' => $location->id,
                 'business_id' => $location->business_id,
                 'google_review_id' => 'mock-review-'.$userId.'-'.$i,
-                'reviewer_name' => DemoContentCatalog::customerNames()[$i % count(DemoContentCatalog::customerNames())],
+                'reviewer_name' => DemoContentCatalog::customerDisplayName($i + 41, $userId),
                 'rating' => $rating,
                 'comment' => $rating >= 4 ? 'Dịch vụ ổn, tôi sẽ quay lại ủng hộ.' : 'Cần cải thiện thêm về trải nghiệm phục vụ.',
                 'reply' => $i % 3 === 0 ? 'Cảm ơn anh/chị đã góp ý cho cơ sở.' : null,
@@ -1335,11 +1337,11 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'google_post_name' => 'posts/mock-'.$userId.'-'.$i,
                 'type' => ['standard', 'offer', 'event'][$i % 3],
                 'title' => 'Bài đăng Google - '.$business->name,
-                'summary' => 'Nội dung Google Business Post mô phỏng cho demo, không đăng thật.',
+                'summary' => 'Ưu đãi cuối tuần dành cho khách hàng quen — ghé thăm cơ sở để nhận quà tặng nhỏ.',
                 'cta_type' => ['CALL', 'LEARN_MORE', 'BOOK'][$i % 3],
                 'cta_url' => 'https://example.invalid/mlhub-google-post/'.$userId.'/'.$i,
                 'coupon_code' => $i % 3 === 1 ? 'MOCK'.(100 + $i) : null,
-                'terms' => 'Dữ liệu mô phỏng chỉ dùng cho demo.',
+                'terms' => 'Áp dụng trong tháng này, không cộng dồn với ưu đãi khác.',
                 'start_at' => $createdAt,
                 'end_at' => $createdAt->addDays(14 + ($i % 9)),
                 'status' => $status,
@@ -1659,7 +1661,7 @@ class MLHUBDemoBoardSeeder extends Seeder
 
     protected function customerTags(int $index): array
     {
-        $tags = ['demo', ['khach_moi', 'khach_quay_lai', 'vip', 'can_cham_soc'][$index % 4]];
+        $tags = [['khach_moi', 'khach_quay_lai', 'vip', 'can_cham_soc'][$index % 4]];
 
         if ($index % 7 === 0) {
             $tags[] = 'coupon';
@@ -1729,7 +1731,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'recipient_phone' => $customer?->phone ?: '0900000000',
                 'recipient_name' => $customer?->name,
                 'subject' => 'Thông báo tự động từ MLHUB',
-                'body' => 'Nhật ký tự động hóa mô phỏng, không gửi thật.',
+                'body' => 'Gửi email cảm ơn sau khi khách để lại thông tin.',
                 'message_type' => 'text',
                 'template_name' => $channel.'_demo_template',
                 'template_language' => 'vi',
@@ -1776,7 +1778,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'customer_id' => null,
                 'trigger_event' => 'demo.'.$channel,
                 'status' => $statuses[$i % count($statuses)],
-                'message' => 'Tự động hóa CRM mô phỏng, không thực thi thật.',
+                'message' => 'Tạo việc gọi lại khách sau khi nhận đánh giá thấp.',
                 'metadata' => ['demo' => true, 'simulate_only' => true],
                 'created_at' => $createdAt,
                 'updated_at' => $createdAt->addMinutes(5),

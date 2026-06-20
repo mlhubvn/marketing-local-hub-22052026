@@ -67,7 +67,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
             $this->seedGoogleAutoReply($userId, $businesses);
             $this->seedSupportTickets($userId);
             $this->seedTeamWorkspace($userId, $username, $isPaid);
-            $this->seedCustomDomains($userId, $username, $isPaid);
+            $this->seedCustomDomains($userId, $username, $isPaid, $profile);
             $this->seedAuditLogs($userId);
             $this->seedLoyaltyReferralExtras($userId, $username, $customers);
             $this->seedCrmExtras($userId, $customers);
@@ -394,7 +394,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
             'size_bytes' => 0,
             'is_folder' => true,
             'is_image' => false,
-            'note' => 'Thư mục chứa hình ảnh và tài liệu marketing demo.',
+            'note' => 'Thư mục chứa hình ảnh và tài liệu marketing.',
             'created_at' => CarbonImmutable::now()->subDays(120),
             'updated_at' => CarbonImmutable::now(),
         ]);
@@ -422,7 +422,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
                 'is_image' => true,
                 'width' => 1280,
                 'height' => 720,
-                'note' => 'Tệp hình ảnh demo (mô phỏng, không có nội dung thật).',
+                'note' => 'Tệp hình ảnh marketing cho chiến dịch tại Đà Nẵng.',
                 'created_at' => $createdAt,
                 'updated_at' => $createdAt,
             ];
@@ -450,7 +450,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
                     'uid' => $userId,
                     'plan_id' => $planId,
                     'from' => 'demo',
-                    'transaction_id' => 'MLHUB-DEMO-'.$userId.'-'.str_pad((string) $i, 4, '0', STR_PAD_LEFT),
+                    'transaction_id' => 'MLHUB-PAY-'.$userId.'-'.str_pad((string) $i, 4, '0', STR_PAD_LEFT),
                     'currency' => 'VND',
                     'by' => 'manual',
                     'amount' => $price,
@@ -472,8 +472,8 @@ class MLHUBDemoExtrasSeeder extends Seeder
                 'type' => 1,
                 'service' => 'manual',
                 'source' => 'demo',
-                'subscription_id' => 'SUB-DEMO-'.$userId,
-                'customer_id' => 'CUS-DEMO-'.$userId,
+                'subscription_id' => 'SUB-MLH-'.str_pad((string) ($userId * 17 + 3847), 8, '0', STR_PAD_LEFT),
+                'customer_id' => 'CUS-MLH-'.str_pad((string) ($userId * 23 + 2918), 8, '0', STR_PAD_LEFT),
                 'amount' => $price,
                 'currency' => 'VND',
                 'status' => 1,
@@ -487,11 +487,11 @@ class MLHUBDemoExtrasSeeder extends Seeder
                 'id_secure' => $this->secure('pm-'.$userId),
                 'uid' => $userId,
                 'plan_id' => $planId,
-                'payment_id' => 'MANUAL-DEMO-'.$userId,
-                'payment_info' => 'Chuyển khoản ngân hàng (mô phỏng) cho gói '.($plan->name ?? 'MLHUB'),
+                'payment_id' => 'MANUAL-MLH-'.str_pad((string) ($userId * 31 + 4729), 8, '0', STR_PAD_LEFT),
+                'payment_info' => 'Chuyển khoản ngân hàng cho gói '.($plan->name ?? 'MLHUB'),
                 'amount' => $price,
                 'currency' => 'VND',
-                'notes' => 'Thanh toán demo, đã duyệt.',
+                'notes' => 'Thanh toán đã duyệt.',
                 'status' => 1,
                 'created' => CarbonImmutable::now()->subMonths(2)->timestamp,
                 'changed' => CarbonImmutable::now()->timestamp,
@@ -521,7 +521,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
                 'payment_history_id' => null,
                 'type' => 'purchase',
                 'amount' => $amount,
-                'remaining' => (int) ($amount * 0.6),
+                'remaining' => max(1, (int) round($amount * (0.53 + (($i * 7 + $userId) % 37) / 100))),
                 'expires_at' => CarbonImmutable::now()->addMonths(12),
                 'metadata' => ['demo' => true, 'simulate_only' => true],
                 'created_at' => $createdAt,
@@ -575,7 +575,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
                     'tone' => $tones[$i % count($tones)],
                     'prompt' => 'Viết nội dung marketing ngắn gọn, hấp dẫn cho cơ sở kinh doanh tại Đà Nẵng, nhấn mạnh ưu đãi và trải nghiệm khách hàng.',
                     'input_payload' => ['demo' => true, 'goal' => 'tang_tuong_tac'],
-                    'output_payload' => ['demo' => true, 'text' => 'Nội dung gợi ý mô phỏng cho buổi trình bày demo.'],
+                    'output_payload' => ['text' => 'Nội dung gợi ý cho bài đăng mạng xã hội tuần này, tập trung vào ưu đãi và câu chuyện khách hàng thật.'],
                     'metadata' => ['simulate_only' => true],
                     'created_at' => $createdAt,
                     'updated_at' => $createdAt,
@@ -725,8 +725,8 @@ class MLHUBDemoExtrasSeeder extends Seeder
                 'visibility' => 'private',
                 'marketplace_status' => 'none',
                 'featured' => $i % 4 === 0,
-                'rating_count' => 3 + ($i % 7),
-                'rating_sum' => (3 + ($i % 7)) * 4,
+                'rating_count' => $ratingCount = 3 + ($i % 7),
+                'rating_sum' => ($ratingCount * 4) + (($i * 3 + $userId) % max(1, $ratingCount + 1)),
                 'status' => 'active',
                 'version' => '1.0.0',
                 'usage_count' => 5 + ($i * 3),
@@ -789,7 +789,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
                 'name' => 'Bộ mẫu marketing địa phương Đà Nẵng',
                 'slug' => DemoContentCatalog::slug('Bo mau marketing', 'pack-'.$userId),
                 'category' => 'local-business',
-                'description' => 'Bộ sưu tập mẫu landing page, email và tin nhắn dùng cho hộ kinh doanh tại Đà Nẵng (dữ liệu demo).',
+                'description' => 'Bộ sưu tập mẫu landing page, email và tin nhắn dùng cho hộ kinh doanh tại Đà Nẵng.',
                 'preview_image' => null,
                 'source' => 'custom',
                 'visibility' => 'private',
@@ -989,7 +989,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
         $teamId = $this->writer->insert('teams', [
             'name' => 'Đội ngũ '.$displayName,
             'slug' => 'team-'.$username.'-'.$userId,
-            'description' => 'Workspace demo của '.$displayName.' trên MLHUB.',
+            'description' => 'Không gian làm việc của '.$displayName.' trên MLHUB.',
             'enabled_modules' => null,
             'owner_user_id' => $userId,
             'created_at' => $createdAt,
@@ -1063,7 +1063,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
                 'created_by_user_id' => $userId,
                 'type' => 'room',
                 'title' => $room,
-                'description' => 'Kênh trao đổi nội bộ (dữ liệu demo).',
+                'description' => 'Kênh trao đổi nội bộ.',
                 'last_message_at' => CarbonImmutable::now()->subDays($i),
                 'metadata' => ['demo' => true],
                 'created_at' => $createdAt,
@@ -1149,7 +1149,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
     /**
      * @param  list<object>  $businesses
      */
-    protected function seedCustomDomains(int $userId, string $username, bool $isPaid): void
+    protected function seedCustomDomains(int $userId, string $username, bool $isPaid, array $profile): void
     {
         if (! $isPaid || ! $this->writer->hasTable('custom_domains')) {
             return;
@@ -1159,7 +1159,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
             return;
         }
 
-        $domain = $username.'-demo.mlhub.vn';
+        $domain = ($profile['domain_slug'] ?? $username).'.mlhub.vn';
 
         if (DB::table('custom_domains')->where('domain', $domain)->exists()) {
             return;
@@ -1194,13 +1194,13 @@ class MLHUBDemoExtrasSeeder extends Seeder
             $rows[] = [
                 'causer_user_id' => $userId,
                 'event' => $event,
-                'description' => 'Hoạt động '.$event.' (nhật ký demo).',
-                'subject_type' => 'demo',
-                'subject_id' => null,
+                'description' => 'Hoạt động '.$event.'.',
+                'subject_type' => 'user',
+                'subject_id' => $userId,
                 'route_name' => 'portal.dashboard',
                 'area' => 'portal',
                 'ip_address' => '113.161.'.(($i % 250) + 1).'.'.(($i * 7) % 250),
-                'user_agent' => 'MLHUB Demo Browser/1.0',
+                'user_agent' => DemoContentCatalog::realisticUserAgent($i),
                 'metadata' => ['demo' => true],
                 'created_at' => $createdAt,
                 'updated_at' => $createdAt,
@@ -1415,8 +1415,8 @@ class MLHUBDemoExtrasSeeder extends Seeder
                     'affiliate_user_id' => $userId,
                     'amount' => 1500000 + ($i * 500000),
                     'payment_method' => 'bank_transfer',
-                    'payment_details' => 'Ngân hàng demo - STK 0123456789 (mô phỏng).',
-                    'notes' => 'Yêu cầu rút hoa hồng demo.',
+                    'payment_details' => 'Vietcombank - STK 0123456789 - Nguyễn Thị Mai Linh.',
+                    'notes' => 'Yêu cầu rút hoa hồng tháng trước.',
                     'status' => $status,
                     'processed_at' => $status === 1 ? $createdAt->addDays(3) : null,
                     'created_at' => $createdAt,
@@ -1485,7 +1485,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
                     'type' => 'post',
                     'method' => 'basic',
                     'data' => json_encode([
-                        'message' => 'Bài đăng demo: ưu đãi và câu chuyện khách hàng tại '.($business->name ?? 'cơ sở của bạn').'.',
+                        'message' => 'Ưu đãi và câu chuyện khách hàng tại '.($business->name ?? 'cơ sở của bạn').'.',
                     ], JSON_UNESCAPED_UNICODE),
                     'time_post' => $createdAt->timestamp,
                     'status' => $i % 5 === 0 ? 0 : 1,

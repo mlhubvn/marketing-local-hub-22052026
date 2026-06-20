@@ -14,46 +14,50 @@ class DemoContentCatalog
         return [
             'mlhubfree' => [
                 'email' => 'mlhubfree@mlhub.vn',
-                'name' => 'MLHUB Free Demo',
+                'name' => 'Nguyễn Thị Phúc Lâm',
+                'domain_slug' => 'phuclam-hkd',
                 'plan' => 'mlhub-free-da-nang',
                 'businesses' => 1,
                 'campaigns' => 5,
                 'landing_pages' => 4,
-                'customers' => 73,
-                'scans' => 197,
+                'customers' => 68,
+                'scans' => 184,
                 'industries' => ['food_beverage'],
             ],
             'mlhubstarter' => [
                 'email' => 'mlhubstarter@mlhub.vn',
-                'name' => 'MLHUB Starter Demo',
+                'name' => 'Trần Minh Tuấn',
+                'domain_slug' => 'trasua-an-thuong',
                 'plan' => 'mlhub-starter-monthly',
                 'businesses' => 1,
                 'campaigns' => 17,
                 'landing_pages' => 9,
-                'customers' => 241,
-                'scans' => 1027,
+                'customers' => 237,
+                'scans' => 1013,
                 'industries' => ['food_beverage', 'beauty_personal_care'],
             ],
             'mlhubgrowth' => [
                 'email' => 'mlhubgrowth@mlhub.vn',
-                'name' => 'MLHUB Growth Demo',
+                'name' => 'Lê Hoàng Yến',
+                'domain_slug' => 'moc-spa-group',
                 'plan' => 'mlhub-growth-monthly',
                 'businesses' => 3,
                 'campaigns' => 64,
                 'landing_pages' => 41,
-                'customers' => 823,
-                'scans' => 3489,
+                'customers' => 816,
+                'scans' => 3467,
                 'industries' => ['beauty_personal_care', 'food_beverage', 'tourism_hospitality_experience'],
             ],
             'mlhubpro' => [
                 'email' => 'mlhubpro@mlhub.vn',
-                'name' => 'MLHUB Pro Demo',
+                'name' => 'Phạm Quốc Anh',
+                'domain_slug' => 'pqa-local-group',
                 'plan' => 'mlhub-pro-monthly',
                 'businesses' => 9,
                 'campaigns' => 257,
                 'landing_pages' => 169,
-                'customers' => 2197,
-                'scans' => 8751,
+                'customers' => 2183,
+                'scans' => 8729,
                 'industries' => [
                     'food_beverage',
                     'beauty_personal_care',
@@ -68,13 +72,14 @@ class DemoContentCatalog
             ],
             'mlhubpartner' => [
                 'email' => 'mlhubpartner@mlhub.vn',
-                'name' => 'MLHUB Partner Demo',
+                'name' => 'Nguyễn Thị Mai Linh',
+                'domain_slug' => 'mai-linh-agency',
                 'plan' => 'mlhub-partner-monthly',
                 'businesses' => 73,
                 'campaigns' => 617,
                 'landing_pages' => 431,
-                'customers' => 4783,
-                'scans' => 11873,
+                'customers' => 4761,
+                'scans' => 11847,
                 'industries' => [
                     'food_beverage',
                     'beauty_personal_care',
@@ -105,6 +110,9 @@ class DemoContentCatalog
     public static function businessPool(): array
     {
         return [
+            ['group' => 'food_beverage', 'category' => 'restaurant_eatery', 'type' => 'Restaurant', 'name' => 'Hộ Kinh Doanh Phúc Lâm'],
+            ['group' => 'food_beverage', 'category' => 'cafe_milk_tea', 'type' => 'Coffee shop', 'name' => 'Hộ Kinh Doanh Trà Sữa An Thượng'],
+            ['group' => 'food_beverage', 'category' => 'restaurant_eatery', 'type' => 'Restaurant', 'name' => 'Hộ Kinh Doanh Bánh Mì Sông Hàn'],
             ['group' => 'beauty_personal_care', 'category' => 'spa_massage_wellness', 'type' => 'Spa', 'name' => 'Mộc Spa Đà Nẵng'],
             ['group' => 'beauty_personal_care', 'category' => 'spa_massage_wellness', 'type' => 'Spa', 'name' => 'An Nhiên Gội Đầu Dưỡng Sinh'],
             ['group' => 'beauty_personal_care', 'category' => 'nail_lash_brow_studio', 'type' => 'Nail studio', 'name' => 'Nail House Hải Châu'],
@@ -168,14 +176,133 @@ class DemoContentCatalog
      */
     public static function customerNames(): array
     {
+        return array_values(array_unique(array_map(
+            static fn (int $index): string => static::customerDisplayName($index, 1),
+            range(0, 59),
+        )));
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function branchDistricts(): array
+    {
         return [
-            'Nguyễn Minh Anh', 'Trần Quốc Bảo', 'Lê Thanh Hằng', 'Phạm Gia Huy', 'Võ Ngọc Linh',
-            'Hoàng Tuấn Kiệt', 'Đặng Phương Vy', 'Bùi Minh Châu', 'Đỗ Anh Thư', 'Huỳnh Bảo Trân',
-            'Phan Hoài Nam', 'Trương Thiên Ân', 'Ngô Khánh Linh', 'Mai Đức Phát', 'Lý Hà My',
-            'Đinh Quang Vinh', 'Cao Ngọc Hân', 'Tạ Minh Quân', 'Vũ Gia Hân', 'Lâm Thành Đạt',
-            'Nguyễn Thị Kim Ngân', 'Trần Hữu Lộc', 'Lê Bảo Châu', 'Phạm Thúy Vy', 'Võ Hoàng Long',
-            'Hồ Thị Diễm My', 'Đoàn Công Danh', 'Châu Mỹ Duyên', 'Tống Quốc Khánh', 'Lương Thị Bích Trâm',
+            'Hải Châu', 'Sơn Trà', 'Thanh Khê', 'Ngũ Hành Sơn', 'Liên Chiểu', 'Cẩm Lệ', 'Hòa Vang',
         ];
+    }
+
+    /**
+     * Tên khách hiển thị — kết hợp họ/tên Việt Nam + khách quốc tế, không dùng hậu tố số.
+     */
+    public static function customerDisplayName(int $index, int $userId): string
+    {
+        $vietnameseFirst = [
+            'Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Huỳnh', 'Võ', 'Đặng', 'Bùi', 'Đỗ',
+            'Hồ', 'Ngô', 'Dương', 'Lý', 'Đinh', 'Cao', 'Vũ', 'Tạ', 'Lâm', 'Châu',
+        ];
+        $vietnameseGiven = [
+            'Minh Anh', 'Quốc Bảo', 'Thanh Hằng', 'Gia Huy', 'Ngọc Linh', 'Tuấn Kiệt', 'Phương Vy',
+            'Minh Châu', 'Anh Thư', 'Bảo Trân', 'Hoài Nam', 'Thiên Ân', 'Khánh Linh', 'Đức Phát',
+            'Hà My', 'Quang Vinh', 'Ngọc Hân', 'Minh Quân', 'Gia Hân', 'Thành Đạt', 'Kim Ngân',
+            'Hữu Lộc', 'Bảo Châu', 'Thúy Vy', 'Hoàng Long', 'Diễm My', 'Công Danh', 'Mỹ Duyên',
+            'Quốc Khánh', 'Bích Trâm', 'Xuân Mai', 'Hồng Nhung', 'Văn Tài', 'Thu Hà',
+        ];
+        $foreignFirst = [
+            'James', 'Sarah', 'David', 'Emma', 'Michael', 'Sophie', 'Daniel', 'Olivia',
+            'Robert', 'Anna', 'Thomas', 'Lisa', 'Chen', 'Yuki', 'Marcus', 'Isabella',
+        ];
+        $foreignLast = [
+            'Morrison', 'Chen', 'Park', 'Wilson', 'Thompson', 'Nguyen', 'Miller', 'Brown',
+            'Johnson', 'Schmidt', 'Tanaka', 'Lee', 'Williams', 'Garcia', 'Kim', 'Anderson',
+        ];
+
+        $seed = ($userId * 7919 + $index * 104729) % 10000;
+
+        if ($seed % 7 === 0) {
+            $first = $foreignFirst[($index + $userId) % count($foreignFirst)];
+            $last = $foreignLast[($index * 3 + $userId) % count($foreignLast)];
+
+            return $first.' '.$last;
+        }
+
+        $first = $vietnameseFirst[($index + $userId * 3) % count($vietnameseFirst)];
+        $given = $vietnameseGiven[($index * 5 + $userId) % count($vietnameseGiven)];
+
+        return $first.' '.$given;
+    }
+
+    public static function customerEmail(int $index, int $userId, string $name): string
+    {
+        $local = Str::slug($name, '.');
+        $domains = ['gmail.com', 'yahoo.com', 'outlook.com', 'icloud.com', 'hotmail.com'];
+        $domain = $domains[($index + $userId) % count($domains)];
+        $suffix = ($index * 17 + $userId * 13) % 997;
+
+        return ($local !== '' ? $local : 'khach.hang').'.'.$suffix.'@'.$domain;
+    }
+
+    public static function businessContactEmail(string $username, int $businessIndex, string $businessName): string
+    {
+        $slug = Str::slug($businessName);
+
+        if ($slug === '') {
+            $slug = $username.'-cs-'.($businessIndex + 1);
+        }
+
+        return 'lienhe@'.$slug.'.vn';
+    }
+
+    public static function customerScore(int $index, int $userId): int
+    {
+        $seed = ($userId * 7919 + $index * 104729) % 10000;
+        $bucket = $seed % 100;
+
+        if ($bucket < 14) {
+            return 12 + ($seed % 24);
+        }
+
+        if ($bucket < 38) {
+            return 36 + ($seed % 20);
+        }
+
+        if ($bucket < 67) {
+            return 56 + ($seed % 17);
+        }
+
+        if ($bucket < 87) {
+            return 73 + ($seed % 16);
+        }
+
+        return 89 + ($seed % 10);
+    }
+
+    public static function customerLifetimeValue(int $index, int $userId, int $score): int
+    {
+        $base = 43000 + (($userId * 1337 + $index * 977) % 890000);
+        $value = (int) round($base * (1 + ($score / 100)));
+
+        return $value + (($index * 173 + $userId * 419) % 97000);
+    }
+
+    public static function reviewRating(int $index, int $userId): int
+    {
+        $weights = [5, 5, 5, 5, 4, 4, 4, 4, 4, 3, 3, 3, 2, 1];
+
+        return $weights[($userId * 31 + $index * 17) % count($weights)];
+    }
+
+    public static function realisticUserAgent(int $index): string
+    {
+        $agents = [
+            'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1',
+            'Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15',
+            'Mozilla/5.0 (iPad; CPU OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Mobile/15E148 Safari/604.1',
+        ];
+
+        return $agents[$index % count($agents)];
     }
 
     /**
