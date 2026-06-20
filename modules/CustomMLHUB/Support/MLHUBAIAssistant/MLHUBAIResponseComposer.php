@@ -5,6 +5,45 @@ namespace Modules\CustomMLHUB\Support\MLHUBAIAssistant;
 class MLHUBAIResponseComposer
 {
     /**
+     * Combine several intents into one connected report.
+     *
+     * @param  list<string>  $intents
+     * @param  array<string, mixed>  $context
+     */
+    public function composeMany(array $intents, array $context): string
+    {
+        $intents = array_values(array_unique(array_filter($intents)));
+
+        if ($intents === []) {
+            return $this->composeUnknown($context);
+        }
+
+        if (count($intents) === 1) {
+            return $this->compose($intents[0], $context);
+        }
+
+        $parts = [];
+
+        foreach ($intents as $intent) {
+            if ($intent === 'unknown') {
+                continue;
+            }
+
+            $segment = trim($this->compose($intent, $context));
+
+            if ($segment !== '' && ! in_array($segment, $parts, true)) {
+                $parts[] = $segment;
+            }
+        }
+
+        if ($parts === []) {
+            return $this->composeUnknown($context);
+        }
+
+        return implode("\n\n", $parts);
+    }
+
+    /**
      * @param  array<string, mixed>  $context
      */
     public function compose(string $intent, array $context): string

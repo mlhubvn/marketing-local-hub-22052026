@@ -49,7 +49,7 @@
                                     <i class="fa-light fa-robot" aria-hidden="true"></i>
                                 </span>
                                 <div class="min-w-0">
-                                    <p class="text-sm leading-6" style="color: var(--theme-header-text-color);">{{ $entry['message'] }}</p>
+                                    <p class="whitespace-pre-line text-sm leading-6" style="color: var(--theme-header-text-color);">{{ $entry['message'] }}</p>
                                     @if (($entry['source'] ?? '') === 'ai')
                                         <p class="mt-2 text-[11px] font-semibold uppercase tracking-[0.12em]" style="color: var(--theme-accent);">{{ __('AI generated') }}</p>
                                     @else

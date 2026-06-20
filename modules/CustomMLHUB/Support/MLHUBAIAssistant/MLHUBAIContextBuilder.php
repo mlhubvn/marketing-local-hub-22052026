@@ -4,6 +4,7 @@ namespace Modules\CustomMLHUB\Support\MLHUBAIAssistant;
 
 use App\Support\Portal\PortalGrowthDashboardMetrics;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Modules\AppBookingPages\Models\Booking;
 use Modules\AppBusinessProfiles\Models\LocalBusiness;
@@ -17,10 +18,24 @@ use Modules\AppReviewBooster\Models\ReviewFeedback;
 
 class MLHUBAIContextBuilder
 {
+    protected const CACHE_TTL_SECONDS = 60;
+
     /**
      * @return array<string, mixed>
      */
     public function build(int $userId): array
+    {
+        return Cache::remember(
+            'mlhub_ai_context:'.$userId.':'.app()->getLocale(),
+            self::CACHE_TTL_SECONDS,
+            fn (): array => $this->buildFresh($userId),
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function buildFresh(int $userId): array
     {
         $now = CarbonImmutable::now();
         $weekStart = $now->startOfWeek();

@@ -4,18 +4,14 @@ namespace Modules\CustomMLHUB\Support\MLHUBAIAssistant;
 
 class MLHUBAIIntentResolver
 {
+    protected const MATCH_THRESHOLD = 0.08;
+
     /**
-     * @return array{intent: string, confidence: float}
+     * @return array<string, list<string>>
      */
-    public function resolve(string $question): array
+    protected function intentKeywords(): array
     {
-        $normalized = mb_strtolower(trim($question));
-
-        if ($normalized === '') {
-            return ['intent' => 'overview', 'confidence' => 0.0];
-        }
-
-        $intents = [
+        return [
             'new_customers' => [
                 'khách mới', 'khach moi', 'customer mới', 'new customer', 'khách hàng mới',
                 'tuần này có khách', 'tuan nay co khach', 'có khách mới', 'co khach moi',
@@ -45,11 +41,38 @@ class MLHUBAIIntentResolver
                 'business', 'chi nhánh', 'chi nhanh', 'cửa hàng', 'cua hang', 'địa điểm', 'dia diem',
             ],
         ];
+    }
 
-        $bestIntent = 'unknown';
-        $bestScore = 0.0;
+    /**
+     * @return array{intent: string, confidence: float}
+     */
+    public function resolve(string $question): array
+    {
+        $matches = $this->resolveAll($question);
 
-        foreach ($intents as $intent => $needles) {
+        if ($matches === []) {
+            return ['intent' => 'unknown', 'confidence' => 0.0];
+        }
+
+        return $matches[0];
+    }
+
+    /**
+     * Detect every intent the question touches, strongest first.
+     *
+     * @return list<array{intent: string, confidence: float}>
+     */
+    public function resolveAll(string $question): array
+    {
+        $normalized = mb_strtolower(trim($question));
+
+        if ($normalized === '') {
+            return [['intent' => 'overview', 'confidence' => 0.0]];
+        }
+
+        $scored = [];
+
+        foreach ($this->intentKeywords() as $intent => $needles) {
             $score = 0.0;
 
             foreach ($needles as $needle) {
@@ -58,17 +81,14 @@ class MLHUBAIIntentResolver
                 }
             }
 
-            if ($score > $bestScore) {
-                $bestScore = $score;
-                $bestIntent = $intent;
+            if ($score >= self::MATCH_THRESHOLD) {
+                $scored[] = ['intent' => $intent, 'confidence' => min(1.0, $score * 4)];
             }
         }
 
-        if ($bestScore < 0.08) {
-            return ['intent' => 'unknown', 'confidence' => $bestScore];
-        }
+        usort($scored, static fn (array $a, array $b): int => $b['confidence'] <=> $a['confidence']);
 
-        return ['intent' => $bestIntent, 'confidence' => min(1.0, $bestScore * 4)];
+        return $scored;
     }
 
     /**

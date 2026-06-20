@@ -43,13 +43,15 @@ class MLHUBAIAssistantService
         }
 
         $context = $this->contextBuilder->build($userId);
-        $intent = $this->intentResolver->resolve($question);
-        $fallbackMessage = $this->responseComposer->compose($intent['intent'], $context);
+        $matches = $this->intentResolver->resolveAll($question);
+        $intents = array_map(static fn (array $match): string => $match['intent'], $matches);
+        $primaryIntent = $intents[0] ?? 'unknown';
+        $fallbackMessage = $this->responseComposer->composeMany($intents, $context);
 
         $result = [
             'message' => $fallbackMessage,
             'source' => 'fallback',
-            'intent' => $intent['intent'],
+            'intent' => $primaryIntent,
             'fallback_reason' => null,
             'suggestions' => $this->intentResolver->suggestedPrompts(),
         ];
@@ -88,7 +90,8 @@ class MLHUBAIAssistantService
                     consume_credits($planOwner, 'mlhub_ai_chat', [
                         'feature' => 'mlhub.ai-assistant',
                         'metadata' => [
-                            'intent' => $intent['intent'],
+                            'intent' => $primaryIntent,
+                            'intents' => $intents,
                             'provider' => $provider,
                         ],
                     ]);
