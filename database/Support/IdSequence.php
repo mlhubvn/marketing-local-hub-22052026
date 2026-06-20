@@ -84,7 +84,9 @@ class IdSequence
 
     /**
      * Renumber rows in $table to contiguous IDs beginning at STARTING_ID (ordered by current PK).
-     * Uses a two-phase negative-ID swap so mixed legacy/high IDs never collide.
+     *
+     * Uses a two-phase swap through a temporary high band (above both existing and target IDs)
+     * so it works on UNSIGNED primary keys — negative temp IDs would overflow unsigned columns.
      */
     public static function resequenceTableFromStartingId(
         string $table,
@@ -102,7 +104,9 @@ class IdSequence
             return false;
         }
 
-        $expectedLastId = $startingId + $rows->count() - 1;
+        $count = $rows->count();
+        $expectedLastId = $startingId + $count - 1;
+        $maxOldId = (int) $rows->max();
         $needsResequence = $rows->contains(fn ($id) => (int) $id < $startingId)
             || (int) $rows->first() !== $startingId
             || (int) $rows->last() !== $expectedLastId;
@@ -111,16 +115,21 @@ class IdSequence
             return false;
         }
 
+        // Temp band sits above every existing id AND the whole target range, so neither phase collides.
+        $tempBase = max($maxOldId, $expectedLastId) + 1;
+
         DB::statement('SET FOREIGN_KEY_CHECKS=0');
 
         try {
             foreach ($rows->values() as $index => $oldId) {
-                DB::table($table)->where($columnName, $oldId)->update([$columnName => -($index + 1)]);
+                DB::table($table)
+                    ->where($columnName, $oldId)
+                    ->update([$columnName => $tempBase + $index]);
             }
 
             foreach ($rows->values() as $index => $_) {
                 DB::table($table)
-                    ->where($columnName, -($index + 1))
+                    ->where($columnName, $tempBase + $index)
                     ->update([$columnName => $startingId + $index]);
             }
         } finally {
