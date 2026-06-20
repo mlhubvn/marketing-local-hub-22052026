@@ -903,17 +903,20 @@ class MLHUBDemoBoardSeeder extends Seeder
 
     protected function seedLoyaltyCustomersAndStamps(array $cardIds, array $customers): void
     {
-        if ($cardIds === []) {
+        if ($cardIds === [] || $customers === []) {
             return;
         }
+
+        $customerCount = count($customers);
 
         foreach ($cardIds as $cardIndex => $cardId) {
             $loyaltyRows = [];
             $stampRows = [];
-            $limit = min(count($customers), 191 + ($cardIndex * 17));
+            $limit = min($customerCount, 191 + ($cardIndex * 17));
+            $offset = ($cardIndex * 13) % $customerCount;
 
             for ($i = 0; $i < $limit; $i++) {
-                $customer = $customers[($i * 3 + $cardIndex) % count($customers)];
+                $customer = $customers[($offset + $i) % $customerCount];
                 $stamps = 1 + (($i + $cardIndex) % 8);
                 $lastStampAt = $this->timeline->at($i + 9, $limit);
 
@@ -986,10 +989,12 @@ class MLHUBDemoBoardSeeder extends Seeder
 
         foreach ($campaignIds as $campaignIndex => $campaignId) {
             $linkRows = [];
-            $limit = min(count($customers), 73 + ($campaignIndex * 11));
+            $customerCount = count($customers);
+            $limit = min($customerCount, 73 + ($campaignIndex * 11));
+            $offset = ($campaignIndex * 11) % $customerCount;
 
             for ($i = 0; $i < $limit; $i++) {
-                $customer = $customers[($i * 5 + $campaignIndex) % count($customers)];
+                $customer = $customers[($offset + $i) % $customerCount];
                 $linkRows[] = [
                     'campaign_id' => $campaignId,
                     'customer_id' => $customer->id,
