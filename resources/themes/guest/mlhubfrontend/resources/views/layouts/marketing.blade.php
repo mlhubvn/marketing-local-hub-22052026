@@ -30,7 +30,7 @@
     ];
 @endphp
 <body class="min-h-screen antialiased scroll-smooth" style="font-family: var(--theme-font-sans); color: #242320; background: #fbfaf5;">
-    <div class="relative isolate min-h-screen overflow-hidden">
+    <div class="relative isolate min-h-screen overflow-x-clip">
         <header
             x-data="{
                 open: false,

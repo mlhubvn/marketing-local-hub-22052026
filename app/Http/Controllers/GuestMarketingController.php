@@ -131,6 +131,7 @@ class GuestMarketingController extends Controller
             'pageTitle' => __('Business directory'),
             'businesses' => $directory->paginate($search, $industry !== '' ? $industry : null),
             'industryOptions' => $directory->industryFilterOptions(),
+            'industryPickerGroups' => $directory->industryPickerGroups(),
             'filters' => [
                 'q' => $search,
                 'industry' => $industry,

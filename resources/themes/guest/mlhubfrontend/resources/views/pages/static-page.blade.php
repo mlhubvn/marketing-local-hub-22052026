@@ -138,7 +138,7 @@
                     @elseif (trim($pageContent) === '')
                         <div class="rounded-[1.25rem] border border-dashed px-6 py-12 text-center text-sm text-slate-500" style="border-color: rgba(var(--theme-border-color-rgb),0.9);">{{ __('This page has not been configured yet.') }}</div>
                     @elseif ($hasHtml)
-                        <div class="lb-static-content guest-static-content prose prose-slate max-w-none">
+                        <div class="lb-rich-content lb-static-content guest-static-content">
                             {!! $pageContent !!}
                         </div>
                     @else

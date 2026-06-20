@@ -2,7 +2,7 @@
     <div class="lb-page">
         <section class="lb-wrap pb-20 pt-16 lg:pt-20">
             <div class="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
-                <aside class="lb-card lb-reveal rounded-xl p-6 lg:sticky lg:top-28">
+                <aside class="lb-card lb-reveal lb-sidebar-panel rounded-xl p-6">
                     <span class="lb-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">
                         <i class="fa-light fa-circle-question"></i>{{ __('FAQs') }}
                     </span>

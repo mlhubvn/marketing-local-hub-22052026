@@ -58,6 +58,22 @@ class BusinessDirectoryQuery
     }
 
     /**
+     * @return list<array{code: string, label: string, icon: string, is_priority: bool}>
+     */
+    public function industryPickerGroups(): array
+    {
+        return collect(BusinessTypeCatalog::taxonomyTree())
+            ->map(fn (array $group): array => [
+                'code' => (string) $group['code'],
+                'label' => (string) $group['label'],
+                'icon' => (string) ($group['icon'] ?? 'fa-store'),
+                'is_priority' => (bool) ($group['is_priority'] ?? false),
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
      * @return list<array{code: string, label: string}>
      */
     public function industryFilterOptions(): array
