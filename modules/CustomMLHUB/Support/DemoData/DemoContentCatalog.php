@@ -75,7 +75,7 @@ class DemoContentCatalog
                 'name' => 'Nguyễn Thị Mai Linh',
                 'domain_slug' => 'mai-linh-agency',
                 'plan' => 'mlhub-partner-monthly',
-                'businesses' => 73,
+                'businesses' => 100,
                 'campaigns' => 617,
                 'landing_pages' => 431,
                 'customers' => 4761,
@@ -105,44 +105,136 @@ class DemoContentCatalog
     }
 
     /**
+     * Pool cơ sở demo = nhóm "featured" (tên đẹp, mã category hợp lệ, ngành phổ biến lên đầu)
+     * + phần tự sinh phủ MỌI danh mục còn lại từ chính BusinessTypeCatalog (không thể sai mã,
+     * và mỗi danh mục có ít nhất 1 cơ sở để trang Danh mục không bị trống).
+     *
      * @return list<array{group: string, category: string, type: string, name: string}>
      */
     public static function businessPool(): array
+    {
+        $featured = self::featuredBusinessPool();
+
+        $seenCategories = [];
+        foreach ($featured as $business) {
+            $seenCategories[$business['category']] = true;
+        }
+
+        $catalog = 'Modules\\AppBusinessProfiles\\Support\\BusinessTypeCatalog';
+
+        if (! class_exists($catalog)) {
+            return $featured;
+        }
+
+        $districts = self::branchDistricts();
+
+        // Gom danh mục còn lại theo từng nhóm để có thể xen kẽ (round-robin) giữa các nhóm.
+        $byGroup = [];
+        foreach ($catalog::taxonomyTree() as $group) {
+            $groupCode = (string) $group['code'];
+
+            foreach ((array) ($group['categories'] ?? []) as $category) {
+                $categoryCode = (string) ($category['code'] ?? '');
+
+                if ($categoryCode === '' || isset($seenCategories[$categoryCode])) {
+                    continue;
+                }
+
+                $seenCategories[$categoryCode] = true;
+                $byGroup[$groupCode][] = [
+                    'group' => $groupCode,
+                    'category' => $categoryCode,
+                    'type' => (string) ($category['legacy_type'] ?? 'Other'),
+                    'label' => (string) ($category['label'] ?? $categoryCode),
+                ];
+            }
+        }
+
+        // Xen kẽ: mỗi vòng lấy 1 danh mục từ mỗi nhóm → khi cắt theo số lượng cơ sở,
+        // các cơ sở vẫn trải đều khắp 18 ngành thay vì dồn vào vài ngành đầu.
+        $generated = [];
+        $index = 0;
+        $exhausted = false;
+
+        while (! $exhausted) {
+            $exhausted = true;
+
+            foreach ($byGroup as $groupCode => $categories) {
+                $next = array_shift($byGroup[$groupCode]);
+
+                if ($next === null) {
+                    continue;
+                }
+
+                $exhausted = false;
+                $district = $districts[$index % count($districts)];
+                $index++;
+
+                $generated[] = [
+                    'group' => $next['group'],
+                    'category' => $next['category'],
+                    'type' => $next['type'],
+                    'name' => self::categoryBusinessName($next['label']).' '.$district,
+                ];
+            }
+        }
+
+        return array_merge($featured, $generated);
+    }
+
+    /**
+     * Cơ sở "featured" có kịch bản/tên riêng cho các tài khoản demo nhỏ (free/starter/growth/pro).
+     * Mã category đã được kiểm tra hợp lệ với BusinessTypeCatalog 2026.06.
+     *
+     * @return list<array{group: string, category: string, type: string, name: string}>
+     */
+    private static function featuredBusinessPool(): array
     {
         return [
             ['group' => 'food_beverage', 'category' => 'restaurant_eatery', 'type' => 'Restaurant', 'name' => 'Hộ Kinh Doanh Phúc Lâm'],
             ['group' => 'food_beverage', 'category' => 'cafe_milk_tea', 'type' => 'Coffee shop', 'name' => 'Hộ Kinh Doanh Trà Sữa An Thượng'],
             ['group' => 'food_beverage', 'category' => 'restaurant_eatery', 'type' => 'Restaurant', 'name' => 'Hộ Kinh Doanh Bánh Mì Sông Hàn'],
-            ['group' => 'beauty_personal_care', 'category' => 'spa_massage_wellness', 'type' => 'Spa', 'name' => 'Mộc Spa Đà Nẵng'],
-            ['group' => 'beauty_personal_care', 'category' => 'spa_massage_wellness', 'type' => 'Spa', 'name' => 'An Nhiên Gội Đầu Dưỡng Sinh'],
-            ['group' => 'beauty_personal_care', 'category' => 'nail_lash_brow_studio', 'type' => 'Nail studio', 'name' => 'Nail House Hải Châu'],
+            ['group' => 'beauty_personal_care', 'category' => 'spa_massage', 'type' => 'Spa', 'name' => 'Mộc Spa Đà Nẵng'],
+            ['group' => 'beauty_personal_care', 'category' => 'spa_massage', 'type' => 'Spa', 'name' => 'An Nhiên Gội Đầu Dưỡng Sinh'],
+            ['group' => 'beauty_personal_care', 'category' => 'nail_lash_brow', 'type' => 'Nail studio', 'name' => 'Nail House Hải Châu'],
             ['group' => 'beauty_personal_care', 'category' => 'hair_salon', 'type' => 'Salon', 'name' => 'Salon Tóc Sông Hàn'],
             ['group' => 'food_beverage', 'category' => 'cafe_milk_tea', 'type' => 'Coffee shop', 'name' => 'Cà Phê Sông Hàn'],
             ['group' => 'food_beverage', 'category' => 'seafood_local_restaurant', 'type' => 'Restaurant', 'name' => 'Hải Sản Mỹ Khê'],
             ['group' => 'food_beverage', 'category' => 'restaurant_eatery', 'type' => 'Restaurant', 'name' => 'Bún Chả Cá Hải Châu'],
-            ['group' => 'tourism_hospitality_experience', 'category' => 'homestay_guesthouse', 'type' => 'Hotel', 'name' => 'Homestay An Thượng'],
-            ['group' => 'tourism_hospitality_experience', 'category' => 'villa_resort_stay', 'type' => 'Hotel', 'name' => 'Villa Mỹ Khê'],
-            ['group' => 'tourism_hospitality_experience', 'category' => 'local_tour_experience', 'type' => 'Event venue', 'name' => 'Tour Trải Nghiệm Hội An'],
-            ['group' => 'retail_goods', 'category' => 'local_specialty_ocop_retail', 'type' => 'Local store', 'name' => 'Đặc Sản Quảng Đà'],
-            ['group' => 'retail_goods', 'category' => 'local_specialty_ocop_retail', 'type' => 'Local store', 'name' => 'Quà Tặng OCOP Đà Nẵng'],
-            ['group' => 'technical_repair_maintenance', 'category' => 'auto_motor_repair', 'type' => 'Auto repair', 'name' => 'Garage Sơn Trà'],
-            ['group' => 'technical_repair_maintenance', 'category' => 'electronics_appliance_repair', 'type' => 'Professional service', 'name' => 'Điện Lạnh Thanh Khê'],
-            ['group' => 'technical_repair_maintenance', 'category' => 'laundry_dry_cleaning', 'type' => 'Professional service', 'name' => 'Giặt Ủi Thanh Khê'],
+            ['group' => 'tourism_hospitality_experience', 'category' => 'homestay_villa_apartment', 'type' => 'Hotel', 'name' => 'Homestay An Thượng'],
+            ['group' => 'tourism_hospitality_experience', 'category' => 'serviced_apartment', 'type' => 'Hotel', 'name' => 'Villa Mỹ Khê'],
+            ['group' => 'tourism_hospitality_experience', 'category' => 'local_experience_tour', 'type' => 'Other', 'name' => 'Tour Trải Nghiệm Hội An'],
+            ['group' => 'retail_goods', 'category' => 'souvenir_ocop_gifts', 'type' => 'Local store', 'name' => 'Đặc Sản Quảng Đà'],
+            ['group' => 'retail_goods', 'category' => 'souvenir_ocop_gifts', 'type' => 'Local store', 'name' => 'Quà Tặng OCOP Đà Nẵng'],
+            ['group' => 'technical_repair_maintenance', 'category' => 'auto_motorbike_repair', 'type' => 'Auto repair', 'name' => 'Garage Sơn Trà'],
+            ['group' => 'technical_repair_maintenance', 'category' => 'appliance_ac_repair', 'type' => 'Other', 'name' => 'Điện Lạnh Thanh Khê'],
+            ['group' => 'technical_repair_maintenance', 'category' => 'laundry_dry_cleaning', 'type' => 'Other', 'name' => 'Giặt Ủi Thanh Khê'],
             ['group' => 'health_dental_fitness', 'category' => 'dental_clinic', 'type' => 'Dentist', 'name' => 'Nha Khoa Hải Châu'],
             ['group' => 'health_dental_fitness', 'category' => 'gym_fitness_center', 'type' => 'Gym', 'name' => 'Gym Sơn Trà'],
             ['group' => 'education_training_coaching', 'category' => 'language_center', 'type' => 'Education center', 'name' => 'Trung Tâm Tiếng Anh Đà Nẵng'],
             ['group' => 'professional_b2b_services', 'category' => 'accounting_tax_service', 'type' => 'Professional service', 'name' => 'Kế Toán Quảng Đà'],
-            ['group' => 'real_estate_rental_property', 'category' => 'rental_room_property', 'type' => 'Real estate office', 'name' => 'Nhà Trọ Liên Chiểu'],
-            ['group' => 'home_construction_interior', 'category' => 'furniture_interior_shop', 'type' => 'Local store', 'name' => 'Nội Thất Cẩm Lệ'],
-            ['group' => 'transport_delivery_logistics', 'category' => 'local_transport_delivery', 'type' => 'Professional service', 'name' => 'Vận Chuyển Đà Nẵng'],
-            ['group' => 'digital_creator_online_business', 'category' => 'creator_studio', 'type' => 'Agency client', 'name' => 'Creator Studio An Thượng'],
-            ['group' => 'small_manufacturing_processing_ocop', 'category' => 'ocop_local_production', 'type' => 'Local store', 'name' => 'Hợp Tác Xã Nông Sản Hòa Vang'],
-            ['group' => 'wholesale_distribution', 'category' => 'wholesale_local_goods', 'type' => 'Local store', 'name' => 'Kho Sỉ Quảng Nam'],
-            ['group' => 'agriculture_fisheries_local_supply', 'category' => 'local_farm_supply', 'type' => 'Other', 'name' => 'Vườn Rau Hòa Vang'],
-            ['group' => 'culture_entertainment_sports_community', 'category' => 'event_entertainment_venue', 'type' => 'Event venue', 'name' => 'Sân Khấu Cộng Đồng Sơn Trà'],
-            ['group' => 'organization_association_public_community', 'category' => 'association_community_group', 'type' => 'Other', 'name' => 'Hội Quán Khởi Nghiệp Địa Phương'],
+            ['group' => 'real_estate_rental_property', 'category' => 'boarding_house_room_rental', 'type' => 'Real estate office', 'name' => 'Nhà Trọ Liên Chiểu'],
+            ['group' => 'home_construction_interior', 'category' => 'furniture_store_workshop', 'type' => 'Other', 'name' => 'Nội Thất Cẩm Lệ'],
+            ['group' => 'transport_delivery_logistics', 'category' => 'motorbike_delivery', 'type' => 'Other', 'name' => 'Vận Chuyển Đà Nẵng'],
+            ['group' => 'digital_creator_online_business', 'category' => 'content_creator_kol', 'type' => 'Other', 'name' => 'Creator Studio An Thượng'],
+            ['group' => 'small_manufacturing_processing_ocop', 'category' => 'ocop_local_producer', 'type' => 'Other', 'name' => 'Hợp Tác Xã Nông Sản Hòa Vang'],
+            ['group' => 'wholesale_distribution', 'category' => 'b2b_trade_supply', 'type' => 'Other', 'name' => 'Kho Sỉ Quảng Nam'],
+            ['group' => 'agriculture_fisheries_local_supply', 'category' => 'farm_produce_supplier', 'type' => 'Other', 'name' => 'Vườn Rau Hòa Vang'],
+            ['group' => 'culture_entertainment_sports_community', 'category' => 'recreation_attraction', 'type' => 'Other', 'name' => 'Sân Khấu Cộng Đồng Sơn Trà'],
+            ['group' => 'organization_association_public_community', 'category' => 'community_organization', 'type' => 'Other', 'name' => 'Hội Quán Khởi Nghiệp Địa Phương'],
             ['group' => 'other_needs_classification', 'category' => 'multi_industry_business', 'type' => 'Other', 'name' => 'Dịch Vụ Tổng Hợp Hải Châu'],
         ];
+    }
+
+    /**
+     * Rút tên cơ sở gọn từ nhãn danh mục (bỏ phần sau "/" hoặc "(").
+     */
+    private static function categoryBusinessName(string $label): string
+    {
+        $parts = preg_split('~\s*[/(]~u', $label, 2);
+        $base = trim((string) ($parts[0] ?? $label));
+
+        return $base !== '' ? $base : $label;
     }
 
     /**
