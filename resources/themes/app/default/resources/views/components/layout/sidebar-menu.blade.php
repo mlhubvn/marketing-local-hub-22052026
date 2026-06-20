@@ -75,7 +75,7 @@
     };
 
     /** Parent sections expanded on first visit (before localStorage preference). */
-    $defaultOpenSidebarSections = ['overview', 'local-businesses', 'team-billing'];
+    $defaultOpenSidebarSections = ['main', 'overview', 'local-businesses', 'team-billing'];
 @endphp
 
 @if ($mode === 'mobile')
@@ -226,6 +226,7 @@
             $sectionIcon = $resolveSectionIcon($section);
             $sectionActive = $sectionHasActiveItem($section);
             $defaultSectionOpen = in_array($sectionKey, $defaultOpenSidebarSections, true);
+            $sectionAlwaysOpen = empty($section['label']);
         @endphp
 
         <section
@@ -235,6 +236,12 @@
                 sectionKey: @js($sectionKey),
                 open: @js($defaultSectionOpen),
                 init() {
+                    if (@js($sectionAlwaysOpen)) {
+                        this.open = true;
+
+                        return;
+                    }
+
                     const stored = JSON.parse(localStorage.getItem('app-sidebar-sections') || '{}');
                     const hasActive = @js($sectionActive);
 
