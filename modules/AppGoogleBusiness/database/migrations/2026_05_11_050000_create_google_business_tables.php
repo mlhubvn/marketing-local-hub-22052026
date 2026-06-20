@@ -41,6 +41,8 @@ return new class extends Migration {
             $table->boolean('sync_reviews')->default(true);
             $table->boolean('sync_insights')->default(false);
             $table->string('status', 30)->default('active');
+            $table->boolean('is_managed')->default(false);
+            $table->timestamp('managed_at')->nullable();
             $table->timestamp('last_synced_at')->nullable();
             $table->timestamps();
             $table->unique(['connection_id', 'google_location_id'], 'gb_location_connection_unique');
