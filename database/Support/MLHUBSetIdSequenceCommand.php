@@ -12,7 +12,7 @@ class MLHUBSetIdSequenceCommand extends Command
 
     public function handle(): int
     {
-        IdSequence::apply();
+        IdSequence::normalizeCoreTables();
         $this->info('MLHUB ID sequence applied (starting ID: '.IdSequence::startingId().').');
 
         return self::SUCCESS;

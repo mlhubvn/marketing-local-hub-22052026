@@ -12,10 +12,6 @@ let match;
 while ((match = insertRe.exec(sql)) !== null) {
     const table = match[1];
 
-    if (table === 'migrations') {
-        continue;
-    }
-
     const rowRe = /\((\d+),/g;
     let rowMatch;
 
@@ -28,7 +24,7 @@ while ((match = insertRe.exec(sql)) !== null) {
     }
 }
 
-console.log('IDs below START (excluding migrations):', bad.length);
+console.log('IDs below START:', bad.length);
 
 if (bad.length > 0) {
     console.log(bad.slice(0, 30));

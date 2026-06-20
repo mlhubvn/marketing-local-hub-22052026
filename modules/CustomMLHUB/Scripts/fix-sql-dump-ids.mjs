@@ -6,7 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '../../..');
 const dumpPath = path.join(repoRoot, 'mysql-dump-default-1780902564.sql');
 const START = 147123468;
-const EXCLUDED_TABLES = new Set(['migrations']);
+const EXCLUDED_TABLES = new Set([]);
 
 const sql = fs.readFileSync(dumpPath, 'utf8');
 

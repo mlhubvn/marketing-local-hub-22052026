@@ -3,9 +3,16 @@
 namespace Database\Support;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class IdSequence
 {
+    /**
+     * Tables whose PK is never referenced by FK — safe to renumber contiguously from STARTING_ID.
+     *
+     * @var list<string>
+     */
+    public const RESEQUENCE_TABLES = ['options', 'migrations'];
     public const STARTING_ID = 147123468;
 
     public static function startingId(): int
@@ -76,6 +83,68 @@ class IdSequence
     }
 
     /**
+     * Renumber rows in $table to contiguous IDs beginning at STARTING_ID (ordered by current PK).
+     * Uses a two-phase negative-ID swap so mixed legacy/high IDs never collide.
+     */
+    public static function resequenceTableFromStartingId(
+        string $table,
+        ?int $startingId = null,
+        string $columnName = 'id'
+    ): bool {
+        if (DB::getDriverName() !== 'mysql' || ! Schema::hasTable($table)) {
+            return false;
+        }
+
+        $startingId ??= self::startingId();
+        $rows = DB::table($table)->orderBy($columnName)->pluck($columnName);
+
+        if ($rows->isEmpty()) {
+            return false;
+        }
+
+        $expectedLastId = $startingId + $rows->count() - 1;
+        $needsResequence = $rows->contains(fn ($id) => (int) $id < $startingId)
+            || (int) $rows->first() !== $startingId
+            || (int) $rows->last() !== $expectedLastId;
+
+        if (! $needsResequence) {
+            return false;
+        }
+
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
+        try {
+            foreach ($rows->values() as $index => $oldId) {
+                DB::table($table)->where($columnName, $oldId)->update([$columnName => -($index + 1)]);
+            }
+
+            foreach ($rows->values() as $index => $_) {
+                DB::table($table)
+                    ->where($columnName, -($index + 1))
+                    ->update([$columnName => $startingId + $index]);
+            }
+        } finally {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        }
+
+        return true;
+    }
+
+    /**
+     * Align options + migrations PKs, then refresh AUTO_INCREMENT on all eligible tables.
+     */
+    public static function normalizeCoreTables(?int $startingId = null): void
+    {
+        $startingId ??= self::startingId();
+
+        foreach (self::RESEQUENCE_TABLES as $table) {
+            self::resequenceTableFromStartingId($table, $startingId);
+        }
+
+        self::apply($startingId);
+    }
+
+    /**
      * Set AUTO_INCREMENT on every eligible MySQL table so the next insert uses >= STARTING_ID.
      */
     public static function apply(?int $startingId = null): void
@@ -88,8 +157,8 @@ class IdSequence
         $database = (string) DB::getDatabaseName();
         $configPath = database_path('config/MLHUB.php');
         $excluded = is_file($configPath)
-            ? (array) ((require $configPath)['id_sequence_excluded_tables'] ?? ['migrations'])
-            : ['migrations'];
+            ? (array) ((require $configPath)['id_sequence_excluded_tables'] ?? [])
+            : [];
 
         $tables = DB::select(
             'SELECT TABLE_NAME AS name FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = ?',

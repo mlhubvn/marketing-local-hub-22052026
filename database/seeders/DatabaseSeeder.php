@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
         // affiliate_profiles, lb_email_templates, lb_template_packs…) đều bắt đầu từ STARTING_ID.
         // Update: bỏ qua để giữ nguyên dữ liệu cũ (ID mới nối tiếp max hiện có).
         if (! IdSequence::isUpdateMode()) {
-            IdSequence::apply();
+            IdSequence::normalizeCoreTables();
         }
 
         foreach ((array) config('mlhub.default_seeders', []) as $seederClass) {

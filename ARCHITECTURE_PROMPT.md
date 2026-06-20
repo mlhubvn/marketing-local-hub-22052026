@@ -225,7 +225,7 @@ php artisan tinker
 | `MLHUB_FIRST_USER_NAME`       | Tên hiển thị (tuỳ chọn)                                |
 | `MLHUB_CONTACT_EMAIL`         | Email liên hệ site (thường trùng admin)                |
 | `MLHUB_ADMIN_PLAN_SLUG`       | `mlhub-partner-lifetime`                               |
-| `MLHUB_STARTING_ID`           | `147123468` (AUTO_INCREMENT sau seed)                  |
+| `MLHUB_STARTING_ID`           | `147123468` (AUTO_INCREMENT mọi bảng, kể cả `options` + `migrations`; migration `2026_06_20_120000_mlhub_align_options_and_migrations_id_sequence` remap ID cũ < giá trị này) |
 | `MLHUB_LICENSE_PURCHASE_CODE` | Mã license Stackposts (Coolify)                        |
 | `MLHUB_LICENSE_DOMAIN`        | `mlhub.vn`                                             |
 | `MLHUB_ALLOW_RESET_DEMO`      | `false` (chặn `db:wipe` trên production)               |
