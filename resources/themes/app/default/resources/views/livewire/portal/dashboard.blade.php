@@ -229,6 +229,10 @@
         </div>
     </section>
 
+    @if (auth()->user()?->canUsePlanFeature('mlhub'))
+        @livewire(\Modules\CustomMLHUB\Livewire\MLHUBAIDashboardPanel::class)
+    @endif
+
     <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5" wire:init="loadDashboardSections">
         @if (! $metricsLoaded)
             <article class="rounded-[1rem] border bg-white p-4 shadow-sm sm:col-span-2 xl:col-span-5" style="border-color: rgba(var(--theme-border-color-rgb),0.72);">

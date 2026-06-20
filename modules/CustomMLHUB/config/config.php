@@ -2,6 +2,7 @@
 
 return [
     'starting_id' => (int) env('MLHUB_STARTING_ID', 147123468),
+    'route_prefix' => 'portal/chatmlhubai',
 
     'first_user' => [
         'email' => env('MLHUB_FIRST_USER_EMAIL', ''),
