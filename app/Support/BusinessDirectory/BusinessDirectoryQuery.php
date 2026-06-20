@@ -31,6 +31,7 @@ class BusinessDirectoryQuery
                 'lb_businesses.phone',
                 'lb_businesses.email',
                 'lb_businesses.website',
+                'lb_businesses.google_maps_url',
                 'lb_businesses.type',
                 'lb_businesses.industry_group_code',
                 'lb_businesses.industry_category_code',
@@ -177,7 +178,9 @@ class BusinessDirectoryQuery
             'owner_name' => trim((string) ($business->owner_name ?? '')),
             'phone_masked' => BusinessDirectoryMask::mask($business->phone),
             'email_masked' => BusinessDirectoryMask::mask($business->email),
-            'website_masked' => BusinessDirectoryMask::mask($business->website),
+            'website_url' => $this->publicWebsiteUrl($business->website),
+            'website_label' => $this->publicWebsiteLabel($business->website),
+            'google_maps_url' => $this->publicGoogleMapsUrl($business),
             'stats' => [
                 'campaigns' => (int) ($business->campaigns_count ?? 0),
                 'qr_scans' => (int) ($business->qr_scans_count ?? 0),
@@ -185,5 +188,51 @@ class BusinessDirectoryQuery
                 'coupon_codes' => (int) ($business->coupon_codes_count ?? 0),
             ],
         ];
+    }
+
+    protected function publicWebsiteUrl(?string $website): ?string
+    {
+        $website = trim((string) $website);
+
+        if ($website === '') {
+            return null;
+        }
+
+        if (! preg_match('~^https?://~i', $website)) {
+            $website = 'https://'.$website;
+        }
+
+        return filter_var($website, FILTER_VALIDATE_URL) ? $website : null;
+    }
+
+    protected function publicWebsiteLabel(?string $website): ?string
+    {
+        $url = $this->publicWebsiteUrl($website);
+
+        if ($url === null) {
+            return null;
+        }
+
+        $label = preg_replace('~^https?://~i', '', $url) ?? $url;
+        $label = preg_replace('~^www\.~i', '', $label) ?? $label;
+
+        return rtrim($label, '/');
+    }
+
+    protected function publicGoogleMapsUrl(LocalBusiness $business): ?string
+    {
+        $stored = trim((string) ($business->google_maps_url ?? ''));
+
+        if ($stored !== '' && filter_var($stored, FILTER_VALIDATE_URL)) {
+            return $stored;
+        }
+
+        $address = trim((string) ($business->address ?? ''));
+
+        if ($address === '') {
+            return null;
+        }
+
+        return 'https://www.google.com/maps/dir/?api=1&destination='.rawurlencode($address);
     }
 }
