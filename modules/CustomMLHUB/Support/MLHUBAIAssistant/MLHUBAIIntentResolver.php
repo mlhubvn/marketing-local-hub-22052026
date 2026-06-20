@@ -12,6 +12,10 @@ class MLHUBAIIntentResolver
     protected function intentKeywords(): array
     {
         return [
+            'greeting' => [
+                'xin chào', 'xin chao', 'chào', 'chao', 'hello', 'helo', 'hallo',
+                'alo', 'hi bạn', 'hi ban',
+            ],
             'new_customers' => [
                 'khách mới', 'khach moi', 'customer mới', 'new customer', 'khách hàng mới',
                 'tuần này có khách', 'tuan nay co khach', 'có khách mới', 'co khach moi',

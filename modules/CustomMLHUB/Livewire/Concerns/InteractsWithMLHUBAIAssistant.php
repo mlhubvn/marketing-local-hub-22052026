@@ -32,12 +32,16 @@ trait InteractsWithMLHUBAIAssistant
             'question' => ['required', 'string', 'min:2', 'max:500'],
         ]);
 
+        $firstTouch = collect($this->messages)
+            ->where('role', 'assistant')
+            ->isEmpty();
+
         $prompt = trim($validated['question']);
         $this->messages[] = ['role' => 'user', 'message' => $prompt];
         $this->question = '';
         $this->isThinking = true;
 
-        $response = $assistant->ask((int) auth()->id(), $prompt);
+        $response = $assistant->ask((int) auth()->id(), $prompt, $firstTouch);
 
         $this->messages[] = [
             'role' => 'assistant',

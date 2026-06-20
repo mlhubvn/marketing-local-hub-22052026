@@ -28,7 +28,7 @@ class MLHUBAIAssistantService
      *     suggestions: list<string>
      * }
      */
-    public function ask(int $userId, string $question): array
+    public function ask(int $userId, string $question, bool $firstTouch = false): array
     {
         $question = trim($question);
 
@@ -46,7 +46,7 @@ class MLHUBAIAssistantService
         $matches = $this->intentResolver->resolveAll($question);
         $intents = array_map(static fn (array $match): string => $match['intent'], $matches);
         $primaryIntent = $intents[0] ?? 'unknown';
-        $fallbackMessage = $this->responseComposer->composeMany($intents, $context);
+        $fallbackMessage = $this->responseComposer->composeMany($intents, $context, $firstTouch);
 
         $result = [
             'message' => $fallbackMessage,
@@ -79,7 +79,7 @@ class MLHUBAIAssistantService
                 credit_service()->ensureCanConsume($planOwner, 'mlhub_ai_chat');
             }
 
-            $aiMessage = $this->requestAssistantReply($provider, $question, $context, $fallbackMessage);
+            $aiMessage = $this->requestAssistantReply($provider, $question, $context, $fallbackMessage, $firstTouch);
 
             if ($aiMessage !== '') {
                 $result['message'] = $aiMessage;
@@ -107,10 +107,10 @@ class MLHUBAIAssistantService
     /**
      * @param  array<string, mixed>  $context
      */
-    protected function requestAssistantReply(string $provider, string $question, array $context, string $fallbackMessage): string
+    protected function requestAssistantReply(string $provider, string $question, array $context, string $fallbackMessage, bool $firstTouch = false): string
     {
         $model = trim((string) $this->options->get('ai_chat_model', 'gpt-5.4'));
-        $systemPrompt = implode("\n", [
+        $systemPrompt = implode("\n", array_filter([
             'You are MLHUB AI, a concise Vietnamese-first local business growth assistant.',
             'Answer like a trusted staff member reporting to the shop owner — warm, clear, no jargon.',
             'Use ONLY numbers and facts from the provided JSON context. Never invent metrics.',
@@ -118,8 +118,10 @@ class MLHUBAIAssistantService
             'Keep answers under 120 words unless the user asks for detail.',
             'Prefer complete sentences over bullet lists.',
             'App locale: '.app()->getLocale().'.',
+            'Current time: '.now()->format('H:i, d/m/Y').'.',
+            $firstTouch ? 'This is the first message of the chat: open with a short, time-aware greeting introducing yourself as the MLHUB AI assistant, then answer.' : null,
             'Baseline local answer for reference (do not copy blindly if context differs): '.$fallbackMessage,
-        ]);
+        ]));
 
         $userPrompt = trim(implode("\n\n", [
             'Business context JSON:',

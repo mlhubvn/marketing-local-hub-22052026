@@ -2,6 +2,8 @@
 
 namespace Modules\CustomMLHUB\Support\MLHUBAIAssistant;
 
+use Carbon\CarbonImmutable;
+
 class MLHUBAIResponseComposer
 {
     /**
@@ -10,37 +12,113 @@ class MLHUBAIResponseComposer
      * @param  list<string>  $intents
      * @param  array<string, mixed>  $context
      */
-    public function composeMany(array $intents, array $context): string
+    public function composeMany(array $intents, array $context, bool $firstTouch = false): string
     {
         $intents = array_values(array_unique(array_filter($intents)));
 
+        $hasGreeting = in_array('greeting', $intents, true);
+        $intents = array_values(array_filter($intents, static fn (string $intent): bool => $intent !== 'greeting'));
+
         if ($intents === []) {
-            return $this->composeUnknown($context);
-        }
+            $body = $hasGreeting ? '' : $this->composeUnknown($context);
+        } else {
+            $parts = [];
 
-        if (count($intents) === 1) {
-            return $this->compose($intents[0], $context);
-        }
+            foreach ($intents as $intent) {
+                if ($intent === 'unknown') {
+                    continue;
+                }
 
-        $parts = [];
+                $segment = trim($this->compose($intent, $context));
 
-        foreach ($intents as $intent) {
-            if ($intent === 'unknown') {
-                continue;
+                if ($segment !== '' && ! in_array($segment, $parts, true)) {
+                    $parts[] = $segment;
+                }
             }
 
-            $segment = trim($this->compose($intent, $context));
+            $body = $parts === [] ? $this->composeUnknown($context) : implode("\n\n", $parts);
+        }
 
-            if ($segment !== '' && ! in_array($segment, $parts, true)) {
-                $parts[] = $segment;
+        if ($hasGreeting && $body === '') {
+            return $this->composeGreeting($context);
+        }
+
+        if ($hasGreeting) {
+            return trim($this->greetingLine($context)."\n\n".$body);
+        }
+
+        if ($firstTouch) {
+            return trim($this->greetingLine($context)."\n\n".$body);
+        }
+
+        return $body;
+    }
+
+    /**
+     * Short one-line greeting used to warm up the first reply.
+     *
+     * @param  array<string, mixed>  $context
+     */
+    protected function greetingLine(array $context): string
+    {
+        return __(':greeting! I am your MLHUB AI assistant.', [
+            'greeting' => $this->timeGreeting($this->now($context)),
+        ]);
+    }
+
+    /**
+     * Full welcome with time, date and what the assistant can do.
+     *
+     * @param  array<string, mixed>  $context
+     */
+    protected function composeGreeting(array $context): string
+    {
+        $now = $this->now($context);
+
+        $hello = __(':greeting! I am your MLHUB AI assistant. It is :time, :date.', [
+            'greeting' => $this->timeGreeting($now),
+            'time' => $now->format('H:i'),
+            'date' => format_date_locale($now),
+        ]);
+
+        $help = __('Today I can report your customers, campaigns, reviews and visits, and suggest the next best move.');
+
+        $ask = __('Try asking about: :examples.', [
+            'examples' => __('new customers, running campaigns, reviews, visits, business list, or what to do next'),
+        ]);
+
+        return $hello.' '.$help."\n\n".$ask;
+    }
+
+    protected function timeGreeting(CarbonImmutable $now): string
+    {
+        $hour = (int) $now->format('H');
+
+        return match (true) {
+            $hour >= 5 && $hour <= 10 => __('Good morning'),
+            $hour >= 11 && $hour <= 12 => __('Good noon'),
+            $hour >= 13 && $hour <= 17 => __('Good afternoon'),
+            $hour >= 18 && $hour <= 21 => __('Good evening'),
+            default => __('Hello'),
+        };
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     */
+    protected function now(array $context): CarbonImmutable
+    {
+        $generatedAt = $context['generated_at'] ?? null;
+
+        if (is_string($generatedAt) && $generatedAt !== '') {
+            try {
+                return CarbonImmutable::parse($generatedAt);
+            } catch (\Throwable) {
+                // fall through to now()
             }
         }
 
-        if ($parts === []) {
-            return $this->composeUnknown($context);
-        }
-
-        return implode("\n\n", $parts);
+        return CarbonImmutable::now();
     }
 
     /**
@@ -56,6 +134,7 @@ class MLHUBAIResponseComposer
             'overview' => $this->composeOverview($context),
             'visits' => $this->composeVisits($context),
             'businesses' => $this->composeBusinesses($context),
+            'greeting' => $this->composeGreeting($context),
             default => $this->composeUnknown($context),
         };
     }
