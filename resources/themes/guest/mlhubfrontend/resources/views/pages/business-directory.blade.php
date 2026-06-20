@@ -43,51 +43,7 @@
                     </div>
 
                     @forelse ($businesses as $entry)
-                        <article class="lb-card lb-hover lb-reveal rounded-xl p-6" style="--lb-delay: {{ $loop->index * 40 }}ms;">
-                            <div class="flex flex-wrap items-start justify-between gap-4">
-                                <div class="min-w-0 flex-1">
-                                    <p class="text-[10px] font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">{{ $entry['industry_group_label'] }}</p>
-                                    <h2 class="lb-serif lb-subheading mt-2">{{ $entry['name'] }}</h2>
-                                    @if (! empty($entry['industry_category_label']))
-                                        <p class="mt-2 text-xs font-bold" style="color: var(--lb-muted);">{{ $entry['industry_category_label'] }}</p>
-                                    @endif
-                                </div>
-                                <a href="{{ route('guest.contact') }}" class="lb-button-soft inline-flex shrink-0 items-center justify-center px-4 py-2.5 text-xs font-black">
-                                    {{ __('Contact') }}
-                                </a>
-                            </div>
-
-                            <dl class="mt-5 grid gap-3 sm:grid-cols-2">
-                                <div>
-                                    <dt class="text-[10px] font-black uppercase tracking-[0.14em]" style="color: var(--lb-muted);">{{ __('Managed by') }}</dt>
-                                    <dd class="mt-1 text-sm font-bold">{{ $entry['owner_name'] !== '' ? $entry['owner_name'] : __('Unassigned') }}</dd>
-                                </div>
-                                @if ($entry['address'] !== '')
-                                    <div class="sm:col-span-2">
-                                        <dt class="text-[10px] font-black uppercase tracking-[0.14em]" style="color: var(--lb-muted);">{{ __('Address') }}</dt>
-                                        <dd class="mt-1 text-sm font-semibold">{{ $entry['address'] }}</dd>
-                                    </div>
-                                @endif
-                                @if ($entry['phone_masked'])
-                                    <div>
-                                        <dt class="text-[10px] font-black uppercase tracking-[0.14em]" style="color: var(--lb-muted);">{{ __('Phone') }}</dt>
-                                        <dd class="mt-1 font-mono text-sm font-bold">{{ $entry['phone_masked'] }}</dd>
-                                    </div>
-                                @endif
-                                @if ($entry['email_masked'])
-                                    <div>
-                                        <dt class="text-[10px] font-black uppercase tracking-[0.14em]" style="color: var(--lb-muted);">{{ __('Email') }}</dt>
-                                        <dd class="mt-1 break-all font-mono text-sm font-bold">{{ $entry['email_masked'] }}</dd>
-                                    </div>
-                                @endif
-                                @if ($entry['website_masked'])
-                                    <div class="sm:col-span-2">
-                                        <dt class="text-[10px] font-black uppercase tracking-[0.14em]" style="color: var(--lb-muted);">{{ __('Website') }}</dt>
-                                        <dd class="mt-1 break-all font-mono text-sm font-bold">{{ $entry['website_masked'] }}</dd>
-                                    </div>
-                                @endif
-                            </dl>
-                        </article>
+                        @include(theme_view('partials.directory-business-card', 'guest'), ['entry' => $entry])
                     @empty
                         <div class="lb-card rounded-xl border-dashed px-6 py-14 text-center text-sm" style="color: var(--lb-muted);">{{ __('No businesses found for this search.') }}</div>
                     @endforelse

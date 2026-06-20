@@ -3,6 +3,8 @@
 namespace App\Support\BusinessDirectory;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Modules\AppBusinessProfiles\Models\LocalBusiness;
 use Modules\AppBusinessProfiles\Support\BusinessTypeCatalog;
@@ -51,10 +53,75 @@ class BusinessDirectoryQuery
             })
             ->orderBy('lb_businesses.name');
 
+        $this->applyPublicActivityAggregates($query);
+
         return $query
             ->paginate($perPage)
             ->withQueryString()
             ->through(fn (LocalBusiness $business): array => $this->present($business));
+    }
+
+    /**
+     * Public-safe aggregate counts per business (no PII — totals only).
+     *
+     * @param  Builder<LocalBusiness>  $query
+     */
+    protected function applyPublicActivityAggregates(Builder $query): void
+    {
+        if (Schema::hasTable('lb_campaigns')) {
+            $query->selectSub(
+                DB::table('lb_campaigns')
+                    ->selectRaw('count(*)')
+                    ->whereColumn('lb_campaigns.business_id', 'lb_businesses.id'),
+                'campaigns_count'
+            );
+        }
+
+        if (Schema::hasTable('lb_campaigns') && Schema::hasTable('lb_qr_scans')) {
+            $query->selectSub(
+                DB::table('lb_qr_scans')
+                    ->join('lb_campaigns', 'lb_campaigns.id', '=', 'lb_qr_scans.campaign_id')
+                    ->selectRaw('count(*)')
+                    ->whereColumn('lb_campaigns.business_id', 'lb_businesses.id'),
+                'qr_scans_count'
+            );
+        }
+
+        if (Schema::hasTable('lb_bookings')) {
+            $bookings = DB::table('lb_bookings');
+
+            if (Schema::hasTable('lb_booking_services')) {
+                $bookings
+                    ->leftJoin('lb_campaigns', 'lb_campaigns.id', '=', 'lb_bookings.campaign_id')
+                    ->leftJoin('lb_booking_services', 'lb_booking_services.id', '=', 'lb_bookings.service_id')
+                    ->where(function ($nested): void {
+                        $nested
+                            ->whereColumn('lb_campaigns.business_id', 'lb_businesses.id')
+                            ->orWhereColumn('lb_booking_services.business_id', 'lb_businesses.id');
+                    });
+            } elseif (Schema::hasTable('lb_campaigns')) {
+                $bookings
+                    ->join('lb_campaigns', 'lb_campaigns.id', '=', 'lb_bookings.campaign_id')
+                    ->whereColumn('lb_campaigns.business_id', 'lb_businesses.id');
+            } else {
+                $bookings->whereRaw('0 = 1');
+            }
+
+            $query->selectSub(
+                $bookings->selectRaw('count(distinct lb_bookings.id)'),
+                'bookings_count'
+            );
+        }
+
+        if (Schema::hasTable('lb_campaigns') && Schema::hasTable('lb_coupon_redemptions')) {
+            $query->selectSub(
+                DB::table('lb_coupon_redemptions')
+                    ->join('lb_campaigns', 'lb_campaigns.id', '=', 'lb_coupon_redemptions.campaign_id')
+                    ->selectRaw('count(*)')
+                    ->whereColumn('lb_campaigns.business_id', 'lb_businesses.id'),
+                'coupon_codes_count'
+            );
+        }
     }
 
     /**
@@ -111,6 +178,12 @@ class BusinessDirectoryQuery
             'phone_masked' => BusinessDirectoryMask::mask($business->phone),
             'email_masked' => BusinessDirectoryMask::mask($business->email),
             'website_masked' => BusinessDirectoryMask::mask($business->website),
+            'stats' => [
+                'campaigns' => (int) ($business->campaigns_count ?? 0),
+                'qr_scans' => (int) ($business->qr_scans_count ?? 0),
+                'bookings' => (int) ($business->bookings_count ?? 0),
+                'coupon_codes' => (int) ($business->coupon_codes_count ?? 0),
+            ],
         ];
     }
 }
