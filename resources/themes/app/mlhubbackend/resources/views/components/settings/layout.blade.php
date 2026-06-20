@@ -59,9 +59,9 @@
         </div>
     </section>
 
-    <div class="grid gap-6 xl:grid-cols-[18rem_minmax(0,1fr)]">
+    <div class="grid gap-6 lg:grid-cols-[18rem_minmax(0,1fr)]">
         <aside
-            class="relative z-20 space-y-4 xl:sticky xl:top-24 xl:self-start"
+            class="relative z-20 space-y-4 lg:sticky lg:top-24 lg:self-start"
             x-data="{
                 currentPath: '',
                 isNavigating: false,

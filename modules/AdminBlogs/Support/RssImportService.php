@@ -3,6 +3,7 @@
 namespace Modules\AdminBlogs\Support;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Modules\AdminBlogs\Models\Blog;
@@ -33,6 +34,11 @@ class RssImportService
                 ->accept('application/rss+xml, application/xml, text/xml, application/atom+xml')
                 ->get($source->feed_url);
         } catch (\Throwable $exception) {
+            Log::warning('blogs:rss-import feed fetch failed', [
+                'source_id' => $source->id,
+                'exception_class' => $exception::class,
+            ]);
+
             $source->update([
                 'last_checked_at' => $now,
                 'last_error' => __('Could not fetch the RSS feed.'),

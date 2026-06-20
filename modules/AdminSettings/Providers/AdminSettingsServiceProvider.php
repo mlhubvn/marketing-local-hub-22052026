@@ -56,7 +56,13 @@ class AdminSettingsServiceProvider extends ServiceProvider
         register_sidebar_item('frontend', [
             'label' => 'Settings',
             'icon' => 'settings',
-            'active_when' => ['settings.*', 'admin-cache.*'],
+            'active_when' => [
+                'settings.*',
+                'admin-cache.*',
+                'admin-log.*',
+                'admin-captcha.*',
+                'admin-crons.*',
+            ],
             'order' => 20,
             'children_resolver' => fn (): array => settings_navigation_items(),
         ]);

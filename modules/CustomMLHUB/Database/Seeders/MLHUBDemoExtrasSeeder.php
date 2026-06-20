@@ -39,7 +39,6 @@ class MLHUBDemoExtrasSeeder extends Seeder
         $this->seedSupportTaxonomy();
         $this->seedCoupons();
         $this->seedCreditPacks();
-        $this->seedBlogRssSources();
         $broadcastIds = $this->seedBroadcastNotifications();
 
         foreach (DemoContentCatalog::demoUsers() as $username => $profile) {
@@ -221,67 +220,6 @@ class MLHUBDemoExtrasSeeder extends Seeder
                 'created_at' => CarbonImmutable::now()->subDays(90 - $i),
                 'updated_at' => CarbonImmutable::now(),
             ]);
-        }
-    }
-
-    protected function seedBlogRssSources(): void
-    {
-        if (! $this->writer->hasTable('blog_rss_sources')) {
-            return;
-        }
-
-        $categoryId = $this->writer->hasTable('blog_categories')
-            ? DB::table('blog_categories')->orderBy('id')->value('id')
-            : null;
-
-        $sources = [
-            ['name' => 'Tin tăng trưởng địa phương', 'feed_url' => 'https://demo.mlhub.vn/rss/tang-truong-dia-phuong'],
-            ['name' => 'Kiến thức marketing hộ kinh doanh', 'feed_url' => 'https://demo.mlhub.vn/rss/marketing-ho-kinh-doanh'],
-        ];
-
-        foreach ($sources as $i => $source) {
-            if (DB::table('blog_rss_sources')->where('name', $source['name'])->exists()) {
-                continue;
-            }
-
-            $sourceId = $this->writer->insert('blog_rss_sources', [
-                'id_secure' => $this->secure('rss-source-'.$source['name']),
-                'name' => $source['name'],
-                'feed_url' => $source['feed_url'],
-                'blog_category_id' => $categoryId ? (int) $categoryId : null,
-                'tag_ids' => [],
-                'status' => false,
-                'auto_publish' => false,
-                'ai_improve' => false,
-                'ai_auto_translate' => false,
-                'ai_prompt' => null,
-                'sync_interval_minutes' => 120,
-                'max_items_per_run' => 5,
-                'last_checked_at' => CarbonImmutable::now()->subHours(6)->timestamp,
-                'last_imported_at' => CarbonImmutable::now()->subDays(2)->timestamp,
-                'changed' => CarbonImmutable::now()->timestamp,
-                'created' => CarbonImmutable::now()->subDays(60 - $i)->timestamp,
-            ]);
-
-            if ($sourceId && $this->writer->hasTable('blog_rss_imports')) {
-                $blogId = $this->writer->hasTable('blogs') ? DB::table('blogs')->orderBy('id')->value('id') : null;
-                $rows = [];
-                for ($j = 0; $j < 4; $j++) {
-                    $importedAt = CarbonImmutable::now()->subDays(($i * 7) + $j + 1);
-                    $rows[] = [
-                        'blog_rss_source_id' => (int) $sourceId,
-                        'blog_id' => $blogId ? (int) $blogId : null,
-                        'external_guid' => 'demo-guid-'.$sourceId.'-'.$j,
-                        'external_url' => $source['feed_url'].'/item-'.$j,
-                        'content_hash' => $this->secure('rss-import-'.$sourceId.'-'.$j),
-                        'title' => 'Bài nhập RSS demo #'.($j + 1),
-                        'source_published_at' => $importedAt->timestamp,
-                        'changed' => $importedAt->timestamp,
-                        'created' => $importedAt->timestamp,
-                    ];
-                }
-                $this->writer->insertRows('blog_rss_imports', $rows);
-            }
         }
     }
 

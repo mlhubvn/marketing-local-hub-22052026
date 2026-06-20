@@ -1,5 +1,5 @@
 <section class="w-full">
-    <x-settings.layout :heading="__('Logs')" :subheading="__('View, download, and clear application log files.')">
+    <x-settings.layout :heading="__('Logs')" :subheading="__('View, download, and clear application log files.')" content-width-class="max-w-full">
         <div class="space-y-6">
             @if ($statusMessage)
                 <x-ui.alert :variant="$statusVariant" :title="$statusVariant === 'success' ? __('Completed') : __('Action failed')" :description="$statusMessage" />
@@ -13,18 +13,19 @@
                     :description="$activeFile['size_human'].' · '.$activeFile['modified']"
                     body-class="p-6"
                 >
-                    @if (count($files) > 1)
-                        <x-slot:meta>
+                    <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                        <label class="flex min-w-[min(100%,20rem)] flex-col gap-1.5 text-sm">
+                            <span class="font-medium text-slate-600 dark:text-slate-300">{{ __('Log file') }}</span>
                             <select
                                 wire:change="selectFile($event.target.value)"
-                                class="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                                class="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                             >
                                 @foreach ($files as $file)
-                                    <option value="{{ $file['name'] }}" @selected($selectedFile === $file['name'])>{{ $file['name'] }}</option>
+                                    <option value="{{ $file['name'] }}" @selected($selectedFile === $file['name'])>{{ $file['name'] }} ({{ $file['size_human'] }})</option>
                                 @endforeach
                             </select>
-                        </x-slot:meta>
-                    @endif
+                        </label>
+                    </div>
 
                     <div
                         class="mb-4 flex flex-wrap items-center gap-3"

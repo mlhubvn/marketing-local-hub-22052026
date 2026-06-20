@@ -17,6 +17,15 @@ class ImportRssBlogsCommand extends Command
 
     public function handle(RssImportService $service): int
     {
+        if (! Schema::hasTable('migrations')) {
+            Log::warning('blogs:rss-import skipped', [
+                'reason' => 'migrations_table_not_ready',
+                'has_migrations_table' => false,
+            ]);
+
+            return self::SUCCESS;
+        }
+
         $hasBlogRssSources = Schema::hasTable('blog_rss_sources');
         $hasBlogRssImports = Schema::hasTable('blog_rss_imports');
         $ensureMigrationRan = DB::table('migrations')
@@ -53,6 +62,7 @@ class ImportRssBlogsCommand extends Command
 
         if ($sources->isEmpty()) {
             $this->warn('No active RSS sources found.');
+
             return self::SUCCESS;
         }
 
