@@ -96,9 +96,19 @@ class MLHUBAIIntentResolver
     }
 
     /**
+     * Starter questions shown before the first answer.
+     *
      * @return list<string>
      */
     public function suggestedPrompts(): array
+    {
+        return $this->initialPrompts();
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function initialPrompts(): array
     {
         return [
             __('Any new customers this week?'),
@@ -107,5 +117,96 @@ class MLHUBAIIntentResolver
             __('List my businesses'),
             __('What should I do next? / Suggest a new campaign.'),
         ];
+    }
+
+    /**
+     * Contextual follow-ups: ~60% drill into the same topic, ~40% explore new directions.
+     *
+     * @return list<string>
+     */
+    public function followUps(string $intent): array
+    {
+        $deepen = $this->deepenPrompts()[$intent] ?? [];
+
+        if ($deepen === []) {
+            return $this->initialPrompts();
+        }
+
+        $explore = $this->explorePrompts($intent);
+
+        $picked = array_slice($deepen, 0, 3);
+        $picked = array_merge($picked, array_slice($explore, 0, 2));
+
+        $picked = array_values(array_unique(array_filter($picked)));
+
+        return $picked === [] ? $this->initialPrompts() : $picked;
+    }
+
+    /**
+     * Drill-down questions per topic.
+     *
+     * @return array<string, list<string>>
+     */
+    protected function deepenPrompts(): array
+    {
+        return [
+            'new_customers' => [
+                __('Where did the new customers come from?'),
+                __('How does it compare to last week?'),
+                __('How can I get more new customers?'),
+            ],
+            'campaigns' => [
+                __('Which campaign performs best?'),
+                __('Which campaign needs improvement?'),
+                __('How do I create a new campaign?'),
+            ],
+            'reviews' => [
+                __('Which reviews need a reply?'),
+                __('How can I get more 5-star reviews?'),
+                __('What is my average rating?'),
+            ],
+            'visits' => [
+                __('Where do the visits come from?'),
+                __('What is my conversion rate?'),
+                __('How can I get more QR scans?'),
+            ],
+            'businesses' => [
+                __('Which business performs best?'),
+                __('How do I add a new business?'),
+                __('Where do I update business info?'),
+            ],
+            'next_steps' => [
+                __('Suggest a weekend campaign'),
+                __('What should I prioritize first?'),
+                __('How can I grow revenue quickly?'),
+            ],
+            'overview' => [
+                __('Which metric is dropping?'),
+                __('What stood out this week?'),
+                __('What should I do next? / Suggest a new campaign.'),
+            ],
+            'greeting' => [],
+        ];
+    }
+
+    /**
+     * Pool of starter questions for other topics, excluding the current intent.
+     *
+     * @return list<string>
+     */
+    protected function explorePrompts(string $intent): array
+    {
+        $pool = [
+            'new_customers' => __('Any new customers this week?'),
+            'campaigns' => __('Summarize running campaigns'),
+            'reviews' => __('Are this week\'s reviews good?'),
+            'businesses' => __('List my businesses'),
+            'visits' => __('How are visits doing?'),
+            'next_steps' => __('What should I do next? / Suggest a new campaign.'),
+        ];
+
+        unset($pool[$intent]);
+
+        return array_values($pool);
     }
 }

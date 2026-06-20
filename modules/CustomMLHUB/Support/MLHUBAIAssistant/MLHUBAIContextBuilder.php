@@ -6,6 +6,7 @@ use App\Support\Portal\PortalGrowthDashboardMetrics;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
+use Modules\AdminUser\Models\User;
 use Modules\AppBookingPages\Models\Booking;
 use Modules\AppBusinessProfiles\Models\LocalBusiness;
 use Modules\AppCouponCampaigns\Models\CouponRedemption;
@@ -60,6 +61,7 @@ class MLHUBAIContextBuilder
         return [
             'generated_at' => $now->toIso8601String(),
             'locale' => app()->getLocale(),
+            'user' => $this->userProfile($userId),
             'metrics' => $metrics,
             'top_campaigns' => array_slice($topCampaigns, 0, 5),
             'recent_activity' => $recentActivity,
@@ -74,6 +76,24 @@ class MLHUBAIContextBuilder
             'business_list' => $this->businessList($userId),
             'onboarding' => $this->onboardingHints($metrics),
         ];
+    }
+
+    /**
+     * @return array{name: string, short_name: string}
+     */
+    protected function userProfile(int $userId): array
+    {
+        $name = (string) (User::query()->whereKey($userId)->value('name') ?? '');
+        $name = trim($name);
+
+        if ($name === '') {
+            return ['name' => '', 'short_name' => ''];
+        }
+
+        $parts = preg_split('/\s+/', $name) ?: [];
+        $shortName = $parts === [] ? $name : (string) end($parts);
+
+        return ['name' => $name, 'short_name' => $shortName];
     }
 
     /**

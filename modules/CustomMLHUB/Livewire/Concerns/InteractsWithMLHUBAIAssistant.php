@@ -48,10 +48,13 @@ trait InteractsWithMLHUBAIAssistant
             'message' => (string) $response['message'],
             'source' => (string) ($response['source'] ?? 'fallback'),
             'fallback_reason' => $response['fallback_reason'] ?? null,
+            'actions' => array_values((array) ($response['actions'] ?? [])),
         ];
 
         $this->suggestedPrompts = (array) ($response['suggestions'] ?? $this->suggestedPrompts);
         $this->isThinking = false;
+
+        $this->dispatch('scroll-chat');
     }
 
     public function askSuggested(string $prompt, MLHUBAIAssistantService $assistant): void

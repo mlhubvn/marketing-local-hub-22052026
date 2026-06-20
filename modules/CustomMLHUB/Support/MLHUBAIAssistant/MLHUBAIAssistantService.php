@@ -25,7 +25,8 @@ class MLHUBAIAssistantService
      *     source: string,
      *     intent: string,
      *     fallback_reason: string|null,
-     *     suggestions: list<string>
+     *     suggestions: list<string>,
+     *     actions: list<array{label: string, url: string}>
      * }
      */
     public function ask(int $userId, string $question, bool $firstTouch = false): array
@@ -38,7 +39,8 @@ class MLHUBAIAssistantService
                 'source' => 'fallback',
                 'intent' => 'empty',
                 'fallback_reason' => null,
-                'suggestions' => $this->intentResolver->suggestedPrompts(),
+                'suggestions' => $this->intentResolver->initialPrompts(),
+                'actions' => [],
             ];
         }
 
@@ -53,7 +55,8 @@ class MLHUBAIAssistantService
             'source' => 'fallback',
             'intent' => $primaryIntent,
             'fallback_reason' => null,
-            'suggestions' => $this->intentResolver->suggestedPrompts(),
+            'suggestions' => $this->intentResolver->followUps($primaryIntent),
+            'actions' => $this->responseComposer->actionsFor($intents, $context),
         ];
 
         if ((string) $this->options->get('ai_chat_status', '1') !== '1') {
@@ -119,6 +122,7 @@ class MLHUBAIAssistantService
             'Prefer complete sentences over bullet lists.',
             'App locale: '.app()->getLocale().'.',
             'Current time: '.now()->format('H:i, d/m/Y').'.',
+            ($name = trim((string) data_get($context, 'user.short_name', ''))) !== '' ? 'Address the shop owner by name: '.$name.'.' : null,
             $firstTouch ? 'This is the first message of the chat: open with a short, time-aware greeting introducing yourself as the MLHUB AI assistant, then answer.' : null,
             'Baseline local answer for reference (do not copy blindly if context differs): '.$fallbackMessage,
         ]));

@@ -3,9 +3,85 @@
 namespace Modules\CustomMLHUB\Support\MLHUBAIAssistant;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Route;
 
 class MLHUBAIResponseComposer
 {
+    /**
+     * Deep-link calls to action for one or more intents.
+     *
+     * @param  list<string>  $intents
+     * @param  array<string, mixed>  $context
+     * @return list<array{label: string, url: string}>
+     */
+    public function actionsFor(array $intents, array $context): array
+    {
+        $actions = [];
+
+        foreach ($intents as $intent) {
+            foreach ($this->intentActions($intent, $context) as $action) {
+                $key = $action['url'];
+
+                if (! isset($actions[$key])) {
+                    $actions[$key] = $action;
+                }
+            }
+        }
+
+        return array_slice(array_values($actions), 0, 3);
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     * @return list<array{label: string, url: string}>
+     */
+    protected function intentActions(string $intent, array $context): array
+    {
+        $map = match ($intent) {
+            'new_customers' => [['portal.customers', __('Open Customers')]],
+            'campaigns' => [['portal.qr-campaigns', __('Manage campaigns')]],
+            'reviews' => [['portal.review-booster', __('Open Review Booster')]],
+            'visits' => [['portal.reports', __('View reports')]],
+            'businesses' => [['portal.businesses', __('Manage businesses')]],
+            'overview' => [['portal.reports', __('View reports')]],
+            'next_steps' => $this->nextStepActions($context),
+            default => [],
+        };
+
+        $actions = [];
+
+        foreach ($map as [$routeName, $label]) {
+            if (Route::has($routeName)) {
+                $actions[] = ['label' => $label, 'url' => route($routeName)];
+            }
+        }
+
+        return $actions;
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     * @return list<array{0: string, 1: string}>
+     */
+    protected function nextStepActions(array $context): array
+    {
+        $hints = (array) ($context['onboarding'] ?? []);
+
+        if (in_array('create_business', $hints, true)) {
+            return [['portal.businesses', __('Add a business')]];
+        }
+
+        if (in_array('create_campaign', $hints, true) || in_array('publish_campaign', $hints, true)) {
+            return [['portal.qr-campaigns', __('Create a campaign')]];
+        }
+
+        if (in_array('boost_reviews', $hints, true)) {
+            return [['portal.review-booster', __('Open Review Booster')]];
+        }
+
+        return [['portal.ai-studio', __('Open AI Studio')]];
+    }
+
     /**
      * Combine several intents into one connected report.
      *
@@ -61,8 +137,18 @@ class MLHUBAIResponseComposer
      */
     protected function greetingLine(array $context): string
     {
+        $name = trim((string) data_get($context, 'user.short_name', ''));
+        $greeting = $this->timeGreeting($this->now($context));
+
+        if ($name !== '') {
+            return __(':greeting :name! I am your MLHUB AI assistant.', [
+                'greeting' => $greeting,
+                'name' => $name,
+            ]);
+        }
+
         return __(':greeting! I am your MLHUB AI assistant.', [
-            'greeting' => $this->timeGreeting($this->now($context)),
+            'greeting' => $greeting,
         ]);
     }
 
@@ -74,12 +160,21 @@ class MLHUBAIResponseComposer
     protected function composeGreeting(array $context): string
     {
         $now = $this->now($context);
+        $name = trim((string) data_get($context, 'user.short_name', ''));
+        $greeting = $this->timeGreeting($now);
 
-        $hello = __(':greeting! I am your MLHUB AI assistant. It is :time, :date.', [
-            'greeting' => $this->timeGreeting($now),
-            'time' => $now->format('H:i'),
-            'date' => format_date_locale($now),
-        ]);
+        $hello = $name !== ''
+            ? __(':greeting :name! I am your MLHUB AI assistant. It is :time, :date.', [
+                'greeting' => $greeting,
+                'name' => $name,
+                'time' => $now->format('H:i'),
+                'date' => format_date_locale($now),
+            ])
+            : __(':greeting! I am your MLHUB AI assistant. It is :time, :date.', [
+                'greeting' => $greeting,
+                'time' => $now->format('H:i'),
+                'date' => format_date_locale($now),
+            ]);
 
         $help = __('Today I can report your customers, campaigns, reviews and visits, and suggest the next best move.');
 
