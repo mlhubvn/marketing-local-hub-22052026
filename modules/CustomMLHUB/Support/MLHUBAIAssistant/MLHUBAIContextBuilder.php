@@ -6,6 +6,7 @@ use App\Support\Portal\PortalGrowthDashboardMetrics;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Schema;
 use Modules\AppBookingPages\Models\Booking;
+use Modules\AppBusinessProfiles\Models\LocalBusiness;
 use Modules\AppCouponCampaigns\Models\CouponRedemption;
 use Modules\AppCustomers\Models\Customer;
 use Modules\AppFeedbackForms\Models\FeedbackResponse;
@@ -55,7 +56,32 @@ class MLHUBAIContextBuilder
             'weekly_signals' => $weeklySignals,
             'reviews' => $reviewStats,
             'active_campaigns' => $activeCampaigns,
+            'business_list' => $this->businessList($userId),
             'onboarding' => $this->onboardingHints($metrics),
+        ];
+    }
+
+    /**
+     * @return array{count: int, names: list<string>}
+     */
+    protected function businessList(int $userId): array
+    {
+        if (! Schema::hasTable('lb_businesses')) {
+            return ['count' => 0, 'names' => []];
+        }
+
+        $names = LocalBusiness::query()
+            ->where('user_id', $userId)
+            ->orderBy('name')
+            ->limit(12)
+            ->pluck('name')
+            ->filter()
+            ->values()
+            ->all();
+
+        return [
+            'count' => (int) LocalBusiness::query()->where('user_id', $userId)->count(),
+            'names' => $names,
         ];
     }
 

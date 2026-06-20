@@ -40,9 +40,13 @@ class MLHUBAIIntentResolver
                 'lượt quét', 'luot quet', 'qr scan', 'lượt truy cập', 'luot truy cap',
                 'visits', 'traffic',
             ],
+            'businesses' => [
+                'cơ sở', 'co so', 'danh sách cơ sở', 'danh sach co so', 'doanh nghiệp', 'doanh nghiep',
+                'business', 'chi nhánh', 'chi nhanh', 'cửa hàng', 'cua hang', 'địa điểm', 'dia diem',
+            ],
         ];
 
-        $bestIntent = 'general';
+        $bestIntent = 'unknown';
         $bestScore = 0.0;
 
         foreach ($intents as $intent => $needles) {
@@ -61,7 +65,7 @@ class MLHUBAIIntentResolver
         }
 
         if ($bestScore < 0.08) {
-            return ['intent' => 'general', 'confidence' => $bestScore];
+            return ['intent' => 'unknown', 'confidence' => $bestScore];
         }
 
         return ['intent' => $bestIntent, 'confidence' => min(1.0, $bestScore * 4)];
@@ -76,6 +80,7 @@ class MLHUBAIIntentResolver
             __('Any new customers this week?'),
             __('Summarize running campaigns'),
             __('Are this week\'s reviews good?'),
+            __('List my businesses'),
             __('What should I do next? / Suggest a new campaign.'),
         ];
     }

@@ -52,10 +52,8 @@
                                     <p class="text-sm leading-6" style="color: var(--theme-header-text-color);">{{ $entry['message'] }}</p>
                                     @if (($entry['source'] ?? '') === 'ai')
                                         <p class="mt-2 text-[11px] font-semibold uppercase tracking-[0.12em]" style="color: var(--theme-accent);">{{ __('AI generated') }}</p>
-                                    @elseif (! empty($entry['fallback_reason']))
-                                        <p class="mt-2 text-xs" style="color: var(--theme-warning-color);">{{ __('AI fallback: :reason', ['reason' => $entry['fallback_reason']]) }}</p>
                                     @else
-                                        <p class="mt-2 text-[11px] font-semibold uppercase tracking-[0.12em]" style="color: var(--theme-muted-text-color);">{{ __('Local report') }}</p>
+                                        <p class="mt-2 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Answer based on your account\'s real data, processed by the built-in AI.') }}</p>
                                     @endif
                                 </div>
                             </div>
@@ -78,23 +76,28 @@
                 </div>
 
                 <form wire:submit="askAssistant" class="border-t p-4 sm:p-5" style="border-color: rgba(var(--theme-border-color-rgb),0.62);">
-                    <div class="flex items-end gap-3">
-                        <div class="min-w-0 flex-1">
-                            <label for="mlhub-ai-question-{{ $compact ? 'compact' : 'full' }}" class="sr-only">{{ __('Type a question…') }}</label>
-                            <textarea
-                                id="mlhub-ai-question-{{ $compact ? 'compact' : 'full' }}"
-                                wire:model="question"
-                                rows="{{ $compact ? 2 : 3 }}"
-                                class="w-full resize-none rounded-2xl border px-4 py-3 text-sm"
-                                style="border-color: rgba(var(--theme-border-color-rgb),0.72); color: var(--theme-header-text-color);"
-                                placeholder="{{ __('Type a question…') }}"
-                                @disabled($isThinking)
-                            ></textarea>
-                        </div>
-                        <x-ui.button type="submit" size="sm" class="shrink-0" wire:loading.attr="disabled" wire:target="askAssistant,askSuggested">
-                            <i class="fa-light fa-paper-plane-top"></i>
+                    <div
+                        class="flex items-end gap-2 rounded-2xl border bg-white px-2 py-1.5 shadow-sm transition focus-within:border-[var(--theme-accent)] focus-within:ring-2 focus-within:ring-[var(--theme-accent)]"
+                        style="border-color: rgba(var(--theme-border-color-rgb),0.72);"
+                    >
+                        <label for="mlhub-ai-question-{{ $compact ? 'compact' : 'full' }}" class="sr-only">{{ __('Type a question…') }}</label>
+                        <textarea
+                            id="mlhub-ai-question-{{ $compact ? 'compact' : 'full' }}"
+                            wire:model="question"
+                            x-data
+                            x-on:keydown.enter="if (! $event.shiftKey) { $event.preventDefault(); $wire.askAssistant(); }"
+                            rows="{{ $compact ? 1 : 2 }}"
+                            class="max-h-40 min-h-[2.5rem] w-full resize-none border-0 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-0"
+                            style="color: var(--theme-header-text-color);"
+                            placeholder="{{ __('Type a question…') }}"
+                            @disabled($isThinking)
+                        ></textarea>
+                        <x-ui.button type="submit" size="sm" class="shrink-0 rounded-xl" wire:loading.attr="disabled" wire:target="askAssistant,askSuggested">
+                            <i class="fa-light fa-paper-plane-top" wire:loading.remove wire:target="askAssistant,askSuggested"></i>
+                            <i class="fa-light fa-spinner-third fa-spin" wire:loading wire:target="askAssistant,askSuggested"></i>
                         </x-ui.button>
                     </div>
+                    <p class="mt-2 text-[11px]" style="color: var(--theme-muted-text-color);">{{ __('Press Enter to send, Shift + Enter for a new line.') }}</p>
                 </form>
             </div>
 

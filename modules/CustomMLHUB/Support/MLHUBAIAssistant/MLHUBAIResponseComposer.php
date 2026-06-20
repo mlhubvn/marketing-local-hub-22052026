@@ -16,7 +16,8 @@ class MLHUBAIResponseComposer
             'next_steps' => $this->composeNextSteps($context),
             'overview' => $this->composeOverview($context),
             'visits' => $this->composeVisits($context),
-            default => $this->composeGeneral($context),
+            'businesses' => $this->composeBusinesses($context),
+            default => $this->composeUnknown($context),
         };
     }
 
@@ -202,21 +203,38 @@ class MLHUBAIResponseComposer
     /**
      * @param  array<string, mixed>  $context
      */
-    protected function composeGeneral(array $context): string
+    protected function composeBusinesses(array $context): string
     {
-        $metrics = (array) ($context['metrics'] ?? []);
-        $customers = (array) ($context['customers'] ?? []);
-        $activeCount = count((array) ($context['active_campaigns'] ?? []));
+        $list = (array) ($context['business_list'] ?? []);
+        $count = (int) ($list['count'] ?? 0);
+        $names = array_values(array_filter((array) ($list['names'] ?? [])));
 
-        if ((int) ($metrics['businesses'] ?? 0) === 0) {
-            return __('I can report on customers, campaigns, reviews, and visits once you add a business profile. Try a suggested question or ask about a specific metric.');
+        if ($count === 0) {
+            return __('You have no business profiles yet. Add your first business so campaigns and QR codes have a home base.');
         }
 
-        return __('Right now you have :campaigns running campaigns, :visits total visits, and :customers new customers this week. Ask about reviews, campaigns, or what to do next for a focused report.', [
-            'campaigns' => format_number_locale($activeCount),
-            'visits' => format_number_locale((int) ($metrics['visits'] ?? 0)),
-            'customers' => format_number_locale((int) ($customers['new_this_week'] ?? 0)),
+        $shown = array_slice($names, 0, 5);
+        $namesText = implode(', ', $shown);
+
+        if ($count > count($shown)) {
+            $namesText = __(':names and :count more', [
+                'names' => $namesText,
+                'count' => format_number_locale($count - count($shown)),
+            ]);
+        }
+
+        return __('You have :count businesses: :names.', [
+            'count' => format_number_locale($count),
+            'names' => $namesText,
         ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     */
+    protected function composeUnknown(array $context): string
+    {
+        return __('I did not quite catch that. Try asking about: new customers, running campaigns, reviews, visits, your business list, or what to do next.');
     }
 
     protected function campaignTypeLabel(string $type): string

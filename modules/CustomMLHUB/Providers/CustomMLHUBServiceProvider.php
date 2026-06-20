@@ -47,7 +47,7 @@ class CustomMLHUBServiceProvider extends ServiceProvider
         ]);
 
         register_user_sidebar_item('overview', [
-            'label' => __('MLHUB AI'),
+            'label' => __('MLHUB AI Assistant'),
             'route_name' => 'portal.chatmlhubai',
             'active_when' => ['portal.chatmlhubai'],
             'icon' => 'fa-light fa-robot',
