@@ -29,7 +29,7 @@ class MLHUBAIAssistantService
      *     actions: list<array{label: string, url: string}>
      * }
      */
-    public function ask(int $userId, string $question, bool $firstTouch = false): array
+    public function ask(int $userId, string $question, bool $firstTouch = false, bool $advanced = false): array
     {
         $question = trim($question);
 
@@ -58,6 +58,10 @@ class MLHUBAIAssistantService
             'suggestions' => $this->intentResolver->followUps($primaryIntent),
             'actions' => $this->responseComposer->actionsFor($intents, $context),
         ];
+
+        if (! $advanced) {
+            return $result;
+        }
 
         if ((string) $this->options->get('ai_chat_status', '1') !== '1') {
             $result['fallback_reason'] = __('AI chat generation is disabled.');
@@ -225,6 +229,17 @@ class MLHUBAIAssistantService
         }
 
         return trim((string) data_get($response->json(), 'candidates.0.content.parts.0.text', ''));
+    }
+
+    public function advancedAvailable(): bool
+    {
+        if ((string) $this->options->get('ai_chat_status', '1') !== '1') {
+            return false;
+        }
+
+        $provider = strtolower(trim((string) $this->options->get('ai_chat_provider', 'openai')));
+
+        return $this->hasProviderCredentials($provider);
     }
 
     protected function hasProviderCredentials(string $provider): bool

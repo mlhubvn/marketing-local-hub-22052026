@@ -14,6 +14,8 @@ trait InteractsWithMLHUBAIAssistant
 
     public bool $isThinking = false;
 
+    public bool $useAdvancedAi = false;
+
     /** @var list<string> */
     public array $suggestedPrompts = [];
 
@@ -22,6 +24,11 @@ trait InteractsWithMLHUBAIAssistant
         abort_unless(auth()->user()?->canUsePlanFeature('mlhub') ?? false, 403);
 
         $this->suggestedPrompts = app(MLHUBAIIntentResolver::class)->suggestedPrompts();
+    }
+
+    public function advancedAiAvailable(): bool
+    {
+        return app(MLHUBAIAssistantService::class)->advancedAvailable();
     }
 
     public function askAssistant(MLHUBAIAssistantService $assistant): void
@@ -41,7 +48,7 @@ trait InteractsWithMLHUBAIAssistant
         $this->question = '';
         $this->isThinking = true;
 
-        $response = $assistant->ask((int) auth()->id(), $prompt, $firstTouch);
+        $response = $assistant->ask((int) auth()->id(), $prompt, $firstTouch, $this->useAdvancedAi);
 
         $this->messages[] = [
             'role' => 'assistant',

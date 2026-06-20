@@ -2,6 +2,7 @@
     $compact = (bool) ($compact ?? false);
     $chatRoute = Route::has('portal.chatmlhubai') ? route('portal.chatmlhubai') : null;
     $inputId = 'mlhub-ai-question-'.($compact ? 'compact' : 'full');
+    $advancedReady = method_exists($this, 'advancedAiAvailable') ? $this->advancedAiAvailable() : false;
 @endphp
 
 <section class="{{ $compact ? '' : 'space-y-5' }}">
@@ -21,7 +22,7 @@
         class="flex w-full flex-col overflow-hidden rounded-[1.25rem] border bg-white shadow-sm {{ $compact ? 'h-[32rem]' : 'h-[calc(100vh-12rem)] min-h-[34rem]' }}"
         style="border-color: rgba(var(--theme-border-color-rgb),0.72);"
     >
-        <div class="flex shrink-0 items-center justify-between gap-3 border-b px-4 py-3 sm:px-5" style="border-color: rgba(var(--theme-border-color-rgb),0.62); background: rgba(var(--theme-surface-bg-rgb),0.55);">
+        <div class="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b px-4 py-3 sm:px-5" style="border-color: rgba(var(--theme-border-color-rgb),0.62); background: rgba(var(--theme-surface-bg-rgb),0.55);">
             <div class="flex min-w-0 items-center gap-3">
                 <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-white" style="background: var(--theme-accent);">
                     <i class="fa-light fa-robot" aria-hidden="true"></i>
@@ -31,11 +32,70 @@
                     <p class="truncate text-xs" style="color: var(--theme-muted-text-color);">{{ __('Growth assistant report') }}</p>
                 </div>
             </div>
-            @if ($compact && $chatRoute)
-                <x-ui.button href="{{ $chatRoute }}" variant="outline" size="sm" wire:navigate>
-                    {{ __('Open full chat') }}
-                    <i class="fa-light fa-arrow-up-right-from-square"></i>
-                </x-ui.button>
+
+            <div class="flex items-center gap-2">
+                <div class="inline-flex items-center rounded-full border p-0.5" style="border-color: rgba(var(--theme-border-color-rgb),0.72); background: var(--theme-surface-bg);">
+                    <button
+                        type="button"
+                        wire:click="$set('useAdvancedAi', false)"
+                        wire:loading.attr="disabled"
+                        wire:target="askAssistant,askSuggested"
+                        @class([
+                            'rounded-full px-3 py-1.5 text-xs font-semibold transition',
+                        ])
+                        @style([
+                            'background: var(--theme-accent); color: #fff;' => ! $useAdvancedAi,
+                            'color: var(--theme-muted-text-color);' => $useAdvancedAi,
+                        ])
+                    >
+                        <i class="fa-light fa-bolt-lightning"></i>
+                        {{ __('Basic AI') }}
+                    </button>
+                    <button
+                        type="button"
+                        wire:click="$set('useAdvancedAi', true)"
+                        wire:loading.attr="disabled"
+                        wire:target="askAssistant,askSuggested"
+                        @class([
+                            'rounded-full px-3 py-1.5 text-xs font-semibold transition',
+                        ])
+                        @style([
+                            'background: var(--theme-accent); color: #fff;' => $useAdvancedAi,
+                            'color: var(--theme-muted-text-color);' => ! $useAdvancedAi,
+                        ])
+                    >
+                        <i class="fa-light fa-wand-magic-sparkles"></i>
+                        {{ __('Advanced AI') }}
+                    </button>
+                </div>
+
+                @if ($compact && $chatRoute)
+                    <x-ui.button href="{{ $chatRoute }}" variant="outline" size="sm" wire:navigate>
+                        {{ __('Open full chat') }}
+                        <i class="fa-light fa-arrow-up-right-from-square"></i>
+                    </x-ui.button>
+                @endif
+            </div>
+        </div>
+
+        <div class="shrink-0 border-b px-4 py-2 text-xs leading-5 sm:px-5" style="border-color: rgba(var(--theme-border-color-rgb),0.5);">
+            @if ($useAdvancedAi)
+                @if ($advancedReady)
+                    <p style="color: var(--theme-warning-color);">
+                        <i class="fa-light fa-wand-magic-sparkles"></i>
+                        {{ __('Advanced AI: smoother answers across more contexts, the assistant works harder for you. Each answer deducts credits.') }}
+                    </p>
+                @else
+                    <p style="color: var(--theme-warning-color);">
+                        <i class="fa-light fa-triangle-exclamation"></i>
+                        {{ __('Advanced AI is not configured yet (missing API key). Using Basic AI for now.') }}
+                    </p>
+                @endif
+            @else
+                <p style="color: var(--theme-muted-text-color);">
+                    <i class="fa-light fa-bolt-lightning"></i>
+                    {{ __('Basic AI: quick info lookup and seamless usage guidance, no credits used.') }}
+                </p>
             @endif
         </div>
 
