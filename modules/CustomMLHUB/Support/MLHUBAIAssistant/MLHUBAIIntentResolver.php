@@ -64,7 +64,18 @@ class MLHUBAIIntentResolver
             }
         }
 
-        usort($scored, static fn (array $a, array $b): int => $b['confidence'] <=> $a['confidence']);
+        $scored = $this->removeGenericNextSteps($scored);
+
+        usort($scored, function (array $a, array $b): int {
+            $priority = MLHUBAIKnowledgeBase::intentPriority((string) $a['intent'])
+                <=> MLHUBAIKnowledgeBase::intentPriority((string) $b['intent']);
+
+            if ($priority !== 0) {
+                return $priority;
+            }
+
+            return $b['confidence'] <=> $a['confidence'];
+        });
 
         return $scored;
     }
@@ -122,6 +133,32 @@ class MLHUBAIIntentResolver
         unset($pool[$intent]);
 
         return array_values($pool);
+    }
+
+    /**
+     * @param  list<array{intent: string, confidence: float, matched_keywords: list<string>}>  $matches
+     * @return list<array{intent: string, confidence: float, matched_keywords: list<string>}>
+     */
+    protected function removeGenericNextSteps(array $matches): array
+    {
+        $hasSpecificIntent = collect($matches)
+            ->contains(fn (array $match): bool => ! in_array($match['intent'], ['greeting', 'next_steps'], true));
+
+        if (! $hasSpecificIntent) {
+            return $matches;
+        }
+
+        $genericNextStepKeywords = ['làm gì', 'lam gi', 'nên làm', 'nen lam', 'gợi ý', 'goi y', 'đề xuất', 'de xuat', 'what should i do'];
+
+        return array_values(array_filter($matches, function (array $match) use ($genericNextStepKeywords): bool {
+            if ($match['intent'] !== 'next_steps') {
+                return true;
+            }
+
+            $matched = array_map(fn (string $keyword): string => $this->normalize($keyword), (array) ($match['matched_keywords'] ?? []));
+
+            return array_diff($matched, array_map(fn (string $keyword): string => $this->normalize($keyword), $genericNextStepKeywords)) !== [];
+        }));
     }
 
     protected function normalize(string $value): string

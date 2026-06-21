@@ -106,7 +106,7 @@ test('resolver exposes P0 starter prompts in Vietnamese', function (): void {
 
     expect($prompts)
         ->toContain('Sáng nay tình hình kinh doanh thế nào?')
-        ->toContain('Basic AI có tốn credit không?');
+        ->toContain('AI Cơ bản (Basic AI) có tốn tín dụng AI không?');
 });
 
 test('composer uses top campaigns and recent activity for daily briefing', function (): void {
@@ -212,9 +212,177 @@ test('composer answers P1 intents with rule based guidance', function (): void {
     );
 
     expect($message)
-        ->toContain('Landing')
+        ->toContain('Trang đích')
         ->toContain('Google')
-        ->toContain('Billing')
-        ->toContain('Support')
+        ->toContain('Thanh toán')
+        ->toContain('Hỗ trợ')
         ->not->toContain('{');
+});
+
+test('onboarding intent wins for new account first step questions', function (): void {
+    $resolver = new MLHUBAIIntentResolver;
+    $matches = $resolver->resolveAll('Tôi mới tạo tài khoản thì làm gì trước?');
+
+    expect($matches[0]['intent'])->toBe('onboarding');
+
+    $message = (new MLHUBAIResponseComposer)->composeMany(
+        array_column($matches, 'intent'),
+        mlhubAssistantContext(['onboarding' => ['create_business', 'create_campaign', 'share_qr']]),
+    );
+
+    expect($message)
+        ->toContain('Bước 1')
+        ->toContain('cơ sở kinh doanh')
+        ->toContain('chiến dịch')
+        ->toContain('Xuất bản chiến dịch')
+        ->not->toContain('business')
+        ->not->toContain('campaign')
+        ->not->toContain('Publish')
+        ->not->toContain('Phễu của bạn đang chạy');
+});
+
+test('crm guidance is not contaminated by next steps or ai studio cta', function (): void {
+    $resolver = new MLHUBAIIntentResolver;
+    $matches = $resolver->resolveAll('CRM dùng để làm gì?');
+    $intents = array_column($matches, 'intent');
+
+    expect($intents)
+        ->toContain('crm_segments')
+        ->not->toContain('next_steps');
+
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext());
+    $routeNames = array_map(
+        static fn (array $action): string => $action[0],
+        MLHUBAIKnowledgeBase::routeActions('crm_segments'),
+    );
+
+    expect($message)
+        ->toContain('CRM')
+        ->not->toContain('Phễu của bạn đang chạy')
+        ->not->toContain('AI Studio')
+        ->and($routeNames)->not->toContain('portal.ai-studio');
+});
+
+test('composer adds knowledge footer for guidance-only responses', function (): void {
+    $message = (new MLHUBAIResponseComposer)->composeMany(
+        ['landing_pages', 'marketing_templates', 'support'],
+        mlhubAssistantContext(),
+    );
+
+    expect($message)
+        ->toContain('Câu trả lời dựa trên tri thức nội bộ và cấu trúc tính năng của MLHUB.')
+        ->not->toContain('Câu trả lời có sử dụng số liệu thực tế từ tài khoản của bạn.');
+});
+
+test('composer adds account metrics footer for metric responses', function (): void {
+    $message = (new MLHUBAIResponseComposer)->composeMany(
+        ['customers', 'reviews'],
+        mlhubAssistantContext(),
+    );
+
+    expect($message)
+        ->toContain('Câu trả lời có sử dụng số liệu thực tế từ tài khoản của bạn.')
+        ->not->toContain('Câu trả lời dựa trên tri thức nội bộ và cấu trúc tính năng của MLHUB.');
+});
+
+test('P1 cta labels are Vietnamese', function (): void {
+    $labels = [];
+
+    foreach ([
+        'daily_briefing',
+        'review_booster',
+        'booking',
+        'coupon',
+        'feedback',
+        'leads',
+        'credits',
+        'business_locations',
+        'help_using_mlhubai',
+        'crm_segments',
+        'landing_pages',
+        'marketing_templates',
+        'google_business',
+        'ai_studio',
+        'teams',
+        'support',
+    ] as $intent) {
+        foreach (MLHUBAIKnowledgeBase::routeActions($intent) as [, $label]) {
+            $labels[] = $label;
+        }
+    }
+
+    expect($labels)
+        ->toContain('Mở MLHUB AI')
+        ->toContain('Cài đặt AI')
+        ->toContain('Mở bảng điều khiển')
+        ->toContain('Xem báo cáo')
+        ->toContain('Mở công cụ xin đánh giá')
+        ->toContain('Mở trang đặt lịch')
+        ->toContain('Mở mã ưu đãi')
+        ->toContain('Mở form góp ý')
+        ->toContain('Mở form khách tiềm năng')
+        ->toContain('Xem lịch sử tín dụng AI')
+        ->toContain('Quản lý cơ sở kinh doanh')
+        ->toContain('Mở khách hàng trong CRM')
+        ->toContain('Mở nhóm khách hàng CRM')
+        ->toContain('Mở trang đích')
+        ->toContain('Mở mẫu marketing')
+        ->toContain('Mở Google Business')
+        ->toContain('Mở lịch sử câu lệnh')
+        ->toContain('Mở hỗ trợ')
+        ->toContain('Mở đội ngũ')
+        ->not->toContain('Open MLHUB AI')
+        ->not->toContain('Open support')
+        ->not->toContain('Thêm business')
+        ->not->toContain('Mở dashboard')
+        ->not->toContain('Mở booking')
+        ->not->toContain('Mở coupon')
+        ->not->toContain('Mở feedback forms')
+        ->not->toContain('Mở lead forms');
+});
+
+test('onboarding billing and support copy avoid mixed English', function (): void {
+    $composer = new MLHUBAIResponseComposer;
+
+    $onboarding = $composer->composeMany(['onboarding'], mlhubAssistantContext());
+    $billing = $composer->composeMany(['billing'], mlhubAssistantContext());
+    $support = $composer->composeMany(['support'], mlhubAssistantContext());
+
+    expect($onboarding)
+        ->toContain('cơ sở kinh doanh')
+        ->toContain('chiến dịch')
+        ->not->toContain('business')
+        ->not->toContain('campaign')
+        ->not->toContain('publish')
+        ->and($billing)
+        ->toContain('Thanh toán')
+        ->toContain('gói đang dùng')
+        ->toContain('hóa đơn')
+        ->toContain('lịch sử tín dụng AI')
+        ->not->toContain('subscription')
+        ->not->toContain('Packages')
+        ->not->toContain('Invoices')
+        ->not->toContain('Credit Usage')
+        ->and($support)
+        ->toContain('Hỗ trợ')
+        ->toContain('phiếu hỗ trợ')
+        ->not->toContain('ticket');
+});
+
+test('composer summarizes long multi-intent questions without rendering every intent', function (): void {
+    $message = (new MLHUBAIResponseComposer)->composeMany(
+        ['help_using_mlhubai', 'onboarding', 'overview', 'customers', 'reviews', 'google_business', 'billing', 'teams', 'support'],
+        mlhubAssistantContext(),
+    );
+
+    expect($message)
+        ->toContain('Bạn đang hỏi nhiều nhóm, mình tóm tắt nhanh các nhóm chính trước.')
+        ->toContain('MLHUB AI')
+        ->toContain('Bước 1')
+        ->toContain('Tóm tắt nhanh')
+        ->toContain('Khách hàng')
+        ->toContain('đánh giá')
+        ->not->toContain('Google Business')
+        ->not->toContain('Thanh toán')
+        ->not->toContain('Hỗ trợ');
 });
