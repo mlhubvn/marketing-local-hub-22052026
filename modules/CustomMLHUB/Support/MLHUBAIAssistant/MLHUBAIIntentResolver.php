@@ -166,9 +166,16 @@ class MLHUBAIIntentResolver
      */
     protected function focusEverydayQuestion(array $matches, string $normalized): array
     {
+        if (($handoff = MLHUBAIKnowledgeBase::detectStudioHandoff($normalized)) !== null) {
+            return [[
+                'intent' => MLHUBAIKnowledgeBase::studioHandoffFocusIntent($handoff),
+                'confidence' => 1.0,
+                'matched_keywords' => [],
+            ]];
+        }
+
         $focus = match (true) {
             $this->isCurrentPlanLimitQuestion($normalized) => ['plan_limits'],
-            $this->isContentCreationQuestion($normalized) => ['ai_content_writer'],
             $this->isIndustryQuestion($normalized) => ['industry_recommendation'],
             $this->isNoCreditCampaignQuestion($normalized) => ['credits'],
             $this->isBranchPerformanceQuestion($normalized) => ['business_locations'],
@@ -222,6 +229,10 @@ class MLHUBAIIntentResolver
 
     protected function isIndustryQuestion(string $normalized): bool
     {
+        if (MLHUBAIKnowledgeBase::detectStudioHandoff($normalized) !== null) {
+            return false;
+        }
+
         if ($this->containsAny($normalized, [
             'nen dung gi',
             'dung tinh nang nao',
@@ -238,29 +249,6 @@ class MLHUBAIIntentResolver
         }
 
         return false;
-    }
-
-    protected function isContentCreationQuestion(string $normalized): bool
-    {
-        if ($this->containsAny($normalized, [
-            'tao noi dung',
-            'viet caption',
-            'caption',
-            'noi dung facebook',
-            'bai quang cao',
-            'viet bai',
-            'tao caption',
-            'tao hinh',
-            'tao anh',
-            'viet noi dung',
-            'viet bai quang cao',
-            'viet script',
-        ])) {
-            return true;
-        }
-
-        return $this->containsAny($normalized, ['creator', 'livestream', 'content creator', 'streamer'])
-            && $this->containsAny($normalized, ['viet', 'tao', 'caption', 'noi dung', 'script', 'bai dang', 'hinh', 'anh']);
     }
 
     protected function isNoCreditCampaignQuestion(string $normalized): bool

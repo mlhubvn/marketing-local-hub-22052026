@@ -2,6 +2,8 @@
 
 namespace Modules\CustomMLHUB\Support\MLHUBAIAssistant;
 
+use Illuminate\Support\Str;
+
 class MLHUBAIKnowledgeBase
 {
     /**
@@ -520,6 +522,152 @@ class MLHUBAIKnowledgeBase
             'businesses' => [['portal.businesses', __('Quản lý cơ sở kinh doanh')]],
             default => [],
         };
+    }
+
+    /**
+     * Studio handoff types (Chat → Studio), most specific first.
+     *
+     * @return list<string>
+     */
+    public static function studioHandoffDetectionOrder(): array
+    {
+        return [
+            'review_reply_writing',
+            'image_generation',
+            'content_planner',
+            'content_writing',
+        ];
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
+    public static function studioHandoffAliasMap(): array
+    {
+        return [
+            'review_reply_writing' => [
+                'tra loi review nay', 'tra loi review giup', 'giup toi tra loi review',
+                'viet phan hoi review', 'viet tra loi review', 'tao phan hoi review',
+                'review reply giup', 'phan hoi review bang ai', 'ai viet phan hoi review',
+                'tra loi danh gia giup', 'viet phan hoi danh gia',
+            ],
+            'image_generation' => [
+                'tao anh', 'tao hinh', 'banner ai', 'poster ai', 'anh khuyen mai',
+                'tao banner', 'ai image', 'visual ai', 'tao poster', 'hinh khuyen mai',
+            ],
+            'content_planner' => [
+                'lap lich noi dung', 'ke hoach noi dung', 'ke hoach bai dang',
+                'content planner', 'lich dang bai', 'lap lich dang bai', 'calendar noi dung',
+                'lap ke hoach bai dang', 'lich noi dung 7 ngay',
+            ],
+            'content_writing' => [
+                'tao noi dung', 'viet caption', 'caption', 'noi dung facebook',
+                'bai quang cao', 'viet bai', 'tao caption', 'viet noi dung',
+                'viet bai quang cao', 'viet script', 'viet bai facebook',
+                'bai facebook', 'viet bai cho', 'facebook cho', 'noi dung cho',
+            ],
+        ];
+    }
+
+    public static function detectStudioHandoff(string $normalizedQuestion): ?string
+    {
+        $normalized = trim((string) preg_replace('/\s+/u', ' ', Str::ascii(mb_strtolower($normalizedQuestion))));
+
+        if ($normalized === '' || self::studioHandoffExcluded($normalized)) {
+            return null;
+        }
+
+        foreach (self::studioHandoffDetectionOrder() as $type) {
+            if (self::containsNormalizedNeedle($normalized, self::studioHandoffAliasMap()[$type] ?? [])) {
+                return $type;
+            }
+        }
+
+        if (self::matchesCreatorContentWriting($normalized)) {
+            return 'content_writing';
+        }
+
+        return null;
+    }
+
+    /**
+     * @return list<array{0: string, 1: string}>
+     */
+    public static function studioHandoffRouteActions(string $type): array
+    {
+        return match ($type) {
+            'content_writing' => [
+                ['portal.ai-content', __('Mở công cụ viết nội dung AI')],
+                ['portal.ai-studio', __('Mở AI Studio')],
+                ['portal.marketing-templates', __('Mở mẫu marketing')],
+            ],
+            'content_planner' => [
+                ['portal.ai-content-planner', __('Mở lập lịch nội dung')],
+                ['portal.ai-studio', __('Mở AI Studio')],
+                ['portal.ai-studio.prompt-history', __('Mở lịch sử câu lệnh')],
+            ],
+            'review_reply_writing' => [
+                ['portal.ai-studio.review-reply', __('Mở trả lời đánh giá AI')],
+                ['portal.ai-studio', __('Mở AI Studio')],
+                ['portal.ai-studio.prompt-history', __('Mở lịch sử câu lệnh')],
+            ],
+            'image_generation' => [
+                ['portal.ai-image', __('Mở tạo ảnh AI')],
+                ['portal.ai-studio', __('Mở AI Studio')],
+                ['portal.marketing-templates', __('Mở mẫu marketing')],
+            ],
+            default => [],
+        };
+    }
+
+    public static function studioHandoffMessage(string $type): string
+    {
+        return match ($type) {
+            'content_writing' => __('Chat MLHUB AI không viết caption hay bài quảng cáo dài tại đây. Mở AI Content hoặc AI Studio để sinh nội dung, hoặc Marketing Templates nếu muốn mẫu sẵn. AI Cơ bản (Basic AI) không trừ tín dụng AI; tác vụ sinh nội dung trong Studio có thể dùng tín dụng AI theo gói.'),
+            'content_planner' => __('Lập lịch nội dung nên làm trong AI Studio — mở Lập lịch nội dung hoặc AI Studio. Chat chỉ hướng dẫn mở đúng màn hình; AI Cơ bản không trừ tín dụng AI, tác vụ planner trong Studio có thể dùng tín dụng AI theo gói.'),
+            'review_reply_writing' => __('Viết/trả lời review bằng AI nên mở Trả lời đánh giá AI trong AI Studio — Chat không soạn phản hồi dài tại đây. AI Cơ bản không trừ tín dụng AI; tác vụ trong Studio có thể dùng tín dụng AI theo gói.'),
+            'image_generation' => __('Tạo ảnh/banner AI nên mở Tạo ảnh AI hoặc AI Studio — Chat không render hình tại đây. AI Cơ bản không trừ tín dụng AI; tác vụ tạo ảnh trong Studio có thể dùng tín dụng AI theo gói.'),
+            default => '',
+        };
+    }
+
+    public static function studioHandoffFocusIntent(string $type): string
+    {
+        return $type === 'content_writing' ? 'ai_content_writer' : 'ai_studio';
+    }
+
+    /**
+     * @param  list<string>  $needles
+     */
+    protected static function containsNormalizedNeedle(string $normalized, array $needles): bool
+    {
+        foreach ($needles as $needle) {
+            $normalizedNeedle = Str::ascii(mb_strtolower($needle));
+
+            if ($normalizedNeedle !== '' && str_contains($normalized, $normalizedNeedle)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected static function matchesCreatorContentWriting(string $normalized): bool
+    {
+        return self::containsNormalizedNeedle($normalized, ['creator', 'livestream', 'content creator', 'streamer'])
+            && self::containsNormalizedNeedle($normalized, ['viet', 'tao', 'caption', 'noi dung', 'script', 'bai dang', 'hinh', 'anh']);
+    }
+
+    protected static function studioHandoffExcluded(string $normalized): bool
+    {
+        return self::containsNormalizedNeedle($normalized, [
+            'review nao can tra loi',
+            'danh gia google nao can',
+            'dong bo review',
+            'sync review',
+            'auto reply',
+            'review nao can phan hoi',
+        ]);
     }
 
     /**

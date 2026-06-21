@@ -861,7 +861,8 @@ test('content writing request routes to studio not long chat copy', function ():
         ->and($message)
         ->toContain('AI Content')
         ->toContain('AI Studio')
-        ->toContain('mẫu marketing')
+        ->toContain('Marketing Templates')
+        ->toContain('không viết caption')
         ->not->toContain('#')
         ->and(mb_strlen($message))->toBeLessThan(700);
 });
@@ -1013,4 +1014,141 @@ test('organizations recommends registration lead reports', function (): void {
 
     expect($message)->toContain('đăng ký')->toContain('báo cáo')
         ->and($labels)->toContain('Mở trang đích')->toContain('Xem báo cáo');
+});
+
+test('content caption request routes to studio before industry', function (): void {
+    $question = 'Tôi là creator livestream muốn viết caption bán mỹ phẩm';
+    $intents = array_column((new MLHUBAIIntentResolver)->resolveAll($question), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
+        'request' => ['question' => $question],
+    ]));
+
+    expect($intents[0])->toBe('ai_content_writer')
+        ->and($intents)->not->toContain('industry_recommendation')
+        ->and($message)->toContain('AI Content')
+        ->not->toContain('phân phối/bán sỉ');
+});
+
+test('restaurant facebook content request routes to studio not restaurant guidance', function (): void {
+    $question = 'Tôi làm nhà hàng muốn viết bài Facebook cho ưu đãi cuối tuần.';
+    $intents = array_column((new MLHUBAIIntentResolver)->resolveAll($question), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
+        'request' => ['question' => $question],
+    ]));
+
+    expect($intents[0])->toBe('ai_content_writer')
+        ->and($intents)->not->toContain('industry_recommendation')
+        ->and($message)
+        ->toContain('AI Content')
+        ->toContain('không viết caption')
+        ->not->toContain('Google Business');
+});
+
+test('spa operational question stays industry guidance not studio', function (): void {
+    $question = 'Tôi làm spa, nên dùng MLHUB tính năng nào trước?';
+    $intents = array_column((new MLHUBAIIntentResolver)->resolveAll($question), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
+        'request' => ['question' => $question],
+    ]));
+
+    expect($intents[0])->toBe('industry_recommendation')
+        ->and($intents)->not->toContain('ai_content_writer')
+        ->and($intents)->not->toContain('ai_studio')
+        ->and($message)->toContain('đặt lịch')
+        ->not->toContain('không viết caption');
+});
+
+test('review reply writing request routes to studio', function (): void {
+    $question = 'Trả lời review này giúp tôi.';
+    $intents = array_column((new MLHUBAIIntentResolver)->resolveAll($question), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
+        'request' => ['question' => $question],
+    ]));
+
+    expect($intents[0])->toBe('ai_studio')
+        ->and($message)
+        ->toContain('AI Studio')
+        ->toContain('không soạn phản hồi dài')
+        ->not->toContain('Review Booster');
+});
+
+test('image generation request routes to studio or ai image', function (): void {
+    $question = 'Tạo ảnh banner khuyến mãi bằng AI ở đâu?';
+    $composer = new MLHUBAIResponseComposer;
+    $context = mlhubAssistantContext(['request' => ['question' => $question]]);
+    $intents = array_column((new MLHUBAIIntentResolver)->resolveAll($question), 'intent');
+    $message = $composer->composeMany($intents, $context);
+    $labels = array_column($composer->actionsFor($intents, $context), 'label');
+
+    expect($intents[0])->toBe('ai_studio')
+        ->and($message)->toContain('Tạo ảnh AI')
+        ->and($labels)->toContain('Mở tạo ảnh AI');
+});
+
+test('basic chat does not produce long marketing copy', function (): void {
+    $questions = [
+        'Viết caption khuyến mãi cuối tuần cho quán cafe',
+        'Tôi muốn viết bài quảng cáo dài cho landing page',
+    ];
+
+    foreach ($questions as $question) {
+        $intents = array_column((new MLHUBAIIntentResolver)->resolveAll($question), 'intent');
+        $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
+            'request' => ['question' => $question],
+        ]));
+
+        expect($intents[0])->toBe('ai_content_writer')
+            ->and(mb_strlen($message))->toBeLessThan(500)
+            ->and($message)->toMatch('/không viết|không soạn/i');
+    }
+});
+
+test('phase B credit and plan guidance regressions remain stable', function (): void {
+    $composer = new MLHUBAIResponseComposer;
+
+    $creditsMessage = $composer->composeMany(
+        ['credits'],
+        mlhubAssistantContext([
+            'credits' => [
+                'available' => true,
+                'remaining' => 42,
+                'used' => 8,
+                'limit' => 50,
+                'topup_remaining' => 12,
+                'unlimited' => false,
+                'low_balance' => false,
+                'costs' => ['mlhub_ai_chat' => 1],
+            ],
+        ]),
+    );
+
+    $planMessage = $composer->composeMany(
+        ['plan_limits'],
+        mlhubAssistantContext([
+            'plan' => [
+                'available' => true,
+                'name' => 'MLHUB Growth',
+                'status' => 'Active',
+                'usage' => [
+                    'campaigns' => [
+                        'label' => 'Chiến dịch',
+                        'used' => 2,
+                        'limit' => 10,
+                        'remaining' => 8,
+                        'unlimited' => false,
+                        'percent' => 20,
+                    ],
+                ],
+            ],
+        ]),
+    );
+
+    expect($creditsMessage)->toContain('42')->toContain('Câu trả lời có sử dụng số liệu thực tế')
+        ->and($planMessage)->toContain('2/10')->toContain('Gói hiện tại');
+});
+
+test('phase C1 eighteen industry groups regression remains stable', function (): void {
+    expect(MLHUBAIKnowledgeBase::industryGroupDetectionOrder())->toHaveCount(18)
+        ->and((new MLHUBAIIntentResolver)->resolve('Tôi có quán ăn thì nên dùng MLHUB thế nào?')['intent'])
+        ->toBe('industry_recommendation');
 });

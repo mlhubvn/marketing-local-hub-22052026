@@ -96,7 +96,7 @@ Nguyên tắc tốt đã có:
 | Resolver | normalize + priority + dedupe | `MLHUBAIIntentResolver`: `normalize()`, `intentPriority()`, `focusEverydayQuestion()`, `removeDuplicateHelpCredit()`, `removeGenericNextSteps()`, `removeLooseDailyBriefing()`, `removeReviewDuplication()`; câu navigation ưu tiên 1 intent |
 | Cache context | 60 giây | `MLHUBAIContextBuilder::CACHE_TTL_SECONDS` |
 | Giới hạn input | 2–500 ký tự | Livewire validation |
-| Unit tests | 41 cases | `tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` — **chưa chạy được** trên host (thiếu `php` PATH) |
+| Unit tests | **73 cases** (57 functions) | `tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` — **chưa chạy được** trên host (thiếu `php` PATH) |
 
 > **Lưu ý:** §4.2 bên dưới là **ảnh chụp baseline trước P0/P1** (2026-06-20). Ma trận intent/keyword đầy đủ sau nâng cấp → §12.1, §13 và `MLHUBAIKnowledgeBase.php`.
 
@@ -422,7 +422,7 @@ Không thực hiện trong lần này. Đây là backlog để bạn chọn làm
 | Composer dùng top campaigns/recent activity | Xong | `MLHUBAIResponseComposer.php` | `daily_briefing` và `top_campaigns` đã đọc `top_campaigns[]`; `daily_briefing` đã đọc `recent_activity[]`. |
 | Thêm response segments cho P0 | Xong | `MLHUBAIResponseComposer.php` | Có đoạn trả lời riêng cho booking, coupon, feedback, leads, conversion, credits, plan limits, QR scan, Review Booster. |
 | CTA route liên quan P0 | Xong | `MLHUBAIKnowledgeBase.php`, `MLHUBAIResponseComposer.php` | Đã mở rộng CTA tới dashboard, reports, chatmlhubai, ai settings, booking pages, coupon campaigns, feedback forms, lead forms, credits, packages. |
-| Unit test bảo vệ Basic AI | Đã ghi nhận **65 cases** (49 functions, gồm dataset 18 nhóm ngành) — **chưa chạy được** | `tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` | Bao gồm P0, P1, P1.3, Phase B plan/credit, **Phase C.1 — 18 nhóm BusinessTypeCatalog**, footer, onboarding/CRM, CTA Việt. Host Windows thiếu `php` trên PATH (2026-06-21). |
+| Unit test bảo vệ Basic AI | Đã ghi nhận **73 cases** (57 functions) — **chưa chạy được** | `tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` | P0–P1, Phase B plan/credit, Phase C.1 industry 18 nhóm, **Phase D Studio handoff**, footer/onboarding/CRM. Host Windows thiếu `php` PATH (2026-06-21). |
 
 ### 12.1 Ma trận P0 sau nâng cấp
 
@@ -590,11 +590,13 @@ Tất cả route action P1 đã thêm đều được grep từ route files hi�
 - Trả lời “mở ở đâu / route nào” qua CTA (`MLHUBAIKnowledgeBase::routeActions()`).
 - Gợi ý **loại** campaign/tool phù hợp ngành (intent `industry_recommendation`) — Phase C đã tách template rule-based theo cafe/nhà hàng/spa/bán lẻ/lưu trú/dịch vụ/giáo dục/sức khỏe/B2B; không viết full bài quảng cáo trong chat.
 
-### 17.2 Chat MLHUB AI — không nên làm
+### 17.2 Chat MLHUB AI — không nên làm (Phase D — đã enforce trong code)
 
-- Viết caption dài, kế hoạch nội dung 7 ngày, poster AI, video script — chuyển sang Studio.
+- Viết caption/bài Facebook dài, lập lịch nội dung, tạo ảnh/banner, soạn trả lời review — **handoff** sang Studio qua `MLHUBAIKnowledgeBase::detectStudioHandoff()` + `studioHandoffRouteActions()`.
 - Bịa số liệu ngoài JSON context (Advanced AI system prompt cũng cấm).
 - Thay thế CRM/automation setup chi tiết — chỉ hướng dẫn route + rule ngắn.
+
+**Phase D (2026-06-21):** Chat trả lời ngắn + CTA (≤3, `Route::has()`); nhắc Basic AI không trừ tín dụng AI, Studio task có thể trừ theo gói.
 
 ### 17.3 Studio AI — nên làm
 
@@ -606,8 +608,11 @@ Tất cả route action P1 đã thêm đều được grep từ route files hi�
 | User hỏi | Xử lý |
 | --- | --- |
 | “Tuần này có bao nhiêu lead?” | Chat Basic AI — intent `leads` |
-| “Viết caption khuyến mãi cuối tuần” | Chat CTA → `portal.ai-content`; thực thi ở Studio |
-| “Trả lời review này giúp tôi” | Studio `portal.ai-studio.review-reply` |
+| “Viết caption khuyến mãi cuối tuần” | Chat handoff — intent `ai_content_writer` → `portal.ai-content`, `portal.ai-studio`, `portal.marketing-templates` |
+| “Lập lịch nội dung 7 ngày” | Chat handoff — intent `ai_studio` → `portal.ai-content-planner` (fallback `portal.ai-studio`) |
+| “Trả lời review này giúp tôi” | Chat handoff — intent `ai_studio` → `portal.ai-studio.review-reply` |
+| “Tạo ảnh banner khuyến mãi” | Chat handoff — intent `ai_studio` → `portal.ai-image` (fallback `portal.ai-studio`) |
+| “Tôi làm spa, nên dùng gì trước?” | Chat industry — intent `industry_recommendation` (không handoff Studio) |
 | “MLHUB AI hỏi được gì?” | Chat — intent `help_using_mlhubai` |
 | “Còn bao nhiêu credit?” | Chat — intent `credits`; Phase B đọc số dư/cost thật nếu snapshot có dữ liệu |
 
@@ -648,7 +653,16 @@ flowchart LR
     B -- "cần diễn giải tự do + bật Advanced" --> G["Advanced AI chat — mlhub_ai_chat"]
 ```
 
-**CTA Studio hiện có trong knowledge base (P1):**
+**CTA Studio handoff (Phase D — `studioHandoffRouteActions()`):**
+
+| Handoff type | Route action ưu tiên (tối đa 3, lọc `Route::has()`) |
+| --- | --- |
+| `content_writing` | `portal.ai-content`, `portal.ai-studio`, `portal.marketing-templates` |
+| `content_planner` | `portal.ai-content-planner`, `portal.ai-studio`, `portal.ai-studio.prompt-history` |
+| `review_reply_writing` | `portal.ai-studio.review-reply`, `portal.ai-studio`, `portal.ai-studio.prompt-history` |
+| `image_generation` | `portal.ai-image`, `portal.ai-studio`, `portal.marketing-templates` |
+
+**CTA Studio mặc định (P1 — khi hỏi hướng dẫn AI, không phải handoff sinh nội dung):**
 
 | Intent | Route action gợi ý |
 | --- | --- |
@@ -830,19 +844,19 @@ Khi triển khai gợi ý theo type thật: đọc metadata từ `BusinessTypeCa
 
 ### Phase D — Chat → Studio handoff refinement
 
-| # | Việc |
-| --- | --- |
-| D1 | Rà lại intent `ai_studio` / `ai_content_writer` — CTA chỉ khi user hỏi tạo nội dung |
-| D2 | Copy handoff trong composer khớp `ARCHITECTURE_I18N.md` §17 |
-| D3 | Không gợi ý Studio khi intent vận hành thuần (metrics/onboarding) — giữ test regression |
+| # | Việc | Trạng thái |
+| --- | --- | --- |
+| D1 | `detectStudioHandoff()` + focus intent trước industry (`content_writing` → `ai_content_writer`; planner/review/image → `ai_studio`) | **Xong** (2026-06-21) |
+| D2 | CTA theo loại handoff — `studioHandoffRouteActions()`; message ngắn + nhắc Basic không trừ credit | **Xong** |
+| D3 | Onboarding/metrics/industry vận hành **không** handoff Studio — test regression giữ | **Xong** |
 
-### Phase E — Tests & verification
+### Phase E — Tests & verification (E-lite sau Phase D)
 
-| # | Việc |
-| --- | --- |
-| E1 | Chạy `vendor/bin/pest tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` |
-| E2 | Chạy và khóa test plan/credit snapshot trên môi trường PHP đầy đủ |
-| E3 | Smoke manual: dashboard panel + full chat, toggle Advanced khi thiếu API key |
+| # | Việc | Trạng thái |
+| --- | --- | --- |
+| E1 | Pest file **73 cases** — **chưa chạy được** trên host thiếu PHP | Chờ container |
+| E2 | Regression Phase B credit/plan + Phase C.1 industry + Phase D handoff trong cùng file test | **Đã ghi nhận** |
+| E3 | Smoke manual 6 câu (content/spa/caption/review/image/credit) | Chờ owner |
 
 ### Phase F — Advanced AI later (không làm ngay)
 

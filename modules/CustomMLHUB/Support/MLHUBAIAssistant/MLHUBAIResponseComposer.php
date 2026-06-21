@@ -69,13 +69,13 @@ class MLHUBAIResponseComposer
                     ['portal.qr-campaigns', __('Quản lý chiến dịch')],
                 ]
                 : MLHUBAIKnowledgeBase::routeActions($intent),
-            'ai_content_writer' => $this->scenario($context) === 'content_creation_request'
-                ? [
-                    ['portal.ai-content', __('Mở công cụ viết nội dung AI')],
-                    ['portal.ai-studio', __('Mở AI Studio')],
-                    ['portal.marketing-templates', __('Mở mẫu marketing')],
-                ]
-                : MLHUBAIKnowledgeBase::routeActions($intent),
+            'ai_content_writer' => ($handoff = MLHUBAIKnowledgeBase::detectStudioHandoff($this->normalizedQuestion($context))) === 'content_writing'
+                ? MLHUBAIKnowledgeBase::studioHandoffRouteActions('content_writing')
+                : MLHUBAIKnowledgeBase::routeActions('ai_content_writer'),
+            'ai_studio' => ($handoff = MLHUBAIKnowledgeBase::detectStudioHandoff($this->normalizedQuestion($context))) !== null
+                && $handoff !== 'content_writing'
+                ? MLHUBAIKnowledgeBase::studioHandoffRouteActions($handoff)
+                : MLHUBAIKnowledgeBase::routeActions('ai_studio'),
             default => MLHUBAIKnowledgeBase::routeActions($intent),
         };
 
@@ -192,7 +192,7 @@ class MLHUBAIResponseComposer
     {
         if (in_array($this->scenario($context), [
             'branch_performance',
-            'content_creation_request',
+            'studio_handoff',
             'google_to_booking',
             'low_rating_recovery',
             'no_credit_campaign',
@@ -429,8 +429,11 @@ class MLHUBAIResponseComposer
      */
     protected function scenario(array $context): string
     {
+        if (MLHUBAIKnowledgeBase::detectStudioHandoff($this->normalizedQuestion($context)) !== null) {
+            return 'studio_handoff';
+        }
+
         return match (true) {
-            $this->containsAnyQuestion($context, ['tao noi dung', 'viet caption', 'caption', 'noi dung facebook', 'bai quang cao', 'viet bai']) => 'content_creation_request',
             $this->containsAnyQuestion($context, ['khong muon ton', 'khong ton diem', 'khong ton tin dung', 'khong ton credit']) => 'no_credit_campaign',
             $this->containsAnyQuestion($context, ['danh gia 1 sao', 'danh gia 2 sao', 'danh gia 3 sao', 'review xau', 'danh gia thap', 'rating thap', 'khach khong hai long']) => 'low_rating_recovery',
             $this->containsAnyQuestion($context, ['google nhieu nguoi xem', 'tim tren google', 'it dat ban', 'it dat lich']) => 'google_to_booking',
@@ -946,6 +949,12 @@ class MLHUBAIResponseComposer
      */
     protected function composeAiStudio(array $context): string
     {
+        $handoff = MLHUBAIKnowledgeBase::detectStudioHandoff($this->normalizedQuestion($context));
+
+        if ($handoff !== null && $handoff !== 'content_writing') {
+            return MLHUBAIKnowledgeBase::studioHandoffMessage($handoff);
+        }
+
         return __('AI Studio là khu vực tạo chiến dịch, xem lịch sử câu lệnh, viết trả lời đánh giá và cài đặt AI. AI Cơ bản (Basic AI) trong /portal/chatmlhubai không tốn tín dụng AI; các tác vụ sinh nội dung trong AI Studio hoặc AI Nâng cao (Advanced AI) có thể dùng tín dụng AI tùy cấu hình gói.');
     }
 
@@ -954,8 +963,10 @@ class MLHUBAIResponseComposer
      */
     protected function composeAiContentWriter(array $context): string
     {
-        if ($this->scenario($context) === 'content_creation_request') {
-            return __('Với yêu cầu tạo nội dung Facebook hoặc caption, Chat MLHUB AI chỉ nên chỉ đường: mở AI Content hoặc AI Studio để sinh nội dung, hoặc dùng mẫu marketing nếu muốn làm theo template sẵn. Mình sẽ không viết caption dài trong Chat Cơ bản; khi chạy tác vụ sinh nội dung trong Studio, hệ thống có thể tính tín dụng AI theo gói.');
+        $handoff = MLHUBAIKnowledgeBase::detectStudioHandoff($this->normalizedQuestion($context));
+
+        if ($handoff === 'content_writing') {
+            return MLHUBAIKnowledgeBase::studioHandoffMessage('content_writing');
         }
 
         return __('AI Content Writer hỗ trợ viết chú thích bài đăng, bài quảng cáo, lời kêu gọi hành động, nội dung Facebook hoặc tin nhắn nhắc khách. Nếu chỉ hỏi hướng dẫn tại đây thì AI Cơ bản (Basic AI) không tốn tín dụng AI; khi chạy tác vụ sinh nội dung trong AI Content, hệ thống có thể tính tín dụng AI theo gói.');
