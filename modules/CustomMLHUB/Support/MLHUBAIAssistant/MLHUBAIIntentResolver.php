@@ -168,8 +168,8 @@ class MLHUBAIIntentResolver
     {
         $focus = match (true) {
             $this->isCurrentPlanLimitQuestion($normalized) => ['plan_limits'],
-            $this->isIndustryQuestion($normalized) => ['industry_recommendation'],
             $this->isContentCreationQuestion($normalized) => ['ai_content_writer'],
+            $this->isIndustryQuestion($normalized) => ['industry_recommendation'],
             $this->isNoCreditCampaignQuestion($normalized) => ['credits'],
             $this->isBranchPerformanceQuestion($normalized) => ['business_locations'],
             $this->isQrHighScanLowLeadQuestion($normalized) => ['conversion'],
@@ -222,61 +222,45 @@ class MLHUBAIIntentResolver
 
     protected function isIndustryQuestion(string $normalized): bool
     {
-        return $this->containsAny($normalized, [
-            'quan ca phe',
-            'quan cafe',
-            'quan tra sua',
-            'tra sua',
-            'quan nuoc',
-            'quan an',
-            'nha hang',
-            'hai san',
-            'spa',
-            'goi dau duong sinh',
-            'salon',
-            'nail',
-            'lam dep',
-            'ban le',
-            'my pham',
-            'thoi trang',
-            'tap hoa',
-            'khach san',
-            'homestay',
-            'du lich',
-            'sua chua',
-            'dien lanh',
-            'garage',
-            'rua xe',
-            'giat ui',
-            'trung tam',
-            'lop hoc',
-            'dao tao',
-            'giao duc',
-            'khoa hoc',
-            'phong kham',
-            'nha khoa',
-            'gym',
-            'yoga',
-            'fitness',
-            'agency',
-            'tu van',
-            'ke toan',
-            'phap ly',
-            'bat dong san',
-            'moi gioi',
-        ]);
+        if ($this->containsAny($normalized, [
+            'nen dung gi',
+            'dung tinh nang nao',
+            'nen dung tinh nang nao dau tien',
+            'bat dau tu dau',
+        ])) {
+            return true;
+        }
+
+        foreach (MLHUBAIKnowledgeBase::industryGroupDetectionOrder() as $group) {
+            if ($this->containsAny($normalized, MLHUBAIKnowledgeBase::industryGroupAliases($group))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected function isContentCreationQuestion(string $normalized): bool
     {
-        return $this->containsAny($normalized, [
+        if ($this->containsAny($normalized, [
             'tao noi dung',
             'viet caption',
             'caption',
             'noi dung facebook',
             'bai quang cao',
             'viet bai',
-        ]);
+            'tao caption',
+            'tao hinh',
+            'tao anh',
+            'viet noi dung',
+            'viet bai quang cao',
+            'viet script',
+        ])) {
+            return true;
+        }
+
+        return $this->containsAny($normalized, ['creator', 'livestream', 'content creator', 'streamer'])
+            && $this->containsAny($normalized, ['viet', 'tao', 'caption', 'noi dung', 'script', 'bai dang', 'hinh', 'anh']);
     }
 
     protected function isNoCreditCampaignQuestion(string $normalized): bool

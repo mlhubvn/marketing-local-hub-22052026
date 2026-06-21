@@ -120,39 +120,7 @@ class MLHUBAIResponseComposer
             ];
         }
 
-        return match ($this->industryGroup($context)) {
-            'food_beverage_restaurant' => [
-                ['portal.google-business', __('Mở Google Business')],
-                ['portal.booking-pages', __('Mở trang đặt lịch')],
-                ['portal.review-booster', __('Mở công cụ xin đánh giá')],
-            ],
-            'beauty_personal_care' => [
-                ['portal.booking-pages', __('Mở trang đặt lịch')],
-                ['portal.review-booster', __('Mở công cụ xin đánh giá')],
-                ['portal.coupon-campaigns', __('Mở mã ưu đãi')],
-            ],
-            'retail_store' => [
-                ['portal.lead-forms', __('Mở form khách tiềm năng')],
-                ['portal.coupon-campaigns', __('Mở mã ưu đãi')],
-                ['portal.crm.customers', __('Mở khách hàng trong CRM')],
-            ],
-            'tourism_hospitality' => [
-                ['portal.google-business', __('Mở Google Business')],
-                ['portal.landing-pages', __('Mở trang đích')],
-                ['portal.booking-pages', __('Mở trang đặt lịch')],
-            ],
-            'local_service_repair', 'education_training', 'professional_b2b' => [
-                ['portal.landing-pages', __('Mở trang đích')],
-                ['portal.lead-forms', __('Mở form khách tiềm năng')],
-                ['portal.crm.customers', __('Mở khách hàng trong CRM')],
-            ],
-            'health_dental_fitness' => [
-                ['portal.booking-pages', __('Mở trang đặt lịch')],
-                ['portal.lead-forms', __('Mở form khách tiềm năng')],
-                ['portal.feedback-forms', __('Mở form góp ý')],
-            ],
-            default => MLHUBAIKnowledgeBase::routeActions('industry_recommendation'),
-        };
+        return MLHUBAIKnowledgeBase::industryGroupRouteActions($this->industryGroup($context));
     }
 
     /**
@@ -447,18 +415,13 @@ class MLHUBAIResponseComposer
      */
     protected function industryGroup(array $context): string
     {
-        return match (true) {
-            $this->containsAnyQuestion($context, ['hai san', 'nha hang', 'quan an', 'restaurant', 'eatery']) => 'food_beverage_restaurant',
-            $this->containsAnyQuestion($context, ['quan ca phe', 'quan cafe', 'ca phe', 'cafe', 'tra sua', 'quan nuoc', 'nuoc ep', 'sinh to']) => 'food_beverage_cafe',
-            $this->containsAnyQuestion($context, ['spa', 'goi dau duong sinh', 'salon', 'nail', 'mi', 'toc', 'lam dep']) => 'beauty_personal_care',
-            $this->containsAnyQuestion($context, ['ban le', 'my pham', 'thoi trang', 'tap hoa', 'cua hang', 'me va be', 'phu kien']) => 'retail_store',
-            $this->containsAnyQuestion($context, ['khach san', 'homestay', 'villa', 'du lich', 'tour', 'luu tru']) => 'tourism_hospitality',
-            $this->containsAnyQuestion($context, ['sua chua', 'dien lanh', 'garage', 'rua xe', 'giat ui', 'dich vu dia phuong']) => 'local_service_repair',
-            $this->containsAnyQuestion($context, ['trung tam', 'lop hoc', 'dao tao', 'giao duc', 'khoa hoc']) => 'education_training',
-            $this->containsAnyQuestion($context, ['phong kham', 'nha khoa', 'gym', 'yoga', 'fitness', 'cham soc suc khoe']) => 'health_dental_fitness',
-            $this->containsAnyQuestion($context, ['agency', 'tu van', 'ke toan', 'phap ly', 'b2b', 'bat dong san', 'moi gioi']) => 'professional_b2b',
-            default => 'other_unknown',
-        };
+        foreach (MLHUBAIKnowledgeBase::industryGroupDetectionOrder() as $group) {
+            if ($this->containsAnyQuestion($context, MLHUBAIKnowledgeBase::industryGroupAliases($group))) {
+                return $group;
+            }
+        }
+
+        return 'other_needs_classification';
     }
 
     /**
@@ -562,15 +525,24 @@ class MLHUBAIResponseComposer
         }
 
         return match ($this->industryGroup($context)) {
-            'food_beverage_restaurant' => __('Với nhà hàng, quán ăn hoặc hải sản, nên ưu tiên Google Business, công cụ xin đánh giá, trang đặt bàn hoặc trang đích và form góp ý riêng. Luồng gọn là: cập nhật hồ sơ Google, dẫn khách về đặt bàn, đặt QR review tại bàn/quầy, rồi xử lý góp ý riêng trước khi xin đánh giá công khai.'),
+            'food_beverage' => __('Với Food & Beverage (quán cà phê, trà sữa, nhà hàng, quán ăn), nên ưu tiên chiến dịch QR tại quầy/bàn, Review Booster, mã ưu đãi quay lại và Google Business nếu khách tìm trên bản đồ. Bước đầu: tạo cơ sở kinh doanh, đặt QR review, tạo mã ưu đãi; nhà hàng thêm trang đặt bàn hoặc trang đích. Chat gợi ý quy trình — caption/menu dài hãy sang mẫu marketing hoặc AI Content.'),
+            'retail_goods' => __('Với bán lẻ (tạp hóa, thời trang, mỹ phẩm lẻ), nên dùng form khách tiềm năng lấy số điện thoại, mã ưu đãi kéo mua lại, CRM phân nhóm khách và QR tại quầy. Bắt đầu bằng một ưu đãi đơn giản, theo dõi báo cáo để biết khách nào quay lại; mẫu tin nhắn dùng Marketing Templates thay vì viết dài trong chat.'),
             'beauty_personal_care' => __('Với spa, salon, nail hoặc gội đầu dưỡng sinh, nên bắt đầu bằng trang đặt lịch, Review Booster sau dịch vụ, CRM nhắc lịch chăm sóc lại và mã ưu đãi quay lại. Mỗi khách sau khi hoàn tất dịch vụ nên được lưu vào CRM, hẹn lần tiếp theo và chỉ xin đánh giá khi trải nghiệm ổn.'),
-            'retail_store' => __('Với bán lẻ, mỹ phẩm hoặc thời trang, nên dùng form khách tiềm năng để lấy số điện thoại, mã ưu đãi để kéo mua lại, CRM để phân nhóm khách và QR tại quầy để khách quét nhanh. Bắt đầu bằng một offer đơn giản, rồi xem báo cáo để biết nhóm khách nào quay lại tốt.'),
-            'tourism_hospitality' => __('Với khách sạn, homestay hoặc du lịch, nên ưu tiên Google Business, trang đích giới thiệu dịch vụ, trang đặt lịch hoặc form khách tiềm năng và Review Booster sau trải nghiệm. Đừng tự tạo link công khai nếu chưa có slug; hãy mở module tương ứng rồi copy link thật từ MLHUB.'),
-            'local_service_repair' => __('Với sửa chữa hoặc dịch vụ địa phương, nên dùng form khách tiềm năng để nhận yêu cầu báo giá, trang đặt lịch để chốt khung giờ, Google Business để tăng độ tin cậy và Review Booster sau khi hoàn tất việc. CRM giúp nhắc nhân viên gọi lại và chăm sóc khách cũ.'),
-            'education_training' => __('Với giáo dục hoặc đào tạo, nên dùng form khách tiềm năng để nhận tư vấn, trang đích cho khóa học, CRM để chăm sóc phụ huynh/học viên và mã ưu đãi đăng ký sớm nếu phù hợp. Chat chỉ gợi ý quy trình; phần viết nội dung tuyển sinh dài nên chuyển sang AI Content hoặc mẫu marketing.'),
-            'health_dental_fitness' => __('Với phòng khám, nha khoa, gym hoặc yoga, nên dùng đặt lịch, form tư vấn, góp ý riêng và CRM nhắc lịch. Khi xin đánh giá hoặc viết nội dung, giữ lời hứa ở mức an toàn, không đưa claim y tế quá mức; ưu tiên phản hồi trung tính, chăm sóc lại và đo hiệu quả bằng báo cáo.'),
-            'professional_b2b' => __('Với B2B, agency, tư vấn hoặc bất động sản, nên dùng trang đích để trình bày dịch vụ, form khách tiềm năng để nhận nhu cầu, CRM pipeline để theo dõi từng khách và Google Business/review nếu có điểm giao dịch rõ. Ưu tiên đo nguồn lead và tạo việc chăm sóc tiếp theo.'),
-            default => __('Nếu chưa rõ ngành, hãy bắt đầu bằng hồ sơ cơ sở kinh doanh, một chiến dịch QR đơn giản, công cụ xin đánh giá và form khách tiềm năng. Khi đã chọn đúng nhóm ngành trong hồ sơ, MLHUB sẽ dễ gợi ý module như đặt lịch, mã ưu đãi, CRM hoặc trang đích phù hợp hơn.'),
+            'tourism_hospitality_experience' => __('Với khách sạn, homestay hoặc trải nghiệm du lịch, nên ưu tiên Google Business, trang đích giới thiệu dịch vụ, trang đặt lịch hoặc form khách tiềm năng và Review Booster sau trải nghiệm. Đừng tự tạo link công khai nếu chưa có slug; hãy mở module tương ứng rồi copy link thật từ MLHUB.'),
+            'health_dental_fitness' => __('Với phòng khám, nha khoa, gym hoặc yoga, nên dùng đặt lịch, form tư vấn, góp ý riêng và CRM nhắc lịch. Chat chỉ gợi ý quy trình vận hành — không thay tư vấn y khoa, không hứa chữa khỏi hay kết quả điều trị; ưu tiên phản hồi trung tính và đo hiệu quả bằng báo cáo.'),
+            'technical_repair_maintenance' => __('Với sửa chữa, điện lạnh, rửa xe hoặc giặt ủi, nên dùng form khách tiềm năng nhận báo giá, trang đặt lịch chốt khung giờ, Google Business tăng tin cậy và Review Booster sau khi hoàn tất. CRM giúp nhắc gọi lại và chăm sóc khách cũ theo từng yêu cầu dịch vụ.'),
+            'education_training_coaching' => __('Với trung tâm, lớp học hoặc đào tạo, nên dùng trang đích giới thiệu khóa học, form khách tiềm năng nhận tư vấn, CRM chăm sóc phụ huynh/học viên và mẫu marketing cho tin nhắn tuyển sinh. Chat gợi ý quy trình; bài viết tuyển sinh dài nên sang AI Content hoặc mẫu marketing.'),
+            'wholesale_distribution' => __('Với đại lý/phân phối/bán sỉ, nên dùng form khách tiềm năng B2B, CRM phân nhóm đại lý theo vùng và trang đích giới thiệu chính sách giá sỉ. MLHUB giúp thu yêu cầu báo giá và theo dõi pipeline — không thay ERP tồn kho. Bước đầu: landing chính sách, form đăng ký đại lý, gắn nhãn CRM.'),
+            'professional_b2b_services' => __('Với agency, tư vấn, kế toán, luật hoặc dịch vụ B2B, nên dùng trang đích trình bày dịch vụ, form khách tiềm năng nhận brief, CRM pipeline theo từng khách và Google Business/review nếu có điểm giao dịch rõ. Ưu tiên đo nguồn lead và tạo việc chăm sóc tiếp theo.'),
+            'home_construction_interior' => __('Với nội thất, xây dựng hoặc sửa nhà, nên dùng form báo giá, trang đích dự án/dịch vụ, CRM chăm sóc từng hồ sơ và Review Booster sau bàn giao. Bắt đầu bằng landing mô tả quy trình làm việc và form thu nhu cầu — chat không thay hợp đồng hay bản vẽ kỹ thuật.'),
+            'transport_delivery_logistics' => __('Với vận tải, giao hàng hoặc logistics, nên dùng form báo giá/route, trang đích giới thiệu dịch vụ, CRM khách doanh nghiệp và báo cáo theo nguồn lead. Bước đầu: landing dịch vụ, form yêu cầu báo giá, phân nhóm CRM theo loại hàng hoặc khu vực.'),
+            'real_estate_rental_property' => __('Với bất động sản, cho thuê hoặc môi giới, nên dùng trang đích từng sản phẩm, form khách tiềm năng tư vấn, CRM pipeline theo nhu cầu và Google Business nếu có văn phòng/điểm giao dịch. Bắt đầu bằng landing rõ tiêu chí, form thu số liệu khách quan tâm — không hứa lợi nhuận hay pháp lý trong chat.'),
+            'digital_creator_online_business' => __('Với creator, livestream, ecommerce hoặc khóa học online, nên dùng trang đích, form thu lead/community, CRM theo dõi khách và mẫu marketing hoặc AI Content khi cần viết bài. Chat gợi ý công cụ — không soạn caption/script dài tại đây; mở AI Content hoặc AI Studio để tạo nội dung.'),
+            'small_manufacturing_processing_ocop' => __('Với xưởng sản xuất, gia công hoặc OCOP, nên dùng trang đích sản phẩm, form khách tiềm năng tìm đại lý, Google Business và CRM phân phối. Bước đầu: landing giới thiệu sản phẩm/chứng nhận, form đăng ký đại lý hoặc báo giá sỉ, theo dõi nguồn lead trong báo cáo.'),
+            'agriculture_fisheries_local_supply' => __('Với nông sản, thủy sản hoặc nhà vườn cung cấp hàng, nên dùng trang đích nguồn hàng, form báo giá/đặt sỉ, CRM khách sỉ và Google Business nếu có điểm bán cố định. Bắt đầu bằng landing mô tả sản phẩm theo mùa và form thu đơn hàng sỉ — chat không thay hợp đồng nông sản.'),
+            'culture_entertainment_sports_community' => __('Với karaoke, sân thể thao, câu lạc bộ hoặc sự kiện, nên dùng trang đặt lịch/đăng ký, trang đích sự kiện, mã ưu đãi/voucher và Review Booster sau trải nghiệm. Bước đầu: landing sự kiện hoặc bảng giá dịch vụ, form thu thông tin đăng ký, QR tại quầy/check-in.'),
+            'organization_association_public_community' => __('Với hiệp hội, cộng đồng hoặc chương trình chính quyền, nên dùng trang đích chương trình, form đăng ký tham gia, CRM danh sách thành viên và báo cáo theo dõi nguồn đăng ký. Bắt đầu bằng landing mô tả mục tiêu chương trình và form thu thông tin — chat không thay quy trình hành chính chính thức.'),
+            default => __('Nếu chưa rõ ngành hoặc kinh doanh nhiều lĩnh vực, hãy cho biết thêm ngành cụ thể hoặc cập nhật nhóm ngành trong hồ sơ cơ sở kinh doanh. Tạm thời bắt đầu từ cơ sở kinh doanh, một chiến dịch QR, form khách tiềm năng và báo cáo để có số liệu trước khi mở rộng module chuyên sâu.'),
         };
     }
 
@@ -580,14 +552,23 @@ class MLHUBAIResponseComposer
     protected function industryLabel(array $context): string
     {
         return match ($this->industryGroup($context)) {
-            'food_beverage_restaurant' => __('nhà hàng hoặc quán ăn'),
+            'food_beverage' => __('F&B'),
+            'retail_goods' => __('bán lẻ'),
             'beauty_personal_care' => __('spa/salon'),
-            'retail_store' => __('bán lẻ'),
-            'tourism_hospitality' => __('du lịch/lưu trú'),
-            'local_service_repair' => __('dịch vụ địa phương'),
-            'education_training' => __('giáo dục/đào tạo'),
+            'tourism_hospitality_experience' => __('du lịch/lưu trú'),
             'health_dental_fitness' => __('sức khỏe/thể thao'),
-            'professional_b2b' => __('B2B/dịch vụ chuyên môn'),
+            'technical_repair_maintenance' => __('sửa chữa/bảo trì'),
+            'education_training_coaching' => __('giáo dục/đào tạo'),
+            'wholesale_distribution' => __('phân phối/bán sỉ'),
+            'professional_b2b_services' => __('dịch vụ B2B'),
+            'home_construction_interior' => __('xây dựng/nội thất'),
+            'transport_delivery_logistics' => __('vận tải/giao hàng'),
+            'real_estate_rental_property' => __('bất động sản'),
+            'digital_creator_online_business' => __('kinh doanh online/creator'),
+            'small_manufacturing_processing_ocop' => __('sản xuất/OCOP'),
+            'agriculture_fisheries_local_supply' => __('nông/thủy sản'),
+            'culture_entertainment_sports_community' => __('giải trí/thể thao'),
+            'organization_association_public_community' => __('hiệp hội/cộng đồng'),
             default => __('cơ sở kinh doanh của bạn'),
         };
     }

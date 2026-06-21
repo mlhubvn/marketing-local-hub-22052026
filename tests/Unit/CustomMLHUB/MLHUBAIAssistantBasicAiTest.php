@@ -904,3 +904,113 @@ test('onboarding actions avoid ai studio unless user asks ai explicitly', functi
         ->toContain('Quản lý chiến dịch')
         ->not->toContain('Mở AI Studio');
 });
+
+test('industry recommendation covers all 18 business groups', function (string $question, string $snippet): void {
+    $resolver = new MLHUBAIIntentResolver;
+    $intents = array_column($resolver->resolveAll($question), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
+        'request' => ['question' => $question],
+    ]));
+
+    expect($intents[0])->toBe('industry_recommendation')
+        ->and($message)->toContain($snippet);
+})->with([
+    'food_beverage' => ['Tôi có quán ăn thì nên dùng MLHUB thế nào?', 'QR'],
+    'retail_goods' => ['Tôi kinh doanh bán lẻ thời trang thì dùng gì?', 'form khách tiềm năng'],
+    'beauty_personal_care' => ['Tôi có spa salon thì nên bắt đầu từ đâu?', 'đặt lịch'],
+    'tourism_hospitality_experience' => ['Tôi có homestay du lịch thì dùng gì?', 'Google Business'],
+    'health_dental_fitness' => ['Tôi có phòng khám nha khoa thì nên dùng gì?', 'góp ý riêng'],
+    'technical_repair_maintenance' => ['Tôi làm sửa chữa điện lạnh thì dùng gì?', 'báo giá'],
+    'education_training_coaching' => ['Tôi làm trung tâm tiếng Anh thì dùng gì?', 'trang đích'],
+    'wholesale_distribution' => ['Tôi làm đại lý phân phối mỹ phẩm thì dùng gì?', 'B2B'],
+    'professional_b2b_services' => ['Tôi là agency tư vấn B2B thì dùng gì?', 'pipeline'],
+    'home_construction_interior' => ['Tôi làm xây dựng nội thất thì dùng gì?', 'landing'],
+    'transport_delivery_logistics' => ['Tôi làm giao hàng logistics thì dùng gì?', 'báo cáo'],
+    'real_estate_rental_property' => ['Tôi làm bất động sản cho thuê thì dùng gì?', 'trang đích'],
+    'digital_creator_online_business' => ['Tôi kinh doanh online ecommerce thì dùng gì?', 'trang đích'],
+    'small_manufacturing_processing_ocop' => ['Tôi có xưởng OCOP thì bắt đầu từ đâu?', 'đại lý'],
+    'agriculture_fisheries_local_supply' => ['Tôi bán nông sản nhà vườn thì dùng gì?', 'sỉ'],
+    'culture_entertainment_sports_community' => ['Tôi có karaoke sân thể thao thì dùng gì?', 'mã ưu đãi'],
+    'organization_association_public_community' => ['Tôi là hiệp hội cộng đồng thì dùng gì?', 'báo cáo'],
+    'other_needs_classification' => ['Tôi chưa rõ ngành, mới đăng ký thì làm gì?', 'chưa rõ ngành'],
+]);
+
+test('industry alias map aligns with BusinessTypeCatalog group count', function (): void {
+    expect(MLHUBAIKnowledgeBase::industryGroupDetectionOrder())->toHaveCount(18)
+        ->and(array_keys(MLHUBAIKnowledgeBase::industryGroupAliasMap()))->toHaveCount(18);
+});
+
+test('unknown or mixed industry asks for clarification without falling back badly', function (): void {
+    $question = 'Tôi làm nhiều ngành khác nhau, chưa phân loại được thì MLHUB gợi ý gì?';
+    $intents = array_column((new MLHUBAIIntentResolver)->resolveAll($question), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
+        'request' => ['question' => $question],
+    ]));
+
+    expect($intents[0])->toBe('industry_recommendation')
+        ->and($message)
+        ->toContain('ngành')
+        ->toContain('cơ sở kinh doanh')
+        ->not->toContain('quán cà phê hoặc trà sữa');
+});
+
+test('health industry avoids medical overclaim', function (): void {
+    $question = 'Tôi có phòng khám, muốn dùng MLHUB thì nên làm gì?';
+    $message = (new MLHUBAIResponseComposer)->composeMany(
+        ['industry_recommendation'],
+        mlhubAssistantContext(['request' => ['question' => $question]]),
+    );
+
+    expect($message)
+        ->toContain('không thay tư vấn y khoa')
+        ->toContain('không hứa chữa khỏi')
+        ->not->toContain('điều trị thành công')
+        ->not->toContain('bảo đảm chữa');
+});
+
+test('creator content request routes to studio instead of writing long copy', function (): void {
+    $question = 'Tôi là creator, viết caption khuyến mãi livestream giúp tôi';
+    $intents = array_column((new MLHUBAIIntentResolver)->resolveAll($question), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
+        'request' => ['question' => $question],
+    ]));
+
+    expect($intents[0])->toBe('ai_content_writer')
+        ->and($message)
+        ->toContain('AI Content')
+        ->toContain('AI Studio')
+        ->and(mb_strlen($message))->toBeLessThan(700);
+});
+
+test('wholesale and distribution recommends b2b lead and crm', function (): void {
+    $question = 'Tôi làm đại lý phân phối mỹ phẩm thì nên dùng MLHUB thế nào?';
+    $composer = new MLHUBAIResponseComposer;
+    $context = mlhubAssistantContext(['request' => ['question' => $question]]);
+    $message = $composer->composeMany(['industry_recommendation'], $context);
+    $labels = array_column($composer->actionsFor(['industry_recommendation'], $context), 'label');
+
+    expect($message)->toContain('CRM')->toContain('form khách tiềm năng')
+        ->and($labels)->toContain('Mở form khách tiềm năng');
+});
+
+test('real estate recommends landing lead and crm', function (): void {
+    $question = 'Tôi làm bất động sản cho thuê, muốn lấy lead khách quan tâm thì dùng gì?';
+    $composer = new MLHUBAIResponseComposer;
+    $context = mlhubAssistantContext(['request' => ['question' => $question]]);
+    $message = $composer->composeMany(['industry_recommendation'], $context);
+    $labels = array_column($composer->actionsFor(['industry_recommendation'], $context), 'label');
+
+    expect($message)->toContain('trang đích')->toContain('CRM')
+        ->and($labels)->toContain('Mở trang đích')->toContain('Mở form khách tiềm năng');
+});
+
+test('organizations recommends registration lead reports', function (): void {
+    $question = 'Tôi là hiệp hội, chạy chương trình chính quyền thì nên dùng gì?';
+    $composer = new MLHUBAIResponseComposer;
+    $context = mlhubAssistantContext(['request' => ['question' => $question]]);
+    $message = $composer->composeMany(['industry_recommendation'], $context);
+    $labels = array_column($composer->actionsFor(['industry_recommendation'], $context), 'label');
+
+    expect($message)->toContain('đăng ký')->toContain('báo cáo')
+        ->and($labels)->toContain('Mở trang đích')->toContain('Xem báo cáo');
+});

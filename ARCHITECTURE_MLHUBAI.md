@@ -422,7 +422,7 @@ Không thực hiện trong lần này. Đây là backlog để bạn chọn làm
 | Composer dùng top campaigns/recent activity | Xong | `MLHUBAIResponseComposer.php` | `daily_briefing` và `top_campaigns` đã đọc `top_campaigns[]`; `daily_briefing` đã đọc `recent_activity[]`. |
 | Thêm response segments cho P0 | Xong | `MLHUBAIResponseComposer.php` | Có đoạn trả lời riêng cho booking, coupon, feedback, leads, conversion, credits, plan limits, QR scan, Review Booster. |
 | CTA route liên quan P0 | Xong | `MLHUBAIKnowledgeBase.php`, `MLHUBAIResponseComposer.php` | Đã mở rộng CTA tới dashboard, reports, chatmlhubai, ai settings, booking pages, coupon campaigns, feedback forms, lead forms, credits, packages. |
-| Unit test bảo vệ Basic AI | Đã ghi nhận 41 cases — **chưa chạy được** | `tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` | Bao gồm P0, P1, P1.3 everyday Q&A, Phase B plan/credit snapshot, Phase C industry/scenario, footer, onboarding/CRM contamination, CTA tiếng Việt. Host Windows thiếu `php` trên PATH (2026-06-21). |
+| Unit test bảo vệ Basic AI | Đã ghi nhận **65 cases** (49 functions, gồm dataset 18 nhóm ngành) — **chưa chạy được** | `tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` | Bao gồm P0, P1, P1.3, Phase B plan/credit, **Phase C.1 — 18 nhóm BusinessTypeCatalog**, footer, onboarding/CRM, CTA Việt. Host Windows thiếu `php` trên PATH (2026-06-21). |
 
 ### 12.1 Ma trận P0 sau nâng cấp
 
@@ -692,7 +692,7 @@ Chat MLHUB AI **không** lưu taxonomy ngành nghề đầy đủ. Nguồn sự 
 
 **Trong code assistant hiện tại:**
 
-- Intent `industry_recommendation` — keyword ngành (F&B, spa, bán lẻ…) → template trả lời rule-based theo ngành/tình huống từ `request.question` scalar; chưa đọc `lb_businesses.type` động.
+- Intent `industry_recommendation` — **18 nhóm** `BusinessTypeCatalog` (alias + template + CTA tối đa 3); nhận diện từ câu hỏi runtime — **chưa** đọc `lb_businesses.type` động.
 - CTA gợi ý: context-aware theo ngành/tình huống, vẫn lọc qua `Route::has()`.
 
 Khi triển khai gợi ý theo type thật: đọc metadata từ `BusinessTypeCatalog` + map sang intent/CTA — **không** nhân bản ma trận ngành dài trong file này.
@@ -821,11 +821,12 @@ Khi triển khai gợi ý theo type thật: đọc metadata từ `BusinessTypeCa
 
 ### Phase C — Scenario & industry response refinement
 
-| # | Việc |
-| --- | --- |
-| C1 | Xong: `industry_recommendation` nhận diện ngành từ câu hỏi runtime theo SOP §5 |
-| C2 | Xong: nhiều template ngắn theo nhóm ngành (F&B, beauty, retail…) — rule-based, không LLM |
-| C3 | Xong: bổ sung keyword/scenario alias từ `ARCHITECTURE_SOP.md` §E; chưa đọc sâu `BusinessTypeCatalog` runtime |
+| # | Việc | Trạng thái |
+| --- | --- | --- |
+| C1 | **Phase C.1 (2026-06-21):** mở rộng `industry_recommendation` phủ **18 nhóm** `BusinessTypeCatalog` — `industryGroupAliasMap()`, `industryGroupRouteActions()`, template `composeIndustryRecommendation()` | **Xong** |
+| C1 note | Nhận diện ngành từ **câu hỏi runtime** (normalize không dấu); **chưa** đọc `lb_businesses.type` / taxonomy snapshot trong ContextBuilder | Rule-based Basic AI |
+| C2 | Scenario overlay (review collection, phone collection, google→booking…) giữ trước template ngành | **Xong** (trước C.1) |
+| C3 | Keyword alias bổ sung wholesale/OCOP/creator/hiệp hội…; content creation ưu tiên `ai_content_writer` trước industry | **Xong** trong C.1 |
 
 ### Phase D — Chat → Studio handoff refinement
 

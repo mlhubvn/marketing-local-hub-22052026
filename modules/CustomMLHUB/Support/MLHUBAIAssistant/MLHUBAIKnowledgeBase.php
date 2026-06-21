@@ -39,6 +39,16 @@ class MLHUBAIKnowledgeBase
                 'phòng khám', 'phong kham', 'nha khoa', 'gym', 'yoga', 'fitness',
                 'agency', 'tư vấn', 'tu van', 'kế toán', 'ke toan', 'pháp lý',
                 'phap ly', 'bất động sản', 'bat dong san', 'môi giới', 'moi gioi',
+                'đại lý', 'dai ly', 'phân phối', 'phan phoi', 'bán sỉ', 'ban si',
+                'nội thất', 'noi that', 'xây dựng', 'xay dung', 'sửa nhà', 'sua nha',
+                'vận tải', 'van tai', 'giao hàng', 'giao hang', 'logistics',
+                'creator', 'livestream', 'ecommerce', 'freelancer', 'online course',
+                'ocop', 'xưởng', 'xuong', 'sản xuất', 'san xuat', 'gia công', 'gia cong',
+                'nông sản', 'nong san', 'thủy sản', 'thuy san', 'nhà vườn', 'nha vuon',
+                'karaoke', 'sân thể thao', 'san the thao', 'câu lạc bộ', 'cau lac bo',
+                'hiệp hội', 'hiep hoi', 'cộng đồng', 'cong dong', 'chương trình chính quyền',
+                'chuong trinh chinh quyen', 'chưa rõ ngành', 'chua ro nganh', 'nhiều ngành',
+                'nhieu nganh',
                 'nên dùng gì', 'nen dung gi',
                 'dùng tính năng nào', 'dung tinh nang nao',
                 'nên dùng tính năng nào đầu tiên', 'nen dung tinh nang nao dau tien',
@@ -509,6 +519,229 @@ class MLHUBAIKnowledgeBase
             'new_customers' => [['portal.customers', __('Mở khách hàng')]],
             'businesses' => [['portal.businesses', __('Quản lý cơ sở kinh doanh')]],
             default => [],
+        };
+    }
+
+    /**
+     * Detection order for industry group (more specific groups first).
+     *
+     * @return list<string>
+     */
+    public static function industryGroupDetectionOrder(): array
+    {
+        return [
+            'other_needs_classification',
+            'organization_association_public_community',
+            'digital_creator_online_business',
+            'small_manufacturing_processing_ocop',
+            'agriculture_fisheries_local_supply',
+            'wholesale_distribution',
+            'real_estate_rental_property',
+            'transport_delivery_logistics',
+            'home_construction_interior',
+            'culture_entertainment_sports_community',
+            'professional_b2b_services',
+            'education_training_coaching',
+            'health_dental_fitness',
+            'technical_repair_maintenance',
+            'tourism_hospitality_experience',
+            'beauty_personal_care',
+            'retail_goods',
+            'food_beverage',
+        ];
+    }
+
+    /**
+     * Alias keywords per BusinessTypeCatalog group (ASCII-friendly matching).
+     *
+     * @return array<string, list<string>>
+     */
+    public static function industryGroupAliasMap(): array
+    {
+        return [
+            'food_beverage' => [
+                'quan an', 'nha hang', 'hai san', 'quan ca phe', 'quan cafe', 'ca phe', 'cafe',
+                'tra sua', 'quan tra sua', 'quan nuoc', 'nuoc ep', 'sinh to', 'tiem banh', 'bakery',
+                'bar', 'pub', 'do an', 'food beverage', 'nau an', 'catering',
+            ],
+            'retail_goods' => [
+                'ban le', 'cua hang', 'tap hoa', 'thoi trang', 'sieu thi', 'tien loi',
+                'ban hang le', 'hang tieu dung', 'my pham ban le', 'shop thoi trang',
+            ],
+            'beauty_personal_care' => [
+                'spa', 'salon', 'nail', 'goi dau', 'duong sinh', 'lam dep', 'tiem toc',
+                'barber', 'cat toc', 'mi', 'makeup', 'skincare clinic',
+            ],
+            'tourism_hospitality_experience' => [
+                'khach san', 'homestay', 'villa', 'resort', 'du lich', 'tour', 'luu tru',
+                'travel', 'hostel', 'airbnb', 'experience tour',
+            ],
+            'health_dental_fitness' => [
+                'phong kham', 'nha khoa', 'gym', 'yoga', 'fitness', 'pilates', 'tram rang',
+                'phong tap', 'personal trainer', 'cham soc suc khoe',
+            ],
+            'technical_repair_maintenance' => [
+                'sua chua', 'dien lanh', 'garage', 'rua xe', 'giat ui', 'bao tri',
+                'tho dien', 'tho nuoc', 'sua xe', 'may lanh', 'dich vu sua chua',
+            ],
+            'education_training_coaching' => [
+                'trung tam', 'trung tam tieng anh', 'trung tam tieng', 'lop hoc', 'dao tao',
+                'giao duc', 'khoa hoc', 'hoc vien', 'gia su', 'coaching', 'day kem',
+                'trung tam anh ngu', 'ielts', 'tieng anh',
+            ],
+            'wholesale_distribution' => [
+                'dai ly', 'phan phoi', 'ban si', 'nha phan phoi', 'ctv ban si',
+                'dai ly my pham', 'phan phoi my pham', 'phan phoi thuc pham', 'ho so si',
+            ],
+            'professional_b2b_services' => [
+                'agency', 'tu van', 'ke toan', 'luat', 'phap ly', 'cong ty dich vu',
+                'dich vu chuyen mon', 'b2b', 'marketing agency', 'consulting',
+            ],
+            'home_construction_interior' => [
+                'noi that', 'xay dung', 'sua nha', 'kien truc', 'thiet ke noi that',
+                'vat lieu xay dung', 'thi cong', 'rem cua', 'son nha',
+            ],
+            'transport_delivery_logistics' => [
+                'van tai', 'giao hang', 'logistics', 'ship hang', 'cho thue xe',
+                'taxi', 'tai xe', 'kho van', 'giao nhanh',
+            ],
+            'real_estate_rental_property' => [
+                'bat dong san', 'bds', 'cho thue nha', 'cho thue mat bang', 'moi gioi nha dat',
+                'van phong cho thue', 'can ho cho thue', 'moi gioi bat dong san',
+            ],
+            'digital_creator_online_business' => [
+                'creator', 'content creator', 'livestream', 'streamer', 'ecommerce',
+                'ban hang online', 'freelancer', 'khoa hoc online', 'shop online',
+                'tiktok shop', 'ban online', 'kinh doanh online',
+            ],
+            'small_manufacturing_processing_ocop' => [
+                'ocop', 'xuong', 'san xuat', 'gia cong', 'che bien', 'nha may nho',
+                'lang nghe', 'go ocop', 'xuong san xuat',
+            ],
+            'agriculture_fisheries_local_supply' => [
+                'nong san', 'thuy san', 'nha vuon', 'trang trai', 'nong trai',
+                'vuon rau', 'ho nuoi', 'cung cap nong san', 'hang tuoi',
+            ],
+            'culture_entertainment_sports_community' => [
+                'karaoke', 'san the thao', 'cau lac bo', 'su kien', 'rap phim', 'bowling',
+                'phong tap cong cong', 'team building', 'am nhac', 'phong choi',
+            ],
+            'organization_association_public_community' => [
+                'hiep hoi', 'cong dong', 'chuong trinh chinh quyen', 'xa phuong',
+                'doan the', 'clb', 'association', 'to chuc cong dong', 'hoi nhom',
+            ],
+            'other_needs_classification' => [
+                'chua ro nganh', 'nhieu nganh', 'lam nhieu nganh', 'chua phan loai',
+                'chua biet nganh', 'moi dang ky chua ro', 'chua xac dinh nganh',
+                'nhieu linh vuc', 'hon hop nganh',
+            ],
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function industryGroupAliases(string $group): array
+    {
+        return self::industryGroupAliasMap()[$group] ?? [];
+    }
+
+    /**
+     * @return list<array{0: string, 1: string}>
+     */
+    public static function industryGroupRouteActions(string $group): array
+    {
+        return match ($group) {
+            'food_beverage' => [
+                ['portal.qr-campaigns', __('Quản lý chiến dịch')],
+                ['portal.review-booster', __('Mở công cụ xin đánh giá')],
+                ['portal.coupon-campaigns', __('Mở mã ưu đãi')],
+            ],
+            'retail_goods' => [
+                ['portal.lead-forms', __('Mở form khách tiềm năng')],
+                ['portal.coupon-campaigns', __('Mở mã ưu đãi')],
+                ['portal.crm.customers', __('Mở khách hàng trong CRM')],
+            ],
+            'beauty_personal_care' => [
+                ['portal.booking-pages', __('Mở trang đặt lịch')],
+                ['portal.review-booster', __('Mở công cụ xin đánh giá')],
+                ['portal.coupon-campaigns', __('Mở mã ưu đãi')],
+            ],
+            'tourism_hospitality_experience' => [
+                ['portal.google-business', __('Mở Google Business')],
+                ['portal.landing-pages', __('Mở trang đích')],
+                ['portal.booking-pages', __('Mở trang đặt lịch')],
+            ],
+            'health_dental_fitness' => [
+                ['portal.booking-pages', __('Mở trang đặt lịch')],
+                ['portal.lead-forms', __('Mở form khách tiềm năng')],
+                ['portal.feedback-forms', __('Mở form góp ý')],
+            ],
+            'technical_repair_maintenance' => [
+                ['portal.lead-forms', __('Mở form khách tiềm năng')],
+                ['portal.booking-pages', __('Mở trang đặt lịch')],
+                ['portal.review-booster', __('Mở công cụ xin đánh giá')],
+            ],
+            'education_training_coaching' => [
+                ['portal.landing-pages', __('Mở trang đích')],
+                ['portal.lead-forms', __('Mở form khách tiềm năng')],
+                ['portal.crm.customers', __('Mở khách hàng trong CRM')],
+            ],
+            'wholesale_distribution' => [
+                ['portal.lead-forms', __('Mở form khách tiềm năng')],
+                ['portal.crm.segments', __('Mở nhóm khách hàng CRM')],
+                ['portal.landing-pages', __('Mở trang đích')],
+            ],
+            'professional_b2b_services' => [
+                ['portal.landing-pages', __('Mở trang đích')],
+                ['portal.lead-forms', __('Mở form khách tiềm năng')],
+                ['portal.crm.customers', __('Mở khách hàng trong CRM')],
+            ],
+            'home_construction_interior' => [
+                ['portal.lead-forms', __('Mở form khách tiềm năng')],
+                ['portal.landing-pages', __('Mở trang đích')],
+                ['portal.crm.customers', __('Mở khách hàng trong CRM')],
+            ],
+            'transport_delivery_logistics' => [
+                ['portal.lead-forms', __('Mở form khách tiềm năng')],
+                ['portal.landing-pages', __('Mở trang đích')],
+                ['portal.reports', __('Xem báo cáo')],
+            ],
+            'real_estate_rental_property' => [
+                ['portal.landing-pages', __('Mở trang đích')],
+                ['portal.lead-forms', __('Mở form khách tiềm năng')],
+                ['portal.crm.customers', __('Mở khách hàng trong CRM')],
+            ],
+            'digital_creator_online_business' => [
+                ['portal.landing-pages', __('Mở trang đích')],
+                ['portal.ai-content', __('Mở công cụ viết nội dung AI')],
+                ['portal.marketing-templates', __('Mở mẫu marketing')],
+            ],
+            'small_manufacturing_processing_ocop' => [
+                ['portal.landing-pages', __('Mở trang đích')],
+                ['portal.lead-forms', __('Mở form khách tiềm năng')],
+                ['portal.google-business', __('Mở Google Business')],
+            ],
+            'agriculture_fisheries_local_supply' => [
+                ['portal.landing-pages', __('Mở trang đích')],
+                ['portal.lead-forms', __('Mở form khách tiềm năng')],
+                ['portal.crm.customers', __('Mở khách hàng trong CRM')],
+            ],
+            'culture_entertainment_sports_community' => [
+                ['portal.booking-pages', __('Mở trang đặt lịch')],
+                ['portal.landing-pages', __('Mở trang đích')],
+                ['portal.coupon-campaigns', __('Mở mã ưu đãi')],
+            ],
+            'organization_association_public_community' => [
+                ['portal.landing-pages', __('Mở trang đích')],
+                ['portal.lead-forms', __('Mở form khách tiềm năng')],
+                ['portal.reports', __('Xem báo cáo')],
+            ],
+            default => [
+                ['portal.businesses', __('Quản lý cơ sở kinh doanh')],
+                ['portal.qr-campaigns', __('Quản lý chiến dịch')],
+                ['portal.lead-forms', __('Mở form khách tiềm năng')],
+            ],
         };
     }
 
