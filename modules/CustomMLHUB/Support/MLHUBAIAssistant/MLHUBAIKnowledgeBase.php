@@ -802,7 +802,7 @@ class MLHUBAIKnowledgeBase
         return self::containsNormalizedNeedle($normalized, [
             'uu tien', 'nen uu tien', 'nen dung', 'nen chon', 'the nao', ' hay ', 'landing page',
             'trang dich', 'bao cao', 'crm', 'qr', 'cong cu nao', 'tinh nang nao', 'tool nao',
-            'marketing templates', 'mau marketing',
+            'marketing templates', 'mau marketing', 'trong nganh', 'nganh nay',
         ]);
     }
 

@@ -175,6 +175,14 @@ class MLHUBAIIntentResolver
             return $focused === [] ? $matches : $focused;
         }
 
+        if ($this->isNewAccountOnboardingQuestion($normalized)) {
+            return [[
+                'intent' => 'onboarding',
+                'confidence' => 1.0,
+                'matched_keywords' => [],
+            ]];
+        }
+
         if (MLHUBAIKnowledgeBase::isMultiScenarioOrderingQuestion($normalized)) {
             return [[
                 'intent' => 'feedback',
@@ -200,6 +208,10 @@ class MLHUBAIIntentResolver
         }
 
         $focus = match (true) {
+            $this->containsAny($normalized, [
+                'tao co so truoc hay tao chien dich truoc',
+                'tao co so kinh doanh truoc hay tao chien dich truoc',
+            ]) => ['onboarding'],
             $this->isIndustryQuestion($normalized) => ['industry_recommendation'],
             $this->isNoCreditCampaignQuestion($normalized) => ['credits'],
             $this->isBranchPerformanceQuestion($normalized) => ['business_locations'],
@@ -208,11 +220,6 @@ class MLHUBAIIntentResolver
             $this->isGoogleToBookingQuestion($normalized) => ['google_business', 'booking', 'landing_pages'],
             $this->isPhoneCollectionQuestion($normalized) => ['leads'],
             $this->isReviewCollectionQuestion($normalized) => ['review_booster'],
-            $this->containsAny($normalized, [
-                'tao co so truoc hay tao chien dich truoc',
-                'tao co so kinh doanh truoc hay tao chien dich truoc',
-                'nen dung tinh nang nao dau tien',
-            ]) => ['onboarding'],
             $this->containsAny($normalized, [
                 'de lai so dien thoai',
                 'lay so dien thoai',
@@ -254,6 +261,10 @@ class MLHUBAIIntentResolver
     protected function isIndustryQuestion(string $normalized): bool
     {
         if (MLHUBAIKnowledgeBase::detectStudioHandoff($normalized) !== null) {
+            return false;
+        }
+
+        if ($this->isNewAccountOnboardingQuestion($normalized)) {
             return false;
         }
 
@@ -335,7 +346,7 @@ class MLHUBAIIntentResolver
 
     protected function isCurrentPlanLimitQuestion(string $normalized): bool
     {
-        return $this->containsAny($normalized, ['goi hien tai', 'goi dang dung'])
+        return $this->containsAny($normalized, ['goi hien tai', 'goi dang dung', 'goi cua toi'])
             && $this->containsAny($normalized, [
                 'gioi han',
                 'quota',
@@ -343,6 +354,31 @@ class MLHUBAIIntentResolver
                 'con bao nhieu',
                 'tao duoc bao nhieu',
             ]);
+    }
+
+    protected function isNewAccountOnboardingQuestion(string $normalized): bool
+    {
+        if (! $this->containsAny($normalized, [
+            'moi tao tai khoan',
+            'moi dang ky',
+            'vua tao tai khoan',
+            'moi tao account',
+            'tai khoan moi',
+            'account moi',
+        ])) {
+            return false;
+        }
+
+        return $this->containsAny($normalized, [
+            'bat dau',
+            'lam gi',
+            'lam sao',
+            'buoc dau',
+            'truoc',
+            'tu dau',
+            'nen lam',
+            'huong dan',
+        ]);
     }
 
     /**

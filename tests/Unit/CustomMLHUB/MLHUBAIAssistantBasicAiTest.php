@@ -1245,3 +1245,99 @@ test('phase E1 regression credit question still returns credits', function (): v
 
     expect($intents)->toContain('credits');
 });
+
+test('phase E2 new account start question stays onboarding not industry', function (): void {
+    $question = 'Tôi mới tạo tài khoản thì bắt đầu từ đâu?';
+    $intents = array_column((new MLHUBAIIntentResolver)->resolveAll($question), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
+        'request' => ['question' => $question],
+        'onboarding' => ['create_business', 'create_campaign'],
+    ]));
+
+    expect($intents[0])->toBe('onboarding')
+        ->and($message)->toContain('cơ sở kinh doanh')
+        ->and($message)->not->toContain('nhiều nhóm ngành');
+});
+
+test('phase E2 zero credit balance still states basic ai does not consume credits', function (): void {
+    $message = (new MLHUBAIResponseComposer)->composeMany(['credits'], mlhubAssistantContext([
+        'credits' => [
+            'available' => true,
+            'remaining' => 0,
+            'used' => 50,
+            'limit' => 50,
+            'topup_remaining' => 0,
+            'unlimited' => false,
+            'low_balance' => true,
+            'costs' => ['mlhub_ai_chat' => 1],
+        ],
+    ]));
+
+    expect($message)->toContain('0')
+        ->toContain('không trừ tín dụng AI')
+        ->toContain('Câu trả lời có sử dụng số liệu thực tế');
+});
+
+test('phase E2 six industry question uses batch summary not single template', function (): void {
+    $question = 'Tôi có quán cà phê, nhà hàng hải sản, spa, bán lẻ mỹ phẩm, khách sạn homestay và phòng khám nha khoa. MLHUB nên ưu tiên gì?';
+    $resolver = new MLHUBAIIntentResolver;
+    $composer = new MLHUBAIResponseComposer;
+    $context = mlhubAssistantContext(['request' => ['question' => $question]]);
+    $intents = array_column($resolver->resolveAll($question), 'intent');
+    $message = $composer->composeMany($intents, $context);
+
+    expect(count(MLHUBAIKnowledgeBase::detectMatchedIndustryGroups($question)))->toBeGreaterThanOrEqual(3)
+        ->and($intents[0])->toBe('industry_recommendation')
+        ->and($message)->toContain('nhiều nhóm ngành')
+        ->and($message)->toContain('tri thức nội bộ')
+        ->and($message)->not->toContain('Với spa, salon');
+});
+
+test('phase E2 creator operational question stays industry guidance not studio', function (): void {
+    $question = 'Tôi làm creator livestream ecommerce thì nên dùng MLHUB thế nào?';
+    $intents = array_column((new MLHUBAIIntentResolver)->resolveAll($question), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
+        'request' => ['question' => $question],
+    ]));
+
+    expect($intents[0])->toBe('industry_recommendation')
+        ->and($intents)->not->toContain('ai_content_writer')
+        ->and($message)->toContain('trang đích')
+        ->and($message)->not->toContain('không viết caption');
+});
+
+test('phase E2 ai content tool advisory within industry does not studio handoff', function (): void {
+    $question = 'AI Content nên dùng như công cụ nào trong ngành spa?';
+    $intents = array_column((new MLHUBAIIntentResolver)->resolveAll($question), 'intent');
+
+    expect($intents)->not->toContain('ai_content_writer')
+        ->and($intents)->not->toContain('ai_studio')
+        ->and(MLHUBAIKnowledgeBase::detectStudioHandoff($question))->toBeNull();
+});
+
+test('phase E2 assistant attaches request question after context build not inside cache payload', function (): void {
+    $cachedContext = mlhubAssistantContext();
+    $builder = new class($cachedContext) extends MLHUBAIContextBuilder
+    {
+        public function __construct(private array $context) {}
+
+        public function build(int $userId): array
+        {
+            return $this->context;
+        }
+    };
+
+    $service = new MLHUBAIAssistantService(
+        new OptionStore,
+        $builder,
+        new MLHUBAIIntentResolver,
+        new MLHUBAIResponseComposer,
+    );
+
+    $question = 'Tôi làm spa, nên dùng MLHUB tính năng nào trước?';
+    $response = $service->ask(1, $question, false, false);
+
+    expect($cachedContext)->not->toHaveKey('request')
+        ->and($response['message'])->toContain('đặt lịch')
+        ->and($response['intent'])->toBe('industry_recommendation');
+});
