@@ -168,18 +168,15 @@ class MLHUBAIIntentResolver
     {
         $focus = match (true) {
             $this->isCurrentPlanLimitQuestion($normalized) => ['plan_limits'],
-            $this->containsAny($normalized, [
-                'quan ca phe',
-                'quan cafe',
-                'quan tra sua',
-                'tra sua',
-                'quan an',
-                'nha hang',
-                'spa',
-                'salon',
-                'ban le',
-                'khach san',
-            ]) => ['industry_recommendation'],
+            $this->isIndustryQuestion($normalized) => ['industry_recommendation'],
+            $this->isContentCreationQuestion($normalized) => ['ai_content_writer'],
+            $this->isNoCreditCampaignQuestion($normalized) => ['credits'],
+            $this->isBranchPerformanceQuestion($normalized) => ['business_locations'],
+            $this->isQrHighScanLowLeadQuestion($normalized) => ['conversion'],
+            $this->isLowRatingQuestion($normalized) => ['feedback'],
+            $this->isGoogleToBookingQuestion($normalized) => ['google_business', 'booking', 'landing_pages'],
+            $this->isPhoneCollectionQuestion($normalized) => ['leads'],
+            $this->isReviewCollectionQuestion($normalized) => ['review_booster'],
             $this->containsAny($normalized, [
                 'tao co so truoc hay tao chien dich truoc',
                 'tao co so kinh doanh truoc hay tao chien dich truoc',
@@ -221,6 +218,123 @@ class MLHUBAIIntentResolver
         ));
 
         return $focused === [] ? $matches : $focused;
+    }
+
+    protected function isIndustryQuestion(string $normalized): bool
+    {
+        return $this->containsAny($normalized, [
+            'quan ca phe',
+            'quan cafe',
+            'quan tra sua',
+            'tra sua',
+            'quan nuoc',
+            'quan an',
+            'nha hang',
+            'hai san',
+            'spa',
+            'goi dau duong sinh',
+            'salon',
+            'nail',
+            'lam dep',
+            'ban le',
+            'my pham',
+            'thoi trang',
+            'tap hoa',
+            'khach san',
+            'homestay',
+            'du lich',
+            'sua chua',
+            'dien lanh',
+            'garage',
+            'rua xe',
+            'giat ui',
+            'trung tam',
+            'lop hoc',
+            'dao tao',
+            'giao duc',
+            'khoa hoc',
+            'phong kham',
+            'nha khoa',
+            'gym',
+            'yoga',
+            'fitness',
+            'agency',
+            'tu van',
+            'ke toan',
+            'phap ly',
+            'bat dong san',
+            'moi gioi',
+        ]);
+    }
+
+    protected function isContentCreationQuestion(string $normalized): bool
+    {
+        return $this->containsAny($normalized, [
+            'tao noi dung',
+            'viet caption',
+            'caption',
+            'noi dung facebook',
+            'bai quang cao',
+            'viet bai',
+        ]);
+    }
+
+    protected function isNoCreditCampaignQuestion(string $normalized): bool
+    {
+        return $this->containsAny($normalized, ['khong muon ton', 'khong ton diem', 'khong ton tin dung', 'khong ton credit'])
+            && $this->containsAny($normalized, ['chien dich', 'keo khach cu', 'khach cu quay lai', 'ma uu dai', 'coupon']);
+    }
+
+    protected function isBranchPerformanceQuestion(string $normalized): bool
+    {
+        return $this->containsAny($normalized, ['chi nhanh', 'dia diem', 'co so con'])
+            && $this->containsAny($normalized, ['keo khach', 'tot nhat', 'hieu qua', 'so sanh']);
+    }
+
+    protected function isQrHighScanLowLeadQuestion(string $normalized): bool
+    {
+        return $this->containsAny($normalized, ['qr', 'luot quet'])
+            && $this->containsAny($normalized, ['it khach de lai thong tin', 'it de lai thong tin', 'it lead', 'it so dien thoai', 'nhieu luot quet nhung it']);
+    }
+
+    protected function isLowRatingQuestion(string $normalized): bool
+    {
+        return $this->containsAny($normalized, [
+            'danh gia 1 sao',
+            'danh gia 2 sao',
+            'danh gia 3 sao',
+            'review xau',
+            'danh gia thap',
+            'rating thap',
+            'khach khong hai long',
+        ]);
+    }
+
+    protected function isGoogleToBookingQuestion(string $normalized): bool
+    {
+        return $this->containsAny($normalized, ['google', 'tim tren google', 'google nhieu nguoi xem'])
+            && $this->containsAny($normalized, ['it dat ban', 'it dat lich', 'it booking', 'it khach dat']);
+    }
+
+    protected function isPhoneCollectionQuestion(string $normalized): bool
+    {
+        return $this->containsAny($normalized, [
+            'de lai so dien thoai',
+            'lay so dien thoai',
+            'thu so dien thoai',
+            'de lai thong tin',
+            'form tu van',
+        ]);
+    }
+
+    protected function isReviewCollectionQuestion(string $normalized): bool
+    {
+        return $this->containsAny($normalized, [
+            'khong de lai danh gia',
+            'xin danh gia',
+            'lay danh gia',
+            'tang danh gia',
+        ]);
     }
 
     protected function isCurrentPlanLimitQuestion(string $normalized): bool

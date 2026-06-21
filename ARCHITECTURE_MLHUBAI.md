@@ -22,7 +22,7 @@ Tính năng MLHUBAI hiện đã có khung khả dụng cho giai đoạn "trợ l
 - Có context builder đọc metrics thật: business, campaign, active campaign, visits, leads, bookings, coupon claims, feedback, conversion rate, khách mới, review, top campaigns, recent activity.
 - Có CTA link theo intent: customers, QR campaigns, review booster, reports, businesses, AI Studio.
 
-Tuy nhiên, để Basic AI trả lời "mượt" như trợ lý hàng ngày, vẫn còn khoảng trống runtime ngoài Phase B: CRM/Google/automation/loyalty chưa có snapshot sâu; `industry_recommendation` mới là template rule-based (chưa map `lb_businesses.type`). Ma trận intent trong code hiện có **34 intent** trong `MLHUBAIKnowledgeBase::intentKeywords()` (xem §4.1, §12–§13).
+Tuy nhiên, để Basic AI trả lời "mượt" như trợ lý hàng ngày, vẫn còn khoảng trống runtime ngoài Phase C: CRM/Google/automation/loyalty chưa có snapshot sâu; `industry_recommendation` đã có template rule-based theo ngành/tình huống từ câu hỏi, nhưng chưa đọc sâu `lb_businesses.type`. Ma trận intent trong code hiện có **34 intent** trong `MLHUBAIKnowledgeBase::intentKeywords()` (xem §4.1, §12–§13).
 
 Khuyến nghị: trước khi dùng token LLM, nên mở rộng Basic AI thành một "knowledge router" nội bộ: intent matrix + metric matrix + URL matrix + question bank + response segment bank. Các đề xuất code nằm ở cuối file và cần được duyệt trước khi làm.
 
@@ -96,7 +96,7 @@ Nguyên tắc tốt đã có:
 | Resolver | normalize + priority + dedupe | `MLHUBAIIntentResolver`: `normalize()`, `intentPriority()`, `focusEverydayQuestion()`, `removeDuplicateHelpCredit()`, `removeGenericNextSteps()`, `removeLooseDailyBriefing()`, `removeReviewDuplication()`; câu navigation ưu tiên 1 intent |
 | Cache context | 60 giây | `MLHUBAIContextBuilder::CACHE_TTL_SECONDS` |
 | Giới hạn input | 2–500 ký tự | Livewire validation |
-| Unit tests | 31 cases | `tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` — **chưa chạy được** trên host (thiếu `php` PATH) |
+| Unit tests | 41 cases | `tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` — **chưa chạy được** trên host (thiếu `php` PATH) |
 
 > **Lưu ý:** §4.2 bên dưới là **ảnh chụp baseline trước P0/P1** (2026-06-20). Ma trận intent/keyword đầy đủ sau nâng cấp → §12.1, §13 và `MLHUBAIKnowledgeBase.php`.
 
@@ -150,7 +150,7 @@ Nguyên tắc tốt đã có:
 | Basic/Advanced toggle | Đã có UI và logic. Basic không dùng credit. Advanced cần API key và credit. |
 | Context live data | Đã gom data thật từ dashboard/growth modules + plan/credit snapshot qua `MLHUBAIContextBuilder` | Chưa có CRM/Google/automation chi tiết |
 | Intent matching | Đã có normalize, multi-intent, priority, dedupe, focus câu hỏi đời thường | Vẫn `str_contains` trên bản normalized — chưa fuzzy typo |
-| Response templates | 33 intent + unknown; footer phân biệt metric vs guidance | `industry_recommendation` còn 1 template F&B cố định |
+| Response templates | 33 intent + unknown; footer phân biệt metric vs guidance | `industry_recommendation` đã tách template theo ngành/tình huống Phase C |
 | CTA action | 20+ intent; `Route::has()` — route module tắt thì không render | Tối đa 3 action/response; onboarding **không** gợi ý Studio mặc định |
 | Credit | Advanced AI trừ `mlhub_ai_chat`; Basic không trừ | Cần API key + `ai_chat_status` — UI cảnh báo qua `advancedAiAvailable()` |
 | Test riêng cho MLHUBAI | **Đã có** 31 Pest cases | `tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` — **chưa chạy được** trên host hiện tại |
@@ -168,7 +168,7 @@ Nhóm **vẫn chưa** có intent/keyword/response riêng hoặc còn mỏng:
 - Public URLs cụ thể (`/qr/{slug}`, `/lp/{slug}`, …) — cố ý không hard-code khi context thiếu slug
 - Chi tiết theo từng business (`portal.businesses.show`)
 - Snapshot sâu cho CRM/Google/automation/loyalty/files
-- Gợi ý ngành theo `lb_businesses.type` / `BusinessTypeCatalog` (template F&B cố định)
+- Gợi ý ngành theo `lb_businesses.type` / `BusinessTypeCatalog` sâu hơn (Phase C hiện nhận diện theo câu hỏi runtime)
 - Coverage log cho `unknown` / fallback analytics
 - Module AI dormant (`portal.ai-video`, …) — **đúng** là không gợi ý trong knowledge base
 
@@ -417,12 +417,12 @@ Không thực hiện trong lần này. Đây là backlog để bạn chọn làm
 | Mở rộng intent P0 | Xong | `MLHUBAIKnowledgeBase.php`, `MLHUBAIIntentResolver.php` | Đã thêm `help_using_mlhubai`, `daily_briefing`, `onboarding`, `top_campaigns`, `qr_scans`, `review_booster`, `booking`, `coupon`, `feedback`, `leads`, `conversion`, `credits`, `plan_limits`. |
 | Normalize tiếng Việt không dấu | Xong | `MLHUBAIIntentResolver.php` | Resolver chuyển câu hỏi và keyword về bản normalized, nên câu hỏi không dấu vẫn match được keyword có dấu/không dấu. |
 | Trả về matched keywords/confidence | Xong | `MLHUBAIIntentResolver.php`, `MLHUBAIAssistantService.php` | Response có `metadata.confidence`, `metadata.matched_keywords`, `metadata.matches`, `metadata.intents`, `metadata.advanced_requested`. `fallback_reason` nằm ở **root response**, không nằm trong `metadata`. |
-| Intent `industry_recommendation` + tinh chỉnh P1.3 | Xong (rule-based) | `MLHUBAIKnowledgeBase.php`, `MLHUBAIIntentResolver.php`, `MLHUBAIResponseComposer.php` | Keyword ngành + focus/dedupe; template F&B chung — **chưa** đọc `lb_businesses.type`. |
+| Intent `industry_recommendation` + tinh chỉnh P1.3/Phase C | Xong (rule-based) | `MLHUBAIKnowledgeBase.php`, `MLHUBAIIntentResolver.php`, `MLHUBAIResponseComposer.php`, `MLHUBAIAssistantService.php` | Keyword ngành + focus/dedupe; Phase C truyền `request.question` scalar và trả template theo ngành/tình huống; **chưa** đọc sâu `lb_businesses.type`. |
 | Starter prompts tiếng Việt | Xong | `MLHUBAIKnowledgeBase.php` | Đã thay bộ câu hỏi đầu bằng các câu hỏi Viet-first: báo cáo sáng nay, top campaign, Basic AI/credit, booking/coupon/lead, next action. |
 | Composer dùng top campaigns/recent activity | Xong | `MLHUBAIResponseComposer.php` | `daily_briefing` và `top_campaigns` đã đọc `top_campaigns[]`; `daily_briefing` đã đọc `recent_activity[]`. |
 | Thêm response segments cho P0 | Xong | `MLHUBAIResponseComposer.php` | Có đoạn trả lời riêng cho booking, coupon, feedback, leads, conversion, credits, plan limits, QR scan, Review Booster. |
 | CTA route liên quan P0 | Xong | `MLHUBAIKnowledgeBase.php`, `MLHUBAIResponseComposer.php` | Đã mở rộng CTA tới dashboard, reports, chatmlhubai, ai settings, booking pages, coupon campaigns, feedback forms, lead forms, credits, packages. |
-| Unit test bảo vệ Basic AI | Đã ghi nhận 31 cases — **chưa chạy được** | `tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` | Bao gồm P0, P1, P1.3 everyday Q&A, Phase B plan/credit snapshot, footer, onboarding/CRM contamination, CTA tiếng Việt. Host Windows thiếu `php` trên PATH (2026-06-21). |
+| Unit test bảo vệ Basic AI | Đã ghi nhận 41 cases — **chưa chạy được** | `tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` | Bao gồm P0, P1, P1.3 everyday Q&A, Phase B plan/credit snapshot, Phase C industry/scenario, footer, onboarding/CRM contamination, CTA tiếng Việt. Host Windows thiếu `php` trên PATH (2026-06-21). |
 
 ### 12.1 Ma trận P0 sau nâng cấp
 
@@ -446,7 +446,7 @@ Không thực hiện trong lần này. Đây là backlog để bạn chọn làm
 
 | Kiểm tra | Kết quả | Ghi chú |
 | --- | --- | --- |
-| Pest `MLHUBAIAssistantBasicAiTest` | **Chưa chạy được** | Host báo `php` không có trên PATH (2026-06-21). File test tồn tại 31 cases — cần chạy trên PHP 8.3+ hoặc container app đầy đủ. |
+| Pest `MLHUBAIAssistantBasicAiTest` | **Chưa chạy được** | Host báo `php` không có trên PATH (2026-06-21). File test tồn tại 41 cases — cần chạy trên PHP 8.3+ hoặc container app đầy đủ. |
 | PHP lint (các file assistant) | Chưa chạy lại trong lần audit này | Lần trước ghi nhận pass qua Docker — không lặp lại vì môi trường local thiếu PHP. |
 
 ### 12.3 Việc còn lại sau P0
@@ -476,7 +476,7 @@ Phạm vi lần này: chỉ mở rộng Basic AI Knowledge Base và response tem
 | `teams` | Xong | `portal.teams` | Không dùng route join/stream/switch trong action. |
 | `support` | Xong | `portal.support.index` | Không dùng support show vì cần ticket param. |
 
-### 13.1 Test đã ghi nhận trong repo (31 cases — chưa chạy được runtime)
+### 13.1 Test đã ghi nhận trong repo (41 cases — chưa chạy được runtime)
 
 | Nhóm | Test case | Mục đích |
 | --- | --- | --- |
@@ -504,6 +504,7 @@ Phạm vi lần này: chỉ mở rộng Basic AI Knowledge Base và response tem
 | Google | `google review answer does not duplicate the review metrics sentence` | Không trùng câu review |
 | Industry | `industry recommendation wins over generic onboarding for cafe questions` | Ưu tiên industry |
 | Industry | `industry recommendation recognizes common local business types` | 8 loại hình |
+| Phase C industry/scenario | 8 test mới cho spa, nhà hàng hải sản, bán lẻ mỹ phẩm, QR nhiều scan ít lead, review 2 sao, nhiều chi nhánh, không tốn credit, tạo nội dung Facebook | Bảo vệ template theo ngành/tình huống và ranh giới Chat → Studio |
 | Credits | `credit questions merge help and credits into one focused answer` | Chỉ `credits` |
 | QR | `qr guidance does not pull review or rating text` | 2 câu QR |
 | Handoff | `onboarding actions avoid ai studio unless user asks ai explicitly` | Onboarding không CTA Studio |
@@ -539,10 +540,10 @@ Tất cả route action P1 đã thêm đều được grep từ route files hi�
 
 > **Cập nhật 2026-06-21:** Kế hoạch chi tiết theo phase → **§23**; prompt giao Codex → **§24**; đối chiếu code → **§22**.
 
-1. P0/P1 Knowledge Base + Phase B plan/credit snapshot **đã triển khai** trong code; test file **31 cases** — **chưa chạy được** trên host hiện tại (thiếu `php` PATH).
+1. P0/P1 Knowledge Base + Phase B plan/credit snapshot + Phase C industry/scenario refinement **đã triển khai** trong code; test file **41 cases** — **chưa chạy được** trên host hiện tại (thiếu `php` PATH).
 2. **Phase A (doc sync):** hoàn tất trong lần audit này — không code.
 3. **Phase B:** plan/credit snapshot trong context đã triển khai; cần chạy Pest trên môi trường PHP đầy đủ.
-4. **Chờ duyệt Phase C–E:** industry theo `BusinessTypeCatalog`, handoff Studio, chạy Pest + smoke manual.
+4. **Phase C:** đã triển khai industry/scenario theo câu hỏi runtime; vẫn cần chạy Pest + smoke manual trên môi trường PHP.
 5. **Phase F (Advanced AI):** sau khi Basic AI ổn — không ưu tiên ngay.
 
 ---
@@ -587,7 +588,7 @@ Tất cả route action P1 đã thêm đều được grep từ route files hi�
 - Giải thích metrics: visits, leads, bookings, review, conversion, top campaign, recent activity.
 - Gợi ý bước tiếp theo theo onboarding (`onboarding`, `next_steps`, `daily_briefing`).
 - Trả lời “mở ở đâu / route nào” qua CTA (`MLHUBAIKnowledgeBase::routeActions()`).
-- Gợi ý **loại** campaign/tool phù hợp ngành (intent `industry_recommendation`) — template rule-based, **một đoạn F&B chung** trong `composeIndustryRecommendation()`; không viết full bài quảng cáo trong chat.
+- Gợi ý **loại** campaign/tool phù hợp ngành (intent `industry_recommendation`) — Phase C đã tách template rule-based theo cafe/nhà hàng/spa/bán lẻ/lưu trú/dịch vụ/giáo dục/sức khỏe/B2B; không viết full bài quảng cáo trong chat.
 
 ### 17.2 Chat MLHUB AI — không nên làm
 
@@ -691,8 +692,8 @@ Chat MLHUB AI **không** lưu taxonomy ngành nghề đầy đủ. Nguồn sự 
 
 **Trong code assistant hiện tại:**
 
-- Intent `industry_recommendation` — keyword ngành (F&B, spa, bán lẻ…) → template trả lời rule-based (chưa đọc `lb_businesses.type` động).
-- CTA gợi ý: `portal.businesses`, `portal.qr-campaigns`, `portal.coupon-campaigns`.
+- Intent `industry_recommendation` — keyword ngành (F&B, spa, bán lẻ…) → template trả lời rule-based theo ngành/tình huống từ `request.question` scalar; chưa đọc `lb_businesses.type` động.
+- CTA gợi ý: context-aware theo ngành/tình huống, vẫn lọc qua `Route::has()`.
 
 Khi triển khai gợi ý theo type thật: đọc metadata từ `BusinessTypeCatalog` + map sang intent/CTA — **không** nhân bản ma trận ngành dài trong file này.
 
@@ -724,7 +725,7 @@ Khi triển khai gợi ý theo type thật: đọc metadata từ `BusinessTypeCa
 | P0 Knowledge Base tách `MLHUBAIKnowledgeBase.php` | **Đã có** |
 | 13 intent P0 + normalize không dấu | **Đã có** |
 | 12 intent P1 portal + route actions | **Đã có** |
-| Intent `industry_recommendation` + focus P1.3 | **Đã có** (rule-based) |
+| Intent `industry_recommendation` + focus P1.3/Phase C | **Đã có** (rule-based theo ngành/tình huống) |
 | Metadata `confidence`, `matched_keywords`, `matches`, `intents` | **Đã có** |
 | Composer dùng `top_campaigns` / `recent_activity` trong `daily_briefing` | **Đã có** |
 | Footer phân biệt metric vs guidance | **Đã có** |
@@ -738,12 +739,12 @@ Khi triển khai gợi ý theo type thật: đọc metadata từ `BusinessTypeCa
 | Hạng mục trong doc cũ | Thực tế code |
 | --- | --- |
 | §4.1 “8 intent, 76 keyword” | **Lỗi thời** — hiện 34 intent, ~280+ keyword |
-| §5.1 “chưa thấy test” | **Sai** — đã có 31 cases |
+| §5.1 “chưa thấy test” | **Sai** — đã có 41 cases |
 | §5.2 thiếu intent landing/booking/CRM/… | **Lỗi thời** — P1 đã thêm |
 | `fallback_reason` trong `metadata` (§11 P0) | **Sai vị trí** — ở root response |
 | Coverage log / persistence fallback | **Chưa có** |
 | Plan/credit snapshot trong context | **Đã có Phase B** — snapshot scalar, workspace owner scope, degrade `available=false` khi thiếu dữ liệu |
-| `industry_recommendation` đọc `lb_businesses.type` | **Chưa có** — 1 template F&B |
+| `industry_recommendation` đọc `lb_businesses.type` | **Chưa có** — Phase C mới đọc câu hỏi runtime và không mở ContextBuilder |
 | Intent email/whatsapp/webhook/loyalty/files/profile | **Chưa có** |
 | §9 `module_coverage`, `data_confidence` scoring | **Chưa có** (chỉ confidence keyword) |
 
@@ -763,9 +764,9 @@ Khi triển khai gợi ý theo type thật: đọc metadata từ `BusinessTypeCa
 
 | Mức | Vấn đề | Hướng xử lý đề xuất |
 | --- | --- | --- |
-| P1 | **31 tests chưa chạy được** trên môi trường dev hiện tại | Phase E: chạy Pest trên PHP 8.3 / container MLHUB |
-| P1 | Plan/credit snapshot đã thêm nhưng chưa chạy được runtime test trên host này | Chạy Pest trên PHP 8.3 / container MLHUB trước khi mở tiếp Phase C/D |
-| P1 | `industry_recommendation` một template F&B cho mọi ngành keyword | Phase C: map `BusinessTypeCatalog` |
+| P1 | **41 tests chưa chạy được** trên môi trường dev hiện tại | Phase E: chạy Pest trên PHP 8.3 / container MLHUB |
+| P1 | Plan/credit snapshot và Phase C đã thêm nhưng chưa chạy được runtime test trên host này | Chạy Pest trên PHP 8.3 / container MLHUB trước khi mở tiếp Phase D/E |
+| P1 | `industry_recommendation` chưa đọc business type từ context | Phase sau nếu cần: thêm snapshot ngành từ `lb_businesses.type` / taxonomy |
 | P2 | Không log `unknown` intent coverage | Phase riêng nếu owner duyệt — chưa làm trong Phase B |
 | P2 | Advanced AI model mặc định `gpt-5.4` — cần đối chiếu admin | Phase F — sau khi Basic ổn |
 | P2 | §4.2 baseline 8 intent vẫn trong file | Giữ làm lịch sử; không dùng làm spec mới |
@@ -822,9 +823,9 @@ Khi triển khai gợi ý theo type thật: đọc metadata từ `BusinessTypeCa
 
 | # | Việc |
 | --- | --- |
-| C1 | Map `industry_recommendation` theo `BusinessTypeCatalog` / SOP §5 |
-| C2 | Nhiều template ngắn theo nhóm ngành (F&B, beauty, retail…) — rule-based, không LLM |
-| C3 | Bổ sung keyword alias từ `ARCHITECTURE_SOP.md` §2.9 nếu thiếu |
+| C1 | Xong: `industry_recommendation` nhận diện ngành từ câu hỏi runtime theo SOP §5 |
+| C2 | Xong: nhiều template ngắn theo nhóm ngành (F&B, beauty, retail…) — rule-based, không LLM |
+| C3 | Xong: bổ sung keyword/scenario alias từ `ARCHITECTURE_SOP.md` §E; chưa đọc sâu `BusinessTypeCatalog` runtime |
 
 ### Phase D — Chat → Studio handoff refinement
 

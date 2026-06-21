@@ -4,6 +4,7 @@ namespace Modules\CustomMLHUB\Support\MLHUBAIAssistant;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 
 class MLHUBAIResponseComposer
 {
@@ -40,6 +41,41 @@ class MLHUBAIResponseComposer
     {
         $map = match ($intent) {
             'next_steps', 'onboarding' => $this->nextStepActions($context),
+            'industry_recommendation' => $this->industryActions($context),
+            'conversion' => $this->scenario($context) === 'qr_high_scan_low_lead'
+                ? [
+                    ['portal.lead-forms', __('Mở form khách tiềm năng')],
+                    ['portal.coupon-campaigns', __('Mở mã ưu đãi')],
+                    ['portal.reports', __('Xem báo cáo')],
+                ]
+                : MLHUBAIKnowledgeBase::routeActions($intent),
+            'feedback' => $this->scenario($context) === 'low_rating_recovery'
+                ? [
+                    ['portal.feedback-forms', __('Mở form góp ý')],
+                    ['portal.crm.customers', __('Mở khách hàng trong CRM')],
+                ]
+                : MLHUBAIKnowledgeBase::routeActions($intent),
+            'credits' => $this->scenario($context) === 'no_credit_campaign'
+                ? [
+                    ['portal.coupon-campaigns', __('Mở mã ưu đãi')],
+                    ['portal.crm.customers', __('Mở khách hàng trong CRM')],
+                    ['portal.marketing-templates', __('Mở mẫu marketing')],
+                ]
+                : MLHUBAIKnowledgeBase::routeActions($intent),
+            'business_locations' => $this->scenario($context) === 'branch_performance'
+                ? [
+                    ['portal.locations', __('Mở địa điểm')],
+                    ['portal.reports', __('Xem báo cáo')],
+                    ['portal.qr-campaigns', __('Quản lý chiến dịch')],
+                ]
+                : MLHUBAIKnowledgeBase::routeActions($intent),
+            'ai_content_writer' => $this->scenario($context) === 'content_creation_request'
+                ? [
+                    ['portal.ai-content', __('Mở công cụ viết nội dung AI')],
+                    ['portal.ai-studio', __('Mở AI Studio')],
+                    ['portal.marketing-templates', __('Mở mẫu marketing')],
+                ]
+                : MLHUBAIKnowledgeBase::routeActions($intent),
             default => MLHUBAIKnowledgeBase::routeActions($intent),
         };
 
@@ -52,6 +88,71 @@ class MLHUBAIResponseComposer
         }
 
         return $actions;
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     * @return list<array{0: string, 1: string}>
+     */
+    protected function industryActions(array $context): array
+    {
+        if ($this->scenario($context) === 'google_to_booking') {
+            return [
+                ['portal.google-business', __('Mở Google Business')],
+                ['portal.booking-pages', __('Mở trang đặt lịch')],
+                ['portal.landing-pages', __('Mở trang đích')],
+            ];
+        }
+
+        if ($this->scenario($context) === 'phone_collection') {
+            return [
+                ['portal.lead-forms', __('Mở form khách tiềm năng')],
+                ['portal.crm.customers', __('Mở khách hàng trong CRM')],
+                ['portal.coupon-campaigns', __('Mở mã ưu đãi')],
+            ];
+        }
+
+        if ($this->scenario($context) === 'review_collection') {
+            return [
+                ['portal.booking-pages', __('Mở trang đặt lịch')],
+                ['portal.review-booster', __('Mở công cụ xin đánh giá')],
+                ['portal.coupon-campaigns', __('Mở mã ưu đãi')],
+            ];
+        }
+
+        return match ($this->industryGroup($context)) {
+            'food_beverage_restaurant' => [
+                ['portal.google-business', __('Mở Google Business')],
+                ['portal.booking-pages', __('Mở trang đặt lịch')],
+                ['portal.review-booster', __('Mở công cụ xin đánh giá')],
+            ],
+            'beauty_personal_care' => [
+                ['portal.booking-pages', __('Mở trang đặt lịch')],
+                ['portal.review-booster', __('Mở công cụ xin đánh giá')],
+                ['portal.coupon-campaigns', __('Mở mã ưu đãi')],
+            ],
+            'retail_store' => [
+                ['portal.lead-forms', __('Mở form khách tiềm năng')],
+                ['portal.coupon-campaigns', __('Mở mã ưu đãi')],
+                ['portal.crm.customers', __('Mở khách hàng trong CRM')],
+            ],
+            'tourism_hospitality' => [
+                ['portal.google-business', __('Mở Google Business')],
+                ['portal.landing-pages', __('Mở trang đích')],
+                ['portal.booking-pages', __('Mở trang đặt lịch')],
+            ],
+            'local_service_repair', 'education_training', 'professional_b2b' => [
+                ['portal.landing-pages', __('Mở trang đích')],
+                ['portal.lead-forms', __('Mở form khách tiềm năng')],
+                ['portal.crm.customers', __('Mở khách hàng trong CRM')],
+            ],
+            'health_dental_fitness' => [
+                ['portal.booking-pages', __('Mở trang đặt lịch')],
+                ['portal.lead-forms', __('Mở form khách tiềm năng')],
+                ['portal.feedback-forms', __('Mở form góp ý')],
+            ],
+            default => MLHUBAIKnowledgeBase::routeActions('industry_recommendation'),
+        };
     }
 
     /**
@@ -121,6 +222,19 @@ class MLHUBAIResponseComposer
      */
     protected function usesAccountMetrics(array $intents, array $context): bool
     {
+        if (in_array($this->scenario($context), [
+            'branch_performance',
+            'content_creation_request',
+            'google_to_booking',
+            'low_rating_recovery',
+            'no_credit_campaign',
+            'phone_collection',
+            'qr_high_scan_low_lead',
+            'review_collection',
+        ], true)) {
+            return false;
+        }
+
         $metricIntents = [
             'daily_briefing',
             'overview',
@@ -299,6 +413,76 @@ class MLHUBAIResponseComposer
     /**
      * @param  array<string, mixed>  $context
      */
+    protected function question(array $context): string
+    {
+        return (string) data_get($context, 'request.question', '');
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     */
+    protected function normalizedQuestion(array $context): string
+    {
+        return trim((string) preg_replace('/\s+/u', ' ', Str::ascii(mb_strtolower($this->question($context)))));
+    }
+
+    /**
+     * @param  list<string>  $needles
+     */
+    protected function containsAnyQuestion(array $context, array $needles): bool
+    {
+        $question = $this->normalizedQuestion($context);
+
+        foreach ($needles as $needle) {
+            if (str_contains($question, Str::ascii(mb_strtolower($needle)))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     */
+    protected function industryGroup(array $context): string
+    {
+        return match (true) {
+            $this->containsAnyQuestion($context, ['hai san', 'nha hang', 'quan an', 'restaurant', 'eatery']) => 'food_beverage_restaurant',
+            $this->containsAnyQuestion($context, ['quan ca phe', 'quan cafe', 'ca phe', 'cafe', 'tra sua', 'quan nuoc', 'nuoc ep', 'sinh to']) => 'food_beverage_cafe',
+            $this->containsAnyQuestion($context, ['spa', 'goi dau duong sinh', 'salon', 'nail', 'mi', 'toc', 'lam dep']) => 'beauty_personal_care',
+            $this->containsAnyQuestion($context, ['ban le', 'my pham', 'thoi trang', 'tap hoa', 'cua hang', 'me va be', 'phu kien']) => 'retail_store',
+            $this->containsAnyQuestion($context, ['khach san', 'homestay', 'villa', 'du lich', 'tour', 'luu tru']) => 'tourism_hospitality',
+            $this->containsAnyQuestion($context, ['sua chua', 'dien lanh', 'garage', 'rua xe', 'giat ui', 'dich vu dia phuong']) => 'local_service_repair',
+            $this->containsAnyQuestion($context, ['trung tam', 'lop hoc', 'dao tao', 'giao duc', 'khoa hoc']) => 'education_training',
+            $this->containsAnyQuestion($context, ['phong kham', 'nha khoa', 'gym', 'yoga', 'fitness', 'cham soc suc khoe']) => 'health_dental_fitness',
+            $this->containsAnyQuestion($context, ['agency', 'tu van', 'ke toan', 'phap ly', 'b2b', 'bat dong san', 'moi gioi']) => 'professional_b2b',
+            default => 'other_unknown',
+        };
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     */
+    protected function scenario(array $context): string
+    {
+        return match (true) {
+            $this->containsAnyQuestion($context, ['tao noi dung', 'viet caption', 'caption', 'noi dung facebook', 'bai quang cao', 'viet bai']) => 'content_creation_request',
+            $this->containsAnyQuestion($context, ['khong muon ton', 'khong ton diem', 'khong ton tin dung', 'khong ton credit']) => 'no_credit_campaign',
+            $this->containsAnyQuestion($context, ['danh gia 1 sao', 'danh gia 2 sao', 'danh gia 3 sao', 'review xau', 'danh gia thap', 'rating thap', 'khach khong hai long']) => 'low_rating_recovery',
+            $this->containsAnyQuestion($context, ['google nhieu nguoi xem', 'tim tren google', 'it dat ban', 'it dat lich']) => 'google_to_booking',
+            $this->containsAnyQuestion($context, ['qr co nhieu luot quet', 'nhieu luot quet nhung it', 'it khach de lai thong tin', 'it lead']) => 'qr_high_scan_low_lead',
+            $this->containsAnyQuestion($context, ['chi nhanh nao keo khach', 'chi nhanh nao tot', '3 chi nhanh', 'nhieu chi nhanh']) => 'branch_performance',
+            $this->containsAnyQuestion($context, ['de lai so dien thoai', 'lay so dien thoai', 'thu so dien thoai', 'de lai thong tin']) => 'phone_collection',
+            $this->containsAnyQuestion($context, ['khong de lai danh gia', 'xin danh gia', 'lay danh gia']) => 'review_collection',
+            $this->containsAnyQuestion($context, ['khach quay lai', 'khach cu quay lai', 'cuoi tuan', 'uu dai quay lai']) => 'returning_customers',
+            default => 'general',
+        };
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     */
     public function compose(string $intent, array $context): string
     {
         return match ($intent) {
@@ -353,7 +537,59 @@ class MLHUBAIResponseComposer
      */
     protected function composeIndustryRecommendation(array $context): string
     {
-        return __('Với quán cà phê hoặc trà sữa, nên bắt đầu bằng 3 việc: tạo cơ sở kinh doanh, đặt QR xin đánh giá tại quầy, và tạo mã ưu đãi để kéo khách quay lại. Nếu muốn lấy số điện thoại khách, dùng thêm form khách tiềm năng hoặc trang đích có form tư vấn.');
+        if (trim($this->question($context)) === '') {
+            return __('Với quán cà phê hoặc trà sữa, nên bắt đầu bằng 3 việc: tạo cơ sở kinh doanh, đặt QR xin đánh giá tại quầy, và tạo mã ưu đãi để kéo khách quay lại. Nếu muốn lấy số điện thoại khách, dùng thêm form khách tiềm năng hoặc trang đích có form tư vấn.');
+        }
+
+        $scenario = $this->scenario($context);
+
+        if ($scenario === 'review_collection') {
+            return __('Với :industry, nên cài quy trình sau trải nghiệm: nhắc khách đặt lịch lần sau, gửi Review Booster ngay khi dịch vụ hoàn tất, lưu khách vào CRM để chăm sóc lại và tặng mã ưu đãi quay lại cho nhóm chưa phản hồi. Đừng chỉ xin đánh giá công khai; hãy có form góp ý riêng để xử lý khách chưa hài lòng trước.', [
+                'industry' => $this->industryLabel($context),
+            ]);
+        }
+
+        if ($scenario === 'google_to_booking') {
+            return __('Với :industry, hãy tối ưu Google Business trước để khách thấy đúng giờ mở cửa, ảnh và liên kết hành động. Sau đó gắn nút đặt bàn/đặt lịch về trang đặt lịch hoặc trang đích, dùng Review Booster và form góp ý riêng để tăng niềm tin trước khi khách quyết định. Theo dõi báo cáo để biết Google đang kéo lượt xem nhưng rơi ở bước nào.', [
+                'industry' => $this->industryLabel($context),
+            ]);
+        }
+
+        if ($scenario === 'phone_collection') {
+            return __('Với :industry, nên dùng form khách tiềm năng làm điểm thu số điện thoại, kèm một ưu đãi hoặc tư vấn rõ ràng để khách có lý do để lại thông tin. Sau đó đưa khách vào CRM, gắn nhãn nguồn chiến dịch và tạo việc chăm sóc lại sau 7 ngày; nếu bán tại quầy, đặt thêm QR dẫn về form này.', [
+                'industry' => $this->industryLabel($context),
+            ]);
+        }
+
+        return match ($this->industryGroup($context)) {
+            'food_beverage_restaurant' => __('Với nhà hàng, quán ăn hoặc hải sản, nên ưu tiên Google Business, công cụ xin đánh giá, trang đặt bàn hoặc trang đích và form góp ý riêng. Luồng gọn là: cập nhật hồ sơ Google, dẫn khách về đặt bàn, đặt QR review tại bàn/quầy, rồi xử lý góp ý riêng trước khi xin đánh giá công khai.'),
+            'beauty_personal_care' => __('Với spa, salon, nail hoặc gội đầu dưỡng sinh, nên bắt đầu bằng trang đặt lịch, Review Booster sau dịch vụ, CRM nhắc lịch chăm sóc lại và mã ưu đãi quay lại. Mỗi khách sau khi hoàn tất dịch vụ nên được lưu vào CRM, hẹn lần tiếp theo và chỉ xin đánh giá khi trải nghiệm ổn.'),
+            'retail_store' => __('Với bán lẻ, mỹ phẩm hoặc thời trang, nên dùng form khách tiềm năng để lấy số điện thoại, mã ưu đãi để kéo mua lại, CRM để phân nhóm khách và QR tại quầy để khách quét nhanh. Bắt đầu bằng một offer đơn giản, rồi xem báo cáo để biết nhóm khách nào quay lại tốt.'),
+            'tourism_hospitality' => __('Với khách sạn, homestay hoặc du lịch, nên ưu tiên Google Business, trang đích giới thiệu dịch vụ, trang đặt lịch hoặc form khách tiềm năng và Review Booster sau trải nghiệm. Đừng tự tạo link công khai nếu chưa có slug; hãy mở module tương ứng rồi copy link thật từ MLHUB.'),
+            'local_service_repair' => __('Với sửa chữa hoặc dịch vụ địa phương, nên dùng form khách tiềm năng để nhận yêu cầu báo giá, trang đặt lịch để chốt khung giờ, Google Business để tăng độ tin cậy và Review Booster sau khi hoàn tất việc. CRM giúp nhắc nhân viên gọi lại và chăm sóc khách cũ.'),
+            'education_training' => __('Với giáo dục hoặc đào tạo, nên dùng form khách tiềm năng để nhận tư vấn, trang đích cho khóa học, CRM để chăm sóc phụ huynh/học viên và mã ưu đãi đăng ký sớm nếu phù hợp. Chat chỉ gợi ý quy trình; phần viết nội dung tuyển sinh dài nên chuyển sang AI Content hoặc mẫu marketing.'),
+            'health_dental_fitness' => __('Với phòng khám, nha khoa, gym hoặc yoga, nên dùng đặt lịch, form tư vấn, góp ý riêng và CRM nhắc lịch. Khi xin đánh giá hoặc viết nội dung, giữ lời hứa ở mức an toàn, không đưa claim y tế quá mức; ưu tiên phản hồi trung tính, chăm sóc lại và đo hiệu quả bằng báo cáo.'),
+            'professional_b2b' => __('Với B2B, agency, tư vấn hoặc bất động sản, nên dùng trang đích để trình bày dịch vụ, form khách tiềm năng để nhận nhu cầu, CRM pipeline để theo dõi từng khách và Google Business/review nếu có điểm giao dịch rõ. Ưu tiên đo nguồn lead và tạo việc chăm sóc tiếp theo.'),
+            default => __('Nếu chưa rõ ngành, hãy bắt đầu bằng hồ sơ cơ sở kinh doanh, một chiến dịch QR đơn giản, công cụ xin đánh giá và form khách tiềm năng. Khi đã chọn đúng nhóm ngành trong hồ sơ, MLHUB sẽ dễ gợi ý module như đặt lịch, mã ưu đãi, CRM hoặc trang đích phù hợp hơn.'),
+        };
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     */
+    protected function industryLabel(array $context): string
+    {
+        return match ($this->industryGroup($context)) {
+            'food_beverage_restaurant' => __('nhà hàng hoặc quán ăn'),
+            'beauty_personal_care' => __('spa/salon'),
+            'retail_store' => __('bán lẻ'),
+            'tourism_hospitality' => __('du lịch/lưu trú'),
+            'local_service_repair' => __('dịch vụ địa phương'),
+            'education_training' => __('giáo dục/đào tạo'),
+            'health_dental_fitness' => __('sức khỏe/thể thao'),
+            'professional_b2b' => __('B2B/dịch vụ chuyên môn'),
+            default => __('cơ sở kinh doanh của bạn'),
+        };
     }
 
     /**
@@ -463,6 +699,10 @@ class MLHUBAIResponseComposer
      */
     protected function composeFeedback(array $context): string
     {
+        if ($this->scenario($context) === 'low_rating_recovery') {
+            return __('Với khách đánh giá 1-3 sao, hãy xử lý theo luồng phục hồi riêng: mở form góp ý hoặc phản hồi riêng, ghi rõ vấn đề khách không hài lòng, tạo việc cần làm trong CRM để nhân viên gọi lại và chỉ xin đánh giá công khai sau khi đã hỗ trợ ổn. Không nên đẩy khách chưa hài lòng thẳng sang review công khai.');
+        }
+
         $metrics = (array) ($context['metrics'] ?? []);
         $reviews = (array) ($context['reviews'] ?? []);
 
@@ -477,6 +717,10 @@ class MLHUBAIResponseComposer
      */
     protected function composeLeads(array $context): string
     {
+        if ($this->scenario($context) === 'phone_collection') {
+            return __('Muốn lấy số điện thoại khách, hãy dùng form khách tiềm năng hoặc trang đích có form tư vấn, kèm một offer rõ như mã ưu đãi, tư vấn miễn phí hoặc nhắc lịch. Sau khi khách gửi form, đưa vào CRM, gắn nhãn nguồn chiến dịch và tạo việc chăm sóc lại để nhân viên gọi đúng thời điểm.');
+        }
+
         $metrics = (array) ($context['metrics'] ?? []);
         $weekly = (array) ($context['weekly_signals'] ?? []);
 
@@ -491,6 +735,10 @@ class MLHUBAIResponseComposer
      */
     protected function composeConversion(array $context): string
     {
+        if ($this->scenario($context) === 'qr_high_scan_low_lead') {
+            return __('QR có nhiều lượt quét nhưng ít khách để lại thông tin thì nên sửa phần chuyển đổi trước: làm form ngắn hơn, đặt CTA rõ hơn, thêm ưu đãi đủ hấp dẫn và kiểm tra báo cáo theo từng chiến dịch. Mục tiêu không phải chỉ tăng lượt quét QR, mà là biến lượt quét thành form, khách tiềm năng hoặc đặt lịch.');
+        }
+
         $metrics = (array) ($context['metrics'] ?? []);
 
         return __('Muốn biết kênh nào mang khách tốt nhất, hãy mở báo cáo và xem nguồn/chiến dịch có lượt quét, khách tiềm năng và chuyển đổi tốt. Hiện tỉ lệ chuyển đổi là :rate từ :visits lượt truy cập, gồm :leads khách tiềm năng, :bookings lượt đặt lịch, :coupons lượt nhận mã ưu đãi và :feedback phản hồi góp ý.', [
@@ -508,6 +756,10 @@ class MLHUBAIResponseComposer
      */
     protected function composeCredits(array $context): string
     {
+        if ($this->scenario($context) === 'no_credit_campaign') {
+            return __('Bạn vẫn có thể tạo chiến dịch kéo khách cũ quay lại mà không tốn tín dụng AI: dùng AI Cơ bản để hỏi quy trình, chọn mẫu marketing có sẵn, tạo mã ưu đãi quay lại, lọc khách cũ trong CRM rồi gửi thủ công hoặc theo quy trình hiện có. AI Cơ bản không trừ tín dụng AI; AI Studio/AI Nâng cao chỉ nên dùng khi bạn muốn sinh nội dung mới bằng provider.');
+        }
+
         $credits = (array) ($context['credits'] ?? []);
 
         if (! (bool) ($credits['available'] ?? false)) {
@@ -639,6 +891,10 @@ class MLHUBAIResponseComposer
      */
     protected function composeBusinessLocations(array $context): string
     {
+        if ($this->scenario($context) === 'branch_performance') {
+            return __('Với nhiều chi nhánh, hãy quản lý từng chi nhánh trong Địa điểm, gắn chiến dịch/QR theo đúng điểm bán rồi mở báo cáo để so sánh lượt quét, khách tiềm năng, đặt lịch và chuyển đổi theo từng chi nhánh. Ưu tiên nhân bản chiến dịch đang kéo khách tốt nhất sang chi nhánh yếu hơn.');
+        }
+
         $businesses = (int) data_get($context, 'business_list.count', 0);
 
         return __('Địa điểm dùng để quản lý chi nhánh hoặc điểm bán vật lý theo cơ sở kinh doanh. Hiện AI Cơ bản (Basic AI) đang thấy :count cơ sở kinh doanh; để quản lý địa điểm hoặc QR địa điểm, hãy mở màn hình Địa điểm hoặc vào từng cơ sở kinh doanh. Trợ lý không tự dựng liên kết QR/trang công khai nếu ngữ cảnh chưa có mã định danh cụ thể.', [
@@ -717,6 +973,10 @@ class MLHUBAIResponseComposer
      */
     protected function composeAiContentWriter(array $context): string
     {
+        if ($this->scenario($context) === 'content_creation_request') {
+            return __('Với yêu cầu tạo nội dung Facebook hoặc caption, Chat MLHUB AI chỉ nên chỉ đường: mở AI Content hoặc AI Studio để sinh nội dung, hoặc dùng mẫu marketing nếu muốn làm theo template sẵn. Mình sẽ không viết caption dài trong Chat Cơ bản; khi chạy tác vụ sinh nội dung trong Studio, hệ thống có thể tính tín dụng AI theo gói.');
+        }
+
         return __('AI Content Writer hỗ trợ viết chú thích bài đăng, bài quảng cáo, lời kêu gọi hành động, nội dung Facebook hoặc tin nhắn nhắc khách. Nếu chỉ hỏi hướng dẫn tại đây thì AI Cơ bản (Basic AI) không tốn tín dụng AI; khi chạy tác vụ sinh nội dung trong AI Content, hệ thống có thể tính tín dụng AI theo gói.');
     }
 

@@ -722,6 +722,150 @@ test('plan limits response degrades safely when snapshot is missing', function (
         ->not->toContain('Câu trả lời có sử dụng số liệu thực tế từ tài khoản của bạn.');
 });
 
+test('industry recommendation for spa uses booking review crm and coupon', function (): void {
+    $question = 'Tôi là spa gội đầu dưỡng sinh, khách đến xong không để lại đánh giá thì nên cài quy trình nào?';
+    $resolver = new MLHUBAIIntentResolver;
+    $intents = array_column($resolver->resolveAll($question), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
+        'request' => ['question' => $question],
+    ]));
+
+    expect($intents[0])->toBe('industry_recommendation')
+        ->and($message)
+        ->toContain('đặt lịch')
+        ->toContain('đánh giá')
+        ->toContain('CRM')
+        ->toContain('ưu đãi')
+        ->not->toContain('quán cà phê')
+        ->not->toContain('trà sữa')
+        ->not->toContain('quán nước');
+});
+
+test('industry recommendation for seafood restaurant uses google booking landing review', function (): void {
+    $question = 'Tôi có nhà hàng hải sản, khách du lịch tìm trên Google nhiều nhưng ít đặt bàn, MLHUB giúp gì?';
+    $resolver = new MLHUBAIIntentResolver;
+    $intents = array_column($resolver->resolveAll($question), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
+        'request' => ['question' => $question],
+    ]));
+
+    expect($intents[0])->toBe('industry_recommendation')
+        ->and($message)
+        ->toContain('Google Business')
+        ->toContain('đặt bàn')
+        ->toContain('trang đích')
+        ->toContain('đánh giá')
+        ->not->toContain('spa')
+        ->not->toContain('quán cà phê');
+});
+
+test('retail cosmetic phone collection uses lead form and crm', function (): void {
+    $question = 'Tôi bán mỹ phẩm, muốn lấy số điện thoại khách và chăm sóc lại sau 7 ngày thì dùng tính năng nào?';
+    $resolver = new MLHUBAIIntentResolver;
+    $intents = array_column($resolver->resolveAll($question), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
+        'request' => ['question' => $question],
+    ]));
+
+    expect($intents[0])->toBe('industry_recommendation')
+        ->and($message)
+        ->toContain('form khách tiềm năng')
+        ->toContain('CRM')
+        ->toContain('ưu đãi')
+        ->not->toContain('quán cà phê');
+});
+
+test('qr high scan low lead focuses conversion not reviews', function (): void {
+    $question = 'QR có nhiều lượt quét nhưng ít khách để lại thông tin, tôi nên sửa ở đâu trước?';
+    $resolver = new MLHUBAIIntentResolver;
+    $intents = array_column($resolver->resolveAll($question), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
+        'request' => ['question' => $question],
+    ]));
+
+    expect($intents[0])->toBe('conversion')
+        ->and($message)
+        ->toContain('form')
+        ->toContain('ưu đãi')
+        ->toContain('báo cáo')
+        ->toContain('chuyển đổi')
+        ->toContain('Câu trả lời dựa trên tri thức nội bộ')
+        ->not->toContain('Câu trả lời có sử dụng số liệu thực tế')
+        ->not->toContain('Trung bình')
+        ->not->toContain('review average')
+        ->not->toContain('rating');
+});
+
+test('low rating scenario uses private feedback recovery', function (): void {
+    $question = 'Có khách đánh giá 2 sao, tôi nên xử lý trong MLHUB như thế nào?';
+    $resolver = new MLHUBAIIntentResolver;
+    $intents = array_column($resolver->resolveAll($question), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
+        'request' => ['question' => $question],
+    ]));
+
+    expect($intents[0])->toBe('feedback')
+        ->and($message)
+        ->toContain('phản hồi riêng')
+        ->toContain('khách không hài lòng')
+        ->toContain('CRM')
+        ->toContain('Câu trả lời dựa trên tri thức nội bộ')
+        ->not->toContain('Câu trả lời có sử dụng số liệu thực tế')
+        ->not->toContain('Cảm nhận tích cực')
+        ->not->toContain('Tất cả đánh giá tích cực');
+});
+
+test('branch performance question uses locations and reports', function (): void {
+    $question = 'Tôi có 3 chi nhánh, làm sao biết chi nhánh nào kéo khách tốt nhất?';
+    $resolver = new MLHUBAIIntentResolver;
+    $intents = array_column($resolver->resolveAll($question), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
+        'request' => ['question' => $question],
+    ]));
+
+    expect($intents[0])->toBe('business_locations')
+        ->and($message)
+        ->toContain('chi nhánh')
+        ->toContain('báo cáo')
+        ->toContain('so sánh')
+        ->toContain('chiến dịch');
+});
+
+test('no credit campaign stays manual basic and template based', function (): void {
+    $question = 'Tôi muốn tạo chiến dịch kéo khách cũ quay lại nhưng không muốn tốn điểm tín dụng AI thì làm sao?';
+    $resolver = new MLHUBAIIntentResolver;
+    $intents = array_column($resolver->resolveAll($question), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
+        'request' => ['question' => $question],
+    ]));
+
+    expect($intents[0])->toBe('credits')
+        ->and($message)
+        ->toContain('AI Cơ bản')
+        ->toContain('không trừ tín dụng AI')
+        ->toContain('mã ưu đãi')
+        ->toContain('CRM')
+        ->toContain('mẫu')
+        ->not->toContain('bắt buộc dùng AI Nâng cao');
+});
+
+test('content writing request routes to studio not long chat copy', function (): void {
+    $question = 'Tôi muốn tạo nội dung Facebook cho mã ưu đãi';
+    $resolver = new MLHUBAIIntentResolver;
+    $intents = array_column($resolver->resolveAll($question), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
+        'request' => ['question' => $question],
+    ]));
+
+    expect($intents[0])->toBe('ai_content_writer')
+        ->and($message)
+        ->toContain('AI Content')
+        ->toContain('AI Studio')
+        ->toContain('mẫu marketing')
+        ->not->toContain('#')
+        ->and(mb_strlen($message))->toBeLessThan(700);
+});
+
 test('qr guidance does not pull review or rating text', function (string $question): void {
     $resolver = new MLHUBAIIntentResolver;
     $intents = array_column($resolver->resolveAll($question), 'intent');

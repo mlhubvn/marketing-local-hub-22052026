@@ -52,7 +52,11 @@ class MLHUBAIAssistantService
             ];
         }
 
-        $context = $this->contextBuilder->build($userId);
+        $context = array_replace_recursive($this->contextBuilder->build($userId), [
+            'request' => [
+                'question' => $question,
+            ],
+        ]);
         $matches = $this->intentResolver->resolveAll($question);
         $intents = array_map(static fn (array $match): string => $match['intent'], $matches);
         $primaryIntent = $intents[0] ?? 'unknown';
