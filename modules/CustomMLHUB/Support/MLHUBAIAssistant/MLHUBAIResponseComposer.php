@@ -63,18 +63,27 @@ class MLHUBAIResponseComposer
         $hints = (array) ($context['onboarding'] ?? []);
 
         if (in_array('create_business', $hints, true)) {
-            return [['portal.businesses', __('Thêm cơ sở kinh doanh')]];
+            return [
+                ['portal.businesses', __('Quản lý cơ sở kinh doanh')],
+                ['portal.qr-campaigns', __('Quản lý chiến dịch')],
+            ];
         }
 
         if (in_array('create_campaign', $hints, true) || in_array('publish_campaign', $hints, true)) {
-            return [['portal.qr-campaigns', __('Tạo chiến dịch')]];
+            return [
+                ['portal.businesses', __('Quản lý cơ sở kinh doanh')],
+                ['portal.qr-campaigns', __('Quản lý chiến dịch')],
+            ];
         }
 
         if (in_array('boost_reviews', $hints, true)) {
             return [['portal.review-booster', __('Mở công cụ xin đánh giá')]];
         }
 
-        return [['portal.ai-studio', __('Mở AI Studio')]];
+        return [
+            ['portal.businesses', __('Quản lý cơ sở kinh doanh')],
+            ['portal.qr-campaigns', __('Quản lý chiến dịch')],
+        ];
     }
 
     /**
@@ -286,6 +295,7 @@ class MLHUBAIResponseComposer
     {
         return match ($intent) {
             'help_using_mlhubai' => $this->composeHelpUsingMLHUBAI($context),
+            'industry_recommendation' => $this->composeIndustryRecommendation($context),
             'daily_briefing' => $this->composeDailyBriefing($context),
             'onboarding' => $this->composeOnboarding($context),
             'top_campaigns' => $this->composeTopCampaigns($context),
@@ -328,6 +338,14 @@ class MLHUBAIResponseComposer
     protected function composeHelpUsingMLHUBAI(array $context): string
     {
         return __('AI Cơ bản (Basic AI) đang trả lời bằng dữ liệu nội bộ và ma trận từ khóa MLHUB, nên không gọi OpenAI và không tốn token/tín dụng AI. AI Nâng cao (Advanced AI) chỉ dùng provider khi bạn bật, có API key và còn tín dụng AI. Bạn có thể hỏi về báo cáo hôm nay, chiến dịch, QR, đặt lịch, mã ưu đãi, khách tiềm năng, đánh giá, tín dụng AI, giới hạn gói và việc nên làm tiếp theo.');
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     */
+    protected function composeIndustryRecommendation(array $context): string
+    {
+        return __('Với quán cà phê hoặc trà sữa, nên bắt đầu bằng 3 việc: tạo cơ sở kinh doanh, đặt QR xin đánh giá tại quầy, và tạo mã ưu đãi để kéo khách quay lại. Nếu muốn lấy số điện thoại khách, dùng thêm form khách tiềm năng hoặc trang đích có form tư vấn.');
     }
 
     /**
@@ -390,11 +408,9 @@ class MLHUBAIResponseComposer
         $metrics = (array) ($context['metrics'] ?? []);
         $weekly = (array) ($context['weekly_signals'] ?? []);
 
-        return __('QR đang có :total lượt truy cập tổng, tuần này thêm :week_scans lượt quét. Từ các lượt đó ghi nhận :week_leads khách tiềm năng và :week_bookings lượt đặt lịch.', [
+        return __('QR đang có :total lượt truy cập tổng, tuần này thêm :week_scans lượt quét. Hãy đặt mã QR ở quầy, hóa đơn, bàn hoặc tin nhắn chăm sóc khách, rồi mở báo cáo để xem lượt quét, khách tiềm năng và lượt đặt lịch từ QR.', [
             'total' => format_number_locale((int) ($metrics['visits'] ?? 0)),
             'week_scans' => format_number_locale((int) ($weekly['qr_scans'] ?? 0)),
-            'week_leads' => format_number_locale((int) ($weekly['leads'] ?? 0)),
-            'week_bookings' => format_number_locale((int) ($weekly['bookings'] ?? 0)),
         ]);
     }
 
@@ -484,7 +500,7 @@ class MLHUBAIResponseComposer
      */
     protected function composeCredits(array $context): string
     {
-        return __('AI Cơ bản (Basic AI) của /portal/chatmlhubai không dùng token OpenAI và không trừ tín dụng AI vì chỉ dùng ngữ cảnh nội bộ, từ khóa và câu trả lời dựng sẵn. Tín dụng AI chủ yếu liên quan AI Nâng cao (Advanced AI), AI Studio, provider API hoặc các tác vụ sinh nội dung có tính phí.');
+        return __('AI Cơ bản không tốn điểm tín dụng vì chỉ dùng tri thức nội bộ và câu trả lời dựng sẵn. Điểm tín dụng chủ yếu dùng cho AI Nâng cao (Advanced AI), AI Studio hoặc tác vụ sinh nội dung có gọi provider như OpenAI/Gemini.');
     }
 
     /**

@@ -25,14 +25,20 @@ class MLHUBAIKnowledgeBase
                 'daily', 'briefing', 'tình hình hôm nay', 'tinh hinh hom nay', 'hôm qua',
                 'hom qua', 'tuần này', 'tuan nay', 'cần chú ý', 'can chu y',
             ],
+            'industry_recommendation' => [
+                'quán cà phê', 'quan ca phe', 'quán cafe', 'quan cafe', 'quán trà sữa',
+                'quan tra sua', 'trà sữa', 'tra sua', 'quán ăn', 'quan an',
+                'nhà hàng', 'nha hang', 'spa', 'salon', 'bán lẻ', 'ban le',
+                'khách sạn', 'khach san', 'nên dùng gì', 'nen dung gi',
+                'dùng tính năng nào', 'dung tinh nang nao',
+                'nên dùng tính năng nào đầu tiên', 'nen dung tinh nang nao dau tien',
+                'bắt đầu từ đâu', 'bat dau tu dau',
+            ],
             'onboarding' => [
                 'bắt đầu', 'bat dau', 'setup', 'thiết lập', 'thiet lap', 'chưa có dữ liệu',
                 'chua co du lieu', 'tạo đầu tiên', 'tao dau tien', 'cần làm gì trước',
                 'can lam gi truoc', 'làm gì trước', 'lam gi truoc', 'mới tạo tài khoản',
                 'moi tao tai khoan', 'tạo tài khoản', 'tao tai khoan', 'hướng dẫn', 'huong dan',
-                'quán cà phê', 'quan ca phe', 'quán cafe', 'quan cafe', 'quán ăn', 'quan an',
-                'nhà hàng', 'nha hang', 'spa', 'salon', 'bán lẻ', 'ban le',
-                'nên dùng tính năng nào đầu tiên', 'nen dung tinh nang nao dau tien',
                 'tạo cơ sở trước hay tạo chiến dịch trước', 'tao co so truoc hay tao chien dich truoc',
                 'tạo cơ sở kinh doanh trước hay tạo chiến dịch trước',
                 'tao co so kinh doanh truoc hay tao chien dich truoc',
@@ -225,6 +231,11 @@ class MLHUBAIKnowledgeBase
                 __('Hoạt động mới nhất đến từ chiến dịch nào?'),
                 __('Tôi nên làm gì trong 30 phút tới?'),
             ],
+            'industry_recommendation' => [
+                __('Quán cà phê nên đặt QR ở đâu?'),
+                __('Mã ưu đãi quay lại nên chạy thế nào?'),
+                __('Làm sao lấy số điện thoại khách tại quầy?'),
+            ],
             'onboarding' => [
                 __('Tôi nên tạo gì đầu tiên?'),
                 __('Cần bật tính năng nào để có dữ liệu?'),
@@ -411,6 +422,11 @@ class MLHUBAIKnowledgeBase
                 ['portal.chatmlhubai', __('Mở MLHUB AI')],
                 ['portal.ai-studio.settings', __('Cài đặt AI')],
             ],
+            'industry_recommendation' => [
+                ['portal.businesses', __('Quản lý cơ sở kinh doanh')],
+                ['portal.qr-campaigns', __('Quản lý chiến dịch')],
+                ['portal.coupon-campaigns', __('Mở mã ưu đãi')],
+            ],
             'daily_briefing' => [
                 ['portal.dashboard', __('Mở bảng điều khiển')],
                 ['portal.reports', __('Xem báo cáo')],
@@ -428,7 +444,10 @@ class MLHUBAIKnowledgeBase
                 ['portal.customers', __('Mở khách hàng')],
             ],
             'conversion' => [['portal.reports', __('Xem báo cáo')]],
-            'credits' => [['portal.credits', __('Xem lịch sử tín dụng AI')]],
+            'credits' => [
+                ['portal.credits', __('Xem lịch sử tín dụng AI')],
+                ['portal.ai-studio.settings', __('Cài đặt AI')],
+            ],
             'plan_limits' => [['portal.packages', __('Xem gói dịch vụ')]],
             'business_locations' => [
                 ['portal.locations', __('Mở địa điểm')],
@@ -471,6 +490,7 @@ class MLHUBAIKnowledgeBase
     {
         return [
             'help_using_mlhubai' => 10,
+            'industry_recommendation' => 15,
             'onboarding' => 20,
             'daily_briefing' => 30,
             'overview' => 40,

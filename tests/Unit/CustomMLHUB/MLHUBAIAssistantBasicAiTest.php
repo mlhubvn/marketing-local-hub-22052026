@@ -132,9 +132,9 @@ test('basic assistant response includes intent metadata without using advanced A
     $response = $service->ask(1, 'Basic AI có tốn credit không?', false, false);
 
     expect($response['source'])->toBe('fallback')
-        ->and($response['intent'])->toBe('help_using_mlhubai')
+        ->and($response['intent'])->toBe('credits')
         ->and($response)->toHaveKey('metadata')
-        ->and($response['metadata']['matched_keywords'])->toContain('basic ai')
+        ->and($response['metadata']['matched_keywords'])->toContain('credit')
         ->and($response['metadata']['confidence'])->toBeGreaterThan(0);
 });
 
@@ -417,12 +417,12 @@ test('resolver recognizes everyday P1.3 aliases without falling back', function 
         ->and($match['intent'])->not->toBe('unknown')
         ->and($match['confidence'])->toBeGreaterThan(0);
 })->with([
-    ['AI Cơ bản có tốn điểm tín dụng không?', 'help_using_mlhubai'],
+    ['AI Cơ bản có tốn điểm tín dụng không?', 'credits'],
     ['AI Nâng cao khác AI Cơ bản thế nào?', 'help_using_mlhubai'],
     ['Tôi còn bao nhiêu điểm tín dụng?', 'credits'],
     ['Mời nhân viên vào đội ngũ ở đâu?', 'teams'],
     ['Cập nhật thông tin quán ở đâu?', 'businesses'],
-    ['Tôi có một quán cà phê, nên dùng tính năng nào đầu tiên?', 'onboarding'],
+    ['Tôi có một quán cà phê, nên dùng tính năng nào đầu tiên?', 'industry_recommendation'],
     ['Tôi cần tạo cơ sở kinh doanh trước hay tạo chiến dịch trước?', 'onboarding'],
     ['Tôi muốn khách để lại số điện thoại thì dùng tính năng nào?', 'leads'],
     ['Tôi muốn biết kênh nào mang khách tốt nhất thì xem ở đâu?', 'conversion'],
@@ -432,7 +432,7 @@ test('resolver recognizes everyday P1.3 aliases without falling back', function 
 test('P1.3 everyday answers are focused and practical', function (): void {
     $composer = new MLHUBAIResponseComposer;
 
-    $coffee = $composer->composeMany(['onboarding'], mlhubAssistantContext());
+    $coffee = $composer->composeMany(['industry_recommendation'], mlhubAssistantContext());
     $lead = $composer->composeMany(['leads'], mlhubAssistantContext());
     $channel = $composer->composeMany(['conversion'], mlhubAssistantContext());
     $lowReview = $composer->composeMany(['feedback'], mlhubAssistantContext());
@@ -440,7 +440,7 @@ test('P1.3 everyday answers are focused and practical', function (): void {
 
     expect($coffee)
         ->toContain('cơ sở kinh doanh')
-        ->toContain('công cụ xin đánh giá')
+        ->toContain('QR xin đánh giá')
         ->toContain('mã ưu đãi')
         ->and($lead)
         ->toContain('form khách tiềm năng')
@@ -510,4 +510,102 @@ test('google review answer does not duplicate the review metrics sentence', func
 
     expect(substr_count($message, 'Trung bình'))->toBeLessThanOrEqual(1)
         ->and(substr_count($message, 'đánh giá cần trả lời'))->toBeLessThanOrEqual(1);
+});
+
+test('industry recommendation wins over generic onboarding for cafe questions', function (): void {
+    $resolver = new MLHUBAIIntentResolver;
+    $composer = new MLHUBAIResponseComposer;
+
+    $matches = $resolver->resolveAll('Tôi có một quán cà phê, nên dùng tính năng nào đầu tiên?');
+    $intents = array_column($matches, 'intent');
+    $message = $composer->composeMany($intents, mlhubAssistantContext());
+    $routeLabels = array_map(
+        static fn (array $action): string => $action[1],
+        MLHUBAIKnowledgeBase::routeActions('industry_recommendation'),
+    );
+
+    expect($intents[0])->toBe('industry_recommendation')
+        ->and($intents)->not->toContain('onboarding')
+        ->and($message)
+        ->toContain('quán cà phê hoặc trà sữa')
+        ->toContain('tạo cơ sở kinh doanh')
+        ->toContain('mã ưu đãi')
+        ->not->toContain('Bước 1')
+        ->and($routeLabels)
+        ->toContain('Quản lý cơ sở kinh doanh')
+        ->toContain('Quản lý chiến dịch')
+        ->toContain('Mở mã ưu đãi');
+});
+
+test('industry recommendation recognizes common local business types', function (string $question): void {
+    $match = (new MLHUBAIIntentResolver)->resolve($question);
+
+    expect($match['intent'])->toBe('industry_recommendation');
+})->with([
+    'Tôi có quán cafe thì nên dùng gì?',
+    'Quán trà sữa nên bắt đầu từ đâu?',
+    'Tôi có quán ăn thì dùng tính năng nào?',
+    'Tôi có nhà hàng thì dùng tính năng nào?',
+    'Tôi có spa thì dùng tính năng nào?',
+    'Tôi có salon thì dùng tính năng nào?',
+    'Tôi có bán lẻ thì dùng tính năng nào?',
+    'Tôi có khách sạn thì dùng tính năng nào?',
+]);
+
+test('credit questions merge help and credits into one focused answer', function (): void {
+    $resolver = new MLHUBAIIntentResolver;
+    $composer = new MLHUBAIResponseComposer;
+
+    $intents = array_column($resolver->resolveAll('AI Cơ bản có tốn điểm tín dụng không?'), 'intent');
+    $message = $composer->composeMany($intents, mlhubAssistantContext());
+    $actions = MLHUBAIKnowledgeBase::routeActions($intents[0]);
+    $labels = array_map(static fn (array $action): string => $action[1], $actions);
+
+    expect($intents)->toBe(['credits'])
+        ->and(substr_count($message, 'AI Cơ bản'))->toBe(1)
+        ->and(substr_count($message, 'tín dụng AI'))->toBeLessThanOrEqual(3)
+        ->and($message)->not->toContain('Bạn có thể hỏi về báo cáo hôm nay')
+        ->and($labels)
+        ->toContain('Xem lịch sử tín dụng AI')
+        ->toContain('Cài đặt AI')
+        ->not->toContain('Mở MLHUB AI');
+});
+
+test('qr guidance does not pull review or rating text', function (string $question): void {
+    $resolver = new MLHUBAIIntentResolver;
+    $intents = array_column($resolver->resolveAll($question), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext());
+
+    expect($intents)->toBe(['qr_scans'])
+        ->and($message)
+        ->toContain('QR')
+        ->toContain('báo cáo')
+        ->not->toContain('Trung bình')
+        ->not->toContain('đánh giá')
+        ->not->toContain('review')
+        ->not->toContain('rating')
+        ->not->toContain('4.0★');
+})->with([
+    'Tôi muốn khách quét mã QR thì phải làm sao?',
+    'Làm sao để tăng lượt quét QR?',
+]);
+
+test('onboarding actions avoid ai studio unless user asks ai explicitly', function (): void {
+    $service = new MLHUBAIAssistantService(
+        new OptionStore,
+        mlhubFakeContextBuilder(mlhubAssistantContext([
+            'onboarding' => ['create_business', 'create_campaign'],
+        ])),
+        new MLHUBAIIntentResolver,
+        new MLHUBAIResponseComposer,
+    );
+
+    $response = $service->ask(1, 'Tôi mới tạo tài khoản thì làm gì trước?', false, false);
+    $labels = array_column($response['actions'], 'label');
+
+    expect($response['intent'])->toBe('onboarding')
+        ->and($labels)
+        ->toContain('Quản lý cơ sở kinh doanh')
+        ->toContain('Quản lý chiến dịch')
+        ->not->toContain('Mở AI Studio');
 });

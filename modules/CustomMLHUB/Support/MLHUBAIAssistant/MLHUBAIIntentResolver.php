@@ -65,6 +65,7 @@ class MLHUBAIIntentResolver
         }
 
         $scored = $this->focusEverydayQuestion($scored, $normalized);
+        $scored = $this->removeDuplicateHelpCredit($scored);
         $scored = $this->removeGenericNextSteps($scored);
         $scored = $this->removeLooseDailyBriefing($scored);
         $scored = $this->removeReviewDuplication($scored);
@@ -167,16 +168,21 @@ class MLHUBAIIntentResolver
     {
         $focus = match (true) {
             $this->containsAny($normalized, [
-                'tao co so truoc hay tao chien dich truoc',
-                'tao co so kinh doanh truoc hay tao chien dich truoc',
-                'nen dung tinh nang nao dau tien',
                 'quan ca phe',
                 'quan cafe',
+                'quan tra sua',
+                'tra sua',
                 'quan an',
                 'nha hang',
                 'spa',
                 'salon',
                 'ban le',
+                'khach san',
+            ]) => ['industry_recommendation'],
+            $this->containsAny($normalized, [
+                'tao co so truoc hay tao chien dich truoc',
+                'tao co so kinh doanh truoc hay tao chien dich truoc',
+                'nen dung tinh nang nao dau tien',
             ]) => ['onboarding'],
             $this->containsAny($normalized, [
                 'de lai so dien thoai',
@@ -231,6 +237,24 @@ class MLHUBAIIntentResolver
         return array_values(array_filter(
             $matches,
             static fn (array $match): bool => ! in_array($match['intent'], ['reviews', 'review_booster'], true),
+        ));
+    }
+
+    /**
+     * @param  list<array{intent: string, confidence: float, matched_keywords: list<string>}>  $matches
+     * @return list<array{intent: string, confidence: float, matched_keywords: list<string>}>
+     */
+    protected function removeDuplicateHelpCredit(array $matches): array
+    {
+        $hasCredits = collect($matches)->contains(fn (array $match): bool => $match['intent'] === 'credits');
+
+        if (! $hasCredits) {
+            return $matches;
+        }
+
+        return array_values(array_filter(
+            $matches,
+            static fn (array $match): bool => $match['intent'] !== 'help_using_mlhubai',
         ));
     }
 
