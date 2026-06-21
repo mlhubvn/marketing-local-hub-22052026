@@ -7,55 +7,14 @@ class MLHUBAIIntentResolver
     protected const MATCH_THRESHOLD = 0.08;
 
     /**
-     * @return array<string, list<string>>
-     */
-    protected function intentKeywords(): array
-    {
-        return [
-            'greeting' => [
-                'xin chào', 'xin chao', 'chào', 'chao', 'hello', 'helo', 'hallo',
-                'alo', 'hi bạn', 'hi ban',
-            ],
-            'new_customers' => [
-                'khách mới', 'khach moi', 'customer mới', 'new customer', 'khách hàng mới',
-                'tuần này có khách', 'tuan nay co khach', 'có khách mới', 'co khach moi',
-            ],
-            'campaigns' => [
-                'chiến dịch', 'chien dich', 'campaign', 'đang chạy', 'dang chay',
-                'tổng hợp chiến dịch', 'tong hop chien dich', 'running campaign',
-            ],
-            'reviews' => [
-                'đánh giá', 'danh gia', 'review', 'sao', 'rating', 'phản hồi review',
-                'đánh giá tuần', 'danh gia tuan',
-            ],
-            'next_steps' => [
-                'làm gì', 'lam gi', 'gợi ý', 'goi y', 'next step', 'what should i do',
-                'chiến dịch mới', 'chien dich moi', 'đề xuất', 'de xuat', 'nên làm',
-            ],
-            'overview' => [
-                'tổng quan', 'tong quan', 'overview', 'báo cáo', 'bao cao', 'report',
-                'tình hình', 'tinh hinh', 'kết quả', 'ket qua',
-            ],
-            'visits' => [
-                'lượt quét', 'luot quet', 'qr scan', 'lượt truy cập', 'luot truy cap',
-                'visits', 'traffic',
-            ],
-            'businesses' => [
-                'cơ sở', 'co so', 'danh sách cơ sở', 'danh sach co so', 'doanh nghiệp', 'doanh nghiep',
-                'business', 'chi nhánh', 'chi nhanh', 'cửa hàng', 'cua hang', 'địa điểm', 'dia diem',
-            ],
-        ];
-    }
-
-    /**
-     * @return array{intent: string, confidence: float}
+     * @return array{intent: string, confidence: float, matched_keywords: list<string>}
      */
     public function resolve(string $question): array
     {
         $matches = $this->resolveAll($question);
 
         if ($matches === []) {
-            return ['intent' => 'unknown', 'confidence' => 0.0];
+            return ['intent' => 'unknown', 'confidence' => 0.0, 'matched_keywords' => []];
         }
 
         return $matches[0];
@@ -64,29 +23,44 @@ class MLHUBAIIntentResolver
     /**
      * Detect every intent the question touches, strongest first.
      *
-     * @return list<array{intent: string, confidence: float}>
+     * @return list<array{intent: string, confidence: float, matched_keywords: list<string>}>
      */
     public function resolveAll(string $question): array
     {
-        $normalized = mb_strtolower(trim($question));
+        $normalized = $this->normalize($question);
 
         if ($normalized === '') {
-            return [['intent' => 'overview', 'confidence' => 0.0]];
+            return [['intent' => 'overview', 'confidence' => 0.0, 'matched_keywords' => []]];
         }
 
         $scored = [];
 
-        foreach ($this->intentKeywords() as $intent => $needles) {
+        foreach (MLHUBAIKnowledgeBase::intentKeywords() as $intent => $needles) {
             $score = 0.0;
+            $matched = [];
+            $seenNeedles = [];
 
             foreach ($needles as $needle) {
-                if (str_contains($normalized, $needle)) {
-                    $score += mb_strlen($needle) / max(1, mb_strlen($normalized));
+                $normalizedNeedle = $this->normalize($needle);
+
+                if ($normalizedNeedle === '' || isset($seenNeedles[$normalizedNeedle])) {
+                    continue;
+                }
+
+                $seenNeedles[$normalizedNeedle] = true;
+
+                if (str_contains($normalized, $normalizedNeedle)) {
+                    $matched[] = mb_strtolower($needle);
+                    $score += max(0.08, mb_strlen($normalizedNeedle) / max(1, mb_strlen($normalized)));
                 }
             }
 
             if ($score >= self::MATCH_THRESHOLD) {
-                $scored[] = ['intent' => $intent, 'confidence' => min(1.0, $score * 4)];
+                $scored[] = [
+                    'intent' => $intent,
+                    'confidence' => min(1.0, $score * 4),
+                    'matched_keywords' => array_values(array_unique($matched)),
+                ];
             }
         }
 
@@ -110,13 +84,7 @@ class MLHUBAIIntentResolver
      */
     public function initialPrompts(): array
     {
-        return [
-            __('Any new customers this week?'),
-            __('Summarize running campaigns'),
-            __('Are this week\'s reviews good?'),
-            __('List my businesses'),
-            __('What should I do next? / Suggest a new campaign.'),
-        ];
+        return MLHUBAIKnowledgeBase::initialPrompts();
     }
 
     /**
@@ -126,7 +94,7 @@ class MLHUBAIIntentResolver
      */
     public function followUps(string $intent): array
     {
-        $deepen = $this->deepenPrompts()[$intent] ?? [];
+        $deepen = MLHUBAIKnowledgeBase::deepenPrompts()[$intent] ?? [];
 
         if ($deepen === []) {
             return $this->initialPrompts();
@@ -143,70 +111,38 @@ class MLHUBAIIntentResolver
     }
 
     /**
-     * Drill-down questions per topic.
-     *
-     * @return array<string, list<string>>
-     */
-    protected function deepenPrompts(): array
-    {
-        return [
-            'new_customers' => [
-                __('Where did the new customers come from?'),
-                __('How does it compare to last week?'),
-                __('How can I get more new customers?'),
-            ],
-            'campaigns' => [
-                __('Which campaign performs best?'),
-                __('Which campaign needs improvement?'),
-                __('How do I create a new campaign?'),
-            ],
-            'reviews' => [
-                __('Which reviews need a reply?'),
-                __('How can I get more 5-star reviews?'),
-                __('What is my average rating?'),
-            ],
-            'visits' => [
-                __('Where do the visits come from?'),
-                __('What is my conversion rate?'),
-                __('How can I get more QR scans?'),
-            ],
-            'businesses' => [
-                __('Which business performs best?'),
-                __('How do I add a new business?'),
-                __('Where do I update business info?'),
-            ],
-            'next_steps' => [
-                __('Suggest a weekend campaign'),
-                __('What should I prioritize first?'),
-                __('How can I grow revenue quickly?'),
-            ],
-            'overview' => [
-                __('Which metric is dropping?'),
-                __('What stood out this week?'),
-                __('What should I do next? / Suggest a new campaign.'),
-            ],
-            'greeting' => [],
-        ];
-    }
-
-    /**
      * Pool of starter questions for other topics, excluding the current intent.
      *
      * @return list<string>
      */
     protected function explorePrompts(string $intent): array
     {
-        $pool = [
-            'new_customers' => __('Any new customers this week?'),
-            'campaigns' => __('Summarize running campaigns'),
-            'reviews' => __('Are this week\'s reviews good?'),
-            'businesses' => __('List my businesses'),
-            'visits' => __('How are visits doing?'),
-            'next_steps' => __('What should I do next? / Suggest a new campaign.'),
-        ];
+        $pool = MLHUBAIKnowledgeBase::explorePrompts();
 
         unset($pool[$intent]);
 
         return array_values($pool);
+    }
+
+    protected function normalize(string $value): string
+    {
+        $value = mb_strtolower(trim($value));
+        $value = strtr($value, [
+            'à' => 'a', 'á' => 'a', 'ạ' => 'a', 'ả' => 'a', 'ã' => 'a',
+            'â' => 'a', 'ầ' => 'a', 'ấ' => 'a', 'ậ' => 'a', 'ẩ' => 'a', 'ẫ' => 'a',
+            'ă' => 'a', 'ằ' => 'a', 'ắ' => 'a', 'ặ' => 'a', 'ẳ' => 'a', 'ẵ' => 'a',
+            'è' => 'e', 'é' => 'e', 'ẹ' => 'e', 'ẻ' => 'e', 'ẽ' => 'e',
+            'ê' => 'e', 'ề' => 'e', 'ế' => 'e', 'ệ' => 'e', 'ể' => 'e', 'ễ' => 'e',
+            'ì' => 'i', 'í' => 'i', 'ị' => 'i', 'ỉ' => 'i', 'ĩ' => 'i',
+            'ò' => 'o', 'ó' => 'o', 'ọ' => 'o', 'ỏ' => 'o', 'õ' => 'o',
+            'ô' => 'o', 'ồ' => 'o', 'ố' => 'o', 'ộ' => 'o', 'ổ' => 'o', 'ỗ' => 'o',
+            'ơ' => 'o', 'ờ' => 'o', 'ớ' => 'o', 'ợ' => 'o', 'ở' => 'o', 'ỡ' => 'o',
+            'ù' => 'u', 'ú' => 'u', 'ụ' => 'u', 'ủ' => 'u', 'ũ' => 'u',
+            'ư' => 'u', 'ừ' => 'u', 'ứ' => 'u', 'ự' => 'u', 'ử' => 'u', 'ữ' => 'u',
+            'ỳ' => 'y', 'ý' => 'y', 'ỵ' => 'y', 'ỷ' => 'y', 'ỹ' => 'y',
+            'đ' => 'd',
+        ]);
+
+        return trim((string) preg_replace('/\s+/u', ' ', $value));
     }
 }

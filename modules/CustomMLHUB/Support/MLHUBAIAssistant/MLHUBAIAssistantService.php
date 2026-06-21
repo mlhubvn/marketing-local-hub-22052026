@@ -26,7 +26,14 @@ class MLHUBAIAssistantService
      *     intent: string,
      *     fallback_reason: string|null,
      *     suggestions: list<string>,
-     *     actions: list<array{label: string, url: string}>
+     *     actions: list<array{label: string, url: string}>,
+     *     metadata: array{
+     *         confidence: float,
+     *         matched_keywords: list<string>,
+     *         matches: list<array<string, mixed>>,
+     *         intents: list<string>,
+     *         advanced_requested: bool
+     *     }
      * }
      */
     public function ask(int $userId, string $question, bool $firstTouch = false, bool $advanced = false): array
@@ -41,6 +48,7 @@ class MLHUBAIAssistantService
                 'fallback_reason' => null,
                 'suggestions' => $this->intentResolver->initialPrompts(),
                 'actions' => [],
+                'metadata' => $this->responseMetadata([], $advanced),
             ];
         }
 
@@ -49,6 +57,7 @@ class MLHUBAIAssistantService
         $intents = array_map(static fn (array $match): string => $match['intent'], $matches);
         $primaryIntent = $intents[0] ?? 'unknown';
         $fallbackMessage = $this->responseComposer->composeMany($intents, $context, $firstTouch);
+        $metadata = $this->responseMetadata($matches, $advanced);
 
         $result = [
             'message' => $fallbackMessage,
@@ -57,6 +66,7 @@ class MLHUBAIAssistantService
             'fallback_reason' => null,
             'suggestions' => $this->intentResolver->followUps($primaryIntent),
             'actions' => $this->responseComposer->actionsFor($intents, $context),
+            'metadata' => $metadata,
         ];
 
         if (! $advanced) {
@@ -109,6 +119,40 @@ class MLHUBAIAssistantService
         }
 
         return $result;
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $matches
+     * @return array{
+     *     confidence: float,
+     *     matched_keywords: list<string>,
+     *     matches: list<array<string, mixed>>,
+     *     intents: list<string>,
+     *     advanced_requested: bool
+     * }
+     */
+    protected function responseMetadata(array $matches, bool $advanced): array
+    {
+        $primary = $matches[0] ?? [];
+        $matchedKeywords = [];
+
+        foreach ($matches as $match) {
+            foreach ((array) ($match['matched_keywords'] ?? []) as $keyword) {
+                $keyword = trim((string) $keyword);
+
+                if ($keyword !== '') {
+                    $matchedKeywords[] = $keyword;
+                }
+            }
+        }
+
+        return [
+            'confidence' => (float) ($primary['confidence'] ?? 0.0),
+            'matched_keywords' => array_values(array_unique($matchedKeywords)),
+            'matches' => $matches,
+            'intents' => array_values(array_map(static fn (array $match): string => (string) ($match['intent'] ?? 'unknown'), $matches)),
+            'advanced_requested' => $advanced,
+        ];
     }
 
     /**
