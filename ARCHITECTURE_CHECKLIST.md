@@ -2,7 +2,7 @@
 
 Tài liệu quy trình vận hành chuẩn cho dự án **MLHUB** khi làm việc với Cursor. Mục tiêu: code **ổn định, đúng phong cách lập trình viên gốc, an toàn cho production, và tiết kiệm tài nguyên đọc lại dự án**.
 
-> Đọc kèm: `.cursorrules` (luật cứng), `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_MODULE.md` (route/bảng/model/plan từng module), `ARCHITECTURE_FEATURE.md` (độ sẵn sàng/backlog), `ARCHITECTURE_PROMPT.md` (prompt mẫu dùng chay + cheatsheet lệnh).
+> Đọc kèm: `.cursorrules` (luật cứng), `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_MODULE.md` (route/bảng/model/plan từng module), `ARCHITECTURE_FEATURE.md` (độ sẵn sàng/backlog), `ARCHITECTURE_MLHUBAI.md` (Chat MLHUB AI intent/context), `ARCHITECTURE_SOP.md` (ngành nghề/SOP/scenario), `ARCHITECTURE_I18N.md` (copy UI), `ARCHITECTURE_PROMPT.md` (prompt mẫu dùng chay + cheatsheet lệnh).
 > **Bắt buộc:** đọc lướt file này trước khi bắt tay vào bất kỳ Task / tính năng mới nào.
 
 > **Workflow chuẩn (dùng chay Cursor):** việc lớn/rủi ro → **Plan → Duyệt → Code → Verify → Review**; bug → **Evidence/log → root cause → surgical fix → verify**; việc nhỏ → surgical ngay với `@file`. Superpowers (nếu bật) chỉ **tùy chọn**, không bắt buộc.

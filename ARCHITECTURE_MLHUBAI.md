@@ -5,6 +5,8 @@
 > Phạm vi: tính năng `MLHUB AI Assistant` tại `/portal/chatmlhubai`, Basic AI không dùng token OpenAI/Gemini, Advanced AI có thể dùng OpenAI/Gemini nếu bật và có API key.  
 > Trạng thái: đã quét, lập ma trận nội dung, và nâng cấp P0 cho Basic AI.
 
+> **Vai trò tài liệu:** file này là **nguồn sự thật kỹ thuật** cho Chat MLHUB AI (intent, context, template, route CTA). **Không** lặp catalog module → `ARCHITECTURE_MODULE.md`; **không** lặp backlog/độ sẵn sàng production → `ARCHITECTURE_FEATURE.md`; **không** lặp SOP ngành nghề đầy đủ → `ARCHITECTURE_SOP.md`; **không** lặp quy chuẩn copy UI → `ARCHITECTURE_I18N.md` §17.
+
 ---
 
 ## 1. Kết luận nhanh
@@ -535,3 +537,131 @@ Tất cả route action P1 đã thêm đều được grep từ route files hi�
 | `modules/*/Routes/web.php` của các module portal | Lập ma trận URL tính năng liên quan. |
 | `modules/*/Providers/*ServiceProvider.php` liên quan | Xác nhận sidebar, plan key, route surface thật sự được load. |
 | `ARCHITECTURE_FEATURE.md`, `ARCHITECTURE_MODULE.md` | Đối chiếu tài liệu hiện có; không thay thế quét code hiện tại. |
+
+---
+
+## 16. Định vị sản phẩm: Chat MLHUB AI vs Studio AI
+
+| Khía cạnh | Chat MLHUB AI (`portal.chatmlhubai`) | Studio AI (`portal.ai-studio/*`) |
+| --- | --- | --- |
+| Vai trò | Trợ lý vận hành — đọc số liệu thật, trả lời nhanh, gợi ý việc làm, mở đúng màn hình portal | Công cụ sáng tạo — viết/soạn/tái sử dụng nội dung, lập lịch, tạo ảnh, trả lời review bằng LLM |
+| Đầu vào | Câu hỏi tự nhiên 2–500 ký tự trong chat widget/full page | Form task cụ thể (caption, planner, repurpose, image, review reply…) |
+| Đầu ra | Câu trả lời ngắn + CTA route + suggested prompts | Nội dung draft có thể copy/lưu; có prompt history |
+| Dữ liệu nền | `MLHUBAIContextBuilder` — metrics dashboard/growth | Business/campaign context theo từng module AI Studio |
+| Credit mặc định | **Basic AI:** không trừ credit. **Advanced AI:** trừ `mlhub_ai_chat` khi gọi OpenAI/Gemini thành công | Mỗi task trừ action key riêng (`ai_studio_*`) — xem `ARCHITECTURE_SOP.md` §19 |
+| Permission | Feature `mlhub` (sidebar + panel) | Feature `ai_studio`, `ai_studio_caption_generator`, … |
+
+**Câu chốt nội bộ:** Chat MLHUB AI trả lời *“hôm nay thế nào, nên làm gì, mở đâu”*; Studio AI thực hiện *“viết/soạn/tạo giúp tôi”*.
+
+---
+
+## 17. Ranh giới nhiệm vụ giữa Chat MLHUB AI và Studio AI
+
+### 17.1 Chat MLHUB AI — nên làm
+
+- Giải thích metrics: visits, leads, bookings, review, conversion, top campaign, recent activity.
+- Gợi ý bước tiếp theo theo onboarding (`onboarding`, `next_steps`, `daily_briefing`).
+- Trả lời “mở ở đâu / route nào” qua CTA (`MLHUBAIKnowledgeBase::routeActions()`).
+- Gợi ý **loại** campaign/tool phù hợp ngành (intent `industry_recommendation`) — **không** viết full bài quảng cáo trong chat.
+
+### 17.2 Chat MLHUB AI — không nên làm
+
+- Viết caption dài, kế hoạch nội dung 7 ngày, poster AI, video script — chuyển sang Studio.
+- Bịa số liệu ngoài JSON context (Advanced AI system prompt cũng cấm).
+- Thay thế CRM/automation setup chi tiết — chỉ hướng dẫn route + rule ngắn.
+
+### 17.3 Studio AI — nên làm
+
+- Tạo/chỉnh nội dung marketing cụ thể (caption, repurpose, calendar, image, review reply).
+- Task có input form, preview, lưu prompt history (`portal.ai-studio.prompt-history`).
+
+### 17.4 Quy tắc phân luồng nhanh
+
+| User hỏi | Xử lý |
+| --- | --- |
+| “Tuần này có bao nhiêu lead?” | Chat Basic AI — intent `leads` |
+| “Viết caption khuyến mãi cuối tuần” | Chat CTA → `portal.ai-content`; thực thi ở Studio |
+| “Trả lời review này giúp tôi” | Studio `portal.ai-studio.review-reply` |
+| “MLHUB AI hỏi được gì?” | Chat — intent `help_using_mlhubai` |
+| “Còn bao nhiêu credit?” | Chat — intent `credits` (Basic AI; không bịa số nếu thiếu snapshot) |
+
+---
+
+## 18. Basic AI / Advanced AI / Credit Rules
+
+| Chế độ | Khi nào chạy | OpenAI/Gemini | Credit |
+| --- | --- | --- | --- |
+| **Basic AI** | Mặc định; toggle `useAdvancedAi = false` | Không gọi | Không trừ |
+| **Advanced AI** | User bật toggle **và** `ai_chat_status = 1` **và** có API key provider **và** `credit_service()->ensureCanConsume(..., 'mlhub_ai_chat')` | Gọi qua `MLHUBAIAssistantService::requestAssistantReply()` | Trừ `mlhub_ai_chat` sau khi thành công; plan cost key `credit_cost_mlhub_ai_chat` (mặc định **1** trong `PlanSeeder`) |
+
+**Luồng an toàn đã có trong code:**
+
+1. Luôn compose Basic AI trước (`source = fallback`).
+2. Nếu Advanced fail (API/key/credit/disabled) → vẫn hiển thị Basic AI + `fallback_reason`.
+3. Studio AI **độc lập** — mỗi module gọi credit action riêng; không dùng chung toggle Advanced của chat.
+
+**Không nhầm lẫn:**
+
+- Basic AI chat ≠ miễn phí mọi AI trên portal.
+- Advanced AI chat ≠ Studio AI — cùng có thể tốn credit nhưng khác feature key và UI entry.
+
+---
+
+## 19. Luồng điều hướng Chat → Studio
+
+```mermaid
+flowchart LR
+    A["User hỏi trong Chat MLHUB AI"] --> B{"Intent nghiệp vụ?"}
+    B -- "metrics / CTA portal" --> C["Basic AI trả lời + action route"]
+    B -- "ai_studio / ai_content_writer" --> D["Chat giải thích + CTA Studio"]
+    D --> E["User mở portal.ai-studio hoặc portal.ai-content"]
+    E --> F["Studio task — consume ai_studio_* credit"]
+    B -- "cần diễn giải tự do + bật Advanced" --> G["Advanced AI chat — mlhub_ai_chat"]
+```
+
+**CTA Studio hiện có trong knowledge base (P1):**
+
+| Intent | Route action gợi ý |
+| --- | --- |
+| `ai_studio` | `portal.ai-studio`, `portal.ai-studio.prompt-history`, `portal.ai-studio.settings` |
+| `ai_content_writer` | `portal.ai-content`, `portal.ai-studio` |
+| `help_using_mlhubai` | `portal.chatmlhubai`, `portal.ai-studio.settings` |
+| `credits` | `portal.credits`, `portal.ai-studio.settings` |
+
+Copy nút CTA user-facing → `ARCHITECTURE_I18N.md` §17.3.
+
+---
+
+## 20. Roadmap hoàn thiện MLHUB AI
+
+Roadmap **kỹ thuật assistant** (ngắn). Backlog production/QA/module → `ARCHITECTURE_FEATURE.md`.
+
+| Giai đoạn | Hạng mục | Tham chiếu |
+| --- | --- | --- |
+| **Đã xong (P0/P1)** | Knowledge base tách file, intent P0/P1, normalize không dấu, metadata confidence, composer top campaigns/recent activity, unit test cơ bản | §12–§13 |
+| **P1 còn lại** | Plan/credit snapshot trong context; context chi tiết booking/coupon/lead gần nhất; fallback coverage log | §12.3, §13.3 |
+| **P2** | Admin editor knowledge base; chat history; scheduled daily briefing notification | §11 |
+| **Song song SOP** | Runtime gợi ý theo `lb_businesses.type` / nhóm ngành — ma trận scenario | `ARCHITECTURE_SOP.md` §E |
+| **Song song i18n** | Nhãn Basic/Advanced, mô tả Chat vs Studio trên UI | `ARCHITECTURE_I18N.md` §17 |
+
+**Không mở rộng thêm backlog dài trong file này** — cập nhật trạng thái production tại `ARCHITECTURE_FEATURE.md` khi QA xong từng hạng mục.
+
+---
+
+## 21. Tham chiếu ngành nghề và scenario
+
+Chat MLHUB AI **không** lưu taxonomy ngành nghề đầy đủ. Nguồn sự thật:
+
+| Nội dung | File | Mục |
+| --- | --- | --- |
+| Nhóm ngành SOP + tính năng ưu tiên theo vùng | `ARCHITECTURE_SOP.md` | §5, §2.6–§2.10 |
+| KPI SOP → metric code | `ARCHITECTURE_SOP.md` | §7 |
+| Ma trận scenario Chat vs Studio theo ngành | `ARCHITECTURE_SOP.md` | §E |
+| Catalog type/onboarding UI | `ARCHITECTURE_MODULE.md` | `AppBusinessProfiles`, `BusinessTypeCatalog` |
+
+**Trong code assistant hiện tại:**
+
+- Intent `industry_recommendation` — keyword ngành (F&B, spa, bán lẻ…) → template trả lời rule-based (chưa đọc `lb_businesses.type` động).
+- CTA gợi ý: `portal.businesses`, `portal.qr-campaigns`, `portal.coupon-campaigns`.
+
+Khi triển khai gợi ý theo type thật: đọc metadata từ `BusinessTypeCatalog` + map sang intent/CTA — **không** nhân bản ma trận ngành dài trong file này.

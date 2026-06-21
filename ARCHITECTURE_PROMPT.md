@@ -4,7 +4,7 @@ Nơi lưu **prompt mẫu** để làm việc với Cursor và **cheatsheet lện
 
 > **Workflow chính: dùng chay Cursor (không cần plugin).** Superpowers chỉ là **tùy chọn** (§9). Prompt audit/diff cho **Codex** nằm ở `ARCHITECTURE_CODEX_PROMPT.md`.
 >
-> Đọc kèm: `.cursorrules`, `ARCHITECTURE_CHECKLIST.md`, `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_MODULE.md` (route/bảng/model/plan từng module), `ARCHITECTURE_FEATURE.md` (độ sẵn sàng/backlog).
+> Đọc kèm: `.cursorrules`, `ARCHITECTURE_CHECKLIST.md`, `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_FRONTEND.md`, `ARCHITECTURE_MODULE.md` (route/bảng/model/plan từng module), `ARCHITECTURE_FEATURE.md` (độ sẵn sàng/backlog), `ARCHITECTURE_MLHUBAI.md` (Chat MLHUB AI — chỉ khi task đụng assistant).
 > Mọi prompt nên đính kèm `@file` đúng chỗ thay vì `@Codebase` để tiết kiệm tài nguyên.
 > **Commit / push / redeploy Coolify do chủ dự án làm thủ công** — AI chỉ sửa local + soạn commit message.
 

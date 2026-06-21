@@ -1290,13 +1290,14 @@ Chưa có entity `dashboard_preset` — triển khai bằng:
 ## 19.1. Registered actions (`AppAIStudioServiceProvider`)
 
 
-| Action key                    | Plan cost key                             | Default cost |
-| ----------------------------- | ----------------------------------------- | ------------ |
-| `ai_studio_generate_captions` | `credit_cost_ai_studio_generate_captions` | 1            |
-| `ai_studio_repurpose_content` | `credit_cost_ai_studio_repurpose_content` | 1            |
-| `ai_studio_plan_calendar`     | `credit_cost_ai_studio_plan_calendar`     | 1            |
-| `ai_studio_review_reply`      | `credit_cost_ai_studio_review_reply`      | 1            |
-| `ai_studio_generate_image`    | `credit_cost_ai_studio_generate_image`    | 3            |
+| Action key                    | Plan cost key                             | Default cost | Provider module        |
+| ----------------------------- | ----------------------------------------- | ------------ | ---------------------- |
+| `ai_studio_generate_captions` | `credit_cost_ai_studio_generate_captions` | 1            | `AppAIStudio`          |
+| `ai_studio_repurpose_content` | `credit_cost_ai_studio_repurpose_content` | 1            | `AppAIStudio`          |
+| `ai_studio_plan_calendar`     | `credit_cost_ai_studio_plan_calendar`     | 1            | `AppAIStudio`          |
+| `ai_studio_review_reply`      | `credit_cost_ai_studio_review_reply`      | 1            | `AppAIStudio`          |
+| `ai_studio_generate_image`    | `credit_cost_ai_studio_generate_image`    | 3            | `AppAIStudio`          |
+| `mlhub_ai_chat`               | `credit_cost_mlhub_ai_chat`               | 1            | `CustomMLHUB` (Advanced AI chat only) |
 
 
 **Dùng trong code chưa register (fallback cost):** `ai_studio_semantic_search`, `ai_studio_best_time`, `ai_studio_review_content`, `ai_studio_generate_video`
@@ -1308,6 +1309,7 @@ Chưa có entity `dashboard_preset` — triển khai bằng:
 
 | Module              | Route                         | Credit action                  | Trạng thái        |
 | ------------------- | ----------------------------- | ------------------------------ | ----------------- |
+| CustomMLHUB         | `portal/chatmlhubai`          | `mlhub_ai_chat` (Advanced AI)  | ✅ Active — Basic AI không trừ credit |
 | AppAIStudio         | `portal/ai-studio`            | Campaign builder, review reply | ✅ Active          |
 | AppAIContent        | `portal/ai-studio/ai-content` | captions                       | ✅ Active          |
 | AppAIRepurpose      | `portal/ai-studio/repurpose`  | repurpose                      | 🟡 Active          |
@@ -1412,6 +1414,8 @@ Chi tiết từng biến: `.env.example`, `ARCHITECTURE_PROMPT.md` §4.
 | `ARCHITECTURE_BACKEND.md`    | Kiến trúc Laravel, middleware, registry        |
 | `ARCHITECTURE_MODULE.md`     | **Bản đồ 72 module: route/bảng/model/plan**    |
 | `ARCHITECTURE_FEATURE.md`    | Độ sẵn sàng production, backlog                |
+| `ARCHITECTURE_MLHUBAI.md`    | Chat MLHUB AI: intent, context, Basic/Advanced, CTA |
+| `ARCHITECTURE_I18N.md`       | Quy chuẩn copy UI, Chat vs Studio              |
 | `ARCHITECTURE_FRONTEND.md`   | Blade, Livewire, theme, Tailwind               |
 | `ARCHITECTURE_CHECKLIST.md`  | Quy trình task, an toàn deploy                 |
 | `ARCHITECTURE_PROMPT.md`     | Prompt mẫu (dùng chay), bootstrap `mlhub:install` |
@@ -1446,6 +1450,30 @@ Thêm các dòng sau vào bảng `Gap / chưa có trong code`:
 | Search alias ngành tiếng Việt                    | Chưa có                                                        |
 | Runtime recommendation theo business type        | Chưa có — dùng metadata trước, chưa cần DB                     |
 | Taxonomy schema chính thức                       | Chưa làm ở giai đoạn 1 — chỉ cân nhắc sau khi có dữ liệu thật  |
+
+
+## E. Ma trận scenario: Chat MLHUB AI vs Studio AI theo ngành
+
+> **Vai trò:** ma trận ngắn để product/engineering phân luồng user. Chi tiết SOP từng ngành → **§5**, taxonomy/type → **§2**. Kỹ thuật intent/CTA chat → `ARCHITECTURE_MLHUBAI.md` §16–§21.
+
+| Nhóm SOP (§5) | Chat MLHUB AI — trả lời / CTA portal | Studio AI — khi user cần *tạo nội dung* |
+| --- | --- | --- |
+| F&B | `daily_briefing`, `qr_scans`, `coupon`, `review_booster`, `industry_recommendation`; CTA `portal.qr-campaigns`, `portal.coupon-campaigns`, `portal.review-booster` | Caption ưu đãi/menu (`portal.ai-content`); poster (`portal.ai-image`); lịch đăng bài (`portal.ai-content-planner`) |
+| Làm đẹp | `booking`, `feedback`, `leads`; CTA `portal.booking-pages`, `portal.feedback-forms` | Caption dịch vụ; trả lời review (`portal.ai-studio.review-reply`); ảnh before/after (`portal.ai-image`) |
+| Bán lẻ | `coupon`, `leads`, `conversion`; CTA `portal.coupon-campaigns`, `portal.lead-forms` | Caption sale; repurpose nội dung cũ (`portal.ai-repurpose`) |
+| Dịch vụ địa phương | `leads`, `booking`, `crm_segments`; CTA `portal.lead-forms`, `portal.crm.tasks` | Caption báo giá/nhắc lịch; email draft qua template marketing (không thay automation) |
+| Du lịch | `booking`, `leads`, `review_booster`; CTA `portal.booking-pages`, `portal.referral` (public) | Caption tour/experience; planner lịch nội dung mùa |
+| Giáo dục | `leads`, `booking`; CTA `portal.lead-forms`, `portal.booking-pages` | Caption tuyển sinh; repurpose buổi học → post ngắn |
+| Sức khỏe | `booking`, `feedback`; CTA `portal.booking-pages` — **tránh** copy cam kết điều trị (xem `ARCHITECTURE_I18N.md`) | Caption nhắc lịch/khuyến mãi an toàn; review reply trung tính |
+| B2B | `leads`, `crm_segments`, `conversion`; CTA `portal.crm`, `portal.lead-forms` | Caption case study ngắn; content writer CTA rõ ràng |
+
+**Quy tắc scenario:**
+
+1. Câu hỏi *số liệu / việc cần làm / mở màn hình* → Chat (ưu tiên Basic AI).
+2. Câu hỏi *viết/soạn/tạo giúp* → Studio (credit `ai_studio_*`).
+3. Chat có thể **giới thiệu** Studio qua intent `ai_studio` / `ai_content_writer` — không thay Studio task trong chat.
+
+**Intent chat liên quan ngành:** `industry_recommendation` (keyword F&B/spa/bán lẻ…) — hiện rule-based; roadmap map theo `BusinessTypeCatalog` → `ARCHITECTURE_MLHUBAI.md` §20–§21.
 
 
 ---

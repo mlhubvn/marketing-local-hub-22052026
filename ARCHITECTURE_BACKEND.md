@@ -305,7 +305,7 @@ Thứ tự rất quan trọng:
   2. `credit_service()->ensureCanConsume($planOwner, 'action_key')` trước khi gọi LLM.
   3. Bọc `try/catch (Throwable)` và **có fallback** (xem `AppAIContent\Livewire\AIContentIndex`).
   4. `consume_credits($planOwner, 'action_key', [...])` sau khi thành công.
-- **Credit action chỉ đăng ký trong `AppAIStudio`** (5 key: caption/repurpose/plan-calendar/review-reply cost 1, image cost 3). **4 module AI dormant** (`AppAIVideo`, `AppAIReview`, `AppAIBestTime`, `AppAISemanticSearch`) không nạp route + credit action chưa register — xem `ARCHITECTURE_MODULE.md` §8.
+- **Credit action chỉ đăng ký trong `AppAIStudio`** (5 key: caption/repurpose/plan-calendar/review-reply cost 1, image cost 3). **`CustomMLHUB`** đăng ký thêm `mlhub_ai_chat` cho Advanced AI chat (`credit_cost_mlhub_ai_chat`) — Basic AI chat không trừ credit. **4 module AI dormant** (`AppAIVideo`, `AppAIReview`, `AppAIBestTime`, `AppAISemanticSearch`) không nạp route + credit action chưa register — xem `ARCHITECTURE_MODULE.md` §8, assistant matrix → `ARCHITECTURE_MLHUBAI.md`.
 
 ---
 

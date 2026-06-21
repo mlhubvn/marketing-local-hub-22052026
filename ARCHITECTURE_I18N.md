@@ -1395,23 +1395,54 @@ Lưu ý: Nếu các value này hiển thị trực tiếp cho user cuối thì c
 
 ## 17. Quy tắc cho AI / Assistant copy
 
-MLHUB có phần MLHUB AI assistant preview. Dịch phần này phải thể hiện đúng tầm nhìn:
+MLHUB có hai bề mặt AI user-facing: **Chat MLHUB AI** (`portal.chatmlhubai`) và **Studio AI** (`portal.ai-studio/*`). Dịch phải thể hiện đúng ranh giới — chi tiết kỹ thuật → `ARCHITECTURE_MLHUBAI.md` §16–§17; ma trận scenario theo ngành → `ARCHITECTURE_SOP.md` §E.
 
-- Người dùng hỏi bằng ngôn ngữ tự nhiên.
-- AI trả lời dựa trên dữ liệu tăng trưởng.
-- Không hứa tính năng đã có nếu đang “coming soon”.
-- Không nói quá mức.
+### 17.1. Chat MLHUB AI — nguyên tắc copy
 
-Ví dụ chuẩn:
+- Người dùng hỏi bằng ngôn ngữ tự nhiên về **dữ liệu tăng trưởng** và **việc cần làm hôm nay**.
+- Basic AI: nhấn mạnh **không tốn tín dụng AI** / không dùng token (đúng với code).
+- Advanced AI: nói rõ cần bật toggle, API key admin, và **có thể trừ tín dụng** (`mlhub_ai_chat`).
+- Không hứa tính năng Studio chưa bật route; không bịa số liệu.
+
+### 17.2. Studio AI — nguyên tắc copy
+
+- Nhãn menu: **AI Studio** hoặc tên task cụ thể (Content Writer, Repurpose, Planner, AI Image…).
+- Mỗi task **có thể tốn tín dụng AI** — hiển thị cost trước khi chạy nếu UI có hook.
+- Không gọi Studio là “Chat MLHUB AI”; không gộp vào toggle Basic/Advanced của chat widget.
+
+### 17.3. Bảng copy chuẩn (Chat widget / full page)
 
 
-| English                                          | Vietnamese chuẩn                                               |
-| ------------------------------------------------ | -------------------------------------------------------------- |
-| Ask MLHUB AI in natural language                 | Hỏi MLHUB AI bằng tiếng Việt tự nhiên                          |
-| Talk to your growth data on Portal Dashboard.    | Trò chuyện với dữ liệu tăng trưởng ngay trên Portal Dashboard. |
-| What should I do next? / Suggest a new campaign. | Tôi nên làm gì tiếp? / Gợi ý một chiến dịch mới.               |
-| Smart assistant, coming soon.                    | Trợ lý thông minh, sắp ra mắt.                                 |
+| English | Vietnamese chuẩn |
+| --- | --- |
+| Introducing MLHUB AI | Giới thiệu MLHUB AI |
+| Ask MLHUB AI in natural language | Hỏi MLHUB AI bằng tiếng Việt tự nhiên |
+| Talk to your growth data on Portal Dashboard. | Trò chuyện với dữ liệu tăng trưởng ngay trên Portal Dashboard. |
+| Ask in plain language — get answers about campaigns, reviews, and bookings. | Hỏi bằng tiếng Việt đời thường — nhận câu trả lời về chiến dịch, đánh giá và đặt lịch. |
+| MLHUB AI | MLHUB AI |
+| Growth assistant report | Báo cáo trợ lý tăng trưởng |
+| Basic AI | Basic AI |
+| Advanced AI | Advanced AI |
+| Open full chat | Mở chat đầy đủ |
+| What should I do next? / Suggest a new campaign. | Tôi nên làm gì tiếp? / Gợi ý một chiến dịch mới. |
+| Smart assistant, coming soon. | Trợ lý thông minh, sắp ra mắt. |
 
+**Ghi chú toggle:** giữ nguyên nhãn tiếng Anh **Basic AI** / **Advanced AI** trên UI (thuật ngữ sản phẩm); mô tả phụ có thể Việt hóa trong tooltip/help nếu thêm sau.
+
+### 17.4. Bảng copy chuẩn (Studio — nhãn task)
+
+
+| English | Vietnamese chuẩn |
+| --- | --- |
+| AI Studio | AI Studio |
+| Campaign Builder | Campaign Builder |
+| Content Writer | Content Writer |
+| Content Planner | Lập kế hoạch nội dung |
+| Repurpose | Tái sử dụng nội dung |
+| AI Image | Tạo ảnh AI |
+| Review Reply | Trả lời đánh giá |
+| Prompt history | Lịch sử prompt |
+| AI settings | Cài đặt AI |
 
 Không dùng:
 

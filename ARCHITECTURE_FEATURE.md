@@ -2,7 +2,7 @@
 
 Tài liệu đánh giá **hệ thống lõi**, **5 growth tool** (engine `lb_campaigns`), **AI Campaign**, và **module portal mở rộng** sau cập nhật upstream (CRM, Email automation, Loyalty/Referral, Báo cáo). Dùng làm **lộ trình chuẩn bị phát hành**. Mỗi mục gồm: Tổng quan → Luồng kỹ thuật → Ma trận độ sẵn sàng → Việc cần làm.
 
-> **Phạm vi:** file này nói **độ sẵn sàng & backlog**. Danh sách module/route/bảng/permission đầy đủ → `ARCHITECTURE_MODULE.md`. Kiến trúc hệ thống → `ARCHITECTURE_BACKEND.md`.
+> **Phạm vi:** file này nói **độ sẵn sàng & backlog**. Danh sách module/route/bảng/permission đầy đủ → `ARCHITECTURE_MODULE.md`. Kiến trúc hệ thống → `ARCHITECTURE_BACKEND.md`. Ma trận intent/context Chat MLHUB AI → `ARCHITECTURE_MLHUBAI.md` (không lặp backlog assistant dài ở đây).
 
 > **Quy ước trạng thái:**
 >

@@ -2,7 +2,7 @@
 
 > Dùng với **Codex CLI** hoặc Codex trong IDE. Copy prompt bên dưới, điền phạm vi `@file`, **không** quét toàn repo.
 >
-> Đọc kèm: `.cursorrules`, `ARCHITECTURE_CHECKLIST.md`, `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_MODULE.md` (route/bảng/model/plan từng module), `ARCHITECTURE_FEATURE.md`, `ARCHITECTURE_PROMPT.md` §10.
+> Đọc kèm: `.cursorrules`, `ARCHITECTURE_CHECKLIST.md`, `ARCHITECTURE_BACKEND.md`, `ARCHITECTURE_MODULE.md` (route/bảng/model/plan từng module), `ARCHITECTURE_FEATURE.md`, `ARCHITECTURE_MLHUBAI.md` (khi audit assistant), `ARCHITECTURE_PROMPT.md` §10.
 >
 > **Quy tắc cố định:** Codex chỉ sửa local — không `git commit`, không `git push`, không SSH server, không `migrate:fresh`/`db:wipe` trên production.
 
