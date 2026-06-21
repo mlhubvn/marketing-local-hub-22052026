@@ -2,8 +2,9 @@
 
 > Ngày quét: 2026-06-20  
 > Cập nhật P0: 2026-06-21 - P0 đã được duyệt và đã triển khai.  
+> **Đối chiếu code:** 2026-06-21 — rà soát lại trước khi giao Codex (xem §22–§24).
 > Phạm vi: tính năng `MLHUB AI Assistant` tại `/portal/chatmlhubai`, Basic AI không dùng token OpenAI/Gemini, Advanced AI có thể dùng OpenAI/Gemini nếu bật và có API key.  
-> Trạng thái: đã quét, lập ma trận nội dung, và nâng cấp P0 cho Basic AI.
+> Trạng thái: đã quét, lập ma trận nội dung, P0/P1 Knowledge Base + Phase B plan/credit snapshot đã triển khai trong code; test file có 31 case nhưng **chưa chạy được** trên môi trường local hiện tại.
 
 > **Vai trò tài liệu:** file này là **nguồn sự thật kỹ thuật** cho Chat MLHUB AI (intent, context, template, route CTA). **Không** lặp catalog module → `ARCHITECTURE_MODULE.md`; **không** lặp backlog/độ sẵn sàng production → `ARCHITECTURE_FEATURE.md`; **không** lặp SOP ngành nghề đầy đủ → `ARCHITECTURE_SOP.md`; **không** lặp quy chuẩn copy UI → `ARCHITECTURE_I18N.md` §17.
 
@@ -21,7 +22,7 @@ Tính năng MLHUBAI hiện đã có khung khả dụng cho giai đoạn "trợ l
 - Có context builder đọc metrics thật: business, campaign, active campaign, visits, leads, bookings, coupon claims, feedback, conversion rate, khách mới, review, top campaigns, recent activity.
 - Có CTA link theo intent: customers, QR campaigns, review booster, reports, businesses, AI Studio.
 
-Tuy nhiên, để Basic AI trả lời "mượt" như trợ lý hàng ngày, code hiện tại mới phủ lớp lõi của dashboard. Bộ intent hiện tại có 8 nhóm, 76 cụm từ khóa, 5 câu hỏi gợi ý đầu tiên, và 21 câu hỏi đào sâu. Trong khi sản phẩm hiện có nhiều module liên quan hơn: landing pages, booking, coupon, feedback, lead forms, CRM, Google Business, automation, loyalty/referral, file manager, credit, billing, team, support, AI Studio chi tiết. Nếu user hỏi các chủ đề này, Basic AI dễ rơi vào câu fallback "I did not quite catch that".
+Tuy nhiên, để Basic AI trả lời "mượt" như trợ lý hàng ngày, vẫn còn khoảng trống runtime ngoài Phase B: CRM/Google/automation/loyalty chưa có snapshot sâu; `industry_recommendation` mới là template rule-based (chưa map `lb_businesses.type`). Ma trận intent trong code hiện có **34 intent** trong `MLHUBAIKnowledgeBase::intentKeywords()` (xem §4.1, §12–§13).
 
 Khuyến nghị: trước khi dùng token LLM, nên mở rộng Basic AI thành một "knowledge router" nội bộ: intent matrix + metric matrix + URL matrix + question bank + response segment bank. Các đề xuất code nằm ở cuối file và cần được duyệt trước khi làm.
 
@@ -38,9 +39,9 @@ Khuyến nghị: trước khi dùng token LLM, nên mở rộng Basic AI thành 
 | Livewire compact | `modules/CustomMLHUB/Livewire/MLHUBAIDashboardPanel.php` | Panel chat compact trên dashboard. | Nếu không có feature `mlhub` thì ẩn panel. |
 | Shared trait | `modules/CustomMLHUB/Livewire/Concerns/InteractsWithMLHUBAIAssistant.php` | Quản lý messages, question, suggested prompts, toggle Advanced AI, validate câu hỏi 2-500 ký tự. | Chưa lưu lịch sử chat dài hạn, mới tồn tại trong state Livewire. |
 | Service | `modules/CustomMLHUB/Support/MLHUBAIAssistant/MLHUBAIAssistantService.php` | Orchestrator: build context, resolve intent, compose fallback, nếu advanced thì gọi OpenAI/Gemini và trừ credit. | Basic AI dùng trước, Advanced AI là lớp tăng cường. |
-| Intent resolver | `modules/CustomMLHUB/Support/MLHUBAIAssistant/MLHUBAIIntentResolver.php` | So khớp keyword bằng `str_contains`, tính confidence đơn giản. | Keyword hiện tại còn mỏng, chưa normalize không dấu/fuzzy typo tự động. |
-| Context builder | `modules/CustomMLHUB/Support/MLHUBAIAssistant/MLHUBAIContextBuilder.php` | Gom snapshot số liệu user trong cache 60 giây. | Đã đọc nhiều bảng growth core, chưa đọc sâu CRM/Google/automation/billing. |
-| Response composer | `modules/CustomMLHUB/Support/MLHUBAIAssistant/MLHUBAIResponseComposer.php` | Ghép câu trả lời theo intent, thêm greeting, CTA action. | Có câu trả lời ngắn gọn, nhưng mới có 7 intent nghiệp vụ. |
+| Intent resolver | `modules/CustomMLHUB/Support/MLHUBAIAssistant/MLHUBAIIntentResolver.php` | So khớp keyword trên bản normalized; multi-intent, priority, dedupe, focus câu hỏi đời thường. | 34 intent trong knowledge base; vẫn `str_contains` — chưa fuzzy typo. |
+| Context builder | `modules/CustomMLHUB/Support/MLHUBAIAssistant/MLHUBAIContextBuilder.php` | Gom snapshot số liệu user trong cache 60 giây. | Đã đọc growth core + top/recent activity + plan/credit snapshot; chưa CRM/Google sâu. |
+| Response composer | `modules/CustomMLHUB/Support/MLHUBAIAssistant/MLHUBAIResponseComposer.php` | Ghép câu trả lời theo intent, greeting, CTA, footer metric/guidance, cap multi-intent. | 33 intent + `composeUnknown`; `credits`/`plan_limits` dùng số thật khi snapshot có dữ liệu. |
 | UI | `modules/CustomMLHUB/Resources/views/partials/chat-shell.blade.php` | Chat shell, toggle Basic/Advanced, message bubbles, action buttons, suggested prompts. | UI đã nói rõ Basic AI không tốn credits; Advanced AI cần API key và credit. |
 
 ---
@@ -74,28 +75,32 @@ Nguyên tắc tốt đã có:
 Điểm cần cảnh giác:
 
 - Model mặc định trong service đang là `gpt-5.4`. Cần đối chiếu với cấu hình thật trước khi bật Advanced AI production.
-- Nếu user hỏi ngoài 7 intent nghiệp vụ hiện có, Basic AI không có "tri thức sản phẩm" để trả lời.
-- Fallback không log coverage/confidence, nên khó biết user đang hỏi nhóm nào bị thiếu.
+- Câu hỏi ngoài 34 intent hoặc keyword chưa phủ → `unknown` + gợi ý explore prompts; chưa có tri thức sản phẩm sâu cho automation/loyalty/public URL cụ thể.
+- Fallback không log coverage/confidence ra storage, nên khó biết user đang hỏi nhóm nào bị thiếu (chỉ metadata trong response Livewire).
 
 ---
 
 ## 4. Hiện trạng Basic AI
 
-### 4.1 Chỉ số hiện tại
+### 4.1 Chỉ số hiện tại (đối chiếu code 2026-06-21)
 
 | Chỉ số | Giá trị hiện tại | Nguồn |
 | --- | ---: | --- |
-| Intent tổng | 8 | `greeting`, `new_customers`, `campaigns`, `reviews`, `next_steps`, `overview`, `visits`, `businesses` |
-| Intent nghiệp vụ có câu trả lời riêng | 7 | Trừ `greeting`; unknown dùng fallback chung. |
-| Cụm keyword hiện tại | 76 | Đếm từ `intentKeywords()`. |
-| Câu hỏi gợi ý ban đầu | 5 | `initialPrompts()`. |
-| Câu hỏi đào sâu cùng topic | 21 | 7 nhóm x 3 câu. |
-| Explore prompts | 6 | Pool câu hỏi để chuyển chủ đề. |
-| CTA route groups | 7 | customers, qr-campaigns, review-booster, reports, businesses, ai-studio. |
-| Cache context | 60 giây | `MLHUBAIContextBuilder::CACHE_TTL_SECONDS`. |
-| Giới hạn input | 2-500 ký tự | Livewire validation. |
+| Intent trong `intentKeywords()` | 34 | `MLHUBAIKnowledgeBase::intentKeywords()` — gồm P0, P1, legacy (`greeting`, `new_customers`, …) và `industry_recommendation` |
+| Intent có template `compose*()` | 33 + `composeUnknown` | `MLHUBAIResponseComposer` — `greeting` qua `composeGreeting()` |
+| Cụm keyword (ước lượng) | ~280+ | Đếm trong block `intentKeywords()` |
+| Starter prompts | 5 | `initialPrompts()` — tiếng Việt qua `__()` |
+| Deepen prompts | 34 nhóm × 3 câu | `deepenPrompts()` |
+| Explore prompts | 13 | `explorePrompts()` |
+| CTA intent có `routeActions()` | 20+ nhóm | Runtime lọc bằng `Route::has()` trong `intentActions()` |
+| Resolver | normalize + priority + dedupe | `MLHUBAIIntentResolver`: `normalize()`, `intentPriority()`, `focusEverydayQuestion()`, `removeDuplicateHelpCredit()`, `removeGenericNextSteps()`, `removeLooseDailyBriefing()`, `removeReviewDuplication()`; câu navigation ưu tiên 1 intent |
+| Cache context | 60 giây | `MLHUBAIContextBuilder::CACHE_TTL_SECONDS` |
+| Giới hạn input | 2–500 ký tự | Livewire validation |
+| Unit tests | 31 cases | `tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` — **chưa chạy được** trên host (thiếu `php` PATH) |
 
-### 4.2 Intent và keyword hiện tại
+> **Lưu ý:** §4.2 bên dưới là **ảnh chụp baseline trước P0/P1** (2026-06-20). Ma trận intent/keyword đầy đủ sau nâng cấp → §12.1, §13 và `MLHUBAIKnowledgeBase.php`.
+
+### 4.2 Intent và keyword hiện tại (baseline trước P0/P1 — giữ để đối chiếu lịch sử)
 
 | Intent | Keyword hiện tại | Câu hỏi gợi ý/follow-up hiện tại | Metrics/Context đang dùng | CTA hiện tại |
 | --- | --- | --- | --- | --- |
@@ -126,8 +131,8 @@ Nguyên tắc tốt đã có:
 | `weekly_signals.*` | leads, bookings, positive reviews, coupon claims, QR scans trong tuần | Nhiều model growth | Sẵn sàng |
 | `reviews.*` | Count, average rating, needs reply, positive count trong tuần | `ReviewFeedback` | Sẵn sàng |
 | `active_campaigns[]` | 6 campaign đã publish gần nhất, type, visits, conversions | `QrCampaign`, conversions tổng hợp | Sẵn sàng |
-| `top_campaigns[]` | Top 5 campaign theo visits/conversions | `PortalGrowthDashboardMetrics` | Có trong context nhưng chưa được response composer khai thác sâu |
-| `recent_activity[]` | 5 activity gần nhất | `PortalGrowthDashboardMetrics` | Có trong context nhưng chưa được response composer khai thác sâu |
+| `top_campaigns[]` | Top 5 campaign theo visits/conversions | `PortalGrowthDashboardMetrics` | Composer đã dùng trong `daily_briefing`, `top_campaigns` |
+| `recent_activity[]` | 5 activity gần nhất | `PortalGrowthDashboardMetrics` | Composer đã dùng trong `daily_briefing` |
 | `business_list` | Count và tối đa 12 tên business | `LocalBusiness` | Sẵn sàng |
 | `onboarding` | create_business, create_campaign, publish_campaign, share_qr, boost_reviews | Derived từ metrics | Sẵn sàng |
 
@@ -143,88 +148,83 @@ Nguyên tắc tốt đã có:
 | Sidebar portal | Đã đăng ký item `MLHUB AI Assistant`, chỉ hiện khi user có feature `mlhub`. |
 | Dashboard panel | Đã có compact chat panel và link mở full chat. |
 | Basic/Advanced toggle | Đã có UI và logic. Basic không dùng credit. Advanced cần API key và credit. |
-| Context live data | Đã gom data thật từ dashboard/growth modules. |
-| Intent matching | Đã có nhưng còn đơn giản. |
-| Response templates | Đã có nhưng phủ ít chủ đề. |
-| CTA action | Đã có nhưng ít route liên quan. |
-| Credit | Advanced AI mới trừ `mlhub_ai_chat`. |
-| Test riêng cho MLHUBAI | Chưa thấy test trong `tests/` cho resolver/composer/service. |
+| Context live data | Đã gom data thật từ dashboard/growth modules + plan/credit snapshot qua `MLHUBAIContextBuilder` | Chưa có CRM/Google/automation chi tiết |
+| Intent matching | Đã có normalize, multi-intent, priority, dedupe, focus câu hỏi đời thường | Vẫn `str_contains` trên bản normalized — chưa fuzzy typo |
+| Response templates | 33 intent + unknown; footer phân biệt metric vs guidance | `industry_recommendation` còn 1 template F&B cố định |
+| CTA action | 20+ intent; `Route::has()` — route module tắt thì không render | Tối đa 3 action/response; onboarding **không** gợi ý Studio mặc định |
+| Credit | Advanced AI trừ `mlhub_ai_chat`; Basic không trừ | Cần API key + `ai_chat_status` — UI cảnh báo qua `advancedAiAvailable()` |
+| Test riêng cho MLHUBAI | **Đã có** 31 Pest cases | `tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` — **chưa chạy được** trên host hiện tại |
 
-### 5.2 Chưa bao phủ hết "ngóc ngách sản phẩm"
+### 5.2 Chưa bao phủ hết "ngóc ngách sản phẩm" (sau P0/P1 — cập nhật 2026-06-21)
 
-Những nhóm sau có route/module hiện hữu nhưng chưa có intent riêng, keyword riêng, câu hỏi riêng hoặc response segment riêng trong Basic AI:
+P0/P1 đã có intent riêng cho: landing pages, booking, coupon, feedback, leads, CRM segments, Google Business/reviews, AI Studio handoff, billing, teams, support, credits/plan_limits, business locations, customers, marketing templates, industry keyword (`industry_recommendation`).
 
-- Landing Pages
-- Review Booster chi tiết: review link, negative feedback, pending replies
-- Booking pages: lịch hẹn, service, slot, booking conversion
-- Coupon campaigns: mã đã phát, usage limit, coupon claims
-- Feedback forms: private feedback, low rating, NPS
-- Lead forms: source lead, lead quality, follow-up
-- Business locations
-- Customers chi tiết, segmentation, duplicate/merge
-- Advanced CRM: segments, tags, tasks, automations, reports
-- Google Business Profile: OAuth, locations, Google reviews, auto reply, posts, insights
-- Email/WhatsApp/Webhook automation
-- Loyalty cards và referral campaigns
+Nhóm **vẫn chưa** có intent/keyword/response riêng hoặc còn mỏng:
+
+- Email / WhatsApp / Webhook automation (chỉ automation CRM ở mức hướng dẫn)
+- Loyalty / referral campaigns
 - File manager, media search, image editor
-- AI Studio chi tiết: Campaign Builder, Content Writer, Repurpose, Planner, AI Image, Prompt History, Settings
-- Credits, billing, packages, invoices
-- Teams/workspace
-- Support tickets
-- Profile/security/language
-- Public URLs: `/qr/{slug}`, `/lp/{slug}`, `/b/{business}`, `/l/{location}`, loyalty/referral URLs
+- Profile / security / language / 2FA
+- Public URLs cụ thể (`/qr/{slug}`, `/lp/{slug}`, …) — cố ý không hard-code khi context thiếu slug
+- Chi tiết theo từng business (`portal.businesses.show`)
+- Snapshot sâu cho CRM/Google/automation/loyalty/files
+- Gợi ý ngành theo `lb_businesses.type` / `BusinessTypeCatalog` (template F&B cố định)
+- Coverage log cho `unknown` / fallback analytics
+- Module AI dormant (`portal.ai-video`, …) — **đúng** là không gợi ý trong knowledge base
 
-Nhận định: code hiện tại "vibecode" đã làm đủ khung chạy và phủ core dashboard, nhưng chưa lập thành bộ tri thức sản phẩm đầy đủ. Để MLHUBAI giống trợ lý thông báo mỗi ngày, cần bổ sung ma trận nội dung trước khi dùng LLM.
+Nhận định: Basic AI đã vượt xa baseline 8 intent, nhưng chưa thay trợ lý vận hành đầy đủ cho automation/loyalty/public link/plan snapshot.
 
 ---
 
 ## 6. Ma trận URL tính năng liên quan
 
+> **Cập nhật 2026-06-21:** Nhiều dòng bảng dưới là **ảnh chụp trước P0/P1**. Trạng thái intent/CTA thật sau nâng cấp → §12–§13, §22.6–§22.7, `MLHUBAIKnowledgeBase::routeActions()`.
+
 | Nhóm | Route name | URL/prefix | Basic AI nên hiểu để trả lời | Trạng thái trong Basic AI hiện tại |
 | --- | --- | --- | --- | --- |
-| MLHUBAI | `portal.chatmlhubai` | `/portal/chatmlhubai` | Mở trợ lý, giải thích Basic/Advanced AI | Có UI, chưa có intent "how_to_use_ai". |
-| Dashboard | `portal.dashboard` | `/portal/dashboard` | Tổng quan ngày, onboarding, widgets | Dùng metrics, chưa CTA trực tiếp trong composer. |
-| Businesses | `portal.businesses` | `/portal/businesses` | Tạo/sửa business, danh sách cơ sở | Đã có intent `businesses`. |
-| Business create | `portal.businesses.create` | `/portal/businesses/create` | Hướng dẫn tạo business đầu tiên | Chỉ có onboarding CTA chung. |
-| Business detail | `portal.businesses.show` | `/portal/businesses/{business}` | Hồ sơ, campaign, reviews, leads, reports của từng business | Chưa có intent theo business detail. |
-| Locations | `portal.businesses.locations`, `portal.locations` | `/portal/businesses/{business}/locations`, `/portal/locations` | Chi nhánh/địa điểm/QR địa điểm | Chưa có intent riêng. |
-| Customers | `portal.customers` | `/portal/customers` | Danh sách khách, khách mới | Có `new_customers`, nhưng chưa có lifecycle/segment. |
-| CRM | `portal.crm.*` | `/portal/crm/...` | Segment, tag, task, automation, CRM report | Chưa có intent. |
-| QR Campaigns | `portal.qr-campaigns` | `/portal/qr-campaigns` | Tạo QR, xem analytics QR | Có `campaigns`/`visits`, còn mỏng. |
-| QR Analytics | `portal.qr-campaigns.analytics` | `/portal/qr-campaigns/{slug}/analytics` | Campaign nào tốt/xấu | Chưa CTA analytics cụ thể. |
-| Public QR | `qr-campaigns.public` | `/qr/{campaign}` | Link công khai khách quét | Chưa có intent về public link. |
-| Landing Pages | `portal.landing-pages` | `/portal/landing-pages` | Tạo campaign page, form submit | Chưa có intent. |
-| Public landing | `landing-pages.public` | `/lp/{slug}` | Link landing public | Chưa có intent. |
-| Review Booster | `portal.review-booster` | `/portal/review-booster` | Lấy review, review xấu, pending reply | Có `reviews` nhưng chưa sâu. |
-| Booking | `portal.booking-pages` | `/portal/booking-pages` | Lịch hẹn, dịch vụ, slot trống | Chưa có intent riêng, chỉ tính booking count. |
-| Coupon | `portal.coupon-campaigns` | `/portal/coupon-campaigns` | Mã ưu đãi, claim, giới hạn | Chưa có intent riêng, chỉ tính coupon claims. |
-| Feedback | `portal.feedback-forms` | `/portal/feedback-forms` | Phản hồi riêng, điểm thấp, NPS | Chưa có intent riêng, chỉ tính feedback count. |
-| Lead Forms | `portal.lead-forms` | `/portal/lead-forms` | Lead, form, follow-up | Chưa có intent riêng, chỉ tính leads. |
-| Reports | `portal.reports` | `/portal/reports` | Báo cáo, conversion, top campaign | Có `overview`/`visits`, chưa dùng top_campaigns/recent_activity sâu. |
-| Marketing Templates | `portal.marketing-templates` | `/portal/marketing-templates` | Mẫu nội dung, template | Chưa có intent. |
-| AI Studio | `portal.ai-studio` | `/portal/ai-studio` | Campaign Builder | Chỉ CTA trong `next_steps`, chưa có intent. |
-| AI Review Reply | `portal.ai-studio.review-reply` | `/portal/ai-studio/review-reply` | Viết phản hồi review bằng AI | Chưa có intent. |
-| AI Content | `portal.ai-content` | `/portal/ai-studio/ai-content` | Viết caption/content | Chưa có intent. |
-| AI Planner | `portal.ai-content-planner` | `/portal/ai-studio/planner` | Kế hoạch nội dung | Chưa có intent. |
-| AI Repurpose | `portal.ai-repurpose` | `/portal/ai-studio/repurpose` | Tái sử dụng nội dung | Chưa có intent. |
-| AI Image | `portal.ai-image` | `/portal/ai-studio/image` | Tạo ảnh AI | Chưa có intent. |
-| Prompt history | `portal.ai-studio.prompt-history` | `/portal/ai-studio/prompt-history` | Lịch sử prompt | Chưa có intent. |
-| AI settings | `portal.ai-studio.settings` | `/portal/ai-studio/settings` | Cấu hình AI workspace/user | Chưa có intent. |
-| AI removed modules | `portal.ai-video`, `portal.ai-review`, `portal.ai-best-time`, `portal.ai-semantic-search` | Route files có trên đĩa nhưng providers không load route | Không nên gợi ý trong UI nếu provider đã remove surface | Chưa cần intent, nên ghi là không khả dụng. |
-| Google Business | `portal.google-business` | `/portal/integrations/google-business` | Google locations, reviews, posts, insights, auto reply | Chưa có intent. |
-| Email Automation | `portal.email-*` | `/portal/email-automation/...` | Email automation/template/log | Chưa có intent. |
-| WhatsApp | `portal.whatsapp-*` | `/portal/whatsapp-notification/...` | WhatsApp automation/template/log | Chưa có intent. |
-| Webhook | `portal.webhook-*` | `/portal/webhook-automation/...` | Webhook automation/log | Chưa có intent. |
-| Loyalty | `portal.loyalty-cards` | `/portal/loyalty-cards` | Thẻ tích điểm, referral | Chưa có intent. |
-| Files | `portal.files.index` | `/portal/files` | Thư viện file, preview/download/edit image | Chưa có intent. |
-| Credits | `portal.credits` | `/portal/credits` | Credit còn lại, lịch sử dùng | Chưa có intent trong chat. |
-| Packages | `portal.packages` | `/portal/packages` | Nâng cấp gói | Chưa có intent. |
-| Billing | `portal.billing`, `portal.invoices` | `/portal/billing`, `/portal/invoices` | Hóa đơn, subscription | Chưa có intent. |
-| Teams | `portal.teams` | `/portal/teams` | Workspace, team members | Chưa có intent. |
-| Support | `portal.support.index` | `/portal/support` | Ticket hỗ trợ | Chưa có intent. |
-| Profile | `portal.profile` | `/portal/profile` | Hồ sơ, mật khẩu | Chưa có intent. |
-| Affiliate | `portal.affiliate.index` | `/portal/affiliate` | Affiliate/referral revenue | Chưa có intent. |
-| Custom domains | `portal.brand.domains`, `portal.qr-codes.domains` | `/portal/brand/custom-domains`, `/portal/qr-codes/domains` | Tên miền riêng cho QR/campaign | Chưa có intent. |
+| MLHUBAI | `portal.chatmlhubai` | `/portal/chatmlhubai` | Mở trợ lý, giải thích Basic/Advanced AI | **Đã có** intent `help_using_mlhubai` + CTA chat/credits/settings. |
+| Dashboard | `portal.dashboard` | `/portal/dashboard` | Tổng quan ngày, onboarding, widgets | Metrics qua context; CTA `daily_briefing`, `onboarding`, `overview`. |
+| Businesses | `portal.businesses` | `/portal/businesses` | Tạo/sửa business, danh sách cơ sở | **Đã có** intent `businesses`. |
+| Business create | `portal.businesses.create` | `/portal/businesses/create` | Hướng dẫn tạo business đầu tiên | CTA qua `onboarding` / `next_steps`. |
+| Business detail | `portal.businesses.show` | `/portal/businesses/{business}` | Hồ sơ, campaign, reviews, leads, reports của từng business | **Chưa có** intent theo business detail. |
+| Locations | `portal.businesses.locations`, `portal.locations` | `/portal/businesses/{business}/locations`, `/portal/locations` | Chi nhánh/địa điểm/QR địa điểm | **Đã có** intent `business_locations` (hướng dẫn route). |
+| Customers | `portal.customers` | `/portal/customers` | Danh sách khách, khách mới | **Đã có** `customers`, `new_customers`; chưa lifecycle/segment sâu. |
+| CRM | `portal.crm.*` | `/portal/crm/...` | Segment, tag, task, automation, CRM report | **Đã có** intent `crm_segments` (hướng dẫn); chưa đọc CRM counts từ context. |
+| QR Campaigns | `portal.qr-campaigns` | `/portal/qr-campaigns` | Tạo QR, xem analytics QR | **Đã có** `campaigns`, `qr_scans`, `top_campaigns`, `visits`. |
+| QR Analytics | `portal.qr-campaigns.analytics` | `/portal/qr-campaigns/{slug}/analytics` | Campaign nào tốt/xấu | CTA qua `top_campaigns` / reports; chưa CTA analytics slug cụ thể. |
+| Public QR | `qr-campaigns.public` | `/qr/{campaign}` | Link công khai khách quét | **Chưa có** intent public link (cố ý — thiếu slug trong context). |
+| Landing Pages | `portal.landing-pages` | `/portal/landing-pages` | Tạo campaign page, form submit | **Đã có** intent `landing_pages`. |
+| Public landing | `landing-pages.public` | `/lp/{slug}` | Link landing public | **Chưa có** intent public slug. |
+| Review Booster | `portal.review-booster` | `/portal/review-booster` | Lấy review, review xấu, pending reply | **Đã có** `reviews`, `review_booster`. |
+| Booking | `portal.booking-pages` | `/portal/booking-pages` | Lịch hẹn, dịch vụ, slot trống | **Đã có** intent `booking` (count tuần; chưa upcoming chi tiết). |
+| Coupon | `portal.coupon-campaigns` | `/portal/coupon-campaigns` | Mã ưu đãi, claim, giới hạn | **Đã có** intent `coupon`. |
+| Feedback | `portal.feedback-forms` | `/portal/feedback-forms` | Phản hồi riêng, điểm thấp, NPS | **Đã có** intent `feedback`. |
+| Lead Forms | `portal.lead-forms` | `/portal/lead-forms` | Lead, form, follow-up | **Đã có** intent `leads`. |
+| Reports | `portal.reports` | `/portal/reports` | Báo cáo, conversion, top campaign | **Đã có** `overview`, `conversion`, `daily_briefing` + `top_campaigns`/`recent_activity`. |
+| Marketing Templates | `portal.marketing-templates` | `/portal/marketing-templates` | Mẫu nội dung, template | **Đã có** intent `marketing_templates`. |
+| AI Studio | `portal.ai-studio` | `/portal/ai-studio` | Campaign Builder | **Đã có** intent `ai_studio` — handoff khi user hỏi tạo nội dung. |
+| AI Review Reply | `portal.ai-studio.review-reply` | `/portal/ai-studio/review-reply` | Viết phản hồi review bằng AI | CTA qua `ai_studio`; thực thi ở Studio. |
+| AI Content | `portal.ai-content` | `/portal/ai-studio/ai-content` | Viết caption/content | **Đã có** intent `ai_content_writer`. |
+| AI Planner | `portal.ai-content-planner` | `/portal/ai-studio/planner` | Kế hoạch nội dung | Chưa intent riêng `ai_planner` — handoff qua `ai_studio` nếu hỏi chung. |
+| AI Repurpose | `portal.ai-repurpose` | `/portal/ai-studio/repurpose` | Tái sử dụng nội dung | Chưa intent riêng — handoff Studio. |
+| AI Image | `portal.ai-image` | `/portal/ai-studio/image` | Tạo ảnh AI | Chưa intent riêng — handoff Studio. |
+| Prompt history | `portal.ai-studio.prompt-history` | `/portal/ai-studio/prompt-history` | Lịch sử prompt | CTA trong `ai_studio`. |
+| AI settings | `portal.ai-studio.settings` | `/portal/ai-studio/settings` | Cấu hình AI workspace/user | CTA `help_using_mlhubai`, `credits`. |
+| AI removed modules | `portal.ai-video`, `portal.ai-review`, `portal.ai-best-time`, `portal.ai-semantic-search` | Route files có trên đĩa nhưng providers không load route | Không nên gợi ý trong UI nếu provider đã remove surface | **Đúng** — knowledge base không gợi ý; `Route::has()` lọc CTA. |
+| Google Business | `portal.google-business` | `/portal/integrations/google-business` | Google locations, reviews, posts, insights, auto reply | **Đã có** `google_business`, `google_reviews` (hướng dẫn; chưa connection snapshot). |
+| Email Automation | `portal.email-*` | `/portal/email-automation/...` | Email automation/template/log | **Chưa có** intent riêng. |
+| WhatsApp | `portal.whatsapp-*` | `/portal/whatsapp-notification/...` | WhatsApp automation/template/log | **Chưa có** intent riêng. |
+| Webhook | `portal.webhook-*` | `/portal/webhook-automation/...` | Webhook automation/log | **Chưa có** intent riêng. |
+| Loyalty | `portal.loyalty-cards` | `/portal/loyalty-cards` | Thẻ tích điểm, referral | **Chưa có** intent riêng. |
+| Files | `portal.files.index` | `/portal/files` | Thư viện file, preview/download/edit image | **Chưa có** intent riêng. |
+| Credits | `portal.credits` | `/portal/credits` | Credit còn lại, lịch sử dùng | **Đã có** intent `credits`; Phase B đọc số dư/cost nếu snapshot có dữ liệu. |
+| Packages | `portal.packages` | `/portal/packages` | Nâng cấp gói | CTA qua `credits`, `billing`, `plan_limits`. |
+| Billing | `portal.billing`, `portal.invoices` | `/portal/billing`, `/portal/invoices` | Hóa đơn, subscription | **Đã có** intent `billing`. |
+| Teams | `portal.teams` | `/portal/teams` | Workspace, team members | **Đã có** intent `teams`. |
+| Support | `portal.support.index` | `/portal/support` | Ticket hỗ trợ | **Đã có** intent `support`. |
+| Profile | `portal.profile` | `/portal/profile` | Hồ sơ, mật khẩu | **Chưa có** intent riêng. |
+| Affiliate | `portal.affiliate.index` | `/portal/affiliate` | Affiliate/referral revenue | **Chưa có** intent riêng. |
+| Custom domains | `portal.brand.domains`, `portal.qr-codes.domains` | `/portal/brand/custom-domains`, `/portal/qr-codes/domains` | Tên miền riêng cho QR/campaign | **Chưa có** intent riêng. |
 
 ---
 
@@ -277,7 +277,7 @@ Bảng này là "content matrix" để Basic AI trả lời mượt hơn mà ch�
 
 ### 8.1 Starter prompts nên thay/bổ sung
 
-Hiện có 5 câu bằng tiếng Anh. Nên bổ sung bản tiếng Việt hoặc đảm bảo translation có đầy đủ:
+**Hiện trạng code (2026-06-21):** `MLHUBAIKnowledgeBase::initialPrompts()` đã có **5 câu tiếng Việt** qua `__()`. Bảng dưới là gợi ý mở rộng thêm (chưa bắt buộc triển khai).
 
 | Nhóm | Câu hỏi nên có |
 | --- | --- |
@@ -397,7 +397,7 @@ Không thực hiện trong lần này. Đây là backlog để bạn chọn làm
 | P0 | Tách `intentKeywords`, `questionBank`, `routeMatrix`, `responseSegments` ra class/config riêng | Dễ mở rộng không làm phình `MLHUBAIIntentResolver` và `ResponseComposer` | Cần test để tránh vỡ Basic AI. |
 | P0 | Thêm unit test cho resolver/composer/service Basic AI | Bảo vệ keyword, multi-intent, fallback, CTA | Nên test trước khi sửa logic. |
 | P0 | Normalize tiếng Việt không dấu: dùng bản normalized song song, xử lý "danh gia" và "đánh giá" như nhau | Tăng match khi user gõ không dấu | Cần tránh làm hỏng từ khóa có dấu hiện tại. |
-| P0 | Thêm `matched_keywords`, `confidence`, `fallback_reason` nội bộ vào response metadata/log | Biết user hỏi gì mà hệ thống chưa trả lời được | Không cần hiện trên UI user. |
+| P0 | Thêm `matched_keywords`, `confidence` vào metadata; `fallback_reason` ở root response | Biết user hỏi gì mà hệ thống chưa trả lời được | **Chưa có** coverage log/persistence — chỉ trả về client Livewire state |
 | P1 | Mở rộng `MLHUBAIContextBuilder` theo module: plan/credits, landing, booking, coupon, lead, feedback, CRM, Google | Basic AI trả lời đầy đủ sản phẩm | Cần đọc bảng có điều kiện `Schema::hasTable` và plan feature. |
 | P1 | Thêm intent hierarchy: primary intent + secondary intents + topic entities | Câu hỏi "review và booking tuần này sao?" trả lời cả hai mượt hơn | Cần test multi-intent. |
 | P1 | Dùng `top_campaigns` và `recent_activity` trong composer | Trả lời có ngữ cảnh hơn, giống báo cáo mỗi ngày | Context đã có, chỉ cần composer dùng. |
@@ -416,12 +416,13 @@ Không thực hiện trong lần này. Đây là backlog để bạn chọn làm
 | Tách ma trận từ khóa/câu hỏi/route | Xong | `modules/CustomMLHUB/Support/MLHUBAIAssistant/MLHUBAIKnowledgeBase.php` | Thêm knowledge base riêng cho Basic AI: intent keywords, starter prompts, follow-up prompts, explore prompts, route actions. |
 | Mở rộng intent P0 | Xong | `MLHUBAIKnowledgeBase.php`, `MLHUBAIIntentResolver.php` | Đã thêm `help_using_mlhubai`, `daily_briefing`, `onboarding`, `top_campaigns`, `qr_scans`, `review_booster`, `booking`, `coupon`, `feedback`, `leads`, `conversion`, `credits`, `plan_limits`. |
 | Normalize tiếng Việt không dấu | Xong | `MLHUBAIIntentResolver.php` | Resolver chuyển câu hỏi và keyword về bản normalized, nên câu hỏi không dấu vẫn match được keyword có dấu/không dấu. |
-| Trả về matched keywords/confidence | Xong | `MLHUBAIIntentResolver.php`, `MLHUBAIAssistantService.php` | Response có `metadata.confidence`, `metadata.matched_keywords`, `metadata.matches`, `metadata.intents`, `metadata.advanced_requested`. |
+| Trả về matched keywords/confidence | Xong | `MLHUBAIIntentResolver.php`, `MLHUBAIAssistantService.php` | Response có `metadata.confidence`, `metadata.matched_keywords`, `metadata.matches`, `metadata.intents`, `metadata.advanced_requested`. `fallback_reason` nằm ở **root response**, không nằm trong `metadata`. |
+| Intent `industry_recommendation` + tinh chỉnh P1.3 | Xong (rule-based) | `MLHUBAIKnowledgeBase.php`, `MLHUBAIIntentResolver.php`, `MLHUBAIResponseComposer.php` | Keyword ngành + focus/dedupe; template F&B chung — **chưa** đọc `lb_businesses.type`. |
 | Starter prompts tiếng Việt | Xong | `MLHUBAIKnowledgeBase.php` | Đã thay bộ câu hỏi đầu bằng các câu hỏi Viet-first: báo cáo sáng nay, top campaign, Basic AI/credit, booking/coupon/lead, next action. |
 | Composer dùng top campaigns/recent activity | Xong | `MLHUBAIResponseComposer.php` | `daily_briefing` và `top_campaigns` đã đọc `top_campaigns[]`; `daily_briefing` đã đọc `recent_activity[]`. |
 | Thêm response segments cho P0 | Xong | `MLHUBAIResponseComposer.php` | Có đoạn trả lời riêng cho booking, coupon, feedback, leads, conversion, credits, plan limits, QR scan, Review Booster. |
 | CTA route liên quan P0 | Xong | `MLHUBAIKnowledgeBase.php`, `MLHUBAIResponseComposer.php` | Đã mở rộng CTA tới dashboard, reports, chatmlhubai, ai settings, booking pages, coupon campaigns, feedback forms, lead forms, credits, packages. |
-| Unit test bảo vệ Basic AI | Xong một phần | `tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` | Đã thêm test cho resolver multi-intent, starter prompts, composer daily briefing/top campaign, metadata service. Chưa chạy full Pest được do máy host chưa có PHP và Docker escalation bị quota chặn. |
+| Unit test bảo vệ Basic AI | Đã ghi nhận 31 cases — **chưa chạy được** | `tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` | Bao gồm P0, P1, P1.3 everyday Q&A, Phase B plan/credit snapshot, footer, onboarding/CRM contamination, CTA tiếng Việt. Host Windows thiếu `php` trên PATH (2026-06-21). |
 
 ### 12.1 Ma trận P0 sau nâng cấp
 
@@ -438,24 +439,21 @@ Không thực hiện trong lần này. Đây là backlog để bạn chọn làm
 | `feedback` | feedback, phan hoi, gop y, khach khong hai long, nps, rating thap | `metrics.feedback`, `reviews.needs_reply` | `portal.feedback-forms` |
 | `leads` | lead, khach tiem nang, form tu van, yeu cau bao gia, so dien thoai moi | `metrics.leads`, `weekly_signals.leads` | `portal.lead-forms`, `portal.customers` |
 | `conversion` | chuyen doi, conversion, ti le, hieu suat, funnel | `metrics.conversion_rate`, `visits`, `leads`, `bookings`, `coupon_claims`, `feedback` | `portal.reports` |
-| `credits` | credit, token, so du, het credit, mua them, usage | Rule nội bộ Basic không trừ credit | `portal.credits` |
-| `plan_limits` | gioi han, limit, goi hien tai, quota, het luot, nang goi | Chưa có plan snapshot trong context; trả lời cảnh báo không bịa số | `portal.packages` |
+| `credits` | credit, token, so du, het credit, mua them, usage | Phase B dùng `credits.*` snapshot thật nếu có; thiếu snapshot thì trả lời thận trọng và nhắc Basic AI không trừ credit | `portal.credits` |
+| `plan_limits` | gioi han, limit, goi hien tai, quota, het luot, nang goi | Phase B dùng `plan.*` snapshot thật nếu có; thiếu snapshot thì không bịa quota | `portal.packages` |
 
 ### 12.2 Trạng thái xác minh
 
 | Kiểm tra | Kết quả | Ghi chú |
 | --- | --- | --- |
-| PHP lint `MLHUBAIKnowledgeBase.php` bằng Docker | Pass | `No syntax errors detected`. |
-| `git diff --check` | Pass | Chỉ có cảnh báo line-ending CRLF/LF của workspace Windows, không có whitespace error. |
-| `php -v` trên host | Fail môi trường | Host hiện báo `php` không có trên PATH. |
-| Pest/PHPUnit P0 | Chưa chạy được | Lần trước container Laravel dùng `php:8.3-cli` bị lỗi boot theme `No theme registered for area [guest]`; lần tiếp theo Docker escalation bị quota chặn. Cần chạy lại khi có PHP host hoặc container app đã boot theme đúng. |
+| Pest `MLHUBAIAssistantBasicAiTest` | **Chưa chạy được** | Host báo `php` không có trên PATH (2026-06-21). File test tồn tại 31 cases — cần chạy trên PHP 8.3+ hoặc container app đầy đủ. |
+| PHP lint (các file assistant) | Chưa chạy lại trong lần audit này | Lần trước ghi nhận pass qua Docker — không lặp lại vì môi trường local thiếu PHP. |
 
 ### 12.3 Việc còn lại sau P0
 
 | Ưu tiên tiếp | Đề xuất | Lý do |
 | --- | --- | --- |
-| P1 | Bổ sung plan/credit snapshot vào `MLHUBAIContextBuilder` | Để `credits` và `plan_limits` trả lời bằng số thật thay vì rule chung. |
-| P1 | Thêm context chi tiết cho booking/coupon/lead/feedback gần nhất | Để trả lời "ai", "lúc nào", "campaign nào" sâu hơn. |
+| P1 | Bổ sung chi tiết gần nhất cho booking/coupon/lead/feedback | Plan/credit snapshot Phase B đã có; bước còn lại là trả lời "ai", "lúc nào", "campaign nào" sâu hơn. |
 | P1 | Lưu coverage log cho unknown/fallback | Để biết user hỏi nhóm nào nhiều và bổ sung keyword đúng nhu cầu thật. |
 | P1 | Chạy lại Pest trên môi trường PHP đầy đủ | Khóa chắt P0 bằng test tự động trước khi mở tiếp. |
 
@@ -478,13 +476,37 @@ Phạm vi lần này: chỉ mở rộng Basic AI Knowledge Base và response tem
 | `teams` | Xong | `portal.teams` | Không dùng route join/stream/switch trong action. |
 | `support` | Xong | `portal.support.index` | Không dùng support show vì cần ticket param. |
 
-### 13.1 Test P1 đã thêm
+### 13.1 Test đã ghi nhận trong repo (31 cases — chưa chạy được runtime)
 
-| Test | Mục đích |
-| --- | --- |
-| `resolver recognizes P1 portal product intents` | Bảo vệ resolver nhận diện đủ 12 intent P1 với câu hỏi không dấu/mixed English. |
-| `P1 route actions stay portal scoped and avoid dynamic public URLs` | Bảo vệ route action không có `admin`, không có route dynamic param, và có các route portal cần thiết. |
-| `composer answers P1 intents with rule based guidance` | Bảo vệ composer trả lời Basic AI bằng template cho landing pages, Google reviews, Billing, Support và không hard-code `/lp/{slug}`. |
+| Nhóm | Test case | Mục đích |
+| --- | --- | --- |
+| P0 resolver | `resolver recognizes P0 Vietnamese and unaccented daily operations intents` | Multi-intent booking/coupon/daily_briefing |
+| P0 prompts | `resolver exposes P0 starter prompts in Vietnamese` | Starter tiếng Việt |
+| P0 composer | `composer uses top campaigns and recent activity for daily briefing` | `top_campaigns[]`, `recent_activity[]` |
+| P0 service | `basic assistant response includes intent metadata without using advanced AI` | `metadata.*`, intent `credits` |
+| P1 resolver | `resolver recognizes P1 portal product intents` | 12 intent P1 |
+| P1 routes | `P1 route actions stay portal scoped and avoid dynamic public URLs` | Không `admin`, không `{param}` |
+| P1 composer | `composer answers P1 intents with rule based guidance` | landing/google/billing/support |
+| Onboarding | `onboarding intent wins for new account first step questions` | Ưu tiên `onboarding` |
+| CRM | `crm guidance is not contaminated by next steps or ai studio cta` | Không lẫn Studio |
+| Footer | `composer adds knowledge footer for guidance-only responses` | Footer guidance |
+| Footer | `composer adds account metrics footer for metric responses` | Footer metrics |
+| Footer | `basic ai responses render exactly one composer footer` | Không trùng footer |
+| UI | `chat shell does not render the old fixed basic ai footer` | Blade không footer cũ |
+| i18n CTA | `P1 cta labels are Vietnamese` | Nhãn CTA Việt hóa |
+| Copy | `onboarding billing and support copy avoid mixed English` | Không lẫn EN |
+| Multi-intent | `composer summarizes long multi-intent questions without rendering every intent` | Tóm tắt >4 intent |
+| P1.3 aliases | `resolver recognizes everyday P1.3 aliases without falling back` | 10 cặp câu/intent |
+| P1.3 answers | `P1.3 everyday answers are focused and practical` | Nội dung thực dụng |
+| Navigation | `navigation questions stay focused on one main intent` | 1 intent cho câu “ở đâu” |
+| CRM/coupon | `returning customer question focuses CRM and offer guidance` | `crm_segments` + `coupon` |
+| Contamination | `P1.3 focused answers avoid intent contamination` | QR/lead không lẫn review/billing |
+| Google | `google review answer does not duplicate the review metrics sentence` | Không trùng câu review |
+| Industry | `industry recommendation wins over generic onboarding for cafe questions` | Ưu tiên industry |
+| Industry | `industry recommendation recognizes common local business types` | 8 loại hình |
+| Credits | `credit questions merge help and credits into one focused answer` | Chỉ `credits` |
+| QR | `qr guidance does not pull review or rating text` | 2 câu QR |
+| Handoff | `onboarding actions avoid ai studio unless user asks ai explicitly` | Onboarding không CTA Studio |
 
 ### 13.2 Route đối chiếu
 
@@ -511,14 +533,17 @@ Tất cả route action P1 đã thêm đều được grep từ route files hi�
 | --- | --- |
 | `ARCHITECTURE_MODULE.md` | Chỉ đọc đối chiếu route/module, không sửa. |
 | `ARCHITECTURE_SOP.md` | Chỉ đọc đối chiếu SOP/CRM route, không sửa. |
-| `MLHUBAIContextBuilder.php` | Chưa sửa trong P1 Knowledge Base này; các câu trả lời P1 không bịa số khi context chưa có snapshot. |
+| `MLHUBAIContextBuilder.php` | Trong P1 Knowledge Base thì chưa sửa ContextBuilder; sau Phase B, ContextBuilder đã được cập nhật plan/credit snapshot. |
 
 ## 14. Việc nên làm ngay sau khi duyệt
 
-1. P0 đã xong: test file đã tạo, intent P0 đã thêm, starter prompts đã Việt hóa, composer đã dùng top campaigns/recent activity, metadata đã có trong response.
-2. Chạy lại Pest khi môi trường PHP/container sẵn sàng.
-3. Tiếp tục P1: plan/credits snapshot, context chi tiết theo module, fallback coverage log.
-4. Sau khi Basic AI ổn định, mới tính tiếp có nên bật Advanced AI/token cho câu hỏi phức tạp.
+> **Cập nhật 2026-06-21:** Kế hoạch chi tiết theo phase → **§23**; prompt giao Codex → **§24**; đối chiếu code → **§22**.
+
+1. P0/P1 Knowledge Base + Phase B plan/credit snapshot **đã triển khai** trong code; test file **31 cases** — **chưa chạy được** trên host hiện tại (thiếu `php` PATH).
+2. **Phase A (doc sync):** hoàn tất trong lần audit này — không code.
+3. **Phase B:** plan/credit snapshot trong context đã triển khai; cần chạy Pest trên môi trường PHP đầy đủ.
+4. **Chờ duyệt Phase C–E:** industry theo `BusinessTypeCatalog`, handoff Studio, chạy Pest + smoke manual.
+5. **Phase F (Advanced AI):** sau khi Basic AI ổn — không ưu tiên ngay.
 
 ---
 
@@ -562,7 +587,7 @@ Tất cả route action P1 đã thêm đều được grep từ route files hi�
 - Giải thích metrics: visits, leads, bookings, review, conversion, top campaign, recent activity.
 - Gợi ý bước tiếp theo theo onboarding (`onboarding`, `next_steps`, `daily_briefing`).
 - Trả lời “mở ở đâu / route nào” qua CTA (`MLHUBAIKnowledgeBase::routeActions()`).
-- Gợi ý **loại** campaign/tool phù hợp ngành (intent `industry_recommendation`) — **không** viết full bài quảng cáo trong chat.
+- Gợi ý **loại** campaign/tool phù hợp ngành (intent `industry_recommendation`) — template rule-based, **một đoạn F&B chung** trong `composeIndustryRecommendation()`; không viết full bài quảng cáo trong chat.
 
 ### 17.2 Chat MLHUB AI — không nên làm
 
@@ -583,7 +608,9 @@ Tất cả route action P1 đã thêm đều được grep từ route files hi�
 | “Viết caption khuyến mãi cuối tuần” | Chat CTA → `portal.ai-content`; thực thi ở Studio |
 | “Trả lời review này giúp tôi” | Studio `portal.ai-studio.review-reply` |
 | “MLHUB AI hỏi được gì?” | Chat — intent `help_using_mlhubai` |
-| “Còn bao nhiêu credit?” | Chat — intent `credits` (Basic AI; không bịa số nếu thiếu snapshot) |
+| “Còn bao nhiêu credit?” | Chat — intent `credits`; Phase B đọc số dư/cost thật nếu snapshot có dữ liệu |
+
+**Đã có trong code (2026-06-21):** `onboarding` / `next_steps` **không** gợi ý CTA `portal.ai-studio` mặc định — chỉ khi user hỏi rõ AI (`ai_studio`, `ai_content_writer`, `help_using_mlhubai`).
 
 ---
 
@@ -597,8 +624,9 @@ Tất cả route action P1 đã thêm đều được grep từ route files hi�
 **Luồng an toàn đã có trong code:**
 
 1. Luôn compose Basic AI trước (`source = fallback`).
-2. Nếu Advanced fail (API/key/credit/disabled) → vẫn hiển thị Basic AI + `fallback_reason`.
-3. Studio AI **độc lập** — mỗi module gọi credit action riêng; không dùng chung toggle Advanced của chat.
+2. Nếu Advanced fail (API/key/credit/disabled) → vẫn hiển thị Basic AI + `fallback_reason` (root response).
+3. UI: `advancedAiAvailable()` kiểm tra `ai_chat_status` + API key — nếu thiếu, chat-shell hiển thị cảnh báo và vẫn dùng Basic AI.
+4. Studio AI **độc lập** — mỗi module gọi credit action riêng; không dùng chung toggle Advanced của chat.
 
 **Không nhầm lẫn:**
 
@@ -630,6 +658,8 @@ flowchart LR
 
 Copy nút CTA user-facing → `ARCHITECTURE_I18N.md` §17.3.
 
+**Runtime:** mọi CTA qua `MLHUBAIResponseComposer::intentActions()` — chỉ render nếu `Route::has($routeName)`. Module/provider tắt → action biến mất, **không** gợi ý route AI dormant (`portal.ai-video`, …).
+
 ---
 
 ## 20. Roadmap hoàn thiện MLHUB AI
@@ -638,8 +668,8 @@ Roadmap **kỹ thuật assistant** (ngắn). Backlog production/QA/module → `A
 
 | Giai đoạn | Hạng mục | Tham chiếu |
 | --- | --- | --- |
-| **Đã xong (P0/P1)** | Knowledge base tách file, intent P0/P1, normalize không dấu, metadata confidence, composer top campaigns/recent activity, unit test cơ bản | §12–§13 |
-| **P1 còn lại** | Plan/credit snapshot trong context; context chi tiết booking/coupon/lead gần nhất; fallback coverage log | §12.3, §13.3 |
+| **Đã xong (P0/P1 + P1.3 tinh chỉnh + Phase B)** | 34 intent, resolver dedupe/priority, composer footer, CTA Việt hóa, industry/onboarding focus, plan/credit snapshot, 31 unit tests (file) | §12–§13, §22–§23, `MLHUBAIAssistantBasicAiTest.php` |
+| **P1 còn lại (runtime data)** | Chi tiết booking/coupon/lead/feedback gần nhất; fallback coverage log nếu được duyệt riêng | §12.3, §13.3 |
 | **P2** | Admin editor knowledge base; chat history; scheduled daily briefing notification | §11 |
 | **Song song SOP** | Runtime gợi ý theo `lb_businesses.type` / nhóm ngành — ma trận scenario | `ARCHITECTURE_SOP.md` §E |
 | **Song song i18n** | Nhãn Basic/Advanced, mô tả Chat vs Studio trên UI | `ARCHITECTURE_I18N.md` §17 |
@@ -665,3 +695,201 @@ Chat MLHUB AI **không** lưu taxonomy ngành nghề đầy đủ. Nguồn sự 
 - CTA gợi ý: `portal.businesses`, `portal.qr-campaigns`, `portal.coupon-campaigns`.
 
 Khi triển khai gợi ý theo type thật: đọc metadata từ `BusinessTypeCatalog` + map sang intent/CTA — **không** nhân bản ma trận ngành dài trong file này.
+
+---
+
+## 22. Trạng thái đối chiếu code hiện tại
+
+**Ngày audit:** 2026-06-21
+**Phạm vi:** Chat MLHUB AI (`modules/CustomMLHUB/Support/MLHUBAIAssistant/*`, Livewire trait, `chat-shell.blade.php`, unit test). **Không** sửa code trong lần audit này.
+
+### 22.1 File đã kiểm tra
+
+| File | Vai trò |
+| --- | --- |
+| `MLHUBAIAssistantService.php` | Orchestrator Basic/Advanced, credit `mlhub_ai_chat`, metadata |
+| `MLHUBAIContextBuilder.php` | Snapshot metrics 60s |
+| `MLHUBAIIntentResolver.php` | Normalize, multi-intent, priority, dedupe |
+| `MLHUBAIKnowledgeBase.php` | Intent keywords, prompts, route actions, priority map |
+| `MLHUBAIResponseComposer.php` | Template theo intent, CTA, footer, multi-intent cap |
+| `InteractsWithMLHUBAIAssistant.php` | Livewire flow, plan gate `mlhub` |
+| `chat-shell.blade.php` | Toggle Basic/Advanced, banner, empty state |
+| `MLHUBAIAssistantBasicAiTest.php` | 31 Pest cases |
+| `lang/en.json`, `lang/vi.json` | Chuỗi UI assistant (đối chiếu i18n doc) |
+
+### 22.2 Đã đúng với code (trước đây tài liệu thiếu/cũ)
+
+| Hạng mục | Trạng thái |
+| --- | --- |
+| P0 Knowledge Base tách `MLHUBAIKnowledgeBase.php` | **Đã có** |
+| 13 intent P0 + normalize không dấu | **Đã có** |
+| 12 intent P1 portal + route actions | **Đã có** |
+| Intent `industry_recommendation` + focus P1.3 | **Đã có** (rule-based) |
+| Metadata `confidence`, `matched_keywords`, `matches`, `intents` | **Đã có** |
+| Composer dùng `top_campaigns` / `recent_activity` trong `daily_briefing` | **Đã có** |
+| Footer phân biệt metric vs guidance | **Đã có** |
+| CTA lọc `Route::has()` — không gợi ý route AI dormant | **Đã có** |
+| Onboarding không CTA Studio mặc định | **Đã có** (test + `nextStepActions`) |
+| Starter/deepen prompts tiếng Việt | **Đã có** |
+| 31 unit tests trong repo | **Đã có** (file) |
+
+### 22.3 Tài liệu ghi nhưng code chưa có / chưa đủ
+
+| Hạng mục trong doc cũ | Thực tế code |
+| --- | --- |
+| §4.1 “8 intent, 76 keyword” | **Lỗi thời** — hiện 34 intent, ~280+ keyword |
+| §5.1 “chưa thấy test” | **Sai** — đã có 31 cases |
+| §5.2 thiếu intent landing/booking/CRM/… | **Lỗi thời** — P1 đã thêm |
+| `fallback_reason` trong `metadata` (§11 P0) | **Sai vị trí** — ở root response |
+| Coverage log / persistence fallback | **Chưa có** |
+| Plan/credit snapshot trong context | **Đã có Phase B** — snapshot scalar, workspace owner scope, degrade `available=false` khi thiếu dữ liệu |
+| `industry_recommendation` đọc `lb_businesses.type` | **Chưa có** — 1 template F&B |
+| Intent email/whatsapp/webhook/loyalty/files/profile | **Chưa có** |
+| §9 `module_coverage`, `data_confidence` scoring | **Chưa có** (chỉ confidence keyword) |
+
+### 22.4 Code có nhưng tài liệu chưa phản ánh (đã cập nhật §4–§21)
+
+| Hạng mục code | Ghi chú |
+| --- | --- |
+| `focusEverydayQuestion`, dedupe helpers | Resolver P1.3 |
+| `intentPriority()` map 34 intent | Sắp xếp multi-intent |
+| `composeMany` cap 4 intent + thông báo tóm tắt | Tránh wall of text |
+| `appendNotice` footer 2 loại | UX minh bạch Basic AI |
+| `advancedAiAvailable()` + banner Blade | Advanced chưa cấu hình |
+| Deepen prompts 34 nhóm | Không còn “7 nhóm × 3” |
+| Explore prompts 13 mục | Không còn 6 mục |
+
+### 22.5 Rủi ro / mismatch cần xử lý (theo thứ tự)
+
+| Mức | Vấn đề | Hướng xử lý đề xuất |
+| --- | --- | --- |
+| P1 | **31 tests chưa chạy được** trên môi trường dev hiện tại | Phase E: chạy Pest trên PHP 8.3 / container MLHUB |
+| P1 | Plan/credit snapshot đã thêm nhưng chưa chạy được runtime test trên host này | Chạy Pest trên PHP 8.3 / container MLHUB trước khi mở tiếp Phase C/D |
+| P1 | `industry_recommendation` một template F&B cho mọi ngành keyword | Phase C: map `BusinessTypeCatalog` |
+| P2 | Không log `unknown` intent coverage | Phase riêng nếu owner duyệt — chưa làm trong Phase B |
+| P2 | Advanced AI model mặc định `gpt-5.4` — cần đối chiếu admin | Phase F — sau khi Basic ổn |
+| P2 | §4.2 baseline 8 intent vẫn trong file | Giữ làm lịch sử; không dùng làm spec mới |
+
+### 22.6 ContextBuilder — dữ liệu đã đọc
+
+| Context key | Nguồn | Ghi chú |
+| --- | --- | --- |
+| `metrics.*` | `PortalGrowthDashboardMetrics::rememberMetrics()` | businesses, campaigns, visits, leads, bookings, coupon_claims, feedback, conversion_rate, … |
+| `top_campaigns[]` | `PortalGrowthDashboardMetrics::topCampaigns()` | Top 5 |
+| `recent_activity[]` | `PortalGrowthDashboardMetrics::recentActivity()` | 5 bản ghi |
+| `customers.*` | `Customer` weekly counts | new/delta |
+| `weekly_signals.*` | Lead, Booking, Review, Coupon, QrScan | Tuần hiện tại |
+| `reviews.*` | `ReviewFeedback` tuần hiện tại | average, needs_reply |
+| `active_campaigns[]` | `QrCampaign` published | Tối đa 6 + conversions |
+| `business_list` | `LocalBusiness` | count + 12 tên |
+| `onboarding` | Derived từ metrics | hints create/publish/share/boost |
+| `user` | `User.name` | short_name cho greeting |
+| `workspace.*` | `TeamWorkspaceAccess::workspaceOwnerUserId()` | scalar owner/current user; cache key có `portal_team_id` |
+| `plan.*` | `User` + `PlanLimitGuard::usageSummary()` | name/status/usage/limits/near_limit; `available=false` nếu thiếu snapshot |
+| `credits.*` | `credit_summary()` / `CreditService::costFor()` | remaining/used/limit/topup/cost `mlhub_ai_chat`; `available=false` nếu lỗi |
+
+**Chưa đọc:** CRM counts, Google connection, landing slug, loyalty, automation logs.
+
+### 22.7 ResponseComposer — intent có template
+
+`help_using_mlhubai`, `industry_recommendation`, `daily_briefing`, `onboarding`, `top_campaigns`, `qr_scans`, `review_booster`, `booking`, `coupon`, `feedback`, `leads`, `conversion`, `credits`, `plan_limits`, `business_locations`, `customers`, `landing_pages`, `marketing_templates`, `crm_segments`, `google_business`, `google_reviews`, `ai_studio`, `ai_content_writer`, `billing`, `teams`, `support`, `new_customers`, `campaigns`, `reviews`, `next_steps`, `overview`, `visits`, `businesses`, `greeting`, `unknown`.
+
+---
+
+## 23. Kế hoạch làm việc tiếp theo
+
+### Phase A — Documentation sync / no code
+
+| # | Việc | Trạng thái |
+| --- | --- | --- |
+| A1 | Cập nhật `ARCHITECTURE_MLHUBAI.md` theo code thật (§4, §5, §12–§13, §22) | **Xong trong lần audit này** |
+| A2 | Giữ §4.2 baseline làm lịch sử; spec mới lấy §12–§13 + KnowledgeBase | **Đã ghi chú** |
+| A3 | Đồng bộ chéo `ARCHITECTURE_SOP.md` §E, `ARCHITECTURE_I18N.md` §17 khi copy đổi | Chờ owner duyệt nếu đổi thêm |
+
+**Không code** trong Phase A.
+
+### Phase B — Runtime context completion
+
+| # | Việc | File dự kiến |
+| --- | --- | --- |
+| B1 | Thêm plan/credit snapshot vào `MLHUBAIContextBuilder` | **Xong Phase B** |
+| B2 | Cập nhật `composeCredits`, `composePlanLimits` dùng số thật khi context có snapshot | **Xong Phase B** |
+| B3 | Coverage `unknown` / `fallback_reason` nội bộ | **Chưa làm** — ngoài scope Phase B |
+
+**Phase B đã code:** không migration/schema/provider/bootstrap; chưa chạy được Pest trên host thiếu PHP.
+
+### Phase C — Scenario & industry response refinement
+
+| # | Việc |
+| --- | --- |
+| C1 | Map `industry_recommendation` theo `BusinessTypeCatalog` / SOP §5 |
+| C2 | Nhiều template ngắn theo nhóm ngành (F&B, beauty, retail…) — rule-based, không LLM |
+| C3 | Bổ sung keyword alias từ `ARCHITECTURE_SOP.md` §2.9 nếu thiếu |
+
+### Phase D — Chat → Studio handoff refinement
+
+| # | Việc |
+| --- | --- |
+| D1 | Rà lại intent `ai_studio` / `ai_content_writer` — CTA chỉ khi user hỏi tạo nội dung |
+| D2 | Copy handoff trong composer khớp `ARCHITECTURE_I18N.md` §17 |
+| D3 | Không gợi ý Studio khi intent vận hành thuần (metrics/onboarding) — giữ test regression |
+
+### Phase E — Tests & verification
+
+| # | Việc |
+| --- | --- |
+| E1 | Chạy `vendor/bin/pest tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` |
+| E2 | Chạy và khóa test plan/credit snapshot trên môi trường PHP đầy đủ |
+| E3 | Smoke manual: dashboard panel + full chat, toggle Advanced khi thiếu API key |
+
+### Phase F — Advanced AI later (không làm ngay)
+
+| # | Việc |
+| --- | --- |
+| F1 | Đối chiếu `ai_chat_model` admin vs production |
+| F2 | QA Advanced AI + credit `mlhub_ai_chat` trên staging |
+| F3 | Không mở rộng Basic AI bằng OpenAI/Gemini |
+
+---
+
+## 24. Prompt giao việc cho Codex theo phase tiếp theo
+
+> **Mẫu prompt — chỉ plan/duyệt trước khi code.** Dán vào Codex sau khi owner gõ **“Duyệt Phase B”** (hoặc phase tương ứng).
+
+```text
+Bạn là Senior Laravel/Livewire Engineer cho MLHUB (Laravel 13 + Livewire 4, production mlhub.vn).
+
+NHIỆM VỤ: [Phase B — Runtime context completion] cho Chat MLHUB AI ONLY.
+
+ĐỌC BẮT BUỘC TRƯỚC KHI LẬP PLAN:
+- .cursorrules
+- ARCHITECTURE_CHECKLIST.md
+- ARCHITECTURE_MLHUBAI.md (§22–§23, §12–§13)
+- ARCHITECTURE_MODULE.md §10 CustomMLHUB
+- modules/CustomMLHUB/Support/MLHUBAIAssistant/MLHUBAIContextBuilder.php
+- modules/CustomMLHUB/Support/MLHUBAIAssistant/MLHUBAIResponseComposer.php
+- tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php
+
+QUY TẮC CỨNG:
+1. Lập PLAN chi tiết (file sẽ sửa, không migration/schema/provider/bootstrap trừ khi owner duyệt rõ).
+2. CHƯA CODE cho đến khi owner gõ "Duyệt".
+3. KHÔNG gọi OpenAI/Gemini trong Basic AI.
+4. KHÔNG tạo file mới nếu gộp được vào class hiện có trong modules/CustomMLHUB/Support/MLHUBAIAssistant/.
+5. KHÔNG sửa ngoài phạm vi Chat MLHUB AI (CustomMLHUB assistant + test liên quan).
+6. Tenant scope: mọi query user_id = auth()->id() hoặc workspace owner đúng pattern hiện có.
+7. Không bịa số — nếu thiếu snapshot, composer phải nói thiếu dữ liệu.
+8. Cập nhật ARCHITECTURE_MLHUBAI.md §22–§23 sau khi code (Phase A follow-up).
+9. Chạy pest filter MLHUBAIAssistantBasicAiTest — báo "chưa chạy được" nếu môi trường thiếu PHP.
+
+OUTPUT PLAN (chưa code):
+- Mục tiêu Phase B
+- File thay đổi
+- Field context mới
+- Test sẽ thêm/sửa
+- Rủi ro production
+- Cách verify thủ công trên portal
+```
+
+**Phase C/D/E:** đổi tiêu đề phase và file đọc thêm (`BusinessTypeCatalog`, `ARCHITECTURE_SOP.md` §E, `ARCHITECTURE_I18N.md` §17) — giữ nguyên quy tắc cứng 1–9.
+
+**Không tạo** `ARCHITECTURE_MLHUBAI_VISION.md` hoặc file kiến trúc mới.

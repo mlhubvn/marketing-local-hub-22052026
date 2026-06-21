@@ -571,6 +571,113 @@ test('credit questions merge help and credits into one focused answer', function
         ->not->toContain('Mở MLHUB AI');
 });
 
+test('credits response uses real snapshot when available', function (): void {
+    $message = (new MLHUBAIResponseComposer)->composeMany(
+        ['credits'],
+        mlhubAssistantContext([
+            'credits' => [
+                'available' => true,
+                'remaining' => 42,
+                'used' => 8,
+                'limit' => 50,
+                'topup_remaining' => 12,
+                'unlimited' => false,
+                'low_balance' => false,
+                'costs' => [
+                    'mlhub_ai_chat' => 1,
+                ],
+            ],
+        ]),
+    );
+
+    expect($message)
+        ->toContain('42')
+        ->toContain('8')
+        ->toContain('50')
+        ->toContain('12')
+        ->toContain('1')
+        ->toContain('Câu trả lời có sử dụng số liệu thực tế từ tài khoản của bạn.')
+        ->not->toContain('chưa có dữ liệu tín dụng');
+});
+
+test('credits response degrades safely when snapshot is missing', function (): void {
+    $message = (new MLHUBAIResponseComposer)->composeMany(
+        ['credits'],
+        mlhubAssistantContext([
+            'credits' => [
+                'available' => false,
+                'reason' => 'missing_module',
+            ],
+        ]),
+    );
+
+    expect($message)
+        ->toContain('chưa có dữ liệu tín dụng')
+        ->toContain('AI Cơ bản')
+        ->toContain('không trừ')
+        ->toContain('Câu trả lời dựa trên tri thức nội bộ và cấu trúc tính năng của MLHUB.')
+        ->not->toContain('Câu trả lời có sử dụng số liệu thực tế từ tài khoản của bạn.');
+});
+
+test('plan limits response uses real snapshot when available', function (): void {
+    $message = (new MLHUBAIResponseComposer)->composeMany(
+        ['plan_limits'],
+        mlhubAssistantContext([
+            'plan' => [
+                'available' => true,
+                'name' => 'MLHUB Growth',
+                'status' => 'Active',
+                'usage' => [
+                    'businesses' => [
+                        'label' => 'Cơ sở kinh doanh',
+                        'used' => 1,
+                        'limit' => 3,
+                        'remaining' => 2,
+                        'unlimited' => false,
+                        'percent' => 33,
+                    ],
+                    'campaigns' => [
+                        'label' => 'Chiến dịch',
+                        'used' => 2,
+                        'limit' => 10,
+                        'remaining' => 8,
+                        'unlimited' => false,
+                        'percent' => 20,
+                    ],
+                ],
+            ],
+        ]),
+    );
+
+    expect($message)
+        ->toContain('MLHUB Growth')
+        ->toContain('Active')
+        ->toContain('Cơ sở kinh doanh')
+        ->toContain('1/3')
+        ->toContain('Chiến dịch')
+        ->toContain('2/10')
+        ->toContain('Câu trả lời có sử dụng số liệu thực tế từ tài khoản của bạn.')
+        ->not->toContain('chưa có dữ liệu hạn mức');
+});
+
+test('plan limits response degrades safely when snapshot is missing', function (): void {
+    $message = (new MLHUBAIResponseComposer)->composeMany(
+        ['plan_limits'],
+        mlhubAssistantContext([
+            'plan' => [
+                'available' => false,
+                'reason' => 'query_failed',
+            ],
+        ]),
+    );
+
+    expect($message)
+        ->toContain('chưa có dữ liệu hạn mức')
+        ->toContain('không đoán quota')
+        ->toContain('Câu trả lời dựa trên tri thức nội bộ và cấu trúc tính năng của MLHUB.')
+        ->not->toContain('Câu trả lời có sử dụng số liệu thực tế từ tài khoản của bạn.');
+});
+
 test('qr guidance does not pull review or rating text', function (string $question): void {
     $resolver = new MLHUBAIIntentResolver;
     $intents = array_column($resolver->resolveAll($question), 'intent');

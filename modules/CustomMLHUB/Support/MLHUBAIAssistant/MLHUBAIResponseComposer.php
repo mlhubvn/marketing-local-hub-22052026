@@ -107,9 +107,9 @@ class MLHUBAIResponseComposer
     /**
      * @param  list<string>  $intents
      */
-    protected function appendNotice(string $body, array $intents): string
+    protected function appendNotice(string $body, array $intents, array $context): string
     {
-        $notice = $this->usesAccountMetrics($intents)
+        $notice = $this->usesAccountMetrics($intents, $context)
             ? __('Câu trả lời có sử dụng số liệu thực tế từ tài khoản của bạn.')
             : __('Câu trả lời dựa trên tri thức nội bộ và cấu trúc tính năng của MLHUB.');
 
@@ -119,7 +119,7 @@ class MLHUBAIResponseComposer
     /**
      * @param  list<string>  $intents
      */
-    protected function usesAccountMetrics(array $intents): bool
+    protected function usesAccountMetrics(array $intents, array $context): bool
     {
         $metricIntents = [
             'daily_briefing',
@@ -141,6 +141,14 @@ class MLHUBAIResponseComposer
             'business_locations',
             'google_reviews',
         ];
+
+        if (in_array('credits', $intents, true) && (bool) data_get($context, 'credits.available', false)) {
+            return true;
+        }
+
+        if (in_array('plan_limits', $intents, true) && (bool) data_get($context, 'plan.available', false)) {
+            return true;
+        }
 
         return array_intersect($intents, $metricIntents) !== [];
     }
@@ -184,7 +192,7 @@ class MLHUBAIResponseComposer
         }
 
         if ($body !== '') {
-            $body = $this->appendNotice($body, $intents);
+            $body = $this->appendNotice($body, $intents, $context);
         }
 
         if ($hasGreeting && $body === '') {
@@ -500,7 +508,46 @@ class MLHUBAIResponseComposer
      */
     protected function composeCredits(array $context): string
     {
-        return __('AI Cơ bản không tốn điểm tín dụng vì chỉ dùng tri thức nội bộ và câu trả lời dựng sẵn. Điểm tín dụng chủ yếu dùng cho AI Nâng cao (Advanced AI), AI Studio hoặc tác vụ sinh nội dung có gọi provider như OpenAI/Gemini.');
+        $credits = (array) ($context['credits'] ?? []);
+
+        if (! (bool) ($credits['available'] ?? false)) {
+            return __('Snapshot hiện tại chưa có dữ liệu tín dụng, nên mình không đoán số dư. AI Cơ bản vẫn không trừ tín dụng AI vì chỉ dùng tri thức nội bộ; tín dụng AI chủ yếu dùng cho AI Nâng cao (Advanced AI), AI Studio hoặc tác vụ có gọi provider như OpenAI/Gemini.');
+        }
+
+        $unlimited = (bool) ($credits['unlimited'] ?? false);
+        $remaining = $unlimited
+            ? __('không giới hạn')
+            : $this->formatNullableNumber($credits['remaining'] ?? null);
+        $limit = $unlimited
+            ? __('không giới hạn')
+            : $this->formatNullableNumber($credits['limit'] ?? null);
+        $used = format_number_locale((int) ($credits['used'] ?? 0));
+        $topup = (int) ($credits['topup_remaining'] ?? 0);
+        $cost = $credits['costs']['mlhub_ai_chat'] ?? null;
+
+        $parts = [
+            __('Tín dụng AI hiện còn :remaining, đã dùng :used trên hạn mức :limit.', [
+                'remaining' => $remaining,
+                'used' => $used,
+                'limit' => $limit,
+            ]),
+        ];
+
+        if ($topup > 0) {
+            $parts[] = __('Số dư nạp thêm còn :topup.', [
+                'topup' => format_number_locale($topup),
+            ]);
+        }
+
+        if (is_numeric($cost)) {
+            $parts[] = __('Nếu bật AI Nâng cao (Advanced AI), mỗi câu trả lời MLHUB AI Chat dự kiến dùng :cost tín dụng AI theo gói hiện tại.', [
+                'cost' => format_number_locale((int) $cost),
+            ]);
+        }
+
+        $parts[] = __('AI Cơ bản vẫn không trừ tín dụng AI.');
+
+        return implode(' ', $parts);
     }
 
     /**
@@ -508,7 +555,63 @@ class MLHUBAIResponseComposer
      */
     protected function composePlanLimits(array $context): string
     {
-        return __('AI Cơ bản (Basic AI) hiện chưa có số liệu giới hạn gói chi tiết trong ngữ cảnh, nên chưa tự khẳng định giới hạn từng tính năng. Bạn nên kiểm tra gói dịch vụ hoặc lịch sử tín dụng AI; P1 có thể bổ sung ảnh chụp gói đang dùng để trợ lý trả lời chính xác hơn.');
+        $plan = (array) ($context['plan'] ?? []);
+
+        if (! (bool) ($plan['available'] ?? false)) {
+            return __('Snapshot hiện tại chưa có dữ liệu hạn mức, nên mình không đoán quota cho từng tính năng. Hãy mở gói dịch vụ để kiểm tra hạn mức chính thức trước khi tạo thêm chiến dịch, QR, trang đích hoặc mẫu marketing.');
+        }
+
+        $name = trim((string) ($plan['name'] ?? ''));
+        $status = trim((string) ($plan['status'] ?? ''));
+        $usageLines = $this->planUsageLines((array) ($plan['usage'] ?? []));
+
+        $intro = __('Gói hiện tại: :name:type.', [
+            'name' => $name !== '' ? $name : __('chưa rõ tên gói'),
+            'type' => $status !== '' ? ' ('.$status.')' : '',
+        ]);
+
+        if ($usageLines === []) {
+            return $intro.' '.__('Snapshot đã nhận diện được gói, nhưng chưa có chi tiết mức đã dùng/hạn mức để khẳng định quota từng tính năng.');
+        }
+
+        return $intro.' '.__('Một vài hạn mức nổi bật: :items', [
+            'items' => implode('; ', $usageLines),
+        ]);
+    }
+
+    protected function formatNullableNumber(mixed $value): string
+    {
+        return is_numeric($value)
+            ? format_number_locale((int) $value)
+            : __('chưa rõ');
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $usage
+     * @return list<string>
+     */
+    protected function planUsageLines(array $usage): array
+    {
+        return collect($usage)
+            ->filter(fn (array $row): bool => trim((string) ($row['label'] ?? '')) !== '')
+            ->sortByDesc(fn (array $row): int => (int) ($row['percent'] ?? 0))
+            ->take(3)
+            ->map(function (array $row): string {
+                $label = (string) ($row['label'] ?? '');
+                $used = format_number_locale((int) ($row['used'] ?? 0));
+                $unlimited = (bool) ($row['unlimited'] ?? false);
+                $limit = $unlimited ? __('không giới hạn') : $this->formatNullableNumber($row['limit'] ?? null);
+                $remaining = $unlimited ? __('không giới hạn') : $this->formatNullableNumber($row['remaining'] ?? null);
+
+                return __(':label: :used/:limit đã dùng, còn :remaining', [
+                    'label' => $label,
+                    'used' => $used,
+                    'limit' => $limit,
+                    'remaining' => $remaining,
+                ]);
+            })
+            ->values()
+            ->all();
     }
 
     /**

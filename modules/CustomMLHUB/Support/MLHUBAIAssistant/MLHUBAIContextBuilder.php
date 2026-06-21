@@ -2,6 +2,7 @@
 
 namespace Modules\CustomMLHUB\Support\MLHUBAIAssistant;
 
+use App\Support\Plans\PlanLimitGuard;
 use App\Support\Portal\PortalGrowthDashboardMetrics;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Cache;
@@ -16,6 +17,7 @@ use Modules\AppLeadForms\Models\LeadSubmission;
 use Modules\AppQRCampaigns\Models\QrCampaign;
 use Modules\AppQRCampaigns\Models\QrScan;
 use Modules\AppReviewBooster\Models\ReviewFeedback;
+use Modules\AppTeams\Support\TeamWorkspaceAccess;
 
 class MLHUBAIContextBuilder
 {
@@ -27,10 +29,15 @@ class MLHUBAIContextBuilder
     public function build(int $userId): array
     {
         return Cache::remember(
-            'mlhub_ai_context:'.$userId.':'.app()->getLocale(),
+            $this->contextCacheKey($userId),
             self::CACHE_TTL_SECONDS,
             fn (): array => $this->buildFresh($userId),
         );
+    }
+
+    protected function contextCacheKey(int $userId): string
+    {
+        return 'mlhub_ai_context:'.$userId.':team-'.(int) session('portal_team_id', 0).':'.app()->getLocale();
     }
 
     /**
@@ -57,11 +64,13 @@ class MLHUBAIContextBuilder
         $weeklySignals = $this->weeklySignals($userId, $campaignIds, $weekStart, $now);
         $reviewStats = $this->reviewStats($userId, $campaignIds, $weekStart, $now);
         $activeCampaigns = $this->activeCampaignSummaries($userId, $campaignIds);
+        $workspaceOwner = $this->workspaceOwnerUser($userId);
 
         return [
             'generated_at' => $now->toIso8601String(),
             'locale' => app()->getLocale(),
             'user' => $this->userProfile($userId),
+            'workspace' => $this->workspaceSnapshot($userId, $workspaceOwner),
             'metrics' => $metrics,
             'top_campaigns' => array_slice($topCampaigns, 0, 5),
             'recent_activity' => $recentActivity,
@@ -75,7 +84,231 @@ class MLHUBAIContextBuilder
             'active_campaigns' => $activeCampaigns,
             'business_list' => $this->businessList($userId),
             'onboarding' => $this->onboardingHints($metrics),
+            'plan' => $this->planSnapshot($workspaceOwner),
+            'credits' => $this->creditSnapshot($workspaceOwner),
         ];
+    }
+
+    protected function workspaceOwnerUser(int $userId): ?User
+    {
+        try {
+            $user = User::query()
+                ->with(['plan', 'nextPlan'])
+                ->find($userId);
+
+            if (! $user) {
+                return null;
+            }
+
+            $ownerId = $userId;
+
+            if (class_exists(TeamWorkspaceAccess::class)) {
+                $ownerId = TeamWorkspaceAccess::workspaceOwnerUserId($user);
+            }
+
+            if ($ownerId > 0 && $ownerId !== $userId) {
+                return User::query()
+                    ->with(['plan', 'nextPlan'])
+                    ->find($ownerId) ?: $user;
+            }
+
+            return $user;
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function workspaceSnapshot(int $userId, ?User $workspaceOwner): array
+    {
+        if (! $workspaceOwner) {
+            return [
+                'available' => false,
+                'reason' => 'user_not_found',
+                'user_id' => $userId,
+                'owner_user_id' => $userId,
+                'owner_is_current_user' => true,
+            ];
+        }
+
+        return [
+            'available' => true,
+            'user_id' => $userId,
+            'owner_user_id' => (int) $workspaceOwner->id,
+            'owner_is_current_user' => (int) $workspaceOwner->id === $userId,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function planSnapshot(?User $workspaceOwner): array
+    {
+        if (! $workspaceOwner) {
+            return ['available' => false, 'reason' => 'user_not_found'];
+        }
+
+        try {
+            $usage = [];
+
+            if (class_exists(PlanLimitGuard::class)) {
+                try {
+                    $usage = $this->normalizePlanUsage(app(PlanLimitGuard::class)->usageSummary($workspaceOwner));
+                } catch (\Throwable) {
+                    return [
+                        'available' => false,
+                        'reason' => 'usage_query_failed',
+                        'name' => (string) $workspaceOwner->portalPlanLabel(),
+                        'status' => (string) $workspaceOwner->portalPlanStatusLabel(),
+                    ];
+                }
+            } else {
+                return [
+                    'available' => false,
+                    'reason' => 'missing_plan_guard',
+                    'name' => (string) $workspaceOwner->portalPlanLabel(),
+                    'status' => (string) $workspaceOwner->portalPlanStatusLabel(),
+                ];
+            }
+
+            return [
+                'available' => true,
+                'name' => (string) $workspaceOwner->portalPlanLabel(),
+                'status' => (string) $workspaceOwner->portalPlanStatusLabel(),
+                'is_trial' => (bool) $workspaceOwner->isInPlanTrial(),
+                'starts_at' => $workspaceOwner->plan_started_at?->toIso8601String(),
+                'expires_at' => $workspaceOwner->plan_expires_at?->toIso8601String(),
+                'next_plan_name' => (string) ($workspaceOwner->nextPlan?->name ?? ''),
+                'limits' => $this->planLimitsFromUsage($usage),
+                'usage' => $usage,
+                'usage_percent' => $this->highestUsagePercent($usage),
+                'near_limit' => $this->nearLimitRows($usage),
+            ];
+        } catch (\Throwable) {
+            return ['available' => false, 'reason' => 'query_failed'];
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function creditSnapshot(?User $workspaceOwner): array
+    {
+        if (! $workspaceOwner) {
+            return ['available' => false, 'reason' => 'user_not_found'];
+        }
+
+        if (! function_exists('credit_summary') && ! method_exists($workspaceOwner, 'creditSummary')) {
+            return ['available' => false, 'reason' => 'missing_helper'];
+        }
+
+        try {
+            $summary = function_exists('credit_summary')
+                ? credit_summary($workspaceOwner)
+                : $workspaceOwner->creditSummary();
+            $cost = null;
+
+            try {
+                if (function_exists('credit_service')) {
+                    $cost = credit_service()->costFor($workspaceOwner, 'mlhub_ai_chat', 1);
+                }
+            } catch (\Throwable) {
+                $cost = null;
+            }
+
+            return [
+                'available' => true,
+                'limit' => $this->nullableInt($summary['limit'] ?? null),
+                'used' => (int) ($summary['used'] ?? 0),
+                'remaining' => $this->nullableInt($summary['remaining'] ?? null),
+                'plan_remaining' => $this->nullableInt($summary['plan_remaining'] ?? null),
+                'topup_remaining' => (int) ($summary['topup_remaining'] ?? 0),
+                'total_remaining' => $this->nullableInt($summary['total_remaining'] ?? ($summary['remaining'] ?? null)),
+                'unlimited' => (bool) ($summary['unlimited'] ?? false),
+                'low_balance' => (bool) ($summary['low_balance'] ?? false),
+                'started_at' => $this->dateToIsoString($summary['started_at'] ?? null),
+                'expires_at' => $this->dateToIsoString($summary['expires_at'] ?? null),
+                'costs' => [
+                    'mlhub_ai_chat' => $cost,
+                ],
+            ];
+        } catch (\Throwable) {
+            return ['available' => false, 'reason' => 'query_failed'];
+        }
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $usage
+     * @return array<string, array<string, mixed>>
+     */
+    protected function normalizePlanUsage(array $usage): array
+    {
+        return collect($usage)
+            ->map(function (array $row): array {
+                return [
+                    'label' => (string) ($row['label'] ?? ''),
+                    'key' => (string) ($row['key'] ?? ''),
+                    'used' => (int) ($row['used'] ?? 0),
+                    'limit' => $this->nullableInt($row['limit'] ?? null),
+                    'remaining' => $this->nullableInt($row['remaining'] ?? null),
+                    'unlimited' => (bool) ($row['unlimited'] ?? false),
+                    'percent' => (int) ($row['percent'] ?? 0),
+                    'is_full' => (bool) ($row['is_full'] ?? false),
+                ];
+            })
+            ->all();
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $usage
+     * @return array<string, int|null>
+     */
+    protected function planLimitsFromUsage(array $usage): array
+    {
+        return collect($usage)
+            ->mapWithKeys(fn (array $row, $key): array => [(string) $key => $this->nullableInt($row['limit'] ?? null)])
+            ->all();
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $usage
+     */
+    protected function highestUsagePercent(array $usage): int
+    {
+        return (int) collect($usage)
+            ->pluck('percent')
+            ->filter(fn ($percent): bool => is_numeric($percent))
+            ->max() ?: 0;
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $usage
+     * @return list<string>
+     */
+    protected function nearLimitRows(array $usage): array
+    {
+        return collect($usage)
+            ->filter(fn (array $row): bool => (bool) ($row['is_full'] ?? false) || (int) ($row['percent'] ?? 0) >= 80)
+            ->map(fn (array $row): string => (string) ($row['label'] ?? ''))
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    protected function nullableInt(mixed $value): ?int
+    {
+        return is_numeric($value) ? (int) $value : null;
+    }
+
+    protected function dateToIsoString(mixed $value): ?string
+    {
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format(\DateTimeInterface::ATOM);
+        }
+
+        return null;
     }
 
     /**
