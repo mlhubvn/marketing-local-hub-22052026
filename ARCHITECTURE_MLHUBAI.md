@@ -96,7 +96,7 @@ Nguyên tắc tốt đã có:
 | Resolver | normalize + priority + dedupe | `MLHUBAIIntentResolver`: `normalize()`, `intentPriority()`, `focusEverydayQuestion()`, `removeDuplicateHelpCredit()`, `removeGenericNextSteps()`, `removeLooseDailyBriefing()`, `removeReviewDuplication()`; câu navigation ưu tiên 1 intent |
 | Cache context | 60 giây | `MLHUBAIContextBuilder::CACHE_TTL_SECONDS` |
 | Giới hạn input | 2–500 ký tự | Livewire validation |
-| Unit tests | **73 cases** (57 functions) | `tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` — **chưa chạy được** trên host (thiếu `php` PATH) |
+| Unit tests | **64 functions** (+ datasets) | `tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` — **chưa chạy được** trên host (thiếu `php` PATH) |
 
 > **Lưu ý:** §4.2 bên dưới là **ảnh chụp baseline trước P0/P1** (2026-06-20). Ma trận intent/keyword đầy đủ sau nâng cấp → §12.1, §13 và `MLHUBAIKnowledgeBase.php`.
 
@@ -422,7 +422,7 @@ Không thực hiện trong lần này. Đây là backlog để bạn chọn làm
 | Composer dùng top campaigns/recent activity | Xong | `MLHUBAIResponseComposer.php` | `daily_briefing` và `top_campaigns` đã đọc `top_campaigns[]`; `daily_briefing` đã đọc `recent_activity[]`. |
 | Thêm response segments cho P0 | Xong | `MLHUBAIResponseComposer.php` | Có đoạn trả lời riêng cho booking, coupon, feedback, leads, conversion, credits, plan limits, QR scan, Review Booster. |
 | CTA route liên quan P0 | Xong | `MLHUBAIKnowledgeBase.php`, `MLHUBAIResponseComposer.php` | Đã mở rộng CTA tới dashboard, reports, chatmlhubai, ai settings, booking pages, coupon campaigns, feedback forms, lead forms, credits, packages. |
-| Unit test bảo vệ Basic AI | Đã ghi nhận **73 cases** (57 functions) — **chưa chạy được** | `tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` | P0–P1, Phase B plan/credit, Phase C.1 industry 18 nhóm, **Phase D Studio handoff**, footer/onboarding/CRM. Host Windows thiếu `php` PATH (2026-06-21). |
+| Unit test bảo vệ Basic AI | Đã ghi nhận **64 functions** (+ datasets) — **chưa chạy được** | `tests/Unit/CustomMLHUB/MLHUBAIAssistantBasicAiTest.php` | P0–P1, Phase B plan/credit, Phase C.1 industry 18 nhóm, **Phase D Studio handoff**, **Phase E.1 batch summary**, footer/onboarding/CRM. Host Windows thiếu `php` PATH (2026-06-21). |
 
 ### 12.1 Ma trận P0 sau nâng cấp
 
@@ -854,9 +854,30 @@ Khi triển khai gợi ý theo type thật: đọc metadata từ `BusinessTypeCa
 
 | # | Việc | Trạng thái |
 | --- | --- | --- |
-| E1 | Pest file **73 cases** — **chưa chạy được** trên host thiếu PHP | Chờ container |
+| E1 | Pest file **64 functions** (+ dataset mở rộng ~100 assertions) — **chưa chạy được** trên host thiếu PHP | Chờ container |
 | E2 | Regression Phase B credit/plan + Phase C.1 industry + Phase D handoff trong cùng file test | **Đã ghi nhận** |
 | E3 | Smoke manual 6 câu (content/spa/caption/review/image/credit) | Chờ owner |
+
+### Phase E.1 — Multi-topic / Batch Summary Mode (2026-06-21)
+
+| # | Việc | Trạng thái |
+| --- | --- | --- |
+| E1.1 | **Multi-industry batch:** `detectMatchedIndustryGroups()` + `isMultiIndustryBatchQuestion()` (≥3 nhóm) → intent `industry_recommendation`, composer `industryBatchSummaryMessage()` tối đa 4 cụm + CTA ≤3 | **Xong** |
+| E1.2 | **Studio advisory guard:** `isStudioToolAdvisoryQuestion()` + `hasStudioCreationIntent()` — nhắc “AI Content” trong câu so sánh công cụ **không** handoff; “Viết caption” vẫn handoff | **Xong** |
+| E1.3 | **Multi-scenario ordering:** `isMultiScenarioOrderingQuestion()` → focus `feedback`, message thứ tự Feedback → Review Booster → Google → Booking/Landing | **Xong** |
+| E1.4 | **Multi-Studio handoff:** `detectStudioHandoffTypes()` + `multi_studio` khi ≥2 loại → `studioMultiHandoffMessage()` liệt kê AI Content / Planner / Review Reply / AI Image | **Xong** |
+| E1.5 | Unit tests Phase E.1 (4 batch + 3 regression) trong `MLHUBAIAssistantBasicAiTest.php` | **Xong** (chưa chạy Pest) |
+
+**Batch detection (code):**
+
+| Loại | Hàm chính | File |
+| --- | --- | --- |
+| Multi-industry | `detectMatchedIndustryGroups()`, `resolveIndustryBatchClusters()` | `MLHUBAIKnowledgeBase.php` |
+| Studio advisory | `isStudioToolAdvisoryQuestion()`, `hasStudioCreationIntent()` | `MLHUBAIKnowledgeBase.php` |
+| Multi-scenario | `isMultiScenarioOrderingQuestion()` | `MLHUBAIKnowledgeBase.php` |
+| Multi-Studio | `detectStudioHandoffTypes()` → `multi_studio` | `MLHUBAIKnowledgeBase.php` |
+
+**Focus order (`focusEverydayQuestion`):** plan limits → multi-scenario → studio handoff → multi-industry batch → industry/scenario còn lại.
 
 ### Phase F — Advanced AI later (không làm ngay)
 

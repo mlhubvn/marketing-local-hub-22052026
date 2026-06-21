@@ -1152,3 +1152,96 @@ test('phase C1 eighteen industry groups regression remains stable', function ():
         ->and((new MLHUBAIIntentResolver)->resolve('Tôi có quán ăn thì nên dùng MLHUB thế nào?')['intent'])
         ->toBe('industry_recommendation');
 });
+
+test('batch multi industry question summarizes groups instead of picking one industry', function (): void {
+    $question = 'Tôi vừa mở spa, đại lý phân phối mỹ phẩm, xưởng OCOP và hiệp hội — nên dùng MLHUB thế nào?';
+    $resolver = new MLHUBAIIntentResolver;
+    $composer = new MLHUBAIResponseComposer;
+    $context = mlhubAssistantContext(['request' => ['question' => $question]]);
+    $intents = array_column($resolver->resolveAll($question), 'intent');
+    $message = $composer->composeMany($intents, $context);
+    $labels = array_column($composer->actionsFor($intents, $context), 'label');
+
+    expect($intents[0])->toBe('industry_recommendation')
+        ->and($message)->toContain('nhiều nhóm ngành')
+        ->and($message)->toContain('B2B')
+        ->and($message)->toContain('OCOP')
+        ->and($message)->not->toContain('Với spa, salon')
+        ->and(count($labels))->toBeLessThanOrEqual(3);
+});
+
+test('mentioning ai content as a tool does not trigger studio handoff', function (): void {
+    $question = 'MLHUB nên ưu tiên landing page, QR, CRM, báo cáo, mẫu marketing hay AI Content như thế nào?';
+    $intents = array_column((new MLHUBAIIntentResolver)->resolveAll($question), 'intent');
+
+    expect($intents)->not->toContain('ai_content_writer')
+        ->and($intents)->not->toContain('ai_studio')
+        ->and(MLHUBAIKnowledgeBase::detectStudioHandoff($question))->toBeNull();
+});
+
+test('multi scenario ordering returns feedback review google booking sequence', function (): void {
+    $question = 'Khách không để lại đánh giá, có khách 2 sao, Google nhiều người xem nhưng ít đặt bàn — tôi nên xử lý theo thứ tự nào?';
+    $resolver = new MLHUBAIIntentResolver;
+    $composer = new MLHUBAIResponseComposer;
+    $context = mlhubAssistantContext(['request' => ['question' => $question]]);
+    $intents = array_column($resolver->resolveAll($question), 'intent');
+    $message = $composer->composeMany($intents, $context);
+    $labels = array_column($composer->actionsFor($intents, $context), 'label');
+
+    expect($intents[0])->toBe('feedback')
+        ->and($message)->toContain('form góp ý')
+        ->and($message)->toContain('Review Booster')
+        ->and($message)->toContain('Google Business')
+        ->and($message)->toContain('đặt bàn')
+        ->and($labels)->toContain('Mở form góp ý')
+        ->and(count($labels))->toBeLessThanOrEqual(3);
+});
+
+test('multi studio task question summarizes handoff types', function (): void {
+    $question = 'Tôi cần viết caption, lập lịch nội dung, trả lời review và tạo banner AI — mở đâu?';
+    $resolver = new MLHUBAIIntentResolver;
+    $composer = new MLHUBAIResponseComposer;
+    $context = mlhubAssistantContext(['request' => ['question' => $question]]);
+    $intents = array_column($resolver->resolveAll($question), 'intent');
+    $message = $composer->composeMany($intents, $context);
+    $labels = array_column($composer->actionsFor($intents, $context), 'label');
+
+    expect($intents[0])->toBe('ai_studio')
+        ->and($message)->toContain('chia theo loại')
+        ->and($message)->toContain('AI Content')
+        ->and($message)->toContain('Lập lịch nội dung')
+        ->and($message)->toContain('Trả lời đánh giá AI')
+        ->and($message)->toContain('Tạo ảnh AI')
+        ->and(count($labels))->toBeLessThanOrEqual(3);
+});
+
+test('phase E1 regression single spa industry still returns spa guidance', function (): void {
+    $question = 'Tôi có spa thì dùng tính năng nào?';
+    $intents = array_column((new MLHUBAIIntentResolver)->resolveAll($question), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
+        'request' => ['question' => $question],
+    ]));
+
+    expect($intents[0])->toBe('industry_recommendation')
+        ->and($message)->toContain('spa')
+        ->and($message)->toContain('đặt lịch')
+        ->and($message)->not->toContain('nhiều nhóm ngành');
+});
+
+test('phase E1 regression direct caption request still handoffs ai content', function (): void {
+    $question = 'Viết caption khuyến mãi cuối tuần cho quán cafe';
+    $intents = array_column((new MLHUBAIIntentResolver)->resolveAll($question), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
+        'request' => ['question' => $question],
+    ]));
+
+    expect($intents[0])->toBe('ai_content_writer')
+        ->and($message)->toContain('AI Content');
+});
+
+test('phase E1 regression credit question still returns credits', function (): void {
+    $question = 'Tôi còn bao nhiêu tín dụng AI?';
+    $intents = array_column((new MLHUBAIIntentResolver)->resolveAll($question), 'intent');
+
+    expect($intents)->toContain('credits');
+});

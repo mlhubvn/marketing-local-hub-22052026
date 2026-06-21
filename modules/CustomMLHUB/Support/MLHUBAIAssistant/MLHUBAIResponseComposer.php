@@ -49,12 +49,14 @@ class MLHUBAIResponseComposer
                     ['portal.reports', __('Xem báo cáo')],
                 ]
                 : MLHUBAIKnowledgeBase::routeActions($intent),
-            'feedback' => $this->scenario($context) === 'low_rating_recovery'
+            'feedback' => $this->scenario($context) === 'multi_scenario_ordering'
+                ? MLHUBAIKnowledgeBase::multiScenarioOrderingRouteActions()
+                : ($this->scenario($context) === 'low_rating_recovery'
                 ? [
                     ['portal.feedback-forms', __('Mở form góp ý')],
                     ['portal.crm.customers', __('Mở khách hàng trong CRM')],
                 ]
-                : MLHUBAIKnowledgeBase::routeActions($intent),
+                : MLHUBAIKnowledgeBase::routeActions($intent)),
             'credits' => $this->scenario($context) === 'no_credit_campaign'
                 ? [
                     ['portal.coupon-campaigns', __('Mở mã ưu đãi')],
@@ -72,10 +74,12 @@ class MLHUBAIResponseComposer
             'ai_content_writer' => ($handoff = MLHUBAIKnowledgeBase::detectStudioHandoff($this->normalizedQuestion($context))) === 'content_writing'
                 ? MLHUBAIKnowledgeBase::studioHandoffRouteActions('content_writing')
                 : MLHUBAIKnowledgeBase::routeActions('ai_content_writer'),
-            'ai_studio' => ($handoff = MLHUBAIKnowledgeBase::detectStudioHandoff($this->normalizedQuestion($context))) !== null
+            'ai_studio' => ($handoff = MLHUBAIKnowledgeBase::detectStudioHandoff($this->normalizedQuestion($context))) === 'multi_studio'
+                ? MLHUBAIKnowledgeBase::studioMultiHandoffRouteActions()
+                : ($handoff !== null
                 && $handoff !== 'content_writing'
                 ? MLHUBAIKnowledgeBase::studioHandoffRouteActions($handoff)
-                : MLHUBAIKnowledgeBase::routeActions('ai_studio'),
+                : MLHUBAIKnowledgeBase::routeActions('ai_studio')),
             default => MLHUBAIKnowledgeBase::routeActions($intent),
         };
 
@@ -96,6 +100,14 @@ class MLHUBAIResponseComposer
      */
     protected function industryActions(array $context): array
     {
+        if (MLHUBAIKnowledgeBase::isMultiIndustryBatchQuestion($this->question($context))) {
+            return MLHUBAIKnowledgeBase::industryBatchRouteActions(
+                MLHUBAIKnowledgeBase::resolveIndustryBatchClusters(
+                    MLHUBAIKnowledgeBase::detectMatchedIndustryGroups($this->question($context)),
+                ),
+            );
+        }
+
         if ($this->scenario($context) === 'google_to_booking') {
             return [
                 ['portal.google-business', __('Mở Google Business')],
@@ -193,6 +205,9 @@ class MLHUBAIResponseComposer
         if (in_array($this->scenario($context), [
             'branch_performance',
             'studio_handoff',
+            'multi_studio_handoff',
+            'industry_batch',
+            'multi_scenario_ordering',
             'google_to_booking',
             'low_rating_recovery',
             'no_credit_campaign',
@@ -429,8 +444,22 @@ class MLHUBAIResponseComposer
      */
     protected function scenario(array $context): string
     {
-        if (MLHUBAIKnowledgeBase::detectStudioHandoff($this->normalizedQuestion($context)) !== null) {
+        if (MLHUBAIKnowledgeBase::isMultiScenarioOrderingQuestion($this->question($context))) {
+            return 'multi_scenario_ordering';
+        }
+
+        $handoff = MLHUBAIKnowledgeBase::detectStudioHandoff($this->normalizedQuestion($context));
+
+        if ($handoff === 'multi_studio') {
+            return 'multi_studio_handoff';
+        }
+
+        if ($handoff !== null) {
             return 'studio_handoff';
+        }
+
+        if (MLHUBAIKnowledgeBase::isMultiIndustryBatchQuestion($this->question($context))) {
+            return 'industry_batch';
         }
 
         return match (true) {
@@ -505,6 +534,14 @@ class MLHUBAIResponseComposer
     {
         if (trim($this->question($context)) === '') {
             return __('Với quán cà phê hoặc trà sữa, nên bắt đầu bằng 3 việc: tạo cơ sở kinh doanh, đặt QR xin đánh giá tại quầy, và tạo mã ưu đãi để kéo khách quay lại. Nếu muốn lấy số điện thoại khách, dùng thêm form khách tiềm năng hoặc trang đích có form tư vấn.');
+        }
+
+        $matchedGroups = MLHUBAIKnowledgeBase::detectMatchedIndustryGroups($this->question($context));
+
+        if (count($matchedGroups) >= 3) {
+            return MLHUBAIKnowledgeBase::industryBatchSummaryMessage(
+                MLHUBAIKnowledgeBase::resolveIndustryBatchClusters($matchedGroups),
+            );
         }
 
         $scenario = $this->scenario($context);
@@ -683,6 +720,10 @@ class MLHUBAIResponseComposer
      */
     protected function composeFeedback(array $context): string
     {
+        if ($this->scenario($context) === 'multi_scenario_ordering') {
+            return MLHUBAIKnowledgeBase::multiScenarioOrderingMessage();
+        }
+
         if ($this->scenario($context) === 'low_rating_recovery') {
             return __('Với khách đánh giá 1-3 sao, hãy xử lý theo luồng phục hồi riêng: mở form góp ý hoặc phản hồi riêng, ghi rõ vấn đề khách không hài lòng, tạo việc cần làm trong CRM để nhân viên gọi lại và chỉ xin đánh giá công khai sau khi đã hỗ trợ ổn. Không nên đẩy khách chưa hài lòng thẳng sang review công khai.');
         }
@@ -949,7 +990,14 @@ class MLHUBAIResponseComposer
      */
     protected function composeAiStudio(array $context): string
     {
-        $handoff = MLHUBAIKnowledgeBase::detectStudioHandoff($this->normalizedQuestion($context));
+        $normalized = $this->normalizedQuestion($context);
+        $handoff = MLHUBAIKnowledgeBase::detectStudioHandoff($normalized);
+
+        if ($handoff === 'multi_studio') {
+            return MLHUBAIKnowledgeBase::studioMultiHandoffMessage(
+                MLHUBAIKnowledgeBase::detectStudioHandoffTypes($normalized),
+            );
+        }
 
         if ($handoff !== null && $handoff !== 'content_writing') {
             return MLHUBAIKnowledgeBase::studioHandoffMessage($handoff);

@@ -166,6 +166,23 @@ class MLHUBAIIntentResolver
      */
     protected function focusEverydayQuestion(array $matches, string $normalized): array
     {
+        if ($this->isCurrentPlanLimitQuestion($normalized)) {
+            $focused = array_values(array_filter(
+                $matches,
+                static fn (array $match): bool => $match['intent'] === 'plan_limits',
+            ));
+
+            return $focused === [] ? $matches : $focused;
+        }
+
+        if (MLHUBAIKnowledgeBase::isMultiScenarioOrderingQuestion($normalized)) {
+            return [[
+                'intent' => 'feedback',
+                'confidence' => 1.0,
+                'matched_keywords' => [],
+            ]];
+        }
+
         if (($handoff = MLHUBAIKnowledgeBase::detectStudioHandoff($normalized)) !== null) {
             return [[
                 'intent' => MLHUBAIKnowledgeBase::studioHandoffFocusIntent($handoff),
@@ -174,8 +191,15 @@ class MLHUBAIIntentResolver
             ]];
         }
 
+        if (MLHUBAIKnowledgeBase::isMultiIndustryBatchQuestion($normalized)) {
+            return [[
+                'intent' => 'industry_recommendation',
+                'confidence' => 1.0,
+                'matched_keywords' => [],
+            ]];
+        }
+
         $focus = match (true) {
-            $this->isCurrentPlanLimitQuestion($normalized) => ['plan_limits'],
             $this->isIndustryQuestion($normalized) => ['industry_recommendation'],
             $this->isNoCreditCampaignQuestion($normalized) => ['credits'],
             $this->isBranchPerformanceQuestion($normalized) => ['business_locations'],

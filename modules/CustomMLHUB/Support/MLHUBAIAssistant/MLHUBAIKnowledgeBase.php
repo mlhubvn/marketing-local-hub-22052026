@@ -546,7 +546,7 @@ class MLHUBAIKnowledgeBase
     {
         return [
             'review_reply_writing' => [
-                'tra loi review nay', 'tra loi review giup', 'giup toi tra loi review',
+                'tra loi review', 'tra loi review nay', 'tra loi review giup', 'giup toi tra loi review',
                 'viet phan hoi review', 'viet tra loi review', 'tao phan hoi review',
                 'review reply giup', 'phan hoi review bang ai', 'ai viet phan hoi review',
                 'tra loi danh gia giup', 'viet phan hoi danh gia',
@@ -571,23 +571,13 @@ class MLHUBAIKnowledgeBase
 
     public static function detectStudioHandoff(string $normalizedQuestion): ?string
     {
-        $normalized = trim((string) preg_replace('/\s+/u', ' ', Str::ascii(mb_strtolower($normalizedQuestion))));
+        $types = self::detectStudioHandoffTypes($normalizedQuestion);
 
-        if ($normalized === '' || self::studioHandoffExcluded($normalized)) {
-            return null;
+        if (count($types) >= 2) {
+            return 'multi_studio';
         }
 
-        foreach (self::studioHandoffDetectionOrder() as $type) {
-            if (self::containsNormalizedNeedle($normalized, self::studioHandoffAliasMap()[$type] ?? [])) {
-                return $type;
-            }
-        }
-
-        if (self::matchesCreatorContentWriting($normalized)) {
-            return 'content_writing';
-        }
-
-        return null;
+        return $types[0] ?? null;
     }
 
     /**
@@ -668,6 +658,298 @@ class MLHUBAIKnowledgeBase
             'auto reply',
             'review nao can phan hoi',
         ]);
+    }
+
+    public static function normalizeQuestion(string $question): string
+    {
+        return trim((string) preg_replace('/\s+/u', ' ', Str::ascii(mb_strtolower($question))));
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function detectMatchedIndustryGroups(string $question): array
+    {
+        $normalized = self::normalizeQuestion($question);
+
+        if ($normalized === '') {
+            return [];
+        }
+
+        $matched = [];
+
+        foreach (self::industryGroupAliasMap() as $group => $aliases) {
+            if (self::containsNormalizedNeedle($normalized, $aliases)) {
+                $matched[] = $group;
+            }
+        }
+
+        return array_values(array_unique($matched));
+    }
+
+    public static function isMultiIndustryBatchQuestion(string $question): bool
+    {
+        return count(self::detectMatchedIndustryGroups($question)) >= 3;
+    }
+
+    /**
+     * @return array<string, array{groups: list<string>, summary: string}>
+     */
+    public static function industryBatchClusterDefinitions(): array
+    {
+        return [
+            'service_at_point' => [
+                'groups' => [
+                    'food_beverage', 'retail_goods', 'beauty_personal_care', 'tourism_hospitality_experience',
+                    'health_dental_fitness', 'technical_repair_maintenance', 'culture_entertainment_sports_community',
+                ],
+                'summary' => __('Dịch vụ tại điểm bán/F&B/Beauty: ưu tiên QR, Review Booster, mã ưu đãi và trang đặt lịch khi cần giữ khách quay lại.'),
+            ],
+            'b2b_pipeline' => [
+                'groups' => [
+                    'wholesale_distribution', 'professional_b2b_services', 'real_estate_rental_property',
+                    'home_construction_interior', 'transport_delivery_logistics', 'education_training_coaching',
+                ],
+                'summary' => __('B2B/Wholesale/Professional/BĐS: ưu tiên trang đích, form khách tiềm năng và CRM để theo pipeline.'),
+            ],
+            'production_supply' => [
+                'groups' => ['small_manufacturing_processing_ocop', 'agriculture_fisheries_local_supply'],
+                'summary' => __('Sản xuất/OCOP/Nông sản: landing sản phẩm, form đại lý/báo giá sỉ và CRM phân phối.'),
+            ],
+            'community_program' => [
+                'groups' => [
+                    'organization_association_public_community', 'digital_creator_online_business',
+                    'other_needs_classification',
+                ],
+                'summary' => __('Cộng đồng/Sự kiện/Tổ chức: landing chương trình, form đăng ký và báo cáo theo dõi.'),
+            ],
+        ];
+    }
+
+    /**
+     * @param  list<string>  $matchedGroups
+     * @return list<string>
+     */
+    public static function resolveIndustryBatchClusters(array $matchedGroups): array
+    {
+        $clusters = [];
+
+        foreach (self::industryBatchClusterDefinitions() as $clusterKey => $definition) {
+            foreach ($matchedGroups as $group) {
+                if (in_array($group, $definition['groups'], true)) {
+                    $clusters[] = $clusterKey;
+                    break;
+                }
+            }
+        }
+
+        return array_slice(array_values(array_unique($clusters)), 0, 4);
+    }
+
+    /**
+     * @param  list<string>  $clusterKeys
+     */
+    public static function industryBatchSummaryMessage(array $clusterKeys): string
+    {
+        $definitions = self::industryBatchClusterDefinitions();
+        $lines = [__('Mình thấy bạn đang hỏi nhiều nhóm ngành, nên chia thành các cụm ưu tiên:')];
+
+        foreach ($clusterKeys as $index => $clusterKey) {
+            $summary = $definitions[$clusterKey]['summary'] ?? '';
+            if ($summary !== '') {
+                $lines[] = ($index + 1).'. '.$summary;
+            }
+        }
+
+        $lines[] = __('Hãy chọn một cụm để triển khai trước, rồi hỏi lại chi tiết từng ngành nếu cần — Chat không gộp 18 nhóm thành một quy trình dài.');
+
+        return implode(' ', $lines);
+    }
+
+    /**
+     * @param  list<string>  $clusterKeys
+     * @return list<array{0: string, 1: string}>
+     */
+    public static function industryBatchRouteActions(array $clusterKeys): array
+    {
+        $actions = in_array('service_at_point', $clusterKeys, true)
+            ? [
+                ['portal.qr-campaigns', __('Quản lý chiến dịch')],
+                ['portal.lead-forms', __('Mở form khách tiềm năng')],
+                ['portal.crm.customers', __('Mở khách hàng trong CRM')],
+            ]
+            : [
+                ['portal.landing-pages', __('Mở trang đích')],
+                ['portal.lead-forms', __('Mở form khách tiềm năng')],
+                ['portal.reports', __('Xem báo cáo')],
+            ];
+
+        return array_slice($actions, 0, 3);
+    }
+
+    public static function isStudioToolAdvisoryQuestion(string $question): bool
+    {
+        $normalized = self::normalizeQuestion($question);
+
+        if ($normalized === '' || self::hasStudioCreationIntent($normalized)) {
+            return false;
+        }
+
+        if (! self::containsNormalizedNeedle($normalized, ['ai content', 'ai studio', 'mau marketing', 'marketing template'])) {
+            return false;
+        }
+
+        return self::containsNormalizedNeedle($normalized, [
+            'uu tien', 'nen uu tien', 'nen dung', 'nen chon', 'the nao', ' hay ', 'landing page',
+            'trang dich', 'bao cao', 'crm', 'qr', 'cong cu nao', 'tinh nang nao', 'tool nao',
+            'marketing templates', 'mau marketing',
+        ]);
+    }
+
+    public static function hasStudioCreationIntent(string $normalized): bool
+    {
+        return self::containsNormalizedNeedle($normalized, [
+            'viet ', 'tao ', 'sinh ', 'soan ', 'lap lich', 'tra loi review', 'giup toi tra loi',
+            'viet caption', 'tao caption', 'tao bai', 'viet bai', 'tao anh', 'tao hinh', 'tao banner',
+            'viet phan hoi', 'tao phan hoi',
+        ]);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function detectStudioHandoffTypes(string $question): array
+    {
+        $normalized = self::normalizeQuestion($question);
+
+        if ($normalized === ''
+            || self::studioHandoffExcluded($normalized)
+            || self::isStudioToolAdvisoryQuestion($question)) {
+            return [];
+        }
+
+        $types = [];
+
+        foreach (self::studioHandoffDetectionOrder() as $type) {
+            if (! self::containsNormalizedNeedle($normalized, self::studioHandoffAliasMap()[$type] ?? [])) {
+                continue;
+            }
+
+            if ($type === 'content_writing' && ! self::hasStudioCreationIntent($normalized)) {
+                continue;
+            }
+
+            $types[] = $type;
+        }
+
+        if (self::matchesCreatorContentWriting($normalized)) {
+            $types[] = 'content_writing';
+        }
+
+        return array_values(array_unique($types));
+    }
+
+    public static function isMultiScenarioOrderingQuestion(string $question): bool
+    {
+        $normalized = self::normalizeQuestion($question);
+
+        if ($normalized === '') {
+            return false;
+        }
+
+        $asksOrder = self::containsNormalizedNeedle($normalized, [
+            'theo thu tu', 'thu tu nao', 'uu tien', 'lam gi truoc', 'nen lam gi truoc', 'xuly theo',
+        ]);
+
+        if (! $asksOrder) {
+            return false;
+        }
+
+        $signals = 0;
+
+        if (self::containsNormalizedNeedle($normalized, [
+            'danh gia 1 sao', 'danh gia 2 sao', 'danh gia 3 sao', '1 sao', '2 sao', '3 sao',
+            'khach 1 sao', 'khach 2 sao', 'khach 3 sao', 'danh gia thap', 'rating thap',
+            'khach khong hai long', 'review xau',
+        ])) {
+            $signals++;
+        }
+
+        if (self::containsNormalizedNeedle($normalized, [
+            'khong de lai danh gia', 'xin danh gia', 'lay danh gia', 'khong de lai review',
+        ])) {
+            $signals++;
+        }
+
+        if (self::containsNormalizedNeedle($normalized, [
+            'google nhieu nguoi xem', 'tim tren google', 'it dat ban', 'it dat lich', 'it booking',
+        ])) {
+            $signals++;
+        }
+
+        return $signals >= 2;
+    }
+
+    public static function multiScenarioOrderingMessage(): string
+    {
+        return __('Với nhiều tình huống cùng lúc, nên ưu tiên theo thứ tự: (1) Xử lý khách không hài lòng bằng form góp ý riêng/CRM trước. (2) Sau đó mới xin đánh giá công khai bằng Review Booster. (3) Tối ưu Google Business. (4) Gắn trang đặt lịch hoặc trang đích để chuyển lượt xem thành đặt bàn/lead. Chat chỉ sắp xếp thứ tự — không soạn nội dung dài.');
+    }
+
+    /**
+     * @return list<array{0: string, 1: string}>
+     */
+    public static function multiScenarioOrderingRouteActions(): array
+    {
+        return [
+            ['portal.feedback-forms', __('Mở form góp ý')],
+            ['portal.review-booster', __('Mở công cụ xin đánh giá')],
+            ['portal.google-business', __('Mở Google Business')],
+        ];
+    }
+
+    /**
+     * @param  list<string>  $types
+     */
+    public static function studioMultiHandoffMessage(array $types): string
+    {
+        $parts = [__('Các tác vụ sinh nội dung này nên mở AI Studio và chia theo loại:')];
+        $hints = [];
+
+        if (in_array('content_writing', $types, true)) {
+            $hints[] = __('caption/bài quảng cáo → AI Content');
+        }
+
+        if (in_array('content_planner', $types, true)) {
+            $hints[] = __('lịch nội dung → Lập lịch nội dung/AI Studio');
+        }
+
+        if (in_array('review_reply_writing', $types, true)) {
+            $hints[] = __('trả lời review → Trả lời đánh giá AI');
+        }
+
+        if (in_array('image_generation', $types, true)) {
+            $hints[] = __('ảnh/banner → Tạo ảnh AI/AI Studio');
+        }
+
+        if ($hints !== []) {
+            $parts[] = implode('; ', $hints).'.';
+        }
+
+        $parts[] = __('Chat không soạn dài tại đây; AI Cơ bản (Basic AI) không trừ tín dụng AI, tác vụ trong Studio có thể dùng tín dụng AI theo gói.');
+
+        return implode(' ', $parts);
+    }
+
+    /**
+     * @return list<array{0: string, 1: string}>
+     */
+    public static function studioMultiHandoffRouteActions(): array
+    {
+        return [
+            ['portal.ai-studio', __('Mở AI Studio')],
+            ['portal.ai-content', __('Mở công cụ viết nội dung AI')],
+            ['portal.ai-studio.prompt-history', __('Mở lịch sử câu lệnh')],
+        ];
     }
 
     /**
