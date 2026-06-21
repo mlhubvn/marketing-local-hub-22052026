@@ -90,6 +90,10 @@ class MLHUBAIKnowledgeBase
                 'mua thêm', 'mua them', 'usage', 'lịch sử dùng', 'lich su dung',
                 'điểm tín dụng', 'diem tin dung', 'tốn điểm', 'ton diem',
                 'còn bao nhiêu điểm', 'con bao nhieu diem', 'mua thêm điểm', 'mua them diem',
+                'tín dụng AI', 'tin dung ai', 'tín dụng', 'tin dung',
+                'số dư tín dụng', 'so du tin dung',
+                'còn bao nhiêu tín dụng', 'con bao nhieu tin dung',
+                'hết tín dụng', 'het tin dung',
             ],
             'plan_limits' => [
                 'giới hạn', 'gioi han', 'limit', 'gói hiện tại', 'goi hien tai',

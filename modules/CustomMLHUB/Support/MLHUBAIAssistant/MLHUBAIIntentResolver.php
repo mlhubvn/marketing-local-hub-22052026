@@ -167,6 +167,7 @@ class MLHUBAIIntentResolver
     protected function focusEverydayQuestion(array $matches, string $normalized): array
     {
         $focus = match (true) {
+            $this->isCurrentPlanLimitQuestion($normalized) => ['plan_limits'],
             $this->containsAny($normalized, [
                 'quan ca phe',
                 'quan cafe',
@@ -220,6 +221,18 @@ class MLHUBAIIntentResolver
         ));
 
         return $focused === [] ? $matches : $focused;
+    }
+
+    protected function isCurrentPlanLimitQuestion(string $normalized): bool
+    {
+        return $this->containsAny($normalized, ['goi hien tai', 'goi dang dung'])
+            && $this->containsAny($normalized, [
+                'gioi han',
+                'quota',
+                'han muc',
+                'con bao nhieu',
+                'tao duoc bao nhieu',
+            ]);
     }
 
     /**

@@ -571,6 +571,50 @@ test('credit questions merge help and credits into one focused answer', function
         ->not->toContain('Mở MLHUB AI');
 });
 
+test('resolver recognizes Vietnamese credit balance wording', function (): void {
+    $resolver = new MLHUBAIIntentResolver;
+    $matches = $resolver->resolveAll('Tôi còn bao nhiêu tín dụng AI?');
+    $intents = array_column($matches, 'intent');
+
+    expect($matches)->not->toBeEmpty()
+        ->and($matches[0]['intent'])->toBe('credits')
+        ->and($intents)->toContain('credits')
+        ->and($matches[0]['confidence'])->toBeGreaterThan(0);
+});
+
+test('plan limit question wins over billing for current plan limits', function (): void {
+    $resolver = new MLHUBAIIntentResolver;
+    $matches = $resolver->resolveAll('Gói hiện tại của tôi giới hạn gì?');
+    $message = (new MLHUBAIResponseComposer)->composeMany(
+        array_column($matches, 'intent'),
+        mlhubAssistantContext([
+            'plan' => [
+                'available' => true,
+                'name' => 'MLHUB Growth',
+                'status' => 'Active',
+                'usage' => [
+                    'campaigns' => [
+                        'label' => 'Chiến dịch',
+                        'used' => 2,
+                        'limit' => 10,
+                        'remaining' => 8,
+                        'unlimited' => false,
+                        'percent' => 20,
+                    ],
+                ],
+            ],
+        ]),
+    );
+
+    expect($matches)->not->toBeEmpty()
+        ->and($matches[0]['intent'])->toBe('plan_limits')
+        ->and($message)->toContain('Gói hiện tại')
+        ->and($message)->toContain('Chiến dịch')
+        ->and($message)->toContain('2/10')
+        ->and(mb_substr($message, 0, 80))->not->toContain('Thanh toán')
+        ->and(mb_substr($message, 0, 80))->not->toContain('hóa đơn');
+});
+
 test('credits response uses real snapshot when available', function (): void {
     $message = (new MLHUBAIResponseComposer)->composeMany(
         ['credits'],
