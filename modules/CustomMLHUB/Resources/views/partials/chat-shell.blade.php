@@ -136,8 +136,6 @@
 
                             @if (($entry['source'] ?? '') === 'ai')
                                 <p class="mt-2 text-[11px] font-semibold uppercase tracking-[0.12em]" style="color: var(--theme-accent);">{{ __('AI generated') }}</p>
-                            @else
-                                <p class="mt-2 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Answer based on your account\'s real data, processed by the built-in AI.') }}</p>
                             @endif
                         </div>
                     </div>

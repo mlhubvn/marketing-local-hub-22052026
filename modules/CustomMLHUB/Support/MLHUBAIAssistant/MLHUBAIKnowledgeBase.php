@@ -14,9 +14,11 @@ class MLHUBAIKnowledgeBase
         return [
             'help_using_mlhubai' => [
                 'mlhub ai', 'trợ lý', 'tro ly', 'assistant', 'basic ai', 'advanced ai',
+                'ai cơ bản', 'ai co ban', 'ai nâng cao', 'ai nang cao',
                 'không tốn token', 'khong ton token', 'không tốn credit', 'khong ton credit',
                 'tốn credit', 'ton credit', 'credit không', 'credit khong', 'hỏi gì được',
                 'hoi gi duoc', 'cách dùng', 'cach dung', 'dùng thế nào', 'dung the nao',
+                'khác nhau thế nào', 'khac nhau the nao', 'khác gì', 'khac gi',
             ],
             'daily_briefing' => [
                 'hôm nay', 'hom nay', 'sáng nay', 'sang nay', 'báo cáo ngày', 'bao cao ngay',
@@ -28,6 +30,12 @@ class MLHUBAIKnowledgeBase
                 'chua co du lieu', 'tạo đầu tiên', 'tao dau tien', 'cần làm gì trước',
                 'can lam gi truoc', 'làm gì trước', 'lam gi truoc', 'mới tạo tài khoản',
                 'moi tao tai khoan', 'tạo tài khoản', 'tao tai khoan', 'hướng dẫn', 'huong dan',
+                'quán cà phê', 'quan ca phe', 'quán cafe', 'quan cafe', 'quán ăn', 'quan an',
+                'nhà hàng', 'nha hang', 'spa', 'salon', 'bán lẻ', 'ban le',
+                'nên dùng tính năng nào đầu tiên', 'nen dung tinh nang nao dau tien',
+                'tạo cơ sở trước hay tạo chiến dịch trước', 'tao co so truoc hay tao chien dich truoc',
+                'tạo cơ sở kinh doanh trước hay tạo chiến dịch trước',
+                'tao co so kinh doanh truoc hay tao chien dich truoc',
             ],
             'top_campaigns' => [
                 'chiến dịch tốt nhất', 'chien dich tot nhat', 'top campaign', 'campaign tốt nhất',
@@ -50,22 +58,32 @@ class MLHUBAIKnowledgeBase
             'coupon' => [
                 'coupon', 'mã giảm giá', 'ma giam gia', 'voucher', 'ưu đãi', 'uu dai',
                 'claim', 'khách nhận mã', 'khach nhan ma',
+                'ưu đãi quay lại', 'uu dai quay lai', 'mã ưu đãi quay lại',
+                'ma uu dai quay lai', 'khách quay lại', 'khach quay lai',
             ],
             'feedback' => [
                 'feedback', 'phản hồi', 'phan hoi', 'góp ý', 'gop y', 'khách không hài lòng',
                 'khach khong hai long', 'nps', 'rating thấp', 'rating thap',
+                'đánh giá thấp', 'danh gia thap', 'khách đánh giá thấp', 'khach danh gia thap',
             ],
             'leads' => [
                 'lead', 'khách tiềm năng', 'khach tiem nang', 'form tư vấn', 'form tu van',
                 'yêu cầu báo giá', 'yeu cau bao gia', 'số điện thoại mới', 'so dien thoai moi',
+                'để lại số điện thoại', 'de lai so dien thoai', 'lấy số điện thoại',
+                'lay so dien thoai', 'thu số điện thoại', 'thu so dien thoai', 'gọi lại', 'goi lai',
             ],
             'conversion' => [
                 'chuyển đổi', 'chuyen doi', 'conversion', 'tỉ lệ', 'ti le', 'tỷ lệ', 'ty le',
                 'hiệu suất', 'hieu suat', 'funnel', 'scan ra khách', 'scan ra khach',
+                'kênh nào mang khách', 'kenh nao mang khach', 'nguồn nào mang khách',
+                'nguon nao mang khach', 'kênh hiệu quả', 'kenh hieu qua',
+                'nguồn hiệu quả', 'nguon hieu qua',
             ],
             'credits' => [
                 'credit', 'token', 'số dư', 'so du', 'hết credit', 'het credit',
                 'mua thêm', 'mua them', 'usage', 'lịch sử dùng', 'lich su dung',
+                'điểm tín dụng', 'diem tin dung', 'tốn điểm', 'ton diem',
+                'còn bao nhiêu điểm', 'con bao nhieu diem', 'mua thêm điểm', 'mua them diem',
             ],
             'plan_limits' => [
                 'giới hạn', 'gioi han', 'limit', 'gói hiện tại', 'goi hien tai',
@@ -95,6 +113,10 @@ class MLHUBAIKnowledgeBase
                 'crm', 'segment', 'segments', 'phân nhóm', 'phan nhom', 'tag', 'tags',
                 'task', 'tasks', 'ghi chú khách', 'ghi chu khach', 'automation crm',
                 'crm automation', 'chăm sóc khách', 'cham soc khach',
+                'khách nào cần chăm sóc lại', 'khach nao can cham soc lai',
+                'khách cũ quay lại', 'khach cu quay lai', 'chăm sóc khách cũ tự động',
+                'cham soc khach cu tu dong', 'nhắc nhân viên chăm sóc', 'nhac nhan vien cham soc',
+                'ít khách quay lại', 'it khach quay lai', 'khách ít quay lại', 'khach it quay lai',
             ],
             'google_business' => [
                 'google business', 'gbp', 'google profile', 'google location',
@@ -123,6 +145,9 @@ class MLHUBAIKnowledgeBase
             'teams' => [
                 'team', 'teams', 'workspace', 'thành viên', 'thanh vien', 'phân quyền',
                 'phan quyen', 'mời người', 'moi nguoi', 'đổi workspace', 'doi workspace',
+                'mời nhân viên', 'moi nhan vien', 'thêm nhân viên', 'them nhan vien',
+                'phân quyền nhân viên', 'phan quyen nhan vien', 'nhân sự', 'nhan su',
+                'đội ngũ', 'doi ngu',
             ],
             'support' => [
                 'support', 'ticket', 'hỗ trợ', 'ho tro', 'liên hệ', 'lien he',
@@ -161,6 +186,9 @@ class MLHUBAIKnowledgeBase
                 'cơ sở', 'co so', 'danh sách cơ sở', 'danh sach co so', 'doanh nghiệp',
                 'doanh nghiep', 'business', 'chi nhánh', 'chi nhanh', 'cửa hàng',
                 'cua hang', 'địa điểm', 'dia diem',
+                'cập nhật thông tin quán', 'cap nhat thong tin quan',
+                'sửa thông tin quán', 'sua thong tin quan', 'thông tin cửa hàng',
+                'thong tin cua hang', 'hồ sơ quán', 'ho so quan',
             ],
         ];
     }

@@ -386,3 +386,128 @@ test('composer summarizes long multi-intent questions without rendering every in
         ->not->toContain('Thanh toán')
         ->not->toContain('Hỗ trợ');
 });
+
+test('basic ai responses render exactly one composer footer', function (): void {
+    $messages = [
+        (new MLHUBAIResponseComposer)->composeMany(['landing_pages'], mlhubAssistantContext()),
+        (new MLHUBAIResponseComposer)->composeMany(['customers'], mlhubAssistantContext()),
+    ];
+
+    foreach ($messages as $message) {
+        $footerCount = substr_count($message, 'Câu trả lời có sử dụng số liệu thực tế từ tài khoản của bạn.')
+            + substr_count($message, 'Câu trả lời dựa trên tri thức nội bộ và cấu trúc tính năng của MLHUB.');
+
+        expect($footerCount)->toBe(1)
+            ->and($message)->not->toContain('Câu trả lời dựa trên số liệu thực tế của tài khoản được AI nội bộ xử lý.');
+    }
+});
+
+test('chat shell does not render the old fixed basic ai footer', function (): void {
+    $view = file_get_contents(base_path('modules/CustomMLHUB/Resources/views/partials/chat-shell.blade.php'));
+
+    expect($view)
+        ->not->toContain('Answer based on your account\\\'s real data, processed by the built-in AI.')
+        ->not->toContain('Câu trả lời dựa trên số liệu thực tế của tài khoản được AI nội bộ xử lý.');
+});
+
+test('resolver recognizes everyday P1.3 aliases without falling back', function (string $question, string $intent): void {
+    $match = (new MLHUBAIIntentResolver)->resolve($question);
+
+    expect($match['intent'])->toBe($intent)
+        ->and($match['intent'])->not->toBe('unknown')
+        ->and($match['confidence'])->toBeGreaterThan(0);
+})->with([
+    ['AI Cơ bản có tốn điểm tín dụng không?', 'help_using_mlhubai'],
+    ['AI Nâng cao khác AI Cơ bản thế nào?', 'help_using_mlhubai'],
+    ['Tôi còn bao nhiêu điểm tín dụng?', 'credits'],
+    ['Mời nhân viên vào đội ngũ ở đâu?', 'teams'],
+    ['Cập nhật thông tin quán ở đâu?', 'businesses'],
+    ['Tôi có một quán cà phê, nên dùng tính năng nào đầu tiên?', 'onboarding'],
+    ['Tôi cần tạo cơ sở kinh doanh trước hay tạo chiến dịch trước?', 'onboarding'],
+    ['Tôi muốn khách để lại số điện thoại thì dùng tính năng nào?', 'leads'],
+    ['Tôi muốn biết kênh nào mang khách tốt nhất thì xem ở đâu?', 'conversion'],
+    ['Nếu khách đánh giá thấp thì nên làm gì?', 'feedback'],
+]);
+
+test('P1.3 everyday answers are focused and practical', function (): void {
+    $composer = new MLHUBAIResponseComposer;
+
+    $coffee = $composer->composeMany(['onboarding'], mlhubAssistantContext());
+    $lead = $composer->composeMany(['leads'], mlhubAssistantContext());
+    $channel = $composer->composeMany(['conversion'], mlhubAssistantContext());
+    $lowReview = $composer->composeMany(['feedback'], mlhubAssistantContext());
+    $returning = $composer->composeMany(['crm_segments', 'coupon'], mlhubAssistantContext());
+
+    expect($coffee)
+        ->toContain('cơ sở kinh doanh')
+        ->toContain('công cụ xin đánh giá')
+        ->toContain('mã ưu đãi')
+        ->and($lead)
+        ->toContain('form khách tiềm năng')
+        ->not->toContain('đánh giá đang chờ')
+        ->and($channel)
+        ->toContain('báo cáo')
+        ->toContain('nguồn')
+        ->and($lowReview)
+        ->toContain('xin lỗi')
+        ->toContain('chăm sóc lại')
+        ->and($returning)
+        ->toContain('khách cũ')
+        ->toContain('mã ưu đãi');
+});
+
+test('navigation questions stay focused on one main intent', function (string $question, string $intent): void {
+    $matches = (new MLHUBAIIntentResolver)->resolveAll($question);
+
+    expect(array_column($matches, 'intent'))
+        ->toBe([$intent]);
+})->with([
+    ['Mời nhân viên vào đội ngũ ở đâu?', 'teams'],
+    ['Cập nhật thông tin quán ở đâu?', 'businesses'],
+    ['Tôi muốn biết kênh nào mang khách tốt nhất thì xem ở đâu?', 'conversion'],
+    ['Tôi muốn khách để lại số điện thoại thì dùng tính năng nào?', 'leads'],
+]);
+
+test('returning customer question focuses CRM and offer guidance', function (): void {
+    $intents = array_column((new MLHUBAIIntentResolver)->resolveAll('Quán tôi ít khách quay lại, nên làm gì?'), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext());
+
+    expect($intents)
+        ->toContain('crm_segments')
+        ->toContain('coupon')
+        ->not->toContain('customers')
+        ->and($message)
+        ->toContain('khách cũ')
+        ->toContain('mã ưu đãi');
+});
+
+test('P1.3 focused answers avoid intent contamination', function (): void {
+    $resolver = new MLHUBAIIntentResolver;
+    $composer = new MLHUBAIResponseComposer;
+
+    $qrIntents = array_column($resolver->resolveAll('Lượt quét QR tuần này thế nào?'), 'intent');
+    $leadIntents = array_column($resolver->resolveAll('Tôi muốn khách để lại số điện thoại thì dùng tính năng nào?'), 'intent');
+    $callbackIntents = array_column($resolver->resolveAll('Có khách tiềm năng mới nào cần gọi lại không?'), 'intent');
+
+    $qrMessage = $composer->composeMany($qrIntents, mlhubAssistantContext());
+    $leadMessage = $composer->composeMany($leadIntents, mlhubAssistantContext());
+    $callbackMessage = $composer->composeMany($callbackIntents, mlhubAssistantContext());
+
+    expect($qrIntents)->toBe(['qr_scans'])
+        ->and($qrMessage)
+        ->not->toContain('đánh giá đang chờ')
+        ->not->toContain('Công cụ xin đánh giá')
+        ->and($leadMessage)->not->toContain('đánh giá đang chờ')
+        ->and($callbackMessage)
+        ->not->toContain('Thanh toán')
+        ->not->toContain('billing');
+});
+
+test('google review answer does not duplicate the review metrics sentence', function (): void {
+    $resolver = new MLHUBAIIntentResolver;
+    $intents = array_column($resolver->resolveAll('Đánh giá Google nào cần trả lời?'), 'intent');
+    $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext());
+
+    expect(substr_count($message, 'Trung bình'))->toBeLessThanOrEqual(1)
+        ->and(substr_count($message, 'đánh giá cần trả lời'))->toBeLessThanOrEqual(1);
+});

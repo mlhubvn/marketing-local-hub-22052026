@@ -64,18 +64,16 @@ class MLHUBAIIntentResolver
             }
         }
 
+        $scored = $this->focusEverydayQuestion($scored, $normalized);
         $scored = $this->removeGenericNextSteps($scored);
+        $scored = $this->removeLooseDailyBriefing($scored);
+        $scored = $this->removeReviewDuplication($scored);
 
-        usort($scored, function (array $a, array $b): int {
-            $priority = MLHUBAIKnowledgeBase::intentPriority((string) $a['intent'])
-                <=> MLHUBAIKnowledgeBase::intentPriority((string) $b['intent']);
+        $this->sortMatches($scored, $this->isNavigationQuestion($normalized));
 
-            if ($priority !== 0) {
-                return $priority;
-            }
-
-            return $b['confidence'] <=> $a['confidence'];
-        });
+        if ($this->isNavigationQuestion($normalized) && ! $this->asksForMetricBlend($normalized)) {
+            $scored = array_slice($scored, 0, 1);
+        }
 
         return $scored;
     }
@@ -159,6 +157,185 @@ class MLHUBAIIntentResolver
 
             return array_diff($matched, array_map(fn (string $keyword): string => $this->normalize($keyword), $genericNextStepKeywords)) !== [];
         }));
+    }
+
+    /**
+     * @param  list<array{intent: string, confidence: float, matched_keywords: list<string>}>  $matches
+     * @return list<array{intent: string, confidence: float, matched_keywords: list<string>}>
+     */
+    protected function focusEverydayQuestion(array $matches, string $normalized): array
+    {
+        $focus = match (true) {
+            $this->containsAny($normalized, [
+                'tao co so truoc hay tao chien dich truoc',
+                'tao co so kinh doanh truoc hay tao chien dich truoc',
+                'nen dung tinh nang nao dau tien',
+                'quan ca phe',
+                'quan cafe',
+                'quan an',
+                'nha hang',
+                'spa',
+                'salon',
+                'ban le',
+            ]) => ['onboarding'],
+            $this->containsAny($normalized, [
+                'de lai so dien thoai',
+                'lay so dien thoai',
+                'thu so dien thoai',
+                'form tu van',
+            ]) => ['leads'],
+            $this->containsAny($normalized, [
+                'kenh nao mang khach',
+                'nguon nao mang khach',
+                'kenh hieu qua',
+                'nguon hieu qua',
+            ]) => ['conversion'],
+            $this->containsAny($normalized, [
+                'danh gia thap',
+                'rating thap',
+                'khach khong hai long',
+            ]) => ['feedback'],
+            $this->containsAny($normalized, [
+                'it khach quay lai',
+                'khach it quay lai',
+                'khach cu quay lai',
+                'cham soc khach cu',
+            ]) => ['crm_segments', 'coupon'],
+            default => [],
+        };
+
+        if ($focus === []) {
+            return $matches;
+        }
+
+        $focused = array_values(array_filter(
+            $matches,
+            static fn (array $match): bool => in_array($match['intent'], $focus, true),
+        ));
+
+        return $focused === [] ? $matches : $focused;
+    }
+
+    /**
+     * @param  list<array{intent: string, confidence: float, matched_keywords: list<string>}>  $matches
+     * @return list<array{intent: string, confidence: float, matched_keywords: list<string>}>
+     */
+    protected function removeReviewDuplication(array $matches): array
+    {
+        $hasGoogleReviews = collect($matches)->contains(fn (array $match): bool => $match['intent'] === 'google_reviews');
+
+        if (! $hasGoogleReviews) {
+            return $matches;
+        }
+
+        return array_values(array_filter(
+            $matches,
+            static fn (array $match): bool => ! in_array($match['intent'], ['reviews', 'review_booster'], true),
+        ));
+    }
+
+    /**
+     * @param  list<array{intent: string, confidence: float, matched_keywords: list<string>}>  $matches
+     * @return list<array{intent: string, confidence: float, matched_keywords: list<string>}>
+     */
+    protected function removeLooseDailyBriefing(array $matches): array
+    {
+        $hasSpecificOperationalIntent = collect($matches)
+            ->contains(fn (array $match): bool => ! in_array($match['intent'], ['daily_briefing', 'overview', 'greeting', 'next_steps'], true));
+
+        if (! $hasSpecificOperationalIntent) {
+            return $matches;
+        }
+
+        return array_values(array_filter($matches, function (array $match): bool {
+            if ($match['intent'] !== 'daily_briefing') {
+                return true;
+            }
+
+            $matched = array_map(fn (string $keyword): string => $this->normalize($keyword), (array) ($match['matched_keywords'] ?? []));
+            $strongDailyKeywords = ['hom nay', 'sang nay', 'bao cao ngay', 'daily', 'briefing', 'tinh hinh hom nay'];
+
+            return array_intersect($matched, $strongDailyKeywords) !== [];
+        }));
+    }
+
+    /**
+     * @param  list<array{intent: string, confidence: float, matched_keywords: list<string>}>  $matches
+     */
+    protected function sortMatches(array &$matches, bool $preferConfidence): void
+    {
+        usort($matches, function (array $a, array $b) use ($preferConfidence): int {
+            if ($preferConfidence) {
+                $confidence = $b['confidence'] <=> $a['confidence'];
+
+                if ($confidence !== 0) {
+                    return $confidence;
+                }
+            }
+
+            $priority = MLHUBAIKnowledgeBase::intentPriority((string) $a['intent'])
+                <=> MLHUBAIKnowledgeBase::intentPriority((string) $b['intent']);
+
+            if ($priority !== 0) {
+                return $priority;
+            }
+
+            return $b['confidence'] <=> $a['confidence'];
+        });
+    }
+
+    protected function isNavigationQuestion(string $normalized): bool
+    {
+        foreach ([
+            'o dau',
+            'vao dau',
+            'mo cho nao',
+            'nam o dau',
+            'xem ',
+            'tao ',
+            'lam sao tao',
+            'lam sao mo',
+            'cap nhat ',
+            'dung tinh nang nao',
+            'dung tinh nang nao dau tien',
+        ] as $pattern) {
+            if (str_contains($normalized, $pattern)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function asksForMetricBlend(string $normalized): bool
+    {
+        foreach ([
+            'bao cao tong quan',
+            'tong quan',
+            'tat ca chi so',
+            'toan bo chi so',
+            'nhieu chi so',
+        ] as $pattern) {
+            if (str_contains($normalized, $pattern)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param  list<string>  $needles
+     */
+    protected function containsAny(string $normalized, array $needles): bool
+    {
+        foreach ($needles as $needle) {
+            if (str_contains($normalized, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected function normalize(string $value): string

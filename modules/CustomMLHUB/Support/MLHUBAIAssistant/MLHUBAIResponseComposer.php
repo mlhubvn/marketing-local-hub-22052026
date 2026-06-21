@@ -90,9 +90,9 @@ class MLHUBAIResponseComposer
             static fn (string $left, string $right): int => MLHUBAIKnowledgeBase::intentPriority($left) <=> MLHUBAIKnowledgeBase::intentPriority($right),
         );
 
-        $wasLimited = count($intents) > 5;
+        $wasLimited = count($intents) > 4;
 
-        return [array_slice($intents, 0, 5), $wasLimited];
+        return [array_slice($intents, 0, 4), $wasLimited];
     }
 
     /**
@@ -442,7 +442,7 @@ class MLHUBAIResponseComposer
         $metrics = (array) ($context['metrics'] ?? []);
         $reviews = (array) ($context['reviews'] ?? []);
 
-        return __('Form góp ý hiện có :total phản hồi, trong đó :needs_reply đánh giá tích cực đang chờ trả lời. Nên xử lý phản hồi mới nhất trước, đặc biệt các góp ý có điểm đánh giá thấp hoặc mô tả vấn đề cụ thể.', [
+        return __('Form góp ý hiện có :total phản hồi, trong đó :needs_reply đánh giá tích cực đang chờ trả lời. Nếu khách đánh giá thấp, hãy xử lý riêng: xin lỗi, hỏi rõ vấn đề, tạo việc chăm sóc lại trong CRM và chỉ xin đánh giá công khai khi khách đã được hỗ trợ ổn.', [
             'total' => format_number_locale((int) ($metrics['feedback'] ?? 0)),
             'needs_reply' => format_number_locale((int) ($reviews['needs_reply'] ?? 0)),
         ]);
@@ -456,7 +456,7 @@ class MLHUBAIResponseComposer
         $metrics = (array) ($context['metrics'] ?? []);
         $weekly = (array) ($context['weekly_signals'] ?? []);
 
-        return __('Khách tiềm năng hiện có :total, tuần này thêm :week_count khách tiềm năng mới. Hãy gọi hoặc nhắn nhóm khách mới trước, sau đó xem nguồn chiến dịch để biết QR/form nào đang kéo khách tốt nhất.', [
+        return __('Khách tiềm năng hiện có :total, tuần này thêm :week_count khách tiềm năng mới. Nếu muốn khách để lại số điện thoại, hãy dùng form khách tiềm năng hoặc trang đích có form tư vấn. Hãy gọi lại nhóm khách mới trước, rồi xem nguồn chiến dịch để biết QR/form nào đang kéo khách tốt nhất.', [
             'total' => format_number_locale((int) ($metrics['leads'] ?? 0)),
             'week_count' => format_number_locale((int) ($weekly['leads'] ?? 0)),
         ]);
@@ -469,7 +469,7 @@ class MLHUBAIResponseComposer
     {
         $metrics = (array) ($context['metrics'] ?? []);
 
-        return __('Tỉ lệ chuyển đổi hiện tại là :rate từ :visits lượt truy cập, gồm :leads khách tiềm năng, :bookings lượt đặt lịch, :coupons lượt nhận mã ưu đãi và :feedback phản hồi góp ý. Nếu muốn tăng nhanh, ưu tiên chiến dịch có lượt quét cao nhưng chuyển đổi thấp.', [
+        return __('Muốn biết kênh nào mang khách tốt nhất, hãy mở báo cáo và xem nguồn/chiến dịch có lượt quét, khách tiềm năng và chuyển đổi tốt. Hiện tỉ lệ chuyển đổi là :rate từ :visits lượt truy cập, gồm :leads khách tiềm năng, :bookings lượt đặt lịch, :coupons lượt nhận mã ưu đãi và :feedback phản hồi góp ý.', [
             'rate' => format_percent_locale((float) ($metrics['conversion_rate'] ?? 0)),
             'visits' => format_number_locale((int) ($metrics['visits'] ?? 0)),
             'leads' => format_number_locale((int) ($metrics['leads'] ?? 0)),
