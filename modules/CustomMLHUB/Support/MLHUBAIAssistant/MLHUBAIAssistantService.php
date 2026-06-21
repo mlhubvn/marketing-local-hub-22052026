@@ -100,7 +100,10 @@ class MLHUBAIAssistantService
                 credit_service()->ensureCanConsume($planOwner, 'mlhub_ai_chat');
             }
 
-            $aiMessage = $this->requestAssistantReply($provider, $question, $context, $fallbackMessage, $firstTouch);
+            $advancedContext = $context;
+            unset($advancedContext['request']);
+
+            $aiMessage = $this->requestAssistantReply($provider, $question, $advancedContext, $fallbackMessage, $firstTouch);
 
             if ($aiMessage !== '') {
                 $result['message'] = $aiMessage;
