@@ -160,7 +160,8 @@ fi
 
 find storage/framework/views -mindepth 1 -name '*.php' -delete 2>/dev/null || true
 find storage/framework/cache/data -mindepth 1 -type d -empty -delete 2>/dev/null || true
-rm -f bootstrap/cache/packages.php bootstrap/cache/services.php bootstrap/cache/routes-v7.php bootstrap/cache/config.php bootstrap/cache/events.php
+rm -f bootstrap/cache/packages.php bootstrap/cache/services.php bootstrap/cache/config.php bootstrap/cache/events.php
+find bootstrap/cache -maxdepth 1 -name 'routes*.php' -delete 2>/dev/null || true
 find bootstrap/cache -maxdepth 1 -name 'livewire-*' -delete 2>/dev/null || true
 
 log_step "package:discover"
@@ -244,7 +245,7 @@ if is_app_installed "$APP_INSTALLED_VALUE"; then
     php artisan route:clear --ansi || true
     php artisan config:clear --ansi || true
     php artisan event:clear --ansi 2>/dev/null || true
-    php artisan optimize --ansi \
+    php artisan optimize --except=routes --ansi \
         || echo "WARN: optimize failed — app vẫn chạy." >&2
 else
     php artisan config:clear --ansi || true

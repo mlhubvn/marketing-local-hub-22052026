@@ -2,7 +2,6 @@
 
 namespace Modules\AdminCache\Actions;
 
-use Illuminate\Support\Facades\Artisan;
 use Modules\AdminCache\Actions\Contracts\CacheAction;
 
 class ClearRouteCacheAction implements CacheAction
@@ -19,7 +18,7 @@ class ClearRouteCacheAction implements CacheAction
 
     public function description(): string
     {
-        return 'Clear cached routes and rebuild routing.';
+        return 'Route cache is managed during deployment to protect scheduled tasks.';
     }
 
     public function icon(): string
@@ -29,7 +28,7 @@ class ClearRouteCacheAction implements CacheAction
 
     public function buttonLabel(): string
     {
-        return 'Clear';
+        return 'Managed';
     }
 
     public function buttonVariant(): string
@@ -39,7 +38,7 @@ class ClearRouteCacheAction implements CacheAction
 
     public function confirmMessage(): string
     {
-        return 'This action will clear the cached route manifest and force the router to rebuild its definitions.';
+        return 'Route cache is cleared safely during container startup. Redeploy to refresh route cache state.';
     }
 
     public function confirmTitle(): string
@@ -49,8 +48,6 @@ class ClearRouteCacheAction implements CacheAction
 
     public function handle(): string
     {
-        Artisan::call('route:clear');
-
-        return __('Route cache cleared successfully.');
+        return __('Route cache is managed during deployment and is not cleared while the application is live.');
     }
 }

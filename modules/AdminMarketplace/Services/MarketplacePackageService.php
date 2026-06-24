@@ -705,7 +705,7 @@ class MarketplacePackageService
                 '--no-interaction' => true,
             ]);
         }
-        Artisan::call('optimize:clear');
+        Artisan::call('optimize:clear', ['--except' => 'routes']);
 
         return $package->fresh() ?? $package;
     }
@@ -731,7 +731,7 @@ class MarketplacePackageService
         ])->save();
 
         $this->runModuleMigrations($package);
-        Artisan::call('optimize:clear');
+        Artisan::call('optimize:clear', ['--except' => 'routes']);
     }
 
     public function deactivate(MarketplacePackage $package): void
@@ -753,7 +753,7 @@ class MarketplacePackageService
             'last_synced_at' => now(),
         ])->save();
 
-        Artisan::call('optimize:clear');
+        Artisan::call('optimize:clear', ['--except' => 'routes']);
     }
 
     public function uninstall(MarketplacePackage $package): void

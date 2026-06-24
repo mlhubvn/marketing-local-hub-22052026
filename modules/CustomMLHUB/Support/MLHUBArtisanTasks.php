@@ -34,8 +34,8 @@ class MLHUBArtisanTasks
 
     public static function optimize(Command $command): void
     {
-        $command->call('optimize:clear');
-        $command->call('optimize');
+        $command->call('optimize:clear', ['--except' => 'routes']);
+        $command->call('optimize', ['--except' => 'routes']);
     }
 
     public static function firstUserCredentialsMissing(): bool

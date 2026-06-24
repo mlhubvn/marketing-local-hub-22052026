@@ -20,7 +20,7 @@ class OptimizeApplicationAction implements CacheAction
 
     public function description(): string
     {
-        return 'Run optimize to rebuild all caches for better performance.';
+        return 'Run optimize to rebuild safe caches without touching live route cache.';
     }
 
     public function icon(): string
@@ -40,7 +40,7 @@ class OptimizeApplicationAction implements CacheAction
 
     public function confirmMessage(): string
     {
-        return 'This action will rebuild optimization caches and may temporarily refresh generated framework artifacts.';
+        return 'This action will rebuild safe optimization caches and skip route cache to keep scheduled tasks stable.';
     }
 
     public function confirmTitle(): string
@@ -51,11 +51,11 @@ class OptimizeApplicationAction implements CacheAction
     public function handle(): string
     {
         try {
-            Artisan::call('optimize');
+            Artisan::call('optimize', ['--except' => 'routes']);
 
-            return __('Application optimized successfully.');
+            return __('Application optimized successfully. Route cache was skipped to keep scheduled tasks stable.');
         } catch (Throwable) {
-            Artisan::call('optimize:clear');
+            Artisan::call('optimize:clear', ['--except' => 'routes']);
 
             return __('Optimization cleared instead, because your config files are not serializable.');
         }
