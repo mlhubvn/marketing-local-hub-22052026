@@ -1141,7 +1141,7 @@ class MLHUBAIResponseComposer
             : __('Tất cả đánh giá tích cực gần đây đã được trả lời.');
 
         return __('Trung bình :rating★ từ :count đánh giá mới. :sentiment. :reply', [
-            'rating' => number_format($average, 1),
+            'rating' => format_number_locale($average, 1),
             'count' => format_number_locale($count),
             'sentiment' => $sentiment,
             'reply' => $replyNote,

@@ -156,7 +156,9 @@
                         <div>
                             <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Pricing') }}</p>
                             <p class="mt-2 text-[1.75rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_money((float) $plan->price, $plan->currency) }}</p>
-                            <p class="mt-1 text-xs font-medium" style="color: var(--theme-muted-text-color);">{{ $plan->currency }} · {{ $plan->currency_name }}</p>
+                            @if (strtoupper((string) $plan->currency) !== 'VND')
+                                <p class="mt-1 text-xs font-medium" style="color: var(--theme-muted-text-color);">{{ $plan->currency }} · {{ $plan->currency_name }}</p>
+                            @endif
                         </div>
                         <div class="text-right text-sm" style="color: var(--theme-muted-text-color);">
                             <p>{{ $billingLabel }}</p>

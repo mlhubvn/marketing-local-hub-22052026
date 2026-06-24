@@ -57,7 +57,7 @@
             'name' => $sidebarUser?->portalPlanSidebarLabel() ?? __('No plan assigned'),
             'badge' => $sidebarUser?->portalPlanStatusLabel() ?? __('Inactive'),
             'badge_tone' => $sidebarUser?->portalPlanStatusTone() ?? 'neutral',
-            'expiry' => (($sidebarExpiry = ($sidebarUser?->isInPlanTrial() ? $sidebarUser?->trialEndsAt() : $sidebarUser?->plan_expires_at)) ? format_date_vn($sidebarExpiry) : __('Unlimited')),
+            'expiry' => (($sidebarExpiry = ($sidebarUser?->isInPlanTrial() ? $sidebarUser?->trialEndsAt() : $sidebarUser?->plan_expires_at)) ? format_date_locale($sidebarExpiry) : __('Unlimited')),
             'unlimited' => (bool) ($sidebarCreditSummary['unlimited'] ?? false),
             'credits_used_label' => format_number_locale($sidebarCreditsUsed),
             'credits_limit_label' => $sidebarCreditLimit !== null ? format_number_locale($sidebarCreditLimit) : __('Unlimited'),

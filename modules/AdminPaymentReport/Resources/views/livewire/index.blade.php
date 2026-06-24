@@ -4,7 +4,7 @@
     $hasLatestPayments = $latestPayments->isNotEmpty();
     $defaultCurrency = CurrencyCatalog::normalizeCode(platform_format_settings()['default_currency'] ?? 'VND');
     $currencySymbol = CurrencyCatalog::symbolFor($defaultCurrency);
-    $revenueChartTooltip = '<b>{point.y:,.0f} '.e(trim($currencySymbol)).'</b>';
+    $revenueChartTooltip = ['valueDecimals' => 0, 'valueSuffix' => ' '.trim($currencySymbol)];
 
     $dailyCategories = collect($incomeByDay)->map(fn ($day) => $day['label'])->all();
     $dailyRevenueSeries = collect($incomeByDay)->map(fn ($day) => (float) $day['total'])->all();
@@ -91,7 +91,7 @@
             'name' => __('Revenue'),
             'data' => $dailyRevenueSeries,
         ]],
-        'tooltip' => ['pointFormat' => $revenueChartTooltip],
+        'tooltip' => $revenueChartTooltip,
     ];
 
     $dailyTxOptions = [
@@ -113,7 +113,7 @@
             'name' => __('Revenue'),
             'data' => $hourlyRevenueSeries,
         ]],
-        'tooltip' => ['pointFormat' => $revenueChartTooltip],
+        'tooltip' => $revenueChartTooltip,
     ];
 
     $weekdayOptions = [
@@ -142,7 +142,7 @@
             'name' => __('Revenue'),
             'data' => $planRevenueSeries,
         ]],
-        'tooltip' => ['pointFormat' => $revenueChartTooltip],
+        'tooltip' => $revenueChartTooltip,
     ];
 @endphp
 

@@ -2,7 +2,119 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="csrf-token" content="{{ csrf_token() }}" />
 @if (function_exists('platform_format_config'))
-    <script>window.MLHUB_FORMAT = @json(platform_format_config());</script>
+    <script>
+        window.MLHUB_FORMAT = @json(platform_format_config());
+        window.MLHUB_FORMATTER = (() => {
+            const config = window.MLHUB_FORMAT || {};
+            const decimal = config.decimalSeparator || ',';
+            const thousands = config.thousandsSeparator || '.';
+            const currencySymbols = config.currencySymbols || {};
+
+            const normalize = (value) => {
+                if (value === null || value === undefined || value === '') {
+                    return null;
+                }
+
+                const number = Number(value);
+
+                return Number.isFinite(number) ? number : null;
+            };
+
+            const fixed = (value, decimals = 0) => {
+                const number = normalize(value);
+
+                if (number === null) {
+                    return '';
+                }
+
+                const precision = Math.max(0, Number(decimals) || 0);
+                const sign = number < 0 ? '-' : '';
+                const parts = Math.abs(number).toFixed(precision).split('.');
+                const whole = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, thousands);
+
+                return `${sign}${whole}${precision > 0 ? decimal + (parts[1] || '') : ''}`;
+            };
+
+            const trimFraction = (value) => {
+                let output = String(value);
+
+                if (!output.includes(decimal)) {
+                    return output;
+                }
+
+                while (output.endsWith('0')) {
+                    output = output.slice(0, -1);
+                }
+
+                return output.endsWith(decimal) ? output.slice(0, -decimal.length) : output;
+            };
+
+            const trimmedNumber = (value, maxDecimals = 1) => trimFraction(fixed(value, maxDecimals));
+
+            const compact = (value, decimals = 1) => {
+                const number = normalize(value);
+
+                if (number === null) {
+                    return '';
+                }
+
+                const absolute = Math.abs(number);
+                const units = [
+                    [1000000000, config.compactUnits?.billion || 'B'],
+                    [1000000, config.compactUnits?.million || 'M'],
+                    [1000, config.compactUnits?.thousand || 'K'],
+                ];
+
+                for (const [threshold, suffix] of units) {
+                    if (absolute >= threshold) {
+                        return `${trimmedNumber(number / threshold, decimals)}${suffix}`;
+                    }
+                }
+
+                return fixed(number, 0);
+            };
+
+            const money = (value, currency = null) => {
+                const code = String(currency || config.defaultCurrency || 'VND').toUpperCase();
+                const decimals = code === 'VND' ? 0 : 2;
+                const symbol = currencySymbols[code] || (code === 'USD' ? '$' : code);
+                const amount = fixed(value, decimals);
+
+                if (amount === '') {
+                    return '';
+                }
+
+                return code === 'VND' ? `${amount} ${symbol}` : `${symbol}${amount}`;
+            };
+
+            const installHighcharts = (Highcharts) => {
+                if (!Highcharts?.setOptions) {
+                    return;
+                }
+
+                Highcharts.setOptions({
+                    lang: {
+                        decimalPoint: decimal,
+                        thousandsSep: thousands,
+                        numericSymbols: ['K', 'M', 'B', 'T', 'P', 'E'],
+                    },
+                });
+            };
+
+            return {
+                number: fixed,
+                trimmedNumber,
+                percent: (value) => {
+                    const number = normalize(value);
+
+                    return number === null ? '' : `${trimmedNumber(number, 1)}%`;
+                },
+                compact,
+                money,
+                installHighcharts,
+            };
+        })();
+    </script>
 @endif
 @php
     $gaOptions = app(\Modules\AdminSettings\Support\OptionStore::class);
@@ -459,6 +571,8 @@
         if (window.StackpostsHighcharts || !window.Highcharts) {
             return;
         }
+
+        window.MLHUB_FORMATTER?.installHighcharts?.(window.Highcharts);
 
         const cssVar = (name, fallback) => getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
 

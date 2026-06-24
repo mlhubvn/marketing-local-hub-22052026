@@ -206,15 +206,7 @@ class DashboardIndex extends Component
 
     protected function compactNumber(float|int $value): string
     {
-        if ($value >= 1000000) {
-            return format_number_locale($value / 1000000, 1).'M';
-        }
-
-        if ($value >= 1000) {
-            return format_number_locale($value / 1000, 1).'K';
-        }
-
-        return format_number_locale($value);
+        return format_compact_number_locale($value);
     }
 
     protected function formatMoney(float $value): string

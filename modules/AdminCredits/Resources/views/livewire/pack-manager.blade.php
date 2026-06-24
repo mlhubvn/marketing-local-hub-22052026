@@ -53,7 +53,9 @@
                         <div class="text-right">
                             <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Price') }}</p>
                             <p class="mt-2 text-[1.35rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_money((float) $pack->price, $pack->currency) }}</p>
-                            <p class="mt-1 text-xs font-medium" style="color: var(--theme-muted-text-color);">{{ $pack->currency }}</p>
+                            @if (strtoupper((string) $pack->currency) !== 'VND')
+                                <p class="mt-1 text-xs font-medium" style="color: var(--theme-muted-text-color);">{{ $pack->currency }}</p>
+                            @endif
                         </div>
                     </div>
                 </x-ui.surface-card>

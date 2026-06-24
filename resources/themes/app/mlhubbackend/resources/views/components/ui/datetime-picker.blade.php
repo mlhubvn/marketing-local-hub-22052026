@@ -32,10 +32,9 @@
             selectedDate: null,
             hour: '09',
             minute: '00',
-            meridiem: 'AM',
-            dayNames: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
-            monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-            hours: Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, '0')),
+            dayNames: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
+            monthNames: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
+            hours: Array.from({ length: 24 }, (_, index) => String(index).padStart(2, '0')),
             minutes: Array.from({ length: 60 }, (_, index) => String(index).padStart(2, '0')),
             init() {
                 this.hydrateFromValue(this.value);
@@ -111,10 +110,7 @@
                 this.selectedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
                 this.viewDate = new Date(date.getFullYear(), date.getMonth(), 1);
 
-                let hours = date.getHours();
-                this.meridiem = hours >= 12 ? 'PM' : 'AM';
-                hours = hours % 12 || 12;
-                this.hour = String(hours).padStart(2, '0');
+                this.hour = String(date.getHours()).padStart(2, '0');
                 this.minute = String(date.getMinutes()).padStart(2, '0');
 
                 if (!parsed && !this.value) {
@@ -127,16 +123,8 @@
                     return '';
                 }
 
-                let hours = Number(this.hour);
+                const hours = Number(this.hour);
                 const minutes = Number(this.minute);
-
-                if (this.meridiem === 'PM' && hours < 12) {
-                    hours += 12;
-                }
-
-                if (this.meridiem === 'AM' && hours === 12) {
-                    hours = 0;
-                }
 
                 const year = this.selectedDate.getFullYear();
                 const month = String(this.selectedDate.getMonth() + 1).padStart(2, '0');
@@ -155,12 +143,10 @@
 
                 const day = String(date.getDate()).padStart(2, '0');
                 const month = String(date.getMonth() + 1).padStart(2, '0');
-                let hours = date.getHours();
+                const hours = date.getHours();
                 const minutes = String(date.getMinutes()).padStart(2, '0');
-                const meridiem = hours >= 12 ? 'PM' : 'AM';
-                hours = hours % 12 || 12;
 
-                return `${day}/${month}/${date.getFullYear()} ${String(hours).padStart(2, '0')}:${minutes} ${meridiem}`;
+                return `${day}/${month}/${date.getFullYear()} ${String(hours).padStart(2, '0')}:${minutes}`;
             },
             monthLabel() {
                 return `${this.monthNames[this.viewDate.getMonth()]} ${this.viewDate.getFullYear()}`;
@@ -184,11 +170,7 @@
             pickNow() {
                 const now = new Date();
                 this.selectedDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-                let hours = now.getHours();
-                this.meridiem = hours >= 12 ? 'PM' : 'AM';
-                hours = hours % 12 || 12;
-                this.hour = String(hours).padStart(2, '0');
+                this.hour = String(now.getHours()).padStart(2, '0');
                 this.minute = String(now.getMinutes() - (now.getMinutes() % 5)).padStart(2, '0');
                 this.viewDate = new Date(now.getFullYear(), now.getMonth(), 1);
                 this.commit();
@@ -328,7 +310,7 @@
                 </div>
 
                 <div class="mt-4 border-t pt-4" style="border-color: rgba(var(--theme-border-color-rgb), 0.68);">
-                    <div class="grid grid-cols-3 gap-2">
+                    <div class="grid grid-cols-2 gap-2">
                         <div class="space-y-1.5">
                             <p class="text-[10px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('Hour') }}</p>
                             <select
@@ -357,18 +339,6 @@
                             </select>
                         </div>
 
-                        <div class="space-y-1.5">
-                            <p class="text-[10px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('AM/PM') }}</p>
-                            <select
-                                x-model="meridiem"
-                                x-on:change="commit()"
-                                class="flex h-11 w-full rounded-[0.75rem] border px-3 text-sm font-semibold shadow-[0_1px_2px_rgba(15,23,42,0.04)] outline-none transition duration-200 focus:border-[var(--theme-accent)] focus:ring-4 focus:ring-[color:rgba(var(--theme-accent-rgb),0.10)]"
-                                style="border-color: var(--theme-border-color); background-color: var(--theme-input-surface); color: var(--theme-input-text);"
-                            >
-                                <option value="AM">AM</option>
-                                <option value="PM">PM</option>
-                            </select>
-                        </div>
                     </div>
                 </div>
 

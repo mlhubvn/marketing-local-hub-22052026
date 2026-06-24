@@ -477,12 +477,24 @@ if (! function_exists('platform_format_config')) {
             'decimalSeparator' => $settings['decimal_separator'],
             'thousandsSeparator' => $settings['thousands_separator'],
             'defaultCurrency' => $settings['default_currency'],
+            'defaultCurrencySymbol' => CurrencyCatalog::symbolFor((string) $settings['default_currency']),
+            'currencySymbols' => [
+                'VND' => CurrencyCatalog::symbolFor('VND'),
+                'USD' => CurrencyCatalog::symbolFor('USD'),
+            ],
             'moneyDecimals' => $settings['money_decimals'],
+            'compactUnits' => [
+                'thousand' => 'K',
+                'million' => 'M',
+                'billion' => 'B',
+            ],
             'samples' => [
                 'date' => format_date_locale(now()),
                 'datetime' => format_datetime_locale(now()),
                 'number' => format_number_locale(1234567),
                 'money' => format_money(550000),
+                'percent' => format_percent_locale(12.5),
+                'compact' => format_compact_number_locale(63200),
             ],
         ];
     }
@@ -683,13 +695,48 @@ if (! function_exists('format_price_locale')) {
     }
 }
 
+if (! function_exists('format_trimmed_number_locale')) {
+    function format_trimmed_number_locale(int|float $value, int $maxDecimals = 1): string
+    {
+        $maxDecimals = max(0, $maxDecimals);
+        $rounded = round((float) $value, $maxDecimals);
+        $decimals = abs($rounded - round($rounded)) < 0.0000001 ? 0 : $maxDecimals;
+
+        return format_number_locale($rounded, $decimals);
+    }
+}
+
 if (! function_exists('format_percent_locale')) {
     /**
      * Tỷ lệ % làm tròn số nguyên (vd. 8,7% → 9%).
      */
-    function format_percent_locale(int|float $value): string
+    function format_percent_locale(int|float|string|null $value): string
     {
-        return format_number_locale((int) round((float) $value), 0).'%';
+        if ($value === null || $value === '' || ! is_numeric($value)) {
+            return '';
+        }
+
+        return format_trimmed_number_locale((float) $value, 1).'%';
+    }
+}
+
+if (! function_exists('format_compact_number_locale')) {
+    function format_compact_number_locale(int|float|string|null $value, int $decimals = 1): string
+    {
+        if ($value === null || $value === '' || ! is_numeric($value)) {
+            return '';
+        }
+
+        $number = (float) $value;
+        $absolute = abs($number);
+
+        foreach ([1000000000 => 'B', 1000000 => 'M', 1000 => 'K'] as $threshold => $suffix) {
+            if ($absolute >= $threshold) {
+                return format_trimmed_number_locale($number / $threshold, $decimals).$suffix;
+            }
+        }
+
+        return format_trimmed_number_locale($number, 0);
     }
 }
 

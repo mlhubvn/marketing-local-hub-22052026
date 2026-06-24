@@ -34,7 +34,7 @@
         ['label' => __('7-day requests'), 'value' => $requests7d],
         ['label' => __('Success rate'), 'value' => $successRate, 'suffix' => '%'],
         ['label' => __('Failed'), 'value' => $failedRequests],
-        ['label' => __('Avg latency'), 'value' => $avgLatency, 'suffix' => 'ms'],
+        ['label' => __('Avg latency'), 'value' => $avgLatency, 'suffix' => ' ms'],
     ];
 @endphp
 
@@ -102,7 +102,7 @@
 
                                     <div class="rounded-[1.1rem] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.42); background: color-mix(in srgb, var(--theme-surface-base) 90%, rgba(var(--theme-accent-rgb),0.03));">
                                         <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Avg latency') }}</p>
-                                        <p class="mt-2 text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($avgLatency) }}<span class="text-base">ms</span></p>
+                                        <p class="mt-2 text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($avgLatency) }}<span class="text-base"> ms</span></p>
                                         <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('About :seconds seconds per request.', ['seconds' => format_number_locale($latencySeconds, 1)]) }}</p>
                                     </div>
 
@@ -114,7 +114,7 @@
 
                                     <div class="rounded-[1.1rem] border px-4 py-4" style="border-color: rgba(var(--theme-border-color-rgb),0.42); background: color-mix(in srgb, var(--theme-surface-base) 90%, rgba(var(--theme-accent-rgb),0.03));">
                                         <p class="text-[11px] font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-muted-text-color);">{{ __('Spend efficiency') }}</p>
-                                        <p class="mt-2 text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">${{ format_number_locale($costPerRequest, 4) }}</p>
+                                        <p class="mt-2 text-[1.85rem] font-semibold tracking-[-0.045em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($costPerRequest, 4) }} USD</p>
                                         <p class="mt-1 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Estimated average cost per request.') }}</p>
                                     </div>
                                 </div>

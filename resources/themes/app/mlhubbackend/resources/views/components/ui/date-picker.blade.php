@@ -36,8 +36,8 @@
             preferredPlacement: @js($placement),
             actualPlacement: @js($placement === 'top' ? 'top' : 'bottom'),
             viewDate: null,
-            dayNames: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
-            monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            dayNames: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
+            monthNames: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
             init() {
                 this.viewDate = this.parseDate(this.value) ?? this.today();
                 this.$watch('value', () => this.syncInput());

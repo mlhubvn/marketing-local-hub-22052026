@@ -207,7 +207,7 @@ class AiReportIndex extends Component
             'tooltip' => ['shared' => true],
             'series' => [
                 ['name' => __('Tokens'), 'type' => 'column', 'data' => $daily->pluck('tokens')->all(), 'color' => '#f59e0b'],
-                ['name' => __('Cost'), 'type' => 'spline', 'yAxis' => 1, 'data' => $daily->pluck('cost')->map(fn ($value) => round($value, 4))->all(), 'color' => '#e11d48', 'tooltip' => ['valuePrefix' => '$']],
+                ['name' => __('Cost'), 'type' => 'spline', 'yAxis' => 1, 'data' => $daily->pluck('cost')->map(fn ($value) => round($value, 4))->all(), 'color' => '#e11d48', 'tooltip' => ['valueSuffix' => ' USD']],
             ],
         ];
 
@@ -234,7 +234,7 @@ class AiReportIndex extends Component
             'xAxis' => ['categories' => $modelBreakdown->pluck('label')->all()],
             'series' => [
                 ['name' => __('Requests'), 'data' => $modelBreakdown->pluck('requests')->all(), 'color' => '#6366f1'],
-                ['name' => __('Cost'), 'data' => $modelBreakdown->pluck('cost')->map(fn ($value) => round($value, 4))->all(), 'color' => '#f97316', 'tooltip' => ['valuePrefix' => '$']],
+                ['name' => __('Cost'), 'data' => $modelBreakdown->pluck('cost')->map(fn ($value) => round($value, 4))->all(), 'color' => '#f97316', 'tooltip' => ['valueSuffix' => ' USD']],
             ],
         ];
 

@@ -17,8 +17,8 @@
             ['label' => __('Requests'), 'value' => format_number_locale($metrics['total_requests']), 'description' => __('Provider count: :count', ['count' => format_number_locale($metrics['provider_count'])]), 'progress' => 100, 'tone' => 'var(--theme-accent)'],
             ['label' => __('Success rate'), 'value' => format_percent_locale($metrics['success_rate']), 'description' => format_number_locale($metrics['successful_requests']).' '.__('successful calls'), 'progress' => $metrics['success_rate'], 'tone' => 'var(--theme-success-color)'],
             ['label' => __('Tokens'), 'value' => format_number_locale($metrics['total_tokens']), 'description' => __('Tracked model count: :count', ['count' => format_number_locale($metrics['model_count'])]), 'progress' => $metrics['total_tokens'] > 0 ? 100 : 0, 'tone' => 'var(--theme-warning-color)'],
-            ['label' => __('Cost'), 'value' => '$'.format_number_locale($metrics['estimated_cost'], 4), 'description' => __('Failed requests: :count', ['count' => format_number_locale($metrics['failed_requests'])]), 'progress' => $metrics['estimated_cost'] > 0 ? 100 : 0, 'tone' => 'var(--theme-danger-color)'],
-            ['label' => __('Latency'), 'value' => format_number_locale($metrics['avg_latency']).'ms', 'description' => __('Average latency for requests with timing data.'), 'progress' => $metrics['avg_latency'] > 0 ? 100 : 0, 'tone' => '#0ea5e9'],
+            ['label' => __('Cost'), 'value' => format_number_locale($metrics['estimated_cost'], 4).' USD', 'description' => __('Failed requests: :count', ['count' => format_number_locale($metrics['failed_requests'])]), 'progress' => $metrics['estimated_cost'] > 0 ? 100 : 0, 'tone' => 'var(--theme-danger-color)'],
+            ['label' => __('Latency'), 'value' => format_number_locale($metrics['avg_latency']).' ms', 'description' => __('Average latency for requests with timing data.'), 'progress' => $metrics['avg_latency'] > 0 ? 100 : 0, 'tone' => '#0ea5e9'],
             ['label' => __('Active users'), 'value' => format_number_locale($metrics['active_users']), 'description' => __('Accounts with AI traffic in current range.'), 'progress' => $metrics['active_users'] > 0 ? 100 : 0, 'tone' => '#64748b'],
         ]"
         :show-icons="false"
@@ -72,7 +72,7 @@
             :height="330"
             :footer-stats="[
                 ['label' => __('Tokens'), 'value' => $metrics['total_tokens']],
-                ['label' => __('Cost'), 'value' => $metrics['estimated_cost'], 'decimals' => 4, 'suffix' => '$'],
+                ['label' => __('Cost'), 'value' => $metrics['estimated_cost'], 'decimals' => 4, 'suffix' => ' USD'],
             ]"
         />
     </div>
@@ -101,7 +101,7 @@
                         <p class="mt-3 text-[1.9rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ format_number_locale($provider['requests']) }}</p>
                         <div class="mt-3 space-y-1 text-sm" style="color: var(--theme-muted-text-color);">
                             <p>{{ __('Tokens') }}: {{ format_number_locale($provider['tokens']) }}</p>
-                            <p>{{ __('Cost') }}: ${{ format_number_locale($provider['cost'], 4) }}</p>
+                            <p>{{ __('Cost') }}: {{ format_number_locale($provider['cost'], 4) }} USD</p>
                         </div>
                     </x-ui.surface-card>
                 @empty
@@ -196,7 +196,7 @@
                             <x-ui.table-cell><div class="space-y-1"><p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $row['user']->name }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ '@'.$row['user']->username }}</p></div></x-ui.table-cell>
                             <x-ui.table-cell><x-ui.badge variant="primary">{{ format_number_locale($row['requests']) }}</x-ui.badge></x-ui.table-cell>
                             <x-ui.table-cell>{{ format_number_locale($row['tokens']) }}</x-ui.table-cell>
-                            <x-ui.table-cell>${{ format_number_locale($row['cost'], 4) }}</x-ui.table-cell>
+                            <x-ui.table-cell>{{ format_number_locale($row['cost'], 4) }} USD</x-ui.table-cell>
                         </x-ui.table-row>
                     @empty
                         <x-ui.table-row>
@@ -250,7 +250,7 @@
                             <x-ui.table-cell><div class="space-y-1"><p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $log->user?->name ?? __('System') }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $log->user ? '@'.$log->user->username : __('No user attached') }}</p></div></x-ui.table-cell>
                             <x-ui.table-cell><div class="space-y-1"><x-ui.badge variant="neutral">{{ strtoupper($log->provider) }}</x-ui.badge><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ $log->model }}</p></div></x-ui.table-cell>
                             <x-ui.table-cell><div class="space-y-1"><p class="font-semibold" style="color: var(--theme-header-text-color);">{{ ucfirst($log->capability) }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ collect([$log->feature, $log->route_name])->filter()->implode(' | ') ?: __('No feature metadata') }}</p></div></x-ui.table-cell>
-                            <x-ui.table-cell><p class="font-medium" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) ($log->total_tokens ?? 0)) }} {{ __('tokens') }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">${{ format_number_locale((float) ($log->estimated_cost ?? 0), 4) }} · {{ $log->latency_ms !== null ? format_number_locale((int) $log->latency_ms).'ms' : __('No latency') }}</p></x-ui.table-cell>
+                            <x-ui.table-cell><p class="font-medium" style="color: var(--theme-header-text-color);">{{ format_number_locale((int) ($log->total_tokens ?? 0)) }} {{ __('tokens') }}</p><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ format_number_locale((float) ($log->estimated_cost ?? 0), 4) }} USD - {{ $log->latency_ms !== null ? format_number_locale((int) $log->latency_ms).' ms' : __('No latency') }}</p></x-ui.table-cell>
                             <x-ui.table-cell><div class="space-y-1"><x-ui.badge :variant="$log->status === 'success' ? 'success' : ($log->status === 'failed' ? 'danger' : 'neutral')">{{ strtoupper($log->status) }}</x-ui.badge><p class="text-xs" style="color: var(--theme-muted-text-color);">{{ format_datetime_locale($log->created_at) }}</p></div></x-ui.table-cell>
                         </x-ui.table-row>
                     @empty

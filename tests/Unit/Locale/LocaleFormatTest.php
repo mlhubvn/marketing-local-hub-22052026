@@ -29,9 +29,21 @@ test('accepts current and legacy Vietnamese dong symbols', function (): void {
         ->and(format_money(550000, '₫'))->toBe('550.000 đ');
 });
 
-test('rounds signed percentages to whole numbers', function (): void {
-    expect(format_percent_locale(8.7))->toBe('9%')
-        ->and(format_percent_locale(-8.7))->toBe('-9%');
+test('formats percentages as percentage points with at most one decimal', function (): void {
+    expect(format_percent_locale(null))->toBe('')
+        ->and(format_percent_locale(0))->toBe('0%')
+        ->and(format_percent_locale(-8.7))->toBe('-8,7%')
+        ->and(format_percent_locale(12))->toBe('12%')
+        ->and(format_percent_locale(12.5))->toBe('12,5%')
+        ->and(format_percent_locale('12.50'))->toBe('12,5%')
+        ->and(format_percent_locale(0.125))->toBe('0,1%');
+});
+
+test('formats compact metric numbers with Vietnamese separators', function (): void {
+    expect(format_compact_number_locale(999))->toBe('999')
+        ->and(format_compact_number_locale(63200))->toBe('63,2K')
+        ->and(format_compact_number_locale(1500000))->toBe('1,5M')
+        ->and(format_compact_number_locale(-1250000000))->toBe('-1,3B');
 });
 
 test('formats payment notification placeholders with the Vietnamese dong symbol', function (): void {

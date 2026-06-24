@@ -100,7 +100,9 @@
                                                 {{ $plan['free_plan'] ? format_money(0, $plan['currency']) : format_money((float) $plan['price'], $plan['currency']) }}
                                                 <span class="text-lg font-semibold tracking-normal" style="color: var(--theme-muted-text-color);">/{{ strtolower($typeLabel) }}</span>
                                             </p>
-                                            <p class="mt-2 text-xs font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ $plan['currency'] }} · {{ $plan['currency_name'] }}</p>
+                                            @if (strtoupper((string) ($plan['currency'] ?? '')) !== 'VND')
+                                                <p class="mt-2 text-xs font-semibold uppercase tracking-[0.18em]" style="color: var(--theme-muted-text-color);">{{ $plan['currency'] }} · {{ $plan['currency_name'] }}</p>
+                                            @endif
                                             <p class="mt-3 text-sm font-medium" style="color: var(--theme-muted-text-color);">{{ match((int) $plan['type']) {2 => __('Billed yearly'), 3 => __('Pay once, use forever'), default => __('Billed monthly')} }}</p>
                                         </div>
 

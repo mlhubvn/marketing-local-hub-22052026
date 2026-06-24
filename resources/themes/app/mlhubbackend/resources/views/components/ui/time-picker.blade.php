@@ -26,8 +26,7 @@
         resolvedPosition: @js($pickerPosition === 'top' ? 'top' : 'bottom'),
         hour: '09',
         minute: '00',
-        meridiem: 'AM',
-        hours: Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, '0')),
+        hours: Array.from({ length: 24 }, (_, index) => String(index).padStart(2, '0')),
         minutes: Array.from({ length: 60 }, (_, index) => String(index).padStart(2, '0')),
         init() {
             this.hydrateFromValue(this.value);
@@ -79,7 +78,6 @@
             if (normalized === '') {
                 this.hour = '09';
                 this.minute = '00';
-                this.meridiem = 'AM';
                 return;
             }
 
@@ -88,7 +86,6 @@
             if (!match) {
                 this.hour = '09';
                 this.minute = '00';
-                this.meridiem = 'AM';
                 return;
             }
 
@@ -97,33 +94,30 @@
             const explicitMeridiem = String(match[3] || '').toUpperCase();
 
             if (explicitMeridiem === 'AM' || explicitMeridiem === 'PM') {
-                this.meridiem = explicitMeridiem;
-                this.hour = String(hours).padStart(2, '0');
+                if (explicitMeridiem === 'PM' && hours < 12) {
+                    hours += 12;
+                }
+
+                if (explicitMeridiem === 'AM' && hours === 12) {
+                    hours = 0;
+                }
+
+                this.hour = String(Math.max(0, Math.min(23, hours))).padStart(2, '0');
                 this.minute = minutes;
                 return;
             }
 
-            this.meridiem = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12 || 12;
-            this.hour = String(hours).padStart(2, '0');
+            this.hour = String(Math.max(0, Math.min(23, hours))).padStart(2, '0');
             this.minute = minutes;
         },
         formatValue() {
-            let hours = Number(this.hour);
+            const hours = Number(this.hour);
             const minutes = String(this.minute).padStart(2, '0');
-
-            if (this.meridiem === 'PM' && hours < 12) {
-                hours += 12;
-            }
-
-            if (this.meridiem === 'AM' && hours === 12) {
-                hours = 0;
-            }
 
             return `${String(hours).padStart(2, '0')}:${minutes}`;
         },
         formatDisplay() {
-            return `${this.hour}:${this.minute} ${this.meridiem}`;
+            return `${this.hour}:${this.minute}`;
         },
         clear() {
             this.value = '';
@@ -132,10 +126,7 @@
         },
         pickNow() {
             const now = new Date();
-            let hours = now.getHours();
-            this.meridiem = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12 || 12;
-            this.hour = String(hours).padStart(2, '0');
+            this.hour = String(now.getHours()).padStart(2, '0');
             this.minute = String(now.getMinutes()).padStart(2, '0');
             this.commit(true);
         },
@@ -194,7 +185,7 @@
             class="absolute z-40 w-[17rem] max-w-[min(17rem,calc(100vw-1rem))] overflow-hidden rounded-[1rem] border shadow-[0_28px_70px_-28px_rgba(15,23,42,0.35)]"
         >
             <div class="p-4">
-                <div class="grid grid-cols-3 gap-2">
+                <div class="grid grid-cols-2 gap-2">
                     <div class="space-y-1.5">
                         <p class="text-[10px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('Hour') }}</p>
                         <select
@@ -223,18 +214,6 @@
                         </select>
                     </div>
 
-                    <div class="space-y-1.5">
-                        <p class="text-[10px] font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('AM/PM') }}</p>
-                        <select
-                            x-model="meridiem"
-                            x-on:change="commit()"
-                            class="flex h-11 w-full rounded-[0.75rem] border px-3 text-sm font-semibold shadow-[0_1px_2px_rgba(15,23,42,0.04)] outline-none transition duration-200 focus:border-[var(--theme-accent)] focus:ring-4 focus:ring-[color:rgba(var(--theme-accent-rgb),0.10)]"
-                            style="border-color: var(--theme-border-color); background-color: var(--theme-input-surface); color: var(--theme-input-text);"
-                        >
-                            <option value="AM">AM</option>
-                            <option value="PM">PM</option>
-                        </select>
-                    </div>
                 </div>
 
                 <div class="mt-4 flex items-center justify-between border-t pt-4" style="border-color: rgba(var(--theme-border-color-rgb), 0.68);">
