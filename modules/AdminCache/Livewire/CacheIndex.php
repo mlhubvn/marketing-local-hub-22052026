@@ -30,6 +30,13 @@ class CacheIndex extends Component
 
             $this->statusVariant = 'success';
             $this->statusMessage = $message;
+
+            if ($action === 'session') {
+                session()->flash('status', $message);
+                $this->redirectRoute('login', navigate: false);
+
+                return;
+            }
         } catch (Throwable $exception) {
             report($exception);
 

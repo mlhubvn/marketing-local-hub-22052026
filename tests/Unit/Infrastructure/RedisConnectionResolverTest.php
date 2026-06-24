@@ -65,6 +65,21 @@ test('redis diagnostics report isolated queue cache and session databases', func
         ]);
 });
 
+test('redis session connection falls back to laravel default when session connection is blank', function (): void {
+    config([
+        'session.driver' => 'redis',
+        'session.connection' => null,
+        'session.store' => null,
+        'cache.default' => 'redis',
+        'cache.stores.redis.connection' => 'cache',
+        'database.redis.default' => ['host' => 'redis', 'port' => 6379, 'database' => 0],
+        'database.redis.cache' => ['host' => 'redis', 'port' => 6379, 'database' => 1],
+        'database.redis.session' => ['host' => 'redis', 'port' => 6379, 'database' => 2],
+    ]);
+
+    expect(RedisConnectionResolver::sessionConnectionName())->toBe('default');
+});
+
 test('redis diagnostics report cache locks that share the queue database', function (): void {
     config([
         'cache.default' => 'redis',

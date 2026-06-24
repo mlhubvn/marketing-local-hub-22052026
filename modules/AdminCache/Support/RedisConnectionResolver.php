@@ -15,17 +15,7 @@ class RedisConnectionResolver
             return (string) config('session.connection');
         }
 
-        $storeName = (string) (config('session.store') ?: config('session.driver', 'redis'));
-        $store = config("cache.stores.{$storeName}");
-
-        if (! is_array($store)) {
-            return 'default';
-        }
-
-        return match ($store['driver'] ?? '') {
-            'redis' => (string) ($store['connection'] ?? 'cache'),
-            default => 'default',
-        };
+        return 'default';
     }
 
     public static function cacheConnectionName(): string

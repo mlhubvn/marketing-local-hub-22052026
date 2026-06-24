@@ -2,10 +2,12 @@
 
 namespace Modules\AdminCache\Actions;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Session;
 use Modules\AdminCache\Actions\Contracts\CacheAction;
 use Modules\AdminCache\Support\RedisConnectionResolver;
 use RuntimeException;
@@ -64,6 +66,8 @@ class ClearSessionsAction implements CacheAction
             default => throw new RuntimeException(__('Session clear is not supported for the current session driver: :driver', ['driver' => $driver])),
         };
 
+        $this->logoutCurrentSession();
+
         Log::info('admin_cache.sessions_cleared', [
             'driver' => $driver,
             'redis_connection' => $redisConnection,
@@ -109,5 +113,13 @@ class ClearSessionsAction implements CacheAction
         RedisConnectionResolver::flush($connection);
 
         return $connection;
+    }
+
+    protected function logoutCurrentSession(): void
+    {
+        Auth::guard('web')->logout();
+
+        Session::invalidate();
+        Session::regenerateToken();
     }
 }
