@@ -10,6 +10,10 @@ interface CacheAction
 
     public function description(): string;
 
+    public function whenToUse(): string;
+
+    public function afterRunning(): string;
+
     public function icon(): string;
 
     public function buttonLabel(): string;

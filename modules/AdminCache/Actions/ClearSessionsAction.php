@@ -26,7 +26,17 @@ class ClearSessionsAction implements CacheAction
 
     public function description(): string
     {
-        return 'This will log out all users from the system. Use with caution!';
+        return 'Flushes active session storage and forces every user to sign in again.';
+    }
+
+    public function whenToUse(): string
+    {
+        return 'Use after security changes, suspected account compromise, session Redis fixes, or when every user must re-authenticate.';
+    }
+
+    public function afterRunning(): string
+    {
+        return 'All active sessions are removed. Your current admin session is also logged out and redirected to login.';
     }
 
     public function icon(): string
@@ -46,7 +56,7 @@ class ClearSessionsAction implements CacheAction
 
     public function confirmMessage(): string
     {
-        return 'This action cannot be undone. It will log out every active user session from the platform immediately.';
+        return 'This action cannot be undone. It removes active session data and logs every user out immediately.';
     }
 
     public function confirmTitle(): string
@@ -73,7 +83,7 @@ class ClearSessionsAction implements CacheAction
             'redis_connection' => $redisConnection,
         ]);
 
-        return __('All sessions cleared successfully. All users have been logged out.');
+        return __('All sessions cleared. Everyone must log in again, including the current admin session.');
     }
 
     protected function clearFileSessions(): void

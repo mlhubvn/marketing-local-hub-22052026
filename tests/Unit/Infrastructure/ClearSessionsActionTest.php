@@ -30,5 +30,5 @@ test('clear redis sessions flushes the session connection and logs out the curre
     Session::shouldReceive('regenerateToken')->once();
 
     expect(app(ClearSessionsAction::class)->handle())
-        ->toBe(__('All sessions cleared successfully. All users have been logged out.'));
+        ->toBe(__('All sessions cleared. Everyone must log in again, including the current admin session.'));
 });

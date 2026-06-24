@@ -49,6 +49,17 @@
                             :description="__($action['description'])"
                             body-class="p-6"
                         >
+                            <dl class="mb-5 grid gap-3 text-sm" style="color: var(--theme-muted-text-color);">
+                                <div>
+                                    <dt class="font-semibold" style="color: var(--theme-header-text-color);">{{ __('When to use') }}</dt>
+                                    <dd class="mt-1 leading-6">{{ __($action['when']) }}</dd>
+                                </div>
+                                <div>
+                                    <dt class="font-semibold" style="color: var(--theme-header-text-color);">{{ __('After running') }}</dt>
+                                    <dd class="mt-1 leading-6">{{ __($action['after']) }}</dd>
+                                </div>
+                            </dl>
+
                             <x-ui.button
                                 type="button"
                                 :variant="$action['variant']"
@@ -72,6 +83,17 @@
                 :description="__($optimizeAction['description'])"
                 body-class="p-6"
             >
+                <dl class="mb-5 grid gap-3 text-sm" style="color: var(--theme-muted-text-color);">
+                    <div>
+                        <dt class="font-semibold" style="color: var(--theme-header-text-color);">{{ __('When to use') }}</dt>
+                        <dd class="mt-1 leading-6">{{ __($optimizeAction['when']) }}</dd>
+                    </div>
+                    <div>
+                        <dt class="font-semibold" style="color: var(--theme-header-text-color);">{{ __('After running') }}</dt>
+                        <dd class="mt-1 leading-6">{{ __($optimizeAction['after']) }}</dd>
+                    </div>
+                </dl>
+
                 <x-ui.button
                     type="button"
                     :variant="$optimizeAction['variant']"
@@ -93,6 +115,17 @@
                 :title="__($sessionAction['title'])"
                 :description="__($sessionAction['description'])"
             >
+                <dl class="mt-4 grid gap-3 text-sm" style="color: var(--theme-muted-text-color);">
+                    <div>
+                        <dt class="font-semibold" style="color: var(--theme-header-text-color);">{{ __('When to use') }}</dt>
+                        <dd class="mt-1 leading-6">{{ __($sessionAction['when']) }}</dd>
+                    </div>
+                    <div>
+                        <dt class="font-semibold" style="color: var(--theme-header-text-color);">{{ __('After running') }}</dt>
+                        <dd class="mt-1 leading-6">{{ __($sessionAction['after']) }}</dd>
+                    </div>
+                </dl>
+
                 <div class="mt-4">
                     <x-ui.button
                         type="button"

@@ -82,6 +82,8 @@ class CacheActionRegistry
             'key' => $action->key(),
             'title' => $action->title(),
             'description' => $action->description(),
+            'when' => $action->whenToUse(),
+            'after' => $action->afterRunning(),
             'confirm_title' => $action->confirmTitle(),
             'icon' => $action->icon(),
             'button' => $action->buttonLabel(),

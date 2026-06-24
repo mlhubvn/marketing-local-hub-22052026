@@ -19,7 +19,17 @@ class ClearConfigCacheAction implements CacheAction
 
     public function description(): string
     {
-        return 'Rebuild or clear cached configuration files.';
+        return 'Clears Laravel cached configuration so the app reads the current environment and config files again.';
+    }
+
+    public function whenToUse(): string
+    {
+        return 'Use after changing Coolify environment variables or config files when the app still appears to use old values.';
+    }
+
+    public function afterRunning(): string
+    {
+        return 'The next request reloads configuration. It does not log users out; redeploy is still needed when Coolify env values changed.';
     }
 
     public function icon(): string
@@ -29,7 +39,7 @@ class ClearConfigCacheAction implements CacheAction
 
     public function buttonLabel(): string
     {
-        return 'Clear';
+        return 'Clear config';
     }
 
     public function buttonVariant(): string
@@ -39,7 +49,7 @@ class ClearConfigCacheAction implements CacheAction
 
     public function confirmMessage(): string
     {
-        return 'This action will clear the cached configuration snapshot and reload configuration values on the next request.';
+        return 'This clears the cached configuration snapshot. Current requests continue, and new requests reload configuration from the current runtime environment.';
     }
 
     public function confirmTitle(): string
@@ -51,6 +61,6 @@ class ClearConfigCacheAction implements CacheAction
     {
         Artisan::call('config:clear');
 
-        return __('Config cache cleared successfully.');
+        return __('Config cache cleared. New requests will reload configuration from the current runtime environment.');
     }
 }

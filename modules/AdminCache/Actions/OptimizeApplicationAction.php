@@ -20,7 +20,17 @@ class OptimizeApplicationAction implements CacheAction
 
     public function description(): string
     {
-        return 'Run optimize to rebuild safe caches without touching live route cache.';
+        return 'Rebuilds safe Laravel caches for production without rebuilding routes.';
+    }
+
+    public function whenToUse(): string
+    {
+        return 'Use after deployment, module changes, or cache cleanup when the site should run with refreshed config, event, and view caches.';
+    }
+
+    public function afterRunning(): string
+    {
+        return 'Config, event, and view caches are refreshed. Route cache is skipped to avoid the live routes-v7.php race.';
     }
 
     public function icon(): string
@@ -30,7 +40,7 @@ class OptimizeApplicationAction implements CacheAction
 
     public function buttonLabel(): string
     {
-        return 'Run optimize';
+        return 'Optimize safe caches';
     }
 
     public function buttonVariant(): string
@@ -40,7 +50,7 @@ class OptimizeApplicationAction implements CacheAction
 
     public function confirmMessage(): string
     {
-        return 'This action will rebuild safe optimization caches and skip route cache to keep scheduled tasks stable.';
+        return 'This rebuilds safe optimization caches and skips route cache to keep scheduled tasks stable.';
     }
 
     public function confirmTitle(): string

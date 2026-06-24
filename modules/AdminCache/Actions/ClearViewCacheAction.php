@@ -19,7 +19,17 @@ class ClearViewCacheAction implements CacheAction
 
     public function description(): string
     {
-        return 'Remove compiled Blade view files.';
+        return 'Removes compiled Blade view files from storage so templates are rendered fresh.';
+    }
+
+    public function whenToUse(): string
+    {
+        return 'Use after editing Blade views, changing themes, or updating UI text when pages still show the old layout.';
+    }
+
+    public function afterRunning(): string
+    {
+        return 'Views compile again on the next page render. The first page load may be slower; users stay logged in.';
     }
 
     public function icon(): string
@@ -29,7 +39,7 @@ class ClearViewCacheAction implements CacheAction
 
     public function buttonLabel(): string
     {
-        return 'Clear';
+        return 'Clear views';
     }
 
     public function buttonVariant(): string
@@ -39,7 +49,7 @@ class ClearViewCacheAction implements CacheAction
 
     public function confirmMessage(): string
     {
-        return 'This action will remove compiled Blade view files and regenerate them when pages are rendered again.';
+        return 'This removes compiled Blade view files. Laravel regenerates them automatically when pages are rendered again.';
     }
 
     public function confirmTitle(): string
@@ -51,6 +61,6 @@ class ClearViewCacheAction implements CacheAction
     {
         Artisan::call('view:clear');
 
-        return __('View cache cleared successfully.');
+        return __('View cache cleared. Blade templates will be recompiled on the next page render.');
     }
 }
