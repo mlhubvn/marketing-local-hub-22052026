@@ -68,7 +68,7 @@
                     @php($unreadShare = ($metrics['open'] ?? 0) > 0 ? min(100, round(($metrics['unread'] / max(1, $metrics['open'])) * 100)) : 0)
                     <div class="h-full rounded-full" style="width: {{ $unreadShare }}%; background: var(--theme-danger-color);"></div>
                 </div>
-                <p class="mt-2 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Unread pressure: :rate%', ['rate' => $unreadShare]) }}</p>
+                <p class="mt-2 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Unread pressure: :rate', ['rate' => format_percent_locale($unreadShare)]) }}</p>
             </div>
 
             <x-ui.chart

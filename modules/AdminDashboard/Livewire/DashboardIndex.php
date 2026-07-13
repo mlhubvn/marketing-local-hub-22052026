@@ -30,7 +30,7 @@ class DashboardIndex extends Component
         $userId = $user?->id;
 
         $adminSummary = Cache::remember(
-            "admin.dashboard.summary.v1.{$userId}",
+            "admin.dashboard.summary.v2.{$userId}",
             now()->addMinutes(10),
             fn (): array => $this->adminSummary(),
         );

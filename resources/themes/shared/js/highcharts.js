@@ -1,5 +1,7 @@
 import Highcharts from 'highcharts';
 
+window.MLHUB_FORMATTER?.installHighcharts?.(Highcharts);
+
 const readCssVar = (name, fallback) => {
     const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 

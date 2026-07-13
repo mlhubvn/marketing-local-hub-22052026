@@ -24,6 +24,8 @@
             layoutTickCount: 0,
             lastLayoutWidth: 0,
             registerBridge() {
+                window.MLHUB_FORMATTER?.installHighcharts?.(window.Highcharts);
+
                 window.StackpostsHighcharts = {
                     lib: window.Highcharts,
                     render: (elOrId, options = {}) => {
@@ -361,6 +363,7 @@
                             return;
                         }
 
+                        window.MLHUB_FORMATTER?.installHighcharts?.(window.Highcharts);
                         this.registerBridge();
 
                         window.dispatchEvent(new CustomEvent('stackposts:highcharts-ready'));
