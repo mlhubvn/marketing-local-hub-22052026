@@ -7,6 +7,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Throwable;
 
@@ -27,7 +28,7 @@ class PartnerExceptionRenderer
             );
         }
 
-        if ($exception instanceof ModelNotFoundException) {
+        if ($exception instanceof ModelNotFoundException || $exception instanceof NotFoundHttpException) {
             return PartnerApiResponse::error(
                 'resource_not_found',
                 'The requested resource was not found.',

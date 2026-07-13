@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Modules\APIPartnerFizaHUB\Models\PartnerApiLog;
 use Modules\APIPartnerFizaHUB\Support\PartnerApiResponse;
+use Modules\APIPartnerFizaHUB\Support\PartnerExceptionRenderer;
 use Modules\APIPartnerFizaHUB\Support\PartnerPayloadRedactor;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
@@ -48,17 +49,22 @@ class HandlePartnerRequest
         try {
             $response = $next($request);
         } catch (Throwable $exception) {
-            // Routing pipeline normally converts exceptions via ExceptionHandler.
-            // Keep a safety net for any exception that still bubbles here.
-            report($exception);
+            // Some exceptions may bubble past the routing pipeline; reuse partner renderer.
+            $rendered = app(PartnerExceptionRenderer::class)->render($exception, $request);
 
-            $response = PartnerApiResponse::error(
-                'partner_api_error',
-                'An unexpected partner API error occurred.',
-                500,
-                [],
-                $requestId
-            );
+            if ($rendered instanceof Response) {
+                $response = $rendered;
+            } else {
+                report($exception);
+
+                $response = PartnerApiResponse::error(
+                    'partner_api_error',
+                    'An unexpected partner API error occurred.',
+                    500,
+                    [],
+                    $requestId
+                );
+            }
         }
 
         $response = $this->withRequestId($response, $requestId);

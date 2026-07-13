@@ -20,6 +20,7 @@ class OnboardingService
         protected PartnerMappingService $mapping,
         protected PersonalTeamProvisioner $teams,
         protected AffiliateService $affiliate,
+        protected SupportTicketBridge $supportTickets,
     ) {}
 
     /**
@@ -250,77 +251,16 @@ class OnboardingService
             'mlhub_business_id' => null,
         ])->save();
 
-        $ticket = $this->ensureReviewTicket($onboarding, $title, $summary, $duplicates);
+        $ticket = $this->supportTickets->createOnboardingReviewTicket(
+            $onboarding,
+            $title,
+            $summary,
+            $duplicates
+        );
 
         $onboarding->forceFill([
             'support_ticket_id' => $ticket->id,
         ])->save();
-    }
-
-    /**
-     * @param  list<array{type: string, id: int}>  $duplicates
-     */
-    private function ensureReviewTicket(
-        PartnerOnboardingRequest $onboarding,
-        string $title,
-        string $summary,
-        array $duplicates
-    ): SupportTicket {
-        if ($onboarding->support_ticket_id) {
-            $existing = SupportTicket::query()->find($onboarding->support_ticket_id);
-
-            if ($existing) {
-                $existing->forceFill([
-                    'title' => $title,
-                    'content' => $this->ticketBody($onboarding, $summary, $duplicates),
-                    'changed' => time(),
-                    'admin_read' => true,
-                    'user_read' => false,
-                    'status' => 1,
-                ])->save();
-
-                return $existing;
-            }
-        }
-
-        return SupportTicket::query()->create([
-            'id_secure' => Str::random(32),
-            // No MLHUB user yet — admin queue only (unsigned id, no FK).
-            'uid' => 0,
-            'open_by' => 0,
-            'team_id' => null,
-            'cate_id' => null,
-            'type_id' => null,
-            'title' => $title,
-            'content' => $this->ticketBody($onboarding, $summary, $duplicates),
-            'status' => 1,
-            'pin' => false,
-            'user_read' => false,
-            'admin_read' => true,
-            'created' => time(),
-            'changed' => time(),
-        ]);
-    }
-
-    /**
-     * @param  list<array{type: string, id: int}>  $duplicates
-     */
-    private function ticketBody(
-        PartnerOnboardingRequest $onboarding,
-        string $summary,
-        array $duplicates
-    ): string {
-        $payload = [
-            'summary' => $summary,
-            'request_id' => $onboarding->request_id,
-            'external_business_id' => $onboarding->external_business_id,
-            'package_code' => $onboarding->package_code,
-            'status' => $onboarding->status,
-            'verification_status' => $onboarding->verification_status,
-            'duplicate_check' => $duplicates,
-        ];
-
-        return json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: $summary;
     }
 
     /**
