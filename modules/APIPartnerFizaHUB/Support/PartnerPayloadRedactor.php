@@ -12,8 +12,11 @@ class PartnerPayloadRedactor
         'token',
         'password',
         'cccd',
+        'identity_card',
+        'identity_image',
         'identity_document',
         'business_license_file',
+        'business_license_image',
         'url',
     ];
 

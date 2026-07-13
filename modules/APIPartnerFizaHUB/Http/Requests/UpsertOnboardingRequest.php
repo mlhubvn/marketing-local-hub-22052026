@@ -54,6 +54,14 @@ class UpsertOnboardingRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator): void {
+            $idempotencyKey = trim((string) $this->header('Idempotency-Key', ''));
+
+            if ($idempotencyKey === '') {
+                $validator->errors()->add('Idempotency-Key', 'The Idempotency-Key header is required.');
+            } elseif (strlen($idempotencyKey) > 128) {
+                $validator->errors()->add('Idempotency-Key', 'The Idempotency-Key header may not be greater than 128 characters.');
+            }
+
             $hits = $this->findProhibitedKeys($this->all());
 
             if ($hits !== []) {

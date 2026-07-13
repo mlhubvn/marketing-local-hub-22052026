@@ -288,10 +288,10 @@ class OnboardingService
             'name' => (string) ($owner['name'] ?? $user->name),
         ])->save();
 
-        if ($identityVerified && $verifiedAt) {
+        if ($identityVerified) {
             // Upstream identity verification from FizaHUB — not MLHUB email-link verification.
             $user->forceFill([
-                'email_verified_at' => $verifiedAt,
+                'email_verified_at' => $verifiedAt ?? now(),
             ])->save();
         }
 
@@ -371,10 +371,10 @@ class OnboardingService
             'password' => $password,
         ]);
 
-        if ($identityVerified && $verifiedAt) {
+        if ($identityVerified) {
             // Upstream identity verification from FizaHUB — not MLHUB email-link verification.
             $user->forceFill([
-                'email_verified_at' => $verifiedAt,
+                'email_verified_at' => $verifiedAt ?? now(),
             ])->save();
         }
 

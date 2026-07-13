@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Modules\AdminPlans\Models\AdminPlan;
 use Modules\AdminSupport\Models\SupportTicket;
@@ -314,6 +315,8 @@ test('provision creates user team business integration and maps restaurant_food'
         ->and($user->email_verified_at)->not->toBeNull()
         ->and($response->json())->not->toHaveKey('data.password')
         ->and(json_encode($response->json()))->not->toContain('password')
+        ->and(Hash::isHashed((string) $user->getRawOriginal('password')))->toBeTrue()
+        ->and($user->getRawOriginal('password'))->not->toBe('password-password-password-password-password-password-1234')
         ->and($business->industry_category_code)->toBe('restaurant_eatery')
         ->and($integration->metadata['tax_code'] ?? null)->toBe('0101234567')
         ->and($integration->metadata['business_license_number'] ?? null)->toBe('GPKD123')
@@ -446,4 +449,45 @@ test('duplicate tax code on another integration becomes needs_review', function 
         ->assertJsonPath('data.duplicate_check.0.type', 'tax_code');
 
     expect(User::query()->where('email', 'fresh@example.com')->exists())->toBeFalse();
+});
+
+test('onboarding requires Idempotency-Key header', function (): void {
+    $this->postJson(
+        '/api/v1/partners/fizahub/onboarding-requests',
+        validOnboardingPayload(),
+        onboardingHeaders(['Idempotency-Key' => ''])
+    )
+        ->assertStatus(422)
+        ->assertJsonPath('error.code', 'validation_failed');
+
+    $this->postJson(
+        '/api/v1/partners/fizahub/onboarding-requests',
+        validOnboardingPayload(),
+        onboardingHeaders(['Idempotency-Key' => str_repeat('x', 129)])
+    )
+        ->assertStatus(422)
+        ->assertJsonPath('error.code', 'validation_failed');
+
+    expect(PartnerOnboardingRequest::query()->count())->toBe(0);
+});
+
+test('identity_verified true with null verified_at still sets email_verified_at', function (): void {
+    $this->postJson(
+        '/api/v1/partners/fizahub/onboarding-requests',
+        validOnboardingPayload([
+            'owner' => ['email' => 'verified-null@example.com'],
+            'external_business_id' => 'fh-biz-verified-null',
+            'verification' => [
+                'identity_verified' => true,
+                'verified_at' => null,
+                'verified_by' => 'fizahub',
+            ],
+        ]),
+        onboardingHeaders()
+    )->assertCreated();
+
+    $user = User::query()->where('email', 'verified-null@example.com')->firstOrFail();
+
+    expect($user->email_verified_at)->not->toBeNull()
+        ->and(Hash::isHashed((string) $user->getRawOriginal('password')))->toBeTrue();
 });

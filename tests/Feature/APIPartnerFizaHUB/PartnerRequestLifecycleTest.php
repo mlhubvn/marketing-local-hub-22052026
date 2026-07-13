@@ -78,6 +78,13 @@ beforeEach(function (): void {
                 ], 201);
             });
 
+            Route::post('_lifecycle/identity-docs', function (Request $request): JsonResponse {
+                return PartnerApiResponse::success([
+                    'received' => true,
+                    'keys' => array_keys($request->all()),
+                ], 201);
+            });
+
             Route::post('_lifecycle/fail', function (): void {
                 throw new RuntimeException('forced partner failure');
             });
@@ -251,6 +258,20 @@ test('payload redactor recursively redacts sensitive keys and caps oversized pay
         ->and($redacted['owner']['nested']['url'])->toBe('[REDACTED]')
         ->and($redacted['safe'])->toBe('ok');
 
+    $identityPayload = [
+        'owner' => [
+            'nested' => [
+                'identity_card' => 'card-raw',
+                'identity_image' => 'face-raw.bin',
+                'business_license_image' => 'gpkd-raw.bin',
+            ],
+        ],
+    ];
+    $identityRedacted = PartnerPayloadRedactor::redact($identityPayload);
+    expect($identityRedacted['owner']['nested']['identity_card'])->toBe('[REDACTED]')
+        ->and($identityRedacted['owner']['nested']['identity_image'])->toBe('[REDACTED]')
+        ->and($identityRedacted['owner']['nested']['business_license_image'])->toBe('[REDACTED]');
+
     $oversized = ['blob' => str_repeat('x', 70000)];
     $capped = PartnerPayloadRedactor::cap($oversized);
 
@@ -273,4 +294,42 @@ test('logged response redacts one-time login url values', function (): void {
     expect($encoded)->not->toContain('secret-login-token')
         ->and($encoded)->not->toContain('should-not-persist')
         ->and(data_get($log->response_payload, 'data.url'))->toBe('[REDACTED]');
+});
+
+test('partner api logs redact nested identity image fields', function (): void {
+    $requestId = (string) str()->uuid();
+
+    $this->postJson(
+        '/api/v1/partners/fizahub/_lifecycle/identity-docs',
+        [
+            'owner' => [
+                'name' => 'Safe Name',
+                'identity_image' => 'raw-face-bytes',
+                'docs' => [
+                    'identity_card' => 'raw-card',
+                    'business_license_image' => 'raw-gpkd-image',
+                    'business_license_file' => 'raw-gpkd-file',
+                    'identity_document' => 'raw-identity-doc',
+                    'cccd' => '012345678901',
+                ],
+            ],
+        ],
+        lifecycleHeaders([
+            'X-Request-Id' => $requestId,
+            'Idempotency-Key' => (string) str()->uuid(),
+        ])
+    )->assertCreated();
+
+    $log = PartnerApiLog::query()->where('request_id', $requestId)->firstOrFail();
+    $encoded = json_encode($log->request_payload);
+
+    expect($encoded)->not->toContain('raw-face-bytes')
+        ->and($encoded)->not->toContain('raw-card')
+        ->and($encoded)->not->toContain('raw-gpkd-image')
+        ->and($encoded)->not->toContain('raw-gpkd-file')
+        ->and($encoded)->not->toContain('raw-identity-doc')
+        ->and($encoded)->not->toContain('012345678901')
+        ->and(data_get($log->request_payload, 'body.owner.identity_image'))->toBe('[REDACTED]')
+        ->and(data_get($log->request_payload, 'body.owner.docs.business_license_image'))->toBe('[REDACTED]')
+        ->and(data_get($log->request_payload, 'body.owner.name'))->toBe('Safe Name');
 });
