@@ -142,7 +142,7 @@ Dùng để tra nhanh khi làm việc với một module mà **không cần qué
 
 | Module      | mj  | prio | Vai trò                                                                                                                    |
 | ----------- | --- | ---- | -------------------------------------------------------------------------------------------------------------------------- |
-| CustomMLHUB | ✓   | 25   | Bootstrap VN: `mlhub:install`/`mlhub:update`/`mlhub:sync-env-options`, seeder admin/extras, site options, env→options sync, **MLHUB AI chat** (`portal/chatmlhubai`) |
+| CustomMLHUB | ✓   | 25   | Bootstrap VN: `mlhub:install`/`mlhub:update`/`mlhub:sync-env-options`, seeder admin/extras, site options, **static legal pages** (`SeedStaticPagesAction`), env→options sync, **MLHUB AI chat** (`portal/chatmlhubai`) |
 
 
 ---
@@ -266,11 +266,12 @@ Mẫu plugin: mỗi `Payment*ServiceProvider` (1) khai `PaymentGatewayDefinition
 
 | Thành phần   | Chi tiết                                                                                                                                                                                                                          |
 | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Commands     | `mlhub:install` (migrate:fresh + seed từ ID 147123468 + optimize; hỏi xác nhận / `--force`), `mlhub:update` (migrate + seed đồng bộ catalog `mlhub-*`, giữ user/campaign/plan legacy), `mlhub:sync-env-options` (env → `options`) |
+| Commands     | `mlhub:install` (migrate:fresh + seed từ ID 147123468 + seed trang pháp lý + optimize; hỏi xác nhận / `--force`), `mlhub:update` (migrate + seed đồng bộ catalog `mlhub-*`, giữ user/campaign/plan legacy), `mlhub:sync-env-options` (env → `options`) |
 | Seeders      | `MLHUBAdminSeeder`, `MLHUBSystemExtrasSeeder` (chain qua `config/mlhub.php` → `default_seeders`); `PlanSeeder` (catalog 13 gói)                                                                                                   |
+| Actions      | `SeedStaticPagesAction` — ghi `privacy_policy_*` / `terms_of_use_*` vào `options` (force khi install; giữ bản tùy chỉnh khi không force)                                                                                          |
 | Config       | `modules/CustomMLHUB/config/config.php`, `config/env_options.php` (map env → option), app `config/mlhub.php`                                                                                                                      |
 | Portal AI    | Route `portal/chatmlhubai` (`portal.chatmlhubai`), Livewire `ChatMLHUBAI` + widget dashboard `MLHUBAIDashboardPanel`; service `Support/MLHUBAIAssistant/*` (fallback số liệu thật + lớp OpenAI/Gemini qua `ai_chat_*`); credit `mlhub_ai_chat` / `credit_cost_mlhub_ai_chat`. Ma trận intent/context/định vị Chat vs Studio → `ARCHITECTURE_MLHUBAI.md`. |
-| Site options | `Database/data/mlhub_site_options.php` (format ngày `d/m/Y`, VND `₫`, timezone)                                                                                                                                                   |
+| Site options | `Database/data/mlhub_site_options.php` (format ngày `d/m/Y`, VND `₫`, timezone); `Database/data/mlhub_static_pages.php` (Privacy Policy + Terms of Use chính thức cho Google API verification)                                      |
 | Env đọc      | `MLHUB_STARTING_ID`, `MLHUB_FIRST_USER_*`, `MLHUB_ALLOW_RESET_DEMO`, `MLHUB_SYNC_ENV_OPTIONS` + toàn bộ key trong `env_options.php`                                                                                               |
 | Flow         | DB trống → `mlhub:install`; giữ dữ liệu → `mlhub:update`; mỗi deploy entrypoint chạy `migrate --force` + `mlhub:sync-env-options`                                                                                                 |
 

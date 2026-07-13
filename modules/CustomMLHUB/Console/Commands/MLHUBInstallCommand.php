@@ -4,7 +4,9 @@ namespace Modules\CustomMLHUB\Console\Commands;
 
 use Database\Support\IdSequence;
 use Illuminate\Console\Command;
+use Modules\CustomMLHUB\Actions\SeedStaticPagesAction;
 use Modules\CustomMLHUB\Support\MLHUBArtisanTasks;
+use Throwable;
 
 class MLHUBInstallCommand extends Command
 {
@@ -13,7 +15,7 @@ class MLHUBInstallCommand extends Command
 
     protected $description = 'Cài đặt MLHUB từ đầu: xóa sạch database, migrate + seed (gói, AI templates, admin từ env).';
 
-    public function handle(): int
+    public function handle(SeedStaticPagesAction $seedStaticPages): int
     {
         if (MLHUBArtisanTasks::firstUserCredentialsMissing()) {
             $this->error('Thiếu MLHUB_FIRST_USER_EMAIL hoặc MLHUB_FIRST_USER_PASSWORD trong Environment Variables.');
@@ -38,6 +40,17 @@ class MLHUBInstallCommand extends Command
         $this->call('migrate:fresh', ['--force' => true]);
 
         MLHUBArtisanTasks::seed($this, 'install');
+
+        try {
+            // Always force: migrate:fresh already wiped options; command --force is only a confirm bypass.
+            $result = $seedStaticPages->handle(force: true);
+            $this->info('Đã cài trang pháp lý MLHUB ('.count($result['updated']).' option).');
+        } catch (Throwable $e) {
+            $this->error('Không thể cài trang pháp lý MLHUB: '.$e->getMessage());
+
+            return self::FAILURE;
+        }
+
         MLHUBArtisanTasks::optimize($this);
 
         $email = trim((string) config('custommlhub.first_user.email', ''));

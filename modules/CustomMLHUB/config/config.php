@@ -13,4 +13,5 @@ return [
     ],
 
     'site_options_file' => __DIR__.'/../Database/data/mlhub_site_options.php',
+    'static_pages_file' => __DIR__.'/../Database/data/mlhub_static_pages.php',
 ];
