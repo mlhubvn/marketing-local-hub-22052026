@@ -1,0 +1,386 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "FizaHUB Partner API (MLHUB MVP)",
+    "description": "Ten MVP partner API requests for FizaHUB → MLHUB. Set base_url and partner_token. Support detail/message require external_business_id query.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost" },
+    { "key": "partner_token", "value": "replace-with-fizahub-partner-token" },
+    { "key": "external_user_id", "value": "fh-user-001" },
+    { "key": "external_business_id", "value": "fh-biz-001" },
+    { "key": "onboarding_request_id", "value": "" },
+    { "key": "ticket_id", "value": "" },
+    { "key": "from", "value": "2026-06-14" },
+    { "key": "to", "value": "2026-07-13" }
+  ],
+  "item": [
+    {
+      "name": "GET Health",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('success shape', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.success).to.eql(true);",
+              "  pm.expect(json.data.status).to.eql('ok');",
+              "  pm.expect(pm.response.headers.get('X-Request-Id')).to.be.ok;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+          { "key": "X-Partner", "value": "fizahub" },
+          { "key": "X-Request-Id", "value": "{{$guid}}" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": "{{base_url}}/api/v1/partners/fizahub/health"
+      }
+    },
+    {
+      "name": "GET Package",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('package whitelist shape', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.success).to.eql(true);",
+              "  pm.expect(json.data).to.have.property('package_code');",
+              "  pm.expect(json.data).to.have.property('limits');",
+              "  pm.expect(json.data).to.not.have.property('price');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+          { "key": "X-Partner", "value": "fizahub" },
+          { "key": "X-Request-Id", "value": "{{$guid}}" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/package"
+      }
+    },
+    {
+      "name": "POST Onboarding",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.variables.set('idempotency_key', pm.variables.replaceIn('{{$guid}}'));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('onboarding response', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect([200, 201, 202]).to.include(pm.response.code);",
+              "  pm.expect(json.success).to.eql(true);",
+              "  if (json.data && json.data.request_id) {",
+              "    pm.collectionVariables.set('onboarding_request_id', json.data.request_id);",
+              "  }",
+              "  if (json.data && json.data.external_business_id) {",
+              "    pm.collectionVariables.set('external_business_id', json.data.external_business_id);",
+              "  }",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+          { "key": "X-Partner", "value": "fizahub" },
+          { "key": "X-Request-Id", "value": "{{$guid}}" },
+          { "key": "Idempotency-Key", "value": "{{idempotency_key}}" },
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"external_business_id\": \"{{external_business_id}}\",\n  \"external_user_id\": \"{{external_user_id}}\",\n  \"package_code\": \"base\",\n  \"owner\": {\n    \"name\": \"Nguyen Van A\",\n    \"phone\": \"0901 234 567\",\n    \"email\": \"Owner.A@Example.com\"\n  },\n  \"business\": {\n    \"name\": \"Quan Com A\",\n    \"industry\": \"restaurant_food\",\n    \"phone\": \"0901-234-567\",\n    \"email\": \"shop@example.com\",\n    \"website\": \"https://shop.example.com\",\n    \"address\": \"Da Nang\",\n    \"tax_code\": \"0101-234-567\",\n    \"business_license_number\": \"GPKD 123\"\n  },\n  \"verification\": {\n    \"identity_verified\": true,\n    \"verified_at\": \"2026-07-13T10:00:00+07:00\",\n    \"verified_by\": \"fizahub\"\n  }\n}"
+        },
+        "url": "{{base_url}}/api/v1/partners/fizahub/onboarding-requests"
+      }
+    },
+    {
+      "name": "GET Onboarding Status",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('onboarding status', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.success).to.eql(true);",
+              "  pm.expect(json.data).to.have.property('status');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+          { "key": "X-Partner", "value": "fizahub" },
+          { "key": "X-Request-Id", "value": "{{$guid}}" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": "{{base_url}}/api/v1/partners/fizahub/onboarding-requests/{{onboarding_request_id}}"
+      }
+    },
+    {
+      "name": "POST One-time Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('one-time login issued', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(pm.response.code).to.eql(201);",
+              "  pm.expect(json.data).to.have.property('url');",
+              "  pm.expect(json.data).to.have.property('expires_at');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+          { "key": "X-Partner", "value": "fizahub" },
+          { "key": "X-Request-Id", "value": "{{$guid}}" },
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        },
+        "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/one-time-login"
+      }
+    },
+    {
+      "name": "GET Dashboard",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('dashboard metrics', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.success).to.eql(true);",
+              "  pm.expect(json.data.metrics).to.have.property('new_reviews');",
+              "  pm.expect(json.data.metrics).to.have.property('returning_customers');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+          { "key": "X-Partner", "value": "fizahub" },
+          { "key": "X-Request-Id", "value": "{{$guid}}" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/dashboard?from={{from}}&to={{to}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "partners", "fizahub", "businesses", "{{external_business_id}}", "dashboard"],
+          "query": [
+            { "key": "from", "value": "{{from}}" },
+            { "key": "to", "value": "{{to}}" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "POST Create Support Ticket",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.variables.set('idempotency_key', pm.variables.replaceIn('{{$guid}}'));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('ticket created', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(pm.response.code).to.eql(201);",
+              "  if (json.data && json.data.ticket_id) {",
+              "    pm.collectionVariables.set('ticket_id', json.data.ticket_id);",
+              "  }",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+          { "key": "X-Partner", "value": "fizahub" },
+          { "key": "X-Request-Id", "value": "{{$guid}}" },
+          { "key": "Idempotency-Key", "value": "{{idempotency_key}}" },
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"subject\": \"Need help with campaign\",\n  \"message\": \"Please review my QR campaign setup.\"\n}"
+        },
+        "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-tickets"
+      }
+    },
+    {
+      "name": "GET List Support Tickets",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('ticket list', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.success).to.eql(true);",
+              "  pm.expect(json.data).to.have.property('items');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+          { "key": "X-Partner", "value": "fizahub" },
+          { "key": "X-Request-Id", "value": "{{$guid}}" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-tickets"
+      }
+    },
+    {
+      "name": "GET Support Ticket Detail",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('ticket detail', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.success).to.eql(true);",
+              "  pm.expect(json.data).to.have.property('messages');",
+              "  pm.expect(json.data).to.have.property('next_poll_after_seconds');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+          { "key": "X-Partner", "value": "fizahub" },
+          { "key": "X-Request-Id", "value": "{{$guid}}" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/partners/fizahub/support-tickets/{{ticket_id}}?external_business_id={{external_business_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "partners", "fizahub", "support-tickets", "{{ticket_id}}"],
+          "query": [
+            { "key": "external_business_id", "value": "{{external_business_id}}" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "POST Send Support Message",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.variables.set('idempotency_key', pm.variables.replaceIn('{{$guid}}'));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('message sent', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(pm.response.code).to.eql(201);",
+              "  pm.expect(json.success).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+          { "key": "X-Partner", "value": "fizahub" },
+          { "key": "X-Request-Id", "value": "{{$guid}}" },
+          { "key": "Idempotency-Key", "value": "{{idempotency_key}}" },
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"Following up on my previous request.\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/partners/fizahub/support-tickets/{{ticket_id}}/messages?external_business_id={{external_business_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "partners", "fizahub", "support-tickets", "{{ticket_id}}", "messages"],
+          "query": [
+            { "key": "external_business_id", "value": "{{external_business_id}}" }
+          ]
+        }
+      }
+    }
+  ]
+}

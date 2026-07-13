@@ -3,8 +3,11 @@
 namespace Modules\APIPartnerFizaHUB\Services;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
 use Modules\AppBookingPages\Models\Booking;
 use Modules\AppCouponCampaigns\Models\CouponRedemption;
 use Modules\AppFeedbackForms\Models\FeedbackResponse;
@@ -12,7 +15,6 @@ use Modules\AppLeadForms\Models\LeadSubmission;
 use Modules\AppQRCampaigns\Models\QrCampaign;
 use Modules\AppQRCampaigns\Models\QrScan;
 use Modules\AppReviewBooster\Models\ReviewFeedback;
-use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
 
 class DashboardService
 {
@@ -108,7 +110,7 @@ class DashboardService
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<Model>  $query
      * @param  Collection<int, int|string>  $campaignIds
      */
     private function countInRange(
@@ -355,7 +357,7 @@ class DashboardService
 
     /**
      * @param  array<string, array<string, mixed>>  $days
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<Model>  $query
      * @param  Collection<int, int|string>  $campaignIds
      */
     private function fillTrendCounts(

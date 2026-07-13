@@ -2,6 +2,7 @@
 
 namespace Modules\APIPartnerFizaHUB\Services;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -24,14 +25,14 @@ class OneTimeLoginService
     public function issue(PartnerIntegration $integration, string $requestId): array
     {
         if (! $integration->mlhub_user_id || ! $integration->mlhub_workspace_id || ! $integration->mlhub_business_id) {
-            throw (new \Illuminate\Database\Eloquent\ModelNotFoundException)
+            throw (new ModelNotFoundException)
                 ->setModel(PartnerIntegration::class, [$integration->external_business_id]);
         }
 
         $user = User::query()->find($integration->mlhub_user_id);
 
         if (! $user) {
-            throw (new \Illuminate\Database\Eloquent\ModelNotFoundException)
+            throw (new ModelNotFoundException)
                 ->setModel(User::class, [(string) $integration->mlhub_user_id]);
         }
 

@@ -4,7 +4,6 @@ namespace Modules\APIPartnerFizaHUB\Services;
 
 use Modules\AdminPlans\Models\AdminPlan;
 use Modules\AdminUser\Models\User;
-use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
 
 class PackageService
 {
