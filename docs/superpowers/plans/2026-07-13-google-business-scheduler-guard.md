@@ -61,9 +61,9 @@ Expected: simulated and record-failure exit-code assertions fail against the cur
 - Consumes: `GoogleBusinessPost::$location`, `GoogleBusinessLocation::$connection`, `GoogleBusinessClient::publishPost()`, and `GoogleBusinessClient::postPayload()`.
 - Produces: private command helpers for connection eligibility, prerequisite reason resolution, safe payload creation, safe audit-log recording, and safe structured warnings.
 
-- [ ] **Step 1: Skip non-connected connections before publishing**
+- [ ] **Step 1: Exclude non-connected connections before the batch limit**
 
-Inside the existing per-post loop, inspect `$post->location?->connection`. If its status is not exactly `connected`, print an informational skip message and return from that iteration without changing the post.
+Add a nested `whereHas('location.connection')` status check before ordering and limiting candidates, then retain an in-loop status guard for race-condition protection. A non-connected post remains unchanged and never calls Google.
 
 - [ ] **Step 2: Validate connected prerequisites**
 

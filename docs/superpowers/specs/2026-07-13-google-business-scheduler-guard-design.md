@@ -10,7 +10,7 @@ The scheduled-post command selects due posts through a managed location but does
 
 ## Design
 
-Keep the current due-post query and relationship names: `GoogleBusinessPost::location()` and `GoogleBusinessLocation::connection()`. Before calling `GoogleBusinessClient::publishPost()`, skip every post whose connection status is not `connected`; simulated posts remain scheduled and unchanged.
+Keep the current relationship names: `GoogleBusinessPost::location()` and `GoogleBusinessLocation::connection()`. Restrict the due-post query to `connected` relationships before applying the batch limit so simulated rows cannot starve real posts. Retain an in-loop status guard as race-condition protection; simulated posts remain scheduled and unchanged.
 
 For a connected connection, validate the local prerequisites needed to build an authenticated Google request: location relation, connection relation, decrypted access token, `google_account_id`, and `google_location_id`. A missing prerequisite is a record-level failure: mark the post `failed`, store the reason, emit a structured warning, and continue.
 
