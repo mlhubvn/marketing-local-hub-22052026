@@ -1,8 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\APIPartnerFizaHUB\Http\Controllers\DashboardController;
 use Modules\APIPartnerFizaHUB\Http\Controllers\HealthController;
 use Modules\APIPartnerFizaHUB\Http\Controllers\OnboardingController;
+use Modules\APIPartnerFizaHUB\Http\Controllers\OneTimeLoginController;
+use Modules\APIPartnerFizaHUB\Http\Controllers\PackageController;
 use Modules\APIPartnerFizaHUB\Http\Controllers\SupportMessageController;
 use Modules\APIPartnerFizaHUB\Http\Controllers\SupportTicketController;
 use Modules\APIPartnerFizaHUB\Http\Middleware\HandlePartnerRequest;
@@ -31,4 +34,11 @@ Route::middleware([
             ->name('support-tickets.show');
         Route::post('support-tickets/{ticket_id}/messages', [SupportMessageController::class, 'store'])
             ->name('support-tickets.messages.store');
+
+        Route::post('businesses/{external_business_id}/one-time-login', [OneTimeLoginController::class, 'store'])
+            ->name('businesses.one-time-login');
+        Route::get('businesses/{external_business_id}/package', [PackageController::class, 'show'])
+            ->name('businesses.package');
+        Route::get('businesses/{external_business_id}/dashboard', [DashboardController::class, 'show'])
+            ->name('businesses.dashboard');
     });
