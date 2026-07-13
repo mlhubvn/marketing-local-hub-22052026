@@ -1,0 +1,276 @@
+<?php
+
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\ValidationException;
+use Modules\APIPartnerFizaHUB\Http\Middleware\HandlePartnerRequest;
+use Modules\APIPartnerFizaHUB\Http\Middleware\VerifyPartnerToken;
+use Modules\APIPartnerFizaHUB\Models\PartnerApiLog;
+use Modules\APIPartnerFizaHUB\Support\PartnerApiResponse;
+use Modules\APIPartnerFizaHUB\Support\PartnerPayloadRedactor;
+
+function createPartnerLifecycleTables(): void
+{
+    Schema::dropIfExists('partner_api_logs');
+
+    Schema::create('partner_api_logs', function (Blueprint $table): void {
+        $table->id();
+        $table->string('partner_code', 32);
+        $table->string('method', 16);
+        $table->string('endpoint', 255);
+        $table->uuid('request_id')->nullable();
+        $table->string('idempotency_key', 128)->nullable();
+        $table->string('request_hash', 64)->nullable();
+        $table->unsignedInteger('status_code')->default(0);
+        $table->json('request_payload')->nullable();
+        $table->json('response_payload')->nullable();
+        $table->timestamps();
+
+        $table->unique(
+            ['partner_code', 'method', 'endpoint', 'idempotency_key'],
+            'partner_api_logs_idempotency_unique'
+        );
+    });
+}
+
+function lifecycleHeaders(array $overrides = []): array
+{
+    return array_merge([
+        'Authorization' => 'Bearer test-fizahub-partner-token',
+        'X-Partner' => 'fizahub',
+        'X-Request-Id' => (string) str()->uuid(),
+        'Accept' => 'application/json',
+        'Content-Type' => 'application/json',
+    ], $overrides);
+}
+
+beforeEach(function (): void {
+    config()->set('modules.apipartnerfizahub.token', 'test-fizahub-partner-token');
+    config()->set('modules.apipartnerfizahub.rate_limit_per_minute', 60);
+
+    createPartnerLifecycleTables();
+
+    Route::middleware([
+        'api',
+        VerifyPartnerToken::class,
+        HandlePartnerRequest::class,
+        'throttle:fizahub-partner',
+    ])
+        ->prefix('api/v1/partners/fizahub')
+        ->group(function (): void {
+            Route::post('_lifecycle/echo', function (Request $request) {
+                return PartnerApiResponse::success([
+                    'echo' => [
+                        'hello' => $request->input('hello'),
+                    ],
+                    'note' => 'ok',
+                ], 201);
+            });
+
+            Route::post('_lifecycle/secrets', function (): JsonResponse {
+                return PartnerApiResponse::success([
+                    'password' => 'should-not-persist',
+                    'token' => 'should-not-persist',
+                    'url' => 'https://mlhub.vn/partner/login?token=secret-login-token',
+                ], 201);
+            });
+
+            Route::post('_lifecycle/fail', function (): void {
+                throw new RuntimeException('forced partner failure');
+            });
+
+            Route::post('_lifecycle/validate', function (): void {
+                throw ValidationException::withMessages([
+                    'subject' => ['The subject field is required.'],
+                ]);
+            });
+        });
+});
+
+afterEach(function (): void {
+    Schema::dropIfExists('partner_api_logs');
+});
+
+test('GET health requests are written to partner api logs', function (): void {
+    $requestId = (string) str()->uuid();
+
+    $this->getJson('/api/v1/partners/fizahub/health', lifecycleHeaders([
+        'X-Request-Id' => $requestId,
+    ]))->assertOk();
+
+    $log = PartnerApiLog::query()->where('request_id', $requestId)->first();
+
+    expect($log)->not->toBeNull()
+        ->and($log->method)->toBe('GET')
+        ->and($log->endpoint)->toBe('/api/v1/partners/fizahub/health')
+        ->and($log->status_code)->toBe(200)
+        ->and($log->response_payload['success'] ?? null)->toBeTrue();
+});
+
+test('POST with idempotency key reserves then replays completed response', function (): void {
+    $idempotencyKey = (string) str()->uuid();
+    $payload = ['hello' => 'world', 'password' => 'secret', 'token' => 'abc'];
+
+    $first = $this->postJson(
+        '/api/v1/partners/fizahub/_lifecycle/echo',
+        $payload,
+        lifecycleHeaders(['Idempotency-Key' => $idempotencyKey])
+    )->assertCreated();
+
+    $second = $this->postJson(
+        '/api/v1/partners/fizahub/_lifecycle/echo',
+        $payload,
+        lifecycleHeaders(['Idempotency-Key' => $idempotencyKey])
+    )->assertCreated();
+
+    expect($second->json('data'))->toBe($first->json('data'))
+        ->and($second->json('success'))->toBeTrue()
+        ->and(PartnerApiLog::query()->where('idempotency_key', $idempotencyKey)->count())->toBe(1);
+
+    $log = PartnerApiLog::query()->where('idempotency_key', $idempotencyKey)->firstOrFail();
+    $encodedRequest = json_encode($log->request_payload);
+
+    expect($encodedRequest)->not->toContain('secret')
+        ->and($encodedRequest)->not->toContain('"abc"');
+});
+
+test('same idempotency key with different body returns conflict', function (): void {
+    $idempotencyKey = (string) str()->uuid();
+
+    $this->postJson(
+        '/api/v1/partners/fizahub/_lifecycle/echo',
+        ['value' => 1],
+        lifecycleHeaders(['Idempotency-Key' => $idempotencyKey])
+    )->assertCreated();
+
+    $this->postJson(
+        '/api/v1/partners/fizahub/_lifecycle/echo',
+        ['value' => 2],
+        lifecycleHeaders(['Idempotency-Key' => $idempotencyKey])
+    )
+        ->assertStatus(409)
+        ->assertJsonPath('error.code', 'idempotency_conflict');
+});
+
+test('in progress idempotency key returns conflict', function (): void {
+    $idempotencyKey = (string) str()->uuid();
+    $body = json_encode(['pending' => true], JSON_THROW_ON_ERROR);
+    $hash = hash('sha256', $body);
+
+    PartnerApiLog::query()->create([
+        'partner_code' => 'fizahub',
+        'method' => 'POST',
+        'endpoint' => '/api/v1/partners/fizahub/_lifecycle/echo',
+        'request_id' => (string) str()->uuid(),
+        'idempotency_key' => $idempotencyKey,
+        'request_hash' => $hash,
+        'status_code' => 0,
+        'request_payload' => ['_request_hash' => $hash],
+        'response_payload' => null,
+    ]);
+
+    $this->call(
+        'POST',
+        '/api/v1/partners/fizahub/_lifecycle/echo',
+        [],
+        [],
+        [],
+        [
+            'CONTENT_TYPE' => 'application/json',
+            'HTTP_ACCEPT' => 'application/json',
+            'HTTP_AUTHORIZATION' => 'Bearer test-fizahub-partner-token',
+            'HTTP_X_PARTNER' => 'fizahub',
+            'HTTP_X_REQUEST_ID' => (string) str()->uuid(),
+            'HTTP_IDEMPOTENCY_KEY' => $idempotencyKey,
+        ],
+        $body
+    )
+        ->assertStatus(409)
+        ->assertJsonPath('error.code', 'idempotency_in_progress');
+});
+
+test('unexpected exceptions are logged as partner_api_error without leaking internals', function (): void {
+    $requestId = (string) str()->uuid();
+
+    $response = $this->postJson(
+        '/api/v1/partners/fizahub/_lifecycle/fail',
+        ['password' => 'super-secret'],
+        lifecycleHeaders(['X-Request-Id' => $requestId])
+    );
+
+    $response->assertStatus(500)
+        ->assertJsonPath('error.code', 'partner_api_error')
+        ->assertJsonMissing(['forced partner failure']);
+
+    $log = PartnerApiLog::query()->where('request_id', $requestId)->first();
+
+    expect($log)->not->toBeNull()
+        ->and($log->status_code)->toBe(500)
+        ->and(json_encode($log->request_payload))->not->toContain('super-secret')
+        ->and(json_encode($log->response_payload))->not->toContain('forced partner failure');
+});
+
+test('validation exceptions return 422 partner JSON', function (): void {
+    $this->postJson(
+        '/api/v1/partners/fizahub/_lifecycle/validate',
+        [],
+        lifecycleHeaders()
+    )
+        ->assertStatus(422)
+        ->assertJsonPath('error.code', 'validation_failed')
+        ->assertJsonPath('error.details.subject.0', 'The subject field is required.');
+});
+
+test('payload redactor recursively redacts sensitive keys and caps oversized payloads', function (): void {
+    $payload = [
+        'owner' => [
+            'password' => 'secret',
+            'authorization' => 'Bearer abc',
+            'token' => 'tok',
+            'nested' => [
+                'cccd' => '012345678901',
+                'identity_document' => 'file.bin',
+                'business_license_file' => 'license.pdf',
+                'url' => 'https://mlhub.vn/login?token=one-time',
+            ],
+        ],
+        'safe' => 'ok',
+    ];
+
+    $redacted = PartnerPayloadRedactor::redact($payload);
+
+    expect($redacted['owner']['password'])->toBe('[REDACTED]')
+        ->and($redacted['owner']['authorization'])->toBe('[REDACTED]')
+        ->and($redacted['owner']['token'])->toBe('[REDACTED]')
+        ->and($redacted['owner']['nested']['cccd'])->toBe('[REDACTED]')
+        ->and($redacted['owner']['nested']['identity_document'])->toBe('[REDACTED]')
+        ->and($redacted['owner']['nested']['business_license_file'])->toBe('[REDACTED]')
+        ->and($redacted['owner']['nested']['url'])->toBe('[REDACTED]')
+        ->and($redacted['safe'])->toBe('ok');
+
+    $oversized = ['blob' => str_repeat('x', 70000)];
+    $capped = PartnerPayloadRedactor::cap($oversized);
+
+    expect($capped)->toHaveKeys(['truncated', 'sha256'])
+        ->and($capped['truncated'])->toBeTrue();
+});
+
+test('logged response redacts one-time login url values', function (): void {
+    $requestId = (string) str()->uuid();
+
+    $this->postJson(
+        '/api/v1/partners/fizahub/_lifecycle/secrets',
+        ['note' => 'login'],
+        lifecycleHeaders(['X-Request-Id' => $requestId])
+    )->assertCreated();
+
+    $log = PartnerApiLog::query()->where('request_id', $requestId)->firstOrFail();
+    $encoded = json_encode($log->response_payload);
+
+    expect($encoded)->not->toContain('secret-login-token')
+        ->and($encoded)->not->toContain('should-not-persist')
+        ->and(data_get($log->response_payload, 'data.url'))->toBe('[REDACTED]');
+});

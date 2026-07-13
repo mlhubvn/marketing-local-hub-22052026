@@ -1,0 +1,8 @@
+{
+    "name": "APIPartnerFizaHUB",
+    "alias": "apipartnerfizahub",
+    "priority": 30,
+    "providers": [
+        "Modules\\APIPartnerFizaHUB\\Providers\\APIPartnerFizaHUBServiceProvider"
+    ]
+}
