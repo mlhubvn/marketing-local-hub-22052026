@@ -24,6 +24,7 @@ class APIPartnerFizaHUBServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/../Routes/api.php');
         $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
         $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
+        $this->loadViewsFrom(__DIR__.'/../Resources/views', 'apipartnerfizahub');
 
         RateLimiter::for('fizahub-partner', function (Request $request) {
             $maxAttempts = max(1, (int) config('modules.apipartnerfizahub.rate_limit_per_minute', 60));

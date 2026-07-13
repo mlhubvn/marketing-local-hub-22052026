@@ -166,6 +166,11 @@ Tables: `partner_integrations`, `partner_onboarding_requests`, `partner_api_logs
 
 Import: [`docs/FizaHUB-Partner-API.postman_collection.json`](docs/FizaHUB-Partner-API.postman_collection.json)
 
+Public documentation page:
+
+- `GET /api-fizahub`
+- Postman download: `GET /api-fizahub/postman`
+
 ## MVP exclusions
 
 Not in this MVP (do not call / do not expect):
