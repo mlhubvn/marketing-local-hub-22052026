@@ -20,10 +20,16 @@ class ApiFizaHubDocsController
 
     public function helpTest(): View
     {
+        $timezone = (string) config('modules.apipartnerfizahub.timezone', 'Asia/Ho_Chi_Minh');
+        $dashboardTo = now($timezone)->toDateString();
+        $dashboardFrom = now($timezone)->subDays(29)->toDateString();
+
         return view('apipartnerfizahub::api-fizahub-help-test', [
             'docsUrl' => route('partner.fizahub.docs'),
             'postmanUrl' => route('partner.fizahub.docs.postman'),
             'appUrl' => rtrim((string) config('app.url'), '/'),
+            'dashboardFrom' => $dashboardFrom,
+            'dashboardTo' => $dashboardTo,
         ]);
     }
 

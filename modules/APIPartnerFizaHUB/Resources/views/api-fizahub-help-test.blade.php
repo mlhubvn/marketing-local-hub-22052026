@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ __('FizaHUB Postman step-by-step test guide') }}</title>
+    <title>{{ __('FizaHUB Partner API - Step-by-step Postman test guide') }}</title>
     <meta name="description" content="{{ __('Copy-and-paste Postman testing guide for non-technical users.') }}">
     <style>
         :root {
@@ -36,7 +36,7 @@
             line-height: 1.55;
         }
         a { color: var(--brand-dark); }
-        .wrap { width: min(860px, calc(100% - 2rem)); margin: 0 auto; }
+        .wrap { width: min(900px, calc(100% - 2rem)); margin: 0 auto; }
         .topbar {
             position: sticky; top: 0; z-index: 20;
             backdrop-filter: blur(10px);
@@ -55,14 +55,14 @@
         }
         .nav a:hover { color: var(--ink); border-color: var(--line); background: #fff; }
         .hero { padding: 2rem 0 1rem; }
-        .hero-card, .step, .panel {
+        .hero-card, .step, .panel, .remember {
             background: var(--surface);
             border: 1px solid var(--line);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
             padding: 1.15rem 1.2rem;
         }
-        h1 { margin: 0 0 .7rem; font-size: clamp(1.5rem, 4vw, 2.2rem); line-height: 1.2; }
+        h1 { margin: 0 0 .7rem; font-size: clamp(1.4rem, 4vw, 2.1rem); line-height: 1.2; }
         .lead { margin: 0 0 1rem; color: var(--muted); }
         .btn {
             display: inline-flex; align-items: center; justify-content: center;
@@ -76,6 +76,12 @@
             margin: 1rem 0 0; padding: .85rem 1rem; border-radius: 12px;
             background: #fff7ed; border: 1px solid #fed7aa; color: var(--warn); font-size: .92rem;
         }
+        .info {
+            margin: 1rem 0 0; padding: .85rem 1rem; border-radius: 12px;
+            background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: .92rem;
+        }
+        .remember { margin: 1rem 0; }
+        .remember h2 { margin: 0 0 .55rem; font-size: 1.1rem; }
         .toc {
             margin: 1rem 0 1.5rem; padding: 1rem 1.1rem;
             background: #fff; border: 1px solid var(--line); border-radius: 12px;
@@ -100,16 +106,27 @@
         pre, code { font-family: var(--mono); }
         pre {
             margin: .55rem 0; overflow: auto; background: var(--code-bg); color: var(--code-ink);
-            border-radius: 12px; padding: .9rem 1rem; font-size: .82rem; line-height: 1.45;
+            border-radius: 12px; padding: .9rem 1rem; font-size: .8rem; line-height: 1.45;
         }
         .copy-label {
-            display: block; margin: .55rem 0 .25rem; font-size: .78rem;
+            display: block; margin: .7rem 0 .25rem; font-size: .78rem;
             text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700;
         }
         .check {
             margin-top: .7rem; padding: .7rem .85rem; border-radius: 10px;
             background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: .92rem;
         }
+        .table-wrap { overflow-x: auto; border-radius: 12px; margin: .7rem 0; }
+        table {
+            width: 100%; border-collapse: collapse; background: #fff;
+            border: 1px solid var(--line); font-size: .88rem;
+        }
+        th, td {
+            text-align: left; vertical-align: top; padding: .65rem .7rem;
+            border-bottom: 1px solid var(--line);
+        }
+        th { background: #f1f6f3; font-size: .8rem; }
+        tr:last-child td { border-bottom: 0; }
         .footer { padding: 1.5rem 0 2.2rem; color: var(--muted); font-size: .9rem; }
     </style>
 </head>
@@ -121,6 +138,7 @@
             <a href="{{ $docsUrl }}">{{ __('API docs') }}</a>
             <a href="{{ $postmanUrl }}">{{ __('Download Postman JSON') }}</a>
             <a href="#step-1">{{ __('Start here') }}</a>
+            <a href="#troubleshooting">{{ __('Common errors') }}</a>
         </nav>
     </div>
 </header>
@@ -129,8 +147,8 @@
     <section class="hero">
         <div class="wrap">
             <div class="hero-card">
-                <h1>{{ __('FizaHUB Postman step-by-step test guide') }}</h1>
-                <p class="lead">{{ __('This page is for non-technical testers. Follow every step from top to bottom. Copy and paste where shown. Do not skip steps.') }}</p>
+                <h1>{{ __('FizaHUB Partner API - Step-by-step Postman test guide') }}</h1>
+                <p class="lead">{{ __('For non-technical testers. Go from top to bottom, copy Body/raw from the samples, click Send, then copy returned IDs into Variables.') }}</p>
                 <div class="cta-row">
                     <a class="btn btn-primary" href="{{ $postmanUrl }}">{{ __('1. Download Postman JSON first') }}</a>
                     <a class="btn btn-ghost" href="{{ $docsUrl }}">{{ __('Back to API docs') }}</a>
@@ -138,6 +156,17 @@
                 <div class="note">
                     {{ __('Never paste a real partner token into chat, email, or public docs. Ask the MLHUB admin for a test token and keep it private.') }}
                 </div>
+            </div>
+
+            <div class="remember">
+                <h2>{{ __('You only need to remember 5 things') }}</h2>
+                <ul>
+                    <li><code>base_url</code> — {{ __('the MLHUB domain.') }}</li>
+                    <li><code>partner_token</code> — {{ __('the token MLHUB issues only for FizaHUB.') }}</li>
+                    <li><code>external_user_id</code> — {{ __('the user ID on the FizaHUB side.') }}</li>
+                    <li><code>external_business_id</code> — {{ __('the business/store ID on the FizaHUB side; this is the main key for package/dashboard/support/login.') }}</li>
+                    <li><code>from</code> / <code>to</code> — {{ __('only filter the Dashboard date range; they are not the package duration.') }}</li>
+                </ul>
             </div>
 
             <div class="toc">
@@ -155,6 +184,7 @@
                     <li><a href="#step-10">{{ __('Test GET Support Ticket Detail') }}</a></li>
                     <li><a href="#step-11">{{ __('Test POST Send Support Message') }}</a></li>
                     <li><a href="#step-12">{{ __('Test POST One-time Login') }}</a></li>
+                    <li><a href="#troubleshooting">{{ __('Common errors') }}</a></li>
                 </ol>
             </div>
         </div>
@@ -187,18 +217,88 @@
                 </ol>
                 <span class="copy-label">{{ __('Copy these values') }}</span>
                 <pre>base_url = {{ $appUrl }}
-partner_token = (paste the token given by MLHUB admin)
+partner_token = ({{ __('paste the test token issued by the MLHUB admin') }})
 external_user_id = fh-user-demo-001
 external_business_id = fh-biz-demo-001
-from = 2026-06-14
-to = 2026-07-13
-onboarding_request_id = (leave empty for now)
-ticket_id = (leave empty for now)</pre>
+from = {{ $dashboardFrom }}
+to = {{ $dashboardTo }}
+onboarding_request_id = ({{ __('leave empty at first') }})
+ticket_id = ({{ __('leave empty at first') }})</pre>
                 <ol start="4">
                     <li>{{ __('Click Save.') }}</li>
                 </ol>
+
+                <span class="copy-label">{{ __('Variable meanings') }}</span>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>{{ __('Variable') }}</th>
+                                <th>{{ __('Example') }}</th>
+                                <th>{{ __('What is it for?') }}</th>
+                                <th>{{ __('When should you change it?') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>base_url</code></td>
+                                <td><code>{{ $appUrl }}</code></td>
+                                <td>{{ __('MLHUB domain.') }}</td>
+                                <td>{{ __('Change when testing local/staging/production.') }}</td>
+                            </tr>
+                            <tr>
+                                <td><code>partner_token</code></td>
+                                <td>{{ __('token issued by MLHUB') }}</td>
+                                <td>{{ __('Authenticates FizaHUB API calls.') }}</td>
+                                <td>{{ __('Change when the MLHUB admin issues a new token.') }}</td>
+                            </tr>
+                            <tr>
+                                <td><code>external_user_id</code></td>
+                                <td><code>fh-user-demo-001</code></td>
+                                <td>{{ __('User ID on the FizaHUB side.') }}</td>
+                                <td>{{ __('Each test user / real customer should have its own ID.') }}</td>
+                            </tr>
+                            <tr>
+                                <td><code>external_business_id</code></td>
+                                <td><code>fh-biz-demo-001</code></td>
+                                <td>{{ __('Primary technical key that maps a FizaHUB business to MLHUB.') }}</td>
+                                <td>{{ __('Each business/store should have its own ID.') }}</td>
+                            </tr>
+                            <tr>
+                                <td><code>from</code></td>
+                                <td><code>{{ $dashboardFrom }}</code></td>
+                                <td>{{ __('Dashboard report start date.') }}</td>
+                                <td>{{ __('Change when you want another report range. You may leave it empty so the API uses the last 30 days.') }}</td>
+                            </tr>
+                            <tr>
+                                <td><code>to</code></td>
+                                <td><code>{{ $dashboardTo }}</code></td>
+                                <td>{{ __('Dashboard report end date.') }}</td>
+                                <td>{{ __('Change when you want another report range. You may leave it empty so the API uses today.') }}</td>
+                            </tr>
+                            <tr>
+                                <td><code>onboarding_request_id</code></td>
+                                <td>{{ __('leave empty at first') }}</td>
+                                <td>{{ __('Read onboarding status.') }}</td>
+                                <td>{{ __('After POST Onboarding, copy data.request_id and paste it here.') }}</td>
+                            </tr>
+                            <tr>
+                                <td><code>ticket_id</code></td>
+                                <td>{{ __('leave empty at first') }}</td>
+                                <td>{{ __('View or send support ticket messages.') }}</td>
+                                <td>{{ __('After creating a support ticket, copy data.ticket_id and paste it here.') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
                 <div class="note">
-                    {{ __('Important: partner_token must be the real test token from MLHUB. Do not invent it. Do not publish it.') }}
+                    <strong>{{ __('from/to are not the package duration') }}</strong><br>
+                    {{ __('from and to are only used by the Dashboard API to choose the report date range. Example: from=2026-07-01 and to=2026-07-31 means marketing metrics in July. These two fields are not used to renew a 1/3/6/12 month package.') }}
+                </div>
+                <div class="info">
+                    <strong>{{ __('How does package duration work in the MVP?') }}</strong><br>
+                    {{ __('In the MVP, FizaHUB sends package_code during onboarding. Example: package_code=base maps to the internal MLHUB plan mlhub-free-da-nang. The Package API returns starts_at/expires_at when MLHUB has duration data. The MVP does not yet have an endpoint to enter 1/3/6/12 months or auto-renew. If FizaHUB needs to sell monthly packages, design a separate package/subscription endpoint in a later phase — do not use from/to.') }}
                 </div>
                 <div class="check">{{ __('Done when: base_url and partner_token are filled and saved.') }}</div>
             </article>
@@ -207,37 +307,108 @@ ticket_id = (leave empty for now)</pre>
                 <h2><span class="step-num">3</span> <span class="method get">GET</span> {{ __('Test GET Health') }}</h2>
                 <ol>
                     <li>{{ __('Open the request named GET Health.') }}</li>
+                    <li>{{ __('Check the Headers tab. Postman should already fill Authorization, X-Partner, and X-Request-Id.') }}</li>
                     <li>{{ __('Click Send.') }}</li>
-                    <li>{{ __('Look at the status code on the right. It should be 200.') }}</li>
                 </ol>
-                <span class="copy-label">{{ __('You should see JSON like this') }}</span>
+                <span class="copy-label">URL</span>
+                <pre>@{{base_url}}/api/v1/partners/fizahub/health</pre>
+                <span class="copy-label">{{ __('Headers that must exist') }}</span>
+                <pre>@verbatim
+Authorization: Bearer {{partner_token}}
+X-Partner: fizahub
+X-Request-Id: {{$guid}}
+Accept: application/json
+@endverbatim</pre>
+                <span class="copy-label">{{ __('Expected') }}</span>
+                <pre>HTTP 200</pre>
+                <span class="copy-label">{{ __('Sample response') }}</span>
                 <pre>{
   "success": true,
   "data": {
     "status": "ok",
     "partner": "fizahub",
     "api_version": "v1"
-  }
+  },
+  "error": null
 }</pre>
                 <div class="check">{{ __('Done when: success is true and status is ok. If this fails, stop and check partner_token / base_url.') }}</div>
             </article>
 
             <article class="step" id="step-4">
                 <h2><span class="step-num">4</span> <span class="method post">POST</span> {{ __('Test POST Onboarding') }}</h2>
+                <p><strong>{{ __('Postman actions') }}</strong></p>
                 <ol>
-                    <li>{{ __('Open the request named POST Onboarding.') }}</li>
-                    <li>{{ __('Do not change headers. Postman already fills Authorization, X-Partner, X-Request-Id, and Idempotency-Key.') }}</li>
-                    <li>{{ __('Optional: change email in the Body to a unique test email so it does not collide.') }}</li>
+                    <li>{{ __('Open POST Onboarding.') }}</li>
+                    <li>{{ __('Open the Body tab.') }}</li>
+                    <li>{{ __('Choose raw.') }}</li>
+                    <li>{{ __('Choose JSON.') }}</li>
+                    <li>{{ __('Copy the full Body raw JSON below and paste it into Body.') }}</li>
+                    <li>{{ __('Optional: change owner.email so it does not collide.') }}</li>
                     <li>{{ __('Click Send.') }}</li>
-                    <li>{{ __('Expected status: 201 (completed) or 202 (pending_verification / needs_review).') }}</li>
-                    <li>{{ __('Copy data.request_id from the response.') }}</li>
-                    <li>{{ __('Paste it into collection variable onboarding_request_id, then Save.') }}</li>
-                    <li>{{ __('If status is completed, keep external_business_id as the same value used in the request body.') }}</li>
                 </ol>
+                <span class="copy-label">URL</span>
+                <pre>@{{base_url}}/api/v1/partners/fizahub/onboarding-requests</pre>
+                <span class="copy-label">Headers</span>
+                <pre>@verbatim
+Authorization: Bearer {{partner_token}}
+X-Partner: fizahub
+X-Request-Id: {{$guid}}
+Idempotency-Key: {{$guid}}
+Accept: application/json
+Content-Type: application/json
+@endverbatim</pre>
+                <span class="copy-label">{{ __('Body raw JSON') }}</span>
+                <pre>{
+  "external_user_id": "@{{external_user_id}}",
+  "external_business_id": "@{{external_business_id}}",
+  "package_code": "base",
+  "owner": {
+    "name": "Nguyen Van A",
+    "phone": "0912345678",
+    "email": "nguyenvana+demo001@example.com"
+  },
+  "business": {
+    "name": "Fiza Demo Store",
+    "industry": "restaurant_food",
+    "address": "123 Nguyen Trai, Da Nang",
+    "phone": "0912345678",
+    "email": "store-demo001@example.com",
+    "website": "https://mlhub.vn",
+    "tax_code": null,
+    "business_license_number": "HKD-DEMO-001"
+  },
+  "verification": {
+    "identity_verified": true,
+    "verified_by": "fizahub",
+    "verified_at": "{{ $dashboardTo }}T10:00:00+07:00"
+  }
+}</pre>
                 <div class="note">
-                    {{ __('If you get needs_review or pending_verification, Package/Dashboard/Login may return 404 until mapping is completed. Continue Health/Onboarding Status first, then ask MLHUB to complete review.') }}
+                    <ul>
+                        <li>{{ __('To test again, change external_business_id, owner.email, and business_license_number to avoid duplicates.') }}</li>
+                        <li>{{ __('Do not send CCCD, CCCD images, or GPKD files.') }}</li>
+                        <li>{{ __('If response status=completed, you can run Package/Dashboard/Login next.') }}</li>
+                        <li>{{ __('If response status=needs_review or pending_verification, ask the MLHUB admin to finish review before mapped APIs work.') }}</li>
+                    </ul>
                 </div>
-                <div class="check">{{ __('Done when: you saved onboarding_request_id.') }}</div>
+                <span class="copy-label">{{ __('Expected') }}</span>
+                <pre>HTTP 201 (completed) {{ __('or') }} HTTP 202 (pending_verification / needs_review)</pre>
+                <span class="copy-label">{{ __('Sample completed response') }}</span>
+                <pre>{
+  "success": true,
+  "data": {
+    "request_id": "018f5a64-b40b-7f60-a925-dea047cf6590",
+    "external_business_id": "fh-biz-demo-001",
+    "package_code": "base",
+    "status": "completed",
+    "current_step": "ready"
+  },
+  "error": null
+}</pre>
+                <div class="check">
+                    <strong>{{ __('After the response') }}:</strong>
+                    {{ __('Copy data.request_id → paste into the onboarding_request_id variable → Save.') }}
+                </div>
             </article>
 
             <article class="step" id="step-5">
@@ -246,9 +417,22 @@ ticket_id = (leave empty for now)</pre>
                     <li>{{ __('Open GET Onboarding Status.') }}</li>
                     <li>{{ __('Make sure onboarding_request_id variable is filled.') }}</li>
                     <li>{{ __('Click Send.') }}</li>
-                    <li>{{ __('Expected status: 200.') }}</li>
-                    <li>{{ __('Check data.status: pending_verification, needs_review, or completed.') }}</li>
                 </ol>
+                <span class="copy-label">URL</span>
+                <pre>@{{base_url}}/api/v1/partners/fizahub/onboarding-requests/@{{onboarding_request_id}}</pre>
+                <span class="copy-label">{{ __('Expected') }}</span>
+                <pre>HTTP 200</pre>
+                <span class="copy-label">{{ __('Sample response') }}</span>
+                <pre>{
+  "success": true,
+  "data": {
+    "request_id": "018f5a64-b40b-7f60-a925-dea047cf6590",
+    "status": "completed",
+    "current_step": "ready",
+    "external_business_id": "fh-biz-demo-001"
+  },
+  "error": null
+}</pre>
                 <div class="check">{{ __('Done when: status is returned and matches the previous onboarding result.') }}</div>
             </article>
 
@@ -258,9 +442,41 @@ ticket_id = (leave empty for now)</pre>
                     <li>{{ __('Only run this after onboarding status is completed.') }}</li>
                     <li>{{ __('Open GET Package.') }}</li>
                     <li>{{ __('Click Send.') }}</li>
-                    <li>{{ __('Expected status: 200.') }}</li>
-                    <li>{{ __('You should see package_code, plan_slug, and limits. You should NOT see price or credits.') }}</li>
                 </ol>
+                <span class="copy-label">URL</span>
+                <pre>@{{base_url}}/api/v1/partners/fizahub/businesses/@{{external_business_id}}/package</pre>
+                <span class="copy-label">{{ __('Expected') }}</span>
+                <pre>HTTP 200 {{ __('when onboarding is completed') }}</pre>
+                <span class="copy-label">{{ __('Sample response') }}</span>
+                <pre>{
+  "success": true,
+  "data": {
+    "package_code": "base",
+    "package_name": "MLHUB Free Da Nang",
+    "plan_slug": "mlhub-free-da-nang",
+    "status": "active",
+    "starts_at": "2026-07-14T10:00:00Z",
+    "expires_at": null,
+    "is_trial": false,
+    "integration_status": "active",
+    "limits": {
+      "max_businesses": 1,
+      "max_campaigns": 3,
+      "max_landing_pages": 3,
+      "max_qr_codes": 10,
+      "max_team_members": 1
+    }
+  },
+  "error": null
+}</pre>
+                <div class="info">
+                    <ul>
+                        <li><code>package_code</code> — {{ __('the package code FizaHUB sent (example: package_code=base).') }}</li>
+                        <li><code>plan_slug</code> — {{ __('the internal MLHUB plan (example: mlhub-free-da-nang).') }}</li>
+                        <li><code>expires_at</code> — {{ __('may be null if the plan has no end date yet.') }}</li>
+                        <li>{{ __('This is not Dashboard from/to.') }} {{ __('The MVP does not yet have an endpoint to renew 1/3/6/12 months.') }}</li>
+                    </ul>
+                </div>
                 <div class="check">{{ __('Done when: package summary is returned without price/credits.') }}</div>
             </article>
 
@@ -268,11 +484,60 @@ ticket_id = (leave empty for now)</pre>
                 <h2><span class="step-num">7</span> <span class="method get">GET</span> {{ __('Test GET Dashboard') }}</h2>
                 <ol>
                     <li>{{ __('Open GET Dashboard.') }}</li>
-                    <li>{{ __('from and to are already filled by variables. You may leave them as-is.') }}</li>
+                    <li>{{ __('Open the Params tab and check from / to (Dashboard API date range only).') }}</li>
+                    <li>{{ __('If you do not know what to enter, leave from/to empty — the API uses the last 30 days.') }}</li>
                     <li>{{ __('Click Send.') }}</li>
-                    <li>{{ __('Expected status: 200.') }}</li>
-                    <li>{{ __('You should see data.metrics with qr_scans, new_leads, new_reviews, returning_customers, and conversion_rate.') }}</li>
                 </ol>
+                <span class="copy-label">URL</span>
+                <pre>@{{base_url}}/api/v1/partners/fizahub/businesses/@{{external_business_id}}/dashboard?from=@{{from}}&to=@{{to}}</pre>
+                <span class="copy-label">Params</span>
+                <pre>from = {{ __('report start date, format YYYY-MM-DD') }}
+to = {{ __('report end date, format YYYY-MM-DD') }}</pre>
+                <div class="note">
+                    {{ __('from/to are not the package duration') }}.
+                    {{ __('from and to only choose the Dashboard API report range. They are not used for 1/3/6/12 month package renewal.') }}
+                </div>
+                <span class="copy-label">{{ __('Expected') }}</span>
+                <pre>HTTP 200</pre>
+                <span class="copy-label">{{ __('Sample response') }}</span>
+                <pre>{
+  "success": true,
+  "data": {
+    "period": {
+      "from": "{{ $dashboardFrom }}",
+      "to": "{{ $dashboardTo }}",
+      "timezone": "Asia/Ho_Chi_Minh"
+    },
+    "metrics": {
+      "businesses": 1,
+      "campaigns": 0,
+      "active_campaigns": 0,
+      "qr_scans": 0,
+      "new_leads": 0,
+      "new_reviews": 0,
+      "coupon_claims": 0,
+      "coupon_used": 0,
+      "bookings": 0,
+      "feedback": 0,
+      "returning_customers": 0,
+      "conversion_rate": 0
+    },
+    "campaigns": [],
+    "trend": [],
+    "insights": [],
+    "suggested_actions": []
+  },
+  "error": null
+}</pre>
+                <div class="info">
+                    <ul>
+                        <li><code>qr_scans</code>: {{ __('QR scan count.') }}</li>
+                        <li><code>new_leads</code>: {{ __('new leads.') }}</li>
+                        <li><code>new_reviews</code>: {{ __('internal review feedback with rating >= 4, not live Google Reviews yet.') }}</li>
+                        <li><code>returning_customers</code>: {{ __('estimate from repeated phone/email identities.') }}</li>
+                        <li><code>conversion_rate</code>: {{ __('internal conversion rate.') }}</li>
+                    </ul>
+                </div>
                 <div class="check">{{ __('Done when: metrics object is present even if all numbers are zero.') }}</div>
             </article>
 
@@ -280,23 +545,76 @@ ticket_id = (leave empty for now)</pre>
                 <h2><span class="step-num">8</span> <span class="method post">POST</span> {{ __('Test POST Create Support Ticket') }}</h2>
                 <ol>
                     <li>{{ __('Open POST Create Support Ticket.') }}</li>
-                    <li>{{ __('Body already has subject and message. You can edit the text if you want.') }}</li>
+                    <li>{{ __('Open Body → raw → JSON.') }}</li>
+                    <li>{{ __('Copy the full Body raw JSON below and paste it into Body.') }}</li>
                     <li>{{ __('Click Send.') }}</li>
-                    <li>{{ __('Expected status: 201.') }}</li>
-                    <li>{{ __('Copy data.ticket_id from the response.') }}</li>
-                    <li>{{ __('Paste it into collection variable ticket_id, then Save.') }}</li>
                 </ol>
-                <div class="check">{{ __('Done when: ticket_id is saved.') }}</div>
+                <span class="copy-label">URL</span>
+                <pre>@{{base_url}}/api/v1/partners/fizahub/businesses/@{{external_business_id}}/support-tickets</pre>
+                <span class="copy-label">Headers</span>
+                <pre>@verbatim
+Authorization: Bearer {{partner_token}}
+X-Partner: fizahub
+X-Request-Id: {{$guid}}
+Idempotency-Key: {{$guid}}
+Accept: application/json
+Content-Type: application/json
+@endverbatim</pre>
+                <span class="copy-label">{{ __('Body raw JSON') }}</span>
+                <pre>{
+  "subject": "Need help with FizaMKT Base",
+  "message": "Please help me create a check-in QR and Google review request.",
+  "category_id": null,
+  "type_id": null
+}</pre>
+                <span class="copy-label">{{ __('Expected') }}</span>
+                <pre>HTTP 201</pre>
+                <span class="copy-label">{{ __('Sample response') }}</span>
+                <pre>{
+  "success": true,
+  "data": {
+    "ticket_id": "secure-ticket-id",
+    "subject": "Need help with FizaMKT Base",
+    "status": "open"
+  },
+  "error": null
+}</pre>
+                <div class="check">
+                    <strong>{{ __('After the response') }}:</strong>
+                    {{ __('Copy data.ticket_id → paste into the ticket_id variable → Save.') }}
+                </div>
             </article>
 
             <article class="step" id="step-9">
                 <h2><span class="step-num">9</span> <span class="method get">GET</span> {{ __('Test GET List Support Tickets') }}</h2>
                 <ol>
                     <li>{{ __('Open GET List Support Tickets.') }}</li>
+                    <li>{{ __('Optional Params: page=1, per_page=20.') }}</li>
                     <li>{{ __('Click Send.') }}</li>
-                    <li>{{ __('Expected status: 200.') }}</li>
-                    <li>{{ __('You should see data.items and your new ticket in the list.') }}</li>
                 </ol>
+                <span class="copy-label">URL</span>
+                <pre>@{{base_url}}/api/v1/partners/fizahub/businesses/@{{external_business_id}}/support-tickets</pre>
+                <span class="copy-label">{{ __('Expected') }}</span>
+                <pre>HTTP 200</pre>
+                <span class="copy-label">{{ __('Sample response') }}</span>
+                <pre>{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "ticket_id": "secure-ticket-id",
+        "subject": "Need help with FizaMKT Base",
+        "status": "open"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "per_page": 20,
+      "total": 1
+    }
+  },
+  "error": null
+}</pre>
                 <div class="check">{{ __('Done when: the new ticket appears in the list.') }}</div>
             </article>
 
@@ -304,12 +622,42 @@ ticket_id = (leave empty for now)</pre>
                 <h2><span class="step-num">10</span> <span class="method get">GET</span> {{ __('Test GET Support Ticket Detail') }}</h2>
                 <ol>
                     <li>{{ __('Open GET Support Ticket Detail.') }}</li>
-                    <li>{{ __('Confirm ticket_id and external_business_id variables are filled.') }}</li>
-                    <li>{{ __('This request already includes ?external_business_id=... Do not remove it.') }}</li>
+                    <li>{{ __('Open Params and confirm external_business_id is present — this query is required.') }}</li>
                     <li>{{ __('Click Send.') }}</li>
-                    <li>{{ __('Expected status: 200.') }}</li>
-                    <li>{{ __('You should see messages and next_poll_after_seconds.') }}</li>
                 </ol>
+                <span class="copy-label">URL</span>
+                <pre>@{{base_url}}/api/v1/partners/fizahub/support-tickets/@{{ticket_id}}?external_business_id=@{{external_business_id}}</pre>
+                <div class="note">
+                    {{ __('external_business_id is a required query parameter. Missing it returns 422.') }}
+                </div>
+                <span class="copy-label">{{ __('Expected') }}</span>
+                <pre>HTTP 200</pre>
+                <span class="copy-label">{{ __('Sample response') }}</span>
+                <pre>{
+  "success": true,
+  "data": {
+    "ticket": {
+      "ticket_id": "secure-ticket-id",
+      "subject": "Need help with FizaMKT Base",
+      "status": "open"
+    },
+    "messages": [
+      {
+        "message_id": "secure-ticket-id:initial",
+        "sender_type": "business",
+        "body": "Please help me create a check-in QR and Google review request."
+      }
+    ],
+    "next_poll_after_seconds": 15
+  },
+  "error": null
+}</pre>
+                <div class="info">
+                    <ul>
+                        <li>{{ __('This is a polling API, not realtime.') }}</li>
+                        <li>{{ __('The FizaHUB app may call again every 15–30 seconds while the chat screen is open.') }}</li>
+                    </ul>
+                </div>
                 <div class="check">{{ __('Done when: conversation messages are visible.') }}</div>
             </article>
 
@@ -317,12 +665,38 @@ ticket_id = (leave empty for now)</pre>
                 <h2><span class="step-num">11</span> <span class="method post">POST</span> {{ __('Test POST Send Support Message') }}</h2>
                 <ol>
                     <li>{{ __('Open POST Send Support Message.') }}</li>
-                    <li>{{ __('Body already has a message. You can edit it.') }}</li>
-                    <li>{{ __('Keep the external_business_id query as-is.') }}</li>
+                    <li>{{ __('Keep the external_business_id query as-is — this query is required.') }}</li>
+                    <li>{{ __('Open Body → raw → JSON and paste the Body raw JSON below.') }}</li>
                     <li>{{ __('Click Send.') }}</li>
-                    <li>{{ __('Expected status: 201.') }}</li>
                     <li>{{ __('Open GET Support Ticket Detail again and click Send to see the new message.') }}</li>
                 </ol>
+                <span class="copy-label">URL</span>
+                <pre>@{{base_url}}/api/v1/partners/fizahub/support-tickets/@{{ticket_id}}/messages?external_business_id=@{{external_business_id}}</pre>
+                <span class="copy-label">Headers</span>
+                <pre>@verbatim
+Authorization: Bearer {{partner_token}}
+X-Partner: fizahub
+X-Request-Id: {{$guid}}
+Idempotency-Key: {{$guid}}
+Accept: application/json
+Content-Type: application/json
+@endverbatim</pre>
+                <span class="copy-label">{{ __('Body raw JSON') }}</span>
+                <pre>{
+  "message": "Please prioritize the check-in QR first."
+}</pre>
+                <span class="copy-label">{{ __('Expected') }}</span>
+                <pre>HTTP 201</pre>
+                <span class="copy-label">{{ __('Sample response') }}</span>
+                <pre>{
+  "success": true,
+  "data": {
+    "message_id": "secure-message-id",
+    "sender_type": "business",
+    "body": "Please prioritize the check-in QR first."
+  },
+  "error": null
+}</pre>
                 <div class="check">{{ __('Done when: the new message appears in ticket detail.') }}</div>
             </article>
 
@@ -330,14 +704,92 @@ ticket_id = (leave empty for now)</pre>
                 <h2><span class="step-num">12</span> <span class="method post">POST</span> {{ __('Test POST One-time Login') }}</h2>
                 <ol>
                     <li>{{ __('Open POST One-time Login.') }}</li>
+                    <li>{{ __('Leave Body empty. No Body is required.') }}</li>
                     <li>{{ __('Click Send.') }}</li>
-                    <li>{{ __('Expected status: 201.') }}</li>
-                    <li>{{ __('Response should include data.url and data.expires_at.') }}</li>
-                    <li>{{ __('Optional: open data.url in a private browser window to confirm portal login works once.') }}</li>
-                    <li>{{ __('Do not reuse the same URL. It is single-use and expires quickly (about 5 minutes).') }}</li>
                 </ol>
+                <span class="copy-label">URL</span>
+                <pre>@{{base_url}}/api/v1/partners/fizahub/businesses/@{{external_business_id}}/one-time-login</pre>
+                <span class="copy-label">Headers</span>
+                <pre>@verbatim
+Authorization: Bearer {{partner_token}}
+X-Partner: fizahub
+X-Request-Id: {{$guid}}
+Accept: application/json
+@endverbatim</pre>
+                <span class="copy-label">{{ __('Expected') }}</span>
+                <pre>HTTP 201</pre>
+                <span class="copy-label">{{ __('Sample response') }}</span>
+                <pre>{
+  "success": true,
+  "data": {
+    "url": "https://mlhub.vn/partners/fizahub/one-time-login/...",
+    "expires_at": "2026-07-14T10:05:00Z"
+  },
+  "error": null
+}</pre>
+                <div class="info">
+                    <ul>
+                        <li>{{ __('Copy data.url and open it in a browser to enter the MLHUB Portal.') }}</li>
+                        <li>{{ __('The link is single-use and expires in about 5 minutes.') }}</li>
+                        <li>{{ __('Do not share this link with other people.') }}</li>
+                    </ul>
+                </div>
                 <div class="check">{{ __('Done when: you received a one-time login URL.') }}</div>
             </article>
+
+            <div class="panel" style="margin-top:1.2rem;" id="troubleshooting">
+                <h2 style="margin:0 0 .6rem;font-size:1.1rem;">{{ __('Common errors') }}</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>{{ __('HTTP code') }}</th>
+                                <th>{{ __('Error') }}</th>
+                                <th>{{ __('Common cause') }}</th>
+                                <th>{{ __('How to fix') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>401</td>
+                                <td><code>invalid_partner_token</code></td>
+                                <td>{{ __('partner_token is wrong or not set on the server.') }}</td>
+                                <td>{{ __('Check the partner_token variable and the FIZAHUB_PARTNER_TOKEN ENV on the server.') }}</td>
+                            </tr>
+                            <tr>
+                                <td>400</td>
+                                <td><code>invalid_partner_header</code></td>
+                                <td>{{ __('Missing X-Partner or X-Request-Id.') }}</td>
+                                <td>{{ __('Check the request Headers.') }}</td>
+                            </tr>
+                            <tr>
+                                <td>422</td>
+                                <td><code>validation_failed</code></td>
+                                <td>{{ __('Missing field, bad email/url/date, missing Idempotency-Key, or missing external_business_id on support detail/message.') }}</td>
+                                <td>{{ __('Read error.details and fix Body/Params.') }}</td>
+                            </tr>
+                            <tr>
+                                <td>404</td>
+                                <td><code>integration_not_found</code></td>
+                                <td>{{ __('external_business_id is not onboarded as completed yet.') }}</td>
+                                <td>{{ __('Run POST Onboarding first and confirm status completed.') }}</td>
+                            </tr>
+                            <tr>
+                                <td>409</td>
+                                <td><code>idempotency_conflict</code></td>
+                                <td>{{ __('Reused an old Idempotency-Key with a different Body.') }}</td>
+                                <td>{{ __('Create a new key, or Send again with the same Body.') }}</td>
+                            </tr>
+                            <tr>
+                                <td>429</td>
+                                <td><code>rate_limit_exceeded</code></td>
+                                <td>{{ __('Too many requests per minute.') }}</td>
+                                <td>{{ __('Wait one minute and try again.') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
             <div class="panel" style="margin-top:1.2rem;">
                 <h2 style="margin:0 0 .6rem;font-size:1.1rem;">{{ __('Finished checklist') }}</h2>
@@ -359,7 +811,7 @@ ticket_id = (leave empty for now)</pre>
 
 <footer class="footer">
     <div class="wrap">
-        <p style="margin:0;">{{ __('FizaHUB Postman step-by-step test guide') }} · <a href="{{ $docsUrl }}">/api-fizahub</a> · <a href="{{ route('partner.fizahub.docs.help-test') }}">/api-fizahub/help-test</a></p>
+        <p style="margin:0;">{{ __('FizaHUB Partner API - Step-by-step Postman test guide') }} · <a href="{{ $docsUrl }}">/api-fizahub</a> · <a href="{{ route('partner.fizahub.docs.help-test') }}">/api-fizahub/help-test</a></p>
     </div>
 </footer>
 </body>

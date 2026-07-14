@@ -11,6 +11,9 @@ test('public fizahub docs page is available without auth', function (): void {
         ->and($html)->toContain(__('Download Postman JSON'))
         ->and($html)->toContain(__('Step-by-step Postman test guide'))
         ->and($html)->toContain('/api-fizahub/help-test')
+        ->and($html)->toContain(__('Not technical? Open the copy/paste Postman guide at /api-fizahub/help-test'))
+        ->and($html)->toContain(__('Dashboard from/to'))
+        ->and($html)->toContain(__('Package duration'))
         ->and($html)->toContain(__('Spec overview'))
         ->and($html)->toContain(__('Endpoint overview'))
         ->and($html)->toContain(__('Technical architecture diagram'))
@@ -27,6 +30,7 @@ test('public fizahub docs page is available without auth', function (): void {
         ->and($html)->not->toContain('FIZAHUB_PARTNER_TOKEN=')
         ->and($html)->not->toContain('sk_live');
 });
+
 test('postman collection download returns the documented filename', function (): void {
     $response = $this->get('/api-fizahub/postman');
 
@@ -49,7 +53,22 @@ test('public fizahub help-test page guides postman step by step without secrets'
     $response->assertOk();
     $html = $response->getContent();
 
-    expect($html)->toContain(__('FizaHUB Postman step-by-step test guide'))
+    expect($html)->toContain(__('FizaHUB Partner API - Step-by-step Postman test guide'))
+        ->and($html)->toContain(__('Body raw JSON'))
+        ->and($html)->toContain(__('from/to are not the package duration'))
+        ->and($html)->toContain(__('Dashboard API'))
+        ->and($html)->toContain('package_code=base')
+        ->and($html)->toContain('mlhub-free-da-nang')
+        ->and($html)->toContain('1/3/6/12')
+        ->and($html)->toContain(__('The MVP does not yet have an endpoint to renew 1/3/6/12 months.'))
+        ->and($html)->toContain('Copy data.request_id')
+        ->and($html)->toContain('Copy data.ticket_id')
+        ->and($html)->toContain('Idempotency-Key')
+        ->and($html)->toContain(__('external_business_id is a required query parameter. Missing it returns 422.'))
+        ->and($html)->toContain(__('Common errors'))
+        ->and($html)->toContain('invalid_partner_token')
+        ->and($html)->toContain('validation_failed')
+        ->and($html)->toContain('integration_not_found')
         ->and($html)->toContain(__('Install Postman and import the file'))
         ->and($html)->toContain(__('Fill in variables'))
         ->and($html)->toContain(__('Test GET Health'))

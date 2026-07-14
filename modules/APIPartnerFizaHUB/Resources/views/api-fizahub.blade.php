@@ -263,6 +263,9 @@
                     <a class="btn btn-ghost" href="#endpoints">{{ __('View 10 MVP endpoints') }}</a>
                     <a class="btn btn-ghost" href="{{ $helpTestUrl }}">{{ __('Step-by-step Postman test guide') }}</a>
                 </div>
+                <div class="info" style="margin-top:.2rem;">
+                    <a href="{{ $helpTestUrl }}"><strong>{{ __('Not technical? Open the copy/paste Postman guide at /api-fizahub/help-test') }}</strong></a>
+                </div>
                 <div class="badge-row">
                     <span class="badge"><strong>{{ __('API Version') }}:</strong> v1</span>
                     <span class="badge"><strong>{{ __('Partner') }}:</strong> fizahub</span>
@@ -790,6 +793,16 @@ Content-Type: application/json
                     <p>{{ __('View the current MLHUB/FizaMKT package for the business.') }}</p>
                     <p><strong>{{ __('Returns') }}:</strong> package_code, package_name, plan_slug, status, starts_at, expires_at, is_trial, limits whitelist.</p>
                     <p class="muted">{{ __('Does not return price, payment, subscription, credits, or full permissions JSON.') }}</p>
+                    <div class="info" style="margin-top:.85rem;">
+                        <strong>{{ __('Package duration') }}</strong>
+                        <ul class="list-clean" style="margin-top:.45rem;">
+                            <li>{{ __('MVP currently accepts package_code.') }}</li>
+                            <li>{{ __('package_code=base maps to the internal MLHUB plan mlhub-free-da-nang.') }}</li>
+                            <li>{{ __('The Package API returns starts_at/expires_at when MLHUB has duration data.') }}</li>
+                            <li>{{ __('The MVP does not yet have an endpoint to renew 1/3/6/12 months.') }}</li>
+                            <li>{{ __('If FizaHUB needs monthly sell/renew flows, design a separate package/subscription API in a later phase.') }}</li>
+                        </ul>
+                    </div>
                 </div>
             </article>
 
@@ -807,6 +820,14 @@ Content-Type: application/json
                         <li>{{ __('returning_customers estimated: phone/email identities appearing in at least 2 events in the period.') }}</li>
                         <li>{{ __('Default date range: last 30 days. Timezone: Asia/Ho_Chi_Minh.') }}</li>
                     </ul>
+                    <div class="note" style="margin-top:.85rem;">
+                        <strong>{{ __('Dashboard from/to') }}</strong>
+                        <ul class="list-clean" style="margin-top:.45rem;">
+                            <li>{{ __('from/to are the report date range.') }}</li>
+                            <li>{{ __('They are not the package duration.') }}</li>
+                            <li>{{ __('If omitted, the API uses the last 30 days.') }}</li>
+                        </ul>
+                    </div>
                 </div>
             </article>
 
