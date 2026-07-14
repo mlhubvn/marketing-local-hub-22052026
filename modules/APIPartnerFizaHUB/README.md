@@ -168,7 +168,7 @@ Import: [`docs/FizaHUB-Partner-API.postman_collection.json`](docs/FizaHUB-Partne
 
 Public documentation page:
 
-- `GET /api-fizahub`
+- Partner tech spec (architecture + flows + contract): `GET /api-fizahub`
 - Postman download: `GET /api-fizahub/postman`
 - Step-by-step Postman help (non-technical): `GET /api-fizahub/help-test`
 
