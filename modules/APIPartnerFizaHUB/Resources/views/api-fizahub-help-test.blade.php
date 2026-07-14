@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ __('FizaHUB Partner API - Step-by-step Postman test guide') }}</title>
     <meta name="description" content="{{ __('Copy-and-paste Postman testing guide for non-technical users.') }}">
+    @php
+        $faviconPath = (string) (function_exists('get_option')
+            ? get_option('website_favicon', config('mlhub.site.favicon', 'img/favicon.svg'))
+            : config('mlhub.site.favicon', 'img/favicon.svg'));
+        $faviconMimeType = str_ends_with(strtolower($faviconPath), '.svg') ? 'image/svg+xml' : 'image/png';
+        $siteFavicon = url($faviconPath);
+    @endphp
+    <link rel="icon" href="{{ $siteFavicon }}" type="{{ $faviconMimeType }}">
+    <link rel="apple-touch-icon" href="{{ $siteFavicon }}">
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800|instrument-sans:400,500,600,700|plus-jakarta-sans:400,500,600,700,800|manrope:400,500,600,700,800|outfit:400,500,600,700,800" rel="stylesheet" />
     <style>
         :root {
             --bg: #f4f7f5;
@@ -21,7 +32,7 @@
             --post: #b45309;
             --radius: 14px;
             --shadow: 0 10px 30px rgba(20, 32, 27, .08);
-            --font: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            --font: "Plus Jakarta Sans", Inter, "Instrument Sans", Manrope, Outfit, "Segoe UI", sans-serif;
             --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
         }
         * { box-sizing: border-box; }

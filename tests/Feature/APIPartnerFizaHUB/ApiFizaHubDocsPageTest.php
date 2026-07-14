@@ -7,6 +7,10 @@ test('public fizahub docs page is available without auth', function (): void {
     $html = $response->getContent();
 
     expect($html)->toContain('MLHUB × FizaHUB Partner API')
+        ->and($html)->toContain('rel="icon"')
+        ->and($html)->toContain('fonts.bunny.net')
+        ->and($html)->toContain('Plus Jakarta Sans')
+        ->and($html)->not->toContain('/favicon.ico')
         ->and($html)->toContain(__('Partner API technical specification'))
         ->and($html)->toContain(__('Download Postman JSON'))
         ->and($html)->toContain(__('Step-by-step Postman test guide'))
@@ -54,6 +58,10 @@ test('public fizahub help-test page guides postman step by step without secrets'
     $html = $response->getContent();
 
     expect($html)->toContain(__('FizaHUB Partner API - Step-by-step Postman test guide'))
+        ->and($html)->toContain('rel="icon"')
+        ->and($html)->toContain('fonts.bunny.net')
+        ->and($html)->toContain('Plus Jakarta Sans')
+        ->and($html)->not->toContain('/favicon.ico')
         ->and($html)->toContain(__('Body raw JSON'))
         ->and($html)->toContain(__('from/to are not the package duration'))
         ->and($html)->toContain(__('Dashboard API'))
