@@ -66,7 +66,20 @@ test('postman collection is valid v2.1 with exactly ten mvp requests', function 
         ->and($raw)->toContain('package_code')
         ->and($raw)->toContain('nguyenvana+demo001@example.com')
         ->and($raw)->toContain('Need help with FizaMKT Base')
-        ->and($raw)->toContain('Fiza Demo Store - Com Tam Da Nang');
+        ->and($raw)->toContain('Fiza Demo Store - Com Tam Da Nang')
+        ->and($raw)->toContain('Thành công')
+        ->and($raw)->toContain('Lỗi người dùng')
+        ->and($raw)->toContain('Lỗi nghiệp vụ')
+        ->and($raw)->toContain('Lỗi kỹ thuật')
+        ->and($raw)->toContain('validation_failed')
+        ->and($raw)->toContain('integration_not_found')
+        ->and($raw)->toContain('ticket_not_open')
+        ->and($raw)->toContain('partner_api_error')
+        ->and($raw)->toContain('pending_verification')
+        ->and($raw)->toContain('needs_review');
+
+    $exampleCount = collect($items)->sum(fn (array $item): int => count($item['response'] ?? []));
+    expect($exampleCount)->toBeGreaterThanOrEqual(40);
 
     $idempotentPosts = [
         'POST Onboarding',
