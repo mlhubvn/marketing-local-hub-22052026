@@ -8,6 +8,8 @@ test('public fizahub docs page is available without auth', function (): void {
 
     expect($html)->toContain('MLHUB × FizaHUB Partner API')
         ->and($html)->toContain(__('Download Postman JSON'))
+        ->and($html)->toContain(__('Step-by-step Postman test guide'))
+        ->and($html)->toContain('/api-fizahub/help-test')
         ->and($html)->toContain(__('Technical architecture diagram'))
         ->and($html)->toContain(__('Mô hình hoạt động'))
         ->and($html)->toContain(__('Health Check'))
@@ -20,7 +22,6 @@ test('public fizahub docs page is available without auth', function (): void {
         ->and($html)->not->toContain('FIZAHUB_PARTNER_TOKEN=')
         ->and($html)->not->toContain('sk_live');
 });
-
 test('postman collection download returns the documented filename', function (): void {
     $response = $this->get('/api-fizahub/postman');
 
@@ -35,4 +36,24 @@ test('postman collection download returns the documented filename', function ():
         ->toBe('https://schema.getpostman.com/json/collection/v2.1.0/collection.json')
         ->and($raw)->not->toContain('sk_live')
         ->and($raw)->not->toContain('test-fizahub-partner-token');
+});
+
+test('public fizahub help-test page guides postman step by step without secrets', function (): void {
+    $response = $this->get('/api-fizahub/help-test');
+
+    $response->assertOk();
+    $html = $response->getContent();
+
+    expect($html)->toContain(__('FizaHUB Postman step-by-step test guide'))
+        ->and($html)->toContain(__('Install Postman and import the file'))
+        ->and($html)->toContain(__('Fill in variables'))
+        ->and($html)->toContain(__('Test GET Health'))
+        ->and($html)->toContain(__('Test POST Onboarding'))
+        ->and($html)->toContain(__('Test GET Package'))
+        ->and($html)->toContain(__('Test POST One-time Login'))
+        ->and($html)->toContain(__('Download Postman JSON'))
+        ->and($html)->toContain('/api-fizahub/postman')
+        ->and($html)->not->toContain('test-fizahub-partner-token')
+        ->and($html)->not->toContain('FIZAHUB_PARTNER_TOKEN=')
+        ->and($html)->not->toContain('sk_live');
 });

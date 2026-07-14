@@ -13,7 +13,17 @@ class ApiFizaHubDocsController
         return view('apipartnerfizahub::api-fizahub', [
             'baseUrl' => rtrim((string) config('app.url'), '/').'/api/v1/partners/fizahub',
             'postmanUrl' => route('partner.fizahub.docs.postman'),
+            'helpTestUrl' => route('partner.fizahub.docs.help-test'),
             'healthUrl' => url('/api/v1/partners/fizahub/health'),
+        ]);
+    }
+
+    public function helpTest(): View
+    {
+        return view('apipartnerfizahub::api-fizahub-help-test', [
+            'docsUrl' => route('partner.fizahub.docs'),
+            'postmanUrl' => route('partner.fizahub.docs.postman'),
+            'appUrl' => rtrim((string) config('app.url'), '/'),
         ]);
     }
 

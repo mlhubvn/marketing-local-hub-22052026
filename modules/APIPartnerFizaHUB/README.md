@@ -170,6 +170,7 @@ Public documentation page:
 
 - `GET /api-fizahub`
 - Postman download: `GET /api-fizahub/postman`
+- Step-by-step Postman help (non-technical): `GET /api-fizahub/help-test`
 
 ## MVP exclusions
 

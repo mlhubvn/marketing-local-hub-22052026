@@ -207,6 +207,7 @@
             <a href="#architecture">{{ __('Architecture') }}</a>
             <a href="#endpoints">{{ __('Endpoints') }}</a>
             <a href="#postman">{{ __('Postman') }}</a>
+            <a href="{{ $helpTestUrl }}">{{ __('Postman help test') }}</a>
             <a href="#function-reference">{{ __('Function reference') }}</a>
             <a href="#data-dictionary">{{ __('Data dictionary') }}</a>
             <a href="#security">{{ __('Security') }}</a>
@@ -222,6 +223,7 @@
                 <p class="lead">{{ __('Technical MVP documentation for connecting the FizaHUB App with MLHUB/FizaMKT: business onboarding, support operations, growth dashboard, and one-time login into the MLHUB Portal.') }}</p>
                 <div class="cta-row" style="margin-bottom:1rem;">
                     <a class="btn btn-primary" href="{{ $postmanUrl }}">{{ __('Download Postman JSON') }}</a>
+                    <a class="btn btn-primary" href="{{ $helpTestUrl }}">{{ __('Step-by-step Postman test guide') }}</a>
                     <a class="btn btn-ghost" href="#health-check">{{ __('View Health Check') }}</a>
                     <a class="btn btn-ghost" href="#endpoints">{{ __('View 10 MVP endpoints') }}</a>
                     <a class="btn btn-ghost" href="#data-dictionary">{{ __('View data field table') }}</a>
@@ -639,7 +641,10 @@ Content-Type: application/json
                     <p style="margin:0 0 .55rem;">{{ __('Tải xuống Postman Collection JSON') }}</p>
                     <p class="muted" style="margin:0;">{{ __('Import into Postman, set variables, then test Health Check before onboarding and other flows.') }}</p>
                 </div>
-                <a class="btn btn-primary" href="{{ $postmanUrl }}" download>{{ __('Download Postman JSON') }}</a>
+                <div style="display:flex;flex-wrap:wrap;gap:.6rem;">
+                    <a class="btn btn-primary" href="{{ $postmanUrl }}" download>{{ __('Download Postman JSON') }}</a>
+                    <a class="btn btn-ghost" href="{{ $helpTestUrl }}">{{ __('Step-by-step Postman test guide') }}</a>
+                </div>
             </div>
             <ol class="list-clean" style="margin-top:1rem;">
                 <li>{{ __('Open Postman.') }}</li>
