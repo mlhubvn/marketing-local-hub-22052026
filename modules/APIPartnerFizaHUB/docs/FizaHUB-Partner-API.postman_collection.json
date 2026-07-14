@@ -2,18 +2,18 @@
   "info": {
     "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "name": "FizaHUB Partner API (MLHUB MVP)",
-    "description": "Ten MVP partner API requests for FizaHUB → MLHUB. Set base_url and partner_token. Support detail/message require external_business_id query.",
+    "description": "Ready-to-run Postman collection for FizaHUB → MLHUB Partner API (MVP).\n\nPreconfigured:\n- base_url = https://mlhub.vn\n- partner_token = fizahub\n- realistic sample Body/raw for onboarding + support\n\nSuggested order after import:\n1) GET Health\n2) POST Onboarding (auto-saves onboarding_request_id)\n3) GET Onboarding Status\n4) GET Package\n5) GET Dashboard\n6) POST Create Support Ticket (auto-saves ticket_id)\n7) GET List Support Tickets\n8) GET Support Ticket Detail\n9) POST Send Support Message\n10) POST One-time Login\n\nNotes:\n- from/to are Dashboard report dates only (not package duration).\n- Support detail/message require ?external_business_id=\n- Do not send CCCD / GPKD files.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "base_url", "value": "http://localhost" },
-    { "key": "partner_token", "value": "replace-with-fizahub-partner-token" },
-    { "key": "external_user_id", "value": "fh-user-001" },
-    { "key": "external_business_id", "value": "fh-biz-001" },
+    { "key": "base_url", "value": "https://mlhub.vn" },
+    { "key": "partner_token", "value": "fizahub" },
+    { "key": "external_user_id", "value": "fh-user-demo-001" },
+    { "key": "external_business_id", "value": "fh-biz-demo-001" },
     { "key": "onboarding_request_id", "value": "" },
     { "key": "ticket_id", "value": "" },
-    { "key": "from", "value": "2026-06-14" },
-    { "key": "to", "value": "2026-07-13" }
+    { "key": "from", "value": "2026-06-15" },
+    { "key": "to", "value": "2026-07-14" }
   ],
   "item": [
     {
@@ -42,8 +42,21 @@
           { "key": "X-Request-Id", "value": "{{$guid}}" },
           { "key": "Accept", "value": "application/json" }
         ],
+        "description": "Smoke test connectivity + partner auth. Expected HTTP 200.",
         "url": "{{base_url}}/api/v1/partners/fizahub/health"
-      }
+      },
+      "response": [
+        {
+          "name": "Health OK sample",
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"status\": \"ok\",\n    \"partner\": \"fizahub\",\n    \"api_version\": \"v1\",\n    \"server_time\": \"2026-07-14T02:00:00+00:00\"\n  },\n  \"meta\": {\n    \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n  },\n  \"error\": null\n}"
+        }
+      ]
     },
     {
       "name": "GET Package",
@@ -72,8 +85,21 @@
           { "key": "X-Request-Id", "value": "{{$guid}}" },
           { "key": "Accept", "value": "application/json" }
         ],
+        "description": "Requires completed onboarding mapping. package_code=base maps to plan mlhub-free-da-nang. starts_at/expires_at come from MLHUB plan state (not Dashboard from/to).",
         "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/package"
-      }
+      },
+      "response": [
+        {
+          "name": "Package sample",
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"package_code\": \"base\",\n    \"package_name\": \"MLHUB Free Da Nang\",\n    \"plan_slug\": \"mlhub-free-da-nang\",\n    \"status\": \"active\",\n    \"starts_at\": \"2026-07-14T10:00:00Z\",\n    \"expires_at\": null,\n    \"is_trial\": false,\n    \"integration_status\": \"active\",\n    \"limits\": {\n      \"max_businesses\": 1,\n      \"max_campaigns\": 3,\n      \"max_landing_pages\": 3,\n      \"max_qr_codes\": 10,\n      \"max_team_members\": 1\n    }\n  },\n  \"meta\": {\n    \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n  },\n  \"error\": null\n}"
+        }
+      ]
     },
     {
       "name": "POST Onboarding",
@@ -119,10 +145,28 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"external_business_id\": \"{{external_business_id}}\",\n  \"external_user_id\": \"{{external_user_id}}\",\n  \"package_code\": \"base\",\n  \"owner\": {\n    \"name\": \"Nguyen Van A\",\n    \"phone\": \"0901 234 567\",\n    \"email\": \"Owner.A@Example.com\"\n  },\n  \"business\": {\n    \"name\": \"Quan Com A\",\n    \"industry\": \"restaurant_food\",\n    \"phone\": \"0901-234-567\",\n    \"email\": \"shop@example.com\",\n    \"website\": \"https://shop.example.com\",\n    \"address\": \"Da Nang\",\n    \"tax_code\": \"0101-234-567\",\n    \"business_license_number\": \"GPKD 123\"\n  },\n  \"verification\": {\n    \"identity_verified\": true,\n    \"verified_at\": \"2026-07-13T10:00:00+07:00\",\n    \"verified_by\": \"fizahub\"\n  }\n}"
+          "raw": "{\n  \"external_user_id\": \"{{external_user_id}}\",\n  \"external_business_id\": \"{{external_business_id}}\",\n  \"package_code\": \"base\",\n  \"owner\": {\n    \"name\": \"Nguyen Van A\",\n    \"phone\": \"0912345678\",\n    \"email\": \"nguyenvana+demo001@example.com\"\n  },\n  \"business\": {\n    \"name\": \"Fiza Demo Store - Com Tam Da Nang\",\n    \"industry\": \"restaurant_food\",\n    \"address\": \"123 Nguyen Trai, Hai Chau, Da Nang\",\n    \"phone\": \"0912345678\",\n    \"email\": \"store-demo001@example.com\",\n    \"website\": \"https://mlhub.vn\",\n    \"tax_code\": null,\n    \"business_license_number\": \"HKD-DEMO-001\"\n  },\n  \"verification\": {\n    \"identity_verified\": true,\n    \"verified_by\": \"fizahub\",\n    \"verified_at\": \"2026-07-14T10:00:00+07:00\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
+        "description": "Create/upsert onboarding. Idempotency-Key required.\n\nTip: if retesting, change external_business_id, owner.email, and business_license_number to avoid needs_review.\n\nExpected: 201 completed, or 202 pending_verification / needs_review.\nAuto-saves data.request_id → onboarding_request_id.",
         "url": "{{base_url}}/api/v1/partners/fizahub/onboarding-requests"
-      }
+      },
+      "response": [
+        {
+          "name": "Onboarding completed sample",
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\",\n    \"external_business_id\": \"fh-biz-demo-001\",\n    \"package_code\": \"base\",\n    \"status\": \"completed\",\n    \"current_step\": \"ready\",\n    \"duplicate_check\": [],\n    \"support_ticket_id\": null,\n    \"mlhub_user_id\": 1001,\n    \"mlhub_workspace_id\": 2001,\n    \"mlhub_business_id\": 3001\n  },\n  \"meta\": {\n    \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n  },\n  \"error\": null\n}"
+        }
+      ]
     },
     {
       "name": "GET Onboarding Status",
@@ -149,8 +193,21 @@
           { "key": "X-Request-Id", "value": "{{$guid}}" },
           { "key": "Accept", "value": "application/json" }
         ],
+        "description": "Read onboarding status by onboarding_request_id (auto-filled after POST Onboarding).",
         "url": "{{base_url}}/api/v1/partners/fizahub/onboarding-requests/{{onboarding_request_id}}"
-      }
+      },
+      "response": [
+        {
+          "name": "Status completed sample",
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\",\n    \"external_business_id\": \"fh-biz-demo-001\",\n    \"package_code\": \"base\",\n    \"status\": \"completed\",\n    \"current_step\": \"ready\"\n  },\n  \"meta\": {\n    \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n  },\n  \"error\": null\n}"
+        }
+      ]
     },
     {
       "name": "POST One-time Login",
@@ -181,10 +238,28 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{}"
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
+        "description": "Issues a single-use MLHUB Portal login URL (~5 minutes TTL). Body can stay {}.\nResponse fields: url, expires_at.",
         "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/one-time-login"
-      }
+      },
+      "response": [
+        {
+          "name": "One-time login sample",
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"url\": \"https://mlhub.vn/partners/fizahub/one-time-login/example-signed-token\",\n    \"expires_at\": \"2026-07-14T10:05:00Z\"\n  },\n  \"meta\": {\n    \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n  },\n  \"error\": null\n}"
+        }
+      ]
     },
     {
       "name": "GET Dashboard",
@@ -212,16 +287,37 @@
           { "key": "X-Request-Id", "value": "{{$guid}}" },
           { "key": "Accept", "value": "application/json" }
         ],
+        "description": "Growth dashboard for a completed mapping.\n\nParams from/to = report date range only (YYYY-MM-DD). Not package duration.\nIf omitted, API defaults to last 30 days (Asia/Ho_Chi_Minh).",
         "url": {
           "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/dashboard?from={{from}}&to={{to}}",
           "host": ["{{base_url}}"],
           "path": ["api", "v1", "partners", "fizahub", "businesses", "{{external_business_id}}", "dashboard"],
           "query": [
-            { "key": "from", "value": "{{from}}" },
-            { "key": "to", "value": "{{to}}" }
+            {
+              "key": "from",
+              "value": "{{from}}",
+              "description": "Report start date YYYY-MM-DD (not package start)"
+            },
+            {
+              "key": "to",
+              "value": "{{to}}",
+              "description": "Report end date YYYY-MM-DD (not package end)"
+            }
           ]
         }
-      }
+      },
+      "response": [
+        {
+          "name": "Dashboard sample",
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"period\": {\n      \"from\": \"2026-06-15\",\n      \"to\": \"2026-07-14\",\n      \"timezone\": \"Asia/Ho_Chi_Minh\"\n    },\n    \"metrics\": {\n      \"businesses\": 1,\n      \"campaigns\": 0,\n      \"active_campaigns\": 0,\n      \"qr_scans\": 0,\n      \"new_leads\": 0,\n      \"new_reviews\": 0,\n      \"coupon_claims\": 0,\n      \"coupon_used\": 0,\n      \"bookings\": 0,\n      \"feedback\": 0,\n      \"returning_customers\": 0,\n      \"conversion_rate\": 0\n    },\n    \"campaigns\": [],\n    \"trend\": [],\n    \"insights\": [],\n    \"suggested_actions\": []\n  },\n  \"meta\": {\n    \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n  },\n  \"error\": null\n}"
+        }
+      ]
     },
     {
       "name": "POST Create Support Ticket",
@@ -263,10 +359,28 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"subject\": \"Need help with campaign\",\n  \"message\": \"Please review my QR campaign setup.\"\n}"
+          "raw": "{\n  \"subject\": \"Need help with FizaMKT Base\",\n  \"message\": \"Please help me create a check-in QR and Google review request for Fiza Demo Store - Com Tam Da Nang.\",\n  \"category_id\": null,\n  \"type_id\": null\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
+        "description": "Create a support ticket for the mapped business. Idempotency-Key required.\nAuto-saves data.ticket_id → ticket_id.",
         "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-tickets"
-      }
+      },
+      "response": [
+        {
+          "name": "Ticket created sample",
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"ticket_id\": \"secure-ticket-id-demo\",\n    \"subject\": \"Need help with FizaMKT Base\",\n    \"status\": \"open\",\n    \"created_at\": \"2026-07-14T10:00:00Z\",\n    \"updated_at\": \"2026-07-14T10:00:00Z\",\n    \"last_message_at\": \"2026-07-14T10:00:00Z\",\n    \"unread_by_business\": false\n  },\n  \"meta\": {\n    \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n  },\n  \"error\": null\n}"
+        }
+      ]
     },
     {
       "name": "GET List Support Tickets",
@@ -293,8 +407,29 @@
           { "key": "X-Request-Id", "value": "{{$guid}}" },
           { "key": "Accept", "value": "application/json" }
         ],
-        "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-tickets"
-      }
+        "description": "List support tickets for the mapped business. Optional query: page, per_page.",
+        "url": {
+          "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-tickets?page=1&per_page=20",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "partners", "fizahub", "businesses", "{{external_business_id}}", "support-tickets"],
+          "query": [
+            { "key": "page", "value": "1" },
+            { "key": "per_page", "value": "20" }
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Ticket list sample",
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"items\": [\n      {\n        \"ticket_id\": \"secure-ticket-id-demo\",\n        \"subject\": \"Need help with FizaMKT Base\",\n        \"status\": \"open\"\n      }\n    ],\n    \"pagination\": {\n      \"page\": 1,\n      \"per_page\": 20,\n      \"total\": 1\n    }\n  },\n  \"meta\": {\n    \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n  },\n  \"error\": null\n}"
+        }
+      ]
     },
     {
       "name": "GET Support Ticket Detail",
@@ -322,15 +457,32 @@
           { "key": "X-Request-Id", "value": "{{$guid}}" },
           { "key": "Accept", "value": "application/json" }
         ],
+        "description": "Ticket detail + conversation. Query external_business_id is REQUIRED (422 if missing). Poll every 15–30 seconds (not realtime).",
         "url": {
           "raw": "{{base_url}}/api/v1/partners/fizahub/support-tickets/{{ticket_id}}?external_business_id={{external_business_id}}",
           "host": ["{{base_url}}"],
           "path": ["api", "v1", "partners", "fizahub", "support-tickets", "{{ticket_id}}"],
           "query": [
-            { "key": "external_business_id", "value": "{{external_business_id}}" }
+            {
+              "key": "external_business_id",
+              "value": "{{external_business_id}}",
+              "description": "Required tenant scope query"
+            }
           ]
         }
-      }
+      },
+      "response": [
+        {
+          "name": "Ticket detail sample",
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"ticket\": {\n      \"ticket_id\": \"secure-ticket-id-demo\",\n      \"subject\": \"Need help with FizaMKT Base\",\n      \"status\": \"open\"\n    },\n    \"messages\": [\n      {\n        \"message_id\": \"secure-ticket-id-demo:initial\",\n        \"sender_type\": \"business\",\n        \"body\": \"Please help me create a check-in QR and Google review request for Fiza Demo Store - Com Tam Da Nang.\",\n        \"created_at\": \"2026-07-14T10:00:00Z\"\n      }\n    ],\n    \"next_poll_after_seconds\": 15,\n    \"last_message_at\": \"2026-07-14T10:00:00Z\"\n  },\n  \"meta\": {\n    \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n  },\n  \"error\": null\n}"
+        }
+      ]
     },
     {
       "name": "POST Send Support Message",
@@ -370,17 +522,39 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"message\": \"Following up on my previous request.\"\n}"
+          "raw": "{\n  \"message\": \"Please prioritize the check-in QR first. We can set up the Google review request after that.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
+        "description": "Append a business message. Idempotency-Key required. Query external_business_id is REQUIRED.",
         "url": {
           "raw": "{{base_url}}/api/v1/partners/fizahub/support-tickets/{{ticket_id}}/messages?external_business_id={{external_business_id}}",
           "host": ["{{base_url}}"],
           "path": ["api", "v1", "partners", "fizahub", "support-tickets", "{{ticket_id}}", "messages"],
           "query": [
-            { "key": "external_business_id", "value": "{{external_business_id}}" }
+            {
+              "key": "external_business_id",
+              "value": "{{external_business_id}}",
+              "description": "Required tenant scope query"
+            }
           ]
         }
-      }
+      },
+      "response": [
+        {
+          "name": "Message sent sample",
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"message_id\": \"secure-message-id-demo\",\n    \"sender_type\": \"business\",\n    \"body\": \"Please prioritize the check-in QR first. We can set up the Google review request after that.\",\n    \"created_at\": \"2026-07-14T10:02:00Z\"\n  },\n  \"meta\": {\n    \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n  },\n  \"error\": null\n}"
+        }
+      ]
     }
   ]
 }

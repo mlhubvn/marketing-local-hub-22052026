@@ -44,18 +44,29 @@ test('postman collection is valid v2.1 with exactly ten mvp requests', function 
     $forbiddenSecrets = [
         'sk_live',
         'sk_test',
-        'mlhub.vn',
         'Bearer live',
         'FIZAHUB_PARTNER_TOKEN=',
         'password123',
         '012345678901',
+        'test-fizahub-partner-token',
     ];
 
     foreach ($forbiddenSecrets as $needle) {
         expect(stripos($raw, $needle))->toBeFalse("collection must not contain secret fragment: {$needle}");
     }
 
-    expect(stripos($raw, 'replace-with-fizahub-partner-token'))->not->toBeFalse();
+    $variablesByKey = collect($collection['variable'] ?? [])
+        ->mapWithKeys(fn (array $variable): array => [
+            (string) ($variable['key'] ?? '') => (string) ($variable['value'] ?? ''),
+        ]);
+
+    expect($variablesByKey->get('base_url'))->toBe('https://mlhub.vn')
+        ->and($variablesByKey->get('partner_token'))->toBe('fizahub')
+        ->and($variablesByKey->get('external_business_id'))->toBe('fh-biz-demo-001')
+        ->and($raw)->toContain('package_code')
+        ->and($raw)->toContain('nguyenvana+demo001@example.com')
+        ->and($raw)->toContain('Need help with FizaMKT Base')
+        ->and($raw)->toContain('Fiza Demo Store - Com Tam Da Nang');
 
     $idempotentPosts = [
         'POST Onboarding',

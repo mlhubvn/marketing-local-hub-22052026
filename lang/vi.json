@@ -10422,7 +10422,6 @@
     "MVP currently accepts package_code.": "MVP hiện nhận package_code.",
     "Missing X-Partner or X-Request-Id.": "Thiếu X-Partner hoặc X-Request-Id.",
     "Missing field, bad email/url/date, missing Idempotency-Key, or missing external_business_id on support detail/message.": "Thiếu field, sai email/url/date, thiếu Idempotency-Key, thiếu external_business_id ở support detail/message.",
-    "Not technical? Open the copy/paste Postman guide at /api-fizahub/help-test": "Không rành kỹ thuật? Xem bản hướng dẫn copy/paste Postman tại /api-fizahub/help-test",
     "Open Body → raw → JSON and paste the Body raw JSON below.": "Mở Body → raw → JSON và dán Body raw JSON bên dưới.",
     "Open Body → raw → JSON.": "Mở Body → raw → JSON.",
     "Open POST Onboarding.": "Mở POST Onboarding.",
@@ -10484,5 +10483,8 @@
     "the token MLHUB issues only for FizaHUB.": "là token MLHUB cấp riêng cho FizaHUB.",
     "the user ID on the FizaHUB side.": "là ID user bên FizaHUB.",
     "token issued by MLHUB": "token do MLHUB cấp",
-    "when onboarding is completed": "nếu onboarding completed"
+    "when onboarding is completed": "nếu onboarding completed",
+    "See the more detailed Postman usage guide at /api-fizahub/help-test": "Xem tài liệu chi tiết hơn khi sử dụng Postman tại /api-fizahub/help-test",
+    "API overview": "Tổng quan",
+    "API reference": "Tra cứu"
 }

@@ -11,7 +11,7 @@ test('public fizahub docs page is available without auth', function (): void {
         ->and($html)->toContain(__('Download Postman JSON'))
         ->and($html)->toContain(__('Step-by-step Postman test guide'))
         ->and($html)->toContain('/api-fizahub/help-test')
-        ->and($html)->toContain(__('Not technical? Open the copy/paste Postman guide at /api-fizahub/help-test'))
+        ->and($html)->toContain(__('See the more detailed Postman usage guide at /api-fizahub/help-test'))
         ->and($html)->toContain(__('Dashboard from/to'))
         ->and($html)->toContain(__('Package duration'))
         ->and($html)->toContain(__('Spec overview'))

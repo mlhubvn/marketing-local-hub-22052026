@@ -50,10 +50,11 @@
             justify-content: space-between; padding: .85rem 0;
         }
         .brand { font-weight: 800; letter-spacing: .02em; color: var(--brand-dark); text-decoration: none; }
-        .nav { display: flex; flex-wrap: wrap; gap: .55rem; }
+        .nav { display: flex; flex-wrap: wrap; gap: .35rem; justify-content: flex-end; max-width: min(100%, 52rem); }
         .nav a {
-            text-decoration: none; color: var(--muted); font-size: .9rem;
-            padding: .35rem .65rem; border-radius: 999px; border: 1px solid transparent;
+            text-decoration: none; color: var(--muted); font-size: .82rem;
+            padding: .28rem .55rem; border-radius: 999px; border: 1px solid transparent;
+            white-space: nowrap;
         }
         .nav a:hover { color: var(--ink); border-color: var(--line); background: #fff; }
         .hero { padding: 2.6rem 0 1.4rem; }
@@ -237,15 +238,13 @@
     <div class="wrap topbar-inner">
         <a class="brand" href="{{ route('partner.fizahub.docs') }}">MLHUB × FizaHUB</a>
         <nav class="nav" aria-label="{{ __('Documentation sections') }}">
-            <a href="#spec-overview">{{ __('Spec overview') }}</a>
+            <a href="#spec-overview">{{ __('API overview') }}</a>
             <a href="#architecture">{{ __('Architecture') }}</a>
-            <a href="#flows">{{ __('Operating flows') }}</a>
             <a href="#auth">{{ __('Auth') }}</a>
             <a href="#endpoints">{{ __('Endpoints') }}</a>
             <a href="#postman">{{ __('Postman') }}</a>
-            <a href="#data-dictionary">{{ __('Data dictionary') }}</a>
+            <a href="#data-dictionary">{{ __('API reference') }}</a>
             <a href="#security">{{ __('Security') }}</a>
-            <a href="{{ $helpTestUrl }}">{{ __('Postman help test') }}</a>
         </nav>
     </div>
 </header>
@@ -263,8 +262,8 @@
                     <a class="btn btn-ghost" href="#endpoints">{{ __('View 10 MVP endpoints') }}</a>
                     <a class="btn btn-ghost" href="{{ $helpTestUrl }}">{{ __('Step-by-step Postman test guide') }}</a>
                 </div>
-                <div class="info" style="margin-top:.2rem;">
-                    <a href="{{ $helpTestUrl }}"><strong>{{ __('Not technical? Open the copy/paste Postman guide at /api-fizahub/help-test') }}</strong></a>
+                <div class="info" style="margin-top:1rem;margin-bottom:.35rem;">
+                    <a href="{{ $helpTestUrl }}"><strong>{{ __('See the more detailed Postman usage guide at /api-fizahub/help-test') }}</strong></a>
                 </div>
                 <div class="badge-row">
                     <span class="badge"><strong>{{ __('API Version') }}:</strong> v1</span>

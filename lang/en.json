@@ -10395,7 +10395,6 @@
     "MVP currently accepts package_code.": "MVP currently accepts package_code.",
     "Missing X-Partner or X-Request-Id.": "Missing X-Partner or X-Request-Id.",
     "Missing field, bad email/url/date, missing Idempotency-Key, or missing external_business_id on support detail/message.": "Missing field, bad email/url/date, missing Idempotency-Key, or missing external_business_id on support detail/message.",
-    "Not technical? Open the copy/paste Postman guide at /api-fizahub/help-test": "Not technical? Open the copy/paste Postman guide at /api-fizahub/help-test",
     "Open Body → raw → JSON and paste the Body raw JSON below.": "Open Body → raw → JSON and paste the Body raw JSON below.",
     "Open Body → raw → JSON.": "Open Body → raw → JSON.",
     "Open POST Onboarding.": "Open POST Onboarding.",
@@ -10457,5 +10456,8 @@
     "the token MLHUB issues only for FizaHUB.": "the token MLHUB issues only for FizaHUB.",
     "the user ID on the FizaHUB side.": "the user ID on the FizaHUB side.",
     "token issued by MLHUB": "token issued by MLHUB",
-    "when onboarding is completed": "when onboarding is completed"
+    "when onboarding is completed": "when onboarding is completed",
+    "See the more detailed Postman usage guide at /api-fizahub/help-test": "See the more detailed Postman usage guide at /api-fizahub/help-test",
+    "API overview": "API overview",
+    "API reference": "API reference"
 }
