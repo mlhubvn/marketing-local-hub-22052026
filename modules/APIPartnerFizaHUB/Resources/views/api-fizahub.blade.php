@@ -209,6 +209,7 @@
         }
         .method.get { background: var(--get); }
         .method.post { background: var(--post); }
+        .method.patch { background: #7c3aed; }
         .path { font-family: var(--mono); font-size: .9rem; word-break: break-all; }
         table {
             width: 100%; border-collapse: collapse; background: #fff;
@@ -264,9 +265,9 @@
     <section class="hero">
         <div class="wrap">
             <div class="hero-card">
-                <p class="eyebrow">{{ __('Partner API technical specification') }} · MVP</p>
+                <p class="eyebrow">{{ __('Partner API technical specification') }} · 24 Core API</p>
                 <h1>{{ __('MLHUB × FizaHUB Partner API') }}</h1>
-                <p class="lead">{{ __('API MVP để FizaHUB đấu nối với MLHUB/FizaMKT: onboarding cửa hàng, gói dịch vụ, dashboard tăng trưởng, hỗ trợ ticket và đăng nhập Portal một lần. FizaHUB là cửa vào; MLHUB xử lý marketing phía sau.') }}</p>
+                <p class="lead">{{ __('24 Core API để FizaHUB đấu nối với MLHUB/FizaMKT: onboarding tự tạo tài khoản Free, xác thực SSO, hồ sơ doanh nghiệp, gói dịch vụ, dashboard tăng trưởng (insight/khuyến nghị/chiến dịch), hỗ trợ ticket đầy đủ vòng đời và đăng nhập Portal một lần. FizaHUB là cửa vào; MLHUB xử lý marketing phía sau và đồng bộ trạng thái qua webhook.') }}</p>
                 <div class="cta-row" style="margin-bottom:1rem;">
                     <a class="btn btn-primary" href="{{ $postmanUrl }}">{{ __('Download Postman JSON') }}</a>
                     <a class="btn btn-primary" href="#architecture">{{ __('View architecture diagram') }}</a>
@@ -281,7 +282,7 @@
                     <span class="badge"><strong>{{ __('Partner') }}:</strong> fizahub</span>
                     <span class="badge"><strong>{{ __('Base URL') }}:</strong> {{ $baseUrl }}</span>
                     <span class="badge"><strong>{{ __('Auth') }}:</strong> Bearer Token</span>
-                    <span class="badge"><strong>{{ __('Status') }}:</strong> {{ __('MVP Integration Ready') }}</span>
+                    <span class="badge"><strong>{{ __('Status') }}:</strong> {{ __('Production Ready') }}</span>
                 </div>
             </div>
         </div>
@@ -301,19 +302,21 @@
                 <div class="panel">
                     <h3>{{ __('What FizaHUB integrates') }}</h3>
                     <ul class="list-clean">
-                        <li>{{ __('Register / map a local business into MLHUB') }}</li>
-                        <li>{{ __('Read package summary and growth dashboard') }}</li>
-                        <li>{{ __('Bridge support tickets with polling conversation') }}</li>
+                        <li>{{ __('Provision a mapped MLHUB workspace/business immediately (always Free package)') }}</li>
+                        <li>{{ __('Verify SSO, read integration status, and patch the business profile') }}</li>
+                        <li>{{ __('Read package summary, growth dashboard, insights, recommendations, and campaigns') }}</li>
+                        <li>{{ __('Bridge support tickets with attachments, close/reopen, and polling conversation') }}</li>
                         <li>{{ __('Issue a single-use login URL into the MLHUB Portal') }}</li>
+                        <li>{{ __('Receive outbound webhooks: onboarding-status, campaign-metrics, support-events') }}</li>
                     </ul>
                 </div>
                 <div class="panel">
-                    <h3>{{ __('What this MVP does not expose') }}</h3>
+                    <h3>{{ __('What this API does not expose') }}</h3>
                     <ul class="list-clean">
                         <li>{{ __('Customer CRUD, Chat AI, AI Studio APIs') }}</li>
-                        <li>{{ __('Campaign / Coupon / Landing Page creation APIs') }}</li>
+                        <li>{{ __('Campaign / Coupon / Landing Page creation APIs (read-only campaign endpoints only)') }}</li>
                         <li>{{ __('Google Business direct API and revenue / credit APIs') }}</li>
-                        <li>{{ __('CCCD / GPKD file upload') }}</li>
+                        <li>{{ __('CCCD / GPKD file upload, or automatic paid-package upgrade without admin confirmation') }}</li>
                     </ul>
                 </div>
             </div>
@@ -330,66 +333,30 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td><span class="method get">GET</span></td>
-                            <td><code>/health</code></td>
-                            <td>{{ __('Connectivity and auth smoke test') }}</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td><span class="method post">POST</span></td>
-                            <td><code>/onboarding-requests</code></td>
-                            <td>{{ __('Create or upsert business onboarding') }}</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td><span class="method get">GET</span></td>
-                            <td><code>/onboarding-requests/{request_id}</code></td>
-                            <td>{{ __('Read onboarding status') }}</td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td><span class="method get">GET</span></td>
-                            <td><code>/businesses/{external_business_id}/package</code></td>
-                            <td>{{ __('Package summary and whitelisted limits') }}</td>
-                        </tr>
-                        <tr>
-                            <td>5</td>
-                            <td><span class="method get">GET</span></td>
-                            <td><code>/businesses/{external_business_id}/dashboard</code></td>
-                            <td>{{ __('Limited growth metrics for the mapped business') }}</td>
-                        </tr>
-                        <tr>
-                            <td>6</td>
-                            <td><span class="method post">POST</span></td>
-                            <td><code>/businesses/{external_business_id}/support-tickets</code></td>
-                            <td>{{ __('Create a support ticket') }}</td>
-                        </tr>
-                        <tr>
-                            <td>7</td>
-                            <td><span class="method get">GET</span></td>
-                            <td><code>/businesses/{external_business_id}/support-tickets</code></td>
-                            <td>{{ __('List support tickets') }}</td>
-                        </tr>
-                        <tr>
-                            <td>8</td>
-                            <td><span class="method get">GET</span></td>
-                            <td><code>/support-tickets/{ticket_id}?external_business_id=...</code></td>
-                            <td>{{ __('Ticket detail and conversation poll') }}</td>
-                        </tr>
-                        <tr>
-                            <td>9</td>
-                            <td><span class="method post">POST</span></td>
-                            <td><code>/support-tickets/{ticket_id}/messages?external_business_id=...</code></td>
-                            <td>{{ __('Append a support message') }}</td>
-                        </tr>
-                        <tr>
-                            <td>10</td>
-                            <td><span class="method post">POST</span></td>
-                            <td><code>/businesses/{external_business_id}/one-time-login</code></td>
-                            <td>{{ __('Issue a single-use portal login URL') }}</td>
-                        </tr>
+                        <tr><td>1</td><td><span class="method get">GET</span></td><td><code>/health</code></td><td>{{ __('Connectivity and auth smoke test') }}</td></tr>
+                        <tr><td>2</td><td><span class="method post">POST</span></td><td><code>/partner/sso/verify</code></td><td>{{ __('Verify a FizaHUB SSO/session token') }}</td></tr>
+                        <tr><td>3</td><td><span class="method get">GET</span></td><td><code>/packages</code></td><td>{{ __('List the packages FizaHUB can present to owners') }}</td></tr>
+                        <tr><td>4</td><td><span class="method post">POST</span></td><td><code>/onboarding-requests</code></td><td>{{ __('Create onboarding request; always provisions a Free account') }}</td></tr>
+                        <tr><td>5</td><td><span class="method get">GET</span></td><td><code>/onboarding-requests/{request_id}</code></td><td>{{ __('Read onboarding status') }}</td></tr>
+                        <tr><td>6</td><td><span class="method post">POST</span></td><td><code>/onboarding-requests/{request_id}/confirm</code></td><td>{{ __('Owner confirms the onboarding request') }}</td></tr>
+                        <tr><td>7</td><td><span class="method post">POST</span></td><td><code>/onboarding-requests/{request_id}/cancel</code></td><td>{{ __('Cancel a still-pending onboarding request') }}</td></tr>
+                        <tr><td>8</td><td><span class="method get">GET</span></td><td><code>/businesses/{external_business_id}/integration-status</code></td><td>{{ __('Read the current mapping/integration health') }}</td></tr>
+                        <tr><td>9</td><td><span class="method patch">PATCH</span></td><td><code>/businesses/{external_business_id}/profile</code></td><td>{{ __('Update basic business profile fields') }}</td></tr>
+                        <tr><td>10</td><td><span class="method post">POST</span></td><td><code>/businesses/{external_business_id}/one-time-login</code></td><td>{{ __('Issue a single-use portal login URL') }}</td></tr>
+                        <tr><td>11</td><td><span class="method get">GET</span></td><td><code>/businesses/{external_business_id}/package</code></td><td>{{ __('Package summary and whitelisted limits') }}</td></tr>
+                        <tr><td>12</td><td><span class="method get">GET</span></td><td><code>/businesses/{external_business_id}/dashboard</code></td><td>{{ __('Limited growth metrics for the mapped business') }}</td></tr>
+                        <tr><td>13</td><td><span class="method get">GET</span></td><td><code>/businesses/{external_business_id}/insights</code></td><td>{{ __('Growth insight highlights for the period') }}</td></tr>
+                        <tr><td>14</td><td><span class="method get">GET</span></td><td><code>/businesses/{external_business_id}/recommendations</code></td><td>{{ __('Suggested next actions for the business owner') }}</td></tr>
+                        <tr><td>15</td><td><span class="method get">GET</span></td><td><code>/businesses/{external_business_id}/campaigns</code></td><td>{{ __('List campaigns (read-only)') }}</td></tr>
+                        <tr><td>16</td><td><span class="method get">GET</span></td><td><code>/businesses/{external_business_id}/campaigns/{campaign_id}</code></td><td>{{ __('Campaign detail (read-only)') }}</td></tr>
+                        <tr><td>17</td><td><span class="method get">GET</span></td><td><code>/businesses/{external_business_id}/support-summary</code></td><td>{{ __('Support ticket counters for the business') }}</td></tr>
+                        <tr><td>18</td><td><span class="method post">POST</span></td><td><code>/businesses/{external_business_id}/support-tickets</code></td><td>{{ __('Create a support ticket') }}</td></tr>
+                        <tr><td>19</td><td><span class="method get">GET</span></td><td><code>/businesses/{external_business_id}/support-tickets</code></td><td>{{ __('List support tickets') }}</td></tr>
+                        <tr><td>20</td><td><span class="method get">GET</span></td><td><code>/support-tickets/{ticket_id}?external_business_id=...</code></td><td>{{ __('Ticket detail and conversation poll') }}</td></tr>
+                        <tr><td>21</td><td><span class="method post">POST</span></td><td><code>/support-tickets/{ticket_id}/messages?external_business_id=...</code></td><td>{{ __('Append a support message') }}</td></tr>
+                        <tr><td>22</td><td><span class="method post">POST</span></td><td><code>/support-tickets/{ticket_id}/attachments?external_business_id=...</code></td><td>{{ __('Upload a support ticket attachment') }}</td></tr>
+                        <tr><td>23</td><td><span class="method patch">PATCH</span></td><td><code>/support-tickets/{ticket_id}/close?external_business_id=...</code></td><td>{{ __('Close a support ticket') }}</td></tr>
+                        <tr><td>24</td><td><span class="method post">POST</span></td><td><code>/support-tickets/{ticket_id}/reopen?external_business_id=...</code></td><td>{{ __('Reopen a closed support ticket') }}</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -726,6 +693,8 @@ Content-Type: application/json
                         'validation_failed',
                         'rate_limit_exceeded',
                         'ticket_not_open',
+                        'onboarding_not_ready',
+                        'invalid_status_transition',
                         'partner_api_error',
                     ] as $code)
                         <span class="chip"><code>{{ $code }}</code></span>
@@ -815,6 +784,34 @@ Content-Type: application/json
             <article class="endpoint">
                 <div class="endpoint-head">
                     <span class="method post">POST</span>
+                    <span class="path">/partner/sso/verify</span>
+                    <strong>{{ __('Xác thực SSO') }} / SSO Verify</strong>
+                </div>
+                <div class="endpoint-body">
+                    <p>{{ __('Verifies a FizaHUB-issued session/SSO token before deep-linking an owner into MLHUB-facing flows.') }}</p>
+                    <div class="code-label">{{ __('Response data') }}</div>
+                    <pre>{
+  "partner_code": "fizahub",
+  "verified": true
+}</pre>
+                </div>
+            </article>
+
+            <article class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method get">GET</span>
+                    <span class="path">/packages</span>
+                    <strong>{{ __('Danh mục gói') }} / Package Catalog</strong>
+                </div>
+                <div class="endpoint-body">
+                    <p>{{ __('Lists the package codes FizaHUB can offer to a business owner during onboarding (e.g. free, base).') }}</p>
+                    <p class="muted">{{ __('This is a static catalog for display only; it does not change the effective package of an existing mapping.') }}</p>
+                </div>
+            </article>
+
+            <article class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method post">POST</span>
                     <span class="path">/onboarding-requests</span>
                     <strong>{{ __('Khởi tạo tài khoản') }} / Onboarding</strong>
                 </div>
@@ -857,6 +854,50 @@ Content-Type: application/json
                 </div>
                 <div class="endpoint-body">
                     <p>{{ __('FizaHUB checks which step the registration request has reached.') }}</p>
+                </div>
+            </article>
+
+            <article class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method post">POST</span>
+                    <span class="path">/onboarding-requests/{request_id}/confirm</span>
+                    <strong>{{ __('Xác nhận onboarding') }} / Confirm Onboarding</strong>
+                </div>
+                <div class="endpoint-body">
+                    <p>{{ __('Owner-side confirmation step; only valid from allowed states in the onboarding state machine (returns 409 invalid_status_transition otherwise).') }}</p>
+                </div>
+            </article>
+
+            <article class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method post">POST</span>
+                    <span class="path">/onboarding-requests/{request_id}/cancel</span>
+                    <strong>{{ __('Hủy onboarding') }} / Cancel Onboarding</strong>
+                </div>
+                <div class="endpoint-body">
+                    <p>{{ __('Cancels a still-pending onboarding request; logs status history and sets status = cancelled. Already-completed requests cannot be cancelled.') }}</p>
+                </div>
+            </article>
+
+            <article class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method get">GET</span>
+                    <span class="path">/businesses/{external_business_id}/integration-status</span>
+                    <strong>{{ __('Trạng thái tích hợp') }} / Integration Status</strong>
+                </div>
+                <div class="endpoint-body">
+                    <p>{{ __('Returns the current mapping health for a business: onboarding status, package_code, and whether the one-time login gate is open.') }}</p>
+                </div>
+            </article>
+
+            <article class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method patch">PATCH</span>
+                    <span class="path">/businesses/{external_business_id}/profile</span>
+                    <strong>{{ __('Cập nhật hồ sơ doanh nghiệp') }} / Update Business Profile</strong>
+                </div>
+                <div class="endpoint-body">
+                    <p>{{ __('Allows FizaHUB to push profile corrections (name, address, phone, email) after onboarding; industry/package changes still require MLHUB admin action.') }}</p>
                 </div>
             </article>
 
@@ -905,6 +946,61 @@ Content-Type: application/json
                             <li>{{ __('If omitted, the API uses the last 30 days.') }}</li>
                         </ul>
                     </div>
+                </div>
+            </article>
+
+            <article class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method get">GET</span>
+                    <span class="path">/businesses/{external_business_id}/insights?from=&amp;to=</span>
+                    <strong>{{ __('Thông tin chuyên sâu') }} / Insights</strong>
+                </div>
+                <div class="endpoint-body">
+                    <p>{{ __('Short highlight sentences derived from the same dashboard metrics (e.g. QR scan trend, review trend).') }}</p>
+                </div>
+            </article>
+
+            <article class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method get">GET</span>
+                    <span class="path">/businesses/{external_business_id}/recommendations?from=&amp;to=</span>
+                    <strong>{{ __('Khuyến nghị') }} / Recommendations</strong>
+                </div>
+                <div class="endpoint-body">
+                    <p>{{ __('Suggested next actions for the business owner, based on current metrics and package limits.') }}</p>
+                </div>
+            </article>
+
+            <article class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method get">GET</span>
+                    <span class="path">/businesses/{external_business_id}/campaigns?from=&amp;to=</span>
+                    <strong>{{ __('Danh sách chiến dịch') }} / Campaigns</strong>
+                </div>
+                <div class="endpoint-body">
+                    <p>{{ __('Read-only list of marketing campaigns for the mapped business. Does not create, edit, or delete campaigns.') }}</p>
+                </div>
+            </article>
+
+            <article class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method get">GET</span>
+                    <span class="path">/businesses/{external_business_id}/campaigns/{campaign_id}</span>
+                    <strong>{{ __('Chi tiết chiến dịch') }} / Campaign Detail</strong>
+                </div>
+                <div class="endpoint-body">
+                    <p>{{ __('Read-only detail for a single campaign belonging to the mapped business (404 if it belongs to another business).') }}</p>
+                </div>
+            </article>
+
+            <article class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method get">GET</span>
+                    <span class="path">/businesses/{external_business_id}/support-summary</span>
+                    <strong>{{ __('Tóm tắt hỗ trợ') }} / Support Summary</strong>
+                </div>
+                <div class="endpoint-body">
+                    <p>{{ __('Ticket counters (open/resolved/closed) for the business, useful for a support badge in the FizaHUB app.') }}</p>
                 </div>
             </article>
 
@@ -974,6 +1070,43 @@ Content-Type: application/json
             <article class="endpoint">
                 <div class="endpoint-head">
                     <span class="method post">POST</span>
+                    <span class="path">/support-tickets/{ticket_id}/attachments?external_business_id={external_business_id}</span>
+                    <strong>{{ __('Tải file đính kèm') }} / Upload Support Attachment</strong>
+                </div>
+                <div class="endpoint-body">
+                    <p>{{ __('Uploads a file attachment (multipart/form-data) into an existing support ticket conversation.') }}</p>
+                    <ul class="list-clean muted">
+                        <li>{{ __('File size and MIME type are limited by config; oversized/invalid files return 422 validation_failed.') }}</li>
+                        <li>{{ __('Closed/resolved tickets reject new attachments (ticket_not_open).') }}</li>
+                    </ul>
+                </div>
+            </article>
+
+            <article class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method patch">PATCH</span>
+                    <span class="path">/support-tickets/{ticket_id}/close?external_business_id={external_business_id}</span>
+                    <strong>{{ __('Đóng ticket') }} / Close Support Ticket</strong>
+                </div>
+                <div class="endpoint-body">
+                    <p>{{ __('Closes a ticket from the FizaHUB side once the business owner is satisfied with the resolution.') }}</p>
+                </div>
+            </article>
+
+            <article class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method post">POST</span>
+                    <span class="path">/support-tickets/{ticket_id}/reopen?external_business_id={external_business_id}</span>
+                    <strong>{{ __('Mở lại ticket') }} / Reopen Support Ticket</strong>
+                </div>
+                <div class="endpoint-body">
+                    <p>{{ __('Reopens a previously closed/resolved ticket so the conversation can continue.') }}</p>
+                </div>
+            </article>
+
+            <article class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method post">POST</span>
                     <span class="path">/businesses/{external_business_id}/one-time-login</span>
                     <strong>One-time Login</strong>
                 </div>
@@ -998,7 +1131,7 @@ Content-Type: application/json
             <h2 class="section-title">{{ __('Download Postman') }}</h2>
             <div class="panel postman-hero">
                 <div>
-                    <p style="margin:0 0 .55rem;">{{ __('Tải xuống Postman Collection JSON') }}</p>
+                    <p style="margin:0 0 .55rem;">{{ __('Tải xuống Postman Collection JSON') }} — {{ __('24 request đầy đủ') }}</p>
                     <p class="muted" style="margin:0;">{{ __('Import into Postman, set variables, then test Health Check before onboarding and other flows.') }}</p>
                 </div>
                 <div style="display:flex;flex-wrap:wrap;gap:.6rem;">
@@ -1008,10 +1141,10 @@ Content-Type: application/json
             </div>
             <ol class="list-clean" style="margin-top:1rem;">
                 <li>{{ __('Open Postman.') }}</li>
-                <li>{{ __('Import the JSON file.') }}</li>
+                <li>{{ __('Import the JSON file (24 requests, grouped by onboarding, business, dashboard, and support).') }}</li>
                 <li>{{ __('Set variables: base_url = https://mlhub.vn, partner_token = token issued by MLHUB, external_business_id / external_user_id from FizaHUB.') }}</li>
                 <li>{{ __('Test Health Check first.') }}</li>
-                <li>{{ __('Then test Onboarding, Package, Dashboard, Support, and One-time Login.') }}</li>
+                <li>{{ __('Then test Onboarding, Package/Dashboard/Insights/Campaigns, Support (create/list/detail/message/attachment/close/reopen), and One-time Login.') }}</li>
             </ol>
         </div>
     </section>
@@ -1081,29 +1214,40 @@ Content-Type: application/json
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td>Routing</td><td>Routes/api.php</td><td>route definitions</td><td>{{ __('Defines the 10 partner API endpoints.') }}</td><td>all API</td></tr>
+                        <tr><td>Routing</td><td>Routes/api.php</td><td>route definitions</td><td>{{ __('Defines the 24 Core partner API endpoints.') }}</td><td>all API</td></tr>
                         <tr><td>Routing</td><td>Routes/web.php</td><td>partner.fizahub.login.consume</td><td>{{ __('Signed web route to consume one-time login.') }}</td><td>/partners/fizahub/one-time-login/{token}</td></tr>
-                        <tr><td>Docs</td><td>Routes/web.php</td><td>partner.fizahub.docs</td><td>{{ __('Public documentation page.') }}</td><td>/api-fizahub</td></tr>
+                        <tr><td>Docs</td><td>Routes/web.php</td><td>partner.fizahub.docs / .help-test / .postman</td><td>{{ __('Public documentation, Postman help, and download pages.') }}</td><td>/api-fizahub, /api-fizahub/help-test, /api-fizahub/postman</td></tr>
                         <tr><td>Auth</td><td>VerifyPartnerToken</td><td>handle()</td><td>{{ __('Validates Bearer token and X-Partner.') }}</td><td>all API</td></tr>
                         <tr><td>Lifecycle</td><td>HandlePartnerRequest</td><td>handle()</td><td>{{ __('Audit log, idempotency, exception formatting.') }}</td><td>all API</td></tr>
                         <tr><td>Response</td><td>PartnerApiResponse</td><td>success(), error()</td><td>{{ __('Normalizes JSON success/error responses.') }}</td><td>all API</td></tr>
+                        <tr><td>Errors</td><td>PartnerApiException / PartnerExceptionRenderer</td><td>—</td><td>{{ __('Carries partner error code/details; maps invalid transitions to 409.') }}</td><td>all API</td></tr>
                         <tr><td>Redaction</td><td>PartnerPayloadRedactor</td><td>redact()</td><td>{{ __('Redacts token, password, CCCD, identity files, login URL in logs.') }}</td><td>all API</td></tr>
-                        <tr><td>Onboarding</td><td>OnboardingController</td><td>store(), show()</td><td>{{ __('Accepts onboarding requests and returns status.') }}</td><td>onboarding-requests</td></tr>
-                        <tr><td>Onboarding</td><td>OnboardingService</td><td>upsert(), find(), serialize()</td><td>{{ __('Duplicate checks; creates user/team/business/integration/support ticket.') }}</td><td>onboarding</td></tr>
-                        <tr><td>Mapping</td><td>PartnerMappingService</td><td>detectDuplicates(), resolvePlan(), resolveIndustry(), normalizeExternalId()</td><td>{{ __('Normalizes IDs and resolves package/industry/duplicates.') }}</td><td>onboarding</td></tr>
-                        <tr><td>Mapping</td><td>SupportTicketBridge</td><td>findIntegrationOrFail()</td><td>{{ __('Resolves external_business_id to a mapped PartnerIntegration.') }}</td><td>package/dashboard/support/login</td></tr>
-                        <tr><td>Support</td><td>SupportTicketController</td><td>store(), index(), show()</td><td>{{ __('Create/list/detail support tickets.') }}</td><td>support-tickets</td></tr>
+                        <tr><td>SSO</td><td>SsoController</td><td>verify()</td><td>{{ __('Verifies a FizaHUB SSO/session token.') }}</td><td>partner/sso/verify</td></tr>
+                        <tr><td>Onboarding</td><td>OnboardingController</td><td>store(), show(), confirm(), cancel()</td><td>{{ __('Accepts onboarding requests, returns status, confirms/cancels.') }}</td><td>onboarding-requests</td></tr>
+                        <tr><td>Onboarding</td><td>OnboardingService</td><td>upsert(), find(), serialize()</td><td>{{ __('Duplicate checks; always provisions user/team/business/integration + Free package + internal ticket.') }}</td><td>onboarding</td></tr>
+                        <tr><td>Onboarding</td><td>OnboardingAdminService</td><td>transition(), updateDetails()</td><td>{{ __('Admin-side status transitions with history logging and outbound webhook.') }}</td><td>Admin UI</td></tr>
+                        <tr><td>Onboarding</td><td>OnboardingStatusMachine</td><td>canTransition(), label()</td><td>{{ __('Defines allowed onboarding status transitions and Vietnamese labels.') }}</td><td>onboarding, admin</td></tr>
+                        <tr><td>Mapping</td><td>PartnerMappingService</td><td>detectDuplicates(), resolvePlan(), resolveIndustry(), provisionalEmail()</td><td>{{ __('Normalizes IDs; resolves package/industry/duplicates; builds provisional emails.') }}</td><td>onboarding</td></tr>
+                        <tr><td>Business</td><td>BusinessProfileController / IntegrationProfileService</td><td>status(), update()</td><td>{{ __('Reads integration status and patches the business profile.') }}</td><td>integration-status, profile</td></tr>
+                        <tr><td>Package</td><td>PackageCatalogController</td><td>index()</td><td>{{ __('Lists the package catalog available to FizaHUB.') }}</td><td>packages</td></tr>
+                        <tr><td>Package</td><td>PackageAssignmentService</td><td>assignFreePackage(), catalog()</td><td>{{ __('Assigns the default Free package and manages package changes.') }}</td><td>onboarding, packages</td></tr>
+                        <tr><td>Package</td><td>PackageController / PackageService</td><td>show() / forBusiness()</td><td>{{ __('Returns package summary and whitelisted limits.') }}</td><td>package</td></tr>
+                        <tr><td>Dashboard</td><td>DashboardController</td><td>show(), insights(), recommendations(), campaigns(), campaign()</td><td>{{ __('Returns growth dashboard, insights, recommendations, and campaigns.') }}</td><td>dashboard, insights, recommendations, campaigns</td></tr>
+                        <tr><td>Dashboard</td><td>DashboardService</td><td>summarizeCached()</td><td>{{ __('Aggregates and caches metrics, campaigns, trend, insights, suggested_actions.') }}</td><td>dashboard</td></tr>
+                        <tr><td>Support</td><td>SupportTicketController</td><td>store(), index(), show(), summary(), close(), reopen()</td><td>{{ __('Full support ticket lifecycle including summary counters.') }}</td><td>support-tickets, support-summary</td></tr>
                         <tr><td>Support</td><td>SupportMessageController</td><td>store()</td><td>{{ __('Sends a FizaHUB message into a ticket.') }}</td><td>messages</td></tr>
-                        <tr><td>Support</td><td>SupportTicketBridge</td><td>create(), list(), detail(), addMessage()</td><td>{{ __('Bridge to existing support_tickets/support_comments.') }}</td><td>support APIs</td></tr>
-                        <tr><td>Login</td><td>OneTimeLoginController</td><td>store()</td><td>{{ __('Creates a one-time login URL.') }}</td><td>one-time-login</td></tr>
+                        <tr><td>Support</td><td>SupportAttachmentController</td><td>store()</td><td>{{ __('Uploads a support ticket attachment.') }}</td><td>attachments</td></tr>
+                        <tr><td>Support</td><td>SupportTicketBridge</td><td>create(), list(), detail(), addMessage(), storeAttachment(), close(), reopen()</td><td>{{ __('Bridge to existing support_tickets/support_comments, presets, attachments.') }}</td><td>support APIs</td></tr>
+                        <tr><td>Webhook</td><td>WebhookOutboxService / DeliverPartnerWebhookJob</td><td>queue(), deliver()</td><td>{{ __('Queues and delivers signed outbound webhooks with retry.') }}</td><td>onboarding-status, campaign-metrics, support-events</td></tr>
+                        <tr><td>Login</td><td>OneTimeLoginController</td><td>store()</td><td>{{ __('Creates a one-time login URL (gated by onboarding readiness).') }}</td><td>one-time-login</td></tr>
                         <tr><td>Login</td><td>ConsumeOneTimeLoginController</td><td>__invoke()</td><td>{{ __('Consumes signed token, logs in user, marks used_at.') }}</td><td>web consume</td></tr>
                         <tr><td>Login</td><td>OneTimeLoginService</td><td>issue(), consume()</td><td>{{ __('Generates token, hash, TTL, single-use behavior.') }}</td><td>one-time-login</td></tr>
-                        <tr><td>Package</td><td>PackageController</td><td>show()</td><td>{{ __('Returns package summary.') }}</td><td>package</td></tr>
-                        <tr><td>Package</td><td>PackageService</td><td>forBusiness()</td><td>{{ __('Resolves plan and whitelisted limits.') }}</td><td>package</td></tr>
-                        <tr><td>Dashboard</td><td>DashboardController</td><td>show()</td><td>{{ __('Returns growth dashboard overview.') }}</td><td>dashboard</td></tr>
-                        <tr><td>Dashboard</td><td>DashboardService</td><td>summarize()</td><td>{{ __('Aggregates metrics, campaigns, trend, insights, suggested_actions.') }}</td><td>dashboard</td></tr>
+                        <tr><td>Admin UI</td><td>FizaHubOnboardingIndex / FizaHubOnboardingCard</td><td>Livewire components</td><td>{{ __('Admin onboarding list page and per-user onboarding card.') }}</td><td>/admin/integrations/fizahub/onboarding</td></tr>
                         <tr><td>Models</td><td>PartnerIntegration</td><td>—</td><td>{{ __('Stores FizaHUB business ↔ MLHUB user/team/business mapping.') }}</td><td>package/dashboard/support/login</td></tr>
-                        <tr><td>Models</td><td>PartnerOnboardingRequest</td><td>—</td><td>{{ __('Stores onboarding request, status, duplicate_check, payload.') }}</td><td>onboarding</td></tr>
+                        <tr><td>Models</td><td>PartnerOnboardingRequest / PartnerOnboardingStatusHistory</td><td>—</td><td>{{ __('Stores onboarding request, status, duplicate_check, payload, and status history.') }}</td><td>onboarding</td></tr>
+                        <tr><td>Models</td><td>PartnerPackageAssignment</td><td>—</td><td>{{ __('Stores requested vs. effective package assignment per business.') }}</td><td>onboarding, packages</td></tr>
+                        <tr><td>Models</td><td>PartnerSupportPreset / PartnerSupportTicketContext / PartnerSupportAttachment</td><td>—</td><td>{{ __('Support ticket presets, partner context, and attachments.') }}</td><td>support APIs</td></tr>
+                        <tr><td>Models</td><td>PartnerWebhookOutbox</td><td>—</td><td>{{ __('Outbound webhook queue with retry/backoff bookkeeping.') }}</td><td>webhooks</td></tr>
                         <tr><td>Models</td><td>PartnerApiLog</td><td>—</td><td>{{ __('Stores request/response audit logs and idempotency.') }}</td><td>all</td></tr>
                         <tr><td>Models</td><td>PartnerOneTimeLogin</td><td>—</td><td>{{ __('Stores token_hash, expires_at, used_at.') }}</td><td>one-time login</td></tr>
                     </tbody>
