@@ -243,7 +243,7 @@ Tables: `partner_integrations`, `partner_onboarding_requests`, `partner_api_logs
 
 Import: [`docs/FizaHUB-Partner-API.postman_collection.json`](docs/FizaHUB-Partner-API.postman_collection.json)
 
-Collection variable `partner_token` uses placeholder `replace-with-fizahub-partner-token` (paste the real Coolify token locally; do not commit secrets).
+Collection variables are pre-filled for the testing phase: `base_url=https://mlhub.vn` and `partner_token=fizahub` (matches the code default `FIZAHUB_PARTNER_TOKEN`), so partners can download and test immediately. Replace `partner_token` with the strong token MLHUB issues before going live.
 
 Public documentation:
 

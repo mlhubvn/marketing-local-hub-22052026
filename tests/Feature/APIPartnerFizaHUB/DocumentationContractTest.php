@@ -76,7 +76,7 @@ test('postman collection is valid v2.1 with exactly twenty four core api request
         ]);
 
     expect($variablesByKey->get('base_url'))->toBe('https://mlhub.vn')
-        ->and($variablesByKey->get('partner_token'))->toBe('replace-with-fizahub-partner-token')
+        ->and($variablesByKey->get('partner_token'))->toBe('fizahub')
         ->and($variablesByKey->get('external_business_id'))->toBe('fh-biz-demo-001')
         ->and($raw)->toContain('package_code')
         ->and($raw)->toContain('requested_package_code')
@@ -95,12 +95,12 @@ test('postman collection is valid v2.1 with exactly twenty four core api request
         ->and($raw)->toContain('awaiting_consultant')
         ->and($raw)->toContain('needs_review')
         ->and($raw)->toContain('ready')
-        ->and($raw)->toContain('completed')
-        ->and($raw)->toContain('replace-with-fizahub-partner-token');
+        ->and($raw)->toContain('completed');
 
-    // partner_token must be a placeholder (not a real secret value)
+    // Testing phase: partner_token is pre-filled with the weak default 'fizahub' so partners can
+    // download and test immediately. It must never carry a strong/real production secret here.
     expect($variablesByKey->get('partner_token'))
-        ->not->toBe('fizahub')
+        ->toBe('fizahub')
         ->and($variablesByKey->get('partner_token'))->not->toBe('');
 
     $exampleCount = collect($items)->sum(fn (array $item): int => count($item['response'] ?? []));
@@ -172,7 +172,7 @@ test('readme documents partner contracts and onboarding flow', function (): void
         'identity_image',
         'business_license_image',
         'field **`body`**',
-        'replace-with-fizahub-partner-token',
+        'partner_token=fizahub',
     ] as $needle) {
         expect(stripos($readme, $needle))->not->toBeFalse("README missing phrase: {$needle}");
     }

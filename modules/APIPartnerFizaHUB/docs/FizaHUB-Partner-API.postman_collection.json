@@ -2,12 +2,12 @@
     "info": {
         "name": "MLHUB × FizaHUB Partner API",
         "_postman_id": "b6f0f2a2-2a5e-4a44-9d9c-fizahub24core",
-        "description": "24 Core API của tích hợp MLHUB × FizaHUB.\n\nLuồng onboarding: FizaHUB gửi yêu cầu → MLHUB tạo ngay tài khoản Free (User + Team + Business + Integration, gói free/base → mlhub-free-da-nang) → trạng thái awaiting_consultant (Chờ tư vấn viên liên hệ) → tư vấn viên/Admin xử lý (consulting → configuring → ready → completed) → MLHUB sync trạng thái về FizaHUB qua webhook.\n\nTrùng email/mã số thuế/GPKD vẫn tạo tài khoản nhưng đặt needs_review. One-time login chỉ mở khi onboarding ở trạng thái ready hoặc completed, nếu không sẽ trả 409 onboarding_not_ready.\n\nBảo mật: KHÔNG nhận CCCD/ảnh giấy tờ. Không nhúng secret thật vào collection — thay {{partner_token}} bằng token do MLHUB cấp.",
+        "description": "24 Core API của tích hợp MLHUB × FizaHUB.\n\nLuồng onboarding: FizaHUB gửi yêu cầu → MLHUB tạo ngay tài khoản Free (User + Team + Business + Integration, gói free/base → mlhub-free-da-nang) → trạng thái awaiting_consultant (Chờ tư vấn viên liên hệ) → tư vấn viên/Admin xử lý (consulting → configuring → ready → completed) → MLHUB sync trạng thái về FizaHUB qua webhook.\n\nTrùng email/mã số thuế/GPKD vẫn tạo tài khoản nhưng đặt needs_review. One-time login chỉ mở khi onboarding ở trạng thái ready hoặc completed, nếu không sẽ trả 409 onboarding_not_ready.\n\nBảo mật: KHÔNG nhận CCCD/ảnh giấy tờ. Giai đoạn thử nghiệm: base_url=https://mlhub.vn và partner_token=fizahub đã điền sẵn để tải về test được ngay. ⚠️ Khi chạy chính thức MLHUB sẽ cấp token mạnh — thay {{partner_token}} bằng token đó.",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "variable": [
         { "key": "base_url", "value": "https://mlhub.vn" },
-        { "key": "partner_token", "value": "replace-with-fizahub-partner-token" },
+        { "key": "partner_token", "value": "fizahub" },
         { "key": "external_user_id", "value": "fh-user-demo-001" },
         { "key": "external_business_id", "value": "fh-biz-demo-001" },
         { "key": "onboarding_request_id", "value": "{{$guid}}" },
