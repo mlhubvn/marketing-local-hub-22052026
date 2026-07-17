@@ -65,8 +65,11 @@ return new class extends Migration
         if (! Schema::hasTable('partner_onboarding_status_histories')) {
             Schema::create('partner_onboarding_status_histories', function (Blueprint $table): void {
                 $table->id();
-                $table->foreignId('onboarding_request_id')
-                    ->constrained('partner_onboarding_requests')
+                // Custom short FK name: the Laravel-default name for this column/table
+                // pair exceeds MySQL's 64-char identifier limit.
+                $table->unsignedBigInteger('onboarding_request_id');
+                $table->foreign('onboarding_request_id', 'partner_onb_status_hist_request_fk')
+                    ->references('id')->on('partner_onboarding_requests')
                     ->cascadeOnDelete();
                 $table->string('from_status', 32)->nullable();
                 $table->string('to_status', 32);
