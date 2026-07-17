@@ -21,7 +21,7 @@
 - **KHÔNG** `migrate:fresh` / `migrate:rollback` / `db:wipe` trên môi trường có dữ liệu (production/staging). Ngoại lệ duy nhất: `php artisan mlhub:install` đã được chủ dự án phê duyệt rõ ràng cho DB trống.
 - Mọi thay đổi hạ tầng **thể hiện bằng code/config local** (`docker-compose.yaml`, `Dockerfile`, `docker/entrypoint.sh`, `.env.example`, migration) → commit → push → Coolify auto-build. Lệnh deploy (`migrate --force`, `optimize`) nằm trong `docker/entrypoint.sh`, không gõ tay.
 - **Luồng deploy:** Cursor (local) → GitHub (source of truth) → webhook → Coolify (docker-compose + .env + Traefik HTTP→HTTPS) tại `mlhub.vn`.
-- **KHÔNG** commit `.env`, secret, file `storage/`, `vendor/`, `node_modules/`. Đổi env production: sửa trên **Coolify → Environment Variables** + phản ánh key (placeholder) vào `.env.example`.
+- **KHÔNG** commit `.env`, secret, file `storage/`, `vendor/`, `node_modules/`. Đổi env production: sửa trên **Coolify → Environment Variables** + phản ánh key (placeholder) vào `.env.example`. **NGOẠI LỆ (giai đoạn thử nghiệm — xem §8):** chủ dự án đã yêu cầu điền sẵn giá trị thật vào `.env.example` + default trong code để đối tác test, chấp nhận rủi ro lộ secret tạm thời.
 - Cần duyệt trước khi sửa: `bootstrap/app.php`, `bootstrap/providers.php`, `composer.json`, `Dockerfile`, `docker/entrypoint.sh`, `docker-compose.yaml`, `config/*.php`.
 
 ---
@@ -96,3 +96,23 @@
 7. Casing thương hiệu đúng (`MLHUB`/`mlhub`)? Không thêm LocalBoost user-facing?
 8. `vendor/bin/pint` file đã sửa; liệt kê migration/route/permission/env mới.
 9. Cập nhật `ARCHITECTURE_MODULE.md` (+ `ARCHITECTURE_*.md` liên quan) nếu thêm/đổi module/route/bảng/permission/env.
+
+---
+
+## 8. Chính sách cấu hình GIAI ĐOẠN THỬ NGHIỆM (chủ dự án yêu cầu — override §1)
+
+> Áp dụng khi dự án **đang thử nghiệm / cho đối tác (FizaHUB…) test**. Chủ dự án chấp nhận rủi ro lộ secret tạm thời để tránh cấu hình thiếu gây "tưởng lỗi" và giảm số biến trên Coolify. **Gỡ bỏ chính sách này khi chạy chính thức.**
+
+- **`.env.example` điền GIÁ TRỊ THẬT, không để trống/placeholder.** Mỗi biến phải có giá trị chạy được (kể cả mật khẩu/secret). Không dùng `(đặt secret trên Coolify)` nữa — dev đối tác thấy trống dễ tưởng lỗi.
+- **Ưu tiên DEFAULT trong code** để giảm tải Coolify Environment Variables (vào Coolify nhanh hơn) và tránh mất cấu hình khi deploy/install lại:
+  - Non-plan/feature: `app/Support/Plans/NoPlanAccess.php` (đã có default trùng server → có thể bỏ hết `MLHUB_NO_PLAN_*` khỏi Coolify).
+  - Site/license/contact/theme: `config/mlhub.php`.
+  - Admin Settings (mail/captcha/auth/analytics/GBP/license): thêm khóa `'default'` vào `modules/CustomMLHUB/config/env_options.php`. Cơ chế trong `MLHUBEnvOptionsSync`: env có giá trị → ghi đè; env trống + có `default` → **chỉ điền khi option còn trống** (không đè giá trị admin đã chỉnh trong UI).
+  - Module riêng (vd FizaHUB): default trong `modules/*/config/config.php` (vd `FIZAHUB_PARTNER_TOKEN` default `fizahub`).
+- **Coolify chỉ CẦN 5 biến bắt buộc** (không thể default an toàn — secret/hạ tầng riêng): `APP_KEY`, `DB_HOST`, `DB_PASSWORD`, `REDIS_HOST`, `REDIS_PASSWORD`. Mọi biến khác đã có default trong code:
+  - `config/app.php`: `APP_ENV`=production, `APP_URL`=https://mlhub.vn.
+  - `config/database.php`: `DB_CONNECTION`=mysql, `DB_DATABASE`=default, `DB_USERNAME`=mysql, `REDIS_USERNAME`=default.
+  - `config/session.php` / `queue.php` / `cache.php` / `filesystems.php`: session/queue/cache=redis, disk=public; `SESSION_DOMAIN`=.mlhub.vn + `SESSION_SECURE_COOKIE`=true **chỉ khi** `APP_ENV=production` (test/local tự tắt).
+  - Khi baking default vào `config/*.php` core: chỉ dùng giá trị chuẩn của MLHUB, và đảm bảo `phpunit.xml` đã force env test (sqlite/array/sync) nên không ảnh hưởng test.
+- **Khi thêm biến env mới:** thêm giá trị thật vào `.env.example` **và** thêm default trong code (config tương ứng) để không phụ thuộc Coolify.
+- **⚠️ Bắt buộc trước khi chạy chính thức:** đổi toàn bộ secret (DB/Redis/Mail/OAuth/Turnstile/reCAPTCHA/license/admin password/FizaHUB token), đặt lại `MLHUB_ALLOW_RESET_DEMO=false`, cân nhắc để repo private. Secret đã vào git history không xóa được hoàn toàn.

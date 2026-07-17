@@ -13,7 +13,8 @@ return [
     |
     */
 
-    'default' => env('QUEUE_CONNECTION', 'database'),
+    // Default 'redis' cho MLHUB (Coolify). Test dùng sync qua phpunit.xml.
+    'default' => env('QUEUE_CONNECTION', 'redis'),
 
     /*
     |--------------------------------------------------------------------------

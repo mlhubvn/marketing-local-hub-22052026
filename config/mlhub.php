@@ -35,7 +35,8 @@ return [
     ],
 
     'license' => [
-        'purchase_code' => env('MLHUB_LICENSE_PURCHASE_CODE', ''),
+        // Default thử nghiệm để không phải đặt trên Coolify; đổi purchase_code khi chạy chính thức.
+        'purchase_code' => env('MLHUB_LICENSE_PURCHASE_CODE', 'd80177d1-4974-4e46-a7f3-564da3bc83f7'),
         'product_id' => (int) env('MLHUB_LICENSE_PRODUCT_ID', 10252026),
         'version' => env('MLHUB_LICENSE_VERSION', '1.0.1'),
         'install_path' => env('MLHUB_LICENSE_INSTALL_PATH', './'),
@@ -43,7 +44,7 @@ return [
         'license_type' => env('MLHUB_LICENSE_TYPE', 'Extended License'),
     ],
 
-    'contact_email' => env('MLHUB_CONTACT_EMAIL', ''),
+    'contact_email' => env('MLHUB_CONTACT_EMAIL', 'admin@mlhub.vn'),
 
     'site' => [
         'title' => env('SITE_TITLE', 'MLHUB'),

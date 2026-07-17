@@ -33,14 +33,34 @@ class MLHUBEnvOptionsSync
         $applied = 0;
 
         foreach ($this->mappings() as $mapping) {
+            $optionKey = (string) $mapping['option'];
             $raw = $this->envValue((string) $mapping['env']);
 
-            if ($raw === null) {
+            if ($raw !== null) {
+                // Env (Coolify) là nguồn ưu tiên — luôn ghi đè.
+                $value = $this->transform($raw, $mapping['transform'] ?? null);
+                $options->set($optionKey, $value);
+                $applied++;
+
                 continue;
             }
 
-            $value = $this->transform($raw, $mapping['transform'] ?? null);
-            $options->set((string) $mapping['option'], $value);
+            // Không có env → dùng default trong code (giai đoạn thử nghiệm), CHỈ điền khi option còn trống
+            // để không ghi đè giá trị admin đã chỉnh trong UI.
+            $default = $mapping['default'] ?? null;
+
+            if ($default === null || $default === '') {
+                continue;
+            }
+
+            $existing = $options->get($optionKey, null);
+
+            if ($existing !== null && trim((string) $existing) !== '') {
+                continue;
+            }
+
+            $value = $this->transform((string) $default, $mapping['transform'] ?? null);
+            $options->set($optionKey, $value);
             $applied++;
         }
 
@@ -174,13 +194,22 @@ class MLHUBEnvOptionsSync
 
     protected function syncLicenseMeta(OptionStore $options): void
     {
+        $license = (array) config('mlhub.license', []);
         $purchaseCode = self::envValue('MLHUB_LICENSE_PURCHASE_CODE');
 
+        // Fallback default trong config/mlhub.php (giai đoạn thử nghiệm) khi không đặt env,
+        // và chỉ khi options chưa có license để không ghi đè cấu hình admin.
         if ($purchaseCode === null) {
-            return;
+            $configCode = trim((string) ($license['purchase_code'] ?? ''));
+            $existingCode = trim((string) $options->get('license_purchase_code', ''));
+
+            if ($configCode === '' || $existingCode !== '') {
+                return;
+            }
+
+            $purchaseCode = $configCode;
         }
 
-        $license = (array) config('mlhub.license', []);
         $verifiedAt = Carbon::now()->toIso8601String();
 
         $options->set('license_purchase_code', $purchaseCode);

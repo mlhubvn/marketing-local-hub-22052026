@@ -2,7 +2,9 @@
 
 return [
     'partner_code' => 'fizahub',
-    'token' => env('FIZAHUB_PARTNER_TOKEN', ''),
+    // Default 'fizahub' cho GIAI ĐOẠN THỬ NGHIỆM để đối tác test không cần cấu hình Coolify.
+    // ⚠️ Đặt FIZAHUB_PARTNER_TOKEN token mạnh trên Coolify trước khi chạy chính thức.
+    'token' => env('FIZAHUB_PARTNER_TOKEN', 'fizahub'),
     'rate_limit_per_minute' => (int) env('FIZAHUB_RATE_LIMIT_PER_MINUTE', 60),
     'one_time_login_ttl_minutes' => (int) env('FIZAHUB_ONE_TIME_LOGIN_TTL_MINUTES', 5),
     'timezone' => 'Asia/Ho_Chi_Minh',

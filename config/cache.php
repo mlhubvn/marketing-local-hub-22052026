@@ -15,7 +15,8 @@ return [
     |
     */
 
-    'default' => env('CACHE_STORE', 'database'),
+    // Default 'redis' cho MLHUB (Coolify). Test dùng array qua phpunit.xml.
+    'default' => env('CACHE_STORE', 'redis'),
 
     /*
     |--------------------------------------------------------------------------

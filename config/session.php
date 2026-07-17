@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Str;
-
 return [
 
     /*
@@ -18,7 +16,8 @@ return [
     |
     */
 
-    'driver' => env('SESSION_DRIVER', 'database'),
+    // Default 'redis' cho MLHUB (Coolify) — connection tự thành 'session' (DB2). Test dùng array qua phpunit.xml.
+    'driver' => env('SESSION_DRIVER', 'redis'),
 
     /*
     |--------------------------------------------------------------------------
@@ -75,7 +74,7 @@ return [
 
     'connection' => env(
         'SESSION_CONNECTION',
-        env('SESSION_DRIVER', 'database') === 'redis' ? 'session' : null,
+        env('SESSION_DRIVER', 'redis') === 'redis' ? 'session' : null,
     ),
 
     /*
@@ -130,10 +129,7 @@ return [
     |
     */
 
-    'cookie' => env(
-        'SESSION_COOKIE',
-        Str::slug((string) env('APP_NAME', 'laravel')).'-session',
-    ),
+    'cookie' => env('SESSION_COOKIE', 'mlhub_session'),
 
     /*
     |--------------------------------------------------------------------------
@@ -159,7 +155,8 @@ return [
     |
     */
 
-    'domain' => env('SESSION_DOMAIN'),
+    // Production MLHUB dùng cookie chung .mlhub.vn (+ www). Test/local (APP_ENV != production) = null.
+    'domain' => env('SESSION_DOMAIN', env('APP_ENV') === 'production' ? '.mlhub.vn' : null),
 
     /*
     |--------------------------------------------------------------------------
@@ -172,7 +169,8 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
+    // Production = cookie chỉ gửi qua HTTPS. Test/local (APP_ENV != production) = false để không mất session.
+    'secure' => env('SESSION_SECURE_COOKIE', env('APP_ENV') === 'production'),
 
     /*
     |--------------------------------------------------------------------------
