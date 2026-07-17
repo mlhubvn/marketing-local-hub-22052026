@@ -3,10 +3,13 @@
 namespace Modules\APIPartnerFizaHUB\Providers;
 
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Modules\APIPartnerFizaHUB\Console\Commands\RetryPartnerWebhooksCommand;
+use Modules\APIPartnerFizaHUB\Console\Commands\WarmPartnerDashboardsCommand;
 use Modules\APIPartnerFizaHUB\Http\Middleware\HandlePartnerRequest;
 use Modules\APIPartnerFizaHUB\Http\Middleware\VerifyPartnerToken;
 use Modules\APIPartnerFizaHUB\Support\PartnerExceptionRenderer;
@@ -40,5 +43,43 @@ class APIPartnerFizaHUBServiceProvider extends ServiceProvider
                 return app(PartnerExceptionRenderer::class)->render($exception, $request);
             }
         );
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                RetryPartnerWebhooksCommand::class,
+                WarmPartnerDashboardsCommand::class,
+            ]);
+
+            $this->app->booted(function (): void {
+                $schedule = $this->app->make(Schedule::class);
+
+                $schedule->command('fizahub:webhooks-retry')
+                    ->everyFiveMinutes()
+                    ->withoutOverlapping();
+
+                $schedule->command('fizahub:dashboard-warm')
+                    ->hourly()
+                    ->withoutOverlapping();
+            });
+        }
+
+        $this->registerSidebar();
+    }
+
+    private function registerSidebar(): void
+    {
+        if (! function_exists('register_sidebar_section') || ! function_exists('register_sidebar_item')) {
+            return;
+        }
+
+        register_sidebar_section('integrations', 'Integrations', 60);
+
+        register_sidebar_item('integrations', [
+            'label' => 'FizaHUB onboarding',
+            'route_name' => 'admin-fizahub.onboarding',
+            'active_when' => ['admin-fizahub.*'],
+            'icon' => 'fa-light fa-handshake',
+            'order' => 10,
+        ]);
     }
 }

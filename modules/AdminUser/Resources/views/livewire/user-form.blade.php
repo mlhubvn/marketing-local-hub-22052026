@@ -301,6 +301,10 @@
                 </x-ui.card>
             @endif
 
+            @if ($isEditing && class_exists(\Modules\APIPartnerFizaHUB\Livewire\FizaHubOnboardingCard::class))
+                @livewire(\Modules\APIPartnerFizaHUB\Livewire\FizaHubOnboardingCard::class, ['userId' => $user->id], key('fizahub-onboarding-'.$user->id))
+            @endif
+
             @if ($isEditing)
                 <x-ui.card>
                     <p class="text-[11px] font-semibold uppercase tracking-[0.22em]" style="color: var(--theme-muted-text-color);">{{ __('Danger zone') }}</p>

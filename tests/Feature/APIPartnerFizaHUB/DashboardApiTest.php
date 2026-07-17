@@ -17,6 +17,8 @@ use Modules\AppQRCampaigns\Models\QrCampaign;
 use Modules\AppQRCampaigns\Models\QrScan;
 use Modules\AppReviewBooster\Models\ReviewFeedback;
 
+require_once __DIR__.'/FizaHubTestHelpers.php';
+
 function createDashboardApiTables(): void
 {
     Schema::dropIfExists('partner_one_time_logins');
@@ -163,8 +165,7 @@ function createDashboardApiTables(): void
         $table->timestamps();
     });
 
-    $migration = require base_path('modules/APIPartnerFizaHUB/Database/Migrations/2026_07_13_000000_create_fizahub_partner_api_tables.php');
-    $migration->up();
+    createFizaHubPartnerTables();
 }
 
 /**
@@ -238,10 +239,7 @@ beforeEach(function (): void {
 });
 
 afterEach(function (): void {
-    Schema::dropIfExists('partner_one_time_logins');
-    Schema::dropIfExists('partner_api_logs');
-    Schema::dropIfExists('partner_onboarding_requests');
-    Schema::dropIfExists('partner_integrations');
+    dropFizaHubPartnerTables();
     Schema::dropIfExists('lb_feedback_responses');
     Schema::dropIfExists('lb_bookings');
     Schema::dropIfExists('lb_coupon_redemptions');
@@ -337,6 +335,11 @@ test('dashboard returns zeroed metrics shape when no growth data exists', functi
         ->and($response->json('data.insights'))->not->toBeEmpty()
         ->and(collect($response->json('data.suggested_actions'))->pluck('code')->all())
         ->toContain('create_campaign');
+
+    // Freshness metadata lets FizaHUB decide when to sync/cache the dashboard.
+    expect($response->json('data.data_freshness'))->toBe('live')
+        ->and($response->json('data.generated_at'))->toBeString()->not->toBeEmpty()
+        ->and($response->json('data.next_refresh_at'))->toBeString()->not->toBeEmpty();
 });
 
 test('dashboard metrics are tenant scoped and use documented mvp definitions', function (): void {

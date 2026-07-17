@@ -30,7 +30,8 @@ class UpsertOnboardingRequest extends FormRequest
         return [
             'external_business_id' => ['required', 'string', 'max:128'],
             'external_user_id' => ['nullable', 'string', 'max:128'],
-            'package_code' => ['required', 'string', Rule::in($packageCodes)],
+            'package_code' => ['required_without:requested_package_code', 'nullable', 'string', Rule::in($packageCodes)],
+            'requested_package_code' => ['required_without:package_code', 'nullable', 'string', Rule::in($packageCodes)],
             'owner' => ['required', 'array'],
             'owner.name' => ['required', 'string', 'max:255'],
             'owner.phone' => ['required', 'string', 'max:40'],

@@ -1,6 +1,6 @@
 <?php
 
-test('postman collection is valid v2.1 with exactly ten mvp requests', function (): void {
+test('postman collection is valid v2.1 with exactly twenty four core api requests', function (): void {
     $path = base_path('modules/APIPartnerFizaHUB/docs/FizaHUB-Partner-API.postman_collection.json');
     expect(file_exists($path))->toBeTrue();
 
@@ -20,25 +20,40 @@ test('postman collection is valid v2.1 with exactly ten mvp requests', function 
         'external_business_id',
         'onboarding_request_id',
         'ticket_id',
+        'campaign_id',
         'from',
         'to',
     ]);
 
     $items = $collection['item'] ?? [];
-    expect($items)->toHaveCount(10);
+    expect($items)->toHaveCount(24);
 
     $names = collect($items)->pluck('name')->all();
     expect($names)->toBe([
         'GET Health',
-        'GET Package',
+        'POST SSO Verify',
+        'GET Package Catalog',
         'POST Onboarding',
         'GET Onboarding Status',
+        'POST Confirm Onboarding',
+        'POST Cancel Onboarding',
+        'GET Integration Status',
+        'PATCH Update Business Profile',
         'POST One-time Login',
+        'GET Business Package',
         'GET Dashboard',
+        'GET Insights',
+        'GET Recommendations',
+        'GET Campaigns',
+        'GET Campaign Detail',
+        'GET Support Summary',
         'POST Create Support Ticket',
         'GET List Support Tickets',
         'GET Support Ticket Detail',
         'POST Send Support Message',
+        'POST Upload Support Attachment',
+        'PATCH Close Support Ticket',
+        'POST Reopen Support Ticket',
     ]);
 
     $forbiddenSecrets = [
@@ -61,9 +76,10 @@ test('postman collection is valid v2.1 with exactly ten mvp requests', function 
         ]);
 
     expect($variablesByKey->get('base_url'))->toBe('https://mlhub.vn')
-        ->and($variablesByKey->get('partner_token'))->toBe('fizahub')
+        ->and($variablesByKey->get('partner_token'))->toBe('replace-with-fizahub-partner-token')
         ->and($variablesByKey->get('external_business_id'))->toBe('fh-biz-demo-001')
         ->and($raw)->toContain('package_code')
+        ->and($raw)->toContain('requested_package_code')
         ->and($raw)->toContain('nguyenvana+demo001@example.com')
         ->and($raw)->toContain('Need help with FizaMKT Base')
         ->and($raw)->toContain('Fiza Demo Store - Com Tam Da Nang')
@@ -74,9 +90,18 @@ test('postman collection is valid v2.1 with exactly ten mvp requests', function 
         ->and($raw)->toContain('validation_failed')
         ->and($raw)->toContain('integration_not_found')
         ->and($raw)->toContain('ticket_not_open')
+        ->and($raw)->toContain('onboarding_not_ready')
         ->and($raw)->toContain('partner_api_error')
-        ->and($raw)->toContain('pending_verification')
-        ->and($raw)->toContain('needs_review');
+        ->and($raw)->toContain('awaiting_consultant')
+        ->and($raw)->toContain('needs_review')
+        ->and($raw)->toContain('ready')
+        ->and($raw)->toContain('completed')
+        ->and($raw)->toContain('replace-with-fizahub-partner-token');
+
+    // partner_token must be a placeholder (not a real secret value)
+    expect($variablesByKey->get('partner_token'))
+        ->not->toBe('fizahub')
+        ->and($variablesByKey->get('partner_token'))->not->toBe('');
 
     $exampleCount = collect($items)->sum(fn (array $item): int => count($item['response'] ?? []));
     expect($exampleCount)->toBeGreaterThanOrEqual(40);
@@ -119,23 +144,35 @@ test('postman collection is valid v2.1 with exactly ten mvp requests', function 
     }
 });
 
-test('readme documents partner contracts and mvp exclusions', function (): void {
+test('readme documents partner contracts and onboarding flow', function (): void {
     $readme = file_get_contents(base_path('modules/APIPartnerFizaHUB/README.md'));
     expect($readme)->toBeString();
 
     foreach ([
-        'Google Business không expose trực tiếp',
+        '24 Core API',
+        'FizaHUB gửi yêu cầu',
+        'MLHUB tạo ngay tài khoản Free',
+        'Chờ tư vấn viên',
+        'awaiting_consultant',
+        'needs_review',
+        'ready',
+        'completed',
+        'Chờ tư vấn viên liên hệ',
+        'Cần kiểm tra',
+        'Sẵn sàng sử dụng',
+        'Hoàn tất',
         'one-time login',
+        'onboarding_not_ready',
         'Limited dashboard metrics',
-        'new_reviews definition',
-        'returning_customers estimated',
         'no CCCD upload',
         '/api/v1/partners/fizahub',
         'external_business_id',
         'Idempotency-Key',
-        'pending_verification',
-        'needs_review',
-        'completed',
+        'identity_card',
+        'identity_image',
+        'business_license_image',
+        'field **`body`**',
+        'replace-with-fizahub-partner-token',
     ] as $needle) {
         expect(stripos($readme, $needle))->not->toBeFalse("README missing phrase: {$needle}");
     }

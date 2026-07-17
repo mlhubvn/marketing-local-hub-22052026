@@ -10,7 +10,24 @@ use Modules\AdminSupport\Models\SupportTicket;
 use Modules\AdminUser\Models\User;
 use Modules\APIPartnerFizaHUB\Models\PartnerApiLog;
 use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
+use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingRequest;
+use Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine;
 use Modules\AppBusinessProfiles\Models\LocalBusiness;
+
+require_once __DIR__.'/FizaHubTestHelpers.php';
+
+function markCrossOnboardingReady(string $externalBusinessId): void
+{
+    $onboarding = PartnerOnboardingRequest::query()
+        ->where('external_business_id', $externalBusinessId)
+        ->firstOrFail();
+
+    $onboarding->forceFill([
+        'status' => OnboardingStatusMachine::READY,
+        'current_step' => OnboardingStatusMachine::defaultStepFor(OnboardingStatusMachine::READY),
+        'admin_status' => OnboardingStatusMachine::READY,
+    ])->save();
+}
 
 function createCrossEndpointTables(): void
 {
@@ -230,8 +247,7 @@ function createCrossEndpointTables(): void
         $table->timestamps();
     });
 
-    $migration = require base_path('modules/APIPartnerFizaHUB/Database/Migrations/2026_07_13_000000_create_fizahub_partner_api_tables.php');
-    $migration->up();
+    createFizaHubPartnerTables();
 }
 
 function crossHeaders(array $overrides = []): array
@@ -299,10 +315,7 @@ beforeEach(function (): void {
 });
 
 afterEach(function (): void {
-    Schema::dropIfExists('partner_one_time_logins');
-    Schema::dropIfExists('partner_api_logs');
-    Schema::dropIfExists('partner_onboarding_requests');
-    Schema::dropIfExists('partner_integrations');
+    dropFizaHubPartnerTables();
     Schema::dropIfExists('support_comments');
     Schema::dropIfExists('support_tickets');
     Schema::dropIfExists('affiliate_profiles');
@@ -330,7 +343,7 @@ test('cross-endpoint lifecycle keeps ids consistent and isolates tenants', funct
         crossHeaders(['X-Request-Id' => $requestId])
     )->assertCreated();
 
-    expect($onboarding->json('data.status'))->toBe('completed')
+    expect($onboarding->json('data.status'))->toBe('awaiting_consultant')
         ->and($onboarding->json('data.request_id'))->toBe($requestId)
         ->and($onboarding->json('data.external_business_id'))->toBe('biz-life');
 
@@ -342,7 +355,7 @@ test('cross-endpoint lifecycle keeps ids consistent and isolates tenants', funct
         crossHeaders()
     )->assertOk();
 
-    expect($package->json('data.package_code'))->toBe('base')
+    expect($package->json('data.package_code'))->toBe('free')
         ->and($package->json('data.plan_slug'))->toBe('mlhub-free-da-nang')
         ->and($package->json('data'))->not->toHaveKey('price')
         ->and($package->json('data'))->not->toHaveKey('credits');
@@ -411,6 +424,8 @@ test('cross-endpoint lifecycle keeps ids consistent and isolates tenants', funct
 
     expect($message->json('data.ticket_id') ?? $ticketId)->not->toBeEmpty();
 
+    markCrossOnboardingReady('biz-life');
+
     $login = $this->postJson(
         '/api/v1/partners/fizahub/businesses/biz-life/one-time-login',
         [],
@@ -447,7 +462,10 @@ test('cross-endpoint lifecycle keeps ids consistent and isolates tenants', funct
         crossHeaders()
     )->assertOk();
 
-    expect($otherList->json('data.items'))->toBe([]);
+    $otherItems = collect($otherList->json('data.items') ?? []);
+    expect($otherItems->pluck('ticket_id')->all())->not->toContain($ticketId)
+        ->and($otherItems)->not->toBeEmpty()
+        ->and((string) $otherItems->first()['subject'])->toContain('onboarding');
 });
 
 test('partner api logs redact secrets and route surface stays within mvp', function (): void {
@@ -469,6 +487,8 @@ test('partner api logs redact secrets and route surface stays within mvp', funct
         crossOnboardingPayload('biz-secure', 'secure@example.com'),
         crossHeaders()
     )->assertCreated();
+
+    markCrossOnboardingReady('biz-secure');
 
     $login = $this->postJson(
         '/api/v1/partners/fizahub/businesses/biz-secure/one-time-login',
@@ -497,15 +517,29 @@ test('partner api logs redact secrets and route surface stays within mvp', funct
 
     $expectedApi = [
         'GET|HEAD api/v1/partners/fizahub/health',
+        'POST api/v1/partners/fizahub/partner/sso/verify',
+        'GET|HEAD api/v1/partners/fizahub/packages',
         'POST api/v1/partners/fizahub/onboarding-requests',
         'GET|HEAD api/v1/partners/fizahub/onboarding-requests/{request_id}',
+        'POST api/v1/partners/fizahub/onboarding-requests/{request_id}/confirm',
+        'POST api/v1/partners/fizahub/onboarding-requests/{request_id}/cancel',
+        'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/integration-status',
+        'PATCH api/v1/partners/fizahub/businesses/{external_business_id}/profile',
+        'POST api/v1/partners/fizahub/businesses/{external_business_id}/one-time-login',
+        'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/package',
+        'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/dashboard',
+        'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/insights',
+        'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/recommendations',
+        'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/campaigns',
+        'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/campaigns/{campaign_id}',
+        'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/support-summary',
         'POST api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets',
         'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets',
         'GET|HEAD api/v1/partners/fizahub/support-tickets/{ticket_id}',
         'POST api/v1/partners/fizahub/support-tickets/{ticket_id}/messages',
-        'POST api/v1/partners/fizahub/businesses/{external_business_id}/one-time-login',
-        'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/package',
-        'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/dashboard',
+        'POST api/v1/partners/fizahub/support-tickets/{ticket_id}/attachments',
+        'PATCH api/v1/partners/fizahub/support-tickets/{ticket_id}/close',
+        'POST api/v1/partners/fizahub/support-tickets/{ticket_id}/reopen',
         'GET|HEAD partners/fizahub/one-time-login/{token}',
     ];
 
@@ -515,7 +549,6 @@ test('partner api logs redact secrets and route surface stays within mvp', funct
         'customers',
         'chat',
         'ai-studio',
-        'campaigns',
         'coupons',
         'landing',
         'google-business',

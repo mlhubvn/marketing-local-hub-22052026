@@ -9,6 +9,8 @@ use Modules\AdminUser\Models\User;
 use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
 use Modules\AppBusinessProfiles\Models\LocalBusiness;
 
+require_once __DIR__.'/FizaHubTestHelpers.php';
+
 function createPackageApiTables(): void
 {
     Schema::dropIfExists('partner_one_time_logins');
@@ -82,8 +84,7 @@ function createPackageApiTables(): void
         $table->timestamps();
     });
 
-    $migration = require base_path('modules/APIPartnerFizaHUB/Database/Migrations/2026_07_13_000000_create_fizahub_partner_api_tables.php');
-    $migration->up();
+    createFizaHubPartnerTables();
 }
 
 /**
@@ -167,10 +168,7 @@ beforeEach(function (): void {
 });
 
 afterEach(function (): void {
-    Schema::dropIfExists('partner_one_time_logins');
-    Schema::dropIfExists('partner_api_logs');
-    Schema::dropIfExists('partner_onboarding_requests');
-    Schema::dropIfExists('partner_integrations');
+    dropFizaHubPartnerTables();
     Schema::dropIfExists('lb_businesses');
     Schema::dropIfExists('team_user');
     Schema::dropIfExists('teams');
@@ -220,6 +218,27 @@ test('package api maps base package to mlhub-free-da-nang with whitelisted limit
     expect($encoded)->not->toContain('199000')
         ->and($encoded)->not->toContain('admin_panel')
         ->and($encoded)->not->toContain('credit_balance_view');
+});
+
+test('package catalog lists available packages with a default and free flag', function (): void {
+    seedPackageBusiness();
+
+    $response = $this->getJson(
+        '/api/v1/partners/fizahub/packages',
+        packageHeaders()
+    )->assertOk();
+
+    $data = $response->json('data');
+
+    expect($data['default_package_code'])->toBe('free')
+        ->and(collect($data['packages'])->pluck('package_code')->all())
+        ->toContain('free')
+        ->toContain('base');
+
+    $free = collect($data['packages'])->firstWhere('package_code', 'free');
+    expect($free['plan_slug'])->toBe('mlhub-free-da-nang')
+        ->and($free['is_default'])->toBeTrue()
+        ->and($free['is_free'])->toBeTrue();
 });
 
 test('package api returns 404 for unmapped business', function (): void {

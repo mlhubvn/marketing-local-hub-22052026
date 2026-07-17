@@ -30,6 +30,7 @@ class ApiFizaHubDocsController
             'appUrl' => rtrim((string) config('app.url'), '/'),
             'dashboardFrom' => $dashboardFrom,
             'dashboardTo' => $dashboardTo,
+            'demoPartnerToken' => 'fizahub',
         ]);
     }
 

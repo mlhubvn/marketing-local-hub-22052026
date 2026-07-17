@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
@@ -25,6 +26,24 @@ class PartnerExceptionRenderer
                 'The given data was invalid.',
                 422,
                 $exception->errors()
+            );
+        }
+
+        if ($exception instanceof PartnerApiException) {
+            return PartnerApiResponse::error(
+                $exception->errorCode,
+                $exception->getMessage(),
+                $exception->status,
+                $exception->details
+            );
+        }
+
+        if ($exception instanceof InvalidArgumentException
+            && str_contains($exception->getMessage(), 'onboarding status transition')) {
+            return PartnerApiResponse::error(
+                'invalid_status_transition',
+                $exception->getMessage(),
+                422
             );
         }
 

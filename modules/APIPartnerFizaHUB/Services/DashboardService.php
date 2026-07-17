@@ -5,7 +5,9 @@ namespace Modules\APIPartnerFizaHUB\Services;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
 use Modules\AppBookingPages\Models\Booking;
@@ -107,6 +109,216 @@ class DashboardService
             'insights' => $this->insights($metrics),
             'suggested_actions' => $this->suggestedActions($metrics, $feedbackForms + $lowReviews),
         ];
+    }
+
+    /**
+     * Cached dashboard summary with freshness metadata.
+     *
+     * @return array<string, mixed>
+     */
+    public function summarizeCached(
+        PartnerIntegration $integration,
+        CarbonImmutable $from,
+        CarbonImmutable $to,
+        bool $forceRefresh = false
+    ): array {
+        $timezone = (string) config('modules.apipartnerfizahub.timezone', 'Asia/Ho_Chi_Minh');
+        $ttlMinutes = max(1, (int) config('modules.apipartnerfizahub.dashboard_cache_ttl_minutes', 45));
+        $cooldown = max(0, (int) config('modules.apipartnerfizahub.dashboard_force_refresh_cooldown_seconds', 300));
+
+        $key = $this->cacheKey($integration, $from, $to);
+        $metaKey = $key.':generated_at';
+
+        if ($forceRefresh) {
+            // Force refresh is only honoured once per cooldown window to protect the app.
+            $cooldownFree = Cache::add($key.':cooldown', now()->toIso8601String(), $cooldown);
+
+            if ($cooldownFree) {
+                $data = $this->summarize($integration, $from, $to);
+                $generatedAt = now();
+                Cache::put($key, $data, now()->addMinutes($ttlMinutes));
+                Cache::put($metaKey, $generatedAt->toIso8601String(), now()->addMinutes($ttlMinutes));
+
+                return $this->decorateFreshness($data, 'live', $timezone, $generatedAt, $ttlMinutes);
+            }
+        }
+
+        $freshness = Cache::has($key) ? 'cached' : 'live';
+
+        $data = Cache::remember($key, now()->addMinutes($ttlMinutes), function () use ($integration, $from, $to, $metaKey, $ttlMinutes): array {
+            Cache::put($metaKey, now()->toIso8601String(), now()->addMinutes($ttlMinutes));
+
+            return $this->summarize($integration, $from, $to);
+        });
+
+        $generatedAtIso = (string) (Cache::get($metaKey) ?: now()->toIso8601String());
+        $generatedAt = CarbonImmutable::parse($generatedAtIso);
+
+        return $this->decorateFreshness($data, $freshness, $timezone, $generatedAt, $ttlMinutes);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function insightsPayload(
+        PartnerIntegration $integration,
+        CarbonImmutable $from,
+        CarbonImmutable $to
+    ): array {
+        $summary = $this->summarize($integration, $from, $to);
+
+        return [
+            'period' => $summary['period'],
+            'metrics' => $summary['metrics'],
+            'insights' => $summary['insights'],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function recommendationsPayload(
+        PartnerIntegration $integration,
+        CarbonImmutable $from,
+        CarbonImmutable $to
+    ): array {
+        $summary = $this->summarize($integration, $from, $to);
+
+        return [
+            'period' => $summary['period'],
+            'suggested_actions' => $summary['suggested_actions'],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function campaignList(
+        PartnerIntegration $integration,
+        CarbonImmutable $from,
+        CarbonImmutable $to
+    ): array {
+        $timezone = (string) config('modules.apipartnerfizahub.timezone', 'Asia/Ho_Chi_Minh');
+        $fromStart = $from->timezone($timezone)->startOfDay();
+        $toEnd = $to->timezone($timezone)->endOfDay();
+
+        $userId = (int) $integration->mlhub_user_id;
+        $businessId = (int) $integration->mlhub_business_id;
+
+        $campaigns = QrCampaign::query()
+            ->where('user_id', $userId)
+            ->where('business_id', $businessId)
+            ->orderByDesc('id')
+            ->get(['id', 'name', 'status', 'published_at', 'created_at']);
+
+        return [
+            'period' => [
+                'from' => $fromStart->toDateString(),
+                'to' => $to->timezone($timezone)->toDateString(),
+                'timezone' => $timezone,
+            ],
+            'items' => $this->campaignRows($userId, $campaigns, $fromStart, $toEnd, null),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function campaignDetail(
+        PartnerIntegration $integration,
+        int|string $campaignId,
+        CarbonImmutable $from,
+        CarbonImmutable $to
+    ): array {
+        $timezone = (string) config('modules.apipartnerfizahub.timezone', 'Asia/Ho_Chi_Minh');
+        $fromStart = $from->timezone($timezone)->startOfDay();
+        $toEnd = $to->timezone($timezone)->endOfDay();
+
+        $userId = (int) $integration->mlhub_user_id;
+        $businessId = (int) $integration->mlhub_business_id;
+
+        $campaign = QrCampaign::query()
+            ->where('user_id', $userId)
+            ->where('business_id', $businessId)
+            ->whereKey($campaignId)
+            ->first();
+
+        if (! $campaign) {
+            throw (new ModelNotFoundException)->setModel(QrCampaign::class, [$campaignId]);
+        }
+
+        $campaignIds = collect([$campaign->id]);
+
+        $scans = $this->countInRange(QrScan::query(), $userId, $campaignIds, $fromStart, $toEnd);
+        $leads = $this->countInRange(LeadSubmission::query(), $userId, $campaignIds, $fromStart, $toEnd);
+        $reviews = $this->countInRange(ReviewFeedback::query()->where('rating', '>=', 4), $userId, $campaignIds, $fromStart, $toEnd);
+        $coupons = $this->countInRange(CouponRedemption::query(), $userId, $campaignIds, $fromStart, $toEnd);
+        $bookings = $this->countInRange(Booking::query(), $userId, $campaignIds, $fromStart, $toEnd);
+        $feedback = $this->countInRange(FeedbackResponse::query(), $userId, $campaignIds, $fromStart, $toEnd)
+            + $this->countInRange(ReviewFeedback::query()->where('rating', '<=', 3), $userId, $campaignIds, $fromStart, $toEnd);
+
+        $conversions = $leads + $reviews + $coupons + $bookings + $feedback;
+
+        return [
+            'period' => [
+                'from' => $fromStart->toDateString(),
+                'to' => $to->timezone($timezone)->toDateString(),
+                'timezone' => $timezone,
+            ],
+            'campaign' => [
+                'campaign_id' => $campaign->id,
+                'name' => $campaign->name,
+                'status' => $campaign->published_at ? 'active' : 'paused',
+                'published_at' => optional($campaign->published_at)?->utc()?->toIso8601String(),
+                'created_at' => optional($campaign->created_at)?->utc()?->toIso8601String(),
+            ],
+            'metrics' => [
+                'scans' => $scans,
+                'leads' => $leads,
+                'reviews' => $reviews,
+                'coupons' => $coupons,
+                'bookings' => $bookings,
+                'feedback' => $feedback,
+                'conversions' => $conversions,
+                'conversion_rate' => $scans > 0 ? round(($conversions / $scans) * 100, 2) : 0.0,
+            ],
+            'trend' => $this->dailyTrend($userId, $campaignIds, $fromStart, $to),
+        ];
+    }
+
+    private function cacheKey(
+        PartnerIntegration $integration,
+        CarbonImmutable $from,
+        CarbonImmutable $to
+    ): string {
+        $timezone = (string) config('modules.apipartnerfizahub.timezone', 'Asia/Ho_Chi_Minh');
+
+        return implode('|', [
+            'fizahub:dashboard',
+            $integration->partner_code,
+            $integration->external_business_id,
+            $from->timezone($timezone)->toDateString(),
+            $to->timezone($timezone)->toDateString(),
+        ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function decorateFreshness(
+        array $data,
+        string $freshness,
+        string $timezone,
+        CarbonImmutable $generatedAt,
+        int $ttlMinutes
+    ): array {
+        $data['generated_at'] = $generatedAt->utc()->toIso8601String();
+        $data['data_freshness'] = $freshness;
+        $data['next_refresh_at'] = $generatedAt->addMinutes($ttlMinutes)->utc()->toIso8601String();
+        $data['timezone'] = $timezone;
+
+        return $data;
     }
 
     /**
@@ -218,7 +430,8 @@ class DashboardService
         int $userId,
         Collection $campaigns,
         CarbonImmutable $fromStart,
-        CarbonImmutable $toEnd
+        CarbonImmutable $toEnd,
+        ?int $limit = 10
     ): array {
         $rows = $campaigns->map(function (QrCampaign $campaign) use ($userId, $fromStart, $toEnd): array {
             $scans = (int) QrScan::query()
@@ -275,9 +488,13 @@ class DashboardService
             ];
         })->sort(function (array $left, array $right): int {
             return [$right['conversions'], $right['scans']] <=> [$left['conversions'], $left['scans']];
-        })->take(10)->values()->all();
+        });
 
-        return $rows;
+        if ($limit !== null) {
+            $rows = $rows->take($limit);
+        }
+
+        return $rows->values()->all();
     }
 
     /**

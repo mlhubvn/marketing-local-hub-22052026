@@ -9,15 +9,16 @@ use Modules\AdminUser\Models\Team;
 use Modules\AdminUser\Models\User;
 use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
 use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingRequest;
+use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingStatusHistory;
+use Modules\APIPartnerFizaHUB\Models\PartnerPackageAssignment;
 use Modules\AppAffiliate\Models\AffiliateProfile;
 use Modules\AppBusinessProfiles\Models\LocalBusiness;
 
+require_once __DIR__.'/FizaHubTestHelpers.php';
+
 function createOnboardingTestTables(): void
 {
-    Schema::dropIfExists('partner_one_time_logins');
-    Schema::dropIfExists('partner_api_logs');
-    Schema::dropIfExists('partner_onboarding_requests');
-    Schema::dropIfExists('partner_integrations');
+    dropFizaHubPartnerTables();
     Schema::dropIfExists('affiliate_profiles');
     Schema::dropIfExists('support_tickets');
     Schema::dropIfExists('lb_businesses');
@@ -129,8 +130,7 @@ function createOnboardingTestTables(): void
         $table->timestamps();
     });
 
-    $migration = require base_path('modules/APIPartnerFizaHUB/Database/Migrations/2026_07_13_000000_create_fizahub_partner_api_tables.php');
-    $migration->up();
+    createFizaHubPartnerTables();
 }
 
 function seedOnboardingPlan(): AdminPlan
@@ -195,10 +195,7 @@ beforeEach(function (): void {
 });
 
 afterEach(function (): void {
-    Schema::dropIfExists('partner_one_time_logins');
-    Schema::dropIfExists('partner_api_logs');
-    Schema::dropIfExists('partner_onboarding_requests');
-    Schema::dropIfExists('partner_integrations');
+    dropFizaHubPartnerTables();
     Schema::dropIfExists('affiliate_profiles');
     Schema::dropIfExists('support_tickets');
     Schema::dropIfExists('lb_businesses');
@@ -229,57 +226,7 @@ test('onboarding rejects prohibited identity document keys', function (): void {
         ->assertJsonPath('error.code', 'validation_failed');
 });
 
-test('unverified onboarding becomes pending_verification with support ticket', function (): void {
-    $requestId = (string) str()->uuid();
-    $payload = validOnboardingPayload([
-        'verification' => [
-            'identity_verified' => false,
-            'verified_at' => null,
-        ],
-    ]);
-
-    $response = $this->postJson(
-        '/api/v1/partners/fizahub/onboarding-requests',
-        $payload,
-        onboardingHeaders(['X-Request-Id' => $requestId])
-    );
-
-    $response->assertStatus(202)
-        ->assertJsonPath('data.status', 'pending_verification')
-        ->assertJsonPath('data.current_step', 'verification')
-        ->assertJsonPath('data.request_id', $requestId);
-
-    expect($response->json('data.support_ticket_id'))->toBeString()->not->toBeEmpty();
-    expect(User::query()->count())->toBe(0);
-    expect(SupportTicket::query()->count())->toBe(1);
-});
-
-test('duplicate email without mapping becomes needs_review and does not attach', function (): void {
-    $existing = User::query()->create([
-        'name' => 'Existing',
-        'username' => 'existing1',
-        'email' => 'owner.a@example.com',
-        'password' => 'password-password-password-password-password-password-1234',
-    ]);
-
-    $response = $this->postJson(
-        '/api/v1/partners/fizahub/onboarding-requests',
-        validOnboardingPayload(),
-        onboardingHeaders()
-    );
-
-    $response->assertStatus(202)
-        ->assertJsonPath('data.status', 'needs_review')
-        ->assertJsonPath('data.current_step', 'duplicate_review')
-        ->assertJsonPath('data.duplicate_check.0.type', 'email')
-        ->assertJsonPath('data.duplicate_check.0.id', $existing->id);
-
-    expect(PartnerIntegration::query()->count())->toBe(0);
-    expect(User::query()->count())->toBe(1);
-    expect(SupportTicket::query()->count())->toBe(1);
-});
-
-test('provision creates user team business integration and maps restaurant_food', function (): void {
+test('onboarding always provisions a free account awaiting consultant with requested package stored separately', function (): void {
     $requestId = (string) str()->uuid();
 
     $response = $this->postJson(
@@ -289,9 +236,15 @@ test('provision creates user team business integration and maps restaurant_food'
     );
 
     $response->assertCreated()
-        ->assertJsonPath('data.status', 'completed')
-        ->assertJsonPath('data.current_step', 'ready')
-        ->assertJsonPath('data.package_code', 'base')
+        ->assertJsonPath('data.status', 'awaiting_consultant')
+        ->assertJsonPath('data.current_step', 'consultant_contact')
+        ->assertJsonPath('data.status_label', 'Chờ tư vấn viên liên hệ')
+        ->assertJsonPath('data.package_code', 'free')
+        ->assertJsonPath('data.requested_package_code', 'base')
+        ->assertJsonPath('data.approved_package_code', null)
+        ->assertJsonPath('data.account_created', true)
+        ->assertJsonPath('data.business_created', true)
+        ->assertJsonPath('data.integration_created', true)
         ->assertJsonPath('data.request_id', $requestId);
 
     expect(User::query()->count())->toBe(1)
@@ -299,32 +252,37 @@ test('provision creates user team business integration and maps restaurant_food'
         ->and(LocalBusiness::query()->count())->toBe(1)
         ->and(PartnerIntegration::query()->count())->toBe(1)
         ->and(PartnerOnboardingRequest::query()->count())->toBe(1)
-        ->and(AffiliateProfile::query()->count())->toBe(1);
+        ->and(AffiliateProfile::query()->count())->toBe(1)
+        ->and(SupportTicket::query()->count())->toBe(1)
+        ->and(PartnerPackageAssignment::query()->count())->toBe(1);
 
     $user = User::query()->firstOrFail();
     $business = LocalBusiness::query()->firstOrFail();
     $plan = AdminPlan::query()->where('slug', 'mlhub-free-da-nang')->firstOrFail();
     $integration = PartnerIntegration::query()->firstOrFail();
+    $assignment = PartnerPackageAssignment::query()->firstOrFail();
 
     expect($user->email)->toBe('owner.a@example.com')
         ->and($user->timezone)->toBe('Asia/Ho_Chi_Minh')
         ->and($user->locale)->toBe('vi')
         ->and($user->plan_id)->toBe($plan->id)
         ->and($user->username)->toStartWith('fizahub_')
-        ->and(strlen((string) preg_replace('/^fizahub_/', '', (string) $user->username)))->toBe(12)
         ->and($user->email_verified_at)->not->toBeNull()
-        ->and($response->json())->not->toHaveKey('data.password')
-        ->and(json_encode($response->json()))->not->toContain('password')
         ->and(Hash::isHashed((string) $user->getRawOriginal('password')))->toBeTrue()
-        ->and($user->getRawOriginal('password'))->not->toBe('password-password-password-password-password-password-1234')
+        ->and(json_encode($response->json()))->not->toContain('password')
         ->and($business->industry_category_code)->toBe('restaurant_eatery')
+        ->and($integration->package_code)->toBe('free')
         ->and($integration->metadata['tax_code'] ?? null)->toBe('0101234567')
         ->and($integration->metadata['business_license_number'] ?? null)->toBe('GPKD123')
+        ->and($assignment->package_code)->toBe('free')
+        ->and($assignment->status)->toBe('active')
         ->and($response->json('data.mlhub_user_id'))->toBe($user->id)
         ->and($response->json('data.mlhub_business_id'))->toBe($business->id);
+
+    expect(PartnerOnboardingStatusHistory::query()->where('to_status', 'awaiting_consultant')->exists())->toBeTrue();
 });
 
-test('same request id upsert updates without duplicating provisioned records', function (): void {
+test('same request id upsert updates records once and keeps a single onboarding ticket', function (): void {
     $requestId = (string) str()->uuid();
 
     $this->postJson(
@@ -342,16 +300,19 @@ test('same request id upsert updates without duplicating provisioned records', f
         onboardingHeaders(['X-Request-Id' => $requestId])
     )
         ->assertOk()
-        ->assertJsonPath('data.status', 'completed');
+        ->assertJsonPath('data.status', 'awaiting_consultant');
 
     expect(User::query()->count())->toBe(1)
         ->and(LocalBusiness::query()->count())->toBe(1)
         ->and(PartnerIntegration::query()->count())->toBe(1)
+        ->and(PartnerOnboardingRequest::query()->count())->toBe(1)
+        ->and(SupportTicket::query()->count())->toBe(1)
+        ->and(PartnerPackageAssignment::query()->count())->toBe(1)
         ->and(User::query()->value('name'))->toBe('Nguyen Van B')
         ->and(LocalBusiness::query()->value('name'))->toBe('Quan Com B');
 });
 
-test('same external business id through new request does not duplicate mlhub records', function (): void {
+test('same external business id through a new request does not duplicate mlhub records', function (): void {
     $this->postJson(
         '/api/v1/partners/fizahub/onboarding-requests',
         validOnboardingPayload(),
@@ -366,13 +327,153 @@ test('same external business id through new request does not duplicate mlhub rec
         onboardingHeaders(['X-Request-Id' => (string) str()->uuid()])
     )
         ->assertCreated()
-        ->assertJsonPath('data.status', 'completed');
+        ->assertJsonPath('data.status', 'awaiting_consultant');
 
     expect(User::query()->count())->toBe(1)
         ->and(LocalBusiness::query()->count())->toBe(1)
         ->and(PartnerIntegration::query()->count())->toBe(1)
         ->and(PartnerOnboardingRequest::query()->count())->toBe(2)
         ->and(LocalBusiness::query()->value('name'))->toBe('Updated Shop');
+});
+
+test('duplicate owner email still provisions a Free account with a provisional email and needs_review', function (): void {
+    $existing = User::query()->create([
+        'name' => 'Existing',
+        'username' => 'existing1',
+        'email' => 'owner.a@example.com',
+        'password' => 'password-password-password-password-password-password-1234',
+    ]);
+
+    $response = $this->postJson(
+        '/api/v1/partners/fizahub/onboarding-requests',
+        validOnboardingPayload(),
+        onboardingHeaders()
+    );
+
+    $response->assertStatus(202)
+        ->assertJsonPath('data.status', 'needs_review')
+        ->assertJsonPath('data.current_step', 'needs_review')
+        ->assertJsonPath('data.package_code', 'free')
+        ->assertJsonPath('data.account_created', true)
+        ->assertJsonPath('data.duplicate_check.0.type', 'email')
+        ->assertJsonPath('data.duplicate_check.0.id', $existing->id);
+
+    $integration = PartnerIntegration::query()->firstOrFail();
+    $provisioned = User::query()->findOrFail($integration->mlhub_user_id);
+
+    expect(PartnerIntegration::query()->count())->toBe(1)
+        ->and(User::query()->count())->toBe(2)
+        ->and(SupportTicket::query()->count())->toBe(1)
+        ->and($provisioned->email)->not->toBe('owner.a@example.com')
+        ->and($provisioned->email)->toStartWith('fizahub+')
+        ->and($integration->metadata['uses_provisional_email'] ?? null)->toBeTrue();
+});
+
+test('duplicate tax code on another integration still provisions with needs_review', function (): void {
+    $otherUser = User::query()->create([
+        'name' => 'Other',
+        'username' => 'otheruser',
+        'email' => 'other@example.com',
+        'password' => 'password-password-password-password-password-password-1234',
+    ]);
+
+    $otherBusiness = LocalBusiness::query()->create([
+        'user_id' => $otherUser->id,
+        'name' => 'Other Shop',
+        'type' => 'other',
+    ]);
+
+    PartnerIntegration::query()->create([
+        'partner_code' => 'fizahub',
+        'external_business_id' => 'other-biz',
+        'mlhub_user_id' => $otherUser->id,
+        'mlhub_business_id' => $otherBusiness->id,
+        'status' => 'active',
+        'metadata' => ['tax_code' => '0101234567'],
+    ]);
+
+    $this->postJson(
+        '/api/v1/partners/fizahub/onboarding-requests',
+        validOnboardingPayload([
+            'external_business_id' => 'new-biz',
+            'owner' => ['email' => 'fresh@example.com'],
+        ]),
+        onboardingHeaders()
+    )
+        ->assertStatus(202)
+        ->assertJsonPath('data.status', 'needs_review')
+        ->assertJsonPath('data.account_created', true)
+        ->assertJsonPath('data.duplicate_check.0.type', 'tax_code');
+
+    expect(User::query()->where('email', 'fresh@example.com')->exists())->toBeTrue()
+        ->and(PartnerIntegration::query()->count())->toBe(2);
+});
+
+test('unverified identity still provisions an awaiting_consultant account', function (): void {
+    $requestId = (string) str()->uuid();
+
+    $response = $this->postJson(
+        '/api/v1/partners/fizahub/onboarding-requests',
+        validOnboardingPayload([
+            'verification' => [
+                'identity_verified' => false,
+                'verified_at' => null,
+            ],
+        ]),
+        onboardingHeaders(['X-Request-Id' => $requestId])
+    );
+
+    $response->assertCreated()
+        ->assertJsonPath('data.status', 'awaiting_consultant')
+        ->assertJsonPath('data.current_step', 'consultant_contact')
+        ->assertJsonPath('data.request_id', $requestId);
+
+    $user = User::query()->firstOrFail();
+
+    expect(User::query()->count())->toBe(1)
+        ->and(SupportTicket::query()->count())->toBe(1)
+        ->and($user->email_verified_at)->toBeNull();
+});
+
+test('partner can confirm an onboarding request', function (): void {
+    $requestId = (string) str()->uuid();
+
+    $this->postJson(
+        '/api/v1/partners/fizahub/onboarding-requests',
+        validOnboardingPayload(),
+        onboardingHeaders(['X-Request-Id' => $requestId])
+    )->assertCreated();
+
+    $this->postJson(
+        '/api/v1/partners/fizahub/onboarding-requests/'.$requestId.'/confirm',
+        ['note' => 'Owner confirmed by phone'],
+        onboardingHeaders()
+    )
+        ->assertOk()
+        ->assertJsonPath('data.status', 'awaiting_consultant');
+
+    expect(PartnerOnboardingRequest::query()->value('partner_confirmed_at'))->not->toBeNull();
+});
+
+test('partner can cancel an onboarding request', function (): void {
+    $requestId = (string) str()->uuid();
+
+    $this->postJson(
+        '/api/v1/partners/fizahub/onboarding-requests',
+        validOnboardingPayload(),
+        onboardingHeaders(['X-Request-Id' => $requestId])
+    )->assertCreated();
+
+    $this->postJson(
+        '/api/v1/partners/fizahub/onboarding-requests/'.$requestId.'/cancel',
+        ['reason' => 'Owner changed their mind'],
+        onboardingHeaders()
+    )
+        ->assertOk()
+        ->assertJsonPath('data.status', 'cancelled')
+        ->assertJsonPath('data.current_step', 'cancelled');
+
+    expect(PartnerOnboardingRequest::query()->value('status'))->toBe('cancelled');
 });
 
 test('onboarding show returns status by request id', function (): void {
@@ -390,7 +491,7 @@ test('onboarding show returns status by request id', function (): void {
     )
         ->assertOk()
         ->assertJsonPath('data.request_id', $requestId)
-        ->assertJsonPath('data.status', 'completed');
+        ->assertJsonPath('data.status', 'awaiting_consultant');
 });
 
 test('business creation failure rolls back user team and integration', function (): void {
@@ -418,37 +519,6 @@ test('business creation failure rolls back user team and integration', function 
     } finally {
         LocalBusiness::flushEventListeners();
     }
-});
-
-test('duplicate tax code on another integration becomes needs_review', function (): void {
-    $otherUser = User::query()->create([
-        'name' => 'Other',
-        'username' => 'otheruser',
-        'email' => 'other@example.com',
-        'password' => 'password-password-password-password-password-password-1234',
-    ]);
-
-    PartnerIntegration::query()->create([
-        'partner_code' => 'fizahub',
-        'external_business_id' => 'other-biz',
-        'mlhub_user_id' => $otherUser->id,
-        'status' => 'active',
-        'metadata' => ['tax_code' => '0101234567'],
-    ]);
-
-    $this->postJson(
-        '/api/v1/partners/fizahub/onboarding-requests',
-        validOnboardingPayload([
-            'external_business_id' => 'new-biz',
-            'owner' => ['email' => 'fresh@example.com'],
-        ]),
-        onboardingHeaders()
-    )
-        ->assertStatus(202)
-        ->assertJsonPath('data.status', 'needs_review')
-        ->assertJsonPath('data.duplicate_check.0.type', 'tax_code');
-
-    expect(User::query()->where('email', 'fresh@example.com')->exists())->toBeFalse();
 });
 
 test('onboarding requires Idempotency-Key header', function (): void {

@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ __('FizaHUB Partner API - Step-by-step Postman test guide') }}</title>
-    <meta name="description" content="{{ __('Copy-and-paste Postman testing guide for non-technical users.') }}">
+    <title>{{ __('FizaHUB Partner API - Hướng dẫn test Postman từng bước') }}</title>
+    <meta name="description" content="{{ __('Hướng dẫn test Postman copy-paste cho người chưa chuyên.') }}">
     @php
         $faviconPath = (string) (function_exists('get_option')
             ? get_option('website_favicon', config('mlhub.site.favicon', 'img/favicon.svg'))
@@ -106,6 +106,7 @@
             background: var(--brand); color: #fff; font-weight: 800; margin-right: .45rem;
         }
         .step h2 { margin: 0 0 .7rem; font-size: 1.15rem; display: flex; align-items: center; flex-wrap: wrap; gap: .35rem; }
+        .step h3 { margin: 1rem 0 .55rem; font-size: 1rem; }
         .step ol, .step ul { margin: .4rem 0 .7rem; padding-left: 1.2rem; }
         .step li { margin: .35rem 0; }
         .method {
@@ -145,11 +146,11 @@
 <header class="topbar">
     <div class="wrap topbar-inner">
         <a class="brand" href="{{ $docsUrl }}">MLHUB × FizaHUB</a>
-        <nav class="nav" aria-label="{{ __('Help navigation') }}">
-            <a href="{{ $docsUrl }}">{{ __('API docs') }}</a>
-            <a href="{{ $postmanUrl }}">{{ __('Download Postman JSON') }}</a>
-            <a href="#step-1">{{ __('Start here') }}</a>
-            <a href="#troubleshooting">{{ __('Common errors') }}</a>
+        <nav class="nav" aria-label="{{ __('Điều hướng trợ giúp') }}">
+            <a href="{{ $docsUrl }}">{{ __('Tài liệu API') }}</a>
+            <a href="{{ $postmanUrl }}">{{ __('Tải file Postman JSON') }}</a>
+            <a href="#step-1">{{ __('Bắt đầu tại đây') }}</a>
+            <a href="#troubleshooting">{{ __('Lỗi thường gặp') }}</a>
         </nav>
     </div>
 </header>
@@ -158,44 +159,44 @@
     <section class="hero">
         <div class="wrap">
             <div class="hero-card">
-                <h1>{{ __('FizaHUB Partner API - Step-by-step Postman test guide') }}</h1>
-                <p class="lead">{{ __('For non-technical testers. Go from top to bottom, copy Body/raw from the samples, click Send, then copy returned IDs into Variables.') }}</p>
+                <h1>{{ __('FizaHUB Partner API - Hướng dẫn test Postman từng bước') }}</h1>
+                <p class="lead">{{ __('Dành cho người chưa chuyên. Làm từ trên xuống, copy Body/raw, bấm Send, copy ID vào Variables.') }}</p>
                 <div class="cta-row">
-                    <a class="btn btn-primary" href="{{ $postmanUrl }}">{{ __('1. Download Postman JSON first') }}</a>
-                    <a class="btn btn-ghost" href="{{ $docsUrl }}">{{ __('Back to API docs') }}</a>
+                    <a class="btn btn-primary" href="{{ $postmanUrl }}">{{ __('1. Tải file Postman JSON trước') }}</a>
+                    <a class="btn btn-ghost" href="{{ $docsUrl }}">{{ __('Quay lại tài liệu API') }}</a>
                 </div>
                 <div class="note">
-                    {{ __('Never paste a real partner token into chat, email, or public docs. Ask the MLHUB admin for a test token and keep it private.') }}
+                    {{ __('Không dán token partner thật vào chat, email hay tài liệu công khai. Trang này dùng token demo để test; token production do admin MLHUB cấp và giữ bí mật.') }}
                 </div>
             </div>
 
             <div class="remember">
-                <h2>{{ __('You only need to remember 5 things') }}</h2>
+                <h2>{{ __('Chỉ cần nhớ 5 điều') }}</h2>
                 <ul>
-                    <li><code>base_url</code> — {{ __('the MLHUB domain.') }}</li>
-                    <li><code>partner_token</code> — {{ __('the token MLHUB issues only for FizaHUB.') }}</li>
-                    <li><code>external_user_id</code> — {{ __('the user ID on the FizaHUB side.') }}</li>
-                    <li><code>external_business_id</code> — {{ __('the business/store ID on the FizaHUB side; this is the main key for package/dashboard/support/login.') }}</li>
-                    <li><code>from</code> / <code>to</code> — {{ __('only filter the Dashboard date range; they are not the package duration.') }}</li>
+                    <li><code>base_url</code> — {{ __('tên miền MLHUB.') }}</li>
+                    <li><code>partner_token</code> — {{ __('token MLHUB cấp riêng cho FizaHUB.') }}</li>
+                    <li><code>external_user_id</code> — {{ __('mã user phía FizaHUB.') }}</li>
+                    <li><code>external_business_id</code> — {{ __('mã cửa hàng/doanh nghiệp phía FizaHUB; đây là khóa chính cho gói/dashboard/hỗ trợ/đăng nhập.') }}</li>
+                    <li><code>from</code> / <code>to</code> — {{ __('chỉ lọc khoảng ngày báo cáo Dashboard; không phải thời hạn gói.') }}</li>
                 </ul>
             </div>
 
             <div class="toc">
-                <strong>{{ __('Test order (do this from top to bottom)') }}</strong>
+                <strong>{{ __('Thứ tự test (làm từ trên xuống)') }}</strong>
                 <ol>
-                    <li><a href="#step-1">{{ __('Install Postman and import the file') }}</a></li>
-                    <li><a href="#step-2">{{ __('Fill in variables') }}</a></li>
+                    <li><a href="#step-1">{{ __('Cài Postman và import file') }}</a></li>
+                    <li><a href="#step-2">{{ __('Điền biến Variables') }}</a></li>
                     <li><a href="#step-3">{{ __('Test GET Health') }}</a></li>
                     <li><a href="#step-4">{{ __('Test POST Onboarding') }}</a></li>
                     <li><a href="#step-5">{{ __('Test GET Onboarding Status') }}</a></li>
                     <li><a href="#step-6">{{ __('Test GET Package') }}</a></li>
                     <li><a href="#step-7">{{ __('Test GET Dashboard') }}</a></li>
-                    <li><a href="#step-8">{{ __('Test POST Create Support Ticket') }}</a></li>
-                    <li><a href="#step-9">{{ __('Test GET List Support Tickets') }}</a></li>
-                    <li><a href="#step-10">{{ __('Test GET Support Ticket Detail') }}</a></li>
-                    <li><a href="#step-11">{{ __('Test POST Send Support Message') }}</a></li>
-                    <li><a href="#step-12">{{ __('Test POST One-time Login') }}</a></li>
-                    <li><a href="#troubleshooting">{{ __('Common errors') }}</a></li>
+                    <li><a href="#step-8">{{ __('Test POST Tạo ticket hỗ trợ') }}</a></li>
+                    <li><a href="#step-9">{{ __('Test GET Danh sách ticket') }}</a></li>
+                    <li><a href="#step-10">{{ __('Test GET Chi tiết ticket') }}</a></li>
+                    <li><a href="#step-11">{{ __('Test POST Gửi tin nhắn hỗ trợ') }}</a></li>
+                    <li><a href="#step-12">{{ __('Test POST Đăng nhập một lần') }}</a></li>
+                    <li><a href="#troubleshooting">{{ __('Lỗi thường gặp') }}</a></li>
                 </ol>
             </div>
         </div>
@@ -204,135 +205,138 @@
     <section>
         <div class="wrap">
             <article class="step" id="step-1">
-                <h2><span class="step-num">1</span> {{ __('Install Postman and import the file') }}</h2>
+                <h2><span class="step-num">1</span> {{ __('Cài Postman và import file') }}</h2>
                 <ol>
-                    <li>{{ __('Open your browser and go to the Postman website. Download Postman for your computer and install it.') }}</li>
-                    <li>{{ __('Open this download link and save the JSON file:') }}</li>
+                    <li>{{ __('Mở trình duyệt, vào trang Postman, tải bản cài cho máy tính của bạn.') }}</li>
+                    <li>{{ __('Cài đặt Postman xong, mở ứng dụng.') }}</li>
+                    <li>{{ __('Tải file collection JSON của MLHUB bằng nút bên dưới.') }}</li>
                 </ol>
-                <a class="btn btn-primary" href="{{ $postmanUrl }}">{{ __('Download Postman JSON') }}</a>
-                <ol start="3">
-                    <li>{{ __('Open Postman.') }}</li>
-                    <li>{{ __('Click Import.') }}</li>
-                    <li>{{ __('Choose the downloaded file named MLHUB-FizaHUB-Partner-API.postman_collection.json') }}</li>
-                    <li>{{ __('You should see a collection named FizaHUB Partner API (MLHUB MVP).') }}</li>
+                <div class="cta-row">
+                    <a class="btn btn-primary" href="https://www.postman.com/downloads/" target="_blank" rel="noopener noreferrer">{{ __('Tải Postman') }}</a>
+                    <a class="btn btn-ghost" href="{{ $postmanUrl }}">{{ __('Tải file Postman JSON') }}</a>
+                </div>
+                <ol start="4">
+                    <li>{{ __('Trong Postman, bấm Import.') }}</li>
+                    <li>{{ __('Chọn file vừa tải: MLHUB-FizaHUB-Partner-API.postman_collection.json') }}</li>
+                    <li>{{ __('Bạn sẽ thấy collection tên FizaHUB Partner API (MLHUB MVP).') }}</li>
                 </ol>
-                <div class="check">{{ __('Done when: you can see 10 requests inside the collection.') }}</div>
+                <div class="check">{{ __('Xong khi: thấy 10 request trong collection.') }}</div>
             </article>
 
             <article class="step" id="step-2">
-                <h2><span class="step-num">2</span> {{ __('Fill in variables') }}</h2>
+                <h2><span class="step-num">2</span> {{ __('Điền biến Variables') }}</h2>
                 <ol>
-                    <li>{{ __('In Postman, open the collection FizaHUB Partner API (MLHUB MVP).') }}</li>
-                    <li>{{ __('Open the Variables tab.') }}</li>
-                    <li>{{ __('Copy and paste these Current values:') }}</li>
+                    <li>{{ __('Trong Postman, mở collection FizaHUB Partner API (MLHUB MVP).') }}</li>
+                    <li>{{ __('Mở tab Variables.') }}</li>
+                    <li>{{ __('Copy và dán các giá trị Current value bên dưới:') }}</li>
                 </ol>
-                <span class="copy-label">{{ __('Copy these values') }}</span>
+                <span class="copy-label">{{ __('Copy các giá trị này') }}</span>
                 <pre>base_url = {{ $appUrl }}
-partner_token = ({{ __('paste the test token issued by the MLHUB admin') }})
+partner_token = {{ $demoPartnerToken }}
 external_user_id = fh-user-demo-001
 external_business_id = fh-biz-demo-001
 from = {{ $dashboardFrom }}
 to = {{ $dashboardTo }}
-onboarding_request_id = ({{ __('leave empty at first') }})
-ticket_id = ({{ __('leave empty at first') }})</pre>
+onboarding_request_id = (để trống ban đầu)
+ticket_id = (để trống ban đầu)</pre>
                 <ol start="4">
-                    <li>{{ __('Click Save.') }}</li>
+                    <li>{{ __('Bấm Save.') }}</li>
                 </ol>
 
-                <span class="copy-label">{{ __('Variable meanings') }}</span>
+                <span class="copy-label">{{ __('Ý nghĩa từng biến') }}</span>
                 <div class="table-wrap">
                     <table>
                         <thead>
                             <tr>
-                                <th>{{ __('Variable') }}</th>
-                                <th>{{ __('Example') }}</th>
-                                <th>{{ __('What is it for?') }}</th>
-                                <th>{{ __('When should you change it?') }}</th>
+                                <th>{{ __('Biến') }}</th>
+                                <th>{{ __('Ví dụ') }}</th>
+                                <th>{{ __('Dùng để làm gì?') }}</th>
+                                <th>{{ __('Khi nào đổi?') }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td><code>base_url</code></td>
                                 <td><code>{{ $appUrl }}</code></td>
-                                <td>{{ __('MLHUB domain.') }}</td>
-                                <td>{{ __('Change when testing local/staging/production.') }}</td>
+                                <td>{{ __('Tên miền MLHUB.') }}</td>
+                                <td>{{ __('Đổi khi test local/staging/production.') }}</td>
                             </tr>
                             <tr>
                                 <td><code>partner_token</code></td>
-                                <td>{{ __('token issued by MLHUB') }}</td>
-                                <td>{{ __('Authenticates FizaHUB API calls.') }}</td>
-                                <td>{{ __('Change when the MLHUB admin issues a new token.') }}</td>
+                                <td><code>{{ $demoPartnerToken }}</code></td>
+                                <td>{{ __('Xác thực các lệnh gọi API FizaHUB.') }}</td>
+                                <td>{{ __('Đổi khi admin MLHUB cấp token mới.') }}</td>
                             </tr>
                             <tr>
                                 <td><code>external_user_id</code></td>
                                 <td><code>fh-user-demo-001</code></td>
-                                <td>{{ __('User ID on the FizaHUB side.') }}</td>
-                                <td>{{ __('Each test user / real customer should have its own ID.') }}</td>
+                                <td>{{ __('Mã user phía FizaHUB.') }}</td>
+                                <td>{{ __('Mỗi user test/khách hàng thật nên có ID riêng.') }}</td>
                             </tr>
                             <tr>
                                 <td><code>external_business_id</code></td>
                                 <td><code>fh-biz-demo-001</code></td>
-                                <td>{{ __('Primary technical key that maps a FizaHUB business to MLHUB.') }}</td>
-                                <td>{{ __('Each business/store should have its own ID.') }}</td>
+                                <td>{{ __('Khóa kỹ thuật chính map cửa hàng FizaHUB sang MLHUB.') }}</td>
+                                <td>{{ __('Mỗi cửa hàng/doanh nghiệp nên có ID riêng.') }}</td>
                             </tr>
                             <tr>
                                 <td><code>from</code></td>
                                 <td><code>{{ $dashboardFrom }}</code></td>
-                                <td>{{ __('Dashboard report start date.') }}</td>
-                                <td>{{ __('Change when you want another report range. You may leave it empty so the API uses the last 30 days.') }}</td>
+                                <td>{{ __('Ngày bắt đầu báo cáo Dashboard.') }}</td>
+                                <td>{{ __('Đổi khi muốn khoảng báo cáo khác. Có thể để trống — API dùng 30 ngày gần nhất.') }}</td>
                             </tr>
                             <tr>
                                 <td><code>to</code></td>
                                 <td><code>{{ $dashboardTo }}</code></td>
-                                <td>{{ __('Dashboard report end date.') }}</td>
-                                <td>{{ __('Change when you want another report range. You may leave it empty so the API uses today.') }}</td>
+                                <td>{{ __('Ngày kết thúc báo cáo Dashboard.') }}</td>
+                                <td>{{ __('Đổi khi muốn khoảng báo cáo khác. Có thể để trống — API dùng hôm nay.') }}</td>
                             </tr>
                             <tr>
                                 <td><code>onboarding_request_id</code></td>
-                                <td>{{ __('leave empty at first') }}</td>
-                                <td>{{ __('Read onboarding status.') }}</td>
-                                <td>{{ __('After POST Onboarding, copy data.request_id and paste it here.') }}</td>
+                                <td>{{ __('để trống ban đầu') }}</td>
+                                <td>{{ __('Đọc trạng thái onboarding.') }}</td>
+                                <td>{{ __('Sau POST Onboarding, copy data.request_id và dán vào đây.') }}</td>
                             </tr>
                             <tr>
                                 <td><code>ticket_id</code></td>
-                                <td>{{ __('leave empty at first') }}</td>
-                                <td>{{ __('View or send support ticket messages.') }}</td>
-                                <td>{{ __('After creating a support ticket, copy data.ticket_id and paste it here.') }}</td>
+                                <td>{{ __('để trống ban đầu') }}</td>
+                                <td>{{ __('Xem hoặc gửi tin nhắn ticket hỗ trợ.') }}</td>
+                                <td>{{ __('Sau khi tạo ticket, copy data.ticket_id và dán vào đây.') }}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <div class="note">
-                    <strong>{{ __('from/to are not the package duration') }}</strong><br>
-                    {{ __('from and to are only used by the Dashboard API to choose the report date range. Example: from=2026-07-01 and to=2026-07-31 means marketing metrics in July. These two fields are not used to renew a 1/3/6/12 month package.') }}
+                    <strong>{{ __('from/to không phải thời hạn gói') }}</strong><br>
+                    {{ __('from và to chỉ dùng cho API Dashboard để chọn khoảng ngày báo cáo. Ví dụ: from=2026-07-01 và to=2026-07-31 nghĩa là số liệu marketing trong tháng 7. Hai trường này không dùng để gia hạn gói 1/3/6/12 tháng.') }}
                 </div>
                 <div class="info">
-                    <strong>{{ __('How does package duration work in the MVP?') }}</strong><br>
-                    {{ __('In the MVP, FizaHUB sends package_code during onboarding. Example: package_code=base maps to the internal MLHUB plan mlhub-free-da-nang. The Package API returns starts_at/expires_at when MLHUB has duration data. The MVP does not yet have an endpoint to enter 1/3/6/12 months or auto-renew. If FizaHUB needs to sell monthly packages, design a separate package/subscription endpoint in a later phase — do not use from/to.') }}
+                    <strong>{{ __('Thời hạn gói hoạt động thế nào trong MVP?') }}</strong><br>
+                    {{ __('Trong MVP, FizaHUB gửi package_code khi onboarding. Ví dụ: package_code=base map sang gói nội bộ MLHUB mlhub-free-da-nang. API Package trả starts_at/expires_at khi MLHUB có dữ liệu thời hạn. MVP chưa có endpoint nhập gói 1/3/6/12 tháng hay tự gia hạn. Nếu FizaHUB cần bán gói theo tháng, thiết kế endpoint package/subscription riêng ở giai đoạn sau — không dùng from/to.') }}
                 </div>
-                <div class="check">{{ __('Done when: base_url and partner_token are filled and saved.') }}</div>
+                <div class="check">{{ __('Xong khi: base_url và partner_token đã điền và Save.') }}</div>
             </article>
 
             <article class="step" id="step-3">
                 <h2><span class="step-num">3</span> <span class="method get">GET</span> {{ __('Test GET Health') }}</h2>
                 <ol>
-                    <li>{{ __('Open the request named GET Health.') }}</li>
-                    <li>{{ __('Check the Headers tab. Postman should already fill Authorization, X-Partner, and X-Request-Id.') }}</li>
-                    <li>{{ __('Click Send.') }}</li>
+                    <li>{{ __('Mở request tên GET Health.') }}</li>
+                    <li>{{ __('Kiểm tra tab Headers. Postman thường đã điền sẵn Authorization, X-Partner, X-Request-Id.') }}</li>
+                    <li>{{ __('Bấm Send.') }}</li>
                 </ol>
                 <span class="copy-label">URL</span>
                 <pre>@{{base_url}}/api/v1/partners/fizahub/health</pre>
-                <span class="copy-label">{{ __('Headers that must exist') }}</span>
+                <span class="copy-label">{{ __('Headers bắt buộc') }}</span>
                 <pre>@verbatim
 Authorization: Bearer {{partner_token}}
 X-Partner: fizahub
 X-Request-Id: {{$guid}}
 Accept: application/json
 @endverbatim</pre>
-                <span class="copy-label">{{ __('Expected') }}</span>
+                <span class="copy-label">{{ __('Kết quả mong đợi') }}</span>
                 <pre>HTTP 200</pre>
-                <span class="copy-label">{{ __('Sample response') }}</span>
+                <span class="copy-label">{{ __('Response mẫu') }}</span>
                 <pre>{
   "success": true,
   "data": {
@@ -342,20 +346,23 @@ Accept: application/json
   },
   "error": null
 }</pre>
-                <div class="check">{{ __('Done when: success is true and status is ok. If this fails, stop and check partner_token / base_url.') }}</div>
+                <div class="info">
+                    {{ __('HTTP 200 nghĩa là partner_token, base_url và headers đều đúng. Nếu bước này fail, dừng lại và kiểm tra lại partner_token / base_url trước khi test các API khác.') }}
+                </div>
+                <div class="check">{{ __('Xong khi: success=true và status=ok. Nếu fail, dừng và kiểm tra partner_token / base_url.') }}</div>
             </article>
 
             <article class="step" id="step-4">
                 <h2><span class="step-num">4</span> <span class="method post">POST</span> {{ __('Test POST Onboarding') }}</h2>
-                <p><strong>{{ __('Postman actions') }}</strong></p>
+                <p><strong>{{ __('Thao tác trong Postman') }}</strong></p>
                 <ol>
-                    <li>{{ __('Open POST Onboarding.') }}</li>
-                    <li>{{ __('Open the Body tab.') }}</li>
-                    <li>{{ __('Choose raw.') }}</li>
-                    <li>{{ __('Choose JSON.') }}</li>
-                    <li>{{ __('Copy the full Body raw JSON below and paste it into Body.') }}</li>
-                    <li>{{ __('Optional: change owner.email so it does not collide.') }}</li>
-                    <li>{{ __('Click Send.') }}</li>
+                    <li>{{ __('Mở POST Onboarding.') }}</li>
+                    <li>{{ __('Mở tab Body.') }}</li>
+                    <li>{{ __('Chọn raw.') }}</li>
+                    <li>{{ __('Chọn JSON.') }}</li>
+                    <li>{{ __('Copy toàn bộ Body raw JSON bên dưới và dán vào Body.') }}</li>
+                    <li>{{ __('Tùy chọn: đổi owner.email để tránh trùng.') }}</li>
+                    <li>{{ __('Bấm Send.') }}</li>
                 </ol>
                 <span class="copy-label">URL</span>
                 <pre>@{{base_url}}/api/v1/partners/fizahub/onboarding-requests</pre>
@@ -374,14 +381,14 @@ Content-Type: application/json
   "external_business_id": "@{{external_business_id}}",
   "package_code": "base",
   "owner": {
-    "name": "Nguyen Van A",
+    "name": "Nguyễn Văn A",
     "phone": "0912345678",
     "email": "nguyenvana+demo001@example.com"
   },
   "business": {
-    "name": "Fiza Demo Store",
+    "name": "Cửa hàng Demo Fiza",
     "industry": "restaurant_food",
-    "address": "123 Nguyen Trai, Da Nang",
+    "address": "123 Nguyễn Trãi, Đà Nẵng",
     "phone": "0912345678",
     "email": "store-demo001@example.com",
     "website": "https://mlhub.vn",
@@ -396,44 +403,105 @@ Content-Type: application/json
 }</pre>
                 <div class="note">
                     <ul>
-                        <li>{{ __('To test again, change external_business_id, owner.email, and business_license_number to avoid duplicates.') }}</li>
-                        <li>{{ __('Do not send CCCD, CCCD images, or GPKD files.') }}</li>
-                        <li>{{ __('If response status=completed, you can run Package/Dashboard/Login next.') }}</li>
-                        <li>{{ __('If response status=needs_review or pending_verification, ask the MLHUB admin to finish review before mapped APIs work.') }}</li>
+                        <li>{{ __('Chỉ gửi các trường API validate. Không gửi note, industry_name, google_maps_url, business_license_verified.') }}</li>
+                        <li>{{ __('Test lại thì đổi external_business_id, owner.email và business_license_number để tránh trùng.') }}</li>
+                        <li>{{ __('Không gửi CCCD, ảnh CCCD hay file GPKD.') }}</li>
+                        <li>{{ __('MLHUB luôn tạo ngay tài khoản Free và trả status=awaiting_consultant.') }}</li>
+                        <li>{{ __('Nếu status=needs_review (trùng email/MST/GPKD), tài khoản vẫn được tạo; nhờ admin MLHUB rà soát ticket.') }}</li>
+                        <li>{{ __('One-time login chỉ mở khi status là ready hoặc completed.') }}</li>
                     </ul>
                 </div>
-                <span class="copy-label">{{ __('Expected') }}</span>
-                <pre>HTTP 201 (completed) {{ __('or') }} HTTP 202 (pending_verification / needs_review)</pre>
-                <span class="copy-label">{{ __('Sample completed response') }}</span>
+                <span class="copy-label">{{ __('Kết quả mong đợi') }}</span>
+                <pre>HTTP 201 (awaiting_consultant) {{ __('hoặc') }} HTTP 202 (needs_review)</pre>
+                <span class="copy-label">{{ __('Response mẫu khi awaiting_consultant') }}</span>
                 <pre>{
   "success": true,
   "data": {
     "request_id": "018f5a64-b40b-7f60-a925-dea047cf6590",
     "external_business_id": "fh-biz-demo-001",
-    "package_code": "base",
-    "status": "completed",
-    "current_step": "ready"
+    "requested_package_code": "base",
+    "package_code": "free",
+    "status": "awaiting_consultant",
+    "current_step": "consultant_contact",
+    "status_label": "Chờ tư vấn viên liên hệ"
   },
   "error": null
 }</pre>
+
+                <h3>{{ __('Bảng trạng thái onboarding') }}</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>{{ __('Nhãn tiếng Việt') }}</th>
+                                <th>{{ __('Khi nào xảy ra') }}</th>
+                                <th>{{ __('FizaHUB nên làm gì') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>awaiting_consultant</code></td>
+                                <td>{{ __('Chờ tư vấn viên liên hệ') }}</td>
+                                <td>{{ __('Vừa tạo tài khoản Free, chờ tư vấn viên MLHUB liên hệ') }}</td>
+                                <td>{{ __('Chờ MLHUB liên hệ; không tạo lại request') }}</td>
+                            </tr>
+                            <tr>
+                                <td><code>needs_review</code></td>
+                                <td>{{ __('Cần kiểm tra') }}</td>
+                                <td>{{ __('Trùng email / mã số thuế / GPKD (tài khoản vẫn được tạo)') }}</td>
+                                <td>{{ __('Không tạo lại request giống hệt; nhờ MLHUB xử lý ticket') }}</td>
+                            </tr>
+                            <tr>
+                                <td><code>ready</code></td>
+                                <td>{{ __('Sẵn sàng sử dụng') }}</td>
+                                <td>{{ __('Cấu hình xong, one-time login được phép') }}</td>
+                                <td>{{ __('Có thể gọi Package, Dashboard, Support, One-time Login') }}</td>
+                            </tr>
+                            <tr>
+                                <td><code>completed</code></td>
+                                <td>{{ __('Hoàn tất') }}</td>
+                                <td>{{ __('Đã bàn giao và hoàn tất onboarding') }}</td>
+                                <td>{{ __('Sử dụng bình thường') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>current_step</th>
+                                <th>{{ __('Nhãn tiếng Việt') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>consultant_contact</code></td><td>{{ __('Chờ tư vấn viên liên hệ') }}</td></tr>
+                            <tr><td><code>needs_review</code></td><td>{{ __('Đang rà soát trùng dữ liệu') }}</td></tr>
+                            <tr><td><code>ready</code></td><td>{{ __('Sẵn sàng sử dụng') }}</td></tr>
+                            <tr><td><code>completed</code></td><td>{{ __('Hoàn tất') }}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
                 <div class="check">
-                    <strong>{{ __('After the response') }}:</strong>
-                    {{ __('Copy data.request_id → paste into the onboarding_request_id variable → Save.') }}
+                    <strong>{{ __('Sau khi có response') }}:</strong>
+                    {{ __('Copy data.request_id → dán vào biến onboarding_request_id → Save.') }}
                 </div>
             </article>
 
             <article class="step" id="step-5">
                 <h2><span class="step-num">5</span> <span class="method get">GET</span> {{ __('Test GET Onboarding Status') }}</h2>
                 <ol>
-                    <li>{{ __('Open GET Onboarding Status.') }}</li>
-                    <li>{{ __('Make sure onboarding_request_id variable is filled.') }}</li>
-                    <li>{{ __('Click Send.') }}</li>
+                    <li>{{ __('Mở GET Onboarding Status.') }}</li>
+                    <li>{{ __('Đảm bảo biến onboarding_request_id đã điền.') }}</li>
+                    <li>{{ __('Bấm Send.') }}</li>
                 </ol>
                 <span class="copy-label">URL</span>
                 <pre>@{{base_url}}/api/v1/partners/fizahub/onboarding-requests/@{{onboarding_request_id}}</pre>
-                <span class="copy-label">{{ __('Expected') }}</span>
+                <span class="copy-label">{{ __('Kết quả mong đợi') }}</span>
                 <pre>HTTP 200</pre>
-                <span class="copy-label">{{ __('Sample response') }}</span>
+                <span class="copy-label">{{ __('Response mẫu') }}</span>
                 <pre>{
   "success": true,
   "data": {
@@ -444,21 +512,21 @@ Content-Type: application/json
   },
   "error": null
 }</pre>
-                <div class="check">{{ __('Done when: status is returned and matches the previous onboarding result.') }}</div>
+                <div class="check">{{ __('Xong khi: status trả về và khớp kết quả onboarding trước đó.') }}</div>
             </article>
 
             <article class="step" id="step-6">
                 <h2><span class="step-num">6</span> <span class="method get">GET</span> {{ __('Test GET Package') }}</h2>
                 <ol>
-                    <li>{{ __('Only run this after onboarding status is completed.') }}</li>
-                    <li>{{ __('Open GET Package.') }}</li>
-                    <li>{{ __('Click Send.') }}</li>
+                    <li>{{ __('Chỉ chạy sau khi onboarding status = completed.') }}</li>
+                    <li>{{ __('Mở GET Package.') }}</li>
+                    <li>{{ __('Bấm Send.') }}</li>
                 </ol>
                 <span class="copy-label">URL</span>
                 <pre>@{{base_url}}/api/v1/partners/fizahub/businesses/@{{external_business_id}}/package</pre>
-                <span class="copy-label">{{ __('Expected') }}</span>
-                <pre>HTTP 200 {{ __('when onboarding is completed') }}</pre>
-                <span class="copy-label">{{ __('Sample response') }}</span>
+                <span class="copy-label">{{ __('Kết quả mong đợi') }}</span>
+                <pre>HTTP 200 {{ __('khi onboarding đã completed') }}</pre>
+                <span class="copy-label">{{ __('Response mẫu') }}</span>
                 <pre>{
   "success": true,
   "data": {
@@ -482,35 +550,35 @@ Content-Type: application/json
 }</pre>
                 <div class="info">
                     <ul>
-                        <li><code>package_code</code> — {{ __('the package code FizaHUB sent (example: package_code=base).') }}</li>
-                        <li><code>plan_slug</code> — {{ __('the internal MLHUB plan (example: mlhub-free-da-nang).') }}</li>
-                        <li><code>expires_at</code> — {{ __('may be null if the plan has no end date yet.') }}</li>
-                        <li>{{ __('This is not Dashboard from/to.') }} {{ __('The MVP does not yet have an endpoint to renew 1/3/6/12 months.') }}</li>
+                        <li><code>package_code</code> — {{ __('mã gói FizaHUB gửi (ví dụ: package_code=base).') }}</li>
+                        <li><code>plan_slug</code> — {{ __('gói nội bộ MLHUB (ví dụ: mlhub-free-da-nang).') }}</li>
+                        <li><code>expires_at</code> — {{ __('có thể null nếu gói chưa có ngày hết hạn.') }}</li>
+                        <li>{{ __('Đây không phải from/to của Dashboard.') }} {{ __('MVP chưa có endpoint gia hạn 1/3/6/12 tháng.') }}</li>
                     </ul>
                 </div>
-                <div class="check">{{ __('Done when: package summary is returned without price/credits.') }}</div>
+                <div class="check">{{ __('Xong khi: trả về tóm tắt gói, không có giá/credit.') }}</div>
             </article>
 
             <article class="step" id="step-7">
                 <h2><span class="step-num">7</span> <span class="method get">GET</span> {{ __('Test GET Dashboard') }}</h2>
                 <ol>
-                    <li>{{ __('Open GET Dashboard.') }}</li>
-                    <li>{{ __('Open the Params tab and check from / to (Dashboard API date range only).') }}</li>
-                    <li>{{ __('If you do not know what to enter, leave from/to empty — the API uses the last 30 days.') }}</li>
-                    <li>{{ __('Click Send.') }}</li>
+                    <li>{{ __('Mở GET Dashboard.') }}</li>
+                    <li>{{ __('Mở tab Params và kiểm tra from / to (chỉ là khoảng ngày báo cáo Dashboard).') }}</li>
+                    <li>{{ __('Không chắc điền gì thì để trống from/to — API dùng 30 ngày gần nhất.') }}</li>
+                    <li>{{ __('Bấm Send.') }}</li>
                 </ol>
                 <span class="copy-label">URL</span>
                 <pre>@{{base_url}}/api/v1/partners/fizahub/businesses/@{{external_business_id}}/dashboard?from=@{{from}}&to=@{{to}}</pre>
                 <span class="copy-label">Params</span>
-                <pre>from = {{ __('report start date, format YYYY-MM-DD') }}
-to = {{ __('report end date, format YYYY-MM-DD') }}</pre>
+                <pre>from = {{ __('ngày bắt đầu báo cáo, định dạng YYYY-MM-DD') }}
+to = {{ __('ngày kết thúc báo cáo, định dạng YYYY-MM-DD') }}</pre>
                 <div class="note">
-                    {{ __('from/to are not the package duration') }}.
-                    {{ __('from and to only choose the Dashboard API report range. They are not used for 1/3/6/12 month package renewal.') }}
+                    {{ __('from/to không phải thời hạn gói') }}.
+                    {{ __('from và to chỉ chọn khoảng báo cáo Dashboard. Không dùng để gia hạn gói 1/3/6/12 tháng.') }}
                 </div>
-                <span class="copy-label">{{ __('Expected') }}</span>
+                <span class="copy-label">{{ __('Kết quả mong đợi') }}</span>
                 <pre>HTTP 200</pre>
-                <span class="copy-label">{{ __('Sample response') }}</span>
+                <span class="copy-label">{{ __('Response mẫu') }}</span>
                 <pre>{
   "success": true,
   "data": {
@@ -542,23 +610,23 @@ to = {{ __('report end date, format YYYY-MM-DD') }}</pre>
 }</pre>
                 <div class="info">
                     <ul>
-                        <li><code>qr_scans</code>: {{ __('QR scan count.') }}</li>
-                        <li><code>new_leads</code>: {{ __('new leads.') }}</li>
-                        <li><code>new_reviews</code>: {{ __('internal review feedback with rating >= 4, not live Google Reviews yet.') }}</li>
-                        <li><code>returning_customers</code>: {{ __('estimate from repeated phone/email identities.') }}</li>
-                        <li><code>conversion_rate</code>: {{ __('internal conversion rate.') }}</li>
+                        <li><code>qr_scans</code>: {{ __('số lượt quét QR.') }}</li>
+                        <li><code>new_leads</code>: {{ __('lead mới.') }}</li>
+                        <li><code>new_reviews</code>: {{ __('phản hồi review nội bộ rating >= 4, chưa phải Google Reviews thật.') }}</li>
+                        <li><code>returning_customers</code>: {{ __('ước tính từ SĐT/email lặp lại.') }}</li>
+                        <li><code>conversion_rate</code>: {{ __('tỷ lệ chuyển đổi nội bộ.') }}</li>
                     </ul>
                 </div>
-                <div class="check">{{ __('Done when: metrics object is present even if all numbers are zero.') }}</div>
+                <div class="check">{{ __('Xong khi: có object metrics dù tất cả số đều bằng 0.') }}</div>
             </article>
 
             <article class="step" id="step-8">
-                <h2><span class="step-num">8</span> <span class="method post">POST</span> {{ __('Test POST Create Support Ticket') }}</h2>
+                <h2><span class="step-num">8</span> <span class="method post">POST</span> {{ __('Test POST Tạo ticket hỗ trợ') }}</h2>
                 <ol>
-                    <li>{{ __('Open POST Create Support Ticket.') }}</li>
-                    <li>{{ __('Open Body → raw → JSON.') }}</li>
-                    <li>{{ __('Copy the full Body raw JSON below and paste it into Body.') }}</li>
-                    <li>{{ __('Click Send.') }}</li>
+                    <li>{{ __('Mở POST Create Support Ticket.') }}</li>
+                    <li>{{ __('Mở Body → raw → JSON.') }}</li>
+                    <li>{{ __('Copy toàn bộ Body raw JSON bên dưới và dán vào Body.') }}</li>
+                    <li>{{ __('Bấm Send.') }}</li>
                 </ol>
                 <span class="copy-label">URL</span>
                 <pre>@{{base_url}}/api/v1/partners/fizahub/businesses/@{{external_business_id}}/support-tickets</pre>
@@ -573,48 +641,51 @@ Content-Type: application/json
 @endverbatim</pre>
                 <span class="copy-label">{{ __('Body raw JSON') }}</span>
                 <pre>{
-  "subject": "Need help with FizaMKT Base",
-  "message": "Please help me create a check-in QR and Google review request.",
+  "subject": "Yêu cầu hỗ trợ FizaMKT Base",
+  "message": "Tôi muốn được hỗ trợ tạo QR check-in và xin review Google.",
   "category_id": null,
   "type_id": null
 }</pre>
-                <span class="copy-label">{{ __('Expected') }}</span>
+                <div class="info">
+                    {{ __('Request gửi lên dùng trường message. Response trả về dùng trường body (xem bước 10).') }}
+                </div>
+                <span class="copy-label">{{ __('Kết quả mong đợi') }}</span>
                 <pre>HTTP 201</pre>
-                <span class="copy-label">{{ __('Sample response') }}</span>
+                <span class="copy-label">{{ __('Response mẫu') }}</span>
                 <pre>{
   "success": true,
   "data": {
     "ticket_id": "secure-ticket-id",
-    "subject": "Need help with FizaMKT Base",
+    "subject": "Yêu cầu hỗ trợ FizaMKT Base",
     "status": "open"
   },
   "error": null
 }</pre>
                 <div class="check">
-                    <strong>{{ __('After the response') }}:</strong>
-                    {{ __('Copy data.ticket_id → paste into the ticket_id variable → Save.') }}
+                    <strong>{{ __('Sau khi có response') }}:</strong>
+                    {{ __('Copy data.ticket_id → dán vào biến ticket_id → Save.') }}
                 </div>
             </article>
 
             <article class="step" id="step-9">
-                <h2><span class="step-num">9</span> <span class="method get">GET</span> {{ __('Test GET List Support Tickets') }}</h2>
+                <h2><span class="step-num">9</span> <span class="method get">GET</span> {{ __('Test GET Danh sách ticket') }}</h2>
                 <ol>
-                    <li>{{ __('Open GET List Support Tickets.') }}</li>
-                    <li>{{ __('Optional Params: page=1, per_page=20.') }}</li>
-                    <li>{{ __('Click Send.') }}</li>
+                    <li>{{ __('Mở GET List Support Tickets.') }}</li>
+                    <li>{{ __('Params tùy chọn: page=1, per_page=20.') }}</li>
+                    <li>{{ __('Bấm Send.') }}</li>
                 </ol>
                 <span class="copy-label">URL</span>
                 <pre>@{{base_url}}/api/v1/partners/fizahub/businesses/@{{external_business_id}}/support-tickets</pre>
-                <span class="copy-label">{{ __('Expected') }}</span>
+                <span class="copy-label">{{ __('Kết quả mong đợi') }}</span>
                 <pre>HTTP 200</pre>
-                <span class="copy-label">{{ __('Sample response') }}</span>
+                <span class="copy-label">{{ __('Response mẫu') }}</span>
                 <pre>{
   "success": true,
   "data": {
     "items": [
       {
         "ticket_id": "secure-ticket-id",
-        "subject": "Need help with FizaMKT Base",
+        "subject": "Yêu cầu hỗ trợ FizaMKT Base",
         "status": "open"
       }
     ],
@@ -626,37 +697,37 @@ Content-Type: application/json
   },
   "error": null
 }</pre>
-                <div class="check">{{ __('Done when: the new ticket appears in the list.') }}</div>
+                <div class="check">{{ __('Xong khi: ticket mới xuất hiện trong danh sách.') }}</div>
             </article>
 
             <article class="step" id="step-10">
-                <h2><span class="step-num">10</span> <span class="method get">GET</span> {{ __('Test GET Support Ticket Detail') }}</h2>
+                <h2><span class="step-num">10</span> <span class="method get">GET</span> {{ __('Test GET Chi tiết ticket') }}</h2>
                 <ol>
-                    <li>{{ __('Open GET Support Ticket Detail.') }}</li>
-                    <li>{{ __('Open Params and confirm external_business_id is present — this query is required.') }}</li>
-                    <li>{{ __('Click Send.') }}</li>
+                    <li>{{ __('Mở GET Support Ticket Detail.') }}</li>
+                    <li>{{ __('Mở Params và xác nhận có external_business_id — query này bắt buộc.') }}</li>
+                    <li>{{ __('Bấm Send.') }}</li>
                 </ol>
                 <span class="copy-label">URL</span>
                 <pre>@{{base_url}}/api/v1/partners/fizahub/support-tickets/@{{ticket_id}}?external_business_id=@{{external_business_id}}</pre>
                 <div class="note">
-                    {{ __('external_business_id is a required query parameter. Missing it returns 422.') }}
+                    {{ __('external_business_id là query bắt buộc. Thiếu sẽ trả 422.') }}
                 </div>
-                <span class="copy-label">{{ __('Expected') }}</span>
+                <span class="copy-label">{{ __('Kết quả mong đợi') }}</span>
                 <pre>HTTP 200</pre>
-                <span class="copy-label">{{ __('Sample response') }}</span>
+                <span class="copy-label">{{ __('Response mẫu') }}</span>
                 <pre>{
   "success": true,
   "data": {
     "ticket": {
       "ticket_id": "secure-ticket-id",
-      "subject": "Need help with FizaMKT Base",
+      "subject": "Yêu cầu hỗ trợ FizaMKT Base",
       "status": "open"
     },
     "messages": [
       {
         "message_id": "secure-ticket-id:initial",
         "sender_type": "business",
-        "body": "Please help me create a check-in QR and Google review request."
+        "body": "Tôi muốn được hỗ trợ tạo QR check-in và xin review Google."
       }
     ],
     "next_poll_after_seconds": 15
@@ -665,21 +736,22 @@ Content-Type: application/json
 }</pre>
                 <div class="info">
                     <ul>
-                        <li>{{ __('This is a polling API, not realtime.') }}</li>
-                        <li>{{ __('The FizaHUB app may call again every 15–30 seconds while the chat screen is open.') }}</li>
+                        <li>{{ __('Đây là API polling, không realtime.') }}</li>
+                        <li>{{ __('App FizaHUB có thể gọi lại mỗi 15–30 giây khi màn hình chat đang mở.') }}</li>
+                        <li>{{ __('Lưu ý: response dùng trường body, không phải message.') }}</li>
                     </ul>
                 </div>
-                <div class="check">{{ __('Done when: conversation messages are visible.') }}</div>
+                <div class="check">{{ __('Xong khi: thấy danh sách tin nhắn trong hội thoại.') }}</div>
             </article>
 
             <article class="step" id="step-11">
-                <h2><span class="step-num">11</span> <span class="method post">POST</span> {{ __('Test POST Send Support Message') }}</h2>
+                <h2><span class="step-num">11</span> <span class="method post">POST</span> {{ __('Test POST Gửi tin nhắn hỗ trợ') }}</h2>
                 <ol>
-                    <li>{{ __('Open POST Send Support Message.') }}</li>
-                    <li>{{ __('Keep the external_business_id query as-is — this query is required.') }}</li>
-                    <li>{{ __('Open Body → raw → JSON and paste the Body raw JSON below.') }}</li>
-                    <li>{{ __('Click Send.') }}</li>
-                    <li>{{ __('Open GET Support Ticket Detail again and click Send to see the new message.') }}</li>
+                    <li>{{ __('Mở POST Send Support Message.') }}</li>
+                    <li>{{ __('Giữ nguyên query external_business_id — bắt buộc.') }}</li>
+                    <li>{{ __('Mở Body → raw → JSON và dán Body raw JSON bên dưới.') }}</li>
+                    <li>{{ __('Bấm Send.') }}</li>
+                    <li>{{ __('Mở lại GET Support Ticket Detail và bấm Send để thấy tin nhắn mới.') }}</li>
                 </ol>
                 <span class="copy-label">URL</span>
                 <pre>@{{base_url}}/api/v1/partners/fizahub/support-tickets/@{{ticket_id}}/messages?external_business_id=@{{external_business_id}}</pre>
@@ -694,29 +766,32 @@ Content-Type: application/json
 @endverbatim</pre>
                 <span class="copy-label">{{ __('Body raw JSON') }}</span>
                 <pre>{
-  "message": "Please prioritize the check-in QR first."
+  "message": "Dạ cửa hàng em muốn ưu tiên tạo QR check-in trước."
 }</pre>
-                <span class="copy-label">{{ __('Expected') }}</span>
+                <span class="copy-label">{{ __('Kết quả mong đợi') }}</span>
                 <pre>HTTP 201</pre>
-                <span class="copy-label">{{ __('Sample response') }}</span>
+                <span class="copy-label">{{ __('Response mẫu') }}</span>
                 <pre>{
   "success": true,
   "data": {
     "message_id": "secure-message-id",
     "sender_type": "business",
-    "body": "Please prioritize the check-in QR first."
+    "body": "Dạ cửa hàng em muốn ưu tiên tạo QR check-in trước."
   },
   "error": null
 }</pre>
-                <div class="check">{{ __('Done when: the new message appears in ticket detail.') }}</div>
+                <div class="info">
+                    {{ __('Request gửi message; response trả về body. Đây là quy ước API partner.') }}
+                </div>
+                <div class="check">{{ __('Xong khi: tin nhắn mới xuất hiện trong chi tiết ticket.') }}</div>
             </article>
 
             <article class="step" id="step-12">
-                <h2><span class="step-num">12</span> <span class="method post">POST</span> {{ __('Test POST One-time Login') }}</h2>
+                <h2><span class="step-num">12</span> <span class="method post">POST</span> {{ __('Test POST Đăng nhập một lần') }}</h2>
                 <ol>
-                    <li>{{ __('Open POST One-time Login.') }}</li>
-                    <li>{{ __('Leave Body empty. No Body is required.') }}</li>
-                    <li>{{ __('Click Send.') }}</li>
+                    <li>{{ __('Mở POST One-time Login.') }}</li>
+                    <li>{{ __('Để trống Body. Không cần Body.') }}</li>
+                    <li>{{ __('Bấm Send.') }}</li>
                 </ol>
                 <span class="copy-label">URL</span>
                 <pre>@{{base_url}}/api/v1/partners/fizahub/businesses/@{{external_business_id}}/one-time-login</pre>
@@ -727,9 +802,9 @@ X-Partner: fizahub
 X-Request-Id: {{$guid}}
 Accept: application/json
 @endverbatim</pre>
-                <span class="copy-label">{{ __('Expected') }}</span>
+                <span class="copy-label">{{ __('Kết quả mong đợi') }}</span>
                 <pre>HTTP 201</pre>
-                <span class="copy-label">{{ __('Sample response') }}</span>
+                <span class="copy-label">{{ __('Response mẫu') }}</span>
                 <pre>{
   "success": true,
   "data": {
@@ -740,62 +815,62 @@ Accept: application/json
 }</pre>
                 <div class="info">
                     <ul>
-                        <li>{{ __('Copy data.url and open it in a browser to enter the MLHUB Portal.') }}</li>
-                        <li>{{ __('The link is single-use and expires in about 5 minutes.') }}</li>
-                        <li>{{ __('Do not share this link with other people.') }}</li>
+                        <li>{{ __('Copy data.url và mở bằng trình duyệt để vào MLHUB Portal.') }}</li>
+                        <li>{{ __('Link dùng một lần và hết hạn khoảng 5 phút.') }}</li>
+                        <li>{{ __('Không chia sẻ link này cho người khác.') }}</li>
                     </ul>
                 </div>
-                <div class="check">{{ __('Done when: you received a one-time login URL.') }}</div>
+                <div class="check">{{ __('Xong khi: nhận được URL đăng nhập một lần.') }}</div>
             </article>
 
             <div class="panel" style="margin-top:1.2rem;" id="troubleshooting">
-                <h2 style="margin:0 0 .6rem;font-size:1.1rem;">{{ __('Common errors') }}</h2>
+                <h2 style="margin:0 0 .6rem;font-size:1.1rem;">{{ __('Lỗi thường gặp') }}</h2>
                 <div class="table-wrap">
                     <table>
                         <thead>
                             <tr>
-                                <th>{{ __('HTTP code') }}</th>
-                                <th>{{ __('Error') }}</th>
-                                <th>{{ __('Common cause') }}</th>
-                                <th>{{ __('How to fix') }}</th>
+                                <th>{{ __('Mã HTTP') }}</th>
+                                <th>{{ __('Lỗi') }}</th>
+                                <th>{{ __('Nguyên nhân thường gặp') }}</th>
+                                <th>{{ __('Cách xử lý') }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>401</td>
                                 <td><code>invalid_partner_token</code></td>
-                                <td>{{ __('partner_token is wrong or not set on the server.') }}</td>
-                                <td>{{ __('Check the partner_token variable and the FIZAHUB_PARTNER_TOKEN ENV on the server.') }}</td>
+                                <td>{{ __('partner_token sai hoặc chưa cấu hình trên server.') }}</td>
+                                <td>{{ __('Kiểm tra biến partner_token và ENV FIZAHUB_PARTNER_TOKEN trên server.') }}</td>
                             </tr>
                             <tr>
                                 <td>400</td>
                                 <td><code>invalid_partner_header</code></td>
-                                <td>{{ __('Missing X-Partner or X-Request-Id.') }}</td>
-                                <td>{{ __('Check the request Headers.') }}</td>
+                                <td>{{ __('Thiếu X-Partner hoặc X-Request-Id.') }}</td>
+                                <td>{{ __('Kiểm tra tab Headers của request.') }}</td>
                             </tr>
                             <tr>
                                 <td>422</td>
                                 <td><code>validation_failed</code></td>
-                                <td>{{ __('Missing field, bad email/url/date, missing Idempotency-Key, or missing external_business_id on support detail/message.') }}</td>
-                                <td>{{ __('Read error.details and fix Body/Params.') }}</td>
+                                <td>{{ __('Thiếu field, email/url/ngày sai, thiếu Idempotency-Key, hoặc thiếu external_business_id ở chi tiết/gửi tin ticket.') }}</td>
+                                <td>{{ __('Đọc error.details và sửa Body/Params.') }}</td>
                             </tr>
                             <tr>
                                 <td>404</td>
                                 <td><code>integration_not_found</code></td>
-                                <td>{{ __('external_business_id is not onboarded as completed yet.') }}</td>
-                                <td>{{ __('Run POST Onboarding first and confirm status completed.') }}</td>
+                                <td>{{ __('external_business_id chưa onboarding completed.') }}</td>
+                                <td>{{ __('Chạy POST Onboarding trước và xác nhận status completed.') }}</td>
                             </tr>
                             <tr>
                                 <td>409</td>
                                 <td><code>idempotency_conflict</code></td>
-                                <td>{{ __('Reused an old Idempotency-Key with a different Body.') }}</td>
-                                <td>{{ __('Create a new key, or Send again with the same Body.') }}</td>
+                                <td>{{ __('Dùng lại Idempotency-Key cũ với Body khác.') }}</td>
+                                <td>{{ __('Tạo key mới, hoặc Send lại với cùng Body.') }}</td>
                             </tr>
                             <tr>
                                 <td>429</td>
                                 <td><code>rate_limit_exceeded</code></td>
-                                <td>{{ __('Too many requests per minute.') }}</td>
-                                <td>{{ __('Wait one minute and try again.') }}</td>
+                                <td>{{ __('Gọi API quá nhiều trong một phút.') }}</td>
+                                <td>{{ __('Chờ một phút rồi thử lại.') }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -803,17 +878,17 @@ Accept: application/json
             </div>
 
             <div class="panel" style="margin-top:1.2rem;">
-                <h2 style="margin:0 0 .6rem;font-size:1.1rem;">{{ __('Finished checklist') }}</h2>
+                <h2 style="margin:0 0 .6rem;font-size:1.1rem;">{{ __('Checklist hoàn tất') }}</h2>
                 <ul>
-                    <li>{{ __('Health returned ok') }}</li>
-                    <li>{{ __('Onboarding created/updated and request_id saved') }}</li>
-                    <li>{{ __('Package and Dashboard returned for a completed mapping') }}</li>
-                    <li>{{ __('Support ticket created, listed, detailed, and messaged') }}</li>
-                    <li>{{ __('One-time login URL issued') }}</li>
+                    <li>{{ __('Health trả về ok') }}</li>
+                    <li>{{ __('Onboarding tạo/cập nhật và đã lưu request_id') }}</li>
+                    <li>{{ __('Package và Dashboard trả về cho mapping completed') }}</li>
+                    <li>{{ __('Ticket hỗ trợ đã tạo, liệt kê, xem chi tiết và gửi tin nhắn') }}</li>
+                    <li>{{ __('URL đăng nhập một lần đã được cấp') }}</li>
                 </ul>
                 <div class="cta-row" style="margin-top:1rem;">
-                    <a class="btn btn-primary" href="{{ $docsUrl }}">{{ __('Back to API docs') }}</a>
-                    <a class="btn btn-ghost" href="{{ $postmanUrl }}">{{ __('Download Postman JSON again') }}</a>
+                    <a class="btn btn-primary" href="{{ $docsUrl }}">{{ __('Quay lại tài liệu API') }}</a>
+                    <a class="btn btn-ghost" href="{{ $postmanUrl }}">{{ __('Tải lại file Postman JSON') }}</a>
                 </div>
             </div>
         </div>
@@ -822,7 +897,7 @@ Accept: application/json
 
 <footer class="footer">
     <div class="wrap">
-        <p style="margin:0;">{{ __('FizaHUB Partner API - Step-by-step Postman test guide') }} · <a href="{{ $docsUrl }}">/api-fizahub</a> · <a href="{{ route('partner.fizahub.docs.help-test') }}">/api-fizahub/help-test</a></p>
+        <p style="margin:0;">{{ __('FizaHUB Partner API - Hướng dẫn test Postman từng bước') }} · <a href="{{ $docsUrl }}">/api-fizahub</a> · <a href="{{ route('partner.fizahub.docs.help-test') }}">/api-fizahub/help-test</a></p>
     </div>
 </footer>
 </body>

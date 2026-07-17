@@ -11,6 +11,8 @@ use Modules\AdminUser\Models\User;
 use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
 use Modules\AppBusinessProfiles\Models\LocalBusiness;
 
+require_once __DIR__.'/FizaHubTestHelpers.php';
+
 function createSupportApiTables(): void
 {
     Schema::dropIfExists('partner_one_time_logins');
@@ -130,8 +132,7 @@ function createSupportApiTables(): void
         $table->timestamps();
     });
 
-    $migration = require base_path('modules/APIPartnerFizaHUB/Database/Migrations/2026_07_13_000000_create_fizahub_partner_api_tables.php');
-    $migration->up();
+    createFizaHubPartnerTables();
 }
 
 /**
@@ -205,10 +206,7 @@ beforeEach(function (): void {
 });
 
 afterEach(function (): void {
-    Schema::dropIfExists('partner_one_time_logins');
-    Schema::dropIfExists('partner_api_logs');
-    Schema::dropIfExists('partner_onboarding_requests');
-    Schema::dropIfExists('partner_integrations');
+    dropFizaHubPartnerTables();
     Schema::dropIfExists('support_comments');
     Schema::dropIfExists('support_tickets');
     Schema::dropIfExists('lb_businesses');

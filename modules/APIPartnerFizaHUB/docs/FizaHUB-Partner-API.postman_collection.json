@@ -1,1536 +1,458 @@
 {
     "info": {
-        "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-        "name": "FizaHUB Partner API (MLHUB MVP)",
-        "description": "Collection sẵn sàng chạy cho FizaHUB → MLHUB Partner API (MVP).\n\n## Biến đã cấu hình\n- base_url = https://mlhub.vn\n- partner_token = fizahub\n- external_user_id / external_business_id demo\n- from/to = khoảng ngày báo cáo Dashboard (không phải thời hạn gói)\n\n## Cách xem các trường hợp\nTrong mỗi request, mở mục **Examples** (e.g.) để xem:\n- Thành công\n- Lỗi người dùng (token/header/validation/thiếu field)\n- Lỗi nghiệp vụ (chưa map, ticket đóng, idempotency)\n- Lỗi kỹ thuật (429/500)\n\nMessage trong example dùng tiếng Việt để dễ hình dung. Envelope JSON vẫn đúng format API thật.\n\n## Mã lỗi thường gặp\n| code | HTTP | Ý nghĩa |\n|------|------|---------|\n| invalid_partner_token | 401 | Token sai |\n| invalid_partner_header | 400 | Sai/thiếu X-Partner hoặc X-Request-Id |\n| validation_failed | 422 | Body/Params thiếu hoặc sai |\n| integration_not_found | 404 | Chưa onboarding completed |\n| resource_not_found | 404 | Không tìm thấy resource |\n| idempotency_conflict | 409 | Trùng Idempotency-Key khác body |\n| idempotency_in_progress | 409 | Request cùng key đang chạy |\n| ticket_not_open | 409 | Ticket đã đóng/resolved |\n| rate_limit_exceeded | 429 | Quá hạn mức |\n| partner_api_error | 500 | Lỗi kỹ thuật server |",
+        "name": "MLHUB × FizaHUB Partner API",
+        "_postman_id": "b6f0f2a2-2a5e-4a44-9d9c-fizahub24core",
+        "description": "24 Core API của tích hợp MLHUB × FizaHUB.\n\nLuồng onboarding: FizaHUB gửi yêu cầu → MLHUB tạo ngay tài khoản Free (User + Team + Business + Integration, gói free/base → mlhub-free-da-nang) → trạng thái awaiting_consultant (Chờ tư vấn viên liên hệ) → tư vấn viên/Admin xử lý (consulting → configuring → ready → completed) → MLHUB sync trạng thái về FizaHUB qua webhook.\n\nTrùng email/mã số thuế/GPKD vẫn tạo tài khoản nhưng đặt needs_review. One-time login chỉ mở khi onboarding ở trạng thái ready hoặc completed, nếu không sẽ trả 409 onboarding_not_ready.\n\nBảo mật: KHÔNG nhận CCCD/ảnh giấy tờ. Không nhúng secret thật vào collection — thay {{partner_token}} bằng token do MLHUB cấp.",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "variable": [
-        {
-            "key": "base_url",
-            "value": "https://mlhub.vn"
-        },
-        {
-            "key": "partner_token",
-            "value": "fizahub"
-        },
-        {
-            "key": "external_user_id",
-            "value": "fh-user-demo-001"
-        },
-        {
-            "key": "external_business_id",
-            "value": "fh-biz-demo-001"
-        },
-        {
-            "key": "onboarding_request_id",
-            "value": ""
-        },
-        {
-            "key": "ticket_id",
-            "value": ""
-        },
-        {
-            "key": "from",
-            "value": "2026-06-15"
-        },
-        {
-            "key": "to",
-            "value": "2026-07-14"
-        }
+        { "key": "base_url", "value": "https://mlhub.vn" },
+        { "key": "partner_token", "value": "replace-with-fizahub-partner-token" },
+        { "key": "external_user_id", "value": "fh-user-demo-001" },
+        { "key": "external_business_id", "value": "fh-biz-demo-001" },
+        { "key": "onboarding_request_id", "value": "{{$guid}}" },
+        { "key": "ticket_id", "value": "tkt-demo-0001" },
+        { "key": "campaign_id", "value": "cmp-demo-0001" },
+        { "key": "from", "value": "2026-07-01" },
+        { "key": "to", "value": "2026-07-13" }
     ],
     "item": [
         {
             "name": "GET Health",
-            "event": [
-                {
-                    "listen": "test",
-                    "script": {
-                        "type": "text/javascript",
-                        "exec": [
-                            "pm.test('success shape', function () {",
-                            "  const json = pm.response.json();",
-                            "  pm.expect(json.success).to.eql(true);",
-                            "  pm.expect(json.data.status).to.eql('ok');",
-                            "  pm.expect(pm.response.headers.get('X-Request-Id')).to.be.ok;",
-                            "});"
-                        ]
-                    }
-                }
-            ],
             "request": {
                 "method": "GET",
                 "header": [
-                    {
-                        "key": "Authorization",
-                        "value": "Bearer {{partner_token}}"
-                    },
-                    {
-                        "key": "X-Partner",
-                        "value": "fizahub"
-                    },
-                    {
-                        "key": "X-Request-Id",
-                        "value": "{{$guid}}"
-                    },
-                    {
-                        "key": "Accept",
-                        "value": "application/json"
-                    }
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
                 ],
-                "description": "Kiểm tra kết nối + auth. Xem Examples để mô phỏng thành công và các lỗi auth/kỹ thuật.",
                 "url": "{{base_url}}/api/v1/partners/fizahub/health"
             },
             "response": [
-                {
-                    "name": "Thành công — Health OK (200)",
-                    "status": "OK",
-                    "code": 200,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": true,\n    \"data\": {\n        \"status\": \"ok\",\n        \"partner\": \"fizahub\",\n        \"api_version\": \"v1\",\n        \"server_time\": \"2026-07-14T02:00:00+00:00\",\n        \"message_vi\": \"Kết nối Partner API thành công.\"\n    },\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": null\n}"
-                },
-                {
-                    "name": "Lỗi người dùng — Token sai (401)",
-                    "status": "Unauthorized",
-                    "code": 401,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"invalid_partner_token\",\n        \"message\": \"Bearer token đối tác không hợp lệ. Kiểm tra biến partner_token hoặc ENV FIZAHUB_PARTNER_TOKEN trên server MLHUB.\",\n        \"details\": []\n    }\n}"
-                },
-                {
-                    "name": "Lỗi người dùng — Sai X-Partner (400)",
-                    "status": "Bad Request",
-                    "code": 400,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"invalid_partner_header\",\n        \"message\": \"Header X-Partner bắt buộc phải là fizahub.\",\n        \"details\": []\n    }\n}"
-                },
-                {
-                    "name": "Lỗi người dùng — X-Request-Id không phải UUID (400)",
-                    "status": "Bad Request",
-                    "code": 400,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"invalid_partner_header\",\n        \"message\": \"Header X-Request-Id bắt buộc là UUID hợp lệ.\",\n        \"details\": []\n    }\n}"
-                },
-                {
-                    "name": "Lỗi kỹ thuật — Rate limit (429)",
-                    "status": "Too Many Requests",
-                    "code": 429,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"rate_limit_exceeded\",\n        \"message\": \"Gọi quá nhiều request trong một phút. Vui lòng đợi rồi thử lại.\",\n        \"details\": []\n    }\n}"
-                },
-                {
-                    "name": "Lỗi kỹ thuật — Lỗi server (500)",
-                    "status": "Internal Server Error",
-                    "code": 500,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"partner_api_error\",\n        \"message\": \"Đã xảy ra lỗi kỹ thuật không mong muốn phía Partner API. Liên hệ MLHUB kèm request_id.\",\n        \"details\": []\n    }\n}"
-                }
+                { "name": "Thành công", "status": "OK", "code": 200, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": { \"status\": \"ok\" },\n  \"meta\": { \"request_id\": \"{{$guid}}\" },\n  \"error\": null\n}" },
+                { "name": "Lỗi kỹ thuật", "status": "Internal Server Error", "code": 500, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"partner_api_error\", \"message\": \"An unexpected partner API error occurred.\", \"details\": [] }\n}" }
             ]
         },
         {
-            "name": "GET Package",
-            "event": [
-                {
-                    "listen": "test",
-                    "script": {
-                        "type": "text/javascript",
-                        "exec": [
-                            "pm.test('package whitelist shape', function () {",
-                            "  const json = pm.response.json();",
-                            "  pm.expect(json.success).to.eql(true);",
-                            "  pm.expect(json.data).to.have.property('package_code');",
-                            "  pm.expect(json.data).to.have.property('limits');",
-                            "  pm.expect(json.data).to.not.have.property('price');",
-                            "});"
-                        ]
-                    }
-                }
-            ],
+            "name": "POST SSO Verify",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" },
+                    { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": { "mode": "raw", "raw": "{}" },
+                "url": "{{base_url}}/api/v1/partners/fizahub/partner/sso/verify"
+            },
+            "response": [
+                { "name": "Thành công", "status": "OK", "code": 200, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": { \"partner_code\": \"fizahub\", \"verified\": true },\n  \"error\": null\n}" },
+                { "name": "Lỗi người dùng", "status": "Unprocessable Entity", "code": 422, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"validation_failed\", \"message\": \"The given data was invalid.\", \"details\": {} }\n}" }
+            ]
+        },
+        {
+            "name": "GET Package Catalog",
             "request": {
                 "method": "GET",
                 "header": [
-                    {
-                        "key": "Authorization",
-                        "value": "Bearer {{partner_token}}"
-                    },
-                    {
-                        "key": "X-Partner",
-                        "value": "fizahub"
-                    },
-                    {
-                        "key": "X-Request-Id",
-                        "value": "{{$guid}}"
-                    },
-                    {
-                        "key": "Accept",
-                        "value": "application/json"
-                    }
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
                 ],
-                "description": "Đọc gói hiện tại. package_code=base → plan mlhub-free-da-nang. starts_at/expires_at là thời hạn gói MLHUB, không phải from/to Dashboard.",
-                "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/package"
+                "url": "{{base_url}}/api/v1/partners/fizahub/packages"
             },
             "response": [
-                {
-                    "name": "Thành công — Package active (200)",
-                    "status": "OK",
-                    "code": 200,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": true,\n    \"data\": {\n        \"package_code\": \"base\",\n        \"package_name\": \"MLHUB Free Da Nang\",\n        \"plan_slug\": \"mlhub-free-da-nang\",\n        \"status\": \"active\",\n        \"starts_at\": \"2026-07-14T10:00:00Z\",\n        \"expires_at\": null,\n        \"is_trial\": false,\n        \"integration_status\": \"active\",\n        \"limits\": {\n            \"max_businesses\": 1,\n            \"max_campaigns\": 3,\n            \"max_landing_pages\": 3,\n            \"max_qr_codes\": 10,\n            \"max_team_members\": 1\n        },\n        \"message_vi\": \"Đã lấy thông tin gói. expires_at=null nghĩa là chưa có ngày hết hạn trên MLHUB.\"\n    },\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": null\n}"
-                },
-                {
-                    "name": "Lỗi nghiệp vụ — Chưa map integration (404)",
-                    "status": "Not Found",
-                    "code": 404,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa có mapping MLHUB cho external_business_id này. Hãy chạy POST Onboarding và chờ status=completed.\",\n        \"details\": []\n    }\n}"
-                },
-                {
-                    "name": "Lỗi người dùng — Token sai (401)",
-                    "status": "Unauthorized",
-                    "code": 401,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"invalid_partner_token\",\n        \"message\": \"Bearer token đối tác không hợp lệ.\",\n        \"details\": []\n    }\n}"
-                },
-                {
-                    "name": "Lỗi kỹ thuật — Rate limit (429)",
-                    "status": "Too Many Requests",
-                    "code": 429,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"rate_limit_exceeded\",\n        \"message\": \"Gọi quá nhiều request. Đợi khoảng 1 phút rồi thử lại.\",\n        \"details\": []\n    }\n}"
-                }
+                { "name": "Thành công", "status": "OK", "code": 200, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": {\n    \"default_package_code\": \"free\",\n    \"packages\": [\n      { \"package_code\": \"free\", \"plan_slug\": \"mlhub-free-da-nang\", \"package_name\": \"MLHUB Free Da Nang\", \"is_default\": true, \"is_free\": true },\n      { \"package_code\": \"base\", \"plan_slug\": \"mlhub-free-da-nang\", \"package_name\": \"MLHUB Free Da Nang\", \"is_default\": false, \"is_free\": true }\n    ]\n  },\n  \"error\": null\n}" },
+                { "name": "Lỗi kỹ thuật", "status": "Internal Server Error", "code": 500, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"partner_api_error\", \"message\": \"An unexpected partner API error occurred.\", \"details\": [] }\n}" }
             ]
         },
         {
             "name": "POST Onboarding",
-            "event": [
-                {
-                    "listen": "prerequest",
-                    "script": {
-                        "type": "text/javascript",
-                        "exec": [
-                            "pm.variables.set('idempotency_key', pm.variables.replaceIn('{{$guid}}'));"
-                        ]
-                    }
-                },
-                {
-                    "listen": "test",
-                    "script": {
-                        "type": "text/javascript",
-                        "exec": [
-                            "pm.test('onboarding response', function () {",
-                            "  const json = pm.response.json();",
-                            "  pm.expect([200, 201, 202]).to.include(pm.response.code);",
-                            "  pm.expect(json.success).to.eql(true);",
-                            "  if (json.data && json.data.request_id) {",
-                            "    pm.collectionVariables.set('onboarding_request_id', json.data.request_id);",
-                            "  }",
-                            "  if (json.data && json.data.external_business_id) {",
-                            "    pm.collectionVariables.set('external_business_id', json.data.external_business_id);",
-                            "  }",
-                            "});"
-                        ]
-                    }
-                }
-            ],
             "request": {
                 "method": "POST",
                 "header": [
-                    {
-                        "key": "Authorization",
-                        "value": "Bearer {{partner_token}}"
-                    },
-                    {
-                        "key": "X-Partner",
-                        "value": "fizahub"
-                    },
-                    {
-                        "key": "X-Request-Id",
-                        "value": "{{$guid}}"
-                    },
-                    {
-                        "key": "Accept",
-                        "value": "application/json"
-                    },
-                    {
-                        "key": "Idempotency-Key",
-                        "value": "{{idempotency_key}}"
-                    },
-                    {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                    }
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" },
+                    { "key": "Content-Type", "value": "application/json" },
+                    { "key": "Idempotency-Key", "value": "{{$guid}}" }
                 ],
-                "body": {
-                    "mode": "raw",
-                    "raw": "{\n  \"external_user_id\": \"{{external_user_id}}\",\n  \"external_business_id\": \"{{external_business_id}}\",\n  \"package_code\": \"base\",\n  \"owner\": {\n    \"name\": \"Nguyen Van A\",\n    \"phone\": \"0912345678\",\n    \"email\": \"nguyenvana+demo001@example.com\"\n  },\n  \"business\": {\n    \"name\": \"Fiza Demo Store - Com Tam Da Nang\",\n    \"industry\": \"restaurant_food\",\n    \"address\": \"123 Nguyen Trai, Hai Chau, Da Nang\",\n    \"phone\": \"0912345678\",\n    \"email\": \"store-demo001@example.com\",\n    \"website\": \"https://mlhub.vn\",\n    \"tax_code\": null,\n    \"business_license_number\": \"HKD-DEMO-001\"\n  },\n  \"verification\": {\n    \"identity_verified\": true,\n    \"verified_by\": \"fizahub\",\n    \"verified_at\": \"2026-07-14T10:00:00+07:00\"\n  }\n}",
-                    "options": {
-                        "raw": {
-                            "language": "json"
-                        }
-                    }
-                },
-                "description": "Tạo/cập nhật onboarding. Bắt buộc Idempotency-Key.\n\nTrạng thái:\n- completed (201/200)\n- pending_verification (202)\n- needs_review (202)\n\nKhông gửi CCCD/file GPKD.",
-                "url": "{{base_url}}/api/v1/partners/fizahub/onboarding-requests"
+                "body": { "mode": "raw", "raw": "{\n  \"external_business_id\": \"{{external_business_id}}\",\n  \"external_user_id\": \"{{external_user_id}}\",\n  \"package_code\": \"base\",\n  \"owner\": {\n    \"name\": \"Nguyen Van A\",\n    \"phone\": \"0901 234 567\",\n    \"email\": \"nguyenvana+demo001@example.com\"\n  },\n  \"business\": {\n    \"name\": \"Fiza Demo Store - Com Tam Da Nang\",\n    \"industry\": \"restaurant_food\",\n    \"phone\": \"0901 234 567\",\n    \"address\": \"123 Le Duan, Da Nang\",\n    \"tax_code\": \"0101 234 567\",\n    \"business_license_number\": \"GPKD 123\"\n  },\n  \"verification\": {\n    \"identity_verified\": true,\n    \"verified_at\": \"2026-07-13T10:00:00+07:00\",\n    \"verified_by\": \"fizahub\"\n  }\n}" },
+                "url": "{{base_url}}/api/v1/partners/fizahub/onboarding-requests",
+                "description": "MLHUB LUÔN tạo ngay tài khoản Free rồi đặt trạng thái awaiting_consultant. requested_package_code lưu riêng (base), package_code hiệu lực = free. Trùng email/mã số thuế/GPKD vẫn tạo tài khoản nhưng chuyển needs_review. Chuỗi trạng thái: awaiting_consultant → consulting → configuring → ready → completed."
             },
             "response": [
-                {
-                    "name": "Thành công — completed (201)",
-                    "status": "Created",
-                    "code": 201,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": true,\n    \"data\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\",\n        \"external_business_id\": \"fh-biz-demo-001\",\n        \"package_code\": \"base\",\n        \"status\": \"completed\",\n        \"current_step\": \"ready\",\n        \"duplicate_check\": [],\n        \"support_ticket_id\": null,\n        \"mlhub_user_id\": 1001,\n        \"mlhub_workspace_id\": 2001,\n        \"mlhub_business_id\": 3001,\n        \"message_vi\": \"Onboarding hoàn tất. Có thể gọi Package/Dashboard/Support/Login.\"\n    },\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": null\n}"
-                },
-                {
-                    "name": "Đang chờ — pending_verification (202)",
-                    "status": "Accepted",
-                    "code": 202,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": true,\n    \"data\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6591\",\n        \"external_business_id\": \"fh-biz-demo-001\",\n        \"package_code\": \"base\",\n        \"status\": \"pending_verification\",\n        \"current_step\": \"verification\",\n        \"duplicate_check\": [],\n        \"support_ticket_id\": \"secure-ticket-review-001\",\n        \"message_vi\": \"Chưa xác minh danh tính upstream. MLHUB đã mở ticket nội bộ để xử lý.\"\n    },\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": null\n}"
-                },
-                {
-                    "name": "Cần duyệt — needs_review (202)",
-                    "status": "Accepted",
-                    "code": 202,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": true,\n    \"data\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6592\",\n        \"external_business_id\": \"fh-biz-demo-002\",\n        \"package_code\": \"base\",\n        \"status\": \"needs_review\",\n        \"current_step\": \"duplicate_review\",\n        \"duplicate_check\": [\n            {\n                \"type\": \"email\",\n                \"id\": 88\n            }\n        ],\n        \"support_ticket_id\": \"secure-ticket-review-002\",\n        \"message_vi\": \"Phát hiện trùng email/mã số/giấy phép. Không tự gắn vào user cũ; chờ MLHUB duyệt.\"\n    },\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": null\n}"
-                },
-                {
-                    "name": "Lỗi người dùng — Thiếu field bắt buộc (422)",
-                    "status": "Unprocessable Entity",
-                    "code": 422,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"validation_failed\",\n        \"message\": \"Dữ liệu gửi lên không hợp lệ. Kiểm tra details để biết field thiếu/sai.\",\n        \"details\": {\n            \"owner.email\": [\n                \"Trường owner.email là bắt buộc.\"\n            ],\n            \"business.industry\": [\n                \"Trường business.industry là bắt buộc.\"\n            ],\n            \"package_code\": [\n                \"Trường package_code là bắt buộc.\"\n            ]\n        }\n    }\n}"
-                },
-                {
-                    "name": "Lỗi người dùng — Thiếu Idempotency-Key (422)",
-                    "status": "Unprocessable Entity",
-                    "code": 422,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"validation_failed\",\n        \"message\": \"Thiếu header Idempotency-Key cho POST onboarding.\",\n        \"details\": {\n            \"Idempotency-Key\": [\n                \"The Idempotency-Key header is required.\"\n            ]\n        }\n    }\n}"
-                },
-                {
-                    "name": "Lỗi người dùng — Gửi field CCCD bị cấm (422)",
-                    "status": "Unprocessable Entity",
-                    "code": 422,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"validation_failed\",\n        \"message\": \"Không chấp nhận field giấy tờ định danh (CCCD/ảnh GPKD).\",\n        \"details\": {\n            \"payload\": [\n                \"Identity document fields are not accepted: owner.cccd.\"\n            ]\n        }\n    }\n}"
-                },
-                {
-                    "name": "Lỗi nghiệp vụ — Idempotency conflict (409)",
-                    "status": "Conflict",
-                    "code": 409,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"idempotency_conflict\",\n        \"message\": \"Idempotency-Key đã dùng với body khác. Tạo key mới hoặc gửi lại đúng body cũ.\",\n        \"details\": []\n    }\n}"
-                },
-                {
-                    "name": "Lỗi nghiệp vụ — Idempotency đang xử lý (409)",
-                    "status": "Conflict",
-                    "code": 409,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"idempotency_in_progress\",\n        \"message\": \"Request cùng Idempotency-Key vẫn đang chạy. Đợi rồi thử lại.\",\n        \"details\": []\n    }\n}"
-                },
-                {
-                    "name": "Lỗi kỹ thuật — Server (500)",
-                    "status": "Internal Server Error",
-                    "code": 500,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"partner_api_error\",\n        \"message\": \"Lỗi kỹ thuật khi provision user/team/business. Gửi request_id cho MLHUB.\",\n        \"details\": []\n    }\n}"
-                }
+                { "name": "Thành công", "status": "Created", "code": 201, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": {\n    \"request_id\": \"{{$guid}}\",\n    \"external_business_id\": \"{{external_business_id}}\",\n    \"account_created\": true,\n    \"business_created\": true,\n    \"integration_created\": true,\n    \"status\": \"awaiting_consultant\",\n    \"current_step\": \"consultant_contact\",\n    \"status_label\": \"Chờ tư vấn viên liên hệ\",\n    \"requested_package_code\": \"base\",\n    \"approved_package_code\": null,\n    \"package_code\": \"free\",\n    \"duplicate_check\": [],\n    \"mlhub_user_id\": 1001,\n    \"mlhub_business_id\": 2001\n  },\n  \"error\": null\n}" },
+                { "name": "Lỗi người dùng", "status": "Unprocessable Entity", "code": 422, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"validation_failed\", \"message\": \"The given data was invalid.\", \"details\": { \"owner.email\": [\"The owner.email field is required.\"] } }\n}" }
             ]
         },
         {
             "name": "GET Onboarding Status",
-            "event": [
-                {
-                    "listen": "test",
-                    "script": {
-                        "type": "text/javascript",
-                        "exec": [
-                            "pm.test('onboarding status', function () {",
-                            "  const json = pm.response.json();",
-                            "  pm.expect(json.success).to.eql(true);",
-                            "  pm.expect(json.data).to.have.property('status');",
-                            "});"
-                        ]
-                    }
-                }
-            ],
             "request": {
                 "method": "GET",
                 "header": [
-                    {
-                        "key": "Authorization",
-                        "value": "Bearer {{partner_token}}"
-                    },
-                    {
-                        "key": "X-Partner",
-                        "value": "fizahub"
-                    },
-                    {
-                        "key": "X-Request-Id",
-                        "value": "{{$guid}}"
-                    },
-                    {
-                        "key": "Accept",
-                        "value": "application/json"
-                    }
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
                 ],
-                "description": "Đọc trạng thái onboarding theo onboarding_request_id.",
                 "url": "{{base_url}}/api/v1/partners/fizahub/onboarding-requests/{{onboarding_request_id}}"
             },
             "response": [
-                {
-                    "name": "Thành công — status completed (200)",
-                    "status": "OK",
-                    "code": 200,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": true,\n    \"data\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\",\n        \"external_business_id\": \"fh-biz-demo-001\",\n        \"package_code\": \"base\",\n        \"status\": \"completed\",\n        \"current_step\": \"ready\",\n        \"message_vi\": \"Sẵn sàng dùng các API đã map.\"\n    },\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": null\n}"
-                },
-                {
-                    "name": "Thành công — status pending_verification (200)",
-                    "status": "OK",
-                    "code": 200,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": true,\n    \"data\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6591\",\n        \"status\": \"pending_verification\",\n        \"current_step\": \"verification\",\n        \"message_vi\": \"Đang chờ xác minh danh tính.\"\n    },\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": null\n}"
-                },
-                {
-                    "name": "Thành công — status needs_review (200)",
-                    "status": "OK",
-                    "code": 200,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": true,\n    \"data\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6592\",\n        \"status\": \"needs_review\",\n        \"current_step\": \"duplicate_review\",\n        \"message_vi\": \"Đang chờ MLHUB duyệt trùng dữ liệu.\"\n    },\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": null\n}"
-                },
-                {
-                    "name": "Lỗi người dùng — request_id trống/sai (404)",
-                    "status": "Not Found",
-                    "code": 404,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"resource_not_found\",\n        \"message\": \"Không tìm thấy onboarding request. Kiểm tra biến onboarding_request_id.\",\n        \"details\": []\n    }\n}"
-                },
-                {
-                    "name": "Lỗi người dùng — Token sai (401)",
-                    "status": "Unauthorized",
-                    "code": 401,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"invalid_partner_token\",\n        \"message\": \"Bearer token đối tác không hợp lệ.\",\n        \"details\": []\n    }\n}"
-                }
+                { "name": "Thành công", "status": "OK", "code": 200, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": {\n    \"request_id\": \"{{onboarding_request_id}}\",\n    \"status\": \"needs_review\",\n    \"current_step\": \"needs_review\",\n    \"status_label\": \"Cần kiểm tra\",\n    \"requested_package_code\": \"base\",\n    \"package_code\": \"free\",\n    \"duplicate_check\": [ { \"type\": \"email\", \"id\": 1001 } ]\n  },\n  \"error\": null\n}" },
+                { "name": "Lỗi nghiệp vụ", "status": "Not Found", "code": 404, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"resource_not_found\", \"message\": \"The requested resource was not found.\", \"details\": [] }\n}" }
+            ]
+        },
+        {
+            "name": "POST Confirm Onboarding",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" },
+                    { "key": "Content-Type", "value": "application/json" },
+                    { "key": "Idempotency-Key", "value": "{{$guid}}" }
+                ],
+                "body": { "mode": "raw", "raw": "{\n  \"note\": \"Chủ cửa hàng đã xác nhận qua điện thoại.\"\n}" },
+                "url": "{{base_url}}/api/v1/partners/fizahub/onboarding-requests/{{onboarding_request_id}}/confirm"
+            },
+            "response": [
+                { "name": "Thành công", "status": "OK", "code": 200, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": { \"request_id\": \"{{onboarding_request_id}}\", \"status\": \"awaiting_consultant\", \"partner_confirmed_at\": \"2026-07-13T04:00:00+00:00\" },\n  \"error\": null\n}" },
+                { "name": "Lỗi người dùng", "status": "Unprocessable Entity", "code": 422, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"validation_failed\", \"message\": \"The given data was invalid.\", \"details\": {} }\n}" }
+            ]
+        },
+        {
+            "name": "POST Cancel Onboarding",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" },
+                    { "key": "Content-Type", "value": "application/json" },
+                    { "key": "Idempotency-Key", "value": "{{$guid}}" }
+                ],
+                "body": { "mode": "raw", "raw": "{\n  \"reason\": \"Chủ cửa hàng đổi ý.\"\n}" },
+                "url": "{{base_url}}/api/v1/partners/fizahub/onboarding-requests/{{onboarding_request_id}}/cancel"
+            },
+            "response": [
+                { "name": "Thành công", "status": "OK", "code": 200, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": { \"request_id\": \"{{onboarding_request_id}}\", \"status\": \"cancelled\", \"current_step\": \"cancelled\", \"status_label\": \"Đã hủy\" },\n  \"error\": null\n}" },
+                { "name": "Lỗi người dùng", "status": "Unprocessable Entity", "code": 422, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"validation_failed\", \"message\": \"The given data was invalid.\", \"details\": {} }\n}" }
+            ]
+        },
+        {
+            "name": "GET Integration Status",
+            "request": {
+                "method": "GET",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/integration-status"
+            },
+            "response": [
+                { "name": "Thành công", "status": "OK", "code": 200, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": { \"external_business_id\": \"{{external_business_id}}\", \"status\": \"active\", \"onboarding_status\": \"awaiting_consultant\", \"package_code\": \"free\" },\n  \"error\": null\n}" },
+                { "name": "Lỗi nghiệp vụ", "status": "Not Found", "code": 404, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"integration_not_found\", \"message\": \"No MLHUB integration is mapped to this FizaHUB business.\", \"details\": [] }\n}" }
+            ]
+        },
+        {
+            "name": "PATCH Update Business Profile",
+            "request": {
+                "method": "PATCH",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" },
+                    { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": { "mode": "raw", "raw": "{\n  \"name\": \"Fiza Demo Store - Com Tam Da Nang\",\n  \"phone\": \"0901 234 567\",\n  \"address\": \"123 Le Duan, Da Nang\"\n}" },
+                "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/profile"
+            },
+            "response": [
+                { "name": "Thành công", "status": "OK", "code": 200, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": { \"external_business_id\": \"{{external_business_id}}\", \"name\": \"Fiza Demo Store - Com Tam Da Nang\" },\n  \"error\": null\n}" },
+                { "name": "Lỗi người dùng", "status": "Unprocessable Entity", "code": 422, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"validation_failed\", \"message\": \"The given data was invalid.\", \"details\": {} }\n}" }
             ]
         },
         {
             "name": "POST One-time Login",
-            "event": [
-                {
-                    "listen": "test",
-                    "script": {
-                        "type": "text/javascript",
-                        "exec": [
-                            "pm.test('one-time login issued', function () {",
-                            "  const json = pm.response.json();",
-                            "  pm.expect(pm.response.code).to.eql(201);",
-                            "  pm.expect(json.data).to.have.property('url');",
-                            "  pm.expect(json.data).to.have.property('expires_at');",
-                            "});"
-                        ]
-                    }
-                }
-            ],
             "request": {
                 "method": "POST",
                 "header": [
-                    {
-                        "key": "Authorization",
-                        "value": "Bearer {{partner_token}}"
-                    },
-                    {
-                        "key": "X-Partner",
-                        "value": "fizahub"
-                    },
-                    {
-                        "key": "X-Request-Id",
-                        "value": "{{$guid}}"
-                    },
-                    {
-                        "key": "Accept",
-                        "value": "application/json"
-                    },
-                    {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                    }
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" },
+                    { "key": "Content-Type", "value": "application/json" },
+                    { "key": "Idempotency-Key", "value": "{{$guid}}" }
                 ],
-                "body": {
-                    "mode": "raw",
-                    "raw": "{}",
-                    "options": {
-                        "raw": {
-                            "language": "json"
-                        }
-                    }
-                },
-                "description": "Cấp URL đăng nhập Portal một lần (~5 phút). Response thật chỉ có url + expires_at.",
-                "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/one-time-login"
+                "body": { "mode": "raw", "raw": "{}" },
+                "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/one-time-login",
+                "description": "Chỉ mở khi onboarding ở trạng thái ready hoặc completed. Nếu chưa xong sẽ trả 409 onboarding_not_ready."
             },
             "response": [
-                {
-                    "name": "Thành công — Cấp URL login (201)",
-                    "status": "Created",
-                    "code": 201,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": true,\n    \"data\": {\n        \"url\": \"https://mlhub.vn/partners/fizahub/one-time-login/example-signed-token\",\n        \"expires_at\": \"2026-07-14T10:05:00Z\",\n        \"message_vi\": \"Mở url trong trình duyệt. Link chỉ dùng 1 lần, hết hạn khoảng 5 phút.\"\n    },\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": null\n}"
-                },
-                {
-                    "name": "Lỗi nghiệp vụ — Chưa map business (404)",
-                    "status": "Not Found",
-                    "code": 404,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa có mapping MLHUB cho cửa hàng này. Hoàn tất onboarding trước.\",\n        \"details\": []\n    }\n}"
-                },
-                {
-                    "name": "Lỗi người dùng — Token sai (401)",
-                    "status": "Unauthorized",
-                    "code": 401,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"invalid_partner_token\",\n        \"message\": \"Bearer token đối tác không hợp lệ.\",\n        \"details\": []\n    }\n}"
-                },
-                {
-                    "name": "Lỗi kỹ thuật — Server (500)",
-                    "status": "Internal Server Error",
-                    "code": 500,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"partner_api_error\",\n        \"message\": \"Lỗi kỹ thuật khi tạo one-time login.\",\n        \"details\": []\n    }\n}"
-                }
+                { "name": "Thành công", "status": "Created", "code": 201, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": { \"url\": \"[REDACTED]\", \"expires_at\": \"2026-07-13T04:05:00+00:00\" },\n  \"error\": null\n}" },
+                { "name": "Lỗi nghiệp vụ", "status": "Conflict", "code": 409, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"onboarding_not_ready\", \"message\": \"Tài khoản đang chờ tư vấn viên MLHUB hoàn tất cấu hình.\", \"details\": { \"status\": \"awaiting_consultant\", \"status_label\": \"Chờ tư vấn viên liên hệ\" } }\n}" }
+            ]
+        },
+        {
+            "name": "GET Business Package",
+            "request": {
+                "method": "GET",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/package"
+            },
+            "response": [
+                { "name": "Thành công", "status": "OK", "code": 200, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": {\n    \"package_code\": \"free\",\n    \"package_name\": \"MLHUB Free Da Nang\",\n    \"plan_slug\": \"mlhub-free-da-nang\",\n    \"status\": \"active\",\n    \"limits\": { \"max_businesses\": 1, \"max_campaigns\": 5, \"max_landing_pages\": 5, \"max_qr_codes\": 10, \"max_team_members\": 3 }\n  },\n  \"error\": null\n}" },
+                { "name": "Lỗi nghiệp vụ", "status": "Not Found", "code": 404, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"integration_not_found\", \"message\": \"No MLHUB integration is mapped to this FizaHUB business.\", \"details\": [] }\n}" }
             ]
         },
         {
             "name": "GET Dashboard",
-            "event": [
-                {
-                    "listen": "test",
-                    "script": {
-                        "type": "text/javascript",
-                        "exec": [
-                            "pm.test('dashboard metrics', function () {",
-                            "  const json = pm.response.json();",
-                            "  pm.expect(json.success).to.eql(true);",
-                            "  pm.expect(json.data.metrics).to.have.property('new_reviews');",
-                            "  pm.expect(json.data.metrics).to.have.property('returning_customers');",
-                            "});"
-                        ]
-                    }
-                }
-            ],
             "request": {
                 "method": "GET",
                 "header": [
-                    {
-                        "key": "Authorization",
-                        "value": "Bearer {{partner_token}}"
-                    },
-                    {
-                        "key": "X-Partner",
-                        "value": "fizahub"
-                    },
-                    {
-                        "key": "X-Request-Id",
-                        "value": "{{$guid}}"
-                    },
-                    {
-                        "key": "Accept",
-                        "value": "application/json"
-                    }
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
                 ],
-                "description": "Dashboard tăng trưởng. from/to chỉ là khoảng ngày báo cáo, không phải thời hạn gói.",
-                "url": {
-                    "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/dashboard?from={{from}}&to={{to}}",
-                    "host": [
-                        "{{base_url}}"
-                    ],
-                    "path": [
-                        "api",
-                        "v1",
-                        "partners",
-                        "fizahub",
-                        "businesses",
-                        "{{external_business_id}}",
-                        "dashboard"
-                    ],
-                    "query": [
-                        {
-                            "key": "from",
-                            "value": "{{from}}",
-                            "description": "Ngày bắt đầu báo cáo YYYY-MM-DD"
-                        },
-                        {
-                            "key": "to",
-                            "value": "{{to}}",
-                            "description": "Ngày kết thúc báo cáo YYYY-MM-DD"
-                        }
-                    ]
-                }
+                "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/dashboard?from={{from}}&to={{to}}"
             },
             "response": [
-                {
-                    "name": "Thành công — Metrics (200)",
-                    "status": "OK",
-                    "code": 200,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": true,\n    \"data\": {\n        \"period\": {\n            \"from\": \"2026-06-15\",\n            \"to\": \"2026-07-14\",\n            \"timezone\": \"Asia/Ho_Chi_Minh\"\n        },\n        \"metrics\": {\n            \"businesses\": 1,\n            \"campaigns\": 0,\n            \"active_campaigns\": 0,\n            \"qr_scans\": 0,\n            \"new_leads\": 0,\n            \"new_reviews\": 0,\n            \"coupon_claims\": 0,\n            \"coupon_used\": 0,\n            \"bookings\": 0,\n            \"feedback\": 0,\n            \"returning_customers\": 0,\n            \"conversion_rate\": 0\n        },\n        \"campaigns\": [],\n        \"trend\": [],\n        \"insights\": [],\n        \"suggested_actions\": [],\n        \"message_vi\": \"Số liệu có thể = 0 nếu cửa hàng mới. from/to không phải thời hạn gói.\"\n    },\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": null\n}"
-                },
-                {
-                    "name": "Lỗi người dùng — Sai định dạng ngày (422)",
-                    "status": "Unprocessable Entity",
-                    "code": 422,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"validation_failed\",\n        \"message\": \"from/to phải theo định dạng YYYY-MM-DD và khoảng ngày hợp lệ.\",\n        \"details\": {\n            \"from\": [\n                \"The from field must match the format Y-m-d.\"\n            ],\n            \"to\": [\n                \"The to field must be a date after or equal to from.\"\n            ]\n        }\n    }\n}"
-                },
-                {
-                    "name": "Lỗi nghiệp vụ — Chưa map (404)",
-                    "status": "Not Found",
-                    "code": 404,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa có mapping cho external_business_id. Chạy onboarding completed trước.\",\n        \"details\": []\n    }\n}"
-                },
-                {
-                    "name": "Lỗi người dùng — Token sai (401)",
-                    "status": "Unauthorized",
-                    "code": 401,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"invalid_partner_token\",\n        \"message\": \"Bearer token đối tác không hợp lệ.\",\n        \"details\": []\n    }\n}"
-                }
+                { "name": "Thành công", "status": "OK", "code": 200, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": {\n    \"period\": { \"from\": \"{{from}}\", \"to\": \"{{to}}\", \"timezone\": \"Asia/Ho_Chi_Minh\" },\n    \"metrics\": { \"businesses\": 1, \"campaigns\": 2, \"qr_scans\": 120, \"new_leads\": 8, \"new_reviews\": 3, \"conversion_rate\": 12.5 },\n    \"data_freshness\": \"live\",\n    \"generated_at\": \"2026-07-13T04:00:00+00:00\",\n    \"next_refresh_at\": \"2026-07-13T04:45:00+00:00\"\n  },\n  \"error\": null\n}" },
+                { "name": "Lỗi người dùng", "status": "Unprocessable Entity", "code": 422, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"validation_failed\", \"message\": \"The given data was invalid.\", \"details\": { \"to\": [\"The to must be a date after or equal to from.\"] } }\n}" }
+            ]
+        },
+        {
+            "name": "GET Insights",
+            "request": {
+                "method": "GET",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/insights?from={{from}}&to={{to}}"
+            },
+            "response": [
+                { "name": "Thành công", "status": "OK", "code": 200, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": { \"insights\": [ { \"code\": \"qr_scans\", \"label\": \"Lượt quét QR\", \"value\": 120 } ] },\n  \"error\": null\n}" },
+                { "name": "Lỗi kỹ thuật", "status": "Internal Server Error", "code": 500, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"partner_api_error\", \"message\": \"An unexpected partner API error occurred.\", \"details\": [] }\n}" }
+            ]
+        },
+        {
+            "name": "GET Recommendations",
+            "request": {
+                "method": "GET",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/recommendations?from={{from}}&to={{to}}"
+            },
+            "response": [
+                { "name": "Thành công", "status": "OK", "code": 200, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": { \"suggested_actions\": [ { \"code\": \"create_campaign\", \"label\": \"Tạo chiến dịch QR\" } ] },\n  \"error\": null\n}" },
+                { "name": "Lỗi kỹ thuật", "status": "Internal Server Error", "code": 500, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"partner_api_error\", \"message\": \"An unexpected partner API error occurred.\", \"details\": [] }\n}" }
+            ]
+        },
+        {
+            "name": "GET Campaigns",
+            "request": {
+                "method": "GET",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/campaigns?from={{from}}&to={{to}}"
+            },
+            "response": [
+                { "name": "Thành công", "status": "OK", "code": 200, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": { \"campaigns\": [ { \"campaign_id\": \"{{campaign_id}}\", \"name\": \"Khuyen mai Com Tam\", \"scans\": 120, \"conversions\": 15 } ] },\n  \"error\": null\n}" },
+                { "name": "Lỗi kỹ thuật", "status": "Internal Server Error", "code": 500, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"partner_api_error\", \"message\": \"An unexpected partner API error occurred.\", \"details\": [] }\n}" }
+            ]
+        },
+        {
+            "name": "GET Campaign Detail",
+            "request": {
+                "method": "GET",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/campaigns/{{campaign_id}}?from={{from}}&to={{to}}"
+            },
+            "response": [
+                { "name": "Thành công", "status": "OK", "code": 200, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": { \"campaign_id\": \"{{campaign_id}}\", \"name\": \"Khuyen mai Com Tam\", \"scans\": 120, \"conversions\": 15 },\n  \"error\": null\n}" },
+                { "name": "Lỗi nghiệp vụ", "status": "Not Found", "code": 404, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"resource_not_found\", \"message\": \"The requested resource was not found.\", \"details\": [] }\n}" }
+            ]
+        },
+        {
+            "name": "GET Support Summary",
+            "request": {
+                "method": "GET",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-summary"
+            },
+            "response": [
+                { "name": "Thành công", "status": "OK", "code": 200, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": { \"open\": 1, \"pending\": 0, \"closed\": 3, \"unread_by_business\": 1 },\n  \"error\": null\n}" },
+                { "name": "Lỗi nghiệp vụ", "status": "Not Found", "code": 404, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"integration_not_found\", \"message\": \"No MLHUB integration is mapped to this FizaHUB business.\", \"details\": [] }\n}" }
             ]
         },
         {
             "name": "POST Create Support Ticket",
-            "event": [
-                {
-                    "listen": "prerequest",
-                    "script": {
-                        "type": "text/javascript",
-                        "exec": [
-                            "pm.variables.set('idempotency_key', pm.variables.replaceIn('{{$guid}}'));"
-                        ]
-                    }
-                },
-                {
-                    "listen": "test",
-                    "script": {
-                        "type": "text/javascript",
-                        "exec": [
-                            "pm.test('ticket created', function () {",
-                            "  const json = pm.response.json();",
-                            "  pm.expect(pm.response.code).to.eql(201);",
-                            "  if (json.data && json.data.ticket_id) {",
-                            "    pm.collectionVariables.set('ticket_id', json.data.ticket_id);",
-                            "  }",
-                            "});"
-                        ]
-                    }
-                }
-            ],
             "request": {
                 "method": "POST",
                 "header": [
-                    {
-                        "key": "Authorization",
-                        "value": "Bearer {{partner_token}}"
-                    },
-                    {
-                        "key": "X-Partner",
-                        "value": "fizahub"
-                    },
-                    {
-                        "key": "X-Request-Id",
-                        "value": "{{$guid}}"
-                    },
-                    {
-                        "key": "Accept",
-                        "value": "application/json"
-                    },
-                    {
-                        "key": "Idempotency-Key",
-                        "value": "{{idempotency_key}}"
-                    },
-                    {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                    }
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" },
+                    { "key": "Content-Type", "value": "application/json" },
+                    { "key": "Idempotency-Key", "value": "{{$guid}}" }
                 ],
-                "body": {
-                    "mode": "raw",
-                    "raw": "{\n  \"subject\": \"Need help with FizaMKT Base\",\n  \"message\": \"Please help me create a check-in QR and Google review request for Fiza Demo Store - Com Tam Da Nang.\",\n  \"category_id\": null,\n  \"type_id\": null\n}",
-                    "options": {
-                        "raw": {
-                            "language": "json"
-                        }
-                    }
-                },
-                "description": "Tạo ticket hỗ trợ. Bắt buộc Idempotency-Key. Tự lưu ticket_id.",
+                "body": { "mode": "raw", "raw": "{\n  \"subject\": \"Need help with FizaMKT Base\",\n  \"message\": \"Nho MLHUB kiem tra giup chien dich QR cua cua hang.\"\n}" },
                 "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-tickets"
             },
             "response": [
-                {
-                    "name": "Thành công — Tạo ticket (201)",
-                    "status": "Created",
-                    "code": 201,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": true,\n    \"data\": {\n        \"ticket_id\": \"secure-ticket-id-demo\",\n        \"subject\": \"Need help with FizaMKT Base\",\n        \"status\": \"open\",\n        \"created_at\": \"2026-07-14T10:00:00Z\",\n        \"updated_at\": \"2026-07-14T10:00:00Z\",\n        \"last_message_at\": \"2026-07-14T10:00:00Z\",\n        \"unread_by_business\": false,\n        \"message_vi\": \"Ticket đã tạo. Copy ticket_id vào biến collection.\"\n    },\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": null\n}"
-                },
-                {
-                    "name": "Lỗi người dùng — Thiếu subject/message (422)",
-                    "status": "Unprocessable Entity",
-                    "code": 422,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"validation_failed\",\n        \"message\": \"Thiếu subject hoặc message.\",\n        \"details\": {\n            \"subject\": [\n                \"Trường subject là bắt buộc.\"\n            ],\n            \"message\": [\n                \"Trường message là bắt buộc.\"\n            ]\n        }\n    }\n}"
-                },
-                {
-                    "name": "Lỗi người dùng — Thiếu Idempotency-Key (422)",
-                    "status": "Unprocessable Entity",
-                    "code": 422,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"validation_failed\",\n        \"message\": \"Thiếu header Idempotency-Key.\",\n        \"details\": {\n            \"Idempotency-Key\": [\n                \"The Idempotency-Key header is required.\"\n            ]\n        }\n    }\n}"
-                },
-                {
-                    "name": "Lỗi nghiệp vụ — Chưa map (404)",
-                    "status": "Not Found",
-                    "code": 404,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Cửa hàng chưa được map sang MLHUB.\",\n        \"details\": []\n    }\n}"
-                },
-                {
-                    "name": "Lỗi nghiệp vụ — Idempotency conflict (409)",
-                    "status": "Conflict",
-                    "code": 409,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"idempotency_conflict\",\n        \"message\": \"Idempotency-Key đã dùng với body khác.\",\n        \"details\": []\n    }\n}"
-                }
+                { "name": "Thành công", "status": "Created", "code": 201, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": { \"ticket_id\": \"{{ticket_id}}\", \"status\": \"open\", \"unread_by_business\": true },\n  \"error\": null\n}" },
+                { "name": "Lỗi người dùng", "status": "Unprocessable Entity", "code": 422, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"validation_failed\", \"message\": \"The given data was invalid.\", \"details\": { \"Idempotency-Key\": [\"The Idempotency-Key header is required.\"] } }\n}" }
             ]
         },
         {
             "name": "GET List Support Tickets",
-            "event": [
-                {
-                    "listen": "test",
-                    "script": {
-                        "type": "text/javascript",
-                        "exec": [
-                            "pm.test('ticket list', function () {",
-                            "  const json = pm.response.json();",
-                            "  pm.expect(json.success).to.eql(true);",
-                            "  pm.expect(json.data).to.have.property('items');",
-                            "});"
-                        ]
-                    }
-                }
-            ],
             "request": {
                 "method": "GET",
                 "header": [
-                    {
-                        "key": "Authorization",
-                        "value": "Bearer {{partner_token}}"
-                    },
-                    {
-                        "key": "X-Partner",
-                        "value": "fizahub"
-                    },
-                    {
-                        "key": "X-Request-Id",
-                        "value": "{{$guid}}"
-                    },
-                    {
-                        "key": "Accept",
-                        "value": "application/json"
-                    }
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
                 ],
-                "description": "Danh sách ticket theo cửa hàng đã map. Optional: page, per_page.",
-                "url": {
-                    "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-tickets?page=1&per_page=20",
-                    "host": [
-                        "{{base_url}}"
-                    ],
-                    "path": [
-                        "api",
-                        "v1",
-                        "partners",
-                        "fizahub",
-                        "businesses",
-                        "{{external_business_id}}",
-                        "support-tickets"
-                    ],
-                    "query": [
-                        {
-                            "key": "page",
-                            "value": "1"
-                        },
-                        {
-                            "key": "per_page",
-                            "value": "20"
-                        }
-                    ]
-                }
+                "url": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-tickets"
             },
             "response": [
-                {
-                    "name": "Thành công — Có ticket (200)",
-                    "status": "OK",
-                    "code": 200,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": true,\n    \"data\": {\n        \"items\": [\n            {\n                \"ticket_id\": \"secure-ticket-id-demo\",\n                \"subject\": \"Need help with FizaMKT Base\",\n                \"status\": \"open\"\n            }\n        ],\n        \"pagination\": {\n            \"page\": 1,\n            \"per_page\": 20,\n            \"total\": 1\n        },\n        \"message_vi\": \"Danh sách ticket của cửa hàng.\"\n    },\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": null\n}"
-                },
-                {
-                    "name": "Thành công — Danh sách trống (200)",
-                    "status": "OK",
-                    "code": 200,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": true,\n    \"data\": {\n        \"items\": [],\n        \"pagination\": {\n            \"page\": 1,\n            \"per_page\": 20,\n            \"total\": 0\n        },\n        \"message_vi\": \"Chưa có ticket nào.\"\n    },\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": null\n}"
-                },
-                {
-                    "name": "Lỗi nghiệp vụ — Chưa map (404)",
-                    "status": "Not Found",
-                    "code": 404,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Cửa hàng chưa được map sang MLHUB.\",\n        \"details\": []\n    }\n}"
-                },
-                {
-                    "name": "Lỗi người dùng — Token sai (401)",
-                    "status": "Unauthorized",
-                    "code": 401,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"invalid_partner_token\",\n        \"message\": \"Bearer token đối tác không hợp lệ.\",\n        \"details\": []\n    }\n}"
-                }
+                { "name": "Thành công", "status": "OK", "code": 200, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": { \"items\": [ { \"ticket_id\": \"{{ticket_id}}\", \"subject\": \"Need help with FizaMKT Base\", \"status\": \"open\" } ], \"pagination\": { \"per_page\": 20, \"total\": 1 } },\n  \"error\": null\n}" },
+                { "name": "Lỗi nghiệp vụ", "status": "Not Found", "code": 404, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"integration_not_found\", \"message\": \"No MLHUB integration is mapped to this FizaHUB business.\", \"details\": [] }\n}" }
             ]
         },
         {
             "name": "GET Support Ticket Detail",
-            "event": [
-                {
-                    "listen": "test",
-                    "script": {
-                        "type": "text/javascript",
-                        "exec": [
-                            "pm.test('ticket detail', function () {",
-                            "  const json = pm.response.json();",
-                            "  pm.expect(json.success).to.eql(true);",
-                            "  pm.expect(json.data).to.have.property('messages');",
-                            "  pm.expect(json.data).to.have.property('next_poll_after_seconds');",
-                            "});"
-                        ]
-                    }
-                }
-            ],
             "request": {
                 "method": "GET",
                 "header": [
-                    {
-                        "key": "Authorization",
-                        "value": "Bearer {{partner_token}}"
-                    },
-                    {
-                        "key": "X-Partner",
-                        "value": "fizahub"
-                    },
-                    {
-                        "key": "X-Request-Id",
-                        "value": "{{$guid}}"
-                    },
-                    {
-                        "key": "Accept",
-                        "value": "application/json"
-                    }
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
                 ],
-                "description": "Chi tiết + hội thoại. Query external_business_id BẮT BUỘC. Polling 15–30s, không realtime.",
-                "url": {
-                    "raw": "{{base_url}}/api/v1/partners/fizahub/support-tickets/{{ticket_id}}?external_business_id={{external_business_id}}",
-                    "host": [
-                        "{{base_url}}"
-                    ],
-                    "path": [
-                        "api",
-                        "v1",
-                        "partners",
-                        "fizahub",
-                        "support-tickets",
-                        "{{ticket_id}}"
-                    ],
-                    "query": [
-                        {
-                            "key": "external_business_id",
-                            "value": "{{external_business_id}}",
-                            "description": "Bắt buộc"
-                        }
-                    ]
-                }
+                "url": "{{base_url}}/api/v1/partners/fizahub/support-tickets/{{ticket_id}}?external_business_id={{external_business_id}}"
             },
             "response": [
-                {
-                    "name": "Thành công — Có hội thoại (200)",
-                    "status": "OK",
-                    "code": 200,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": true,\n    \"data\": {\n        \"ticket\": {\n            \"ticket_id\": \"secure-ticket-id-demo\",\n            \"subject\": \"Need help with FizaMKT Base\",\n            \"status\": \"open\"\n        },\n        \"messages\": [\n            {\n                \"message_id\": \"secure-ticket-id-demo:initial\",\n                \"sender_type\": \"business\",\n                \"body\": \"Please help me create a check-in QR and Google review request for Fiza Demo Store - Com Tam Da Nang.\",\n                \"created_at\": \"2026-07-14T10:00:00Z\"\n            }\n        ],\n        \"next_poll_after_seconds\": 15,\n        \"last_message_at\": \"2026-07-14T10:00:00Z\",\n        \"message_vi\": \"Poll lại sau next_poll_after_seconds giây.\"\n    },\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": null\n}"
-                },
-                {
-                    "name": "Lỗi người dùng — Thiếu external_business_id (422)",
-                    "status": "Unprocessable Entity",
-                    "code": 422,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"validation_failed\",\n        \"message\": \"Thiếu query external_business_id (bắt buộc để cô lập tenant).\",\n        \"details\": {\n            \"external_business_id\": [\n                \"The external_business_id parameter is required for ticket scope.\"\n            ]\n        }\n    }\n}"
-                },
-                {
-                    "name": "Lỗi nghiệp vụ — Ticket không thuộc cửa hàng (404)",
-                    "status": "Not Found",
-                    "code": 404,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"resource_not_found\",\n        \"message\": \"Không tìm thấy ticket trong phạm vi cửa hàng này (tránh lộ thông tin cross-tenant).\",\n        \"details\": []\n    }\n}"
-                },
-                {
-                    "name": "Lỗi người dùng — Token sai (401)",
-                    "status": "Unauthorized",
-                    "code": 401,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"invalid_partner_token\",\n        \"message\": \"Bearer token đối tác không hợp lệ.\",\n        \"details\": []\n    }\n}"
-                }
+                { "name": "Thành công", "status": "OK", "code": 200, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": { \"ticket_id\": \"{{ticket_id}}\", \"messages\": [ { \"message_id\": \"{{ticket_id}}:initial\", \"sender_type\": \"business\", \"body\": \"Nho MLHUB kiem tra giup chien dich QR.\" } ], \"next_poll_after_seconds\": 15 },\n  \"error\": null\n}" },
+                { "name": "Lỗi nghiệp vụ", "status": "Not Found", "code": 404, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"resource_not_found\", \"message\": \"The requested resource was not found.\", \"details\": [] }\n}" }
             ]
         },
         {
             "name": "POST Send Support Message",
-            "event": [
-                {
-                    "listen": "prerequest",
-                    "script": {
-                        "type": "text/javascript",
-                        "exec": [
-                            "pm.variables.set('idempotency_key', pm.variables.replaceIn('{{$guid}}'));"
-                        ]
-                    }
-                },
-                {
-                    "listen": "test",
-                    "script": {
-                        "type": "text/javascript",
-                        "exec": [
-                            "pm.test('message sent', function () {",
-                            "  const json = pm.response.json();",
-                            "  pm.expect(pm.response.code).to.eql(201);",
-                            "  pm.expect(json.success).to.eql(true);",
-                            "});"
-                        ]
-                    }
-                }
-            ],
             "request": {
                 "method": "POST",
                 "header": [
-                    {
-                        "key": "Authorization",
-                        "value": "Bearer {{partner_token}}"
-                    },
-                    {
-                        "key": "X-Partner",
-                        "value": "fizahub"
-                    },
-                    {
-                        "key": "X-Request-Id",
-                        "value": "{{$guid}}"
-                    },
-                    {
-                        "key": "Accept",
-                        "value": "application/json"
-                    },
-                    {
-                        "key": "Idempotency-Key",
-                        "value": "{{idempotency_key}}"
-                    },
-                    {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                    }
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" },
+                    { "key": "Content-Type", "value": "application/json" },
+                    { "key": "Idempotency-Key", "value": "{{$guid}}" }
                 ],
-                "body": {
-                    "mode": "raw",
-                    "raw": "{\n  \"message\": \"Please prioritize the check-in QR first. We can set up the Google review request after that.\"\n}",
-                    "options": {
-                        "raw": {
-                            "language": "json"
-                        }
-                    }
-                },
-                "description": "Gửi tin nhắn vào ticket. Bắt buộc Idempotency-Key + query external_business_id.",
-                "url": {
-                    "raw": "{{base_url}}/api/v1/partners/fizahub/support-tickets/{{ticket_id}}/messages?external_business_id={{external_business_id}}",
-                    "host": [
-                        "{{base_url}}"
-                    ],
-                    "path": [
-                        "api",
-                        "v1",
-                        "partners",
-                        "fizahub",
-                        "support-tickets",
-                        "{{ticket_id}}",
-                        "messages"
-                    ],
-                    "query": [
-                        {
-                            "key": "external_business_id",
-                            "value": "{{external_business_id}}",
-                            "description": "Bắt buộc"
-                        }
-                    ]
-                }
+                "body": { "mode": "raw", "raw": "{\n  \"message\": \"Cam on MLHUB da ho tro.\"\n}" },
+                "url": "{{base_url}}/api/v1/partners/fizahub/support-tickets/{{ticket_id}}/messages?external_business_id={{external_business_id}}"
             },
             "response": [
-                {
-                    "name": "Thành công — Gửi tin nhắn (201)",
-                    "status": "Created",
-                    "code": 201,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": true,\n    \"data\": {\n        \"message_id\": \"secure-message-id-demo\",\n        \"sender_type\": \"business\",\n        \"body\": \"Please prioritize the check-in QR first. We can set up the Google review request after that.\",\n        \"created_at\": \"2026-07-14T10:02:00Z\",\n        \"message_vi\": \"Tin nhắn đã gửi. Mở lại GET Detail để thấy cập nhật.\"\n    },\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": null\n}"
-                },
-                {
-                    "name": "Lỗi người dùng — Thiếu message (422)",
-                    "status": "Unprocessable Entity",
-                    "code": 422,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"validation_failed\",\n        \"message\": \"Thiếu nội dung message.\",\n        \"details\": {\n            \"message\": [\n                \"Trường message là bắt buộc.\"\n            ]\n        }\n    }\n}"
-                },
-                {
-                    "name": "Lỗi người dùng — Thiếu external_business_id (422)",
-                    "status": "Unprocessable Entity",
-                    "code": 422,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"validation_failed\",\n        \"message\": \"Thiếu query external_business_id.\",\n        \"details\": {\n            \"external_business_id\": [\n                \"The external_business_id parameter is required for ticket scope.\"\n            ]\n        }\n    }\n}"
-                },
-                {
-                    "name": "Lỗi nghiệp vụ — Ticket đã đóng (409)",
-                    "status": "Conflict",
-                    "code": 409,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"ticket_not_open\",\n        \"message\": \"Ticket đã đóng hoặc resolved, không gửi thêm tin nhắn được.\",\n        \"details\": []\n    }\n}"
-                },
-                {
-                    "name": "Lỗi nghiệp vụ — Idempotency conflict (409)",
-                    "status": "Conflict",
-                    "code": 409,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"idempotency_conflict\",\n        \"message\": \"Idempotency-Key đã dùng với body khác.\",\n        \"details\": []\n    }\n}"
-                },
-                {
-                    "name": "Lỗi kỹ thuật — Server (500)",
-                    "status": "Internal Server Error",
-                    "code": 500,
-                    "_postman_previewlanguage": "json",
-                    "header": [
-                        {
-                            "key": "Content-Type",
-                            "value": "application/json"
-                        },
-                        {
-                            "key": "X-Request-Id",
-                            "value": "018f5a64-b40b-7f60-a925-dea047cf6590"
-                        }
-                    ],
-                    "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"018f5a64-b40b-7f60-a925-dea047cf6590\"\n    },\n    \"error\": {\n        \"code\": \"partner_api_error\",\n        \"message\": \"Lỗi kỹ thuật khi ghi tin nhắn hỗ trợ.\",\n        \"details\": []\n    }\n}"
-                }
+                { "name": "Thành công", "status": "Created", "code": 201, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": { \"ticket_id\": \"{{ticket_id}}\", \"sender_type\": \"business\", \"body\": \"Cam on MLHUB da ho tro.\" },\n  \"error\": null\n}" },
+                { "name": "Lỗi nghiệp vụ", "status": "Conflict", "code": 409, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"ticket_not_open\", \"message\": \"This support ticket is not open for new messages.\", \"details\": [] }\n}" }
+            ]
+        },
+        {
+            "name": "POST Upload Support Attachment",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" },
+                    { "key": "Content-Type", "value": "application/json" },
+                    { "key": "Idempotency-Key", "value": "{{$guid}}" }
+                ],
+                "body": { "mode": "raw", "raw": "{\n  \"note\": \"Su dung form-data voi field file khi upload that.\"\n}" },
+                "url": "{{base_url}}/api/v1/partners/fizahub/support-tickets/{{ticket_id}}/attachments?external_business_id={{external_business_id}}"
+            },
+            "response": [
+                { "name": "Thành công", "status": "Created", "code": 201, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": { \"ticket_id\": \"{{ticket_id}}\", \"attachment_id\": \"att-demo-0001\", \"original_name\": \"hoa-don.pdf\" },\n  \"error\": null\n}" },
+                { "name": "Lỗi người dùng", "status": "Unprocessable Entity", "code": 422, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"validation_failed\", \"message\": \"The given data was invalid.\", \"details\": { \"file\": [\"The file field is required.\"] } }\n}" }
+            ]
+        },
+        {
+            "name": "PATCH Close Support Ticket",
+            "request": {
+                "method": "PATCH",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "url": "{{base_url}}/api/v1/partners/fizahub/support-tickets/{{ticket_id}}/close?external_business_id={{external_business_id}}"
+            },
+            "response": [
+                { "name": "Thành công", "status": "OK", "code": 200, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": { \"ticket_id\": \"{{ticket_id}}\", \"status\": \"closed\" },\n  \"error\": null\n}" },
+                { "name": "Lỗi nghiệp vụ", "status": "Conflict", "code": 409, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"ticket_not_open\", \"message\": \"This support ticket is not open.\", \"details\": [] }\n}" }
+            ]
+        },
+        {
+            "name": "POST Reopen Support Ticket",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" },
+                    { "key": "Content-Type", "value": "application/json" },
+                    { "key": "Idempotency-Key", "value": "{{$guid}}" }
+                ],
+                "body": { "mode": "raw", "raw": "{}" },
+                "url": "{{base_url}}/api/v1/partners/fizahub/support-tickets/{{ticket_id}}/reopen?external_business_id={{external_business_id}}"
+            },
+            "response": [
+                { "name": "Thành công", "status": "OK", "code": 200, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": true,\n  \"data\": { \"ticket_id\": \"{{ticket_id}}\", \"status\": \"open\" },\n  \"error\": null\n}" },
+                { "name": "Lỗi kỹ thuật", "status": "Internal Server Error", "code": 500, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"partner_api_error\", \"message\": \"An unexpected partner API error occurred.\", \"details\": [] }\n}" }
             ]
         }
     ]

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ __('MLHUB × FizaHUB Partner API') }}</title>
-    <meta name="description" content="{{ __('Partner API technical specification for FizaHUB developers: architecture, operating flows, and the 10 MVP endpoints.') }}">
+    <meta name="description" content="{{ __('Partner API technical specification for FizaHUB developers: architecture, operating flows, and the 24 Core API endpoints.') }}">
     @php
         $faviconPath = (string) (function_exists('get_option')
             ? get_option('website_favicon', config('mlhub.site.favicon', 'img/favicon.svg'))
@@ -160,7 +160,6 @@
         }
         .arch-arrow::before {
             content: ""; width: 42px; height: 2px; background: var(--brand);
-            box-shadow: 36px 0 0 var(--brand);
             position: relative;
         }
         .arch-arrow span {
@@ -251,7 +250,8 @@
         <nav class="nav" aria-label="{{ __('Documentation sections') }}">
             <a href="#spec-overview">{{ __('API overview') }}</a>
             <a href="#architecture">{{ __('Architecture') }}</a>
-            <a href="#auth">{{ __('Auth') }}</a>
+            <a href="#flows">{{ __('Operating flows') }}</a>
+            <a href="#status-tables">{{ __('Status tables') }}</a>
             <a href="#endpoints">{{ __('Endpoints') }}</a>
             <a href="#postman">{{ __('Postman') }}</a>
             <a href="#data-dictionary">{{ __('API reference') }}</a>
@@ -266,11 +266,11 @@
             <div class="hero-card">
                 <p class="eyebrow">{{ __('Partner API technical specification') }} · MVP</p>
                 <h1>{{ __('MLHUB × FizaHUB Partner API') }}</h1>
-                <p class="lead">{{ __('Technical contract for FizaHUB backend engineers: system architecture, four operating flows, authentication headers, response envelope, and the fixed set of 10 MVP endpoints for onboarding, package, dashboard, support, and one-time portal login.') }}</p>
+                <p class="lead">{{ __('API MVP để FizaHUB đấu nối với MLHUB/FizaMKT: onboarding cửa hàng, gói dịch vụ, dashboard tăng trưởng, hỗ trợ ticket và đăng nhập Portal một lần. FizaHUB là cửa vào; MLHUB xử lý marketing phía sau.') }}</p>
                 <div class="cta-row" style="margin-bottom:1rem;">
                     <a class="btn btn-primary" href="{{ $postmanUrl }}">{{ __('Download Postman JSON') }}</a>
                     <a class="btn btn-primary" href="#architecture">{{ __('View architecture diagram') }}</a>
-                    <a class="btn btn-ghost" href="#endpoints">{{ __('View 10 MVP endpoints') }}</a>
+                    <a class="btn btn-ghost" href="#endpoints">{{ __('View 24 Core API endpoints') }}</a>
                     <a class="btn btn-ghost" href="{{ $helpTestUrl }}">{{ __('Step-by-step Postman test guide') }}</a>
                 </div>
                 <div class="info" style="margin-top:1rem;margin-bottom:.35rem;">
@@ -289,8 +289,13 @@
 
     <section id="spec-overview">
         <div class="wrap">
-            <h2 class="section-title">{{ __('Spec overview') }}</h2>
-            <p class="section-intro">{{ __('Quick contract for partner developers. Paths are relative to the Base URL above. Call server-to-server from the FizaHUB backend — never from a public browser with the partner token.') }}</p>
+            <h2 class="section-title">{{ __('Tổng quan') }}</h2>
+            <p class="section-intro">{{ __('Hợp đồng kỹ thuật nhanh cho dev FizaHUB. Path tính theo Base URL bên trên. Chỉ gọi server-to-server từ backend FizaHUB — không đưa partner_token lên trình duyệt công khai.') }}</p>
+            <div class="info" style="margin-bottom:1rem;">
+                {{ __('external_business_id là khóa kỹ thuật chính giữa FizaHUB và MLHUB.') }}
+                {{ __('Support detail/message bắt buộc có query external_business_id.') }}
+                {{ __('Mã trạng thái/lỗi API giữ tiếng Anh; bảng nhãn tiếng Việt ở phần Bảng trạng thái.') }}
+            </div>
 
             <div class="grid-2" style="margin-bottom:1rem;">
                 <div class="panel">
@@ -393,7 +398,7 @@
                 <ul class="list-clean">
                     <li><code>external_business_id</code> {{ __('is the primary technical mapping key between FizaHUB and MLHUB.') }}</li>
                     <li>{{ __('Support ticket detail and message endpoints currently require the query parameter') }} <code>?external_business_id=...</code> {{ __('for tenant isolation; missing value returns 422.') }}</li>
-                    <li>{{ __('Plus one signed web consume route (not counted in the 10 API MVP):') }} <code>GET /partners/fizahub/one-time-login/{token}</code></li>
+                    <li>{{ __('Plus one signed web consume route (not counted in the 24 Core API):') }} <code>GET /partners/fizahub/one-time-login/{token}</code></li>
                 </ul>
             </div>
             <div class="quick-links">
@@ -499,7 +504,7 @@
                         <div class="seq-step">
                             <span class="seq-num">5</span>
                             <div class="seq-body">
-                                <strong>{{ __('Otherwise return pending_verification or needs_review and open an internal support ticket.') }}</strong>
+                                <strong>{{ __('Always provision a Free account, set awaiting_consultant (or needs_review on duplicates), and open an internal support ticket.') }}</strong>
                                 <div class="seq-meta">GET /onboarding-requests/{request_id}</div>
                             </div>
                         </div>
@@ -642,6 +647,14 @@
         </div>
     </section>
 
+    <section id="status-tables">
+        <div class="wrap">
+            <h2 class="section-title">{{ __('Bảng trạng thái tiếng Việt') }}</h2>
+            <p class="section-intro">{{ __('Mã trạng thái và mã lỗi trong API vẫn giữ tiếng Anh. Bảng dưới đây là nhãn tiếng Việt để dev FizaHUB dễ hiểu và xử lý.') }}</p>
+            @include('apipartnerfizahub::partials.status-tables')
+        </div>
+    </section>
+
     <section id="auth">
         <div class="wrap">
             <h2 class="section-title">{{ __('Authentication / Headers') }}</h2>
@@ -724,8 +737,62 @@ Content-Type: application/json
 
     <section id="endpoints">
         <div class="wrap">
-            <h2 class="section-title">{{ __('10 MVP endpoints') }}</h2>
+            <h2 class="section-title">{{ __('24 Core API endpoints') }}</h2>
             <p class="section-intro">{{ __('All paths below are relative to the partner API base prefix.') }}</p>
+
+            <div class="info" style="margin-bottom:1rem;">
+                <strong>{{ __('Onboarding flow') }}</strong>
+                <p style="margin:.45rem 0 0;">{{ __('FizaHUB gửi yêu cầu → MLHUB tạo ngay tài khoản Free → Chờ tư vấn viên liên hệ → Admin/tư vấn viên xử lý → MLHUB sync trạng thái về FizaHUB qua webhook.') }}</p>
+                <ul class="list-clean" style="margin-top:.45rem;">
+                    <li>{{ __('POST /onboarding-requests always creates User + Team + Business + Integration with the Free package.') }}</li>
+                    <li>{{ __('requested_package_code is stored separately; effective package_code is free.') }}</li>
+                    <li>{{ __('One-time login is only allowed once the onboarding status is ready or completed (otherwise 409 onboarding_not_ready).') }}</li>
+                </ul>
+            </div>
+
+            <div class="panel" style="margin-bottom:1rem;">
+                <h3 style="margin:0 0 .6rem;">{{ __('Full 24 Core API reference') }}</h3>
+                <div class="chips">
+                    @foreach ([
+                        'GET /health',
+                        'POST /partner/sso/verify',
+                        'GET /packages',
+                        'POST /onboarding-requests',
+                        'GET /onboarding-requests/{request_id}',
+                        'POST /onboarding-requests/{request_id}/confirm',
+                        'POST /onboarding-requests/{request_id}/cancel',
+                        'GET /businesses/{external_business_id}/integration-status',
+                        'PATCH /businesses/{external_business_id}/profile',
+                        'POST /businesses/{external_business_id}/one-time-login',
+                        'GET /businesses/{external_business_id}/package',
+                        'GET /businesses/{external_business_id}/dashboard',
+                        'GET /businesses/{external_business_id}/insights',
+                        'GET /businesses/{external_business_id}/recommendations',
+                        'GET /businesses/{external_business_id}/campaigns',
+                        'GET /businesses/{external_business_id}/campaigns/{campaign_id}',
+                        'GET /businesses/{external_business_id}/support-summary',
+                        'POST /businesses/{external_business_id}/support-tickets',
+                        'GET /businesses/{external_business_id}/support-tickets',
+                        'GET /support-tickets/{ticket_id}',
+                        'POST /support-tickets/{ticket_id}/messages',
+                        'POST /support-tickets/{ticket_id}/attachments',
+                        'PATCH /support-tickets/{ticket_id}/close',
+                        'POST /support-tickets/{ticket_id}/reopen',
+                    ] as $route)
+                        <span class="chip"><code>{{ $route }}</code></span>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="panel" style="margin-bottom:1rem;">
+                <h3 style="margin:0 0 .6rem;">{{ __('Outgoing webhooks (MLHUB → FizaHUB)') }}</h3>
+                <ul class="list-clean">
+                    <li><code>onboarding-status</code> — {{ __('sync onboarding status changes back to FizaHUB.') }}</li>
+                    <li><code>campaign-metrics</code> — {{ __('periodic marketing metrics for a business.') }}</li>
+                    <li><code>support-events</code> — {{ __('support ticket events (new admin reply, status changes).') }}</li>
+                </ul>
+                <p class="muted" style="margin:.45rem 0 0;">{{ __('Signed with header X-MLHUB-Signature: sha256=... and de-duplicated with X-Dedupe-Key.') }}</p>
+            </div>
 
             <article class="endpoint" id="health-check">
                 <div class="endpoint-head">
@@ -752,8 +819,8 @@ Content-Type: application/json
                     <strong>{{ __('Khởi tạo tài khoản') }} / Onboarding</strong>
                 </div>
                 <div class="endpoint-body">
-                    <p>{{ __('FizaHUB submits a registration request for MLHUB/FizaMKT for a local business.') }}</p>
-                    <p class="muted">{{ __('Requires Idempotency-Key. Status values: pending_verification, needs_review, completed.') }}</p>
+                    <p>{{ __('FizaHUB submits a registration request; MLHUB always creates a Free account immediately and sets awaiting_consultant.') }}</p>
+                    <p class="muted">{{ __('Requires Idempotency-Key. Status values: awaiting_consultant, needs_review, consulting, configuring, ready, completed, cancelled.') }}</p>
                     <div class="code-label">{{ __('Sample body') }}</div>
                     <pre>{
   "external_user_id": "fizahub_user_123",
@@ -1022,8 +1089,8 @@ Content-Type: application/json
                         <tr><td>Response</td><td>PartnerApiResponse</td><td>success(), error()</td><td>{{ __('Normalizes JSON success/error responses.') }}</td><td>all API</td></tr>
                         <tr><td>Redaction</td><td>PartnerPayloadRedactor</td><td>redact()</td><td>{{ __('Redacts token, password, CCCD, identity files, login URL in logs.') }}</td><td>all API</td></tr>
                         <tr><td>Onboarding</td><td>OnboardingController</td><td>store(), show()</td><td>{{ __('Accepts onboarding requests and returns status.') }}</td><td>onboarding-requests</td></tr>
-                        <tr><td>Onboarding</td><td>OnboardingService</td><td>upsert(), find()</td><td>{{ __('Duplicate checks; creates user/team/business/integration/support ticket.') }}</td><td>onboarding</td></tr>
-                        <tr><td>Mapping</td><td>PartnerMappingService</td><td>detectDuplicates(), resolvePlan(), normalizeExternalId()</td><td>{{ __('Normalizes IDs and resolves package/industry/duplicates.') }}</td><td>onboarding</td></tr>
+                        <tr><td>Onboarding</td><td>OnboardingService</td><td>upsert(), find(), serialize()</td><td>{{ __('Duplicate checks; creates user/team/business/integration/support ticket.') }}</td><td>onboarding</td></tr>
+                        <tr><td>Mapping</td><td>PartnerMappingService</td><td>detectDuplicates(), resolvePlan(), resolveIndustry(), normalizeExternalId()</td><td>{{ __('Normalizes IDs and resolves package/industry/duplicates.') }}</td><td>onboarding</td></tr>
                         <tr><td>Mapping</td><td>SupportTicketBridge</td><td>findIntegrationOrFail()</td><td>{{ __('Resolves external_business_id to a mapped PartnerIntegration.') }}</td><td>package/dashboard/support/login</td></tr>
                         <tr><td>Support</td><td>SupportTicketController</td><td>store(), index(), show()</td><td>{{ __('Create/list/detail support tickets.') }}</td><td>support-tickets</td></tr>
                         <tr><td>Support</td><td>SupportMessageController</td><td>store()</td><td>{{ __('Sends a FizaHUB message into a ticket.') }}</td><td>messages</td></tr>

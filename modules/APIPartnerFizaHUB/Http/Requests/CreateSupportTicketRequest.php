@@ -15,8 +15,13 @@ class CreateSupportTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'subject' => ['required', 'string', 'min:1', 'max:255'],
-            'message' => ['required', 'string', 'min:1', 'max:5000'],
+            'request_code' => ['nullable', 'string', 'max:64'],
+            'subject' => ['required_without:request_code', 'nullable', 'string', 'min:1', 'max:255'],
+            'message' => ['required_without:request_code', 'nullable', 'string', 'min:1', 'max:5000'],
+            'related_resource' => ['nullable', 'array'],
+            'related_resource.type' => ['nullable', 'string', 'max:64'],
+            'related_resource.id' => ['nullable', 'string', 'max:128'],
+            'details' => ['nullable', 'array'],
             'category_id' => ['nullable', 'integer'],
             'type_id' => ['nullable', 'integer'],
         ];

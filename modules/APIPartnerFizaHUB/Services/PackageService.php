@@ -17,8 +17,19 @@ class PackageService
     ];
 
     public function __construct(
-        protected SupportTicketBridge $integrations
+        protected SupportTicketBridge $integrations,
+        protected PackageAssignmentService $packages,
     ) {}
+
+    /**
+     * Public package catalog (partner-facing).
+     *
+     * @return array<string, mixed>
+     */
+    public function list(): array
+    {
+        return $this->packages->catalog();
+    }
 
     /**
      * @return array<string, mixed>
@@ -30,7 +41,7 @@ class PackageService
         $plan = $user->plan;
 
         return [
-            'package_code' => $integration->package_code ?: (string) config('modules.apipartnerfizahub.default_package', 'base'),
+            'package_code' => $integration->package_code ?: (string) config('modules.apipartnerfizahub.default_package', 'free'),
             'package_name' => $plan?->name,
             'plan_slug' => $plan?->slug,
             'status' => $this->planStatus($user, $plan),

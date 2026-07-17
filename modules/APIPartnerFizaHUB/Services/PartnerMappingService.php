@@ -149,4 +149,16 @@ class PartnerMappingService
     {
         return 'fizahub_'.substr(hash('sha256', 'fizahub|'.$externalBusinessId), 0, 12);
     }
+
+    public function provisionalEmail(string $externalBusinessId): string
+    {
+        $domain = (string) config(
+            'modules.apipartnerfizahub.provisional_email_domain',
+            'provisional.fizahub.mlhub.local'
+        );
+
+        $local = 'fizahub+'.substr(hash('sha256', 'fizahub|provisional|'.$externalBusinessId), 0, 20);
+
+        return strtolower($local.'@'.$domain);
+    }
 }

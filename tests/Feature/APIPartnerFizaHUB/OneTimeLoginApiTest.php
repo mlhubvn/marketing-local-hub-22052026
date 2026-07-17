@@ -11,15 +11,17 @@ use Modules\AdminUser\Models\Team;
 use Modules\AdminUser\Models\User;
 use Modules\APIPartnerFizaHUB\Models\PartnerApiLog;
 use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
+use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingRequest;
 use Modules\APIPartnerFizaHUB\Models\PartnerOneTimeLogin;
+use Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine;
 use Modules\AppBusinessProfiles\Models\LocalBusiness;
+
+require_once __DIR__.'/FizaHubTestHelpers.php';
 
 function createOneTimeLoginTables(): void
 {
-    Schema::dropIfExists('partner_one_time_logins');
-    Schema::dropIfExists('partner_api_logs');
-    Schema::dropIfExists('partner_onboarding_requests');
-    Schema::dropIfExists('partner_integrations');
+    dropFizaHubPartnerTables();
+    Schema::dropIfExists('support_tickets');
     Schema::dropIfExists('lb_businesses');
     Schema::dropIfExists('team_user');
     Schema::dropIfExists('teams');
@@ -89,6 +91,24 @@ function createOneTimeLoginTables(): void
         $table->timestamps();
     });
 
+    Schema::create('support_tickets', function (Blueprint $table): void {
+        $table->id();
+        $table->string('id_secure', 40)->unique();
+        $table->unsignedBigInteger('uid');
+        $table->unsignedBigInteger('open_by');
+        $table->unsignedBigInteger('team_id')->nullable();
+        $table->unsignedBigInteger('cate_id')->nullable();
+        $table->unsignedBigInteger('type_id')->nullable();
+        $table->string('title', 255);
+        $table->text('content');
+        $table->unsignedTinyInteger('status')->default(1);
+        $table->boolean('pin')->default(false);
+        $table->boolean('user_read')->default(false);
+        $table->boolean('admin_read')->default(true);
+        $table->unsignedInteger('changed')->nullable();
+        $table->unsignedInteger('created')->nullable();
+    });
+
     Schema::create('audit_logs', function (Blueprint $table): void {
         $table->id();
         $table->unsignedBigInteger('causer_user_id')->nullable();
@@ -104,8 +124,7 @@ function createOneTimeLoginTables(): void
         $table->timestamps();
     });
 
-    $migration = require base_path('modules/APIPartnerFizaHUB/Database/Migrations/2026_07_13_000000_create_fizahub_partner_api_tables.php');
-    $migration->up();
+    createFizaHubPartnerTables();
 }
 
 /**
@@ -180,10 +199,7 @@ beforeEach(function (): void {
 });
 
 afterEach(function (): void {
-    Schema::dropIfExists('partner_one_time_logins');
-    Schema::dropIfExists('partner_api_logs');
-    Schema::dropIfExists('partner_onboarding_requests');
-    Schema::dropIfExists('partner_integrations');
+    dropFizaHubPartnerTables();
     Schema::dropIfExists('lb_businesses');
     Schema::dropIfExists('team_user');
     Schema::dropIfExists('teams');
@@ -234,6 +250,55 @@ test('issues a single-use one-time login with hashed token and five minute ttl',
     $log = PartnerApiLog::query()->where('idempotency_key', $idempotencyKey)->firstOrFail();
     $payload = $log->response_payload;
     expect(data_get($payload, 'data.url'))->toBe('[REDACTED]');
+});
+
+test('refuses one-time login while onboarding is still awaiting a consultant', function (): void {
+    $seed = seedOneTimeLoginBusiness('biz-not-ready', 'notready@example.com');
+
+    PartnerOnboardingRequest::query()->create([
+        'partner_code' => 'fizahub',
+        'request_id' => (string) str()->uuid(),
+        'external_business_id' => 'biz-not-ready',
+        'package_code' => 'free',
+        'status' => OnboardingStatusMachine::AWAITING_CONSULTANT,
+        'current_step' => OnboardingStatusMachine::defaultStepFor(OnboardingStatusMachine::AWAITING_CONSULTANT),
+        'mlhub_user_id' => $seed['user']->id,
+        'mlhub_business_id' => $seed['business']->id,
+    ]);
+
+    $this->postJson(
+        '/api/v1/partners/fizahub/businesses/biz-not-ready/one-time-login',
+        [],
+        oneTimeLoginHeaders(['Idempotency-Key' => (string) str()->uuid()])
+    )
+        ->assertStatus(409)
+        ->assertJsonPath('error.code', 'onboarding_not_ready')
+        ->assertJsonPath('error.message', 'Tài khoản đang chờ tư vấn viên MLHUB hoàn tất cấu hình.');
+
+    expect(PartnerOneTimeLogin::query()->count())->toBe(0);
+});
+
+test('allows one-time login once onboarding is marked ready', function (): void {
+    $seed = seedOneTimeLoginBusiness('biz-ready', 'ready@example.com');
+
+    PartnerOnboardingRequest::query()->create([
+        'partner_code' => 'fizahub',
+        'request_id' => (string) str()->uuid(),
+        'external_business_id' => 'biz-ready',
+        'package_code' => 'free',
+        'status' => OnboardingStatusMachine::READY,
+        'current_step' => OnboardingStatusMachine::defaultStepFor(OnboardingStatusMachine::READY),
+        'mlhub_user_id' => $seed['user']->id,
+        'mlhub_business_id' => $seed['business']->id,
+    ]);
+
+    $this->postJson(
+        '/api/v1/partners/fizahub/businesses/biz-ready/one-time-login',
+        [],
+        oneTimeLoginHeaders(['Idempotency-Key' => (string) str()->uuid()])
+    )->assertCreated();
+
+    expect(PartnerOneTimeLogin::query()->count())->toBe(1);
 });
 
 test('refuses one-time login for missing or incomplete integrations', function (): void {
