@@ -252,9 +252,9 @@
                 </div>
                 <ol start="4">
                     <li>{{ __('Trong Postman, bấm Import.') }}</li>
-                    <li>{{ __('Chọn file vừa tải: MLHUB-FizaHUB-Partner-API.postman_collection.json') }}</li>
+                    <li>{{ __('Chọn file MVP vừa tải: MLHUB-FizaHUB-Partner-API.postman_collection.json (file bắt buộc).') }}</li>
                     <li>{{ __('Bạn sẽ thấy collection tên MLHUB × FizaHUB Partner API - MVP v1 (10 request).') }}</li>
-                    <li>{{ __('Muốn làm hết các bước có nhãn (Extended Beta) trong hướng dẫn này, hãy Import thêm file Extended Beta ở nút phía trên — collection thứ 2 sẽ có tên MLHUB × FizaHUB Partner API - Extended Beta (14 request).') }}</li>
+                    <li>{{ __('Muốn làm hết các bước có nhãn (Extended Beta) trong hướng dẫn này, hãy Import thêm file MLHUB-FizaHUB-Partner-API-Extended-Beta.postman_collection.json ở nút phía trên — collection thứ 2 sẽ có tên MLHUB × FizaHUB Partner API - Extended Beta (14 request).') }}</li>
                 </ol>
                 <div class="check">{{ __('Xong khi: thấy 10 request trong collection MVP (và 14 request trong collection Extended Beta nếu đã import), chia theo 4 nhóm A/B/C/D ở mục lục bên trên.') }}</div>
             </article>
