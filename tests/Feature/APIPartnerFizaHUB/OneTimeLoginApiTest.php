@@ -308,7 +308,7 @@ test('refuses one-time login for missing or incomplete integrations', function (
         oneTimeLoginHeaders()
     )
         ->assertNotFound()
-        ->assertJsonPath('error.code', 'resource_not_found');
+        ->assertJsonPath('error.code', 'integration_not_found');
 
     $plan = AdminPlan::query()->create([
         'name' => 'Plan',

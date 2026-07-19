@@ -22,8 +22,12 @@ class BusinessProfileController
 
     public function update(UpdateBusinessProfileRequest $request, string $external_business_id): JsonResponse
     {
-        return PartnerApiResponse::success(
-            $this->profiles->updateProfile($external_business_id, $request->validated())
-        );
+        $result = $this->profiles->updateProfile($external_business_id, $request->validated());
+
+        if ($request->attributes->get('used_deprecated_flat_profile_body') === true) {
+            $result['deprecation_notice'] = __('Gửi name/phone/address ở cấp cao nhất đã lỗi thời. Vui lòng dùng "business": { "name", "phone", "address" }.');
+        }
+
+        return PartnerApiResponse::success($result);
     }
 }

@@ -9,7 +9,7 @@ use Modules\AdminUser\Models\User;
 use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
 use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingRequest;
 use Modules\APIPartnerFizaHUB\Models\PartnerPackageAssignment;
-use RuntimeException;
+use Modules\APIPartnerFizaHUB\Support\PartnerApiException;
 
 class PackageAssignmentService
 {
@@ -34,7 +34,12 @@ class PackageAssignmentService
         $plan = $this->mapping->resolvePlan($packageCode);
 
         if (! $plan instanceof AdminPlan) {
-            throw new RuntimeException('Configured FizaHUB package plan was not found for code: '.$packageCode);
+            throw PartnerApiException::make(
+                'default_plan_not_found',
+                __('Hệ thống chưa sẵn sàng để tạo tài khoản. Vui lòng thử lại sau ít phút.'),
+                503,
+                ['next_action' => 'retry_later']
+            );
         }
 
         return DB::transaction(function () use ($integration, $packageCode, $plan, $changedBy, $reason, $onboarding, $markApproved) {

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -137,4 +138,77 @@ function dropFizaHubPartnerTables(): void
     Schema::dropIfExists('partner_api_logs');
     Schema::dropIfExists('partner_onboarding_requests');
     Schema::dropIfExists('partner_integrations');
+}
+
+/**
+ * Minimal schema so that `GET /health` (now a readiness probe — database, partner_schema,
+ * default_plan, support_tables) reports 200 ok instead of 503 degraded. Used by tests that
+ * only care about header/auth/rate-limit/logging behaviour, not readiness itself.
+ */
+function bootFizaHubReadinessSchema(): void
+{
+    dropFizaHubReadinessSchema();
+
+    Schema::create('users', function (Blueprint $table): void {
+        $table->id();
+        $table->string('name')->nullable();
+        $table->string('email')->nullable();
+        $table->timestamps();
+    });
+
+    Schema::create('teams', function (Blueprint $table): void {
+        $table->id();
+        $table->string('name')->nullable();
+        $table->unsignedBigInteger('owner_user_id')->nullable();
+        $table->timestamps();
+    });
+
+    Schema::create('lb_businesses', function (Blueprint $table): void {
+        $table->id();
+        $table->string('name')->nullable();
+        $table->unsignedBigInteger('user_id')->nullable();
+        $table->timestamps();
+    });
+
+    Schema::create('support_tickets', function (Blueprint $table): void {
+        $table->id();
+        $table->string('subject')->nullable();
+        $table->timestamps();
+    });
+
+    Schema::create('support_comments', function (Blueprint $table): void {
+        $table->id();
+        $table->unsignedBigInteger('support_ticket_id')->nullable();
+        $table->text('comment')->nullable();
+        $table->timestamps();
+    });
+
+    Schema::create('plans', function (Blueprint $table): void {
+        $table->id();
+        $table->string('name')->nullable();
+        $table->string('slug')->unique();
+        $table->boolean('status')->default(true);
+        $table->timestamps();
+    });
+
+    DB::table('plans')->insert([
+        'name' => 'MLHUB Free Da Nang',
+        'slug' => 'mlhub-free-da-nang',
+        'status' => true,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    createFizaHubPartnerTables();
+}
+
+function dropFizaHubReadinessSchema(): void
+{
+    dropFizaHubPartnerTables();
+    Schema::dropIfExists('plans');
+    Schema::dropIfExists('support_comments');
+    Schema::dropIfExists('support_tickets');
+    Schema::dropIfExists('lb_businesses');
+    Schema::dropIfExists('teams');
+    Schema::dropIfExists('users');
 }

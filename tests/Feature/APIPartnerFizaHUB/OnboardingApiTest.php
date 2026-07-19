@@ -494,6 +494,16 @@ test('onboarding show returns status by request id', function (): void {
         ->assertJsonPath('data.status', 'awaiting_consultant');
 });
 
+test('onboarding show returns a typed onboarding_request_not_found for an unknown request id', function (): void {
+    $this->getJson(
+        '/api/v1/partners/fizahub/onboarding-requests/'.((string) str()->uuid()),
+        onboardingHeaders()
+    )
+        ->assertNotFound()
+        ->assertJsonPath('error.code', 'onboarding_request_not_found')
+        ->assertJsonPath('error.details.next_action', 'create_onboarding_request');
+});
+
 test('business creation failure rolls back user team and integration', function (): void {
     LocalBusiness::creating(function (): void {
         throw new RuntimeException('forced business failure');

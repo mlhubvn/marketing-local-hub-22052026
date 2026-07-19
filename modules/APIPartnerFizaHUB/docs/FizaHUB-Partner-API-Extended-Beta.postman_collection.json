@@ -1,0 +1,573 @@
+{
+    "info": {
+        "name": "MLHUB × FizaHUB Partner API - Extended Beta",
+        "_postman_id": "b6f0f2a2-2a5e-4a44-9d9c-fizahubextbeta",
+        "description": "14 endpoint MỞ RỘNG (Beta) — nằm ngoài 10 endpoint MVP đã thống nhất. Dùng bộ này SAU khi đã chạy xong FizaHUB-Partner-API-MVP-v1.postman_collection.json (cần onboarding_request_id/ticket_id/campaign_id thật lấy từ MVP hoặc từ chính bộ này).\n\nGồm: xác thực SSO nội bộ, catalog gói dịch vụ, xác nhận/huỷ onboarding thủ công, one-time login vào Portal MLHUB, insight/khuyến nghị tăng trưởng, danh sách & chi tiết chiến dịch QR, tổng hợp/danh sách ticket, gửi tin nhắn hỗ trợ, đóng/mở lại ticket.\n\nBảo mật: KHÔNG gửi CCCD/ảnh giấy tờ qua các API này. partner_token để trống hoặc thay bằng token thật do MLHUB cấp.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    "// from/to luôn là 30 ngày gần nhất tính theo ngày chạy request (không phải hạn mức gói).",
+                    "function fmt(date) { return date.toISOString().slice(0, 10); }",
+                    "const to = new Date();",
+                    "const from = new Date();",
+                    "from.setDate(from.getDate() - 30);",
+                    "pm.collectionVariables.set('to', fmt(to));",
+                    "pm.collectionVariables.set('from', fmt(from));"
+                ]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "https://mlhub.vn"
+        },
+        {
+            "key": "partner_token",
+            "value": "replace-with-token"
+        },
+        {
+            "key": "external_business_id",
+            "value": "fh-biz-demo-001"
+        },
+        {
+            "key": "onboarding_request_id",
+            "value": ""
+        },
+        {
+            "key": "ticket_id",
+            "value": ""
+        },
+        {
+            "key": "campaign_id",
+            "value": ""
+        },
+        {
+            "key": "from",
+            "value": ""
+        },
+        {
+            "key": "to",
+            "value": ""
+        }
+    ],
+    "item": [
+        {
+            "name": "1. POST SSO Verify",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" },
+                    { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/v1/partners/fizahub/partner/sso/verify",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "v1", "partners", "fizahub", "partner", "sso", "verify"]
+                }
+            },
+            "response": [
+                {
+                    "name": "Thành công",
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": true,\n  \"data\": { \"partner_code\": \"fizahub\", \"verified\": true },\n  \"error\": null\n}"
+                }
+            ]
+        },
+        {
+            "name": "2. GET Package Catalog",
+            "request": {
+                "method": "GET",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/v1/partners/fizahub/packages",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "v1", "partners", "fizahub", "packages"]
+                }
+            },
+            "response": [
+                {
+                    "name": "Thành công",
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": true,\n  \"data\": {\n    \"default_package_code\": \"free\",\n    \"packages\": [\n      { \"package_code\": \"free\", \"plan_slug\": \"mlhub-free-da-nang\", \"package_name\": \"MLHUB Free Da Nang\", \"is_default\": true, \"is_free\": true },\n      { \"package_code\": \"base\", \"plan_slug\": \"mlhub-free-da-nang\", \"package_name\": \"MLHUB Free Da Nang\", \"is_default\": false, \"is_free\": true }\n    ]\n  },\n  \"error\": null\n}"
+                }
+            ]
+        },
+        {
+            "name": "3. POST Confirm Onboarding",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" },
+                    { "key": "Content-Type", "value": "application/json" },
+                    { "key": "Idempotency-Key", "value": "{{$guid}}" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"note\": \"Chủ cửa hàng đã xác nhận qua điện thoại.\"\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/v1/partners/fizahub/onboarding-requests/{{onboarding_request_id}}/confirm",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "v1", "partners", "fizahub", "onboarding-requests", "{{onboarding_request_id}}", "confirm"]
+                },
+                "description": "Cần {{onboarding_request_id}} thật — lấy từ MVP collection (bước POST Onboarding) hoặc điền tay."
+            },
+            "response": [
+                {
+                    "name": "Thành công",
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": true,\n  \"data\": { \"request_id\": \"{{onboarding_request_id}}\", \"status\": \"awaiting_consultant\", \"partner_confirmed_at\": \"2026-07-13T04:00:00+00:00\" },\n  \"error\": null\n}"
+                },
+                {
+                    "name": "Lỗi nghiệp vụ",
+                    "status": "Not Found",
+                    "code": 404,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"onboarding_request_not_found\", \"message\": \"Không tìm thấy yêu cầu onboarding này.\", \"details\": { \"next_action\": \"create_onboarding_request\" } }\n}"
+                }
+            ]
+        },
+        {
+            "name": "4. POST Cancel Onboarding",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" },
+                    { "key": "Content-Type", "value": "application/json" },
+                    { "key": "Idempotency-Key", "value": "{{$guid}}" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"reason\": \"Chủ cửa hàng đổi ý.\"\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/v1/partners/fizahub/onboarding-requests/{{onboarding_request_id}}/cancel",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "v1", "partners", "fizahub", "onboarding-requests", "{{onboarding_request_id}}", "cancel"]
+                },
+                "description": "Cần {{onboarding_request_id}} thật. CẢNH BÁO: hủy sẽ đổi trạng thái sang cancelled, không dùng chung một request_id với các bước MVP khác sau khi đã gọi endpoint này."
+            },
+            "response": [
+                {
+                    "name": "Thành công",
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": true,\n  \"data\": { \"request_id\": \"{{onboarding_request_id}}\", \"status\": \"cancelled\", \"current_step\": \"cancelled\", \"status_label\": \"Đã hủy\" },\n  \"error\": null\n}"
+                },
+                {
+                    "name": "Lỗi nghiệp vụ",
+                    "status": "Not Found",
+                    "code": 404,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"onboarding_request_not_found\", \"message\": \"Không tìm thấy yêu cầu onboarding này.\", \"details\": { \"next_action\": \"create_onboarding_request\" } }\n}"
+                }
+            ]
+        },
+        {
+            "name": "5. POST One-time Login",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" },
+                    { "key": "Content-Type", "value": "application/json" },
+                    { "key": "Idempotency-Key", "value": "{{$guid}}" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/one-time-login",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "v1", "partners", "fizahub", "businesses", "{{external_business_id}}", "one-time-login"]
+                },
+                "description": "Chỉ mở khi onboarding ở trạng thái ready hoặc completed. Nếu chưa xong sẽ trả 409 onboarding_not_ready."
+            },
+            "response": [
+                {
+                    "name": "Thành công",
+                    "status": "Created",
+                    "code": 201,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": true,\n  \"data\": { \"url\": \"[REDACTED]\", \"expires_at\": \"2026-07-13T04:05:00+00:00\" },\n  \"error\": null\n}"
+                },
+                {
+                    "name": "Lỗi nghiệp vụ",
+                    "status": "Conflict",
+                    "code": 409,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"onboarding_not_ready\", \"message\": \"Tài khoản đang chờ tư vấn viên MLHUB hoàn tất cấu hình.\", \"details\": { \"status\": \"awaiting_consultant\", \"status_label\": \"Chờ tư vấn viên liên hệ\" } }\n}"
+                }
+            ]
+        },
+        {
+            "name": "6. GET Insights",
+            "request": {
+                "method": "GET",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/insights?from={{from}}&to={{to}}",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "v1", "partners", "fizahub", "businesses", "{{external_business_id}}", "insights"],
+                    "query": [
+                        { "key": "from", "value": "{{from}}" },
+                        { "key": "to", "value": "{{to}}" }
+                    ]
+                }
+            },
+            "response": [
+                {
+                    "name": "Thành công",
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": true,\n  \"data\": { \"insights\": [ { \"code\": \"qr_scans\", \"label\": \"Lượt quét QR\", \"value\": 120 } ] },\n  \"error\": null\n}"
+                }
+            ]
+        },
+        {
+            "name": "7. GET Recommendations",
+            "request": {
+                "method": "GET",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/recommendations?from={{from}}&to={{to}}",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "v1", "partners", "fizahub", "businesses", "{{external_business_id}}", "recommendations"],
+                    "query": [
+                        { "key": "from", "value": "{{from}}" },
+                        { "key": "to", "value": "{{to}}" }
+                    ]
+                }
+            },
+            "response": [
+                {
+                    "name": "Thành công",
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": true,\n  \"data\": { \"suggested_actions\": [ { \"code\": \"create_campaign\", \"label\": \"Tạo chiến dịch QR\" } ] },\n  \"error\": null\n}"
+                }
+            ]
+        },
+        {
+            "name": "8. GET Campaigns",
+            "request": {
+                "method": "GET",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/campaigns?from={{from}}&to={{to}}",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "v1", "partners", "fizahub", "businesses", "{{external_business_id}}", "campaigns"],
+                    "query": [
+                        { "key": "from", "value": "{{from}}" },
+                        { "key": "to", "value": "{{to}}" }
+                    ]
+                },
+                "description": "Script Tests bên dưới tự lưu campaign_id đầu tiên (nếu có) vào biến {{campaign_id}} để dùng cho bước GET Campaign Detail."
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "if (pm.response.code === 200) {",
+                            "    const campaigns = pm.response.json().data.campaigns || [];",
+                            "    if (campaigns.length > 0 && campaigns[0].campaign_id) {",
+                            "        pm.collectionVariables.set('campaign_id', campaigns[0].campaign_id);",
+                            "    }",
+                            "}"
+                        ]
+                    }
+                }
+            ],
+            "response": [
+                {
+                    "name": "Thành công",
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": true,\n  \"data\": { \"campaigns\": [ { \"campaign_id\": \"{{$guid}}\", \"name\": \"Khuyen mai Com Tam\", \"scans\": 120, \"conversions\": 15 } ] },\n  \"error\": null\n}"
+                }
+            ]
+        },
+        {
+            "name": "9. GET Campaign Detail",
+            "request": {
+                "method": "GET",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/campaigns/{{campaign_id}}?from={{from}}&to={{to}}",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "v1", "partners", "fizahub", "businesses", "{{external_business_id}}", "campaigns", "{{campaign_id}}"],
+                    "query": [
+                        { "key": "from", "value": "{{from}}" },
+                        { "key": "to", "value": "{{to}}" }
+                    ]
+                },
+                "description": "Cần chạy bước 8. GET Campaigns trước để {{campaign_id}} được điền tự động."
+            },
+            "response": [
+                {
+                    "name": "Thành công",
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": true,\n  \"data\": { \"campaign_id\": \"{{campaign_id}}\", \"name\": \"Khuyen mai Com Tam\", \"scans\": 120, \"conversions\": 15 },\n  \"error\": null\n}"
+                },
+                {
+                    "name": "Lỗi nghiệp vụ",
+                    "status": "Not Found",
+                    "code": 404,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"campaign_not_found\", \"message\": \"Không tìm thấy chiến dịch này.\", \"details\": { \"next_action\": \"list_campaigns_first\" } }\n}"
+                }
+            ]
+        },
+        {
+            "name": "10. GET Support Summary",
+            "request": {
+                "method": "GET",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-summary",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "v1", "partners", "fizahub", "businesses", "{{external_business_id}}", "support-summary"]
+                }
+            },
+            "response": [
+                {
+                    "name": "Thành công",
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": true,\n  \"data\": { \"open\": 1, \"pending\": 0, \"closed\": 3, \"unread_by_business\": 1 },\n  \"error\": null\n}"
+                }
+            ]
+        },
+        {
+            "name": "11. GET List Support Tickets",
+            "request": {
+                "method": "GET",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-tickets",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "v1", "partners", "fizahub", "businesses", "{{external_business_id}}", "support-tickets"]
+                }
+            },
+            "response": [
+                {
+                    "name": "Thành công",
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": true,\n  \"data\": { \"items\": [ { \"ticket_id\": \"{{ticket_id}}\", \"subject\": \"Need help with FizaMKT Base\", \"status\": \"open\" } ], \"pagination\": { \"per_page\": 20, \"total\": 1 } },\n  \"error\": null\n}"
+                }
+            ]
+        },
+        {
+            "name": "12. POST Send Support Message",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" },
+                    { "key": "Content-Type", "value": "application/json" },
+                    { "key": "Idempotency-Key", "value": "{{$guid}}" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"message\": \"Cam on MLHUB da ho tro.\"\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/v1/partners/fizahub/support-tickets/{{ticket_id}}/messages?external_business_id={{external_business_id}}",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "v1", "partners", "fizahub", "support-tickets", "{{ticket_id}}", "messages"],
+                    "query": [{ "key": "external_business_id", "value": "{{external_business_id}}" }]
+                },
+                "description": "Cần {{ticket_id}} thật — lấy từ MVP collection (bước POST Create Support Ticket)."
+            },
+            "response": [
+                {
+                    "name": "Thành công",
+                    "status": "Created",
+                    "code": 201,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": true,\n  \"data\": { \"ticket_id\": \"{{ticket_id}}\", \"sender_type\": \"business\", \"body\": \"Cam on MLHUB da ho tro.\" },\n  \"error\": null\n}"
+                },
+                {
+                    "name": "Lỗi nghiệp vụ",
+                    "status": "Conflict",
+                    "code": 409,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"ticket_not_open\", \"message\": \"This support ticket is not open for new messages.\", \"details\": [] }\n}"
+                }
+            ]
+        },
+        {
+            "name": "13. PATCH Close Support Ticket",
+            "request": {
+                "method": "PATCH",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/v1/partners/fizahub/support-tickets/{{ticket_id}}/close?external_business_id={{external_business_id}}",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "v1", "partners", "fizahub", "support-tickets", "{{ticket_id}}", "close"],
+                    "query": [{ "key": "external_business_id", "value": "{{external_business_id}}" }]
+                },
+                "description": "Cần {{ticket_id}} thật. CẢNH BÁO: đóng ticket sẽ chặn bước 12 POST Send Support Message dùng cùng ticket_id."
+            },
+            "response": [
+                {
+                    "name": "Thành công",
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": true,\n  \"data\": { \"ticket_id\": \"{{ticket_id}}\", \"status\": \"closed\" },\n  \"error\": null\n}"
+                },
+                {
+                    "name": "Lỗi nghiệp vụ",
+                    "status": "Conflict",
+                    "code": 409,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"ticket_not_open\", \"message\": \"This support ticket is not open.\", \"details\": [] }\n}"
+                }
+            ]
+        },
+        {
+            "name": "14. POST Reopen Support Ticket",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Authorization", "value": "Bearer {{partner_token}}" },
+                    { "key": "X-Partner", "value": "fizahub" },
+                    { "key": "X-Request-Id", "value": "{{$guid}}" },
+                    { "key": "Accept", "value": "application/json" },
+                    { "key": "Content-Type", "value": "application/json" },
+                    { "key": "Idempotency-Key", "value": "{{$guid}}" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/v1/partners/fizahub/support-tickets/{{ticket_id}}/reopen?external_business_id={{external_business_id}}",
+                    "host": ["{{base_url}}"],
+                    "path": ["api", "v1", "partners", "fizahub", "support-tickets", "{{ticket_id}}", "reopen"],
+                    "query": [{ "key": "external_business_id", "value": "{{external_business_id}}" }]
+                },
+                "description": "Cần {{ticket_id}} thật, chạy sau bước 13 để kiểm tra luồng đóng/mở lại."
+            },
+            "response": [
+                {
+                    "name": "Thành công",
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": true,\n  \"data\": { \"ticket_id\": \"{{ticket_id}}\", \"status\": \"open\" },\n  \"error\": null\n}"
+                },
+                {
+                    "name": "Lỗi nghiệp vụ",
+                    "status": "Not Found",
+                    "code": 404,
+                    "_postman_previewlanguage": "json",
+                    "header": [{ "key": "Content-Type", "value": "application/json" }],
+                    "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"ticket_not_found\", \"message\": \"Không tìm thấy phiếu hỗ trợ này.\", \"details\": { \"next_action\": \"create_support_ticket\" } }\n}"
+                }
+            ]
+        }
+    ]
+}

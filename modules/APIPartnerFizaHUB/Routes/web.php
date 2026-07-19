@@ -11,6 +11,8 @@ Route::middleware(['web'])
             ->name('partner.fizahub.docs');
         Route::get('/api-fizahub/postman', [ApiFizaHubDocsController::class, 'postman'])
             ->name('partner.fizahub.docs.postman');
+        Route::get('/api-fizahub/postman/extended', [ApiFizaHubDocsController::class, 'postmanExtended'])
+            ->name('partner.fizahub.docs.postman.extended');
         Route::get('/api-fizahub/help-test', [ApiFizaHubDocsController::class, 'helpTest'])
             ->name('partner.fizahub.docs.help-test');
     });

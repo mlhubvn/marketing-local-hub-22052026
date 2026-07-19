@@ -247,5 +247,5 @@ test('package api returns 404 for unmapped business', function (): void {
         packageHeaders()
     )
         ->assertNotFound()
-        ->assertJsonPath('error.code', 'resource_not_found');
+        ->assertJsonPath('error.code', 'integration_not_found');
 });

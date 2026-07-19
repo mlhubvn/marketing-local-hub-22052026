@@ -10939,5 +10939,13 @@
     "support ticket events (new admin reply, status changes).": "sự kiện ticket hỗ trợ (admin trả lời mới, đổi trạng thái).",
     "Signed with header X-MLHUB-Signature: sha256=... and de-duplicated with X-Dedupe-Key.": "Được ký bằng header X-MLHUB-Signature: sha256=... và chống trùng bằng X-Dedupe-Key.",
     "FizaHUB submits a registration request; MLHUB always creates a Free account immediately and sets awaiting_consultant.": "FizaHUB gửi yêu cầu đăng ký; MLHUB luôn tạo ngay tài khoản Free và đặt awaiting_consultant.",
-    "Requires Idempotency-Key. Status values: awaiting_consultant, needs_review, consulting, configuring, ready, completed, cancelled.": "Yêu cầu Idempotency-Key. Các giá trị status: awaiting_consultant, needs_review, consulting, configuring, ready, completed, cancelled."
+    "Requires Idempotency-Key. Status values: awaiting_consultant, needs_review, consulting, configuring, ready, completed, cancelled.": "Yêu cầu Idempotency-Key. Các giá trị status: awaiting_consultant, needs_review, consulting, configuring, ready, completed, cancelled.",
+    "The requested resource was not found.": "Không tìm thấy tài nguyên được yêu cầu.",
+    "Không tìm thấy yêu cầu onboarding này.": "Không tìm thấy yêu cầu onboarding này.",
+    "Doanh nghiệp này chưa được liên kết với MLHUB.": "Doanh nghiệp này chưa được liên kết với MLHUB.",
+    "Không tìm thấy chiến dịch này.": "Không tìm thấy chiến dịch này.",
+    "Không tìm thấy phiếu hỗ trợ này.": "Không tìm thấy phiếu hỗ trợ này.",
+    "Hệ thống chưa sẵn sàng để tạo tài khoản. Vui lòng thử lại sau ít phút.": "Hệ thống chưa sẵn sàng để tạo tài khoản. Vui lòng thử lại sau ít phút.",
+    "Hệ thống đối tác chưa sẵn sàng. Vui lòng thử lại sau ít phút.": "Hệ thống đối tác chưa sẵn sàng. Vui lòng thử lại sau ít phút.",
+    "Gửi name/phone/address ở cấp cao nhất đã lỗi thời. Vui lòng dùng \"business\": { \"name\", \"phone\", \"address\" }.": "Gửi name/phone/address ở cấp cao nhất đã lỗi thời. Vui lòng dùng \"business\": { \"name\", \"phone\", \"address\" }."
 }

@@ -12,6 +12,8 @@ use Modules\APIPartnerFizaHUB\Models\PartnerApiLog;
 use Modules\APIPartnerFizaHUB\Support\PartnerApiResponse;
 use Modules\APIPartnerFizaHUB\Support\PartnerPayloadRedactor;
 
+require_once __DIR__.'/FizaHubTestHelpers.php';
+
 function createPartnerLifecycleTables(): void
 {
     Schema::dropIfExists('partner_api_logs');
@@ -51,6 +53,7 @@ beforeEach(function (): void {
     config()->set('modules.apipartnerfizahub.token', 'test-fizahub-partner-token');
     config()->set('modules.apipartnerfizahub.rate_limit_per_minute', 60);
 
+    bootFizaHubReadinessSchema();
     createPartnerLifecycleTables();
 
     Route::middleware([
@@ -99,6 +102,7 @@ beforeEach(function (): void {
 
 afterEach(function (): void {
     Schema::dropIfExists('partner_api_logs');
+    dropFizaHubReadinessSchema();
 });
 
 test('GET health requests are written to partner api logs', function (): void {

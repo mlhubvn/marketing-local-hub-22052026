@@ -79,32 +79,34 @@ Support message create/detail conversation items use field **`body`** (not `mess
 
 ## 24 Core API endpoints
 
-| # | Method | Path |
-|---|--------|------|
-| 1 | GET | `/health` |
-| 2 | POST | `/partner/sso/verify` |
-| 3 | GET | `/packages` |
-| 4 | POST | `/onboarding-requests` |
-| 5 | GET | `/onboarding-requests/{request_id}` |
-| 6 | POST | `/onboarding-requests/{request_id}/confirm` |
-| 7 | POST | `/onboarding-requests/{request_id}/cancel` |
-| 8 | GET | `/businesses/{external_business_id}/integration-status` |
-| 9 | PATCH | `/businesses/{external_business_id}/profile` |
-| 10 | POST | `/businesses/{external_business_id}/one-time-login` |
-| 11 | GET | `/businesses/{external_business_id}/package` |
-| 12 | GET | `/businesses/{external_business_id}/dashboard` |
-| 13 | GET | `/businesses/{external_business_id}/insights` |
-| 14 | GET | `/businesses/{external_business_id}/recommendations` |
-| 15 | GET | `/businesses/{external_business_id}/campaigns` |
-| 16 | GET | `/businesses/{external_business_id}/campaigns/{campaign_id}` |
-| 17 | GET | `/businesses/{external_business_id}/support-summary` |
-| 18 | POST | `/businesses/{external_business_id}/support-tickets` |
-| 19 | GET | `/businesses/{external_business_id}/support-tickets` |
-| 20 | GET | `/support-tickets/{ticket_id}?external_business_id={id}` |
-| 21 | POST | `/support-tickets/{ticket_id}/messages?external_business_id={id}` |
-| 22 | POST | `/support-tickets/{ticket_id}/attachments?external_business_id={id}` |
-| 23 | PATCH | `/support-tickets/{ticket_id}/close?external_business_id={id}` |
-| 24 | POST | `/support-tickets/{ticket_id}/reopen?external_business_id={id}` |
+Split across two Postman collections: **MVP v1** (10 endpoints — the happy-path partners must implement first) and **Extended Beta** (14 endpoints — optional, ship later). See [Postman](#postman) below.
+
+| # | Set | Method | Path |
+|---|-----|--------|------|
+| 1 | MVP | GET | `/health` |
+| 2 | Extended | POST | `/partner/sso/verify` |
+| 3 | Extended | GET | `/packages` |
+| 4 | MVP | POST | `/onboarding-requests` |
+| 5 | MVP | GET | `/onboarding-requests/{request_id}` |
+| 6 | Extended | POST | `/onboarding-requests/{request_id}/confirm` |
+| 7 | Extended | POST | `/onboarding-requests/{request_id}/cancel` |
+| 8 | MVP | GET | `/businesses/{external_business_id}/integration-status` |
+| 9 | MVP | PATCH | `/businesses/{external_business_id}/profile` |
+| 10 | Extended | POST | `/businesses/{external_business_id}/one-time-login` |
+| 11 | MVP | GET | `/businesses/{external_business_id}/package` |
+| 12 | MVP | GET | `/businesses/{external_business_id}/dashboard` |
+| 13 | Extended | GET | `/businesses/{external_business_id}/insights` |
+| 14 | Extended | GET | `/businesses/{external_business_id}/recommendations` |
+| 15 | Extended | GET | `/businesses/{external_business_id}/campaigns` |
+| 16 | Extended | GET | `/businesses/{external_business_id}/campaigns/{campaign_id}` |
+| 17 | Extended | GET | `/businesses/{external_business_id}/support-summary` |
+| 18 | MVP | POST | `/businesses/{external_business_id}/support-tickets` |
+| 19 | Extended | GET | `/businesses/{external_business_id}/support-tickets` |
+| 20 | MVP | GET | `/support-tickets/{ticket_id}?external_business_id={id}` |
+| 21 | Extended | POST | `/support-tickets/{ticket_id}/messages?external_business_id={id}` |
+| 22 | MVP | POST | `/support-tickets/{ticket_id}/attachments?external_business_id={id}` |
+| 23 | Extended | PATCH | `/support-tickets/{ticket_id}/close?external_business_id={id}` |
+| 24 | Extended | POST | `/support-tickets/{ticket_id}/reopen?external_business_id={id}` |
 
 Plus one **web** consume route (not counted in the 24 Core API):
 
@@ -167,14 +169,19 @@ API codes stay English. Docs expose Vietnamese labels:
 | `invalid_partner_header` | Header đối tác không hợp lệ | Kiểm tra `X-Partner` và `X-Request-Id` |
 | `invalid_partner_token` | Token đối tác không hợp lệ | Kiểm tra `partner_token` |
 | `validation_failed` | Dữ liệu không hợp lệ | Xem `error.details` để sửa Body/Params |
-| `integration_not_found` | Chưa có mapping MLHUB cho business này | Chạy onboarding trước hoặc kiểm tra `external_business_id` |
-| `resource_not_found` | Không tìm thấy dữ liệu | Kiểm tra `request_id` / `ticket_id` / `external_business_id` |
+| `onboarding_request_not_found` | Không tìm thấy yêu cầu onboarding này | `next_action=create_onboarding_request`: tạo yêu cầu onboarding mới |
+| `integration_not_found` | Chưa có mapping MLHUB cho business này | `next_action=create_onboarding_request`: chạy onboarding trước hoặc kiểm tra `external_business_id` |
+| `campaign_not_found` | Không tìm thấy chiến dịch này | `next_action=list_campaigns_first`: gọi GET Campaigns để lấy `campaign_id` thật |
+| `ticket_not_found` | Không tìm thấy phiếu hỗ trợ này | `next_action=create_support_ticket`: tạo ticket mới hoặc kiểm tra `ticket_id` |
+| `default_plan_not_found` | Hệ thống chưa sẵn sàng để tạo tài khoản (plan mặc định chưa được seed) | `next_action=retry_later`: báo MLHUB kiểm tra deploy/seed, không phải lỗi phía FizaHUB |
+| `partner_schema_not_ready` | Hệ thống chưa sẵn sàng (migration chưa chạy đủ) | `next_action=retry_later`: báo MLHUB kiểm tra deploy, không phải lỗi phía FizaHUB |
+| `resource_not_found` | Không tìm thấy dữ liệu (loại chưa được phân loại riêng) | Kiểm tra `request_id` / `ticket_id` / `external_business_id` |
 | `idempotency_conflict` | Idempotency-Key bị dùng lại với body khác | Tạo Idempotency-Key mới |
 | `idempotency_in_progress` | Request cùng Idempotency-Key đang xử lý | Đợi rồi thử lại |
 | `ticket_not_open` | Ticket đã đóng hoặc đã xử lý | Không gửi message mới |
 | `onboarding_not_ready` | Tài khoản đang chờ tư vấn viên MLHUB hoàn tất cấu hình | Chờ trạng thái `ready`/`completed` rồi gọi lại one-time login |
 | `rate_limit_exceeded` | Gọi API quá nhiều | Đợi khoảng 1 phút |
-| `partner_api_error` | Lỗi hệ thống API partner | Báo MLHUB kiểm tra log |
+| `partner_api_error` | Lỗi hệ thống không xác định | Báo MLHUB kèm `request_id`; log server đã có exception class/message để tra cứu |
 
 Package codes `free` và `base` đều map tới plan slug `mlhub-free-da-nang` (mặc định `free`). Industry alias `restaurant_food` → `restaurant_eatery`.
 
@@ -239,16 +246,37 @@ Module auto-discovery loads `APIPartnerFizaHUBServiceProvider` (priority 30). Mi
 
 Tables: `partner_integrations`, `partner_onboarding_requests`, `partner_api_logs`, `partner_one_time_logins`, `partner_onboarding_status_histories`, `partner_package_assignments`, `partner_support_presets`, `partner_support_ticket_contexts`, `partner_support_attachments`, `partner_webhook_outbox`.
 
+## Readiness & diagnostics
+
+`GET /health` is a **readiness probe**, not just a liveness ping. It runs 4 checks and returns `200 ok` only if all pass, otherwise `503` with `data.status=degraded` and a per-check reason in `data.checks`:
+
+- `database` — the configured DB connection is reachable.
+- `partner_schema` — all 10 FizaHUB tables exist, plus `requested_package_code`/`approved_package_code`/`admin_status` on `partner_onboarding_requests` (the exact columns the 2026_07_17 extension migration adds — missing them was the root cause of the production onboarding 500).
+- `default_plan` — the `AdminPlan` (`plans` table) mapped from `FIZAHUB_DEFAULT_PACKAGE` (default `mlhub-free-da-nang`) exists and `status=true`.
+- `support_tables` — the AdminSupport tables (`support_tickets`, `support_comments`) this module's support-ticket bridge writes to.
+
+For a human-readable version with token/migration/route checks added, run on the server:
+
+```bash
+php artisan fizahub:doctor
+```
+
+It prints one `[PASS]`/`[FAIL]` line per check (`token`, `migrations`, `database`, `partner_schema`, `default_plan`, `support_tables`, `routes`) and exits `0` only if everything passes — safe to wire into a deploy health-check step.
+
 ## Postman
 
-Import: [`docs/FizaHUB-Partner-API.postman_collection.json`](docs/FizaHUB-Partner-API.postman_collection.json)
+Two separate collections — import both if you need the full 24-endpoint surface, or just the MVP one to cover the happy path:
 
-Collection variables are pre-filled for the testing phase: `base_url=https://mlhub.vn` and `partner_token=fizahub` (matches the code default `FIZAHUB_PARTNER_TOKEN`), so partners can download and test immediately. Replace `partner_token` with the strong token MLHUB issues before going live.
+- MVP v1 (10 endpoints, required): [`docs/FizaHUB-Partner-API-MVP-v1.postman_collection.json`](docs/FizaHUB-Partner-API-MVP-v1.postman_collection.json)
+- Extended Beta (14 endpoints, optional): [`docs/FizaHUB-Partner-API-Extended-Beta.postman_collection.json`](docs/FizaHUB-Partner-API-Extended-Beta.postman_collection.json)
+
+Both collections ship with `partner_token=replace-with-token` (not a real secret) and empty `onboarding_request_id`/`ticket_id`/`campaign_id` variables — no fake IDs. A collection-level pre-request script recomputes `from`/`to` to the last 30 days on every send, and the `POST Onboarding` / `POST Create Support Ticket` requests have test scripts that auto-save `data.request_id` / `data.ticket_id` into collection variables for the next requests. Replace `partner_token` with the real token MLHUB issues before going live.
 
 Public documentation:
 
 - Partner tech spec: `GET /api-fizahub`
-- Postman download: `GET /api-fizahub/postman`
+- Postman MVP download: `GET /api-fizahub/postman`
+- Postman Extended Beta download: `GET /api-fizahub/postman/extended`
 - Step-by-step Postman help: `GET /api-fizahub/help-test`
 
 ## MVP exclusions

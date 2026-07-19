@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Modules\APIPartnerFizaHUB\Providers\APIPartnerFizaHUBServiceProvider;
 
+require_once __DIR__.'/FizaHubTestHelpers.php';
+
 function fizahubPartnerHeaders(array $overrides = []): array
 {
     return array_merge([
@@ -16,6 +18,12 @@ function fizahubPartnerHeaders(array $overrides = []): array
 beforeEach(function (): void {
     config()->set('modules.apipartnerfizahub.token', 'test-fizahub-partner-token');
     config()->set('modules.apipartnerfizahub.rate_limit_per_minute', 60);
+
+    bootFizaHubReadinessSchema();
+});
+
+afterEach(function (): void {
+    dropFizaHubReadinessSchema();
 });
 
 test('APIPartnerFizaHUB service provider is registered', function (): void {

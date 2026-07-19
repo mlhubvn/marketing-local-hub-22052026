@@ -12,9 +12,9 @@ use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
 use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingRequest;
 use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingStatusHistory;
 use Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine;
+use Modules\APIPartnerFizaHUB\Support\PartnerApiException;
 use Modules\AppAffiliate\Support\AffiliateService;
 use Modules\AppBusinessProfiles\Models\LocalBusiness;
-use RuntimeException;
 use Throwable;
 
 class OnboardingService
@@ -438,7 +438,12 @@ class OnboardingService
         $plan = $this->mapping->resolvePlan($effectivePackageCode);
 
         if (! $plan) {
-            throw new RuntimeException('Configured FizaHUB package plan was not found.');
+            throw PartnerApiException::make(
+                'default_plan_not_found',
+                __('Hệ thống chưa sẵn sàng để tạo tài khoản. Vui lòng thử lại sau ít phút.'),
+                503,
+                ['next_action' => 'retry_later']
+            );
         }
 
         $owner = (array) data_get($acceptedPayload, 'owner', []);

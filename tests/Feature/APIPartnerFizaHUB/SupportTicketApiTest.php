@@ -386,7 +386,7 @@ test('tenant isolation blocks cross business ticket access', function (): void {
         supportHeaders()
     )
         ->assertNotFound()
-        ->assertJsonPath('error.code', 'resource_not_found');
+        ->assertJsonPath('error.code', 'ticket_not_found');
 
     $this->postJson(
         '/api/v1/partners/fizahub/support-tickets/'.$ticketA.'/messages?external_business_id=biz-b',
@@ -394,7 +394,7 @@ test('tenant isolation blocks cross business ticket access', function (): void {
         supportHeaders()
     )
         ->assertNotFound()
-        ->assertJsonPath('error.code', 'resource_not_found');
+        ->assertJsonPath('error.code', 'ticket_not_found');
 });
 
 test('onboarding review ticket remains visible to admin with unknown user', function (): void {

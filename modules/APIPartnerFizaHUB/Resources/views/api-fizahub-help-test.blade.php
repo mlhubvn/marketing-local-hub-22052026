@@ -167,9 +167,10 @@
         <div class="wrap">
             <div class="hero-card">
                 <h1>{{ __('FizaHUB Partner API - Hướng dẫn test Postman từng bước') }}</h1>
-                <p class="lead">{{ __('Dành cho người chưa chuyên. Làm từ trên xuống, copy Body/raw, bấm Send, copy ID vào Variables. Thứ tự request dưới đây khớp đúng thứ tự trong file Postman (24 request).') }}</p>
+                <p class="lead">{{ __('Dành cho người chưa chuyên. Làm từ trên xuống, copy Body/raw, bấm Send, copy ID vào Variables. Có 2 file Postman: MVP (10 request, dùng cho luồng chính) và Extended Beta (14 request mở rộng, đánh dấu riêng ở từng bước dưới đây).') }}</p>
                 <div class="cta-row">
-                    <a class="btn btn-primary" href="{{ $postmanUrl }}">{{ __('1. Tải file Postman JSON trước') }}</a>
+                    <a class="btn btn-primary" href="{{ $postmanUrl }}">{{ __('1. Tải file Postman MVP (10 request)') }}</a>
+                    <a class="btn btn-ghost" href="{{ $postmanExtendedUrl }}">{{ __('Tải file Postman Extended Beta (14 request)') }}</a>
                     <a class="btn btn-ghost" href="{{ $docsUrl }}">{{ __('Quay lại tài liệu API') }}</a>
                 </div>
                 <div class="note">
@@ -188,6 +189,9 @@
                 </ul>
             </div>
 
+            <div class="note" style="margin:0 0 1rem;">
+                {{ __('Các bước có nhãn (Extended Beta) nằm trong file Postman thứ 2 — phải import cả 2 file mới chạy được hết trang này. Nếu chỉ cần luồng chính (onboarding → dashboard → hỗ trợ), có thể chỉ tải file MVP và bỏ qua các bước đó.') }}
+            </div>
             <div class="toc">
                 <strong>{{ __('Thứ tự test (làm từ trên xuống, khớp thứ tự trong Postman)') }}</strong>
                 <h3>{{ __('A. Khởi tạo & xác thực') }}</h3>
@@ -195,37 +199,37 @@
                     <li><a href="#step-1">{{ __('Cài Postman và import file') }}</a></li>
                     <li><a href="#step-2">{{ __('Điền biến Variables') }}</a></li>
                     <li><a href="#step-3">{{ __('Test GET Health') }}</a></li>
-                    <li><a href="#step-4">{{ __('Test POST SSO Verify') }}</a></li>
-                    <li><a href="#step-5">{{ __('Test GET Package Catalog') }}</a></li>
+                    <li><a href="#step-4">{{ __('Test POST SSO Verify') }}</a> ({{ __('Extended Beta') }})</li>
+                    <li><a href="#step-5">{{ __('Test GET Package Catalog') }}</a> ({{ __('Extended Beta') }})</li>
                 </ol>
                 <h3>{{ __('B. Onboarding & hồ sơ doanh nghiệp') }}</h3>
                 <ol start="6">
                     <li><a href="#step-6">{{ __('Test POST Onboarding') }}</a></li>
                     <li><a href="#step-7">{{ __('Test GET Onboarding Status') }}</a></li>
-                    <li><a href="#step-8">{{ __('Test POST Confirm Onboarding') }}</a></li>
-                    <li><a href="#step-9">{{ __('Test POST Cancel Onboarding') }}</a></li>
+                    <li><a href="#step-8">{{ __('Test POST Confirm Onboarding') }}</a> ({{ __('Extended Beta') }})</li>
+                    <li><a href="#step-9">{{ __('Test POST Cancel Onboarding') }}</a> ({{ __('Extended Beta') }})</li>
                     <li><a href="#step-10">{{ __('Test GET Integration Status') }}</a></li>
                     <li><a href="#step-11">{{ __('Test PATCH Update Business Profile') }}</a></li>
-                    <li><a href="#step-12">{{ __('Test POST Đăng nhập một lần') }}</a></li>
+                    <li><a href="#step-12">{{ __('Test POST Đăng nhập một lần') }}</a> ({{ __('Extended Beta') }})</li>
                 </ol>
                 <h3>{{ __('C. Gói & dashboard tăng trưởng') }}</h3>
                 <ol start="13">
                     <li><a href="#step-13">{{ __('Test GET Package') }}</a></li>
                     <li><a href="#step-14">{{ __('Test GET Dashboard') }}</a></li>
-                    <li><a href="#step-15">{{ __('Test GET Insights') }}</a></li>
-                    <li><a href="#step-16">{{ __('Test GET Recommendations') }}</a></li>
-                    <li><a href="#step-17">{{ __('Test GET Campaigns') }}</a></li>
-                    <li><a href="#step-18">{{ __('Test GET Campaign Detail') }}</a></li>
+                    <li><a href="#step-15">{{ __('Test GET Insights') }}</a> ({{ __('Extended Beta') }})</li>
+                    <li><a href="#step-16">{{ __('Test GET Recommendations') }}</a> ({{ __('Extended Beta') }})</li>
+                    <li><a href="#step-17">{{ __('Test GET Campaigns') }}</a> ({{ __('Extended Beta') }})</li>
+                    <li><a href="#step-18">{{ __('Test GET Campaign Detail') }}</a> ({{ __('Extended Beta') }})</li>
                 </ol>
                 <h3>{{ __('D. Hỗ trợ & hội thoại') }}</h3>
                 <ol start="19">
-                    <li><a href="#step-19">{{ __('Test GET Support Summary') }}</a></li>
+                    <li><a href="#step-19">{{ __('Test GET Support Summary') }}</a> ({{ __('Extended Beta') }})</li>
                     <li><a href="#step-20">{{ __('Test POST Tạo ticket hỗ trợ') }}</a></li>
-                    <li><a href="#step-21">{{ __('Test GET Danh sách ticket') }}</a></li>
+                    <li><a href="#step-21">{{ __('Test GET Danh sách ticket') }}</a> ({{ __('Extended Beta') }})</li>
                     <li><a href="#step-22">{{ __('Test GET Chi tiết ticket') }}</a></li>
-                    <li><a href="#step-23">{{ __('Test POST Gửi tin nhắn hỗ trợ') }}</a></li>
+                    <li><a href="#step-23">{{ __('Test POST Gửi tin nhắn hỗ trợ') }}</a> ({{ __('Extended Beta') }})</li>
                     <li><a href="#step-24">{{ __('Test POST Tải file đính kèm') }}</a></li>
-                    <li><a href="#step-25">{{ __('Test PATCH Đóng ticket / POST Mở lại ticket') }}</a></li>
+                    <li><a href="#step-25">{{ __('Test PATCH Đóng ticket / POST Mở lại ticket') }}</a> ({{ __('Extended Beta') }})</li>
                     <li><a href="#troubleshooting">{{ __('Lỗi thường gặp') }}</a></li>
                 </ol>
             </div>
@@ -243,14 +247,16 @@
                 </ol>
                 <div class="cta-row">
                     <a class="btn btn-primary" href="https://www.postman.com/downloads/" target="_blank" rel="noopener noreferrer">{{ __('Tải Postman') }}</a>
-                    <a class="btn btn-ghost" href="{{ $postmanUrl }}">{{ __('Tải file Postman JSON') }}</a>
+                    <a class="btn btn-ghost" href="{{ $postmanUrl }}">{{ __('Tải file Postman MVP (bắt buộc)') }}</a>
+                    <a class="btn btn-ghost" href="{{ $postmanExtendedUrl }}">{{ __('Tải file Postman Extended Beta (tùy chọn)') }}</a>
                 </div>
                 <ol start="4">
                     <li>{{ __('Trong Postman, bấm Import.') }}</li>
                     <li>{{ __('Chọn file vừa tải: MLHUB-FizaHUB-Partner-API.postman_collection.json') }}</li>
-                    <li>{{ __('Bạn sẽ thấy collection tên MLHUB × FizaHUB Partner API.') }}</li>
+                    <li>{{ __('Bạn sẽ thấy collection tên MLHUB × FizaHUB Partner API - MVP v1 (10 request).') }}</li>
+                    <li>{{ __('Muốn làm hết các bước có nhãn (Extended Beta) trong hướng dẫn này, hãy Import thêm file Extended Beta ở nút phía trên — collection thứ 2 sẽ có tên MLHUB × FizaHUB Partner API - Extended Beta (14 request).') }}</li>
                 </ol>
-                <div class="check">{{ __('Xong khi: thấy 24 request trong collection, chia theo 4 nhóm A/B/C/D ở mục lục bên trên.') }}</div>
+                <div class="check">{{ __('Xong khi: thấy 10 request trong collection MVP (và 14 request trong collection Extended Beta nếu đã import), chia theo 4 nhóm A/B/C/D ở mục lục bên trên.') }}</div>
             </article>
 
             <article class="step" id="step-2">
@@ -392,7 +398,7 @@ Accept: application/json
             </article>
 
             <article class="step" id="step-4">
-                <h2><span class="step-num">4</span> <span class="method post">POST</span> {{ __('Test POST SSO Verify') }}</h2>
+                <h2><span class="step-num">4</span> <span class="method post">POST</span> {{ __('Test POST SSO Verify') }} <em>({{ __('Extended Beta') }})</em></h2>
                 <ol>
                     <li>{{ __('Mở request POST SSO Verify.') }}</li>
                     <li>{{ __('Body raw JSON có thể để trống {} cho lần test đầu tiên.') }}</li>
@@ -408,7 +414,7 @@ Accept: application/json
             </article>
 
             <article class="step" id="step-5">
-                <h2><span class="step-num">5</span> <span class="method get">GET</span> {{ __('Test GET Package Catalog') }}</h2>
+                <h2><span class="step-num">5</span> <span class="method get">GET</span> {{ __('Test GET Package Catalog') }} <em>({{ __('Extended Beta') }})</em></h2>
                 <ol>
                     <li>{{ __('Mở request GET Package Catalog.') }}</li>
                     <li>{{ __('Bấm Send.') }}</li>
@@ -586,7 +592,7 @@ Content-Type: application/json
             </article>
 
             <article class="step" id="step-8">
-                <h2><span class="step-num">8</span> <span class="method post">POST</span> {{ __('Test POST Confirm Onboarding') }}</h2>
+                <h2><span class="step-num">8</span> <span class="method post">POST</span> {{ __('Test POST Confirm Onboarding') }} <em>({{ __('Extended Beta') }})</em></h2>
                 <ol>
                     <li>{{ __('Mở POST Confirm Onboarding.') }}</li>
                     <li>{{ __('Không cần Body.') }}</li>
@@ -599,7 +605,7 @@ Content-Type: application/json
             </article>
 
             <article class="step" id="step-9">
-                <h2><span class="step-num">9</span> <span class="method post">POST</span> {{ __('Test POST Cancel Onboarding') }}</h2>
+                <h2><span class="step-num">9</span> <span class="method post">POST</span> {{ __('Test POST Cancel Onboarding') }} <em>({{ __('Extended Beta') }})</em></h2>
                 <ol>
                     <li>{{ __('Chỉ dùng request này khi bạn muốn hủy hẳn một yêu cầu test — nó sẽ đặt status=cancelled.') }}</li>
                     <li>{{ __('Mở POST Cancel Onboarding.') }}</li>
@@ -641,7 +647,7 @@ Content-Type: application/json
             </article>
 
             <article class="step" id="step-12">
-                <h2><span class="step-num">12</span> <span class="method post">POST</span> {{ __('Test POST Đăng nhập một lần') }}</h2>
+                <h2><span class="step-num">12</span> <span class="method post">POST</span> {{ __('Test POST Đăng nhập một lần') }} <em>({{ __('Extended Beta') }})</em></h2>
                 <ol>
                     <li>{{ __('Chỉ chạy được khi onboarding status là ready hoặc completed — nếu chưa sẽ trả 409 onboarding_not_ready.') }}</li>
                     <li>{{ __('Mở POST One-time Login.') }}</li>
@@ -787,7 +793,7 @@ to = {{ __('ngày kết thúc báo cáo, định dạng YYYY-MM-DD') }}</pre>
             </article>
 
             <article class="step" id="step-15">
-                <h2><span class="step-num">15</span> <span class="method get">GET</span> {{ __('Test GET Insights') }}</h2>
+                <h2><span class="step-num">15</span> <span class="method get">GET</span> {{ __('Test GET Insights') }} <em>({{ __('Extended Beta') }})</em></h2>
                 <ol>
                     <li>{{ __('Mở GET Insights.') }}</li>
                     <li>{{ __('Bấm Send.') }}</li>
@@ -798,7 +804,7 @@ to = {{ __('ngày kết thúc báo cáo, định dạng YYYY-MM-DD') }}</pre>
             </article>
 
             <article class="step" id="step-16">
-                <h2><span class="step-num">16</span> <span class="method get">GET</span> {{ __('Test GET Recommendations') }}</h2>
+                <h2><span class="step-num">16</span> <span class="method get">GET</span> {{ __('Test GET Recommendations') }} <em>({{ __('Extended Beta') }})</em></h2>
                 <ol>
                     <li>{{ __('Mở GET Recommendations.') }}</li>
                     <li>{{ __('Bấm Send.') }}</li>
@@ -809,7 +815,7 @@ to = {{ __('ngày kết thúc báo cáo, định dạng YYYY-MM-DD') }}</pre>
             </article>
 
             <article class="step" id="step-17">
-                <h2><span class="step-num">17</span> <span class="method get">GET</span> {{ __('Test GET Campaigns') }}</h2>
+                <h2><span class="step-num">17</span> <span class="method get">GET</span> {{ __('Test GET Campaigns') }} <em>({{ __('Extended Beta') }})</em></h2>
                 <ol>
                     <li>{{ __('Mở GET Campaigns.') }}</li>
                     <li>{{ __('Bấm Send.') }}</li>
@@ -824,7 +830,7 @@ to = {{ __('ngày kết thúc báo cáo, định dạng YYYY-MM-DD') }}</pre>
             </article>
 
             <article class="step" id="step-18">
-                <h2><span class="step-num">18</span> <span class="method get">GET</span> {{ __('Test GET Campaign Detail') }}</h2>
+                <h2><span class="step-num">18</span> <span class="method get">GET</span> {{ __('Test GET Campaign Detail') }} <em>({{ __('Extended Beta') }})</em></h2>
                 <ol>
                     <li>{{ __('Chỉ chạy được khi campaign_id đã điền (xem bước 17).') }}</li>
                     <li>{{ __('Mở GET Campaign Detail.') }}</li>
@@ -839,7 +845,7 @@ to = {{ __('ngày kết thúc báo cáo, định dạng YYYY-MM-DD') }}</pre>
             <p class="category-tag">{{ __('D. Hỗ trợ & hội thoại') }}</p>
 
             <article class="step" id="step-19">
-                <h2><span class="step-num">19</span> <span class="method get">GET</span> {{ __('Test GET Support Summary') }}</h2>
+                <h2><span class="step-num">19</span> <span class="method get">GET</span> {{ __('Test GET Support Summary') }} <em>({{ __('Extended Beta') }})</em></h2>
                 <ol>
                     <li>{{ __('Mở GET Support Summary.') }}</li>
                     <li>{{ __('Bấm Send.') }}</li>
@@ -897,7 +903,7 @@ Content-Type: application/json
             </article>
 
             <article class="step" id="step-21">
-                <h2><span class="step-num">21</span> <span class="method get">GET</span> {{ __('Test GET Danh sách ticket') }}</h2>
+                <h2><span class="step-num">21</span> <span class="method get">GET</span> {{ __('Test GET Danh sách ticket') }} <em>({{ __('Extended Beta') }})</em></h2>
                 <ol>
                     <li>{{ __('Mở GET List Support Tickets.') }}</li>
                     <li>{{ __('Params tùy chọn: page=1, per_page=20.') }}</li>
@@ -975,7 +981,7 @@ Content-Type: application/json
             </article>
 
             <article class="step" id="step-23">
-                <h2><span class="step-num">23</span> <span class="method post">POST</span> {{ __('Test POST Gửi tin nhắn hỗ trợ') }}</h2>
+                <h2><span class="step-num">23</span> <span class="method post">POST</span> {{ __('Test POST Gửi tin nhắn hỗ trợ') }} <em>({{ __('Extended Beta') }})</em></h2>
                 <ol>
                     <li>{{ __('Mở POST Send Support Message.') }}</li>
                     <li>{{ __('Giữ nguyên query external_business_id — bắt buộc.') }}</li>
@@ -1038,7 +1044,7 @@ Content-Type: application/json
             </article>
 
             <article class="step" id="step-25">
-                <h2><span class="step-num">25</span> <span class="method patch">PATCH</span> / <span class="method post">POST</span> {{ __('Test PATCH Đóng ticket / POST Mở lại ticket') }}</h2>
+                <h2><span class="step-num">25</span> <span class="method patch">PATCH</span> / <span class="method post">POST</span> {{ __('Test PATCH Đóng ticket / POST Mở lại ticket') }} <em>({{ __('Extended Beta') }})</em></h2>
                 <ol>
                     <li>{{ __('Mở PATCH Close Support Ticket, giữ query external_business_id, bấm Send.') }}</li>
                     <li>{{ __('Kiểm tra GET Support Ticket Detail để thấy status đã đổi.') }}</li>

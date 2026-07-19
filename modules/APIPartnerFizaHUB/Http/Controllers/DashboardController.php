@@ -99,8 +99,9 @@ class DashboardController
         if (! $integration->mlhub_business_id) {
             return PartnerApiResponse::error(
                 'integration_not_found',
-                'No MLHUB integration is mapped to this FizaHUB business.',
-                404
+                __('Doanh nghiệp này chưa được liên kết với MLHUB.'),
+                404,
+                ['next_action' => 'create_onboarding_request']
             );
         }
 

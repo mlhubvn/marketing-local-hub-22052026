@@ -28,18 +28,36 @@ test('public fizahub docs page is available without auth', function (): void {
         ->and($html)->not->toContain('sk_live');
 });
 
-test('postman collection download returns the documented filename', function (): void {
+test('postman MVP collection download returns the documented legacy filename', function (): void {
     $response = $this->get('/api-fizahub/postman');
 
     $response->assertOk()
         ->assertDownload('MLHUB-FizaHUB-Partner-API.postman_collection.json');
 
-    $raw = file_get_contents(base_path('modules/APIPartnerFizaHUB/docs/FizaHUB-Partner-API.postman_collection.json'));
+    $raw = file_get_contents(base_path('modules/APIPartnerFizaHUB/docs/FizaHUB-Partner-API-MVP-v1.postman_collection.json'));
     $json = json_decode((string) $raw, true);
 
     expect($json)->toBeArray()
         ->and($json['info']['schema'] ?? null)
         ->toBe('https://schema.getpostman.com/json/collection/v2.1.0/collection.json')
+        ->and($json['item'] ?? [])->toHaveCount(10)
+        ->and($raw)->not->toContain('sk_live')
+        ->and($raw)->not->toContain('test-fizahub-partner-token');
+});
+
+test('postman Extended Beta collection download returns its own filename', function (): void {
+    $response = $this->get('/api-fizahub/postman/extended');
+
+    $response->assertOk()
+        ->assertDownload('MLHUB-FizaHUB-Partner-API-Extended-Beta.postman_collection.json');
+
+    $raw = file_get_contents(base_path('modules/APIPartnerFizaHUB/docs/FizaHUB-Partner-API-Extended-Beta.postman_collection.json'));
+    $json = json_decode((string) $raw, true);
+
+    expect($json)->toBeArray()
+        ->and($json['info']['schema'] ?? null)
+        ->toBe('https://schema.getpostman.com/json/collection/v2.1.0/collection.json')
+        ->and($json['item'] ?? [])->toHaveCount(14)
         ->and($raw)->not->toContain('sk_live')
         ->and($raw)->not->toContain('test-fizahub-partner-token');
 });

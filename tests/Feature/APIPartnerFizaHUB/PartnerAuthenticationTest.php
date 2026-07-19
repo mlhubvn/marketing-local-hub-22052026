@@ -2,10 +2,18 @@
 
 use Illuminate\Support\Facades\RateLimiter;
 
+require_once __DIR__.'/FizaHubTestHelpers.php';
+
 beforeEach(function (): void {
     config()->set('modules.apipartnerfizahub.token', 'test-fizahub-partner-token');
     config()->set('modules.apipartnerfizahub.rate_limit_per_minute', 60);
     RateLimiter::clear('fizahub|127.0.0.1');
+
+    bootFizaHubReadinessSchema();
+});
+
+afterEach(function (): void {
+    dropFizaHubReadinessSchema();
 });
 
 function partnerAuthHeaders(array $overrides = []): array

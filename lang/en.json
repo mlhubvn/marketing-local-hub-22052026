@@ -10912,5 +10912,13 @@
     "support ticket events (new admin reply, status changes).": "support ticket events (new admin reply, status changes).",
     "Signed with header X-MLHUB-Signature: sha256=... and de-duplicated with X-Dedupe-Key.": "Signed with header X-MLHUB-Signature: sha256=... and de-duplicated with X-Dedupe-Key.",
     "FizaHUB submits a registration request; MLHUB always creates a Free account immediately and sets awaiting_consultant.": "FizaHUB submits a registration request; MLHUB always creates a Free account immediately and sets awaiting_consultant.",
-    "Requires Idempotency-Key. Status values: awaiting_consultant, needs_review, consulting, configuring, ready, completed, cancelled.": "Requires Idempotency-Key. Status values: awaiting_consultant, needs_review, consulting, configuring, ready, completed, cancelled."
+    "Requires Idempotency-Key. Status values: awaiting_consultant, needs_review, consulting, configuring, ready, completed, cancelled.": "Requires Idempotency-Key. Status values: awaiting_consultant, needs_review, consulting, configuring, ready, completed, cancelled.",
+    "The requested resource was not found.": "The requested resource was not found.",
+    "Không tìm thấy yêu cầu onboarding này.": "This onboarding request was not found.",
+    "Doanh nghiệp này chưa được liên kết với MLHUB.": "This business has not been linked to MLHUB yet.",
+    "Không tìm thấy chiến dịch này.": "This campaign was not found.",
+    "Không tìm thấy phiếu hỗ trợ này.": "This support ticket was not found.",
+    "Hệ thống chưa sẵn sàng để tạo tài khoản. Vui lòng thử lại sau ít phút.": "The system is not ready to provision an account yet. Please retry in a few minutes.",
+    "Hệ thống đối tác chưa sẵn sàng. Vui lòng thử lại sau ít phút.": "The partner system is not ready yet. Please retry in a few minutes.",
+    "Gửi name/phone/address ở cấp cao nhất đã lỗi thời. Vui lòng dùng \"business\": { \"name\", \"phone\", \"address\" }.": "Sending name/phone/address at the top level is deprecated. Please use \"business\": { \"name\", \"phone\", \"address\" }."
 }

@@ -7,6 +7,31 @@ use Illuminate\Validation\Validator;
 
 class UpdateBusinessProfileRequest extends FormRequest
 {
+    /**
+     * Backward compatibility: the nested { "owner": {...}, "business": {...} } body is the
+     * canonical contract, but some partner clients (and the old Postman sample) still send
+     * name/phone/address flat at the top level. Normalize those into "business" so existing
+     * integrations keep working, and flag it so the controller can add a deprecation notice.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('business')) {
+            return;
+        }
+
+        $flatFields = array_filter(
+            $this->only(['name', 'phone', 'address']),
+            static fn ($value): bool => $value !== null
+        );
+
+        if ($flatFields === []) {
+            return;
+        }
+
+        $this->merge(['business' => $flatFields]);
+        $this->attributes->set('used_deprecated_flat_profile_body', true);
+    }
+
     public function authorize(): bool
     {
         return true;

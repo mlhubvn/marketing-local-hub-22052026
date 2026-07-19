@@ -56,6 +56,7 @@ class HandlePartnerRequest
                 $response = $rendered;
             } else {
                 report($exception);
+                app(PartnerExceptionRenderer::class)->logUnexpected($exception, $request);
 
                 $response = PartnerApiResponse::error(
                     'partner_api_error',
@@ -81,10 +82,10 @@ class HandlePartnerRequest
     ): Response|PartnerApiLog {
         if (! Schema::hasTable('partner_api_logs')) {
             return PartnerApiResponse::error(
-                'partner_api_error',
-                'Partner API logging is not available.',
-                500,
-                [],
+                'partner_schema_not_ready',
+                __('Hệ thống đối tác chưa sẵn sàng. Vui lòng thử lại sau ít phút.'),
+                503,
+                ['next_action' => 'retry_later'],
                 $requestId
             );
         }

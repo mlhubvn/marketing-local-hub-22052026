@@ -8,6 +8,7 @@ use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Modules\APIPartnerFizaHUB\Console\Commands\FizaHubDoctorCommand;
 use Modules\APIPartnerFizaHUB\Console\Commands\RetryPartnerWebhooksCommand;
 use Modules\APIPartnerFizaHUB\Console\Commands\WarmPartnerDashboardsCommand;
 use Modules\APIPartnerFizaHUB\Http\Middleware\HandlePartnerRequest;
@@ -48,6 +49,7 @@ class APIPartnerFizaHUBServiceProvider extends ServiceProvider
             $this->commands([
                 RetryPartnerWebhooksCommand::class,
                 WarmPartnerDashboardsCommand::class,
+                FizaHubDoctorCommand::class,
             ]);
 
             $this->app->booted(function (): void {
