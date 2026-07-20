@@ -42,6 +42,12 @@ class PartnerReadinessChecker
         'admin_status',
     ];
 
+    /** @var list<string> */
+    private const CRM_LOGIN_COLUMNS = [
+        'idempotency_key',
+        'token_ciphertext',
+    ];
+
     /**
      * AdminSupport tables the support-ticket bridge writes to; missing these breaks every
      * support endpoint even when the FizaHUB-owned schema is fine.
@@ -107,6 +113,14 @@ class PartnerReadinessChecker
                 foreach (self::PARTNER_ONBOARDING_COLUMNS as $column) {
                     if (! Schema::hasColumn('partner_onboarding_requests', $column)) {
                         $missingColumns[] = "partner_onboarding_requests.{$column}";
+                    }
+                }
+            }
+
+            if (Schema::hasTable('partner_one_time_logins')) {
+                foreach (self::CRM_LOGIN_COLUMNS as $column) {
+                    if (! Schema::hasColumn('partner_one_time_logins', $column)) {
+                        $missingColumns[] = "partner_one_time_logins.{$column}";
                     }
                 }
             }

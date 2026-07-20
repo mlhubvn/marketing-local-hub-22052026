@@ -114,3 +114,20 @@ test('health reports degraded 503 when schema is ready but the default plan is m
     expect($response->json('data.checks.default_plan.status'))->toBe('degraded')
         ->and($response->json('data.checks.default_plan.message'))->toContain('mlhub-free-da-nang');
 });
+
+test('health reports degraded when CRM idempotency columns have not been migrated', function (): void {
+    bootFizaHubReadinessSchema();
+
+    $crmLoginMigration = require base_path('modules/APIPartnerFizaHUB/Database/Migrations/2026_07_20_000000_add_crm_login_idempotency_to_partner_one_time_logins.php');
+    $crmLoginMigration->down();
+
+    $response = $this->getJson('/api/v1/partners/fizahub/health', readinessHeaders());
+
+    $response->assertStatus(503)
+        ->assertJsonPath('data.status', 'degraded')
+        ->assertJsonPath('data.checks.partner_schema.status', 'degraded');
+
+    expect($response->json('data.checks.partner_schema.message'))
+        ->toContain('partner_one_time_logins.idempotency_key')
+        ->toContain('partner_one_time_logins.token_ciphertext');
+});

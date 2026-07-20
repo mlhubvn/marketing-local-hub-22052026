@@ -1228,7 +1228,7 @@ git commit -m "docs: publish FizaHUB 22-endpoint integration cutover"
 - Produces: Doctor exact route count and route-name verification for the 22 endpoint contract.
 - Consumes: all implementation and documentation artifacts from Tasks 1–7.
 
-- [ ] **Step 1: Write failing Doctor route-set tests**
+- [x] **Step 1: Write failing Doctor route-set tests**
 
 ```php
 test('doctor requires exactly the approved 22 routes and rejects legacy aliases', function (): void {
@@ -1242,7 +1242,7 @@ test('doctor requires exactly the approved 22 routes and rejects legacy aliases'
 });
 ```
 
-- [ ] **Step 2: Run Doctor tests and verify RED**
+- [x] **Step 2: Run Doctor tests and verify RED**
 
 Run:
 
@@ -1252,11 +1252,11 @@ php artisan test tests/Feature/APIPartnerFizaHUB/FizaHubDoctorCommandTest.php
 
 Expected: FAIL because Doctor still requires the former 24 named routes.
 
-- [ ] **Step 3: Replace Doctor required route names**
+- [x] **Step 3: Replace Doctor required route names**
 
 Set `REQUIRED_ROUTES` to the 22 names established in Task 1 and add a forbidden-route check for attachment and old aliases. Add `2026_07_20_000000_add_crm_login_idempotency_to_partner_one_time_logins` to `REQUIRED_MIGRATIONS`.
 
-- [ ] **Step 4: Run the complete module test suite**
+- [x] **Step 4: Run the complete module test suite**
 
 Run:
 
@@ -1266,7 +1266,7 @@ php artisan test tests/Feature/APIPartnerFizaHUB
 
 Expected: all APIPartnerFizaHUB tests pass with zero failures.
 
-- [ ] **Step 5: Run Pint check**
+- [x] **Step 5: Run Pint check**
 
 Run:
 
@@ -1276,7 +1276,7 @@ vendor/bin/pint --test modules/APIPartnerFizaHUB tests/Feature/APIPartnerFizaHUB
 
 Expected: exit 0 with no formatting changes required.
 
-- [ ] **Step 6: Run the live Doctor command**
+- [x] **Step 6: Run the live Doctor command**
 
 Run:
 
@@ -1286,7 +1286,7 @@ php artisan fizahub:doctor
 
 Expected: `OVERALL: PASS` and the route line reports 22 routes.
 
-- [ ] **Step 7: Verify route count and absence of legacy routes directly**
+- [x] **Step 7: Verify route count and absence of legacy routes directly**
 
 Run:
 
@@ -1296,7 +1296,7 @@ php artisan route:list --path=api/v1/partners/fizahub --json
 
 Parse the JSON and verify 22 entries, with no `attachments`, `integration-status`, `/packages`, `/insights`, `/recommendations`, `/one-time-login`, confirm/cancel, or query-scoped ticket routes.
 
-- [ ] **Step 8: Inspect final diff and migration state**
+- [x] **Step 8: Inspect final diff and migration state**
 
 Run:
 
@@ -1308,7 +1308,7 @@ git diff --stat HEAD~8..HEAD
 
 Expected: no whitespace errors, no unexpected files staged, `codeok.zip` remains untouched, and the only migration change is the additive CRM idempotency migration.
 
-- [ ] **Step 9: Record staging cutover evidence**
+- [x] **Step 9: Record staging cutover evidence**
 
 In the final report record:
 
@@ -1327,7 +1327,7 @@ In the final report record:
 - commit messages;
 - required operational sequence: deploy code and docs together, re-import Postman, smoke-test staging, then cut over production.
 
-- [ ] **Step 10: Commit Task 8**
+- [x] **Step 10: Commit Task 8**
 
 ```powershell
 git add modules/APIPartnerFizaHUB/Console/Commands/FizaHubDoctorCommand.php modules/APIPartnerFizaHUB/Support/PartnerReadinessChecker.php modules/APIPartnerFizaHUB/README.md tests/Feature/APIPartnerFizaHUB/FizaHubDoctorCommandTest.php

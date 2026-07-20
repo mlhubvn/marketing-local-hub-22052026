@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Modules\APIPartnerFizaHUB\Support\PartnerReadinessChecker;
+use Throwable;
 
 /**
  * Standalone deploy-readiness diagnostic for MLHUB ops: token, migrations, tables, columns,
@@ -24,29 +25,45 @@ class FizaHubDoctorCommand extends Command
     private const REQUIRED_MIGRATIONS = [
         '2026_07_13_000000_create_fizahub_partner_api_tables',
         '2026_07_17_120000_extend_fizahub_partner_onboarding_tables',
+        '2026_07_20_000000_add_crm_login_idempotency_to_partner_one_time_logins',
     ];
 
     /** @var list<string> */
     private const REQUIRED_ROUTES = [
         'partner.fizahub.health',
         'partner.fizahub.sso.verify',
-        'partner.fizahub.packages.index',
+        'partner.fizahub.marketing-catalog',
         'partner.fizahub.onboarding.store',
         'partner.fizahub.onboarding.show',
+        'partner.fizahub.businesses.marketing-status',
+        'partner.fizahub.businesses.profile.update',
+        'partner.fizahub.businesses.marketing-preferences.update',
+        'partner.fizahub.businesses.dashboard',
+        'partner.fizahub.businesses.growth-insights',
+        'partner.fizahub.businesses.campaigns.index',
+        'partner.fizahub.businesses.campaigns.show',
+        'partner.fizahub.businesses.campaigns.approval',
+        'partner.fizahub.businesses.package',
+        'partner.fizahub.businesses.support-presets',
+        'partner.fizahub.businesses.support-tickets.store',
+        'partner.fizahub.businesses.support-tickets.index',
+        'partner.fizahub.businesses.support-tickets.show',
+        'partner.fizahub.businesses.support-tickets.messages.store',
+        'partner.fizahub.businesses.support-tickets.close',
+        'partner.fizahub.businesses.support-tickets.reopen',
+        'partner.fizahub.businesses.crm-login-links.store',
+    ];
+
+    /** @var list<string> */
+    private const FORBIDDEN_ROUTE_NAMES = [
+        'partner.fizahub.packages.index',
         'partner.fizahub.onboarding.confirm',
         'partner.fizahub.onboarding.cancel',
         'partner.fizahub.businesses.integration-status',
-        'partner.fizahub.businesses.profile.update',
         'partner.fizahub.businesses.one-time-login',
-        'partner.fizahub.businesses.package',
-        'partner.fizahub.businesses.dashboard',
         'partner.fizahub.businesses.insights',
         'partner.fizahub.businesses.recommendations',
-        'partner.fizahub.businesses.campaigns.index',
-        'partner.fizahub.businesses.campaigns.show',
         'partner.fizahub.businesses.support-summary',
-        'partner.fizahub.businesses.support-tickets.store',
-        'partner.fizahub.businesses.support-tickets.index',
         'partner.fizahub.support-tickets.show',
         'partner.fizahub.support-tickets.messages.store',
         'partner.fizahub.support-tickets.attachments.store',
@@ -112,35 +129,56 @@ class FizaHubDoctorCommand extends Command
 
     private function checkMigrations(): bool
     {
-        if (! Schema::hasTable('migrations')) {
-            $this->printLine('migrations', false, 'The migrations table does not exist — has `php artisan migrate` ever run on this database?');
+        try {
+            if (! Schema::hasTable('migrations')) {
+                $this->printLine('migrations', false, 'The migrations table does not exist — has `php artisan migrate` ever run on this database?');
+
+                return false;
+            }
+
+            $ran = DB::table('migrations')->pluck('migration')->all();
+            $missing = array_values(array_diff(self::REQUIRED_MIGRATIONS, $ran));
+
+            if ($missing !== []) {
+                $this->printLine('migrations', false, 'Missing FizaHUB migrations: '.implode(', ', $missing).'. Run `php artisan migrate --force`.');
+
+                return false;
+            }
+
+            $this->printLine('migrations', true, 'All '.count(self::REQUIRED_MIGRATIONS).' FizaHUB module migrations have run.');
+
+            return true;
+        } catch (Throwable) {
+            $this->printLine('migrations', false, 'Unable to inspect migration state because the database is unavailable.');
 
             return false;
         }
-
-        $ran = DB::table('migrations')->pluck('migration')->all();
-        $missing = array_values(array_diff(self::REQUIRED_MIGRATIONS, $ran));
-
-        if ($missing !== []) {
-            $this->printLine('migrations', false, 'Missing FizaHUB migrations: '.implode(', ', $missing).'. Run `php artisan migrate --force`.');
-
-            return false;
-        }
-
-        $this->printLine('migrations', true, 'Both FizaHUB module migrations have run.');
-
-        return true;
     }
 
     private function checkRoutes(): bool
     {
+        $apiRoutes = collect(Route::getRoutes())
+            ->filter(fn ($route): bool => str_starts_with($route->uri(), 'api/v1/partners/fizahub'));
+        $actualNames = $apiRoutes->map(fn ($route): ?string => $route->getName())->filter()->values()->all();
         $missing = array_values(array_filter(
             self::REQUIRED_ROUTES,
-            fn (string $name): bool => ! Route::has($name)
+            fn (string $name): bool => ! in_array($name, $actualNames, true)
+        ));
+        $unexpected = array_values(array_diff($actualNames, self::REQUIRED_ROUTES));
+        $forbidden = array_values(array_filter(
+            self::FORBIDDEN_ROUTE_NAMES,
+            fn (string $name): bool => in_array($name, $actualNames, true)
         ));
 
-        if ($missing !== []) {
-            $this->printLine('routes', false, 'Missing routes: '.implode(', ', $missing).'.');
+        if ($missing !== [] || $unexpected !== [] || $forbidden !== [] || $apiRoutes->count() !== count(self::REQUIRED_ROUTES)) {
+            $details = array_filter([
+                $missing === [] ? null : 'missing: '.implode(', ', $missing),
+                $unexpected === [] ? null : 'unexpected: '.implode(', ', $unexpected),
+                $forbidden === [] ? null : 'forbidden: '.implode(', ', $forbidden),
+                'count: '.$apiRoutes->count().'/'.count(self::REQUIRED_ROUTES),
+            ]);
+
+            $this->printLine('routes', false, 'Route contract mismatch ('.implode('; ', $details).').');
 
             return false;
         }
