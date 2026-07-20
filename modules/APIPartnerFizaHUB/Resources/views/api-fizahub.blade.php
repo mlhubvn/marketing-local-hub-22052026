@@ -267,10 +267,9 @@
             <div class="hero-card">
                 <p class="eyebrow">{{ __('Partner API technical specification') }} · 24 Core API</p>
                 <h1>{{ __('MLHUB × FizaHUB Partner API') }}</h1>
-                <p class="lead">{{ __('24 Core API để FizaHUB đấu nối với MLHUB/FizaMKT: onboarding tự tạo tài khoản Free, xác thực SSO, hồ sơ doanh nghiệp, gói dịch vụ, dashboard tăng trưởng (insight/khuyến nghị/chiến dịch), hỗ trợ ticket đầy đủ vòng đời và đăng nhập Portal một lần. FizaHUB là cửa vào; MLHUB xử lý marketing phía sau và đồng bộ trạng thái qua webhook. Chia làm 2 file Postman: MVP (10 endpoint bắt buộc) và Extended Beta (14 endpoint mở rộng, tùy chọn).') }}</p>
+                <p class="lead">{{ __('24 Core API để FizaHUB đấu nối với MLHUB/FizaMKT: onboarding tự tạo tài khoản Free, xác thực SSO, hồ sơ doanh nghiệp, gói dịch vụ, dashboard tăng trưởng (insight/khuyến nghị/chiến dịch), hỗ trợ ticket đầy đủ vòng đời và đăng nhập Portal một lần. FizaHUB là cửa vào; MLHUB xử lý marketing phía sau và đồng bộ trạng thái qua webhook. Một file Postman duy nhất (24 request): folder MVP (10 bắt buộc) + folder Extended Beta (14 tùy chọn).') }}</p>
                 <div class="cta-row" style="margin-bottom:1rem;">
-                    <a class="btn btn-primary" href="{{ $postmanUrl }}">{{ __('Download Postman JSON') }} (MVP)</a>
-                    <a class="btn btn-ghost" href="{{ $postmanExtendedUrl }}">{{ __('Download Postman JSON') }} (Extended Beta)</a>
+                    <a class="btn btn-primary" href="{{ $postmanUrl }}">{{ __('Download Postman JSON') }} (24 request)</a>
                     <a class="btn btn-primary" href="#architecture">{{ __('View architecture diagram') }}</a>
                     <a class="btn btn-ghost" href="#endpoints">{{ __('View 24 Core API endpoints') }}</a>
                     <a class="btn btn-ghost" href="{{ $helpTestUrl }}">{{ __('Step-by-step Postman test guide') }}</a>
@@ -1132,12 +1131,11 @@ Content-Type: application/json
             <h2 class="section-title">{{ __('Download Postman') }}</h2>
             <div class="panel postman-hero">
                 <div>
-                    <p style="margin:0 0 .55rem;">{{ __('Tải xuống Postman Collection JSON') }} — 2 file: MVP (10 request, bắt buộc) + Extended Beta (14 request, tùy chọn)</p>
+                    <p style="margin:0 0 .55rem;">{{ __('Tải xuống Postman Collection JSON') }} — 1 file, 24 request (folder MVP + folder Extended Beta)</p>
                     <p class="muted" style="margin:0;">{{ __('Import into Postman, set variables, then test Health Check before onboarding and other flows.') }}</p>
                 </div>
                 <div style="display:flex;flex-wrap:wrap;gap:.6rem;">
-                    <a class="btn btn-primary" href="{{ $postmanUrl }}" download>{{ __('Download Postman JSON') }} (MVP)</a>
-                    <a class="btn btn-ghost" href="{{ $postmanExtendedUrl }}" download>{{ __('Download Postman JSON') }} (Extended Beta)</a>
+                    <a class="btn btn-primary" href="{{ $postmanUrl }}" download>{{ __('Download Postman JSON') }} (24 request)</a>
                     <a class="btn btn-ghost" href="{{ $helpTestUrl }}">{{ __('Step-by-step Postman test guide') }}</a>
                 </div>
             </div>

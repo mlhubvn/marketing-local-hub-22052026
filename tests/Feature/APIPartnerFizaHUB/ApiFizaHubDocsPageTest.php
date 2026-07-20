@@ -19,7 +19,10 @@ test('public fizahub docs page is available without auth', function (): void {
         ->and($html)->toContain(__('Support detail/message bắt buộc có query external_business_id.'))
         ->and($html)->toContain('?external_business_id=')
         ->and($html)->toContain(__('Download Postman JSON'))
+        ->and($html)->toContain('(24 request)')
         ->and($html)->toContain('/api-fizahub/help-test')
+        ->and($html)->not->toContain('(MVP)</a>')
+        ->and($html)->not->toContain('(Extended Beta)</a>')
         ->and($html)->toContain('rel="icon"')
         ->and($html)->toContain('fonts.bunny.net')
         ->and($html)->not->toContain('/favicon.ico')
@@ -28,38 +31,30 @@ test('public fizahub docs page is available without auth', function (): void {
         ->and($html)->not->toContain('sk_live');
 });
 
-test('postman MVP collection download returns the documented legacy filename', function (): void {
+test('postman unified collection download returns the documented filename with 24 endpoints', function (): void {
     $response = $this->get('/api-fizahub/postman');
 
     $response->assertOk()
         ->assertDownload('MLHUB-FizaHUB-Partner-API.postman_collection.json');
 
-    $raw = file_get_contents(base_path('modules/APIPartnerFizaHUB/docs/FizaHUB-Partner-API-MVP-v1.postman_collection.json'));
+    $raw = file_get_contents(base_path('modules/APIPartnerFizaHUB/docs/FizaHUB-Partner-API.postman_collection.json'));
     $json = json_decode((string) $raw, true);
 
     expect($json)->toBeArray()
         ->and($json['info']['schema'] ?? null)
         ->toBe('https://schema.getpostman.com/json/collection/v2.1.0/collection.json')
-        ->and($json['item'] ?? [])->toHaveCount(10)
+        ->and($json['item'] ?? [])->toHaveCount(2)
+        ->and(($json['item'][0]['item'] ?? []))->toHaveCount(10)
+        ->and(($json['item'][1]['item'] ?? []))->toHaveCount(14)
         ->and($raw)->not->toContain('sk_live')
         ->and($raw)->not->toContain('test-fizahub-partner-token');
 });
 
-test('postman Extended Beta collection download returns its own filename', function (): void {
+test('legacy extended postman download URL serves the same unified collection', function (): void {
     $response = $this->get('/api-fizahub/postman/extended');
 
     $response->assertOk()
-        ->assertDownload('MLHUB-FizaHUB-Partner-API-Extended-Beta.postman_collection.json');
-
-    $raw = file_get_contents(base_path('modules/APIPartnerFizaHUB/docs/FizaHUB-Partner-API-Extended-Beta.postman_collection.json'));
-    $json = json_decode((string) $raw, true);
-
-    expect($json)->toBeArray()
-        ->and($json['info']['schema'] ?? null)
-        ->toBe('https://schema.getpostman.com/json/collection/v2.1.0/collection.json')
-        ->and($json['item'] ?? [])->toHaveCount(14)
-        ->and($raw)->not->toContain('sk_live')
-        ->and($raw)->not->toContain('test-fizahub-partner-token');
+        ->assertDownload('MLHUB-FizaHUB-Partner-API.postman_collection.json');
 });
 
 test('public fizahub help-test page guides postman step by step without secrets', function (): void {
@@ -69,6 +64,7 @@ test('public fizahub help-test page guides postman step by step without secrets'
     $html = $response->getContent();
 
     expect($html)->toContain(__('FizaHUB Partner API - Hướng dẫn test Postman từng bước'))
+        ->and($html)->toContain(__('1. Tải file Postman (24 request)'))
         ->and($html)->toContain(__('Body raw JSON'))
         ->and($html)->toContain('Copy data.request_id')
         ->and($html)->toContain('Copy data.ticket_id')
@@ -80,6 +76,8 @@ test('public fizahub help-test page guides postman step by step without secrets'
         ->and($html)->toContain(__('Lỗi thường gặp'))
         ->and($html)->toContain('Cửa hàng Demo Fiza')
         ->and($html)->toContain('Yêu cầu hỗ trợ FizaMKT Base')
+        ->and($html)->not->toContain('Tải file Postman MVP')
+        ->and($html)->not->toContain('Tải file Postman Extended Beta')
         ->and($html)->toContain('rel="icon"')
         ->and($html)->toContain('fonts.bunny.net')
         ->and($html)->not->toContain('/favicon.ico')

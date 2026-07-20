@@ -167,10 +167,9 @@
         <div class="wrap">
             <div class="hero-card">
                 <h1>{{ __('FizaHUB Partner API - Hướng dẫn test Postman từng bước') }}</h1>
-                <p class="lead">{{ __('Dành cho người chưa chuyên. Làm từ trên xuống, copy Body/raw, bấm Send, copy ID vào Variables. Có 2 file Postman: MVP (10 request, dùng cho luồng chính) và Extended Beta (14 request mở rộng, đánh dấu riêng ở từng bước dưới đây).') }}</p>
+                <p class="lead">{{ __('Dành cho người chưa chuyên. Làm từ trên xuống, copy Body/raw, bấm Send, copy ID vào Variables. Chỉ cần tải 1 file Postman (24 request): folder MVP cho luồng chính, folder Extended Beta cho các bước mở rộng đánh dấu bên dưới.') }}</p>
                 <div class="cta-row">
-                    <a class="btn btn-primary" href="{{ $postmanUrl }}">{{ __('1. Tải file Postman MVP (10 request)') }}</a>
-                    <a class="btn btn-ghost" href="{{ $postmanExtendedUrl }}">{{ __('Tải file Postman Extended Beta (14 request)') }}</a>
+                    <a class="btn btn-primary" href="{{ $postmanUrl }}">{{ __('1. Tải file Postman (24 request)') }}</a>
                     <a class="btn btn-ghost" href="{{ $docsUrl }}">{{ __('Quay lại tài liệu API') }}</a>
                 </div>
                 <div class="note">
@@ -190,7 +189,7 @@
             </div>
 
             <div class="note" style="margin:0 0 1rem;">
-                {{ __('Các bước có nhãn (Extended Beta) nằm trong file Postman thứ 2 — phải import cả 2 file mới chạy được hết trang này. Nếu chỉ cần luồng chính (onboarding → dashboard → hỗ trợ), có thể chỉ tải file MVP và bỏ qua các bước đó.') }}
+                {{ __('Các bước có nhãn (Extended Beta) nằm trong folder B của cùng 1 file Postman. Nếu chỉ cần luồng chính (onboarding → dashboard → hỗ trợ), chạy folder A (MVP) và bỏ qua các bước Extended Beta.') }}
             </div>
             <div class="toc">
                 <strong>{{ __('Thứ tự test (làm từ trên xuống, khớp thứ tự trong Postman)') }}</strong>
@@ -247,16 +246,14 @@
                 </ol>
                 <div class="cta-row">
                     <a class="btn btn-primary" href="https://www.postman.com/downloads/" target="_blank" rel="noopener noreferrer">{{ __('Tải Postman') }}</a>
-                    <a class="btn btn-ghost" href="{{ $postmanUrl }}">{{ __('Tải file Postman MVP (bắt buộc)') }}</a>
-                    <a class="btn btn-ghost" href="{{ $postmanExtendedUrl }}">{{ __('Tải file Postman Extended Beta (tùy chọn)') }}</a>
+                    <a class="btn btn-ghost" href="{{ $postmanUrl }}">{{ __('Tải file Postman (24 request)') }}</a>
                 </div>
                 <ol start="4">
                     <li>{{ __('Trong Postman, bấm Import.') }}</li>
-                    <li>{{ __('Chọn file MVP vừa tải: MLHUB-FizaHUB-Partner-API.postman_collection.json (file bắt buộc).') }}</li>
-                    <li>{{ __('Bạn sẽ thấy collection tên MLHUB × FizaHUB Partner API - MVP v1 (10 request).') }}</li>
-                    <li>{{ __('Muốn làm hết các bước có nhãn (Extended Beta) trong hướng dẫn này, hãy Import thêm file MLHUB-FizaHUB-Partner-API-Extended-Beta.postman_collection.json ở nút phía trên — collection thứ 2 sẽ có tên MLHUB × FizaHUB Partner API - Extended Beta (14 request).') }}</li>
+                    <li>{{ __('Chọn file vừa tải: MLHUB-FizaHUB-Partner-API.postman_collection.json.') }}</li>
+                    <li>{{ __('Bạn sẽ thấy collection tên MLHUB × FizaHUB Partner API với 2 folder: A. MVP (10 request) và B. Extended Beta (14 request).') }}</li>
                 </ol>
-                <div class="check">{{ __('Xong khi: thấy 10 request trong collection MVP (và 14 request trong collection Extended Beta nếu đã import), chia theo 4 nhóm A/B/C/D ở mục lục bên trên.') }}</div>
+                <div class="check">{{ __('Xong khi: thấy 24 request trong 1 collection, chia 2 folder MVP / Extended Beta (khớp 4 nhóm A/B/C/D ở mục lục bên trên).') }}</div>
             </article>
 
             <article class="step" id="step-2">

@@ -1,9 +1,11 @@
 <?php
 
 /**
- * Contract tests for the two split Postman collections (Phase 3):
- * - FizaHUB-Partner-API-MVP-v1.postman_collection.json (10 endpoints)
- * - FizaHUB-Partner-API-Extended-Beta.postman_collection.json (14 endpoints)
+ * Contract tests for the unified Postman collection:
+ * FizaHUB-Partner-API.postman_collection.json
+ * - Folder A: MVP (10 endpoints, required)
+ * - Folder B: Extended Beta (14 endpoints, optional)
+ * Total: 24 Core API endpoints
  */
 function decodePostmanCollection(string $filename): array
 {
@@ -14,6 +16,25 @@ function decodePostmanCollection(string $filename): array
     expect($raw)->toBeString()->not->toBeEmpty();
 
     return [$raw, json_decode($raw, true, 512, JSON_THROW_ON_ERROR)];
+}
+
+function flattenPostmanItems(array $items): array
+{
+    $flat = [];
+
+    foreach ($items as $item) {
+        if (isset($item['item']) && is_array($item['item'])) {
+            foreach ($item['item'] as $child) {
+                $flat[] = $child;
+            }
+
+            continue;
+        }
+
+        $flat[] = $item;
+    }
+
+    return $flat;
 }
 
 function assertPostmanCollectionHasNoForbiddenSecrets(string $raw): void
@@ -78,105 +99,29 @@ function assertPostmanItemsHavePartnerHeaders(array $items): void
     }
 }
 
-test('postman MVP v1 collection is valid v2.1 with exactly ten endpoints, no fake ids, and a safe token placeholder', function (): void {
-    [$raw, $collection] = decodePostmanCollection('FizaHUB-Partner-API-MVP-v1.postman_collection.json');
+test('unified postman collection is valid v2.1 with MVP + Extended folders totaling 24 endpoints', function (): void {
+    [$raw, $collection] = decodePostmanCollection('FizaHUB-Partner-API.postman_collection.json');
 
     expect($collection['info']['schema'] ?? null)
         ->toBe('https://schema.getpostman.com/json/collection/v2.1.0/collection.json')
-        ->and($collection['info']['name'] ?? null)->toContain('MVP');
+        ->and($collection['info']['name'] ?? null)->toBe('MLHUB × FizaHUB Partner API')
+        ->and($collection['event'][0]['listen'] ?? null)->toBe('prerequest');
+
+    $folders = $collection['item'] ?? [];
+    expect($folders)->toHaveCount(2)
+        ->and($folders[0]['name'] ?? null)->toContain('MVP')
+        ->and($folders[1]['name'] ?? null)->toContain('Extended Beta');
+
+    $mvpItems = $folders[0]['item'] ?? [];
+    $extendedItems = $folders[1]['item'] ?? [];
+    expect($mvpItems)->toHaveCount(10)
+        ->and($extendedItems)->toHaveCount(14);
 
     $variables = collect($collection['variable'] ?? [])->pluck('key')->all();
     expect($variables)->toEqualCanonicalizing([
         'base_url',
         'partner_token',
         'external_user_id',
-        'external_business_id',
-        'onboarding_request_id',
-        'ticket_id',
-        'from',
-        'to',
-    ]);
-
-    $variablesByKey = collect($collection['variable'] ?? [])
-        ->mapWithKeys(fn (array $variable): array => [
-            (string) ($variable['key'] ?? '') => (string) ($variable['value'] ?? ''),
-        ]);
-
-    expect($variablesByKey->get('base_url'))->toBe('https://mlhub.vn')
-        ->and($variablesByKey->get('partner_token'))->not->toBe('fizahub')
-        ->and($variablesByKey->get('partner_token'))->not->toBe('')
-        ->and($variablesByKey->get('onboarding_request_id'))->toBe('')
-        ->and($variablesByKey->get('ticket_id'))->toBe('');
-
-    $items = $collection['item'] ?? [];
-    expect($items)->toHaveCount(10);
-
-    $names = collect($items)->pluck('name')->all();
-    expect($names)->toBe([
-        '1. GET Health',
-        '2. POST Onboarding',
-        '3. GET Onboarding Status',
-        '4. GET Integration Status',
-        '5. GET Business Package',
-        '6. GET Dashboard',
-        '7. PATCH Update Business Profile',
-        '8. POST Create Support Ticket',
-        '9. GET Support Ticket Detail',
-        '10. POST Upload Support Attachment',
-    ]);
-
-    assertPostmanCollectionHasNoForbiddenSecrets($raw);
-    assertPostmanCollectionHasNoFakeDemoIds($raw);
-    assertPostmanItemsHavePartnerHeaders($items);
-
-    $profileItem = collect($items)->firstWhere('name', '7. PATCH Update Business Profile');
-    expect($profileItem['request']['body']['mode'] ?? null)->toBe('raw');
-
-    $profileBody = json_decode((string) ($profileItem['request']['body']['raw'] ?? '{}'), true, 512, JSON_THROW_ON_ERROR);
-
-    expect($profileBody)->toHaveKeys(['owner', 'business'])
-        ->and($profileBody)->not->toHaveKey('name')
-        ->and($profileBody)->not->toHaveKey('phone')
-        ->and($profileBody)->not->toHaveKey('address')
-        ->and($profileBody['business'])->toHaveKeys(['name', 'phone', 'address']);
-
-    $attachmentItem = collect($items)->firstWhere('name', '10. POST Upload Support Attachment');
-    $attachmentBody = $attachmentItem['request']['body'] ?? [];
-
-    expect($attachmentBody['mode'] ?? null)->toBe('formdata');
-
-    $formdataByKey = collect($attachmentBody['formdata'] ?? [])
-        ->mapWithKeys(fn (array $field): array => [(string) ($field['key'] ?? '') => $field]);
-
-    expect($formdataByKey->get('file')['type'] ?? null)->toBe('file')
-        ->and($formdataByKey->get('note')['type'] ?? null)->toBe('text');
-
-    $attachmentHeaderKeys = collect($attachmentItem['request']['header'] ?? [])
-        ->pluck('key')
-        ->map(fn (string $key): string => strtolower($key));
-
-    expect($attachmentHeaderKeys->contains('content-type'))->toBeFalse();
-
-    $onboardingItem = collect($items)->firstWhere('name', '2. POST Onboarding');
-    $onboardingScript = implode("\n", $onboardingItem['event'][0]['script']['exec'] ?? []);
-    expect($onboardingScript)->toContain("pm.collectionVariables.set('onboarding_request_id'");
-
-    $ticketItem = collect($items)->firstWhere('name', '8. POST Create Support Ticket');
-    $ticketScript = implode("\n", $ticketItem['event'][0]['script']['exec'] ?? []);
-    expect($ticketScript)->toContain("pm.collectionVariables.set('ticket_id'");
-});
-
-test('postman Extended Beta collection is valid v2.1 with exactly fourteen endpoints and no MVP overlap', function (): void {
-    [$raw, $collection] = decodePostmanCollection('FizaHUB-Partner-API-Extended-Beta.postman_collection.json');
-
-    expect($collection['info']['schema'] ?? null)
-        ->toBe('https://schema.getpostman.com/json/collection/v2.1.0/collection.json')
-        ->and($collection['info']['name'] ?? null)->toContain('Extended Beta');
-
-    $variables = collect($collection['variable'] ?? [])->pluck('key')->all();
-    expect($variables)->toEqualCanonicalizing([
-        'base_url',
-        'partner_token',
         'external_business_id',
         'onboarding_request_id',
         'ticket_id',
@@ -190,17 +135,29 @@ test('postman Extended Beta collection is valid v2.1 with exactly fourteen endpo
             (string) ($variable['key'] ?? '') => (string) ($variable['value'] ?? ''),
         ]);
 
-    expect($variablesByKey->get('partner_token'))->not->toBe('fizahub')
+    expect($variablesByKey->get('base_url'))->toBe('https://mlhub.vn')
+        ->and($variablesByKey->get('partner_token'))->not->toBe('fizahub')
         ->and($variablesByKey->get('partner_token'))->not->toBe('')
         ->and($variablesByKey->get('onboarding_request_id'))->toBe('')
         ->and($variablesByKey->get('ticket_id'))->toBe('')
         ->and($variablesByKey->get('campaign_id'))->toBe('');
 
-    $items = $collection['item'] ?? [];
-    expect($items)->toHaveCount(14);
+    $mvpNames = collect($mvpItems)->pluck('name')->all();
+    expect($mvpNames)->toBe([
+        '1. GET Health',
+        '2. POST Onboarding',
+        '3. GET Onboarding Status',
+        '4. GET Integration Status',
+        '5. GET Business Package',
+        '6. GET Dashboard',
+        '7. PATCH Update Business Profile',
+        '8. POST Create Support Ticket',
+        '9. GET Support Ticket Detail',
+        '10. POST Upload Support Attachment',
+    ]);
 
-    $names = collect($items)->pluck('name')->all();
-    expect($names)->toBe([
+    $extendedNames = collect($extendedItems)->pluck('name')->all();
+    expect($extendedNames)->toBe([
         '1. POST SSO Verify',
         '2. GET Package Catalog',
         '3. POST Confirm Onboarding',
@@ -217,7 +174,7 @@ test('postman Extended Beta collection is valid v2.1 with exactly fourteen endpo
         '14. POST Reopen Support Ticket',
     ]);
 
-    $mvpOnlyFragments = [
+    foreach ([
         'GET Health',
         'POST Onboarding',
         'GET Onboarding Status',
@@ -228,26 +185,56 @@ test('postman Extended Beta collection is valid v2.1 with exactly fourteen endpo
         'POST Create Support Ticket',
         'GET Support Ticket Detail',
         'POST Upload Support Attachment',
-    ];
-
-    foreach ($mvpOnlyFragments as $mvpFragment) {
-        $overlap = collect($names)->contains(fn (string $name): bool => str_contains($name, $mvpFragment));
-        expect($overlap)->toBeFalse("Extended Beta collection must not duplicate MVP endpoint: {$mvpFragment}");
+    ] as $mvpFragment) {
+        $overlap = collect($extendedNames)->contains(fn (string $name): bool => str_contains($name, $mvpFragment));
+        expect($overlap)->toBeFalse("Extended Beta folder must not duplicate MVP endpoint: {$mvpFragment}");
     }
+
+    $allItems = flattenPostmanItems($folders);
+    expect($allItems)->toHaveCount(24);
 
     assertPostmanCollectionHasNoForbiddenSecrets($raw);
     assertPostmanCollectionHasNoFakeDemoIds($raw);
-    assertPostmanItemsHavePartnerHeaders($items);
+    assertPostmanItemsHavePartnerHeaders($allItems);
+
+    $profileItem = collect($mvpItems)->firstWhere('name', '7. PATCH Update Business Profile');
+    expect($profileItem['request']['body']['mode'] ?? null)->toBe('raw');
+
+    $profileBody = json_decode((string) ($profileItem['request']['body']['raw'] ?? '{}'), true, 512, JSON_THROW_ON_ERROR);
+
+    expect($profileBody)->toHaveKeys(['owner', 'business'])
+        ->and($profileBody)->not->toHaveKey('name')
+        ->and($profileBody)->not->toHaveKey('phone')
+        ->and($profileBody)->not->toHaveKey('address')
+        ->and($profileBody['business'])->toHaveKeys(['name', 'phone', 'address']);
+
+    $attachmentItem = collect($mvpItems)->firstWhere('name', '10. POST Upload Support Attachment');
+    $attachmentBody = $attachmentItem['request']['body'] ?? [];
+
+    expect($attachmentBody['mode'] ?? null)->toBe('formdata');
+
+    $formdataByKey = collect($attachmentBody['formdata'] ?? [])
+        ->mapWithKeys(fn (array $field): array => [(string) ($field['key'] ?? '') => $field]);
+
+    expect($formdataByKey->get('file')['type'] ?? null)->toBe('file')
+        ->and($formdataByKey->get('note')['type'] ?? null)->toBe('text');
+
+    $attachmentHeaderKeys = collect($attachmentItem['request']['header'] ?? [])
+        ->pluck('key')
+        ->map(fn (string $key): string => strtolower($key));
+
+    expect($attachmentHeaderKeys->contains('content-type'))->toBeFalse();
+
+    $onboardingItem = collect($mvpItems)->firstWhere('name', '2. POST Onboarding');
+    $onboardingScript = implode("\n", $onboardingItem['event'][0]['script']['exec'] ?? []);
+    expect($onboardingScript)->toContain("pm.collectionVariables.set('onboarding_request_id'");
+
+    $ticketItem = collect($mvpItems)->firstWhere('name', '8. POST Create Support Ticket');
+    $ticketScript = implode("\n", $ticketItem['event'][0]['script']['exec'] ?? []);
+    expect($ticketScript)->toContain("pm.collectionVariables.set('ticket_id'");
 });
 
-test('the mvp and extended beta collections together cover exactly the 24 documented core endpoints', function (): void {
-    [, $mvp] = decodePostmanCollection('FizaHUB-Partner-API-MVP-v1.postman_collection.json');
-    [, $extended] = decodePostmanCollection('FizaHUB-Partner-API-Extended-Beta.postman_collection.json');
-
-    expect(count($mvp['item'] ?? []) + count($extended['item'] ?? []))->toBe(24);
-});
-
-test('readme documents partner contracts, onboarding flow, error codes, and the split postman collections', function (): void {
+test('readme documents partner contracts, onboarding flow, error codes, and the unified postman collection', function (): void {
     $readme = file_get_contents(base_path('modules/APIPartnerFizaHUB/README.md'));
     expect($readme)->toBeString();
 
@@ -275,8 +262,7 @@ test('readme documents partner contracts, onboarding flow, error codes, and the 
         'identity_image',
         'business_license_image',
         'field **`body`**',
-        'FizaHUB-Partner-API-MVP-v1.postman_collection.json',
-        'FizaHUB-Partner-API-Extended-Beta.postman_collection.json',
+        'FizaHUB-Partner-API.postman_collection.json',
         'onboarding_request_not_found',
         'campaign_not_found',
         'ticket_not_found',

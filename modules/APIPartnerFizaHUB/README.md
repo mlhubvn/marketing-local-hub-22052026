@@ -265,18 +265,19 @@ It prints one `[PASS]`/`[FAIL]` line per check (`token`, `migrations`, `database
 
 ## Postman
 
-Two separate collections — import both if you need the full 24-endpoint surface, or just the MVP one to cover the happy path:
+One unified collection — import once:
 
-- MVP v1 (10 endpoints, required): [`docs/FizaHUB-Partner-API-MVP-v1.postman_collection.json`](docs/FizaHUB-Partner-API-MVP-v1.postman_collection.json)
-- Extended Beta (14 endpoints, optional): [`docs/FizaHUB-Partner-API-Extended-Beta.postman_collection.json`](docs/FizaHUB-Partner-API-Extended-Beta.postman_collection.json)
+- [`docs/FizaHUB-Partner-API.postman_collection.json`](docs/FizaHUB-Partner-API.postman_collection.json) — 24 Core API endpoints in 2 folders:
+  - **A. MVP** (10 endpoints, required happy path)
+  - **B. Extended Beta** (14 endpoints, optional)
 
-Both collections ship with `partner_token=replace-with-token` (not a real secret) and empty `onboarding_request_id`/`ticket_id`/`campaign_id` variables — no fake IDs. A collection-level pre-request script recomputes `from`/`to` to the last 30 days on every send, and the `POST Onboarding` / `POST Create Support Ticket` requests have test scripts that auto-save `data.request_id` / `data.ticket_id` into collection variables for the next requests. Replace `partner_token` with the real token MLHUB issues before going live.
+The collection ships with `partner_token=replace-with-token` (not a real secret) and empty `onboarding_request_id`/`ticket_id`/`campaign_id` variables — no fake IDs. A collection-level pre-request script recomputes `from`/`to` to the last 30 days on every send, and the `POST Onboarding` / `POST Create Support Ticket` requests have test scripts that auto-save `data.request_id` / `data.ticket_id` into collection variables for the next requests. Replace `partner_token` with the real token MLHUB issues before going live.
 
 Public documentation:
 
 - Partner tech spec: `GET /api-fizahub`
-- Postman MVP download: `GET /api-fizahub/postman`
-- Postman Extended Beta download: `GET /api-fizahub/postman/extended`
+- Postman download (unified): `GET /api-fizahub/postman`
+- Legacy Extended URL (same file): `GET /api-fizahub/postman/extended`
 - Step-by-step Postman help: `GET /api-fizahub/help-test`
 
 ## MVP exclusions

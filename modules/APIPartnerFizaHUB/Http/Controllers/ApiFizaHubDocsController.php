@@ -13,7 +13,6 @@ class ApiFizaHubDocsController
         return view('apipartnerfizahub::api-fizahub', [
             'baseUrl' => rtrim((string) config('app.url'), '/').'/api/v1/partners/fizahub',
             'postmanUrl' => route('partner.fizahub.docs.postman'),
-            'postmanExtendedUrl' => route('partner.fizahub.docs.postman.extended'),
             'helpTestUrl' => route('partner.fizahub.docs.help-test'),
             'healthUrl' => url('/api/v1/partners/fizahub/health'),
         ]);
@@ -28,7 +27,6 @@ class ApiFizaHubDocsController
         return view('apipartnerfizahub::api-fizahub-help-test', [
             'docsUrl' => route('partner.fizahub.docs'),
             'postmanUrl' => route('partner.fizahub.docs.postman'),
-            'postmanExtendedUrl' => route('partner.fizahub.docs.postman.extended'),
             'appUrl' => rtrim((string) config('app.url'), '/'),
             'dashboardFrom' => $dashboardFrom,
             'dashboardTo' => $dashboardTo,
@@ -39,17 +37,17 @@ class ApiFizaHubDocsController
     public function postman(): BinaryFileResponse|Response
     {
         return $this->downloadCollection(
-            'FizaHUB-Partner-API-MVP-v1.postman_collection.json',
+            'FizaHUB-Partner-API.postman_collection.json',
             'MLHUB-FizaHUB-Partner-API.postman_collection.json'
         );
     }
 
+    /**
+     * Backward-compatible alias: old Extended Beta download links now serve the unified collection.
+     */
     public function postmanExtended(): BinaryFileResponse|Response
     {
-        return $this->downloadCollection(
-            'FizaHUB-Partner-API-Extended-Beta.postman_collection.json',
-            'MLHUB-FizaHUB-Partner-API-Extended-Beta.postman_collection.json'
-        );
+        return $this->postman();
     }
 
     private function downloadCollection(string $sourceFilename, string $downloadFilename): BinaryFileResponse|Response
