@@ -1,292 +1,171 @@
 # APIPartnerFizaHUB
 
-Partner API module that bridges **FizaHUB** (upstream identity/onboarding/app) with **MLHUB** (growth CRM portal at `mlhub.vn`).
+API tích hợp **FizaHUB × MLHUB** cho **15 màn hình** Marketing đã được Product duyệt. Đây là **breaking cutover API v1** với đúng **22 endpoint** dưới prefix `/api/v1/partners/fizahub` và Support hoàn toàn **text-only**.
 
-API machine codes remain English. Public docs (`/api-fizahub`, `/api-fizahub/help-test`) include Vietnamese labels for statuses and errors.
+## Header và response envelope
 
-## Goal
-
-Expose a fixed, authenticated surface so FizaHUB can:
-
-1. Provision a mapped MLHUB workspace/business (always Free package: `free` / alias `base` → plan `mlhub-free-da-nang`)
-2. Read package summary and Limited dashboard metrics
-3. Bridge support tickets/conversation (polling, not realtime)
-4. Issue a single-use one-time login into the MLHUB portal (never admin impersonation)
-
-Prefix: `/api/v1/partners/fizahub`
-
-## Onboarding flow (quan trọng)
-
-`POST /onboarding-requests` **luôn** tạo ngay `User + Team + Business + Integration` với gói Free và đặt trạng thái mặc định `awaiting_consultant`.
-
-**FizaHUB gửi yêu cầu → MLHUB tạo ngay tài khoản Free → Chờ tư vấn viên liên hệ → Admin/tư vấn viên xử lý → MLHUB sync trạng thái về FizaHUB qua webhook.**
-
-- `requested_package_code` được lưu riêng (ví dụ `base`); `package_code` hiệu lực = `free`.
-- Trùng email → tạo tài khoản với email tạm (provisional) + trạng thái `needs_review`.
-- Trùng mã số thuế/GPKD → vẫn tạo tài khoản + `needs_review`.
-- Danh tính chưa xác minh **vẫn** tạo tài khoản (`awaiting_consultant`) — không còn cổng `pending_verification`.
-- Ticket onboarding nội bộ được tạo **một lần** sau khi provision.
-- One-time login chỉ mở khi onboarding mới nhất ở trạng thái `ready` hoặc `completed`; nếu chưa → `409 onboarding_not_ready` với thông điệp "Tài khoản đang chờ tư vấn viên MLHUB hoàn tất cấu hình.".
-
-MLHUB gửi **3 webhook** về FizaHUB (khi cấu hình `FIZAHUB_WEBHOOK_BASE_URL`): `onboarding-status`, `campaign-metrics`, `support-events` — có chữ ký `X-MLHUB-Signature: sha256=...` và `X-Dedupe-Key`.
-
-## Auth headers
-
-Every partner API request must send:
-
-| Header | Value |
-|--------|--------|
-| `Authorization` | `Bearer {partner_token}` (`FIZAHUB_PARTNER_TOKEN`) |
-| `X-Partner` | `fizahub` |
-| `X-Request-Id` | UUID v4 (echoed on every response) |
-| `Accept` | `application/json` |
-
-`Idempotency-Key` is **required** for:
-
-- `POST /onboarding-requests`
-- `POST /businesses/{external_business_id}/support-tickets`
-- `POST /support-tickets/{ticket_id}/messages`
-
-The Postman collection also sends `Idempotency-Key` on a few other write endpoints (confirm/cancel/one-time-login/reopen/attachment) out of habit — it is accepted there but not required; only the 3 endpoints above reject the request when it's missing.
-
-## Response format
-
-Success:
+Mọi request gửi `Authorization: Bearer {partner_token}`, `X-Partner: fizahub`, `X-Request-Id: UUID`, `Accept: application/json`. Mọi write request gửi `Idempotency-Key`; riêng `POST partner/sso/verify` là xác minh chỉ đọc nên được miễn.
 
 ```json
 {
   "success": true,
   "data": {},
-  "meta": { "request_id": "..." },
+  "meta": { "request_id": "uuid" },
   "error": null
 }
 ```
-
-Error:
 
 ```json
 {
   "success": false,
   "data": null,
-  "meta": { "request_id": "..." },
+  "meta": { "request_id": "uuid" },
   "error": {
-    "code": "validation_failed",
-    "message": "The given data was invalid.",
+    "code": "machine_readable_code",
+    "message": "Thông báo tiếng Việt.",
     "details": {}
   }
 }
 ```
 
-Support message create/detail conversation items use field **`body`** (not `message`) in the response payload. The create-message request body still sends `{ "message": "..." }`.
+Idempotency semantics:
 
-## 24 Core API endpoints
+- Cùng key và cùng payload: trả cùng kết quả, không tạo dữ liệu lần hai.
+- Cùng key nhưng payload khác: HTTP 409 `idempotency_conflict`.
+- Send Message và Campaign Approval không ghi trùng.
+- Close/Reopen lặp không phát sinh 500.
+- CRM cùng key trả cùng link khi còn hiệu lực/chưa dùng; nếu đã dùng hoặc hết hạn trả `crm_login_link_not_reusable`, `next_action=new_idempotency_key`.
 
-Shipped in one unified Postman collection, split into two folders: **MVP v1** (10 endpoints — the happy-path partners must implement first) and **Extended Beta** (14 endpoints — optional, ship later). See [Postman](#postman) below.
+## 22 endpoint chính thức
 
-| # | Set | Method | Path |
-|---|-----|--------|------|
-| 1 | MVP | GET | `/health` |
-| 2 | Extended | POST | `/partner/sso/verify` |
-| 3 | Extended | GET | `/packages` |
-| 4 | MVP | POST | `/onboarding-requests` |
-| 5 | MVP | GET | `/onboarding-requests/{request_id}` |
-| 6 | Extended | POST | `/onboarding-requests/{request_id}/confirm` |
-| 7 | Extended | POST | `/onboarding-requests/{request_id}/cancel` |
-| 8 | MVP | GET | `/businesses/{external_business_id}/integration-status` |
-| 9 | MVP | PATCH | `/businesses/{external_business_id}/profile` |
-| 10 | Extended | POST | `/businesses/{external_business_id}/one-time-login` |
-| 11 | MVP | GET | `/businesses/{external_business_id}/package` |
-| 12 | MVP | GET | `/businesses/{external_business_id}/dashboard` |
-| 13 | Extended | GET | `/businesses/{external_business_id}/insights` |
-| 14 | Extended | GET | `/businesses/{external_business_id}/recommendations` |
-| 15 | Extended | GET | `/businesses/{external_business_id}/campaigns` |
-| 16 | Extended | GET | `/businesses/{external_business_id}/campaigns/{campaign_id}` |
-| 17 | Extended | GET | `/businesses/{external_business_id}/support-summary` |
-| 18 | MVP | POST | `/businesses/{external_business_id}/support-tickets` |
-| 19 | Extended | GET | `/businesses/{external_business_id}/support-tickets` |
-| 20 | MVP | GET | `/support-tickets/{ticket_id}?external_business_id={id}` |
-| 21 | Extended | POST | `/support-tickets/{ticket_id}/messages?external_business_id={id}` |
-| 22 | MVP | POST | `/support-tickets/{ticket_id}/attachments?external_business_id={id}` |
-| 23 | Extended | PATCH | `/support-tickets/{ticket_id}/close?external_business_id={id}` |
-| 24 | Extended | POST | `/support-tickets/{ticket_id}/reopen?external_business_id={id}` |
+| # | Method | Path | Mô tả |
+|---:|:---:|---|---|
+| 1 | GET | `/health` | Readiness API, schema, plan và dependency. |
+| 2 | POST | `/partner/sso/verify` | Xác minh partner token. |
+| 3 | GET | `/marketing-catalog` | Mục tiêu Marketing, ngành nghề và package. |
+| 4 | POST | `/onboarding-requests` | Atomic onboarding và provision Free workspace. |
+| 5 | GET | `/onboarding-requests/{request_id}` | Trạng thái và timeline onboarding. |
+| 6 | GET | `/businesses/{external_business_id}/marketing-status` | Activation, capability và navigation links. |
+| 7 | PATCH | `/businesses/{external_business_id}/profile` | Cập nhật profile được phép. |
+| 8 | PATCH | `/businesses/{external_business_id}/marketing-preferences` | Lưu goals và gói quan tâm. |
+| 9 | GET | `/businesses/{external_business_id}/dashboard` | KPI/trend; zero-data vẫn 200. |
+| 10 | GET | `/businesses/{external_business_id}/growth-insights` | Score, sources, highlights, recommendations. |
+| 11 | GET | `/businesses/{external_business_id}/campaigns` | List/filter/search/cursor. |
+| 12 | GET | `/businesses/{external_business_id}/campaigns/{campaign_id}` | Campaign detail. |
+| 13 | POST | `/businesses/{external_business_id}/campaigns/{campaign_id}/approval` | Duyệt hoặc yêu cầu chỉnh sửa. |
+| 14 | GET | `/businesses/{external_business_id}/package` | Effective/requested/approved package. |
+| 15 | GET | `/businesses/{external_business_id}/support-presets` | Preset SOP. |
+| 16 | POST | `/businesses/{external_business_id}/support-tickets` | Tạo ticket text. |
+| 17 | GET | `/businesses/{external_business_id}/support-tickets` | Summary và list cursor. |
+| 18 | GET | `/businesses/{external_business_id}/support-tickets/{ticket_id}` | Detail và hội thoại. |
+| 19 | POST | `/businesses/{external_business_id}/support-tickets/{ticket_id}/messages` | Gửi message. |
+| 20 | POST | `/businesses/{external_business_id}/support-tickets/{ticket_id}/close` | Đóng ticket. |
+| 21 | POST | `/businesses/{external_business_id}/support-tickets/{ticket_id}/reopen` | Mở lại ticket. |
+| 22 | POST | `/businesses/{external_business_id}/crm-login-links` | Link CRM dùng một lần. |
 
-Plus one **web** consume route (not counted in the 24 Core API):
+## Mapping 15 màn hình UI
 
-- `GET /partners/fizahub/one-time-login/{token}` (Laravel temporary signed URL) → `partner.fizahub.login.consume`
+| Màn hình | Endpoint |
+|---|---|
+| 01 — Trang chủ chưa kích hoạt | `GET marketing-status` |
+| 02 — Chọn giải pháp Marketing | `GET marketing-catalog`; sau onboarding dùng `PATCH marketing-preferences` |
+| 03 — Thông tin đăng ký | `POST onboarding-requests` |
+| 04 — Tạo tài khoản thành công | Response onboarding và `GET marketing-status` |
+| 05 — Theo dõi Onboarding | `GET onboarding-requests/{request_id}` |
+| 06 — Trang chủ đã kích hoạt | `GET dashboard` |
+| 07 — Tổng quan tăng trưởng | `GET dashboard?range=7d|30d|90d|custom` |
+| 08 — Phân tích tăng trưởng | `GET growth-insights` |
+| 09 — Danh sách chiến dịch | `GET campaigns` |
+| 10 — Quản lý gói | `GET package`; `PATCH marketing-preferences` để lưu gói quan tâm |
+| 11 — Chi tiết chiến dịch | `GET campaigns/{campaign_id}`; `POST approval` |
+| 12 — Trung tâm hỗ trợ | `GET support-presets`; `GET support-tickets` |
+| 13 — Tạo yêu cầu hỗ trợ | `POST support-tickets` |
+| 14 — Chi tiết và hội thoại | `GET detail`; `POST messages`; `POST close`; `POST reopen` |
+| 15 — Truy cập CRM MLHUB | `POST crm-login-links` khi ready/completed |
 
-### Support detail / message scope
+`partner/sso/verify` là endpoint hệ thống, không gắn với màn hình người dùng.
 
-Support detail/message routes **require** query:
+## Onboarding contract
 
-`?external_business_id={{external_business_id}}`
+Payload canonical không yêu cầu `owner.phone`, verification, tax code hoặc business license number:
 
-Missing query → `422 validation_failed`. Poll every **15–30 seconds** (`next_poll_after_seconds` typically `15`). Not realtime.
-
-## Status labels (Vietnamese documentation)
-
-API codes stay English. Docs expose Vietnamese labels:
-
-### Onboarding `status`
-
-| Code | Tiếng Việt | Khi nào | Dev FizaHUB cần làm gì |
-|------|------------|---------|------------------------|
-| `awaiting_consultant` | Chờ tư vấn viên liên hệ | Vừa tạo tài khoản Free, chờ tư vấn viên | Chờ MLHUB liên hệ; không tạo lại |
-| `needs_review` | Cần kiểm tra | Trùng email/MST/GPKD (tài khoản vẫn được tạo) | Không spam tạo lại; báo MLHUB xử lý ticket |
-| `consulting` | Đang tư vấn | Tư vấn viên đang làm việc với chủ cửa hàng | Chờ cập nhật |
-| `configuring` | Đang cấu hình | MLHUB đang dựng chiến dịch/marketing | Chờ cập nhật |
-| `ready` | Sẵn sàng sử dụng | Cấu hình xong, có thể one-time login | Mở one-time login cho người dùng |
-| `completed` | Hoàn tất | Đã bàn giao và hoàn tất | Sử dụng bình thường |
-| `cancelled` | Đã hủy | Hủy bởi đối tác hoặc admin | Tạo yêu cầu mới nếu cần |
-
-### Onboarding `current_step`
-
-| Code | Tiếng Việt |
-|------|------------|
-| `consultant_contact` | Chờ tư vấn viên liên hệ |
-| `needs_review` | Đang rà soát trùng dữ liệu |
-| `ready` | Sẵn sàng sử dụng |
-| `completed` | Hoàn tất |
-
-### Support ticket `status`
-
-| Code | Tiếng Việt |
-|------|------------|
-| `open` | Đang mở |
-| `resolved` | Đã xử lý |
-| `closed` | Đã đóng |
-
-### Package `status`
-
-| Code | Tiếng Việt |
-|------|------------|
-| `active` | Đang hoạt động |
-| `inactive` | Tạm ngừng |
-| `expired` | Hết hạn |
-| `none` | Chưa có gói |
-
-### Error `code`
-
-| Code | Tiếng Việt | Cách xử lý |
-|------|------------|------------|
-| `invalid_partner_header` | Header đối tác không hợp lệ | Kiểm tra `X-Partner` và `X-Request-Id` |
-| `invalid_partner_token` | Token đối tác không hợp lệ | Kiểm tra `partner_token` |
-| `validation_failed` | Dữ liệu không hợp lệ | Xem `error.details` để sửa Body/Params |
-| `onboarding_request_not_found` | Không tìm thấy yêu cầu onboarding này | `next_action=create_onboarding_request`: tạo yêu cầu onboarding mới |
-| `integration_not_found` | Chưa có mapping MLHUB cho business này | `next_action=create_onboarding_request`: chạy onboarding trước hoặc kiểm tra `external_business_id` |
-| `campaign_not_found` | Không tìm thấy chiến dịch này | `next_action=list_campaigns_first`: gọi GET Campaigns để lấy `campaign_id` thật |
-| `ticket_not_found` | Không tìm thấy phiếu hỗ trợ này | `next_action=create_support_ticket`: tạo ticket mới hoặc kiểm tra `ticket_id` |
-| `default_plan_not_found` | Hệ thống chưa sẵn sàng để tạo tài khoản (plan mặc định chưa được seed) | `next_action=retry_later`: báo MLHUB kiểm tra deploy/seed, không phải lỗi phía FizaHUB |
-| `partner_schema_not_ready` | Hệ thống chưa sẵn sàng (migration chưa chạy đủ) | `next_action=retry_later`: báo MLHUB kiểm tra deploy, không phải lỗi phía FizaHUB |
-| `resource_not_found` | Không tìm thấy dữ liệu (loại chưa được phân loại riêng) | Kiểm tra `request_id` / `ticket_id` / `external_business_id` |
-| `idempotency_conflict` | Idempotency-Key bị dùng lại với body khác | Tạo Idempotency-Key mới |
-| `idempotency_in_progress` | Request cùng Idempotency-Key đang xử lý | Đợi rồi thử lại |
-| `ticket_not_open` | Ticket đã đóng hoặc đã xử lý | Không gửi message mới |
-| `onboarding_not_ready` | Tài khoản đang chờ tư vấn viên MLHUB hoàn tất cấu hình | Chờ trạng thái `ready`/`completed` rồi gọi lại one-time login |
-| `rate_limit_exceeded` | Gọi API quá nhiều | Đợi khoảng 1 phút |
-| `partner_api_error` | Lỗi hệ thống không xác định | Báo MLHUB kèm `request_id`; log server đã có exception class/message để tra cứu |
-
-Package codes `free` và `base` đều map tới plan slug `mlhub-free-da-nang` (mặc định `free`). Industry alias `restaurant_food` → `restaurant_eatery`.
-
-Identity documents: **no CCCD upload** — prohibited keys are rejected.
-
-Dashboard `from`/`to` are report dates only — **not** package duration. Monthly 1/3/6/12 package sell/renew is **not** in this MVP API.
-
-## Package API
-
-Safe summary only:
-
-- `package_code`, `package_name`, `plan_slug`, `status`, `starts_at`, `expires_at`, `is_trial`, `integration_status`
-- `limits` whitelist: `max_businesses`, `max_campaigns`, `max_landing_pages`, `max_qr_codes`, `max_team_members`
-
-Does **not** return price, payment/subscription, credit balance, or full plan permissions JSON.
-
-## One-time login
-
-- Only for mapped `PartnerIntegration` with `mlhub_business_id`
-- Token: 256-bit random; DB stores **SHA-256 hash only**
-- TTL: `FIZAHUB_ONE_TIME_LOGIN_TTL_MINUTES` (default **5**)
-- Single-use (`used_at`)
-- Consume via signed web route
-- Raw login URL is redacted in logs (`url` → `[REDACTED]`)
-
-## Dashboard metrics
-
-Timezone: `Asia/Ho_Chi_Minh`. Default range: last 30 inclusive days.
-
-- **new_reviews definition (MVP):** internal ReviewFeedback with `rating >= 4` — **not** live Google Reviews.
-- **returning_customers estimated:** phone/email identities appearing in ≥ 2 events in the period.
-
-## Log redaction
-
-Partner API logs redact nested keys matching:
-
-`authorization`, `token`, `password`, `cccd`, `identity_card`, `identity_image`, `identity_document`, `business_license_file`, `business_license_image`, `url`
-
-Oversized payloads are capped (~64 KiB) with a SHA-256 digest.
-
-## Environment
-
-```env
-FIZAHUB_PARTNER_TOKEN=
-FIZAHUB_RATE_LIMIT_PER_MINUTE=60
-FIZAHUB_ONE_TIME_LOGIN_TTL_MINUTES=5
-FIZAHUB_DEFAULT_PACKAGE=free
-FIZAHUB_PROVISIONAL_EMAIL_DOMAIN=provisional.mlhub.vn
-FIZAHUB_WEBHOOK_BASE_URL=
-FIZAHUB_WEBHOOK_SECRET=
-FIZAHUB_DASHBOARD_CACHE_TTL_MINUTES=45
+```json
+{
+  "external_business_id": "fiza-business-001",
+  "external_user_id": "fiza-user-001",
+  "package_code": "base",
+  "owner": {"name": "Đoàn Văn Khoa", "email": "van-khoa.lqd123@gmail.com"},
+  "business": {
+    "name": "Fiza Store",
+    "industry": "restaurant_food",
+    "phone": "0901234888",
+    "email": "contact@fizastore.vn",
+    "website": "https://fizastore.vn",
+    "address": "888 Lê Duẩn, Đà Nẵng"
+  }
+}
 ```
 
-Set `FIZAHUB_PARTNER_TOKEN` (and `FIZAHUB_WEBHOOK_BASE_URL` / `FIZAHUB_WEBHOOK_SECRET` for outgoing webhooks) in Coolify for production.
+HTTP outcomes:
 
-## Installation
+- `201`: tạo mới, `awaiting_consultant`.
+- `202`: tạo mới nhưng `needs_review`; đây là trạng thái blocked tại bước tiếp nhận, không phải timeline step thứ sáu.
+- `200`: business/email đã mapping, `already_registered=true`, trả request/ticket cũ.
+- `409 email_already_registered`: email thuộc tài khoản MLHUB khác.
+- `409 onboarding_email_mismatch`: business đã mapping bằng email khác.
+- `422 validation_failed`: payload sai.
+- `503`: schema, plan hoặc dependency chưa sẵn sàng; transaction không để lại record dở dang.
 
-Module auto-discovery loads `APIPartnerFizaHUBServiceProvider` (priority 30). Migrations:
+Username sinh từ local-part email: lowercase, `Str::ascii()`, bỏ ký tự ngoài `[a-z0-9]`, giới hạn theo cột; collision dùng suffix hash ổn định. Lần đầu tạo đúng một user/team/business/integration/package assignment/request/onboarding ticket. Lần hai không tăng count và trả `support_ticket_id` cũ.
 
-- `modules/APIPartnerFizaHUB/Database/Migrations/2026_07_13_000000_create_fizahub_partner_api_tables.php`
-- `modules/APIPartnerFizaHUB/Database/Migrations/2026_07_17_120000_extend_fizahub_partner_onboarding_tables.php`
+## Enum, timeline, pagination và ngày
 
-Tables: `partner_integrations`, `partner_onboarding_requests`, `partner_api_logs`, `partner_one_time_logins`, `partner_onboarding_status_histories`, `partner_package_assignments`, `partner_support_presets`, `partner_support_ticket_contexts`, `partner_support_attachments`, `partner_webhook_outbox`.
+- `activation_status`: `inactive`, `onboarding`, `active`, `suspended`.
+- `onboarding_status`: `awaiting_consultant`, `needs_review`, `in_consultation`, `configuring`, `ready`, `completed`, `cancelled`.
+- Timeline step status: `completed`, `current`, `pending`, `blocked`.
+- Cursor: `items[]`, `pagination {next_cursor, has_more, per_page}`.
+- Date range mặc định `30d`; hỗ trợ `today`, `7d`, `30d`, `90d`, `custom`.
+- Custom cần `from`, `to`, `from <= to`, tối đa **366** ngày; sai trả `422 validation_failed`.
 
-## Readiness & diagnostics
+## Support lifecycle
 
-`GET /health` is a **readiness probe**, not just a liveness ping. It runs 4 checks and returns `200 ok` only if all pass, otherwise `503` with `data.status=degraded` and a per-check reason in `data.checks`:
+Preset public: `qr_scan_not_recorded`, `growth_recommendation`, `campaign_request`, `package_upgrade`. Ticket onboarding nội bộ vẫn xuất hiện trong list.
 
-- `database` — the configured DB connection is reachable.
-- `partner_schema` — all 10 FizaHUB tables exist, plus `requested_package_code`/`approved_package_code`/`admin_status` on `partner_onboarding_requests` (the exact columns the 2026_07_17 extension migration adds — missing them was the root cause of the production onboarding 500).
-- `default_plan` — the `AdminPlan` (`plans` table) mapped from `FIZAHUB_DEFAULT_PACKAGE` (default `mlhub-free-da-nang`) exists and `status=true`.
-- `support_tables` — the AdminSupport tables (`support_tickets`, `support_comments`) this module's support-ticket bridge writes to.
+Luồng đầy đủ Create → List → Detail → Message → Close → Reopen. Mọi operation resolve business từ path; business khác nhận 404. Detail chỉ có `messages[]` text và `next_poll_after_seconds`.
 
-For a human-readable version with token/migration/route checks added, run on the server:
+## CRM Login Link
+
+- Chỉ cấp khi onboarding mới nhất là `ready` hoặc `completed`.
+- Link gắn đúng integration, mapped user và workspace; không nâng quyền admin.
+- Token 256-bit; DB lưu SHA-256 và ciphertext mã hóa cho secure replay.
+- Link có TTL, dùng một lần. Link hết hạn/đã dùng yêu cầu Idempotency-Key mới.
+- URL nhạy cảm bị redact khỏi partner API log.
+
+## Migrations
+
+- `2026_07_13_000000_create_fizahub_partner_api_tables.php`
+- `2026_07_17_120000_extend_fizahub_partner_onboarding_tables.php`
+- `2026_07_20_000000_add_crm_login_idempotency_to_partner_one_time_logins.php`
+
+Không có destructive migration. `SupportTicketBridge` và bảng `support_tickets` được giữ nguyên.
+
+## Postman và diagnostics
+
+Import [`docs/FizaHUB-Partner-API.postman_collection.json`](docs/FizaHUB-Partner-API.postman_collection.json): System 2, Onboarding 6, Growth 6, Support 7, CRM 1. Script tự sinh external IDs, lưu onboarding/ticket/campaign IDs và skip request phụ thuộc khi thiếu ID.
 
 ```bash
+php artisan test tests/Feature/APIPartnerFizaHUB
+vendor/bin/pint --test modules/APIPartnerFizaHUB tests/Feature/APIPartnerFizaHUB
 php artisan fizahub:doctor
 ```
 
-It prints one `[PASS]`/`[FAIL]` line per check (`token`, `migrations`, `database`, `partner_schema`, `default_plan`, `support_tables`, `routes`) and exits `0` only if everything passes — safe to wire into a deploy health-check step.
+Public pages: `/api-fizahub`, `/api-fizahub/help-test`, `/api-fizahub/postman`.
 
-## Postman
+## Breaking cutover checklist
 
-One unified collection — import once:
-
-- [`docs/FizaHUB-Partner-API.postman_collection.json`](docs/FizaHUB-Partner-API.postman_collection.json) — 24 Core API endpoints in 2 folders:
-  - **A. MVP** (10 endpoints, required happy path)
-  - **B. Extended Beta** (14 endpoints, optional)
-
-The collection ships with `partner_token` pre-filled to the current testing-phase token (must match `FIZAHUB_PARTNER_TOKEN` on Coolify — see `.env.example`) and empty `onboarding_request_id`/`ticket_id`/`campaign_id` variables — no fake IDs. A collection-level pre-request script recomputes `from`/`to` to the last 30 days on every send, and the `POST Onboarding` / `POST Create Support Ticket` requests have test scripts that auto-save `data.request_id` / `data.ticket_id` into collection variables for the next requests. ⚠️ Rotate `partner_token` (both here and on Coolify) before going live or when the FizaHUB testing engagement ends.
-
-Public documentation:
-
-- Partner tech spec: `GET /api-fizahub`
-- Postman download (unified): `GET /api-fizahub/postman`
-- Legacy Extended URL (same file): `GET /api-fizahub/postman/extended`
-- Step-by-step Postman help: `GET /api-fizahub/help-test`
-
-## MVP exclusions
-
-- Customer CRUD API
-- Chat AI API / AI Studio API
-- Campaign / Coupon / Landing Page creation API
-- **Google Business không expose trực tiếp** (scheduler unchanged)
-- Revenue / cost / credit API
-- CCCD / GPKD file upload (**no CCCD upload**)
+1. Deploy code và additive migrations của 22 endpoint.
+2. Deploy đồng thời Postman, README, public docs và endpoint matrix.
+3. Dev FizaHUB xóa collection cũ và import collection mới.
+4. Chạy staging smoke/Newman và full UI happy path.
+5. Cutover production; không bật alias public route cũ.
+6. Theo dõi `meta.request_id`, audit log và FizaHUB Doctor.

@@ -1090,7 +1090,7 @@ git commit -m "feat: add FizaHUB CRM login link contract"
 - Produces: one Postman v2.1 collection with exactly 22 executable requests.
 - Produces: one sequential application-level happy path matching all 15 UI screens.
 
-- [ ] **Step 1: Rewrite documentation contract tests first**
+- [x] **Step 1: Rewrite documentation contract tests first**
 
 Assert the flattened collection contains exactly these 22 method/path pairs, has no attachment or legacy paths, and defines variables:
 
@@ -1104,7 +1104,7 @@ Assert the flattened collection contains exactly these 22 method/path pairs, has
 
 Assert every request has `X-Request-Id: {{$guid}}`; every state-changing request except SSO verify has a non-empty generated `Idempotency-Key`; dependent requests have a pre-request skip guard; and no script stores a literal unresolved `{{ticket_id}}` or selects the onboarding ticket as the newly created user ticket.
 
-- [ ] **Step 2: Run documentation tests and verify RED**
+- [x] **Step 2: Run documentation tests and verify RED**
 
 Run:
 
@@ -1114,7 +1114,7 @@ php artisan test tests/Feature/APIPartnerFizaHUB/DocumentationContractTest.php t
 
 Expected: FAIL because the collection/docs still advertise 24 endpoints, attachment, and legacy paths.
 
-- [ ] **Step 3: Rebuild the collection as five folders**
+- [x] **Step 3: Rebuild the collection as five folders**
 
 Use folders and counts:
 
@@ -1128,7 +1128,7 @@ Total: 22.
 
 The onboarding test script accepts 200/201/202 and stores request/ticket IDs. Campaign list stores the first campaign ID only when present. Create Ticket stores its returned ID. List Tickets may recover the user ticket ID by matching `preset_code` and subject from the just-created request; it must exclude `ticket_type=onboarding`.
 
-- [ ] **Step 4: Update README, endpoint matrix, docs page, and help page**
+- [x] **Step 4: Update README, endpoint matrix, docs page, and help page**
 
 Each artifact includes:
 
@@ -1145,7 +1145,7 @@ Each artifact includes:
 - complete text-only support lifecycle;
 - CRM readiness and new-key replacement rule.
 
-- [ ] **Step 5: Write the failing full UI happy-path test**
+- [x] **Step 5: Write the failing full UI happy-path test**
 
 The test executes in this order:
 
@@ -1177,7 +1177,7 @@ Repeat Onboarding with a fresh idempotency key
 
 It asserts every ID is obtained from an earlier response, repeat onboarding returns HTTP 200, record counts do not change, and the ticket ID is stable.
 
-- [ ] **Step 6: Run the happy path and verify RED, then align remaining serializers/scripts**
+- [x] **Step 6: Run the happy path and verify RED, then align remaining serializers/scripts**
 
 Run:
 
@@ -1187,7 +1187,7 @@ php artisan test tests/Feature/APIPartnerFizaHUB/FullUiHappyPathTest.php
 
 Expected initial result: FAIL at the first remaining contract drift. Make only the serializer/Postman/docs changes necessary for the failing assertion, rerun, and repeat until the test passes.
 
-- [ ] **Step 7: Run documentation and happy-path tests GREEN**
+- [x] **Step 7: Run documentation and happy-path tests GREEN**
 
 Run:
 
@@ -1197,7 +1197,7 @@ php artisan test tests/Feature/APIPartnerFizaHUB/DocumentationContractTest.php t
 
 Expected: PASS with 22 requests and no attachment/legacy route text.
 
-- [ ] **Step 8: Run Newman against staging or the approved local environment**
+- [x] **Step 8: Run Newman against staging or the approved local environment**
 
 Start the application with a test-safe FizaHUB token, then run:
 
@@ -1207,7 +1207,7 @@ npx newman run modules/APIPartnerFizaHUB/docs/FizaHUB-Partner-API.postman_collec
 
 Expected: 22 requests considered; dependency guards skip only unavailable campaign/approval or not-ready CRM steps; zero failed assertions. Do not place secrets in the collection or exported report committed to git.
 
-- [ ] **Step 9: Commit Task 7**
+- [x] **Step 9: Commit Task 7**
 
 ```powershell
 git add modules/APIPartnerFizaHUB/docs modules/APIPartnerFizaHUB/README.md modules/APIPartnerFizaHUB/Resources/views tests/Feature/APIPartnerFizaHUB

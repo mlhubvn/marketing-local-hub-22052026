@@ -1,87 +1,51 @@
 <?php
 
-test('public fizahub docs page is available without auth', function (): void {
-    $response = $this->get('/api-fizahub');
-
-    $response->assertOk();
-    $html = $response->getContent();
+test('public FizaHUB docs page publishes the 22 endpoint cutover without legacy upload promises', function (): void {
+    $html = $this->get('/api-fizahub')->assertOk()->getContent();
 
     expect($html)->toContain('MLHUB × FizaHUB Partner API')
-        ->and($html)->toContain(__('Tổng quan'))
-        ->and($html)->toContain(__('Bảng trạng thái tiếng Việt'))
-        ->and($html)->toContain(__('Chờ tư vấn viên liên hệ'))
-        ->and($html)->toContain(__('Cần kiểm tra'))
-        ->and($html)->toContain(__('Sẵn sàng sử dụng'))
-        ->and($html)->toContain(__('Hoàn tất'))
-        ->and($html)->toContain(__('Bảng tra cứu tên hàm'))
-        ->and($html)->toContain(__('Bảng tra cứu trường dữ liệu'))
-        ->and($html)->toContain(__('external_business_id là khóa kỹ thuật chính giữa FizaHUB và MLHUB.'))
-        ->and($html)->toContain(__('Support detail/message bắt buộc có query external_business_id.'))
-        ->and($html)->toContain('?external_business_id=')
-        ->and($html)->toContain(__('Download Postman JSON'))
-        ->and($html)->toContain('(24 request)')
-        ->and($html)->toContain('/api-fizahub/help-test')
-        ->and($html)->not->toContain('(MVP)</a>')
-        ->and($html)->not->toContain('(Extended Beta)</a>')
-        ->and($html)->toContain('rel="icon"')
-        ->and($html)->toContain('fonts.bunny.net')
-        ->and($html)->not->toContain('/favicon.ico')
-        ->and($html)->not->toContain('test-fizahub-partner-token')
-        ->and($html)->not->toContain('FIZAHUB_PARTNER_TOKEN=')
-        ->and($html)->not->toContain('sk_live');
+        ->and($html)->toContain('22 endpoint')
+        ->and($html)->toContain('15 màn hình')
+        ->and($html)->toContain('/marketing-catalog')
+        ->and($html)->toContain('/growth-insights')
+        ->and($html)->toContain('/support-presets')
+        ->and($html)->toContain('/crm-login-links')
+        ->and(strtolower($html))->not->toContain('upload support attachment')
+        ->and($html)->not->toContain('/attachments')
+        ->and($html)->not->toContain('/integration-status')
+        ->and($html)->not->toContain('/one-time-login')
+        ->and($html)->not->toContain('test-fizahub-partner-token');
 });
 
-test('postman unified collection download returns the documented filename with 24 endpoints', function (): void {
-    $response = $this->get('/api-fizahub/postman');
-
-    $response->assertOk()
+test('postman download returns one collection with five folders and exactly 22 requests', function (): void {
+    $this->get('/api-fizahub/postman')
+        ->assertOk()
         ->assertDownload('MLHUB-FizaHUB-Partner-API.postman_collection.json');
 
-    $raw = file_get_contents(base_path('modules/APIPartnerFizaHUB/docs/FizaHUB-Partner-API.postman_collection.json'));
-    $json = json_decode((string) $raw, true);
+    $raw = (string) file_get_contents(base_path('modules/APIPartnerFizaHUB/docs/FizaHUB-Partner-API.postman_collection.json'));
+    $json = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
 
-    expect($json)->toBeArray()
-        ->and($json['info']['schema'] ?? null)
-        ->toBe('https://schema.getpostman.com/json/collection/v2.1.0/collection.json')
-        ->and($json['item'] ?? [])->toHaveCount(2)
-        ->and(($json['item'][0]['item'] ?? []))->toHaveCount(10)
-        ->and(($json['item'][1]['item'] ?? []))->toHaveCount(14)
-        ->and($raw)->not->toContain('sk_live')
+    expect($json['item'] ?? [])->toHaveCount(5)
+        ->and(collect($json['item'])->sum(fn (array $folder): int => count($folder['item'] ?? [])))->toBe(22)
+        ->and($raw)->not->toContain('/attachments')
         ->and($raw)->not->toContain('test-fizahub-partner-token');
 });
 
-test('legacy extended postman download URL serves the same unified collection', function (): void {
-    $response = $this->get('/api-fizahub/postman/extended');
-
-    $response->assertOk()
+test('legacy extended download URL serves the same unified cutover collection', function (): void {
+    $this->get('/api-fizahub/postman/extended')
+        ->assertOk()
         ->assertDownload('MLHUB-FizaHUB-Partner-API.postman_collection.json');
 });
 
-test('public fizahub help-test page guides postman step by step without secrets', function (): void {
-    $response = $this->get('/api-fizahub/help-test');
+test('public help page explains the sequential UI flow and dependency IDs without secrets', function (): void {
+    $html = $this->get('/api-fizahub/help-test')->assertOk()->getContent();
 
-    $response->assertOk();
-    $html = $response->getContent();
-
-    expect($html)->toContain(__('FizaHUB Partner API - Hướng dẫn test Postman từng bước'))
-        ->and($html)->toContain(__('1. Tải file Postman (24 request)'))
-        ->and($html)->toContain(__('Body raw JSON'))
-        ->and($html)->toContain('Copy data.request_id')
-        ->and($html)->toContain('Copy data.ticket_id')
-        ->and($html)->toContain(__('from/to không phải thời hạn gói'))
-        ->and($html)->toContain('1/3/6/12')
-        ->and($html)->toContain('package_code=base')
-        ->and($html)->toContain('mlhub-free-da-nang')
-        ->and($html)->toContain('"body"')
-        ->and($html)->toContain(__('Lỗi thường gặp'))
-        ->and($html)->toContain('Cửa hàng Demo Fiza')
-        ->and($html)->toContain('Yêu cầu hỗ trợ FizaMKT Base')
-        ->and($html)->not->toContain('Tải file Postman MVP')
-        ->and($html)->not->toContain('Tải file Postman Extended Beta')
-        ->and($html)->toContain('rel="icon"')
-        ->and($html)->toContain('fonts.bunny.net')
-        ->and($html)->not->toContain('/favicon.ico')
-        ->and($html)->not->toContain('test-fizahub-partner-token')
-        ->and($html)->not->toContain('FIZAHUB_PARTNER_TOKEN=')
-        ->and($html)->not->toContain('sk_live');
+    expect($html)->toContain('22 request')
+        ->and($html)->toContain('onboarding_request_id')
+        ->and($html)->toContain('campaign_id')
+        ->and($html)->toContain('ticket_id')
+        ->and($html)->toContain('Idempotency-Key')
+        ->and($html)->toContain('text-only')
+        ->and($html)->not->toContain('/attachments')
+        ->and($html)->not->toContain('test-fizahub-partner-token');
 });

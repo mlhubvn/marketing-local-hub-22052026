@@ -58,6 +58,7 @@ test('endpoint matrix publishes exactly the approved 22 public requests', functi
             '| 13 | POST | `/api/v1/partners/fizahub/businesses/{external_business_id}/campaigns/{campaign_id}/approval` |',
             '| 22 | POST | `/api/v1/partners/fizahub/businesses/{external_business_id}/crm-login-links` |'
         )
-        ->and($matrix)->toContain('Attachment route: removed')
+        ->and($matrix)->toContain('Support public contract chỉ trao đổi text')
+        ->and($matrix)->not->toContain('/attachments')
         ->and($matrix)->not->toContain('SupportAttachmentController');
 });

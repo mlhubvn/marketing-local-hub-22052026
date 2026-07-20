@@ -266,6 +266,7 @@ function crossOnboardingPayload(string $externalBusinessId, string $email): arra
     return [
         'external_business_id' => $externalBusinessId,
         'external_user_id' => 'ext-'.$externalBusinessId,
+        'marketing_goal_codes' => ['qr_checkin', 'customer_retention'],
         'package_code' => 'base',
         'owner' => [
             'name' => 'Owner '.$externalBusinessId,
@@ -355,7 +356,7 @@ test('cross-endpoint lifecycle keeps ids consistent and isolates tenants', funct
         crossHeaders()
     )->assertOk();
 
-    expect($package->json('data.package_code'))->toBe('free')
+    expect($package->json('data.effective_package'))->toBe('free')
         ->and($package->json('data.plan_slug'))->toBe('mlhub-free-da-nang')
         ->and($package->json('data'))->not->toHaveKey('price')
         ->and($package->json('data'))->not->toHaveKey('credits');
@@ -408,7 +409,7 @@ test('cross-endpoint lifecycle keeps ids consistent and isolates tenants', funct
     ]);
 
     $detail = $this->getJson(
-        '/api/v1/partners/fizahub/support-tickets/'.$ticketId.'?external_business_id=biz-life',
+        '/api/v1/partners/fizahub/businesses/biz-life/support-tickets/'.$ticketId,
         crossHeaders()
     )->assertOk();
 
@@ -417,7 +418,7 @@ test('cross-endpoint lifecycle keeps ids consistent and isolates tenants', funct
         ->toContain('admin');
 
     $message = $this->postJson(
-        '/api/v1/partners/fizahub/support-tickets/'.$ticketId.'/messages?external_business_id=biz-life',
+        '/api/v1/partners/fizahub/businesses/biz-life/support-tickets/'.$ticketId.'/messages',
         ['message' => 'Thanks for the update'],
         crossHeaders()
     )->assertCreated();
@@ -427,7 +428,7 @@ test('cross-endpoint lifecycle keeps ids consistent and isolates tenants', funct
     markCrossOnboardingReady('biz-life');
 
     $login = $this->postJson(
-        '/api/v1/partners/fizahub/businesses/biz-life/one-time-login',
+        '/api/v1/partners/fizahub/businesses/biz-life/crm-login-links',
         [],
         crossHeaders(['Idempotency-Key' => (string) str()->uuid()])
     )->assertCreated();
@@ -447,12 +448,12 @@ test('cross-endpoint lifecycle keeps ids consistent and isolates tenants', funct
     )->assertCreated();
 
     $this->getJson(
-        '/api/v1/partners/fizahub/support-tickets/'.$ticketId.'?external_business_id=biz-other',
+        '/api/v1/partners/fizahub/businesses/biz-other/support-tickets/'.$ticketId,
         crossHeaders()
     )->assertNotFound();
 
     $this->postJson(
-        '/api/v1/partners/fizahub/support-tickets/'.$ticketId.'/messages?external_business_id=biz-other',
+        '/api/v1/partners/fizahub/businesses/biz-other/support-tickets/'.$ticketId.'/messages',
         ['message' => 'cross tenant'],
         crossHeaders()
     )->assertNotFound();
@@ -491,7 +492,7 @@ test('partner api logs redact secrets and route surface stays within mvp', funct
     markCrossOnboardingReady('biz-secure');
 
     $login = $this->postJson(
-        '/api/v1/partners/fizahub/businesses/biz-secure/one-time-login',
+        '/api/v1/partners/fizahub/businesses/biz-secure/crm-login-links',
         [],
         crossHeaders([
             'Authorization' => 'Bearer test-fizahub-partner-token',
@@ -518,28 +519,26 @@ test('partner api logs redact secrets and route surface stays within mvp', funct
     $expectedApi = [
         'GET|HEAD api/v1/partners/fizahub/health',
         'POST api/v1/partners/fizahub/partner/sso/verify',
-        'GET|HEAD api/v1/partners/fizahub/packages',
+        'GET|HEAD api/v1/partners/fizahub/marketing-catalog',
         'POST api/v1/partners/fizahub/onboarding-requests',
         'GET|HEAD api/v1/partners/fizahub/onboarding-requests/{request_id}',
-        'POST api/v1/partners/fizahub/onboarding-requests/{request_id}/confirm',
-        'POST api/v1/partners/fizahub/onboarding-requests/{request_id}/cancel',
-        'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/integration-status',
+        'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/marketing-status',
         'PATCH api/v1/partners/fizahub/businesses/{external_business_id}/profile',
-        'POST api/v1/partners/fizahub/businesses/{external_business_id}/one-time-login',
-        'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/package',
+        'PATCH api/v1/partners/fizahub/businesses/{external_business_id}/marketing-preferences',
         'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/dashboard',
-        'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/insights',
-        'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/recommendations',
+        'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/growth-insights',
         'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/campaigns',
         'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/campaigns/{campaign_id}',
-        'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/support-summary',
+        'POST api/v1/partners/fizahub/businesses/{external_business_id}/campaigns/{campaign_id}/approval',
+        'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/package',
+        'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/support-presets',
         'POST api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets',
         'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets',
-        'GET|HEAD api/v1/partners/fizahub/support-tickets/{ticket_id}',
-        'POST api/v1/partners/fizahub/support-tickets/{ticket_id}/messages',
-        'POST api/v1/partners/fizahub/support-tickets/{ticket_id}/attachments',
-        'PATCH api/v1/partners/fizahub/support-tickets/{ticket_id}/close',
-        'POST api/v1/partners/fizahub/support-tickets/{ticket_id}/reopen',
+        'GET|HEAD api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets/{ticket_id}',
+        'POST api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets/{ticket_id}/messages',
+        'POST api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets/{ticket_id}/close',
+        'POST api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets/{ticket_id}/reopen',
+        'POST api/v1/partners/fizahub/businesses/{external_business_id}/crm-login-links',
         'GET|HEAD partners/fizahub/one-time-login/{token}',
     ];
 

@@ -97,9 +97,7 @@ Các public alias v1 cũ đã bị loại bỏ: `integration-status`, `packages`
 `recommendations`, `one-time-login`, onboarding `confirm/cancel`, `support-summary` riêng và
 support ticket scope bằng query string.
 
-Attachment route: removed. Upload attachment không trả 501 và không còn trong public route set;
-request tới URL cũ nhận HTTP 404 theo canonical error envelope. Model/table attachment có thể được
-giữ nội bộ cho tương lai, nhưng không được quảng bá trong Core API.
+Support public contract chỉ trao đổi text. Dữ liệu lưu file lịch sử không thuộc Core API và không được quảng bá cho client.
 
 Web route consume signed login link không thuộc 22 public API request và vẫn được giữ để hoàn tất
 one-time login.
