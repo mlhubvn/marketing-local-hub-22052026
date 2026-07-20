@@ -355,8 +355,20 @@ class OnboardingService
         bool $identityVerified,
         $verifiedAt
     ): void {
-        $user = User::query()->findOrFail($integration->mlhub_user_id);
-        $business = LocalBusiness::query()->findOrFail($integration->mlhub_business_id);
+        $user = User::query()->find($integration->mlhub_user_id);
+        $business = LocalBusiness::query()->find($integration->mlhub_business_id);
+
+        if (! $user || ! $business) {
+            // The partner_integrations row survived while the mapped user/business was
+            // deleted underneath it (e.g. manual demo cleanup). Re-provisioning a fresh
+            // account is safer than crashing with an uncaught ModelNotFoundException.
+            throw PartnerApiException::make(
+                'integration_broken',
+                __('Liên kết với MLHUB cho business này bị lỗi. Vui lòng liên hệ MLHUB để được hỗ trợ khôi phục.'),
+                409,
+                ['next_action' => 'contact_support']
+            );
+        }
 
         $owner = (array) data_get($acceptedPayload, 'owner', []);
         $businessPayload = (array) data_get($acceptedPayload, 'business', []);
@@ -507,26 +519,38 @@ class OnboardingService
             ? OnboardingStatusMachine::NEEDS_REVIEW
             : OnboardingStatusMachine::AWAITING_CONSULTANT;
 
-        $integration = PartnerIntegration::query()->create([
-            'partner_code' => $this->mapping->partnerCode(),
-            'external_business_id' => $externalBusinessId,
-            'external_user_id' => $acceptedPayload['external_user_id'] ?? null,
-            'mlhub_user_id' => $user->id,
-            'mlhub_workspace_id' => $team->id,
-            'mlhub_business_id' => $business->id,
-            'package_code' => $effectivePackageCode,
-            'status' => 'active',
-            'verification_status' => $verificationStatus,
-            'metadata' => [
-                'tax_code' => $normalizedTax,
-                'business_license_number' => $normalizedLicense,
-                'source_industry' => $businessPayload['industry'] ?? null,
-                'resolved_industry_category' => $industry['category_code'],
-                'contact_email' => $contactEmail,
-                'uses_provisional_email' => $usesProvisionalEmail,
-                'login_email' => $loginEmail,
+        // A partner_integrations row can outlive the users/lb_businesses rows it points
+        // to: mlhub_user_id/mlhub_workspace_id/mlhub_business_id are all nullOnDelete, so
+        // deleting a demo/test account (without also deleting the mapping) leaves a
+        // "broken" row with the SAME (partner_code, external_business_id) still occupying
+        // the unique index. upsert() only takes the updateExistingMapping() branch when
+        // those FKs are non-null, so it falls through here — plain create() would then
+        // hit a unique-constraint violation and surface as an uncaught 500. updateOrCreate
+        // heals the broken row in place instead of trying to insert a duplicate.
+        $integration = PartnerIntegration::query()->updateOrCreate(
+            [
+                'partner_code' => $this->mapping->partnerCode(),
+                'external_business_id' => $externalBusinessId,
             ],
-        ]);
+            [
+                'external_user_id' => $acceptedPayload['external_user_id'] ?? null,
+                'mlhub_user_id' => $user->id,
+                'mlhub_workspace_id' => $team->id,
+                'mlhub_business_id' => $business->id,
+                'package_code' => $effectivePackageCode,
+                'status' => 'active',
+                'verification_status' => $verificationStatus,
+                'metadata' => [
+                    'tax_code' => $normalizedTax,
+                    'business_license_number' => $normalizedLicense,
+                    'source_industry' => $businessPayload['industry'] ?? null,
+                    'resolved_industry_category' => $industry['category_code'],
+                    'contact_email' => $contactEmail,
+                    'uses_provisional_email' => $usesProvisionalEmail,
+                    'login_email' => $loginEmail,
+                ],
+            ]
+        );
 
         $this->packages->assignEffectivePackage(
             $integration,

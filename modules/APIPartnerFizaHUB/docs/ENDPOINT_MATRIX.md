@@ -37,11 +37,11 @@ Middleware chung cho tất cả 24 route: `api` → `VerifyPartnerToken` (400 `i
 - Precondition: `Idempotency-Key` header bắt buộc (422 nếu thiếu); plan `mlhub-free-da-nang` phải active (503 `default_plan_not_found` nếu thiếu)
 - Success: **201** (created, awaiting_consultant) / **202** (needs_review hoặc legacy pending_verification) / 200 (upsert lại record đã tồn tại và đã map)
 - Response fields: `request_id`, `status`, `status_label`, `current_step`, `requested_package_code`, `approved_package_code`, `package_code`, `duplicate_check[]`, `support_ticket_id`, `mlhub_user_id/workspace_id/business_id`
-- Error codes: 422 `validation_failed`; 503 `default_plan_not_found`; (đã fix trong Block 1) không còn 500 do username trùng
+- Error codes: 422 `validation_failed`; 503 `default_plan_not_found`; 409 `integration_broken` (mapping có FK đã bị null hoá do xoá user/business — nay tự khôi phục thay vì lỗi); (đã fix trong Block 1) không còn 500 do username trùng
 - Idempotency: unique theo `(partner_code, method, endpoint, idempotency_key)`; onboarding còn dùng `X-Request-Id` làm `request_id` idempotent riêng (lockForUpdate theo request_id)
 - Tenant isolation: N/A (endpoint tạo mapping)
-- Test: `OnboardingApiTest` (15 case), `RootCauseInvestigationTest` (4 case, gồm 2 root-cause 500 đã fix)
-- **ROOT CAUSE mới đã fix**: xem `RootCauseInvestigationTest.php` — test "ROOT CAUSE: onboarding must not 500 when the deterministic partner username already belongs to an orphaned user".
+- Test: `OnboardingApiTest` (15 case), `RootCauseInvestigationTest` (4 case, gồm 2 root-cause 500 đã fix), `IntegrationBrokenMappingTest` (2 case, self-heal + 409 typed cho package lookup)
+- **ROOT CAUSE mới đã fix (2026-07-20, sau khi FizaHUB báo 500 ở bước 2 khi test lại với cùng `external_business_id` demo mặc định)**: `partner_integrations.mlhub_user_id/mlhub_workspace_id/mlhub_business_id` đều `nullOnDelete()`. Nếu admin xoá tay `users`/`lb_businesses` demo mà không xoá luôn mapping, dòng `partner_integrations` vẫn còn với FK null, chiếm unique index `(partner_code, external_business_id)`. Lần onboard lại tiếp theo rơi vào `provision()` (vì FK null nên không vào `updateExistingMapping()`), và `PartnerIntegration::create()` cũ sẽ vi phạm unique constraint → 500 không rõ nguyên nhân. Đã đổi sang `updateOrCreate()` để tự khôi phục (heal) dòng cũ. Xem `IntegrationBrokenMappingTest.php`.
 
 ### 3. GET /onboarding-requests/{request_id}
 - Controller: `OnboardingController::show` · Service: `OnboardingService::find`
@@ -57,8 +57,8 @@ Middleware chung cho tất cả 24 route: `api` → `VerifyPartnerToken` (400 `i
 
 ### 5. GET /businesses/{external_business_id}/package
 - Controller: `PackageController::show` · Service: `PackageService::forBusiness`
-- Success: 200 (whitelist limits, không lộ giá/credit/permissions) · Error: 404 `integration_not_found`
-- Test: `PackageApiTest` (đầy đủ)
+- Success: 200 (whitelist limits, không lộ giá/credit/permissions) · Error: 404 `integration_not_found`; 409 `integration_broken` nếu mapping trỏ tới `mlhub_user_id` không còn tồn tại (không tin tưởng mù quáng vào FK id — phòng hờ dữ liệu bị sửa tay sai)
+- Test: `PackageApiTest` (đầy đủ), `IntegrationBrokenMappingTest` (case 409 `integration_broken`)
 
 ### 6. GET /businesses/{external_business_id}/dashboard
 - Controller: `DashboardController::show` · Form Request: `DashboardRequest` · Service: `DashboardService::summarize`

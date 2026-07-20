@@ -147,11 +147,13 @@
                             "script": {
                                 "type": "text/javascript",
                                 "exec": [
-                                    "pm.test('Trả 201 kèm data.request_id thật (không phải fake id)', function () {",
-                                    "    pm.response.to.have.status(201);",
+                                    "pm.test('Trả 201/202/200 kèm data.request_id thật (không phải fake id)', function () {",
+                                    "    pm.expect([200, 201, 202]).to.include(pm.response.code);",
                                     "    pm.expect(pm.response.json().data.request_id).to.be.a('string').and.not.empty;",
                                     "});",
-                                    "if (pm.response.code === 201) {",
+                                    "// 201 = tạo mới (awaiting_consultant); 202 = needs_review (trùng email/thuế/GPKD, vẫn tạo tài khoản);",
+                                    "// 200 = upsert lại request đã tồn tại. Cả 3 đều thành công, phải lưu request_id để bước sau dùng.",
+                                    "if ([200, 201, 202].includes(pm.response.code)) {",
                                     "    const data = pm.response.json().data;",
                                     "    pm.collectionVariables.set('onboarding_request_id', data.request_id);",
                                     "    if (data.external_business_id) {",

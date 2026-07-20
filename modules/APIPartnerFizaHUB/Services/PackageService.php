@@ -4,6 +4,7 @@ namespace Modules\APIPartnerFizaHUB\Services;
 
 use Modules\AdminPlans\Models\AdminPlan;
 use Modules\AdminUser\Models\User;
+use Modules\APIPartnerFizaHUB\Support\PartnerApiException;
 
 class PackageService
 {
@@ -37,7 +38,19 @@ class PackageService
     public function forBusiness(string $externalBusinessId): array
     {
         $integration = $this->integrations->findIntegrationOrFail($externalBusinessId);
-        $user = User::query()->with('plan')->findOrFail($integration->mlhub_user_id);
+        $user = User::query()->with('plan')->find($integration->mlhub_user_id);
+
+        if (! $user) {
+            // Mirrors the same defensive check in OnboardingService::updateExistingMapping:
+            // the mapping row survived while the mapped user was deleted underneath it.
+            throw PartnerApiException::make(
+                'integration_broken',
+                __('Liên kết với MLHUB cho business này bị lỗi. Vui lòng liên hệ MLHUB để được hỗ trợ khôi phục.'),
+                409,
+                ['next_action' => 'contact_support']
+            );
+        }
+
         $plan = $user->plan;
 
         return [

@@ -1094,6 +1094,12 @@ Content-Type: application/json
                             </tr>
                             <tr>
                                 <td>409</td>
+                                <td><code>integration_broken</code></td>
+                                <td>{{ __('Tài khoản MLHUB liên kết với external_business_id này đã bị xoá phía MLHUB (ví dụ do reset dữ liệu demo).') }}</td>
+                                <td>{{ __('Gọi lại POST Onboarding với cùng external_business_id để tự khôi phục mapping, hoặc liên hệ MLHUB nếu vẫn lỗi.') }}</td>
+                            </tr>
+                            <tr>
+                                <td>409</td>
                                 <td><code>idempotency_conflict</code></td>
                                 <td>{{ __('Dùng lại Idempotency-Key cũ với Body khác.') }}</td>
                                 <td>{{ __('Tạo key mới, hoặc Send lại với cùng Body.') }}</td>

@@ -135,6 +135,11 @@
                     <td>{{ __('Run onboarding first or check external_business_id') }}</td>
                 </tr>
                 <tr>
+                    <td><code>integration_broken</code></td>
+                    <td>{{ __('Mapping MLHUB cho business này bị lỗi (tài khoản liên kết đã bị xoá)') }}</td>
+                    <td>{{ __('Contact MLHUB support; do not keep retrying automatically') }}</td>
+                </tr>
+                <tr>
                     <td><code>onboarding_request_not_found</code></td>
                     <td>{{ __('Không tìm thấy yêu cầu onboarding này') }}</td>
                     <td>{{ __('Create a new onboarding request or check request_id') }}</td>
