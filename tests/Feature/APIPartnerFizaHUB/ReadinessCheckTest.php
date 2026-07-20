@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -58,19 +59,19 @@ test('health reports ok 200 once the full readiness schema and default plan are 
 });
 
 test('health reports degraded 503 when only the first migration ran and the plan/support tables are missing', function (): void {
-    Schema::create('users', function (Illuminate\Database\Schema\Blueprint $table): void {
+    Schema::create('users', function (Blueprint $table): void {
         $table->id();
         $table->timestamps();
     });
-    Schema::create('teams', function (Illuminate\Database\Schema\Blueprint $table): void {
+    Schema::create('teams', function (Blueprint $table): void {
         $table->id();
         $table->timestamps();
     });
-    Schema::create('lb_businesses', function (Illuminate\Database\Schema\Blueprint $table): void {
+    Schema::create('lb_businesses', function (Blueprint $table): void {
         $table->id();
         $table->timestamps();
     });
-    Schema::create('support_tickets', function (Illuminate\Database\Schema\Blueprint $table): void {
+    Schema::create('support_tickets', function (Blueprint $table): void {
         $table->id();
         $table->timestamps();
     });

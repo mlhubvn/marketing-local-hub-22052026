@@ -1,5 +1,7 @@
 <?php
 
+use Modules\APIPartnerFizaHUB\Models\PartnerApiLog;
+
 require_once __DIR__.'/FizaHubTestHelpers.php';
 
 function ssoHeaders(array $overrides = []): array
@@ -45,7 +47,7 @@ test('sso verify rejects an invalid bearer token before reaching the controller'
 test('sso verify never mutates state and never logs the raw partner token', function (): void {
     $this->postJson('/api/v1/partners/fizahub/partner/sso/verify', [], ssoHeaders())->assertOk();
 
-    $log = \Modules\APIPartnerFizaHUB\Models\PartnerApiLog::query()->latest('id')->first();
+    $log = PartnerApiLog::query()->latest('id')->first();
 
     expect($log)->not->toBeNull();
     $encodedLog = json_encode($log->request_payload).json_encode($log->response_payload);

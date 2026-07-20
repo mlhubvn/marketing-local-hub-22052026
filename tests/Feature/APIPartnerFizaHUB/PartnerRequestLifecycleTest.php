@@ -169,7 +169,10 @@ test('same idempotency key with different body returns conflict', function (): v
 test('in progress idempotency key returns conflict', function (): void {
     $idempotencyKey = (string) str()->uuid();
     $body = json_encode(['pending' => true], JSON_THROW_ON_ERROR);
-    $hash = hash('sha256', $body);
+    $hash = hash('sha256', json_encode([
+        'query' => [],
+        'body' => ['pending' => true],
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR));
 
     PartnerApiLog::query()->create([
         'partner_code' => 'fizahub',
@@ -209,7 +212,10 @@ test('unexpected exceptions are logged as partner_api_error without leaking inte
     $response = $this->postJson(
         '/api/v1/partners/fizahub/_lifecycle/fail',
         ['password' => 'super-secret'],
-        lifecycleHeaders(['X-Request-Id' => $requestId])
+        lifecycleHeaders([
+            'X-Request-Id' => $requestId,
+            'Idempotency-Key' => (string) str()->uuid(),
+        ])
     );
 
     $response->assertStatus(500)
@@ -228,7 +234,7 @@ test('validation exceptions return 422 partner JSON', function (): void {
     $this->postJson(
         '/api/v1/partners/fizahub/_lifecycle/validate',
         [],
-        lifecycleHeaders()
+        lifecycleHeaders(['Idempotency-Key' => (string) str()->uuid()])
     )
         ->assertStatus(422)
         ->assertJsonPath('error.code', 'validation_failed')
@@ -289,7 +295,10 @@ test('logged response redacts one-time login url values', function (): void {
     $this->postJson(
         '/api/v1/partners/fizahub/_lifecycle/secrets',
         ['note' => 'login'],
-        lifecycleHeaders(['X-Request-Id' => $requestId])
+        lifecycleHeaders([
+            'X-Request-Id' => $requestId,
+            'Idempotency-Key' => (string) str()->uuid(),
+        ])
     )->assertCreated();
 
     $log = PartnerApiLog::query()->where('request_id', $requestId)->firstOrFail();

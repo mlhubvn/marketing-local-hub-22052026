@@ -10,6 +10,7 @@ use Modules\AdminSupport\Models\SupportTicket;
 use Modules\AdminUser\Models\Team;
 use Modules\AdminUser\Models\User;
 use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
+use Modules\APIPartnerFizaHUB\Models\PartnerSupportAttachment;
 use Modules\AppBusinessProfiles\Models\LocalBusiness;
 
 require_once __DIR__.'/FizaHubTestHelpers.php';
@@ -327,7 +328,7 @@ test('attachment upload succeeds for an open ticket, persists metadata, and stor
     $response->assertJsonPath('data.original_name', 'receipt.pdf')
         ->assertJsonPath('data.mime_type', 'application/pdf');
 
-    expect(\Modules\APIPartnerFizaHUB\Models\PartnerSupportAttachment::query()->count())->toBe(1);
+    expect(PartnerSupportAttachment::query()->count())->toBe(1);
 });
 
 test('attachment upload rejects a disallowed MIME type with 422, never a 500', function (): void {

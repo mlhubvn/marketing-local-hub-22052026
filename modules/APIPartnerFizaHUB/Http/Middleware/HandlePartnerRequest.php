@@ -36,6 +36,23 @@ class HandlePartnerRequest
         $requestHash = $this->requestHash($request);
         $log = null;
 
+        if ($this->requiresIdempotency($request) && ($idempotencyKey === '' || strlen($idempotencyKey) > 128)) {
+            $message = $idempotencyKey === ''
+                ? 'The Idempotency-Key header is required.'
+                : 'The Idempotency-Key header may not be greater than 128 characters.';
+            $response = PartnerApiResponse::error(
+                'validation_failed',
+                __('Dữ liệu yêu cầu không hợp lệ.'),
+                422,
+                ['Idempotency-Key' => [$message]],
+                $requestId
+            );
+
+            $this->finalizeLog($request, $response, $requestId, '', $requestHash, null);
+
+            return $this->withRequestId($response, $requestId);
+        }
+
         if ($idempotencyKey !== '') {
             $replayOrConflict = $this->beginIdempotentRequest($request, $requestId, $idempotencyKey, $requestHash);
 
@@ -152,6 +169,7 @@ class HandlePartnerRequest
         }
 
         $payload = is_array($existing->response_payload) ? $existing->response_payload : [];
+        data_set($payload, 'meta.request_id', $requestId);
         $status = (int) $existing->status_code;
 
         return response()->json($payload, $status)->header('X-Request-Id', $requestId);
@@ -210,7 +228,40 @@ class HandlePartnerRequest
 
     private function requestHash(Request $request): string
     {
-        return hash('sha256', (string) $request->getContent());
+        $payload = $request->isJson() ? $request->json()->all() : $request->all();
+        $canonical = [
+            'query' => $this->canonicalize($request->query()),
+            'body' => $this->canonicalize($payload),
+        ];
+
+        return hash('sha256', json_encode(
+            $canonical,
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR
+        ));
+    }
+
+    private function requiresIdempotency(Request $request): bool
+    {
+        if ($request->route()?->getName() === 'partner.fizahub.sso.verify') {
+            return false;
+        }
+
+        return in_array(strtoupper($request->method()), ['POST', 'PUT', 'PATCH', 'DELETE'], true);
+    }
+
+    private function canonicalize(mixed $value): mixed
+    {
+        if (! is_array($value)) {
+            return $value;
+        }
+
+        if (array_is_list($value)) {
+            return array_map(fn (mixed $item): mixed => $this->canonicalize($item), $value);
+        }
+
+        ksort($value);
+
+        return array_map(fn (mixed $item): mixed => $this->canonicalize($item), $value);
     }
 
     private function decodeJsonResponse(Response $response): array

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +17,7 @@ beforeEach(function (): void {
     dropFizaHubReadinessSchema();
     Schema::dropIfExists('migrations');
 
-    Schema::create('migrations', function (Illuminate\Database\Schema\Blueprint $table): void {
+    Schema::create('migrations', function (Blueprint $table): void {
         $table->id();
         $table->string('migration');
         $table->integer('batch');

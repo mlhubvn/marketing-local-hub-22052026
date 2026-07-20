@@ -109,7 +109,7 @@
 - Produces: response envelope `{success,data,meta:{request_id},error}` for every partner response.
 - Consumes: existing `partner_api_logs` uniqueness on partner, method, concrete endpoint, and idempotency key.
 
-- [ ] **Step 1: Write the failing exact-route contract test**
+- [x] **Step 1: Write the failing exact-route contract test**
 
 ```php
 test('public FizaHUB API is the exact approved 22 route cutover', function (): void {
@@ -152,7 +152,7 @@ test('public FizaHUB API is the exact approved 22 route cutover', function (): v
 });
 ```
 
-- [ ] **Step 2: Run the route test and verify RED**
+- [x] **Step 2: Run the route test and verify RED**
 
 Run:
 
@@ -162,7 +162,7 @@ php artisan test tests/Feature/APIPartnerFizaHUB/UiApiContractTest.php --filter=
 
 Expected: FAIL because the current route list contains 24 routes, includes attachment/confirm/cancel/legacy names, and lacks marketing status, preferences, growth insights, approval, presets, nested support, and CRM link routes.
 
-- [ ] **Step 3: Replace the route group with the exact cutover**
+- [x] **Step 3: Replace the route group with the exact cutover**
 
 Use these route names so Doctor and tests share one stable list:
 
@@ -193,7 +193,7 @@ Route::post('businesses/{external_business_id}/crm-login-links', [OneTimeLoginCo
 
 Remove the attachment controller import and do not register compatibility aliases.
 
-- [ ] **Step 4: Write failing envelope and idempotency tests**
+- [x] **Step 4: Write failing envelope and idempotency tests**
 
 ```php
 test('all partner errors preserve the response envelope and effective request id', function (): void {
@@ -234,7 +234,7 @@ test('same idempotency key with reordered equivalent JSON replays but different 
 
 The test file defines `partnerHeaders()` and `writeHeaders()` locally and boots `FizaHubTestHelpers.php` so it is independently runnable.
 
-- [ ] **Step 5: Run the idempotency tests and verify RED**
+- [x] **Step 5: Run the idempotency tests and verify RED**
 
 Run:
 
@@ -244,7 +244,7 @@ php artisan test tests/Feature/APIPartnerFizaHUB/IdempotencyContractTest.php
 
 Expected: FAIL because missing idempotency keys are not rejected globally and the current request hash is raw-body-order dependent.
 
-- [ ] **Step 6: Canonicalize payloads and require keys for write routes**
+- [x] **Step 6: Canonicalize payloads and require keys for write routes**
 
 Add these methods to `HandlePartnerRequest` and call them before `beginIdempotentRequest`:
 
@@ -289,11 +289,11 @@ When `requiresIdempotency()` is true and the header is empty or exceeds 128 char
 
 For `partner.fizahub.businesses.crm-login-links.store`, middleware still verifies the key and normalized hash but marks the request as an idempotent replay and continues to the controller instead of replaying the redacted API-log response. `OneTimeLoginService` performs the secure link replay from encrypted token storage in Task 6.
 
-- [ ] **Step 7: Update the initial endpoint matrix to exactly 22 routes**
+- [x] **Step 7: Update the initial endpoint matrix to exactly 22 routes**
 
 Replace the old 24-route table in `ENDPOINT_MATRIX.md` with the approved method/path/name/controller mapping. Explicitly list removed aliases and state that the attachment route is absent, not 501-compatible.
 
-- [ ] **Step 8: Run route, envelope, and idempotency tests GREEN**
+- [x] **Step 8: Run route, envelope, and idempotency tests GREEN**
 
 Run:
 
@@ -303,7 +303,7 @@ php artisan test tests/Feature/APIPartnerFizaHUB/UiApiContractTest.php tests/Fea
 
 Expected: PASS with 22 route tuples and zero attachment/legacy aliases.
 
-- [ ] **Step 9: Commit Task 1**
+- [x] **Step 9: Commit Task 1**
 
 ```powershell
 git add modules/APIPartnerFizaHUB/Routes/api.php modules/APIPartnerFizaHUB/Http/Middleware/HandlePartnerRequest.php modules/APIPartnerFizaHUB/Support tests/Feature/APIPartnerFizaHUB modules/APIPartnerFizaHUB/docs/ENDPOINT_MATRIX.md

@@ -115,6 +115,7 @@ function profileHeaders(array $overrides = []): array
         'Authorization' => 'Bearer test-fizahub-partner-token',
         'X-Partner' => 'fizahub',
         'X-Request-Id' => (string) str()->uuid(),
+        'Idempotency-Key' => (string) str()->uuid(),
         'Accept' => 'application/json',
         'Content-Type' => 'application/json',
     ], $overrides);

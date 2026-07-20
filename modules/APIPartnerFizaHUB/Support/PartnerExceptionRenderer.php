@@ -70,8 +70,8 @@ class PartnerExceptionRenderer
             }
 
             return PartnerApiResponse::error(
-                'resource_not_found',
-                __('The requested resource was not found.'),
+                'route_not_found',
+                __('Không tìm thấy API được yêu cầu.'),
                 404
             );
         }
