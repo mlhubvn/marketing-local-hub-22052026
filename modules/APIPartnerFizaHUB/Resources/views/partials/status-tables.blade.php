@@ -135,6 +135,21 @@
                     <td>{{ __('Run onboarding first or check external_business_id') }}</td>
                 </tr>
                 <tr>
+                    <td><code>onboarding_request_not_found</code></td>
+                    <td>{{ __('Không tìm thấy yêu cầu onboarding này') }}</td>
+                    <td>{{ __('Create a new onboarding request or check request_id') }}</td>
+                </tr>
+                <tr>
+                    <td><code>campaign_not_found</code></td>
+                    <td>{{ __('Không tìm thấy chiến dịch này') }}</td>
+                    <td>{{ __('Call GET Campaigns to get a real campaign_id') }}</td>
+                </tr>
+                <tr>
+                    <td><code>ticket_not_found</code></td>
+                    <td>{{ __('Không tìm thấy phiếu hỗ trợ này') }}</td>
+                    <td>{{ __('Create a new ticket or check ticket_id') }}</td>
+                </tr>
+                <tr>
                     <td><code>resource_not_found</code></td>
                     <td>{{ __('Không tìm thấy dữ liệu') }}</td>
                     <td>{{ __('Check request_id / ticket_id / external_business_id') }}</td>
@@ -155,9 +170,34 @@
                     <td>{{ __('Do not send a new message to this ticket') }}</td>
                 </tr>
                 <tr>
+                    <td><code>ticket_already_closed</code></td>
+                    <td>{{ __('Phiếu hỗ trợ này đã được đóng') }}</td>
+                    <td>{{ __('Reopen the ticket first with POST Reopen Support Ticket') }}</td>
+                </tr>
+                <tr>
+                    <td><code>ticket_not_closed</code></td>
+                    <td>{{ __('Phiếu hỗ trợ này chưa được đóng') }}</td>
+                    <td>{{ __('Only closed tickets can be reopened') }}</td>
+                </tr>
+                <tr>
+                    <td><code>invalid_status_transition</code></td>
+                    <td>{{ __('Trạng thái hiện tại không cho phép thao tác này') }}</td>
+                    <td>{{ __('Check current status with GET Onboarding Status before calling confirm/cancel') }}</td>
+                </tr>
+                <tr>
                     <td><code>onboarding_not_ready</code></td>
                     <td>{{ __('Tài khoản đang chờ tư vấn viên MLHUB hoàn tất cấu hình.') }}</td>
                     <td>{{ __('Wait for status ready/completed before calling one-time login') }}</td>
+                </tr>
+                <tr>
+                    <td><code>default_plan_not_found</code></td>
+                    <td>{{ __('Hệ thống chưa sẵn sàng để tạo tài khoản') }}</td>
+                    <td>{{ __('Ask MLHUB to check deploy/seed; this is not a FizaHUB-side error') }}</td>
+                </tr>
+                <tr>
+                    <td><code>partner_schema_not_ready</code></td>
+                    <td>{{ __('Hệ thống chưa sẵn sàng (migration chưa chạy đủ)') }}</td>
+                    <td>{{ __('Ask MLHUB to check deploy; this is not a FizaHUB-side error') }}</td>
                 </tr>
                 <tr>
                     <td><code>rate_limit_exceeded</code></td>

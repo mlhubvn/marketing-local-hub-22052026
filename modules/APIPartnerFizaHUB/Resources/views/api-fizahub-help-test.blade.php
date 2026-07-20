@@ -1111,10 +1111,28 @@ Content-Type: application/json
                                 <td>{{ __('Kiểm tra status hiện tại bằng GET Onboarding Status trước khi gọi.') }}</td>
                             </tr>
                             <tr>
-                                <td>422</td>
+                                <td>409</td>
                                 <td><code>ticket_not_open</code></td>
                                 <td>{{ __('Gửi message/attachment vào ticket đã đóng hoặc đã xử lý.') }}</td>
                                 <td>{{ __('Mở lại ticket bằng POST Reopen Support Ticket trước khi gửi tiếp.') }}</td>
+                            </tr>
+                            <tr>
+                                <td>409</td>
+                                <td><code>ticket_already_closed</code></td>
+                                <td>{{ __('Gọi PATCH Close Support Ticket khi ticket đã ở trạng thái closed.') }}</td>
+                                <td>{{ __('Kiểm tra status hiện tại bằng GET Support Ticket Detail trước khi close.') }}</td>
+                            </tr>
+                            <tr>
+                                <td>409</td>
+                                <td><code>ticket_not_closed</code></td>
+                                <td>{{ __('Gọi POST Reopen Support Ticket khi ticket đang open/resolved (chưa closed).') }}</td>
+                                <td>{{ __('Chỉ reopen được ticket đang ở trạng thái closed.') }}</td>
+                            </tr>
+                            <tr>
+                                <td>404</td>
+                                <td><code>campaign_not_found</code></td>
+                                <td>{{ __('campaign_id sai hoặc thuộc business khác.') }}</td>
+                                <td>{{ __('Gọi GET Campaigns để lấy campaign_id thật của đúng business.') }}</td>
                             </tr>
                             <tr>
                                 <td>429</td>
