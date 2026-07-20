@@ -722,7 +722,7 @@ git commit -m "feat: add FizaHUB marketing bootstrap and preferences"
 - Produces: `DashboardService::campaignList(PartnerIntegration, array $filters): array{items: array, pagination: array, summary: array}`.
 - Produces: `CampaignApprovalService::decide(PartnerIntegration, QrCampaign, string, ?string): array`.
 
-- [ ] **Step 1: Write failing range and zero-data tests**
+- [x] **Step 1: Write failing range and zero-data tests**
 
 ```php
 test('dashboard defaults to 30d and accepts today 7d 30d 90d and custom', function (): void {
@@ -741,7 +741,7 @@ test('zero-data dashboard and campaign list remain successful', function (): voi
 });
 ```
 
-- [ ] **Step 2: Run the range tests and verify RED**
+- [x] **Step 2: Run the range tests and verify RED**
 
 Run:
 
@@ -751,7 +751,7 @@ php artisan test tests/Feature/APIPartnerFizaHUB/GrowthUiContractTest.php --filt
 
 Expected: FAIL because the current request accepts only `from`/`to` and does not expose `period.range` or screen-06 fields.
 
-- [ ] **Step 3: Implement normalized range handling**
+- [x] **Step 3: Implement normalized range handling**
 
 Use validation:
 
@@ -763,7 +763,7 @@ Use validation:
 
 Resolve preset ranges inclusively and add validator errors when the order is invalid or the span exceeds 366 days.
 
-- [ ] **Step 4: Write failing growth-insights and campaign cursor tests**
+- [x] **Step 4: Write failing growth-insights and campaign cursor tests**
 
 ```php
 $this->getJson($base.'/businesses/biz-1/growth-insights?range=30d', partnerHeaders())
@@ -780,7 +780,7 @@ $this->getJson($base.'/businesses/biz-1/campaigns?status=active&per_page=1', par
     ]]]);
 ```
 
-- [ ] **Step 5: Run insights/campaign tests and verify RED**
+- [x] **Step 5: Run insights/campaign tests and verify RED**
 
 Run:
 
@@ -790,7 +790,7 @@ php artisan test tests/Feature/APIPartnerFizaHUB/GrowthUiContractTest.php --filt
 
 Expected: FAIL because insights and recommendations are separate, campaign status is derived incorrectly from `published_at`, and list pagination/filter metadata is absent.
 
-- [ ] **Step 6: Implement UI-shaped dashboard and insights**
+- [x] **Step 6: Implement UI-shaped dashboard and insights**
 
 Extend the summary serializer with headline comparison values, tool cards, `next_actions`, active campaigns, trend series, and freshness timestamps. `growthInsights()` merges the existing insight and suggested-action calculations and emits CTA objects:
 
@@ -803,17 +803,17 @@ Extend the summary serializer with headline comparison values, tool cards, `next
 ]
 ```
 
-- [ ] **Step 7: Implement campaign list/detail and approval**
+- [x] **Step 7: Implement campaign list/detail and approval**
 
 Use `lb_campaigns.status` as the source of truth, tenant-scope by user and business IDs, filter by allowed public statuses, search `name`, and use `cursorPaginate`.
 
 `CampaignApprovalService::decide()` locks the campaign row. For `approved`, require `pending_approval`, set `status=active`, set `published_at` when empty, and write approval evidence into `settings.partner_approval`. For `changes_requested`, keep `pending_approval`, write the decision evidence, and call a deduplicating bridge method that returns the existing `campaign_request` ticket for the same integration/campaign or creates one.
 
-- [ ] **Step 8: Complete package response**
+- [x] **Step 8: Complete package response**
 
 Return `effective_package`, `requested_package`, `approved_package`, package name, slug, status, dates, trial, whitelisted limits, and `mapping_status`. Do not expose prices, credits, internal permissions, or admin fields.
 
-- [ ] **Step 9: Run Growth tests GREEN**
+- [x] **Step 9: Run Growth tests GREEN**
 
 Run:
 
@@ -823,7 +823,7 @@ php artisan test tests/Feature/APIPartnerFizaHUB/GrowthUiContractTest.php tests/
 
 Expected: PASS including approval idempotency, invalid state, empty lists, malformed cursors, date boundaries, and campaign tenant isolation.
 
-- [ ] **Step 10: Commit Task 4**
+- [x] **Step 10: Commit Task 4**
 
 ```powershell
 git add modules/APIPartnerFizaHUB/Http/Requests modules/APIPartnerFizaHUB/Http/Controllers/DashboardController.php modules/APIPartnerFizaHUB/Services/DashboardService.php modules/APIPartnerFizaHUB/Services/CampaignApprovalService.php modules/APIPartnerFizaHUB/Services/PackageService.php modules/APIPartnerFizaHUB/Services/SupportTicketBridge.php tests/Feature/APIPartnerFizaHUB

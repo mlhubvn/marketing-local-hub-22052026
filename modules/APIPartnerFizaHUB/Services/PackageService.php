@@ -4,6 +4,7 @@ namespace Modules\APIPartnerFizaHUB\Services;
 
 use Modules\AdminPlans\Models\AdminPlan;
 use Modules\AdminUser\Models\User;
+use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingRequest;
 use Modules\APIPartnerFizaHUB\Support\PartnerApiException;
 
 class PackageService
@@ -52,16 +53,25 @@ class PackageService
         }
 
         $plan = $user->plan;
+        $onboarding = PartnerOnboardingRequest::query()
+            ->where('partner_code', $integration->partner_code)
+            ->where('external_business_id', $externalBusinessId)
+            ->latest('id')
+            ->first();
+        $effectivePackage = $integration->package_code
+            ?: (string) config('modules.apipartnerfizahub.default_package', 'free');
 
         return [
-            'package_code' => $integration->package_code ?: (string) config('modules.apipartnerfizahub.default_package', 'free'),
+            'effective_package' => $effectivePackage,
+            'requested_package' => $onboarding?->requested_package_code ?: $effectivePackage,
+            'approved_package' => $onboarding?->approved_package_code,
             'package_name' => $plan?->name,
             'plan_slug' => $plan?->slug,
             'status' => $this->planStatus($user, $plan),
             'starts_at' => optional($user->plan_started_at)?->utc()?->toIso8601String(),
             'expires_at' => optional($user->plan_expires_at)?->utc()?->toIso8601String(),
             'is_trial' => $this->isTrial($user, $plan),
-            'integration_status' => $integration->status,
+            'mapping_status' => $integration->status,
             'limits' => $this->whitelistedLimits($plan),
         ];
     }

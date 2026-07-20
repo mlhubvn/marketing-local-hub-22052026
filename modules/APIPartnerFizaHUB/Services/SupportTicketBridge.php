@@ -19,6 +19,7 @@ use Modules\APIPartnerFizaHUB\Models\PartnerSupportAttachment;
 use Modules\APIPartnerFizaHUB\Models\PartnerSupportPreset;
 use Modules\APIPartnerFizaHUB\Models\PartnerSupportTicketContext;
 use Modules\APIPartnerFizaHUB\Support\PartnerApiException;
+use Modules\AppQRCampaigns\Models\QrCampaign;
 use RuntimeException;
 
 class SupportTicketBridge
@@ -137,6 +138,40 @@ class SupportTicketBridge
         ]);
 
         $this->storeContext($integration, $ticket, $requestCode, $relatedResource, $details);
+
+        return $ticket;
+    }
+
+    public function campaignRequestTicket(
+        PartnerIntegration $integration,
+        QrCampaign $campaign,
+        ?string $note = null
+    ): SupportTicket {
+        $context = PartnerSupportTicketContext::query()
+            ->where('partner_integration_id', $integration->id)
+            ->where('request_code', 'campaign_request')
+            ->where('related_resource_type', QrCampaign::class)
+            ->where('related_resource_id', (string) $campaign->id)
+            ->first();
+        $existing = $context?->support_ticket_id
+            ? SupportTicket::query()->find($context->support_ticket_id)
+            : null;
+
+        if ($existing) {
+            return $existing;
+        }
+
+        $ticket = $this->create($integration, [
+            'subject' => 'Yêu cầu điều chỉnh chiến dịch: '.$campaign->name,
+            'message' => $note ?: 'Doanh nghiệp yêu cầu MLHUB rà soát và điều chỉnh chiến dịch.',
+        ]);
+        $this->storeContext(
+            $integration,
+            $ticket,
+            'campaign_request',
+            ['type' => QrCampaign::class, 'id' => (string) $campaign->id],
+            ['preset_code' => 'campaign_request', 'source' => 'fizahub']
+        );
 
         return $ticket;
     }

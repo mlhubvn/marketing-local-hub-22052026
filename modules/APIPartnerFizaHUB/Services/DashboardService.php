@@ -75,6 +75,13 @@ class DashboardService
             $toEnd
         );
         $feedback = $feedbackForms + $lowReviews;
+        $rating = $campaignIds->isEmpty()
+            ? 0.0
+            : round((float) ReviewFeedback::query()
+                ->where('user_id', $userId)
+                ->whereIn('campaign_id', $campaignIds)
+                ->whereBetween('created_at', [$fromStart, $toEnd])
+                ->avg('rating'), 2);
 
         $conversions = $newLeads + $newReviews + $couponClaims + $bookings + $feedback;
         $conversionRate = $qrScans > 0
@@ -84,10 +91,13 @@ class DashboardService
         $metrics = [
             'businesses' => $businessId > 0 ? 1 : 0,
             'campaigns' => $campaigns->count(),
-            'active_campaigns' => $campaigns->whereNotNull('published_at')->count(),
+            'active_campaigns' => $campaigns->where('status', 'active')->count(),
             'qr_scans' => $qrScans,
+            'new_customers' => $newLeads,
             'new_leads' => $newLeads,
+            'positive_feedback' => $newReviews,
             'new_reviews' => $newReviews,
+            'vouchers_redeemed' => $couponUsed,
             'coupon_claims' => $couponClaims,
             'coupon_used' => $couponUsed,
             'bookings' => $bookings,
@@ -95,9 +105,17 @@ class DashboardService
             // Estimated metric: phone/email identities with >= 2 events in the period.
             'returning_customers' => $this->estimateReturningCustomers($userId, $campaignIds, $fromStart, $toEnd),
             'conversion_rate' => $conversionRate,
+            'rating' => $rating,
         ];
 
         return [
+            'new_customers' => $metrics['new_customers'],
+            'qr_scans' => $metrics['qr_scans'],
+            'returning_customers' => $metrics['returning_customers'],
+            'positive_feedback' => $metrics['positive_feedback'],
+            'vouchers_redeemed' => $metrics['vouchers_redeemed'],
+            'rating' => $metrics['rating'],
+            'active_campaigns' => $metrics['active_campaigns'],
             'period' => [
                 'from' => $fromStart->toDateString(),
                 'to' => $to->timezone($timezone)->toDateString(),
@@ -106,6 +124,7 @@ class DashboardService
             'metrics' => $metrics,
             'campaigns' => $this->campaignRows($userId, $campaigns, $fromStart, $toEnd),
             'trend' => $this->dailyTrend($userId, $campaignIds, $fromStart, $to),
+            'trend_series' => $this->dailyTrend($userId, $campaignIds, $fromStart, $to),
             'insights' => $this->insights($metrics),
             'suggested_actions' => $this->suggestedActions($metrics, $feedbackForms + $lowReviews),
         ];
@@ -190,26 +209,88 @@ class DashboardService
         ];
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    public function campaignList(
+    /** @return array<string, mixed> */
+    public function growthInsights(
         PartnerIntegration $integration,
         CarbonImmutable $from,
         CarbonImmutable $to
     ): array {
+        $summary = $this->summarize($integration, $from, $to);
+        $metrics = $summary['metrics'];
+        $score = min(100, (int) round(
+            min(40, (int) $metrics['qr_scans'])
+            + min(30, (int) $metrics['new_customers'] * 3)
+            + min(30, (float) $metrics['conversion_rate'] * 3)
+        ));
+        $actions = $summary['suggested_actions'];
+
+        if ($actions === []) {
+            $actions[] = [
+                'code' => 'growth_review',
+                'message' => 'Tiếp tục theo dõi và tối ưu hoạt động Marketing.',
+            ];
+        }
+
+        return [
+            'growth_score' => $score,
+            'growth_score_change' => 0,
+            'customer_sources' => [
+                ['code' => 'qr_checkin', 'label' => 'QR Check-in', 'value' => (int) $metrics['qr_scans']],
+                ['code' => 'lead_form', 'label' => 'Khách hàng mới', 'value' => (int) $metrics['new_customers']],
+            ],
+            'highlights' => $summary['insights'],
+            'recommendations' => collect($actions)->map(function (array $action): array {
+                return [
+                    'code' => (string) $action['code'],
+                    'label' => (string) ($action['label'] ?? 'Đề xuất tăng trưởng'),
+                    'description' => (string) ($action['description'] ?? $action['message'] ?? ''),
+                    'priority' => (string) ($action['priority'] ?? 'medium'),
+                    'preset_code' => 'growth_recommendation',
+                    'related_campaign_id' => null,
+                    'cta_label' => 'Thiết lập ngay',
+                    'cta' => [
+                        'action_type' => 'create_support_ticket',
+                        'preset_code' => 'growth_recommendation',
+                        'campaign_id' => null,
+                        'label' => 'Thiết lập ngay',
+                    ],
+                ];
+            })->values()->all(),
+            'data_period' => $summary['period'],
+            'data_freshness' => 'live',
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function campaignList(PartnerIntegration $integration, array $filters): array
+    {
         $timezone = (string) config('modules.apipartnerfizahub.timezone', 'Asia/Ho_Chi_Minh');
+        $from = ($filters['from'] ?? null) instanceof CarbonImmutable
+            ? $filters['from']
+            : CarbonImmutable::now($timezone)->subDays(29);
+        $to = ($filters['to'] ?? null) instanceof CarbonImmutable
+            ? $filters['to']
+            : CarbonImmutable::now($timezone);
         $fromStart = $from->timezone($timezone)->startOfDay();
         $toEnd = $to->timezone($timezone)->endOfDay();
 
         $userId = (int) $integration->mlhub_user_id;
         $businessId = (int) $integration->mlhub_business_id;
 
-        $campaigns = QrCampaign::query()
+        $baseQuery = QrCampaign::query()
             ->where('user_id', $userId)
-            ->where('business_id', $businessId)
+            ->where('business_id', $businessId);
+        $summaryRows = (clone $baseQuery)->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status');
+        $campaigns = $baseQuery
+            ->when($filters['status'] ?? null, fn (Builder $query, string $status) => $query->where('status', $status))
+            ->when($filters['search'] ?? null, fn (Builder $query, string $search) => $query->where('name', 'like', '%'.$search.'%'))
             ->orderByDesc('id')
-            ->get(['id', 'name', 'status', 'published_at', 'created_at']);
+            ->cursorPaginate((int) ($filters['per_page'] ?? 20));
+        $items = collect($campaigns->items())->map(function (QrCampaign $campaign) use ($userId, $fromStart, $toEnd): array {
+            return $this->campaignRows($userId, collect([$campaign]), $fromStart, $toEnd, null)[0];
+        })->all();
 
         return [
             'period' => [
@@ -217,7 +298,16 @@ class DashboardService
                 'to' => $to->timezone($timezone)->toDateString(),
                 'timezone' => $timezone,
             ],
-            'items' => $this->campaignRows($userId, $campaigns, $fromStart, $toEnd, null),
+            'items' => $items,
+            'summary' => [
+                'total' => (int) $summaryRows->sum(),
+                'by_status' => $summaryRows->map(fn ($total): int => (int) $total)->all(),
+            ],
+            'pagination' => [
+                'next_cursor' => $campaigns->nextCursor()?->encode(),
+                'has_more' => $campaigns->hasMorePages(),
+                'per_page' => $campaigns->perPage(),
+            ],
         ];
     }
 
@@ -258,29 +348,49 @@ class DashboardService
             + $this->countInRange(ReviewFeedback::query()->where('rating', '<=', 3), $userId, $campaignIds, $fromStart, $toEnd);
 
         $conversions = $leads + $reviews + $coupons + $bookings + $feedback;
+        $conversionRate = $scans > 0 ? round(($conversions / $scans) * 100, 2) : 0.0;
+        $period = [
+            'from' => $fromStart->toDateString(),
+            'to' => $to->timezone($timezone)->toDateString(),
+            'timezone' => $timezone,
+        ];
+        $status = (string) ($campaign->status ?: 'draft');
+        $metrics = [
+            'scans' => $scans,
+            'leads' => $leads,
+            'reviews' => $reviews,
+            'coupons' => $coupons,
+            'bookings' => $bookings,
+            'feedback' => $feedback,
+            'conversions' => $conversions,
+            'conversion_rate' => $conversionRate,
+        ];
 
         return [
-            'period' => [
-                'from' => $fromStart->toDateString(),
-                'to' => $to->timezone($timezone)->toDateString(),
-                'timezone' => $timezone,
-            ],
+            'campaign_id' => $campaign->id,
+            'name' => $campaign->name,
+            'status' => $status,
+            'objective' => $campaign->objective,
+            'period' => $period,
+            'metrics' => $metrics,
+            'qr_scans' => $scans,
+            'qr_scan_change' => 0,
+            'valid_leads' => $leads,
+            'conversion_rate' => $conversionRate,
+            'last_synced_at' => now()->utc()->toIso8601String(),
+            'recommendations' => [[
+                'code' => 'campaign_review',
+                'label' => 'Yêu cầu điều chỉnh',
+                'description' => 'Gửi yêu cầu để MLHUB rà soát và điều chỉnh chiến dịch.',
+                'preset_code' => 'campaign_request',
+                'campaign_id' => (string) $campaign->id,
+            ]],
             'campaign' => [
                 'campaign_id' => $campaign->id,
                 'name' => $campaign->name,
-                'status' => $campaign->published_at ? 'active' : 'paused',
+                'status' => $status,
                 'published_at' => optional($campaign->published_at)?->utc()?->toIso8601String(),
                 'created_at' => optional($campaign->created_at)?->utc()?->toIso8601String(),
-            ],
-            'metrics' => [
-                'scans' => $scans,
-                'leads' => $leads,
-                'reviews' => $reviews,
-                'coupons' => $coupons,
-                'bookings' => $bookings,
-                'feedback' => $feedback,
-                'conversions' => $conversions,
-                'conversion_rate' => $scans > 0 ? round(($conversions / $scans) * 100, 2) : 0.0,
             ],
             'trend' => $this->dailyTrend($userId, $campaignIds, $fromStart, $to),
         ];
@@ -314,6 +424,7 @@ class DashboardService
         int $ttlMinutes
     ): array {
         $data['generated_at'] = $generatedAt->utc()->toIso8601String();
+        $data['last_synced_at'] = $generatedAt->utc()->toIso8601String();
         $data['data_freshness'] = $freshness;
         $data['next_refresh_at'] = $generatedAt->addMinutes($ttlMinutes)->utc()->toIso8601String();
         $data['timezone'] = $timezone;
@@ -458,6 +569,12 @@ class DashboardService
                 ->where('campaign_id', $campaign->id)
                 ->whereBetween('created_at', [$fromStart, $toEnd])
                 ->count();
+            $couponsUsed = (int) CouponRedemption::query()
+                ->where('user_id', $userId)
+                ->where('campaign_id', $campaign->id)
+                ->whereNotNull('used_at')
+                ->whereBetween('used_at', [$fromStart, $toEnd])
+                ->count();
 
             $bookings = (int) Booking::query()
                 ->where('user_id', $userId)
@@ -478,13 +595,28 @@ class DashboardService
                     ->count();
 
             $conversions = $leads + $reviews + $coupons + $bookings + $feedback;
+            $rating = round((float) ReviewFeedback::query()
+                ->where('user_id', $userId)
+                ->where('campaign_id', $campaign->id)
+                ->whereBetween('created_at', [$fromStart, $toEnd])
+                ->avg('rating'), 2);
+            $settings = (array) ($campaign->settings ?? []);
 
             return [
                 'campaign_id' => $campaign->id,
                 'name' => $campaign->name,
-                'status' => $campaign->published_at ? 'active' : 'paused',
+                'status' => (string) ($campaign->status ?: 'draft'),
+                'campaign_type' => (string) ($settings['campaign_type'] ?? 'qr'),
+                'started_at' => optional($campaign->published_at ?? $campaign->created_at)?->utc()?->toIso8601String(),
+                'ends_at' => $settings['ends_at'] ?? null,
+                'qr_scans' => $scans,
                 'scans' => $scans,
+                'leads' => $leads,
                 'conversions' => $conversions,
+                'positive_feedback' => $reviews,
+                'rating' => $rating,
+                'voucher_issued' => $coupons,
+                'voucher_used' => $couponsUsed,
             ];
         })->sort(function (array $left, array $right): int {
             return [$right['conversions'], $right['scans']] <=> [$left['conversions'], $left['scans']];

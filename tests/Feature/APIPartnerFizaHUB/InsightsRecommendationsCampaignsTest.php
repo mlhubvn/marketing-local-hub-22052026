@@ -231,50 +231,50 @@ afterEach(function (): void {
     Schema::dropIfExists('plans');
 });
 
-test('insights returns zero-data payload with deterministic messages when no growth data exists', function (): void {
+test('growth insights returns zero-data payload with deterministic highlights when no growth data exists', function (): void {
     seedCampaignBusiness('biz-insights-empty', 'insights-empty@example.com');
 
     $response = $this->getJson(
-        '/api/v1/partners/fizahub/businesses/biz-insights-empty/insights?from=2026-07-01&to=2026-07-03',
+        '/api/v1/partners/fizahub/businesses/biz-insights-empty/growth-insights?from=2026-07-01&to=2026-07-03',
         campaignHeaders()
     )->assertOk();
 
-    $response->assertJsonPath('data.metrics.qr_scans', 0)
-        ->assertJsonCount(3, 'data.insights');
+    $response->assertJsonPath('data.growth_score', 0)
+        ->assertJsonCount(3, 'data.highlights');
 
-    expect(collect($response->json('data.insights'))->pluck('code')->all())
+    expect(collect($response->json('data.highlights'))->pluck('code')->all())
         ->toBe(['period_scans', 'period_leads', 'period_conversion']);
 });
 
-test('insights returns 404 integration_not_found for an unmapped business', function (): void {
+test('growth insights returns 404 integration_not_found for an unmapped business', function (): void {
     $this->getJson(
-        '/api/v1/partners/fizahub/businesses/unknown-insights/insights',
+        '/api/v1/partners/fizahub/businesses/unknown-insights/growth-insights',
         campaignHeaders()
     )->assertNotFound()->assertJsonPath('error.code', 'integration_not_found');
 });
 
-test('insights rejects an invalid date range the same way as the dashboard', function (): void {
+test('growth insights rejects an invalid date range the same way as the dashboard', function (): void {
     seedCampaignBusiness('biz-insights-badrange', 'insights-badrange@example.com');
 
     $this->getJson(
-        '/api/v1/partners/fizahub/businesses/biz-insights-badrange/insights?from=2026-07-10&to=2026-07-01',
+        '/api/v1/partners/fizahub/businesses/biz-insights-badrange/growth-insights?from=2026-07-10&to=2026-07-01',
         campaignHeaders()
     )->assertStatus(422)->assertJsonPath('error.code', 'validation_failed');
 });
 
-test('recommendations suggests create_campaign on zero-data and returns 404 for unmapped business', function (): void {
+test('growth insights folds recommendations into one endpoint and scopes missing businesses', function (): void {
     seedCampaignBusiness('biz-reco-empty', 'reco-empty@example.com');
 
     $response = $this->getJson(
-        '/api/v1/partners/fizahub/businesses/biz-reco-empty/recommendations?from=2026-07-01&to=2026-07-03',
+        '/api/v1/partners/fizahub/businesses/biz-reco-empty/growth-insights?from=2026-07-01&to=2026-07-03',
         campaignHeaders()
     )->assertOk();
 
-    expect(collect($response->json('data.suggested_actions'))->pluck('code')->all())
+    expect(collect($response->json('data.recommendations'))->pluck('code')->all())
         ->toContain('create_campaign');
 
     $this->getJson(
-        '/api/v1/partners/fizahub/businesses/unknown-reco/recommendations',
+        '/api/v1/partners/fizahub/businesses/unknown-reco/growth-insights',
         campaignHeaders()
     )->assertNotFound()->assertJsonPath('error.code', 'integration_not_found');
 });

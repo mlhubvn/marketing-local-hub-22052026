@@ -7,6 +7,8 @@ use Modules\AdminPlans\Models\AdminPlan;
 use Modules\AdminUser\Models\Team;
 use Modules\AdminUser\Models\User;
 use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
+use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingRequest;
+use Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine;
 use Modules\AppBusinessProfiles\Models\LocalBusiness;
 
 require_once __DIR__.'/FizaHubTestHelpers.php';
@@ -22,6 +24,12 @@ function createPackageApiTables(): void
     Schema::dropIfExists('teams');
     Schema::dropIfExists('users');
     Schema::dropIfExists('plans');
+
+    Schema::create('support_tickets', function (Blueprint $table): void {
+        $table->id();
+        $table->string('subject')->nullable();
+        $table->timestamps();
+    });
 
     Schema::create('plans', function (Blueprint $table): void {
         $table->id();
@@ -148,6 +156,25 @@ function seedPackageBusiness(): array
         'status' => 'active',
     ]);
 
+    PartnerOnboardingRequest::query()->create([
+        'partner_code' => 'fizahub',
+        'request_id' => (string) Str::uuid(),
+        'external_business_id' => 'biz-package',
+        'external_user_id' => 'ext-package',
+        'package_code' => 'base',
+        'requested_package_code' => 'base',
+        'approved_package_code' => null,
+        'status' => OnboardingStatusMachine::READY,
+        'current_step' => OnboardingStatusMachine::defaultStepFor(OnboardingStatusMachine::READY),
+        'admin_status' => OnboardingStatusMachine::READY,
+        'payload' => [],
+        'verification_status' => [],
+        'duplicate_check' => [],
+        'mlhub_user_id' => $user->id,
+        'mlhub_workspace_id' => $team->id,
+        'mlhub_business_id' => $business->id,
+    ]);
+
     return compact('user', 'integration', 'plan');
 }
 
@@ -174,6 +201,7 @@ afterEach(function (): void {
     Schema::dropIfExists('teams');
     Schema::dropIfExists('users');
     Schema::dropIfExists('plans');
+    Schema::dropIfExists('support_tickets');
 });
 
 test('package api maps base package to mlhub-free-da-nang with whitelisted limits only', function (): void {
@@ -186,12 +214,14 @@ test('package api maps base package to mlhub-free-da-nang with whitelisted limit
 
     $data = $response->json('data');
 
-    expect($data['package_code'])->toBe('base')
+    expect($data['effective_package'])->toBe('base')
+        ->and($data['requested_package'])->toBe('base')
+        ->and($data['approved_package'])->toBeNull()
         ->and($data['package_name'])->toBe('MLHUB Free Da Nang')
         ->and($data['plan_slug'])->toBe('mlhub-free-da-nang')
         ->and($data['status'])->toBe('active')
         ->and($data['is_trial'])->toBeTrue()
-        ->and($data['integration_status'])->toBe('active')
+        ->and($data['mapping_status'])->toBe('active')
         ->and($data['starts_at'])->toBeString()->not->toBeEmpty()
         ->and($data['expires_at'])->toBeString()->not->toBeEmpty()
         ->and($data['limits'])->toBe([

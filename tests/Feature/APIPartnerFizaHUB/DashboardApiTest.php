@@ -305,14 +305,18 @@ test('dashboard returns zeroed metrics shape when no growth data exists', functi
         'campaigns',
         'active_campaigns',
         'qr_scans',
+        'new_customers',
         'new_leads',
+        'positive_feedback',
         'new_reviews',
+        'vouchers_redeemed',
         'coupon_claims',
         'coupon_used',
         'bookings',
         'feedback',
         'returning_customers',
         'conversion_rate',
+        'rating',
     ]);
 
     expect($metrics)->toMatchArray([
@@ -320,14 +324,18 @@ test('dashboard returns zeroed metrics shape when no growth data exists', functi
         'campaigns' => 0,
         'active_campaigns' => 0,
         'qr_scans' => 0,
+        'new_customers' => 0,
         'new_leads' => 0,
+        'positive_feedback' => 0,
         'new_reviews' => 0,
+        'vouchers_redeemed' => 0,
         'coupon_claims' => 0,
         'coupon_used' => 0,
         'bookings' => 0,
         'feedback' => 0,
         'returning_customers' => 0,
         'conversion_rate' => 0.0,
+        'rating' => 0.0,
     ]);
 
     expect($response->json('data.campaigns'))->toBe([])

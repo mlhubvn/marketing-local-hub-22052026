@@ -4,10 +4,18 @@ namespace Modules\APIPartnerFizaHUB\Http\Requests;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 class DashboardRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        if (! $this->filled('range') && ($this->filled('from') || $this->filled('to'))) {
+            $this->merge(['range' => 'custom']);
+        }
+    }
+
     public function authorize(): bool
     {
         return true;
@@ -16,8 +24,9 @@ class DashboardRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'from' => ['nullable', 'date_format:Y-m-d'],
-            'to' => ['nullable', 'date_format:Y-m-d'],
+            'range' => ['nullable', Rule::in(['today', '7d', '30d', '90d', 'custom'])],
+            'from' => ['nullable', 'date_format:Y-m-d', 'required_if:range,custom'],
+            'to' => ['nullable', 'date_format:Y-m-d', 'required_if:range,custom'],
         ];
     }
 
@@ -41,22 +50,27 @@ class DashboardRequest extends FormRequest
     }
 
     /**
-     * @return array{0: CarbonImmutable, 1: CarbonImmutable}
+     * @return array{0: CarbonImmutable, 1: CarbonImmutable, 2: string}
      */
     public function resolvedRange(): array
     {
         $timezone = (string) config('modules.apipartnerfizahub.timezone', 'Asia/Ho_Chi_Minh');
-        $toInput = $this->query('to');
-        $fromInput = $this->query('from');
+        $range = (string) ($this->input('range') ?: '30d');
+        $toInput = $this->input('to');
+        $fromInput = $this->input('from');
 
-        $to = is_string($toInput) && $toInput !== ''
+        $to = $range === 'custom' && is_string($toInput) && $toInput !== ''
             ? CarbonImmutable::createFromFormat('Y-m-d', $toInput, $timezone)->startOfDay()
             : CarbonImmutable::now($timezone)->startOfDay();
 
-        $from = is_string($fromInput) && $fromInput !== ''
-            ? CarbonImmutable::createFromFormat('Y-m-d', $fromInput, $timezone)->startOfDay()
-            : $to->subDays(29);
+        $from = match ($range) {
+            'today' => $to,
+            '7d' => $to->subDays(6),
+            '90d' => $to->subDays(89),
+            'custom' => CarbonImmutable::createFromFormat('Y-m-d', (string) $fromInput, $timezone)->startOfDay(),
+            default => $to->subDays(29),
+        };
 
-        return [$from, $to];
+        return [$from, $to, $range];
     }
 }
