@@ -58,7 +58,9 @@
                                     "});",
                                     "pm.test('data.status = ok', function () {",
                                     "    pm.expect(pm.response.json().data.status).to.eql('ok');",
-                                    "});"
+                                    "});",
+                                    "// __AUTO_MVP_FLAG__",
+                                    "pm.collectionVariables.set('mvp_ok_health', [200].includes(pm.response.code) ? '1' : '0');"
                                 ]
                             }
                         }
@@ -159,7 +161,9 @@
                                     "    if (data.external_business_id) {",
                                     "        pm.collectionVariables.set('external_business_id', data.external_business_id);",
                                     "    }",
-                                    "}"
+                                    "}",
+                                    "// __AUTO_MVP_FLAG__",
+                                    "pm.collectionVariables.set('mvp_ok_onboarding', [200,201,202].includes(pm.response.code) ? '1' : '0');"
                                 ]
                             }
                         }
@@ -246,6 +250,19 @@
                     },
                     "event": [
                         {
+                            "listen": "prerequest",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "// __AUTO_GUARD__",
+                                    "if (!pm.collectionVariables.get('onboarding_request_id')) {",
+                                    "    console.warn('Skipping: onboarding_request_id chưa có — chạy request tạo onboarding_request_id trước.');",
+                                    "    pm.execution.skipRequest();",
+                                    "}"
+                                ]
+                            }
+                        },
+                        {
                             "listen": "test",
                             "script": {
                                 "type": "text/javascript",
@@ -263,7 +280,9 @@
                                     "    } else {",
                                     "        pm.response.to.have.status(200);",
                                     "    }",
-                                    "});"
+                                    "});",
+                                    "// __AUTO_MVP_FLAG__",
+                                    "pm.collectionVariables.set('mvp_ok_onboarding_status', [200].includes(pm.response.code) ? '1' : '0');"
                                 ]
                             }
                         }
@@ -347,7 +366,9 @@
                                     "    pm.expect(body).to.have.property('success');",
                                     "    pm.expect(body).to.have.property('data');",
                                     "    pm.expect(body).to.have.property('error');",
-                                    "});"
+                                    "});",
+                                    "// __AUTO_MVP_FLAG__",
+                                    "pm.collectionVariables.set('mvp_ok_integration', [200].includes(pm.response.code) ? '1' : '0');"
                                 ]
                             }
                         }
@@ -430,7 +451,9 @@
                                     "    pm.expect(body).to.have.property('success');",
                                     "    pm.expect(body).to.have.property('data');",
                                     "    pm.expect(body).to.have.property('error');",
-                                    "});"
+                                    "});",
+                                    "// __AUTO_MVP_FLAG__",
+                                    "pm.collectionVariables.set('mvp_ok_package', [200].includes(pm.response.code) ? '1' : '0');"
                                 ]
                             }
                         }
@@ -524,7 +547,9 @@
                                     "    pm.expect(body).to.have.property('success');",
                                     "    pm.expect(body).to.have.property('data');",
                                     "    pm.expect(body).to.have.property('error');",
-                                    "});"
+                                    "});",
+                                    "// __AUTO_MVP_FLAG__",
+                                    "pm.collectionVariables.set('mvp_ok_dashboard', [200].includes(pm.response.code) ? '1' : '0');"
                                 ]
                             }
                         }
@@ -621,7 +646,9 @@
                                     "    if (pm.response.code === 200) {",
                                     "        pm.expect(pm.response.json().data.deprecation_notice).to.be.undefined;",
                                     "    }",
-                                    "});"
+                                    "});",
+                                    "// __AUTO_MVP_FLAG__",
+                                    "pm.collectionVariables.set('mvp_ok_profile', [200].includes(pm.response.code) ? '1' : '0');"
                                 ]
                             }
                         }
@@ -718,7 +745,9 @@
                                     "});",
                                     "if (pm.response.code === 201) {",
                                     "    pm.collectionVariables.set('ticket_id', pm.response.json().data.ticket_id);",
-                                    "}"
+                                    "}",
+                                    "// __AUTO_MVP_FLAG__",
+                                    "pm.collectionVariables.set('mvp_ok_create_ticket', [201].includes(pm.response.code) ? '1' : '0');"
                                 ]
                             }
                         }
@@ -798,6 +827,19 @@
                     },
                     "event": [
                         {
+                            "listen": "prerequest",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "// __AUTO_GUARD__",
+                                    "if (!pm.collectionVariables.get('ticket_id')) {",
+                                    "    console.warn('Skipping: ticket_id chưa có — chạy request tạo ticket_id trước.');",
+                                    "    pm.execution.skipRequest();",
+                                    "}"
+                                ]
+                            }
+                        },
+                        {
                             "listen": "test",
                             "script": {
                                 "type": "text/javascript",
@@ -815,7 +857,9 @@
                                     "    } else {",
                                     "        pm.response.to.have.status(200);",
                                     "    }",
-                                    "});"
+                                    "});",
+                                    "// __AUTO_MVP_FLAG__",
+                                    "pm.collectionVariables.set('mvp_ok_ticket_detail', [200].includes(pm.response.code) ? '1' : '0');"
                                 ]
                             }
                         }
@@ -917,6 +961,19 @@
                     },
                     "event": [
                         {
+                            "listen": "prerequest",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "// __AUTO_GUARD__",
+                                    "if (!pm.collectionVariables.get('ticket_id')) {",
+                                    "    console.warn('Skipping: ticket_id chưa có — chạy request tạo ticket_id trước.');",
+                                    "    pm.execution.skipRequest();",
+                                    "}"
+                                ]
+                            }
+                        },
+                        {
                             "listen": "test",
                             "script": {
                                 "type": "text/javascript",
@@ -926,6 +983,39 @@
                                     "    pm.expect(body).to.have.property('success');",
                                     "    pm.expect(body).to.have.property('data');",
                                     "    pm.expect(body).to.have.property('error');",
+                                    "});",
+                                    "// __AUTO_MVP_FLAG__",
+                                    "pm.collectionVariables.set('mvp_ok_attachment', [200,201].includes(pm.response.code) ? '1' : '0');",
+                                    "// __AUTO_MVP_SUMMARY__",
+                                    "pm.test('MVP CORE RESULT: Health PASS', function () {",
+                                    "    pm.expect(pm.collectionVariables.get('mvp_ok_health')).to.eql('1');",
+                                    "});",
+                                    "pm.test('MVP CORE RESULT: Onboarding PASS', function () {",
+                                    "    pm.expect(pm.collectionVariables.get('mvp_ok_onboarding')).to.eql('1');",
+                                    "});",
+                                    "pm.test('MVP CORE RESULT: Onboarding Status PASS', function () {",
+                                    "    pm.expect(pm.collectionVariables.get('mvp_ok_onboarding_status')).to.eql('1');",
+                                    "});",
+                                    "pm.test('MVP CORE RESULT: Integration PASS', function () {",
+                                    "    pm.expect(pm.collectionVariables.get('mvp_ok_integration')).to.eql('1');",
+                                    "});",
+                                    "pm.test('MVP CORE RESULT: Package PASS', function () {",
+                                    "    pm.expect(pm.collectionVariables.get('mvp_ok_package')).to.eql('1');",
+                                    "});",
+                                    "pm.test('MVP CORE RESULT: Dashboard PASS', function () {",
+                                    "    pm.expect(pm.collectionVariables.get('mvp_ok_dashboard')).to.eql('1');",
+                                    "});",
+                                    "pm.test('MVP CORE RESULT: Profile PASS', function () {",
+                                    "    pm.expect(pm.collectionVariables.get('mvp_ok_profile')).to.eql('1');",
+                                    "});",
+                                    "pm.test('MVP CORE RESULT: Create Ticket PASS', function () {",
+                                    "    pm.expect(pm.collectionVariables.get('mvp_ok_create_ticket')).to.eql('1');",
+                                    "});",
+                                    "pm.test('MVP CORE RESULT: Ticket Detail PASS', function () {",
+                                    "    pm.expect(pm.collectionVariables.get('mvp_ok_ticket_detail')).to.eql('1');",
+                                    "});",
+                                    "pm.test('MVP CORE RESULT: Attachment PASS', function () {",
+                                    "    pm.expect(pm.collectionVariables.get('mvp_ok_attachment')).to.eql('1');",
                                     "});"
                                 ]
                             }
@@ -1158,6 +1248,21 @@
                             ],
                             "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"onboarding_request_not_found\", \"message\": \"Không tìm thấy yêu cầu onboarding này.\", \"details\": { \"next_action\": \"create_onboarding_request\" } }\n}"
                         }
+                    ],
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "// __AUTO_GUARD__",
+                                    "if (!pm.collectionVariables.get('onboarding_request_id')) {",
+                                    "    console.warn('Skipping: onboarding_request_id chưa có — chạy request tạo onboarding_request_id trước.');",
+                                    "    pm.execution.skipRequest();",
+                                    "}"
+                                ]
+                            }
+                        }
                     ]
                 },
                 {
@@ -1237,6 +1342,21 @@
                                 }
                             ],
                             "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"onboarding_request_not_found\", \"message\": \"Không tìm thấy yêu cầu onboarding này.\", \"details\": { \"next_action\": \"create_onboarding_request\" } }\n}"
+                        }
+                    ],
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "// __AUTO_GUARD__",
+                                    "if (!pm.collectionVariables.get('onboarding_request_id')) {",
+                                    "    console.warn('Skipping: onboarding_request_id chưa có — chạy request tạo onboarding_request_id trước.');",
+                                    "    pm.execution.skipRequest();",
+                                    "}"
+                                ]
+                            }
                         }
                     ]
                 },
@@ -1606,6 +1726,21 @@
                             ],
                             "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"campaign_not_found\", \"message\": \"Không tìm thấy chiến dịch này.\", \"details\": { \"next_action\": \"list_campaigns_first\" } }\n}"
                         }
+                    ],
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "// __AUTO_GUARD__",
+                                    "if (!pm.collectionVariables.get('campaign_id')) {",
+                                    "    console.warn('Skipping: campaign_id (business chưa có campaign) chưa có — chạy request tạo campaign_id trước.');",
+                                    "    pm.execution.skipRequest();",
+                                    "}"
+                                ]
+                            }
+                        }
                     ]
                 },
                 {
@@ -1800,6 +1935,21 @@
                             ],
                             "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"ticket_not_open\", \"message\": \"This support ticket is not open for new messages.\", \"details\": [] }\n}"
                         }
+                    ],
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "// __AUTO_GUARD__",
+                                    "if (!pm.collectionVariables.get('ticket_id')) {",
+                                    "    console.warn('Skipping: ticket_id chưa có — chạy request tạo ticket_id trước.');",
+                                    "    pm.execution.skipRequest();",
+                                    "}"
+                                ]
+                            }
+                        }
                     ]
                 },
                 {
@@ -1873,6 +2023,21 @@
                                 }
                             ],
                             "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"ticket_not_open\", \"message\": \"This support ticket is not open.\", \"details\": [] }\n}"
+                        }
+                    ],
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "// __AUTO_GUARD__",
+                                    "if (!pm.collectionVariables.get('ticket_id')) {",
+                                    "    console.warn('Skipping: ticket_id chưa có — chạy request tạo ticket_id trước.');",
+                                    "    pm.execution.skipRequest();",
+                                    "}"
+                                ]
+                            }
                         }
                     ]
                 },
@@ -1959,6 +2124,21 @@
                                 }
                             ],
                             "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"error\": { \"code\": \"ticket_not_found\", \"message\": \"Không tìm thấy phiếu hỗ trợ này.\", \"details\": { \"next_action\": \"create_support_ticket\" } }\n}"
+                        }
+                    ],
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "// __AUTO_GUARD__",
+                                    "if (!pm.collectionVariables.get('ticket_id')) {",
+                                    "    console.warn('Skipping: ticket_id chưa có — chạy request tạo ticket_id trước.');",
+                                    "    pm.execution.skipRequest();",
+                                    "}"
+                                ]
+                            }
                         }
                     ]
                 }

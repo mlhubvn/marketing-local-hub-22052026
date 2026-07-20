@@ -598,10 +598,10 @@ class OnboardingService
         PartnerIntegration $integration,
         bool $needsReview = false
     ): void {
-        if ($onboarding->support_ticket_id) {
-            return;
-        }
-
+        // createOnboardingReviewTicket() itself is idempotent on support_ticket_id — it
+        // updates the existing ticket in place (title/content/status + re-syncs uid/
+        // open_by/team_id to the current mapping) instead of creating a second one, so we
+        // deliberately do NOT short-circuit here even when a ticket already exists.
         $title = $needsReview
             ? 'FizaHUB onboarding needs review: '.$onboarding->external_business_id
             : 'FizaHUB onboarding awaiting consultant: '.$onboarding->external_business_id;
@@ -612,18 +612,11 @@ class OnboardingService
 
         $ticket = $this->supportTickets->createOnboardingReviewTicket(
             $onboarding,
+            $integration,
             $title,
             $summary,
             (array) ($onboarding->duplicate_check ?? [])
         );
-
-        if ($integration->mlhub_user_id) {
-            $ticket->forceFill([
-                'uid' => (int) $integration->mlhub_user_id,
-                'open_by' => (int) $integration->mlhub_user_id,
-                'team_id' => $integration->mlhub_workspace_id ? (int) $integration->mlhub_workspace_id : null,
-            ])->save();
-        }
 
         $onboarding->forceFill([
             'support_ticket_id' => $ticket->id,

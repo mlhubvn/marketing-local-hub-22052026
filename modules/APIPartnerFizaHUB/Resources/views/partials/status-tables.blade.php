@@ -140,6 +140,11 @@
                     <td>{{ __('Contact MLHUB support; do not keep retrying automatically') }}</td>
                 </tr>
                 <tr>
+                    <td><code>integration_mapping_invalid</code></td>
+                    <td>{{ __('Liên kết tài khoản MLHUB chưa hoàn chỉnh khi tạo ticket onboarding') }}</td>
+                    <td>{{ __('Call POST Onboarding again with the same payload (next_action: retry_onboarding)') }}</td>
+                </tr>
+                <tr>
                     <td><code>onboarding_request_not_found</code></td>
                     <td>{{ __('Không tìm thấy yêu cầu onboarding này') }}</td>
                     <td>{{ __('Create a new onboarding request or check request_id') }}</td>

@@ -346,6 +346,13 @@ function bootProductionLikeSchema(): void
         $table->boolean('admin_read')->default(true);
         $table->unsignedInteger('changed')->nullable();
         $table->unsignedInteger('created')->nullable();
+
+        // Matches the REAL production foreign keys (SQLSTATE 23000 / MySQL error 1452
+        // reported on mlhub.vn): uid and open_by must reference an existing users.id row.
+        // The previous test schema omitted these FKs entirely, which hid the production
+        // bug (SupportTicketBridge inserting uid=0/open_by=0) behind a green test suite.
+        $table->foreign('uid')->references('id')->on('users');
+        $table->foreign('open_by')->references('id')->on('users');
     });
 
     Schema::create('support_comments', function (Blueprint $table): void {

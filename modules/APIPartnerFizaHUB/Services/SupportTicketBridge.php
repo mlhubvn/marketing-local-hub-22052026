@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Modules\AdminSupport\Models\SupportComment;
 use Modules\AdminSupport\Models\SupportTicket;
+use Modules\AdminUser\Models\Team;
+use Modules\AdminUser\Models\User;
 use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
 use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingRequest;
 use Modules\APIPartnerFizaHUB\Models\PartnerSupportAttachment;
@@ -163,10 +165,20 @@ class SupportTicketBridge
      */
     public function createOnboardingReviewTicket(
         PartnerOnboardingRequest $onboarding,
+        PartnerIntegration $integration,
         string $title,
         string $summary,
         array $duplicates = []
     ): SupportTicket {
+        // Onboarding always provisions a real MLHUB user/team before a review ticket is
+        // ever created (see OnboardingService::provision()), so support_tickets.uid and
+        // .open_by — which have a real FK to users.id in production — must reference that
+        // provisioned account. Validate the mapping first instead of inserting uid=0/
+        // open_by=0 and hoping a later update fixes it: that pattern violates the FK on
+        // the very first insert (SQLSTATE 23000 / MySQL error 1452) and rolls back the
+        // whole onboarding transaction, which is the exact production 500 this guards.
+        [$userId, $teamId] = $this->resolveTicketOwnerOrFail($integration);
+
         $content = json_encode([
             'summary' => $summary,
             'request_id' => $onboarding->request_id,
@@ -182,6 +194,9 @@ class SupportTicketBridge
 
             if ($existing) {
                 $existing->forceFill([
+                    'uid' => $userId,
+                    'open_by' => $userId,
+                    'team_id' => $teamId,
                     'title' => $title,
                     'content' => $content,
                     'changed' => time(),
@@ -196,11 +211,9 @@ class SupportTicketBridge
 
         return SupportTicket::query()->create([
             'id_secure' => Str::random(32),
-            // No MLHUB user yet — admin queue only (unsigned id, no FK).
-            // Admin UI already nullsafes missing users as "Unknown user".
-            'uid' => 0,
-            'open_by' => 0,
-            'team_id' => null,
+            'uid' => $userId,
+            'open_by' => $userId,
+            'team_id' => $teamId,
             'cate_id' => null,
             'type_id' => null,
             'title' => $title,
@@ -212,6 +225,36 @@ class SupportTicketBridge
             'created' => time(),
             'changed' => time(),
         ]);
+    }
+
+    /**
+     * @return array{0: int, 1: int|null}
+     */
+    private function resolveTicketOwnerOrFail(PartnerIntegration $integration): array
+    {
+        $userId = (int) ($integration->mlhub_user_id ?? 0);
+
+        if ($userId <= 0 || ! User::query()->whereKey($userId)->exists()) {
+            throw PartnerApiException::make(
+                'integration_mapping_invalid',
+                __('Liên kết tài khoản MLHUB chưa hoàn chỉnh.'),
+                409,
+                ['next_action' => 'retry_onboarding']
+            );
+        }
+
+        $teamId = $integration->mlhub_workspace_id ? (int) $integration->mlhub_workspace_id : null;
+
+        if ($teamId !== null && ! Team::query()->whereKey($teamId)->exists()) {
+            throw PartnerApiException::make(
+                'integration_mapping_invalid',
+                __('Liên kết tài khoản MLHUB chưa hoàn chỉnh.'),
+                409,
+                ['next_action' => 'retry_onboarding']
+            );
+        }
+
+        return [$userId, $teamId];
     }
 
     /**

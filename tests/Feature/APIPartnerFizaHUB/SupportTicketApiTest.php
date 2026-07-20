@@ -105,6 +105,11 @@ function createSupportApiTables(): void
         $table->boolean('admin_read')->default(true);
         $table->unsignedInteger('changed')->nullable();
         $table->unsignedInteger('created')->nullable();
+
+        // Real production FKs (see FizaHubTestHelpers::bootProductionLikeSchema()) —
+        // uid/open_by must reference an existing users.id row.
+        $table->foreign('uid')->references('id')->on('users');
+        $table->foreign('open_by')->references('id')->on('users');
     });
 
     Schema::create('support_comments', function (Blueprint $table): void {
@@ -397,14 +402,18 @@ test('tenant isolation blocks cross business ticket access', function (): void {
         ->assertJsonPath('error.code', 'ticket_not_found');
 });
 
-test('onboarding review ticket remains visible to admin with unknown user', function (): void {
+test('onboarding review ticket always has a valid provisioned user, never uid=0/open_by=0', function (): void {
+    // support_tickets.uid/open_by have a real FK to users.id in production (SQLSTATE 23000
+    // / MySQL error 1452 if violated) — a ticket can never legitimately reference user 0.
+    ['user' => $user, 'team' => $team, 'integration' => $integration] = seedMappedBusiness('biz-onboarding-review', 'review-owner@example.com');
+
     $ticket = SupportTicket::query()->create([
         'id_secure' => Str::random(32),
-        'uid' => 0,
-        'open_by' => 0,
-        'team_id' => null,
-        'title' => 'FizaHUB onboarding pending verification: x',
-        'content' => '{"summary":"pending"}',
+        'uid' => (int) $integration->mlhub_user_id,
+        'open_by' => (int) $integration->mlhub_user_id,
+        'team_id' => (int) $integration->mlhub_workspace_id,
+        'title' => 'FizaHUB onboarding awaiting consultant: biz-onboarding-review',
+        'content' => '{"summary":"Account provisioned with Free package."}',
         'status' => 1,
         'pin' => false,
         'user_read' => false,
@@ -413,10 +422,15 @@ test('onboarding review ticket remains visible to admin with unknown user', func
         'changed' => time(),
     ]);
 
-    $ticket->load('user');
+    $ticket->load(['user', 'opener']);
 
-    expect($ticket->user)->toBeNull()
-        ->and($ticket->user?->name ?: 'Unknown user')->toBe('Unknown user')
+    expect($ticket->uid)->toBe($user->id)
+        ->and($ticket->open_by)->toBe($user->id)
+        ->and($ticket->team_id)->toBe($team->id)
+        ->and($ticket->user)->not->toBeNull()
+        ->and($ticket->user->id)->toBe($user->id)
+        ->and($ticket->opener)->not->toBeNull()
+        ->and($ticket->opener->id)->toBe($user->id)
         ->and(SupportTicket::query()->where('id_secure', $ticket->id_secure)->exists())->toBeTrue();
 });
 

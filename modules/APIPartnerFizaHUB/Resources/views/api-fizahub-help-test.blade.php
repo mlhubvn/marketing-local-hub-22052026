@@ -1100,6 +1100,12 @@ Content-Type: application/json
                             </tr>
                             <tr>
                                 <td>409</td>
+                                <td><code>integration_mapping_invalid</code></td>
+                                <td>{{ __('Liên kết tài khoản MLHUB chưa hoàn chỉnh ngay lúc tạo phiếu hỗ trợ onboarding (next_action: retry_onboarding).') }}</td>
+                                <td>{{ __('Gọi lại POST Onboarding với cùng payload; hệ thống sẽ tự tạo lại mapping và ticket hợp lệ.') }}</td>
+                            </tr>
+                            <tr>
+                                <td>409</td>
                                 <td><code>idempotency_conflict</code></td>
                                 <td>{{ __('Dùng lại Idempotency-Key cũ với Body khác.') }}</td>
                                 <td>{{ __('Tạo key mới, hoặc Send lại với cùng Body.') }}</td>
