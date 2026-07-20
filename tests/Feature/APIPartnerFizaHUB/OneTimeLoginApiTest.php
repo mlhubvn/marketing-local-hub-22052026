@@ -181,12 +181,28 @@ function seedOneTimeLoginBusiness(string $externalBusinessId, string $email): ar
     return compact('user', 'team', 'business', 'integration');
 }
 
+function markOneTimeLoginReady(array $seed, string $externalBusinessId): void
+{
+    PartnerOnboardingRequest::query()->create([
+        'partner_code' => 'fizahub',
+        'request_id' => (string) str()->uuid(),
+        'external_business_id' => $externalBusinessId,
+        'package_code' => 'free',
+        'status' => OnboardingStatusMachine::READY,
+        'current_step' => OnboardingStatusMachine::defaultStepFor(OnboardingStatusMachine::READY),
+        'mlhub_user_id' => $seed['user']->id,
+        'mlhub_workspace_id' => $seed['team']->id,
+        'mlhub_business_id' => $seed['business']->id,
+    ]);
+}
+
 function oneTimeLoginHeaders(array $overrides = []): array
 {
     return array_merge([
         'Authorization' => 'Bearer test-fizahub-partner-token',
         'X-Partner' => 'fizahub',
         'X-Request-Id' => (string) str()->uuid(),
+        'Idempotency-Key' => (string) str()->uuid(),
         'Accept' => 'application/json',
     ], $overrides);
 }
@@ -210,11 +226,12 @@ afterEach(function (): void {
 
 test('issues a single-use one-time login with hashed token and five minute ttl', function (): void {
     $seed = seedOneTimeLoginBusiness('biz-login', 'login@example.com');
+    markOneTimeLoginReady($seed, 'biz-login');
     $idempotencyKey = (string) str()->uuid();
     $requestId = (string) str()->uuid();
 
     $response = $this->postJson(
-        '/api/v1/partners/fizahub/businesses/biz-login/one-time-login',
+        '/api/v1/partners/fizahub/businesses/biz-login/crm-login-links',
         [],
         oneTimeLoginHeaders([
             'X-Request-Id' => $requestId,
@@ -226,16 +243,19 @@ test('issues a single-use one-time login with hashed token and five minute ttl',
     $expiresAt = $response->json('data.expires_at');
 
     expect($url)->toBeString()->toContain('/partners/fizahub/one-time-login/');
-    expect($expiresAt)->toBeString()->not->toBeEmpty();
+    expect($expiresAt)->toBeString()->not->toBeEmpty()
+        ->and($response->json('data.expires_in_seconds'))->toBeGreaterThan(0);
 
+    $plainToken = basename(parse_url($url, PHP_URL_PATH));
     $row = PartnerOneTimeLogin::query()->sole();
     expect($row->token_hash)->toHaveLength(64)
+        ->and($row->idempotency_key)->toBe($idempotencyKey)
+        ->and($row->token_ciphertext)->toBeString()->not->toContain($plainToken)
         ->and($row->user_id)->toBe($seed['user']->id)
         ->and($row->used_at)->toBeNull()
         ->and(now()->diffInMinutes($row->expires_at))->toBeGreaterThanOrEqual(4)
         ->and(now()->diffInMinutes($row->expires_at))->toBeLessThanOrEqual(5);
 
-    $plainToken = basename(parse_url($url, PHP_URL_PATH));
     expect(strlen($plainToken))->toBe(64)
         ->and($row->token_hash)->toBe(hash('sha256', $plainToken))
         ->and(DB::table('partner_one_time_logins')->where('token_hash', $plainToken)->exists())->toBeFalse();
@@ -267,7 +287,7 @@ test('refuses one-time login while onboarding is still awaiting a consultant', f
     ]);
 
     $this->postJson(
-        '/api/v1/partners/fizahub/businesses/biz-not-ready/one-time-login',
+        '/api/v1/partners/fizahub/businesses/biz-not-ready/crm-login-links',
         [],
         oneTimeLoginHeaders(['Idempotency-Key' => (string) str()->uuid()])
     )
@@ -293,7 +313,7 @@ test('allows one-time login once onboarding is marked ready', function (): void 
     ]);
 
     $this->postJson(
-        '/api/v1/partners/fizahub/businesses/biz-ready/one-time-login',
+        '/api/v1/partners/fizahub/businesses/biz-ready/crm-login-links',
         [],
         oneTimeLoginHeaders(['Idempotency-Key' => (string) str()->uuid()])
     )->assertCreated();
@@ -303,7 +323,7 @@ test('allows one-time login once onboarding is marked ready', function (): void 
 
 test('refuses one-time login for missing or incomplete integrations', function (): void {
     $this->postJson(
-        '/api/v1/partners/fizahub/businesses/missing-biz/one-time-login',
+        '/api/v1/partners/fizahub/businesses/missing-biz/crm-login-links',
         [],
         oneTimeLoginHeaders()
     )
@@ -343,7 +363,7 @@ test('refuses one-time login for missing or incomplete integrations', function (
     ]);
 
     $this->postJson(
-        '/api/v1/partners/fizahub/businesses/incomplete-biz/one-time-login',
+        '/api/v1/partners/fizahub/businesses/incomplete-biz/crm-login-links',
         [],
         oneTimeLoginHeaders()
     )
@@ -353,9 +373,10 @@ test('refuses one-time login for missing or incomplete integrations', function (
 
 test('consume logs in mapped user once then rejects reuse expired invalid and unknown tokens', function (): void {
     $seed = seedOneTimeLoginBusiness('biz-consume', 'consume@example.com');
+    markOneTimeLoginReady($seed, 'biz-consume');
 
     $issue = $this->postJson(
-        '/api/v1/partners/fizahub/businesses/biz-consume/one-time-login',
+        '/api/v1/partners/fizahub/businesses/biz-consume/crm-login-links',
         [],
         oneTimeLoginHeaders()
     )->assertCreated();

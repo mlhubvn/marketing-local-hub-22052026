@@ -40,14 +40,18 @@ class OneTimeLoginController
             $request->headers->get('X-Request-Id')
         );
 
-        $payload = $this->logins->issue($integration, $requestId);
+        $payload = $this->logins->issue(
+            $integration,
+            trim((string) $request->header('Idempotency-Key')),
+            $requestId
+        );
 
         return PartnerApiResponse::success($payload, 201);
     }
 
     /**
      * One-time login is only allowed once the latest onboarding request is ready or completed.
-     * Businesses without any onboarding request (legacy/direct mappings) are allowed.
+     * A canonical onboarding request is mandatory for CRM access.
      */
     private function assertOnboardingReady(string $externalBusinessId): void
     {
@@ -58,7 +62,12 @@ class OneTimeLoginController
             ->first();
 
         if (! $latest) {
-            return;
+            throw PartnerApiException::make(
+                'onboarding_not_ready',
+                'Tài khoản đang chờ tư vấn viên MLHUB hoàn tất cấu hình.',
+                409,
+                ['status' => null]
+            );
         }
 
         if (! OnboardingStatusMachine::allowsOneTimeLogin((string) $latest->status)) {

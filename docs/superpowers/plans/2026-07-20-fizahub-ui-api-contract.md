@@ -995,7 +995,7 @@ git commit -m "fix: preserve complete FizaHUB support ticket lifecycle"
 - Produces: `OneTimeLoginService::issue(PartnerIntegration, string $idempotencyKey, string $requestId): array{url: string, expires_at: string, expires_in_seconds: int}`.
 - Consumes: middleware hash-conflict detection while bypassing redacted response replay for this sensitive endpoint.
 
-- [ ] **Step 1: Write failing readiness, mapping, expiry, use, and idempotency tests**
+- [x] **Step 1: Write failing readiness, mapping, expiry, use, and idempotency tests**
 
 ```php
 test('CRM link is issued only for ready or completed onboarding', function (string $status, int $expected): void {
@@ -1018,7 +1018,7 @@ test('same key returns the same live CRM link and the mapped user is not admin',
 });
 ```
 
-- [ ] **Step 2: Run CRM tests and verify RED**
+- [x] **Step 2: Run CRM tests and verify RED**
 
 Run:
 
@@ -1028,7 +1028,7 @@ php artisan test tests/Feature/APIPartnerFizaHUB/CrmLoginLinkApiTest.php
 
 Expected: FAIL on the renamed public route and any legacy allowance for an integration without onboarding.
 
-- [ ] **Step 3: Add secure replay storage with an additive migration**
+- [x] **Step 3: Add secure replay storage with an additive migration**
 
 The migration adds nullable columns so existing rows remain valid:
 
@@ -1045,15 +1045,15 @@ Schema::table('partner_one_time_logins', function (Blueprint $table): void {
 
 The `down()` method drops only this new unique index and these two new columns. It does not touch rows, tokens, integrations, users, or other tables.
 
-- [ ] **Step 4: Enforce CRM readiness and response contract**
+- [x] **Step 4: Enforce CRM readiness and response contract**
 
 Require an onboarding row with public status `ready` or `completed`; legacy integrations without onboarding return 409 `onboarding_not_ready`. On first issue, store `Crypt::encryptString($plainToken)` in `token_ciphertext` and the request idempotency key. On same-key replay while the row is unused and unexpired, decrypt the existing token and regenerate the same signed URL using the original `expires_at`. Generate links bound to the stored integration, mapped user ID, and workspace ID. Preserve single-use locking and session regeneration in the web controller.
 
-- [ ] **Step 5: Document same-key expiry behavior in tests**
+- [x] **Step 5: Document same-key expiry behavior in tests**
 
 An exact same-key replay returns its stored link only while that link is unused and unexpired. If it has expired or was consumed, return HTTP 409 `crm_login_link_not_reusable` with `details.next_action=new_idempotency_key`; do not create another link for that key. Add an assertion that a new key creates a different link after the original has been consumed or expired.
 
-- [ ] **Step 6: Run CRM tests GREEN**
+- [x] **Step 6: Run CRM tests GREEN**
 
 Run:
 
@@ -1063,7 +1063,7 @@ php artisan test tests/Feature/APIPartnerFizaHUB/CrmLoginLinkApiTest.php tests/F
 
 Expected: PASS for readiness, expiry, one-time consume, mapped identity, non-admin access, replay, and new-key replacement.
 
-- [ ] **Step 7: Commit Task 6**
+- [x] **Step 7: Commit Task 6**
 
 ```powershell
 git add modules/APIPartnerFizaHUB/Database/Migrations/2026_07_20_000000_add_crm_login_idempotency_to_partner_one_time_logins.php modules/APIPartnerFizaHUB/Models/PartnerOneTimeLogin.php modules/APIPartnerFizaHUB/Http/Middleware/HandlePartnerRequest.php modules/APIPartnerFizaHUB/Http/Controllers/OneTimeLoginController.php modules/APIPartnerFizaHUB/Services/OneTimeLoginService.php modules/APIPartnerFizaHUB/Routes/web.php tests/Feature/APIPartnerFizaHUB

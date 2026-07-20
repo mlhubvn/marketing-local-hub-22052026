@@ -168,6 +168,10 @@ class HandlePartnerRequest
             );
         }
 
+        if ($request->route()?->getName() === 'partner.fizahub.businesses.crm-login-links.store') {
+            return $existing;
+        }
+
         $payload = is_array($existing->response_payload) ? $existing->response_payload : [];
         data_set($payload, 'meta.request_id', $requestId);
         $status = (int) $existing->status_code;

@@ -124,6 +124,9 @@ function createFizaHubPartnerTables(): void
         $table->unsignedBigInteger('uploaded_by_user_id')->nullable();
         $table->timestamps();
     });
+
+    $crmLoginMigration = require base_path('modules/APIPartnerFizaHUB/Database/Migrations/2026_07_20_000000_add_crm_login_idempotency_to_partner_one_time_logins.php');
+    $crmLoginMigration->up();
 }
 
 function dropFizaHubPartnerTables(): void
@@ -238,6 +241,9 @@ function runRealFizaHubMigrations(): void
 
     $extend = require base_path('modules/APIPartnerFizaHUB/Database/Migrations/2026_07_17_120000_extend_fizahub_partner_onboarding_tables.php');
     $extend->up();
+
+    $crmLogin = require base_path('modules/APIPartnerFizaHUB/Database/Migrations/2026_07_20_000000_add_crm_login_idempotency_to_partner_one_time_logins.php');
+    $crmLogin->up();
 }
 
 /**

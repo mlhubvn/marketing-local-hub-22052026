@@ -12,6 +12,11 @@ class PartnerOneTimeLogin extends Model
 
     protected $guarded = [];
 
+    protected $hidden = [
+        'token_hash',
+        'token_ciphertext',
+    ];
+
     protected function casts(): array
     {
         return [
