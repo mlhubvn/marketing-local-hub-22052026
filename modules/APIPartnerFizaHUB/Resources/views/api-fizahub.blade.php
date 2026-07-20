@@ -643,7 +643,7 @@ Content-Type: application/json
                     <li><code>POST /support-tickets/{ticket_id}/messages</code></li>
                 </ul>
                 <div class="note">
-                    {{ __('X-Request-Id must be a UUID. Idempotency-Key prevents duplicate users/tickets/messages. Never publish a real partner_token in public documentation.') }}
+                    {{ __('X-Request-Id must be a UUID. Idempotency-Key prevents duplicate users/tickets/messages. This page currently shows the real testing-phase partner_token/webhook secret for FizaHUB — rotate both before going live.') }}
                 </div>
             </div>
         </div>
@@ -760,7 +760,21 @@ Content-Type: application/json
                     <li><code>campaign-metrics</code> — {{ __('periodic marketing metrics for a business.') }}</li>
                     <li><code>support-events</code> — {{ __('support ticket events (new admin reply, status changes).') }}</li>
                 </ul>
-                <p class="muted" style="margin:.45rem 0 0;">{{ __('Signed with header X-MLHUB-Signature: sha256=... and de-duplicated with X-Dedupe-Key.') }}</p>
+                <div class="code-label">{{ __('Request headers') }}</div>
+                <pre>Content-Type: application/json
+X-Partner: fizahub
+X-MLHUB-Timestamp: {{ __('(unix timestamp, giây)') }}
+X-MLHUB-Signature: sha256={{ __('(hex hmac, xem công thức bên dưới)') }}
+X-Event-Type: onboarding-status | campaign-metrics | support-events
+X-Dedupe-Key: {{ __('(chuỗi ổn định để chống nhận trùng)') }}</pre>
+                <div class="code-label">{{ __('Signature verification (FizaHUB side)') }}</div>
+                <pre>signature = HMAC_SHA256(secret, "{X-MLHUB-Timestamp}." + raw_json_body)
+if signature != value_after_"sha256=" in X-MLHUB-Signature: reject</pre>
+                <p class="muted" style="margin:.45rem 0;">{{ __('raw_json_body is the exact request body bytes MLHUB sent — verify against the raw payload, not a re-serialized/re-formatted copy.') }}</p>
+                <div class="code-label">{{ __('Current webhook secret (FIZAHUB_WEBHOOK_SECRET)') }}</div>
+                <pre>{{ $webhookSecret !== '' ? $webhookSecret : __('(chưa cấu hình)') }}</pre>
+                <div class="code-label">{{ __('Current webhook base URL (FIZAHUB_WEBHOOK_BASE_URL)') }}</div>
+                <pre>{{ $webhookBaseUrl !== '' ? $webhookBaseUrl : __('(để trống — webhook tự bỏ qua, không lỗi, không có sự kiện nào được gửi cho tới khi FizaHUB cung cấp URL này)') }}</pre>
             </div>
 
             <article class="endpoint" id="health-check">

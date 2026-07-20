@@ -15,6 +15,11 @@ class ApiFizaHubDocsController
             'postmanUrl' => route('partner.fizahub.docs.postman'),
             'helpTestUrl' => route('partner.fizahub.docs.help-test'),
             'healthUrl' => url('/api/v1/partners/fizahub/health'),
+            // Testing-phase choice (see .env.example §8): always mirror the live webhook
+            // secret/base URL here so FizaHUB can implement signature verification without
+            // needing a separate out-of-band secret exchange.
+            'webhookSecret' => (string) config('modules.apipartnerfizahub.webhook_secret', ''),
+            'webhookBaseUrl' => (string) config('modules.apipartnerfizahub.webhook_base_url', ''),
         ]);
     }
 
@@ -30,7 +35,10 @@ class ApiFizaHubDocsController
             'appUrl' => rtrim((string) config('app.url'), '/'),
             'dashboardFrom' => $dashboardFrom,
             'dashboardTo' => $dashboardTo,
-            'demoPartnerToken' => 'fizahub',
+            // Always mirrors the live FIZAHUB_PARTNER_TOKEN so this page can never drift from
+            // the real token FizaHUB must use — testing-phase choice to show it in the clear
+            // (see .env.example §8), not a leftover hardcoded demo value.
+            'demoPartnerToken' => (string) config('modules.apipartnerfizahub.token', 'fizahub'),
         ]);
     }
 
