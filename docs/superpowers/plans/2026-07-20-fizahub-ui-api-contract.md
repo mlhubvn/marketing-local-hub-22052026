@@ -851,7 +851,7 @@ git commit -m "feat: align FizaHUB growth APIs with approved UI"
 - Produces: `SupportTicketBridge::detail(PartnerIntegration, string, ?CarbonImmutable): array` without attachment fields.
 - Produces: nested controller signatures receiving `$external_business_id` and `$ticket_id`.
 
-- [ ] **Step 1: Write failing preset/list/lifecycle/tenant tests**
+- [x] **Step 1: Write failing preset/list/lifecycle/tenant tests**
 
 ```php
 test('support presets expose SOP metadata without attachment promises', function (): void {
@@ -875,7 +875,7 @@ test('ticket list contains onboarding and user tickets with summary and cursor p
 
 Add one sequential test for Create → List → Detail → Message → Close → Reopen, same-key message replay count, cross-tenant 404 for every operation, search/status filters, and route-level 404 for the old attachment URL.
 
-- [ ] **Step 2: Run support tests and verify RED**
+- [x] **Step 2: Run support tests and verify RED**
 
 Run:
 
@@ -885,7 +885,7 @@ php artisan test tests/Feature/APIPartnerFizaHUB/SupportUiContractTest.php
 
 Expected: FAIL because routes are not nested in current controllers, list uses page pagination, preset field names are legacy, summary is separate, and detail exposes attachment capabilities.
 
-- [ ] **Step 3: Normalize ticket creation request**
+- [x] **Step 3: Normalize ticket creation request**
 
 Use:
 
@@ -900,7 +900,7 @@ Use:
 
 Require subject only when no preset is selected. For a locked preset subject, ignore the client subject and use the canonical preset subject. Translate canonical fields to context storage as `preset_code`, `campaign_id`, `response_channel`, and metadata.
 
-- [ ] **Step 4: Implement preset catalog**
+- [x] **Step 4: Implement preset catalog**
 
 Seed and serialize at least:
 
@@ -916,7 +916,7 @@ Seed and serialize at least:
 
 The onboarding preset is not user-selectable; the public list filters it out unless requested for diagnostic context.
 
-- [ ] **Step 5: Implement nested tenant-scoped lifecycle**
+- [x] **Step 5: Implement nested tenant-scoped lifecycle**
 
 Controller signatures become:
 
@@ -929,15 +929,15 @@ store(CreateSupportMessageRequest $request, string $external_business_id, string
 
 Every method resolves the integration from the path before loading the ticket context. Remove query-string scoping code.
 
-- [ ] **Step 6: Implement support list aggregate and polling detail**
+- [x] **Step 6: Implement support list aggregate and polling detail**
 
 Apply `q` to secure ID/title/last message, map public statuses, compute summary on the same tenant-scoped base query, and return cursor pagination. Detail accepts `messages_since`, returns `messages[]` and `next_poll_after_seconds`, and never returns `attachment`, `attachment_url`, upload limits, or allowed MIME types.
 
-- [ ] **Step 7: Preserve safe close/reopen semantics**
+- [x] **Step 7: Preserve safe close/reopen semantics**
 
 Exact same-key replays are handled by middleware. With a new key, closing a closed ticket returns typed 409 `ticket_already_closed`; reopening an open ticket returns typed 409 `ticket_not_closed`. Neither path throws a raw runtime exception or 500.
 
-- [ ] **Step 8: Replace attachment tests with route-absence tests**
+- [x] **Step 8: Replace attachment tests with route-absence tests**
 
 Rename the lifecycle file and assert:
 
@@ -959,7 +959,7 @@ expect(Route::has('partner.fizahub.support-tickets.attachments.store'))->toBeFal
 
 Keep the attachment model/table/migration untouched.
 
-- [ ] **Step 9: Run all support tests GREEN**
+- [x] **Step 9: Run all support tests GREEN**
 
 Run:
 
@@ -969,7 +969,7 @@ php artisan test tests/Feature/APIPartnerFizaHUB/SupportUiContractTest.php tests
 
 Expected: PASS for lifecycle, idempotent messages, onboarding visibility, cursor/search/status, and tenant isolation.
 
-- [ ] **Step 10: Commit Task 5**
+- [x] **Step 10: Commit Task 5**
 
 ```powershell
 git add modules/APIPartnerFizaHUB/Http/Requests modules/APIPartnerFizaHUB/Http/Controllers modules/APIPartnerFizaHUB/Services/SupportTicketBridge.php modules/APIPartnerFizaHUB/Database/Seeders tests/Feature/APIPartnerFizaHUB

@@ -3,10 +3,8 @@
 namespace Modules\APIPartnerFizaHUB\Services;
 
 use Carbon\CarbonImmutable;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Modules\AdminSupport\Models\SupportComment;
@@ -88,38 +86,36 @@ class SupportTicketBridge
      */
     public function createForBusiness(PartnerIntegration $integration, array $input): SupportTicket
     {
-        $requestCode = isset($input['request_code']) ? trim((string) $input['request_code']) : '';
-        $relatedResource = (array) ($input['related_resource'] ?? []);
-        $details = (array) ($input['details'] ?? []);
-
+        $presetCode = isset($input['preset_code']) ? trim((string) $input['preset_code']) : '';
+        $campaignId = isset($input['campaign_id']) ? trim((string) $input['campaign_id']) : '';
+        $metadata = (array) ($input['metadata'] ?? []);
+        $responseChannel = (string) ($input['response_channel'] ?? 'in_app');
         $subject = isset($input['subject']) ? trim((string) $input['subject']) : '';
         $message = isset($input['message']) ? (string) $input['message'] : '';
-        $categoryId = $input['category_id'] ?? null;
-        $typeId = $input['type_id'] ?? null;
         $preset = null;
 
-        if ($requestCode !== '') {
-            $preset = $this->findPreset($requestCode);
+        if ($presetCode !== '') {
+            $preset = $this->findPreset($presetCode);
 
             if (! $preset) {
                 throw PartnerApiException::make(
                     'support_preset_not_found',
                     __('Yêu cầu hỗ trợ không hợp lệ hoặc đã ngừng sử dụng.'),
                     422,
-                    ['request_code' => [$requestCode]]
+                    ['preset_code' => [$presetCode]]
                 );
             }
 
-            if ($subject === '') {
-                $subject = (string) ($preset->default_subject ?: $preset->name);
-            }
+            $subject = (string) ($preset->default_subject ?: $preset->name);
 
-            if (trim($message) === '') {
-                $message = $this->buildPresetMessage($preset, $relatedResource, $details);
+            if ($presetCode === 'campaign_request' && $campaignId === '') {
+                throw PartnerApiException::make(
+                    'support_context_required',
+                    'Yêu cầu điều chỉnh chiến dịch cần campaign_id.',
+                    422,
+                    ['campaign_id' => ['required']]
+                );
             }
-
-            $categoryId = $categoryId ?? $preset->category_id;
-            $typeId = $typeId ?? $preset->type_id;
         }
 
         if ($subject === '' || trim($message) === '') {
@@ -133,11 +129,11 @@ class SupportTicketBridge
         $ticket = $this->create($integration, [
             'subject' => $subject,
             'message' => $message,
-            'category_id' => $categoryId,
-            'type_id' => $typeId,
+            'category_id' => $preset?->category_id,
+            'type_id' => $preset?->type_id,
         ]);
 
-        $this->storeContext($integration, $ticket, $requestCode, $relatedResource, $details);
+        $this->storeContext($integration, $ticket, $presetCode, $campaignId, $responseChannel, $metadata);
 
         return $ticket;
     }
@@ -169,30 +165,62 @@ class SupportTicketBridge
             $integration,
             $ticket,
             'campaign_request',
-            ['type' => QrCampaign::class, 'id' => (string) $campaign->id],
-            ['preset_code' => 'campaign_request', 'source' => 'fizahub']
+            (string) $campaign->id,
+            'in_app',
+            ['source' => 'campaign_approval']
         );
 
         return $ticket;
     }
 
-    public function list(
-        PartnerIntegration $integration,
-        int $page = 1,
-        int $perPage = 20
-    ): LengthAwarePaginator {
-        $perPage = max(1, min(100, $perPage));
-        $page = max(1, $page);
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return array<string, mixed>
+     */
+    public function list(PartnerIntegration $integration, array $filters = []): array
+    {
+        $base = $this->tenantTicketQuery($integration);
+        $allTickets = (clone $base)->get(['status', 'user_read']);
+        $query = clone $base;
+        $search = trim((string) ($filters['q'] ?? ''));
 
-        return SupportTicket::query()
-            ->where('uid', (int) $integration->mlhub_user_id)
-            ->where(function ($query) use ($integration): void {
-                $query->where('team_id', (int) $integration->mlhub_workspace_id)
-                    ->orWhereNull('team_id');
-            })
+        if ($search !== '') {
+            $query->where(function ($inner) use ($search): void {
+                $inner->where('id_secure', 'like', '%'.$search.'%')
+                    ->orWhere('title', 'like', '%'.$search.'%')
+                    ->orWhere('content', 'like', '%'.$search.'%')
+                    ->orWhereHas('comments', fn ($comments) => $comments->where('comment', 'like', '%'.$search.'%'));
+            });
+        }
+
+        $status = (string) ($filters['status'] ?? '');
+        if ($status !== '') {
+            $query->where('status', $this->databaseStatus($status));
+        }
+
+        $perPage = max(1, min(100, (int) ($filters['per_page'] ?? 20)));
+        $paginator = $query
             ->orderByDesc('changed')
             ->orderByDesc('id')
-            ->paginate($perPage, ['*'], 'page', $page);
+            ->cursorPaginate($perPage);
+
+        return [
+            'summary' => [
+                'open' => $allTickets->where('status', 1)->count(),
+                'resolved' => $allTickets->where('status', 2)->count(),
+                'closed' => $allTickets->where('status', 0)->count(),
+                'unread_by_business' => $allTickets->where('user_read', false)->count(),
+            ],
+            'items' => collect($paginator->items())
+                ->map(fn (SupportTicket $ticket): array => $this->serializeTicket($ticket))
+                ->values()
+                ->all(),
+            'pagination' => [
+                'next_cursor' => $paginator->nextCursor()?->encode(),
+                'has_more' => $paginator->hasMorePages(),
+                'per_page' => $paginator->perPage(),
+            ],
+        ];
     }
 
     /**
@@ -340,12 +368,11 @@ class SupportTicketBridge
         $ticket = $this->findScopedTicketOrFail($integration, $ticketSecureId);
         $messages = $this->serializeMessages($ticket, $since);
 
-        return [
-            'ticket' => $this->serializeTicket($ticket),
+        return array_merge($this->serializeTicket($ticket), [
             'messages' => $messages,
             'next_poll_after_seconds' => 15,
             'last_message_at' => $this->lastMessageAt($ticket),
-        ];
+        ]);
     }
 
     /**
@@ -451,10 +478,22 @@ class SupportTicketBridge
      */
     public function serializeTicket(SupportTicket $ticket): array
     {
+        $context = Schema::hasTable('partner_support_ticket_contexts')
+            ? PartnerSupportTicketContext::query()->where('support_ticket_id', $ticket->id)->first()
+            : null;
+        $contextData = is_array($context?->context) ? $context->context : [];
+        $presetCode = $context?->request_code ?: ($contextData['preset_code'] ?? null);
+        $ticketType = (string) ($contextData['ticket_type'] ?? 'support');
+
         return [
             'ticket_id' => $ticket->id_secure,
+            'ticket_type' => $ticketType,
+            'source' => (string) ($contextData['source'] ?? 'fizahub'),
+            'preset_code' => $presetCode,
+            'campaign_id' => $contextData['campaign_id'] ?? $context?->related_resource_id,
             'subject' => $ticket->title,
             'status' => $this->statusCode((int) $ticket->status),
+            'last_message' => $this->lastMessageBody($ticket),
             'created_at' => $this->isoFromUnix($ticket->created),
             'updated_at' => $this->isoFromUnix($ticket->changed),
             'last_message_at' => $this->lastMessageAt($ticket),
@@ -469,33 +508,13 @@ class SupportTicketBridge
      */
     public function supportSummary(PartnerIntegration $integration): array
     {
-        $this->ensureDefaultPresets();
-
-        $maxSize = max(1, (int) config('modules.apipartnerfizahub.support_max_attachment_size_mb', 10));
-        $allowedTypes = (array) config('modules.apipartnerfizahub.support_allowed_attachment_types', []);
-        $categories = (array) config('modules.apipartnerfizahub.support_categories', []);
-
-        $openStatuses = [1];
-        $tickets = SupportTicket::query()
-            ->where('uid', (int) $integration->mlhub_user_id)
-            ->get(['status']);
+        $tickets = $this->tenantTicketQuery($integration)->get(['status', 'user_read']);
 
         return [
-            'counts' => [
-                'total' => $tickets->count(),
-                'open' => $tickets->whereIn('status', $openStatuses)->count(),
-                'resolved' => $tickets->where('status', 2)->count(),
-                'closed' => $tickets->where('status', 0)->count(),
-            ],
-            'ticket_form' => [
-                'categories' => array_values($categories),
-                'request_presets' => $this->presets()
-                    ->map(fn (PartnerSupportPreset $preset): array => $this->serializePreset($preset))
-                    ->values()
-                    ->all(),
-                'allowed_attachment_types' => array_values($allowedTypes),
-                'max_attachment_size_mb' => $maxSize,
-            ],
+            'open' => $tickets->where('status', 1)->count(),
+            'resolved' => $tickets->where('status', 2)->count(),
+            'closed' => $tickets->where('status', 0)->count(),
+            'unread_by_business' => $tickets->where('user_read', false)->count(),
         ];
     }
 
@@ -667,21 +686,33 @@ class SupportTicketBridge
         ];
     }
 
-    /**
-     * @return Collection<int, PartnerSupportPreset>
-     */
-    public function presets(): Collection
+    /** @return array{items: list<array<string, mixed>>} */
+    public function presets(PartnerIntegration $integration): array
     {
         if (! Schema::hasTable('partner_support_presets')) {
-            return collect();
+            return ['items' => []];
         }
 
-        return PartnerSupportPreset::query()
+        $this->ensureDefaultPresets();
+        $items = PartnerSupportPreset::query()
             ->where('partner_code', $this->mapping->partnerCode())
             ->where('is_active', true)
+            ->where('code', '!=', 'fizahub_onboarding')
             ->orderBy('sort_order')
             ->orderBy('id')
-            ->get();
+            ->get()
+            ->filter(function (PartnerSupportPreset $preset) use ($integration): bool {
+                $allowed = $preset->allowed_package_codes;
+
+                return ! is_array($allowed)
+                    || $allowed === []
+                    || in_array($integration->package_code, $allowed, true);
+            })
+            ->map(fn (PartnerSupportPreset $preset): array => $this->serializePreset($preset))
+            ->values()
+            ->all();
+
+        return ['items' => $items];
     }
 
     public function findPreset(string $code): ?PartnerSupportPreset
@@ -725,7 +756,21 @@ class SupportTicketBridge
     {
         return [
             [
-                'code' => 'qr_checkin_no_scans',
+                'code' => 'fizahub_onboarding',
+                'name' => 'FizaHUB onboarding',
+                'description' => 'Theo dõi tiếp nhận và cấu hình tài khoản FizaHUB.',
+                'category_id' => null,
+                'type_id' => null,
+                'default_subject' => 'FizaHUB onboarding',
+                'message_template' => 'Doanh nghiệp đang chờ tư vấn và cấu hình Marketing.',
+                'required_fields' => [],
+                'allowed_package_codes' => null,
+                'sla_hours' => 24,
+                'sort_order' => 0,
+                'is_active' => true,
+            ],
+            [
+                'code' => 'qr_scan_not_recorded',
                 'name' => 'QR check-in không ghi nhận lượt quét',
                 'description' => 'Doanh nghiệp phản ánh mã QR check-in không phát sinh lượt quét nào.',
                 'category_id' => null,
@@ -738,6 +783,48 @@ class SupportTicketBridge
                 'sort_order' => 10,
                 'is_active' => true,
             ],
+            [
+                'code' => 'growth_recommendation',
+                'name' => 'Tư vấn đề xuất tăng trưởng',
+                'description' => 'Yêu cầu MLHUB hỗ trợ triển khai đề xuất tăng trưởng.',
+                'category_id' => null,
+                'type_id' => null,
+                'default_subject' => 'Tư vấn đề xuất tăng trưởng',
+                'message_template' => 'Doanh nghiệp cần tư vấn triển khai đề xuất tăng trưởng.',
+                'required_fields' => [],
+                'allowed_package_codes' => null,
+                'sla_hours' => 24,
+                'sort_order' => 20,
+                'is_active' => true,
+            ],
+            [
+                'code' => 'campaign_request',
+                'name' => 'Yêu cầu điều chỉnh chiến dịch',
+                'description' => 'Yêu cầu MLHUB rà soát một chiến dịch cụ thể.',
+                'category_id' => null,
+                'type_id' => null,
+                'default_subject' => 'Yêu cầu điều chỉnh chiến dịch',
+                'message_template' => 'Doanh nghiệp yêu cầu điều chỉnh chiến dịch.',
+                'required_fields' => ['campaign_id'],
+                'allowed_package_codes' => null,
+                'sla_hours' => 24,
+                'sort_order' => 30,
+                'is_active' => true,
+            ],
+            [
+                'code' => 'package_upgrade',
+                'name' => 'Tư vấn nâng gói',
+                'description' => 'Yêu cầu tư vấn gói dịch vụ phù hợp.',
+                'category_id' => null,
+                'type_id' => null,
+                'default_subject' => 'Tư vấn nâng gói dịch vụ',
+                'message_template' => 'Doanh nghiệp cần tư vấn nâng gói dịch vụ.',
+                'required_fields' => [],
+                'allowed_package_codes' => null,
+                'sla_hours' => 24,
+                'sort_order' => 40,
+                'is_active' => true,
+            ],
         ];
     }
 
@@ -747,11 +834,15 @@ class SupportTicketBridge
     private function serializePreset(PartnerSupportPreset $preset): array
     {
         return [
-            'request_code' => $preset->code,
-            'name' => $preset->name,
+            'preset_code' => $preset->code,
+            'subject' => $preset->default_subject ?: $preset->name,
+            'subject_locked' => true,
             'description' => $preset->description,
-            'required_fields' => $preset->required_fields ?? [],
+            'ticket_type' => $this->presetTicketType($preset->code),
+            'required_context' => $preset->required_fields ?? [],
             'sla_hours' => $preset->sla_hours,
+            'response_channels' => ['in_app', 'phone'],
+            'requires_campaign' => $preset->code === 'campaign_request',
         ];
     }
 
@@ -779,16 +870,14 @@ class SupportTicketBridge
         ]));
     }
 
-    /**
-     * @param  array<string, mixed>  $relatedResource
-     * @param  array<string, mixed>  $details
-     */
+    /** @param array<string, mixed> $metadata */
     private function storeContext(
         PartnerIntegration $integration,
         SupportTicket $ticket,
-        string $requestCode,
-        array $relatedResource,
-        array $details
+        string $presetCode,
+        string $campaignId,
+        string $responseChannel,
+        array $metadata
     ): void {
         if (! Schema::hasTable('partner_support_ticket_contexts')) {
             return;
@@ -799,13 +888,17 @@ class SupportTicketBridge
             [
                 'partner_integration_id' => $integration->id,
                 'external_business_id' => $integration->external_business_id,
-                'request_code' => $requestCode !== '' ? $requestCode : null,
+                'request_code' => $presetCode !== '' ? $presetCode : null,
                 'package_code' => $integration->package_code,
-                'related_resource_type' => isset($relatedResource['type']) ? (string) $relatedResource['type'] : null,
-                'related_resource_id' => isset($relatedResource['id']) ? (string) $relatedResource['id'] : null,
+                'related_resource_type' => $campaignId !== '' ? QrCampaign::class : null,
+                'related_resource_id' => $campaignId !== '' ? $campaignId : null,
                 'context' => [
-                    'related_resource' => $relatedResource,
-                    'details' => $details,
+                    'ticket_type' => $this->presetTicketType($presetCode),
+                    'source' => 'fizahub',
+                    'preset_code' => $presetCode !== '' ? $presetCode : null,
+                    'campaign_id' => $campaignId !== '' ? $campaignId : null,
+                    'response_channel' => $responseChannel,
+                    'metadata' => $metadata,
                 ],
             ]
         );
@@ -871,6 +964,45 @@ class SupportTicketBridge
         $latest = max((int) ($ticket->changed ?: 0), (int) ($ticket->created ?: 0), $latestComment);
 
         return $latest > 0 ? $this->isoFromUnix($latest) : null;
+    }
+
+    private function lastMessageBody(SupportTicket $ticket): string
+    {
+        $comment = $ticket->comments()
+            ->orderByDesc('created')
+            ->orderByDesc('id')
+            ->first();
+
+        return (string) ($comment?->comment ?? $ticket->content);
+    }
+
+    private function tenantTicketQuery(PartnerIntegration $integration): \Illuminate\Database\Eloquent\Builder
+    {
+        return SupportTicket::query()
+            ->where('uid', (int) $integration->mlhub_user_id)
+            ->where(function ($query) use ($integration): void {
+                $query->where('team_id', (int) $integration->mlhub_workspace_id)
+                    ->orWhereNull('team_id');
+            });
+    }
+
+    private function databaseStatus(string $status): int
+    {
+        return match ($status) {
+            'resolved' => 2,
+            'closed' => 0,
+            default => 1,
+        };
+    }
+
+    private function presetTicketType(string $presetCode): string
+    {
+        return match ($presetCode) {
+            'fizahub_onboarding' => 'onboarding',
+            'campaign_request' => 'campaign_request',
+            'package_upgrade' => 'package_upgrade',
+            default => 'support',
+        };
     }
 
     private function statusCode(int $status): string
