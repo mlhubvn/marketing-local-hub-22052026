@@ -3,6 +3,7 @@
 namespace Modules\APIPartnerFizaHUB\Services;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use Modules\AdminPlans\Models\AdminPlan;
 use Modules\AdminUser\Models\User;
 use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
@@ -142,12 +143,56 @@ class PartnerMappingService
             }
         }
 
+        // The provisioning username is deterministic per external_business_id. If a
+        // `users` row already owns it (typically an orphaned account left behind after
+        // the partner_integrations mapping was removed), flag it so the caller both
+        // routes the account to needs_review AND provisions a non-colliding username
+        // (see availableUsername()) instead of crashing on the unique constraint.
+        $usernameMatch = User::query()
+            ->where('username', $this->deterministicUsername($externalBusinessId))
+            ->first();
+
+        if ($usernameMatch) {
+            $duplicates[] = [
+                'type' => 'username',
+                'id' => (int) $usernameMatch->id,
+            ];
+        }
+
         return $duplicates;
     }
 
     public function deterministicUsername(string $externalBusinessId): string
     {
         return 'fizahub_'.substr(hash('sha256', 'fizahub|'.$externalBusinessId), 0, 12);
+    }
+
+    /**
+     * Resolve a `users.username` value that is guaranteed to be free right now.
+     *
+     * `deterministicUsername()` is derived purely from `external_business_id`, so it can
+     * collide with a leftover/orphaned `users` row (e.g. the matching `partner_integrations`
+     * mapping was deleted by a manual cleanup or demo reset, but the provisioned user was
+     * not). Provisioning must never crash on that unique constraint — it must self-heal by
+     * picking the next available deterministic suffix instead.
+     */
+    public function availableUsername(string $externalBusinessId): string
+    {
+        $base = $this->deterministicUsername($externalBusinessId);
+
+        if (! User::query()->where('username', $base)->exists()) {
+            return $base;
+        }
+
+        for ($suffix = 2; $suffix <= 20; $suffix++) {
+            $candidate = $base.'_'.$suffix;
+
+            if (! User::query()->where('username', $candidate)->exists()) {
+                return $candidate;
+            }
+        }
+
+        return $base.'_'.Str::lower(Str::random(6));
     }
 
     public function provisionalEmail(string $externalBusinessId): string

@@ -47,6 +47,8 @@ Every partner API request must send:
 - `POST /businesses/{external_business_id}/support-tickets`
 - `POST /support-tickets/{ticket_id}/messages`
 
+The Postman collection also sends `Idempotency-Key` on a few other write endpoints (confirm/cancel/one-time-login/reopen/attachment) out of habit — it is accepted there but not required; only the 3 endpoints above reject the request when it's missing.
+
 ## Response format
 
 Success:
@@ -79,7 +81,7 @@ Support message create/detail conversation items use field **`body`** (not `mess
 
 ## 24 Core API endpoints
 
-Split across two Postman collections: **MVP v1** (10 endpoints — the happy-path partners must implement first) and **Extended Beta** (14 endpoints — optional, ship later). See [Postman](#postman) below.
+Shipped in one unified Postman collection, split into two folders: **MVP v1** (10 endpoints — the happy-path partners must implement first) and **Extended Beta** (14 endpoints — optional, ship later). See [Postman](#postman) below.
 
 | # | Set | Method | Path |
 |---|-----|--------|------|
@@ -229,7 +231,7 @@ FIZAHUB_PARTNER_TOKEN=
 FIZAHUB_RATE_LIMIT_PER_MINUTE=60
 FIZAHUB_ONE_TIME_LOGIN_TTL_MINUTES=5
 FIZAHUB_DEFAULT_PACKAGE=free
-FIZAHUB_PROVISIONAL_EMAIL_DOMAIN=provisional.fizahub.mlhub.local
+FIZAHUB_PROVISIONAL_EMAIL_DOMAIN=provisional.mlhub.vn
 FIZAHUB_WEBHOOK_BASE_URL=
 FIZAHUB_WEBHOOK_SECRET=
 FIZAHUB_DASHBOARD_CACHE_TTL_MINUTES=45

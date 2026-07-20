@@ -571,3 +571,64 @@ test('identity_verified true with null verified_at still sets email_verified_at'
     expect($user->email_verified_at)->not->toBeNull()
         ->and(Hash::isHashed((string) $user->getRawOriginal('password')))->toBeTrue();
 });
+
+test('onboarding show with an empty, literal placeholder, or malformed request_id never 500s', function (): void {
+    // A partner client that forgot to substitute a Postman variable will literally send
+    // the placeholder text as the path segment. This must resolve as "not found", never crash.
+    $this->getJson(
+        '/api/v1/partners/fizahub/onboarding-requests/%7B%7Bonboarding_request_id%7D%7D',
+        onboardingHeaders()
+    )
+        ->assertNotFound()
+        ->assertJsonPath('error.code', 'onboarding_request_not_found');
+
+    $this->getJson(
+        '/api/v1/partners/fizahub/onboarding-requests/not-a-valid-uuid',
+        onboardingHeaders()
+    )
+        ->assertNotFound()
+        ->assertJsonPath('error.code', 'onboarding_request_not_found');
+});
+
+test('cancelling an already cancelled onboarding request is idempotent, not a 500 or a state conflict', function (): void {
+    $requestId = (string) str()->uuid();
+
+    $this->postJson(
+        '/api/v1/partners/fizahub/onboarding-requests',
+        validOnboardingPayload(['external_business_id' => 'fh-biz-cancel-twice']),
+        onboardingHeaders(['X-Request-Id' => $requestId])
+    )->assertCreated();
+
+    $this->postJson(
+        '/api/v1/partners/fizahub/onboarding-requests/'.$requestId.'/cancel',
+        ['reason' => 'First cancel'],
+        onboardingHeaders()
+    )->assertOk()->assertJsonPath('data.status', 'cancelled');
+
+    // Same request_id, cancelled again — must stay a clean 200/cancelled, not 422/500.
+    $this->postJson(
+        '/api/v1/partners/fizahub/onboarding-requests/'.$requestId.'/cancel',
+        ['reason' => 'Second cancel attempt'],
+        onboardingHeaders()
+    )->assertOk()->assertJsonPath('data.status', 'cancelled');
+});
+
+test('cancel returns a typed 404 for an unknown request_id instead of 500', function (): void {
+    $this->postJson(
+        '/api/v1/partners/fizahub/onboarding-requests/'.((string) str()->uuid()).'/cancel',
+        ['reason' => 'Does not exist'],
+        onboardingHeaders()
+    )
+        ->assertNotFound()
+        ->assertJsonPath('error.code', 'onboarding_request_not_found');
+});
+
+test('confirm returns a typed 404 for an unknown request_id instead of 500', function (): void {
+    $this->postJson(
+        '/api/v1/partners/fizahub/onboarding-requests/'.((string) str()->uuid()).'/confirm',
+        ['note' => 'Does not exist'],
+        onboardingHeaders()
+    )
+        ->assertNotFound()
+        ->assertJsonPath('error.code', 'onboarding_request_not_found');
+});

@@ -2007,11 +2007,14 @@
             "script": {
                 "type": "text/javascript",
                 "exec": [
-                    "// from/to lu??n l?? 30 ng??y g???n nh???t t??nh theo ng??y ch???y request (kh??ng ph???i h???n m???c g??i).",
+                    "// from/to are always the last 30 days (server default), recomputed on every send.",
+                    "// The API resolves dates in Asia/Ho_Chi_Minh (UTC+7); we apply that offset here so",
+                    "// 'to' matches the server's date regardless of the timezone Postman itself runs in.",
                     "function fmt(date) { return date.toISOString().slice(0, 10); }",
-                    "const to = new Date();",
-                    "const from = new Date();",
-                    "from.setDate(from.getDate() - 30);",
+                    "const vnOffsetMs = 7 * 60 * 60 * 1000;",
+                    "const to = new Date(Date.now() + vnOffsetMs);",
+                    "const from = new Date(Date.now() + vnOffsetMs);",
+                    "from.setUTCDate(from.getUTCDate() - 29);",
                     "pm.collectionVariables.set('to', fmt(to));",
                     "pm.collectionVariables.set('from', fmt(from));"
                 ]

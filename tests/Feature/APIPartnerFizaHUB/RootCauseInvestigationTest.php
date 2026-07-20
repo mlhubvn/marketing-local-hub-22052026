@@ -12,146 +12,13 @@
  * migrations even if the onboarding schema changes again later.
  */
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Modules\AdminPlans\Models\AdminPlan;
+use Modules\APIPartnerFizaHUB\Services\PartnerMappingService;
+use Modules\AdminUser\Models\User;
 
-function runRealFizaHubMigrations(): void
-{
-    Schema::dropIfExists('partner_support_attachments');
-    Schema::dropIfExists('partner_webhook_outbox');
-    Schema::dropIfExists('partner_support_ticket_contexts');
-    Schema::dropIfExists('partner_support_presets');
-    Schema::dropIfExists('partner_package_assignments');
-    Schema::dropIfExists('partner_onboarding_status_histories');
-    Schema::dropIfExists('partner_one_time_logins');
-    Schema::dropIfExists('partner_api_logs');
-    Schema::dropIfExists('partner_onboarding_requests');
-    Schema::dropIfExists('partner_integrations');
-
-    $create = require base_path('modules/APIPartnerFizaHUB/Database/Migrations/2026_07_13_000000_create_fizahub_partner_api_tables.php');
-    $create->up();
-
-    $extend = require base_path('modules/APIPartnerFizaHUB/Database/Migrations/2026_07_17_120000_extend_fizahub_partner_onboarding_tables.php');
-    $extend->up();
-}
-
-function bootProductionLikeSchema(): void
-{
-    Schema::dropIfExists('affiliate_profiles');
-    Schema::dropIfExists('support_tickets');
-    Schema::dropIfExists('lb_businesses');
-    Schema::dropIfExists('team_user');
-    Schema::dropIfExists('teams');
-    Schema::dropIfExists('users');
-    Schema::dropIfExists('plans');
-
-    Schema::create('plans', function (Blueprint $table): void {
-        $table->id();
-        $table->string('name');
-        $table->string('slug')->unique();
-        $table->boolean('status')->default(true);
-        $table->boolean('featured')->default(false);
-        $table->string('currency')->default('VND');
-        $table->decimal('price', 16, 2)->default(0);
-        $table->unsignedTinyInteger('type')->default(1);
-        $table->boolean('free_plan')->default(false);
-        $table->boolean('default_signup_plan')->default(false);
-        $table->unsignedInteger('trial_day')->default(0);
-        $table->integer('position')->default(0);
-        $table->text('desc')->nullable();
-        $table->json('permissions')->nullable();
-        $table->timestamps();
-    });
-
-    Schema::create('users', function (Blueprint $table): void {
-        $table->id();
-        $table->string('name');
-        $table->string('username')->nullable()->unique();
-        $table->string('email')->unique();
-        $table->string('locale', 10)->nullable();
-        $table->string('timezone', 100)->nullable();
-        $table->unsignedBigInteger('plan_id')->nullable();
-        $table->unsignedBigInteger('next_plan_id')->nullable();
-        $table->timestamp('plan_started_at')->nullable();
-        $table->timestamp('plan_expires_at')->nullable();
-        $table->timestamp('email_verified_at')->nullable();
-        $table->string('password');
-        $table->string('referral_code', 20)->nullable();
-        $table->unsignedBigInteger('referred_by_user_id')->nullable();
-        $table->boolean('is_super_admin')->default(false);
-        $table->timestamps();
-    });
-
-    Schema::create('teams', function (Blueprint $table): void {
-        $table->id();
-        $table->string('name');
-        $table->string('slug');
-        $table->text('description')->nullable();
-        $table->unsignedBigInteger('owner_user_id')->nullable();
-        $table->json('enabled_modules')->nullable();
-        $table->timestamps();
-    });
-
-    Schema::create('team_user', function (Blueprint $table): void {
-        $table->id();
-        $table->unsignedBigInteger('team_id');
-        $table->unsignedBigInteger('user_id');
-        $table->string('role', 50)->default('member');
-        $table->json('permissions')->nullable();
-        $table->json('managed_account_ids')->nullable();
-        $table->timestamps();
-        $table->unique(['team_id', 'user_id']);
-    });
-
-    Schema::create('lb_businesses', function (Blueprint $table): void {
-        $table->id();
-        $table->unsignedBigInteger('user_id');
-        $table->string('name');
-        $table->string('type', 60)->default('other');
-        $table->string('industry_group_code', 64)->nullable();
-        $table->string('industry_category_code', 80)->nullable();
-        $table->json('industry_metadata')->nullable();
-        $table->string('taxonomy_version', 20)->nullable();
-        $table->string('phone')->nullable();
-        $table->string('email')->nullable();
-        $table->string('website')->nullable();
-        $table->text('address')->nullable();
-        $table->timestamps();
-    });
-
-    Schema::create('support_tickets', function (Blueprint $table): void {
-        $table->id();
-        $table->string('id_secure', 40)->unique();
-        $table->unsignedBigInteger('uid');
-        $table->unsignedBigInteger('open_by');
-        $table->unsignedBigInteger('team_id')->nullable();
-        $table->unsignedBigInteger('cate_id')->nullable();
-        $table->unsignedBigInteger('type_id')->nullable();
-        $table->string('title', 255);
-        $table->text('content');
-        $table->unsignedTinyInteger('status')->default(1);
-        $table->boolean('pin')->default(false);
-        $table->boolean('user_read')->default(false);
-        $table->boolean('admin_read')->default(true);
-        $table->unsignedInteger('changed')->nullable();
-        $table->unsignedInteger('created')->nullable();
-    });
-
-    Schema::create('affiliate_profiles', function (Blueprint $table): void {
-        $table->id();
-        $table->unsignedBigInteger('user_id')->unique();
-        $table->unsignedInteger('clicks')->default(0);
-        $table->unsignedInteger('conversions')->default(0);
-        $table->decimal('total_approved', 12, 2)->default(0);
-        $table->decimal('total_withdrawal', 12, 2)->default(0);
-        $table->decimal('total_balance', 12, 2)->default(0);
-        $table->timestamps();
-    });
-
-    runRealFizaHubMigrations();
-}
+require_once __DIR__.'/FizaHubTestHelpers.php';
 
 /**
  * Exact production payload from tong-ket-test-postman.txt (request_id 05dcc2bc-...).
@@ -190,6 +57,21 @@ function prodOnboardingHeaders(): array
         'X-Partner' => 'fizahub',
         'X-Request-Id' => '05dcc2bc-0401-45c1-b506-de2a85068bd7',
         'Idempotency-Key' => (string) str()->uuid(),
+        'Accept' => 'application/json',
+    ];
+}
+
+/**
+ * Headers from the SECOND production incident (a different X-Request-Id than the
+ * already-fixed missing-plan bug above), reported with the same public demo payload.
+ */
+function secondIncidentOnboardingHeaders(): array
+{
+    return [
+        'Authorization' => 'Bearer test-fizahub-partner-token',
+        'X-Partner' => 'fizahub',
+        'X-Request-Id' => 'fef28d55-a74f-4e43-ae96-c172334eb20e',
+        'Idempotency-Key' => 'e3383f39-e53b-4690-a763-5c8d3808067d',
         'Accept' => 'application/json',
     ];
 }
@@ -306,4 +188,72 @@ test('ROOT CAUSE, FIXED: onboarding returns a typed 503 default_plan_not_found (
     expect($noisyErrorLog)->toBeNull(
         'default_plan_not_found is a typed, actionable error and should not also be logged as an unexpected error-level exception.'
     );
+});
+
+test('ROOT CAUSE: onboarding must not 500 when the deterministic partner username already belongs to an orphaned user (partner_integrations mapping missing/deleted)', function (): void {
+    // EVIDENCE: PartnerMappingService::deterministicUsername() derives `users.username`
+    // purely from external_business_id, and `users.username` has a UNIQUE index
+    // (users_username_unique). detectDuplicates() only guards against a duplicate
+    // *email* (falls back to a provisional email) — it never checks/avoids a username
+    // collision. `fh-biz-demo-001` is the public demo external_business_id printed in
+    // the Postman collection defaults, README and /api-fizahub/help-test, so it has
+    // plausibly been submitted successfully before by another party. If the resulting
+    // partner_integrations row was later removed (manual cleanup / demo reset) while the
+    // provisioned `users` row (username `fizahub_<hash>`) was left behind, the next
+    // onboarding attempt for the same external_business_id re-enters provision() (no
+    // active mapping is found) and calls User::create() with the SAME deterministic
+    // username -> unique constraint violation -> uncaught QueryException -> generic
+    // HTTP 500 partner_api_error. This matches production request_id
+    // fef28d55-a74f-4e43-ae96-c172334eb20e.
+    AdminPlan::query()->create([
+        'name' => 'MLHUB Free Da Nang',
+        'slug' => 'mlhub-free-da-nang',
+        'status' => true,
+        'free_plan' => true,
+        'default_signup_plan' => true,
+        'currency' => 'VND',
+        'price' => 0,
+        'permissions' => [],
+    ]);
+
+    $orphanedUsername = app(PartnerMappingService::class)->deterministicUsername('fh-biz-demo-001');
+
+    $orphanedUser = User::query()->create([
+        'name' => 'Orphaned FizaHUB Demo User',
+        'username' => $orphanedUsername,
+        'email' => 'orphaned-leftover@example.com',
+        'timezone' => 'Asia/Ho_Chi_Minh',
+        'locale' => 'vi',
+        'password' => 'irrelevant-password',
+    ]);
+
+    // Sanity check: no partner_integrations row maps this external_business_id anymore
+    // (e.g. it was deleted), which is exactly what forces OnboardingService::upsert()
+    // back into the provision() branch instead of updateExistingMapping().
+    expect(\Modules\APIPartnerFizaHUB\Models\PartnerIntegration::query()
+        ->where('external_business_id', 'fh-biz-demo-001')
+        ->exists())->toBeFalse();
+
+    $response = $this->postJson(
+        '/api/v1/partners/fizahub/onboarding-requests',
+        productionOnboardingPayload(),
+        secondIncidentOnboardingHeaders()
+    );
+
+    // FIX: must provision successfully (with a non-colliding username) and flag the
+    // account for manual review instead of crashing. needs_review is intentionally
+    // reported as 202 Accepted (OnboardingController::httpStatus) — accepted, but a
+    // human must look at it before it's fully "created".
+    $response->assertStatus(202)
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('data.status', 'needs_review')
+        ->assertHeader('X-Request-Id', 'fef28d55-a74f-4e43-ae96-c172334eb20e');
+
+    $newUser = User::query()->where('id', $response->json('data.mlhub_user_id'))->first();
+    expect($newUser)->not->toBeNull()
+        ->and($newUser->username)->not->toBe($orphanedUsername)
+        ->and($newUser->id)->not->toBe($orphanedUser->id);
+
+    $duplicateCheck = (array) $response->json('data.duplicate_check');
+    expect(collect($duplicateCheck)->contains(fn (array $row): bool => ($row['type'] ?? '') === 'username'))->toBeTrue();
 });

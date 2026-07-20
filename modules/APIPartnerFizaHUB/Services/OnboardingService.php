@@ -449,7 +449,7 @@ class OnboardingService
         $owner = (array) data_get($acceptedPayload, 'owner', []);
         $businessPayload = (array) data_get($acceptedPayload, 'business', []);
         $externalBusinessId = (string) $acceptedPayload['external_business_id'];
-        $username = $this->mapping->deterministicUsername($externalBusinessId);
+        $username = $this->mapping->availableUsername($externalBusinessId);
         $password = Str::password(64);
         $timezone = (string) config('modules.apipartnerfizahub.timezone', 'Asia/Ho_Chi_Minh');
         $contactEmail = (string) ($owner['email'] ?? '');
