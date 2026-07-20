@@ -273,7 +273,7 @@ One unified collection — import once:
   - **A. MVP** (10 endpoints, required happy path)
   - **B. Extended Beta** (14 endpoints, optional)
 
-The collection ships with `partner_token=replace-with-token` (not a real secret) and empty `onboarding_request_id`/`ticket_id`/`campaign_id` variables — no fake IDs. A collection-level pre-request script recomputes `from`/`to` to the last 30 days on every send, and the `POST Onboarding` / `POST Create Support Ticket` requests have test scripts that auto-save `data.request_id` / `data.ticket_id` into collection variables for the next requests. Replace `partner_token` with the real token MLHUB issues before going live.
+The collection ships with `partner_token` pre-filled to the current testing-phase token (must match `FIZAHUB_PARTNER_TOKEN` on Coolify — see `.env.example`) and empty `onboarding_request_id`/`ticket_id`/`campaign_id` variables — no fake IDs. A collection-level pre-request script recomputes `from`/`to` to the last 30 days on every send, and the `POST Onboarding` / `POST Create Support Ticket` requests have test scripts that auto-save `data.request_id` / `data.ticket_id` into collection variables for the next requests. ⚠️ Rotate `partner_token` (both here and on Coolify) before going live or when the FizaHUB testing engagement ends.
 
 Public documentation:
 
