@@ -120,7 +120,7 @@ function makeDanglingIntegration(string $externalBusinessId): PartnerIntegration
     return $integration->fresh();
 }
 
-test('ROOT CAUSE: re-onboarding self-heals a broken mapping (nulled FKs from a deleted user/business) instead of 500ing on a unique-constraint violation', function (): void {
+test('re-onboarding a broken mapping returns a typed conflict without provisioning replacements', function (): void {
     $broken = makeDanglingIntegration('fh-biz-dangling-001');
 
     expect($broken->mlhub_user_id)->toBeNull()
@@ -132,6 +132,7 @@ test('ROOT CAUSE: re-onboarding self-heals a broken mapping (nulled FKs from a d
             'external_business_id' => 'fh-biz-dangling-001',
             'external_user_id' => 'fh-user-dangling-001',
             'package_code' => 'base',
+            'marketing_goal_codes' => ['local_presence', 'qr_checkin'],
             'owner' => [
                 'name' => 'Nguyen Van A',
                 'phone' => '0901 234 567',
@@ -141,6 +142,7 @@ test('ROOT CAUSE: re-onboarding self-heals a broken mapping (nulled FKs from a d
                 'name' => 'Dangling Retry Store',
                 'industry' => 'restaurant_food',
                 'phone' => '0901 234 567',
+                'email' => 'dangling-store@example.com',
                 'address' => '1 Le Duan, Da Nang',
                 'tax_code' => '0101 999',
                 'business_license_number' => 'GPKD 999',
@@ -154,16 +156,18 @@ test('ROOT CAUSE: re-onboarding self-heals a broken mapping (nulled FKs from a d
         brokenMappingHeaders()
     );
 
-    $response->assertSuccessful()
-        ->assertJsonPath('success', true)
-        ->assertJsonPath('data.account_created', true)
-        ->assertJsonPath('data.business_created', true);
+    $response->assertConflict()
+        ->assertJsonPath('success', false)
+        ->assertJsonPath('error.code', 'integration_broken')
+        ->assertJsonPath('error.details.next_action', 'contact_support');
 
-    $healed = PartnerIntegration::query()->where('external_business_id', 'fh-biz-dangling-001')->first();
-    expect($healed)->not->toBeNull()
-        ->and($healed->id)->toBe($broken->id, 'the SAME row must be healed in place, not a second colliding row')
-        ->and($healed->mlhub_user_id)->not->toBeNull()
-        ->and($healed->mlhub_business_id)->not->toBeNull();
+    $unchanged = PartnerIntegration::query()->where('external_business_id', 'fh-biz-dangling-001')->first();
+    expect($unchanged)->not->toBeNull()
+        ->and($unchanged->id)->toBe($broken->id)
+        ->and($unchanged->mlhub_user_id)->toBeNull()
+        ->and($unchanged->mlhub_business_id)->toBeNull()
+        ->and(User::query()->where('email', 'nguyenvana+dangling@example.com')->exists())->toBeFalse()
+        ->and(LocalBusiness::query()->where('name', 'Dangling Retry Store')->exists())->toBeFalse();
 
     expect(PartnerIntegration::query()->where('external_business_id', 'fh-biz-dangling-001')->count())->toBe(1);
 });

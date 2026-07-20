@@ -155,7 +155,7 @@ test('valid admin transitions advance status and record history with timestamps'
     $final = $service->transition($seed['onboarding']->fresh(), OnboardingStatusMachine::COMPLETED, 'admin', 7);
 
     expect($final->status)->toBe('completed')
-        ->and($final->current_step)->toBe('completed')
+        ->and($final->current_step)->toBe('ready')
         ->and($final->consultant_contacted_at)->not->toBeNull()
         ->and($final->ready_at)->not->toBeNull()
         ->and($final->completed_at)->not->toBeNull();
@@ -167,7 +167,7 @@ test('valid admin transitions advance status and record history with timestamps'
         ->all();
 
     expect($histories)->toBe([
-        'consulting',
+        'in_consultation',
         'configuring',
         'ready',
         'completed',

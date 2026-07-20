@@ -164,6 +164,7 @@ function validOnboardingPayload(array $overrides = []): array
         'external_business_id' => 'fh-biz-001',
         'external_user_id' => 'fh-user-001',
         'package_code' => 'base',
+        'marketing_goal_codes' => ['local_presence', 'qr_checkin'],
         'owner' => [
             'name' => 'Nguyen Van A',
             'phone' => '0901 234 567',
@@ -237,7 +238,7 @@ test('onboarding always provisions a free account awaiting consultant with reque
 
     $response->assertCreated()
         ->assertJsonPath('data.status', 'awaiting_consultant')
-        ->assertJsonPath('data.current_step', 'consultant_contact')
+        ->assertJsonPath('data.current_step', 'awaiting_consultant')
         ->assertJsonPath('data.status_label', 'Chờ tư vấn viên liên hệ')
         ->assertJsonPath('data.package_code', 'free')
         ->assertJsonPath('data.requested_package_code', 'base')
@@ -266,7 +267,7 @@ test('onboarding always provisions a free account awaiting consultant with reque
         ->and($user->timezone)->toBe('Asia/Ho_Chi_Minh')
         ->and($user->locale)->toBe('vi')
         ->and($user->plan_id)->toBe($plan->id)
-        ->and($user->username)->toStartWith('fizahub_')
+        ->and($user->username)->toBe('ownera')
         ->and($user->email_verified_at)->not->toBeNull()
         ->and(Hash::isHashed((string) $user->getRawOriginal('password')))->toBeTrue()
         ->and(json_encode($response->json()))->not->toContain('password')
@@ -282,7 +283,7 @@ test('onboarding always provisions a free account awaiting consultant with reque
     expect(PartnerOnboardingStatusHistory::query()->where('to_status', 'awaiting_consultant')->exists())->toBeTrue();
 });
 
-test('same request id upsert updates records once and keeps a single onboarding ticket', function (): void {
+test('same mapped business upsert updates permitted fields once and keeps a single onboarding ticket', function (): void {
     $requestId = (string) str()->uuid();
 
     $this->postJson(
@@ -300,7 +301,11 @@ test('same request id upsert updates records once and keeps a single onboarding 
         onboardingHeaders(['X-Request-Id' => $requestId])
     )
         ->assertOk()
-        ->assertJsonPath('data.status', 'awaiting_consultant');
+        ->assertJsonPath('data.status', 'awaiting_consultant')
+        ->assertJsonPath('data.already_registered', true)
+        ->assertJsonPath('data.account_created', false)
+        ->assertJsonPath('data.business_created', false)
+        ->assertJsonPath('data.integration_created', false);
 
     expect(User::query()->count())->toBe(1)
         ->and(LocalBusiness::query()->count())->toBe(1)
@@ -326,18 +331,19 @@ test('same external business id through a new request does not duplicate mlhub r
         ]),
         onboardingHeaders(['X-Request-Id' => (string) str()->uuid()])
     )
-        ->assertCreated()
-        ->assertJsonPath('data.status', 'awaiting_consultant');
+        ->assertOk()
+        ->assertJsonPath('data.status', 'awaiting_consultant')
+        ->assertJsonPath('data.already_registered', true);
 
     expect(User::query()->count())->toBe(1)
         ->and(LocalBusiness::query()->count())->toBe(1)
         ->and(PartnerIntegration::query()->count())->toBe(1)
-        ->and(PartnerOnboardingRequest::query()->count())->toBe(2)
+        ->and(PartnerOnboardingRequest::query()->count())->toBe(1)
         ->and(LocalBusiness::query()->value('name'))->toBe('Updated Shop');
 });
 
-test('duplicate owner email still provisions a Free account with a provisional email and needs_review', function (): void {
-    $existing = User::query()->create([
+test('duplicate owner email returns conflict without provisioning any partner resources', function (): void {
+    User::query()->create([
         'name' => 'Existing',
         'username' => 'existing1',
         'email' => 'owner.a@example.com',
@@ -350,23 +356,16 @@ test('duplicate owner email still provisions a Free account with a provisional e
         onboardingHeaders()
     );
 
-    $response->assertStatus(202)
-        ->assertJsonPath('data.status', 'needs_review')
-        ->assertJsonPath('data.current_step', 'needs_review')
-        ->assertJsonPath('data.package_code', 'free')
-        ->assertJsonPath('data.account_created', true)
-        ->assertJsonPath('data.duplicate_check.0.type', 'email')
-        ->assertJsonPath('data.duplicate_check.0.id', $existing->id);
+    $response->assertConflict()
+        ->assertJsonPath('error.code', 'email_already_registered')
+        ->assertJsonPath('error.details.next_action', 'use_existing_account_or_contact_support');
 
-    $integration = PartnerIntegration::query()->firstOrFail();
-    $provisioned = User::query()->findOrFail($integration->mlhub_user_id);
-
-    expect(PartnerIntegration::query()->count())->toBe(1)
-        ->and(User::query()->count())->toBe(2)
-        ->and(SupportTicket::query()->count())->toBe(1)
-        ->and($provisioned->email)->not->toBe('owner.a@example.com')
-        ->and($provisioned->email)->toStartWith('fizahub+')
-        ->and($integration->metadata['uses_provisional_email'] ?? null)->toBeTrue();
+    expect(PartnerIntegration::query()->count())->toBe(0)
+        ->and(User::query()->count())->toBe(1)
+        ->and(LocalBusiness::query()->count())->toBe(0)
+        ->and(Team::query()->count())->toBe(0)
+        ->and(PartnerOnboardingRequest::query()->count())->toBe(0)
+        ->and(SupportTicket::query()->count())->toBe(0);
 });
 
 test('duplicate tax code on another integration still provisions with needs_review', function (): void {
@@ -425,7 +424,7 @@ test('unverified identity still provisions an awaiting_consultant account', func
 
     $response->assertCreated()
         ->assertJsonPath('data.status', 'awaiting_consultant')
-        ->assertJsonPath('data.current_step', 'consultant_contact')
+        ->assertJsonPath('data.current_step', 'awaiting_consultant')
         ->assertJsonPath('data.request_id', $requestId);
 
     $user = User::query()->firstOrFail();
@@ -433,47 +432,6 @@ test('unverified identity still provisions an awaiting_consultant account', func
     expect(User::query()->count())->toBe(1)
         ->and(SupportTicket::query()->count())->toBe(1)
         ->and($user->email_verified_at)->toBeNull();
-});
-
-test('partner can confirm an onboarding request', function (): void {
-    $requestId = (string) str()->uuid();
-
-    $this->postJson(
-        '/api/v1/partners/fizahub/onboarding-requests',
-        validOnboardingPayload(),
-        onboardingHeaders(['X-Request-Id' => $requestId])
-    )->assertCreated();
-
-    $this->postJson(
-        '/api/v1/partners/fizahub/onboarding-requests/'.$requestId.'/confirm',
-        ['note' => 'Owner confirmed by phone'],
-        onboardingHeaders()
-    )
-        ->assertOk()
-        ->assertJsonPath('data.status', 'awaiting_consultant');
-
-    expect(PartnerOnboardingRequest::query()->value('partner_confirmed_at'))->not->toBeNull();
-});
-
-test('partner can cancel an onboarding request', function (): void {
-    $requestId = (string) str()->uuid();
-
-    $this->postJson(
-        '/api/v1/partners/fizahub/onboarding-requests',
-        validOnboardingPayload(),
-        onboardingHeaders(['X-Request-Id' => $requestId])
-    )->assertCreated();
-
-    $this->postJson(
-        '/api/v1/partners/fizahub/onboarding-requests/'.$requestId.'/cancel',
-        ['reason' => 'Owner changed their mind'],
-        onboardingHeaders()
-    )
-        ->assertOk()
-        ->assertJsonPath('data.status', 'cancelled')
-        ->assertJsonPath('data.current_step', 'cancelled');
-
-    expect(PartnerOnboardingRequest::query()->value('status'))->toBe('cancelled');
 });
 
 test('onboarding show returns status by request id', function (): void {
@@ -590,7 +548,7 @@ test('onboarding show with an empty, literal placeholder, or malformed request_i
         ->assertJsonPath('error.code', 'onboarding_request_not_found');
 });
 
-test('cancelling an already cancelled onboarding request is idempotent, not a 500 or a state conflict', function (): void {
+test('removed cancel onboarding route remains unavailable after creating a request', function (): void {
     $requestId = (string) str()->uuid();
 
     $this->postJson(
@@ -603,32 +561,32 @@ test('cancelling an already cancelled onboarding request is idempotent, not a 50
         '/api/v1/partners/fizahub/onboarding-requests/'.$requestId.'/cancel',
         ['reason' => 'First cancel'],
         onboardingHeaders()
-    )->assertOk()->assertJsonPath('data.status', 'cancelled');
+    )->assertNotFound()->assertJsonPath('error.code', 'route_not_found');
 
     // Same request_id, cancelled again — must stay a clean 200/cancelled, not 422/500.
     $this->postJson(
         '/api/v1/partners/fizahub/onboarding-requests/'.$requestId.'/cancel',
         ['reason' => 'Second cancel attempt'],
         onboardingHeaders()
-    )->assertOk()->assertJsonPath('data.status', 'cancelled');
+    )->assertNotFound()->assertJsonPath('error.code', 'route_not_found');
 });
 
-test('cancel returns a typed 404 for an unknown request_id instead of 500', function (): void {
+test('removed cancel route returns the standard route_not_found error', function (): void {
     $this->postJson(
         '/api/v1/partners/fizahub/onboarding-requests/'.((string) str()->uuid()).'/cancel',
         ['reason' => 'Does not exist'],
         onboardingHeaders()
     )
         ->assertNotFound()
-        ->assertJsonPath('error.code', 'onboarding_request_not_found');
+        ->assertJsonPath('error.code', 'route_not_found');
 });
 
-test('confirm returns a typed 404 for an unknown request_id instead of 500', function (): void {
+test('removed confirm route returns the standard route_not_found error', function (): void {
     $this->postJson(
         '/api/v1/partners/fizahub/onboarding-requests/'.((string) str()->uuid()).'/confirm',
         ['note' => 'Does not exist'],
         onboardingHeaders()
     )
         ->assertNotFound()
-        ->assertJsonPath('error.code', 'onboarding_request_not_found');
+        ->assertJsonPath('error.code', 'route_not_found');
 });

@@ -333,7 +333,7 @@ git commit -m "feat: cut over FizaHUB API to approved 22 routes"
 - Produces: `OnboardingService::upsert(array $payload, string $requestId): array{onboarding: PartnerOnboardingRequest, already_registered: bool, account_created: bool, business_created: bool, integration_created: bool}`.
 - Consumes: `SupportTicketBridge::createOnboardingReviewTicket(...)` with valid mapped user/team IDs.
 
-- [ ] **Step 1: Write failing username tests**
+- [x] **Step 1: Write failing username tests**
 
 ```php
 it('derives lowercase alphanumeric usernames from login email', function (string $email, string $expected): void {
@@ -353,7 +353,7 @@ it('uses a deterministic suffix when another email owns the base username', func
 });
 ```
 
-- [ ] **Step 2: Run username tests and verify RED**
+- [x] **Step 2: Run username tests and verify RED**
 
 Run:
 
@@ -363,7 +363,7 @@ php artisan test tests/Feature/APIPartnerFizaHUB/OnboardingUiContractTest.php --
 
 Expected: FAIL because `PartnerIdentityService` does not exist and current usernames are external-business-derived.
 
-- [ ] **Step 3: Implement the identity service**
+- [x] **Step 3: Implement the identity service**
 
 ```php
 final class PartnerIdentityService
@@ -401,7 +401,7 @@ final class PartnerIdentityService
 
 Remove onboarding use of `deterministicUsername`, `availableUsername`, and `provisionalEmail`. Keep deprecated mapping helpers only if unrelated internal callers still require them; no onboarding path may call them.
 
-- [ ] **Step 4: Write failing canonical payload, status, duplicate, rollback, and count tests**
+- [x] **Step 4: Write failing canonical payload, status, duplicate, rollback, and count tests**
 
 The canonical helper in the test file is:
 
@@ -456,7 +456,7 @@ Also assert HTTP 202 for a configured review condition, both typed HTTP 409 case
 
 Add a concurrency regression test that launches two first-onboarding attempts for the same normalized partner/business identity. The test must prove that the database uniqueness constraints are the final race guard: one request provisions the graph, the other reloads and returns the existing graph, and final counts remain exactly one user, team, business, integration, active assignment, onboarding request, and onboarding ticket.
 
-- [ ] **Step 5: Run onboarding tests and verify RED**
+- [x] **Step 5: Run onboarding tests and verify RED**
 
 Run:
 
@@ -466,7 +466,7 @@ php artisan test tests/Feature/APIPartnerFizaHUB/OnboardingUiContractTest.php
 
 Expected: FAIL on required owner phone/verification fields, provisional email behavior, request creation before duplicate checks, missing `already_registered`, and old timeline/status serialization.
 
-- [ ] **Step 6: Update onboarding validation**
+- [x] **Step 6: Update onboarding validation**
 
 Use these core rules:
 
@@ -489,7 +489,7 @@ Use these core rules:
 'metadata' => ['nullable', 'array'],
 ```
 
-- [ ] **Step 7: Refactor onboarding transaction order**
+- [x] **Step 7: Refactor onboarding transaction order**
 
 Inside one `DB::transaction`:
 
@@ -531,13 +531,13 @@ return $this->provisionNewRegistration($payload, $requestId);
 
 `lockForUpdate()` cannot lock a row that does not exist. Keep the existing unique database constraints on `(partner_code, external_business_id)`, `users.email`, and `users.username` as authoritative race guards. If an insert loses one of these named unique-key races, roll back the provisional transaction and classify that exact constraint: reload the winning integration for the normal email-match/mismatch branch, return `email_already_registered` for a newly claimed email, or recompute the deterministic username suffix for a username-only collision. Retry at most once. Never catch a generic database exception and silently reuse unrelated rows.
 
-- [ ] **Step 8: Serialize stable status and timeline**
+- [x] **Step 8: Serialize stable status and timeline**
 
 `OnboardingStatusMachine::timelineFor()` returns exactly five steps. Map legacy `consulting` to `in_consultation` and `needs_information` to `needs_review`. When status is `needs_review`, mark the intake step `blocked`; do not append another step.
 
 `OnboardingController::httpStatus()` returns 201 for a new awaiting request, 202 for a new needs-review request, and 200 for an existing registration.
 
-- [ ] **Step 9: Preserve exactly one valid onboarding ticket**
+- [x] **Step 9: Preserve exactly one valid onboarding ticket**
 
 Update `createOnboardingReviewTicket` and `ensureOnboardingTicket` so the context always contains:
 
@@ -552,7 +552,7 @@ Update `createOnboardingReviewTicket` and `ensureOnboardingTicket` so the contex
 
 Reuse the referenced ticket when it exists. If it was deleted, create one ticket using valid `uid`, `open_by`, and `team_id`, update `support_ticket_id`, and audit the reason.
 
-- [ ] **Step 10: Run onboarding and support-ticket regression tests GREEN**
+- [x] **Step 10: Run onboarding and support-ticket regression tests GREEN**
 
 Run:
 
@@ -562,7 +562,7 @@ php artisan test tests/Feature/APIPartnerFizaHUB/OnboardingUiContractTest.php te
 
 Expected: PASS with unchanged counts after the second onboarding and no orphan/provisional resources.
 
-- [ ] **Step 11: Commit Task 2**
+- [x] **Step 11: Commit Task 2**
 
 ```powershell
 git add modules/APIPartnerFizaHUB/Services modules/APIPartnerFizaHUB/Http/Requests/UpsertOnboardingRequest.php modules/APIPartnerFizaHUB/Http/Controllers/OnboardingController.php modules/APIPartnerFizaHUB/Support/OnboardingStatusMachine.php modules/APIPartnerFizaHUB/Models/PartnerOnboardingRequest.php tests/Feature/APIPartnerFizaHUB

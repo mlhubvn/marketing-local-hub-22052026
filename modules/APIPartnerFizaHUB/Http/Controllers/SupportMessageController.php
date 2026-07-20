@@ -14,20 +14,12 @@ class SupportMessageController
         protected SupportTicketBridge $bridge
     ) {}
 
-    public function store(CreateSupportMessageRequest $request, string $ticket_id): JsonResponse
-    {
-        $externalBusinessId = trim((string) $request->query('external_business_id', $request->input('external_business_id', '')));
-
-        if ($externalBusinessId === '') {
-            return PartnerApiResponse::error(
-                'validation_failed',
-                'The given data was invalid.',
-                422,
-                ['external_business_id' => ['The external_business_id parameter is required for ticket scope.']]
-            );
-        }
-
-        $integration = $this->bridge->findIntegrationOrFail($externalBusinessId);
+    public function store(
+        CreateSupportMessageRequest $request,
+        string $external_business_id,
+        string $ticket_id
+    ): JsonResponse {
+        $integration = $this->bridge->findIntegrationOrFail($external_business_id);
 
         try {
             $message = $this->bridge->addMessage(

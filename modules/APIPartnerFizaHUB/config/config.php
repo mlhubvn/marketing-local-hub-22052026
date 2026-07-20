@@ -13,6 +13,24 @@ return [
         'free' => 'mlhub-free-da-nang',
         'base' => 'mlhub-free-da-nang',
     ],
+    'marketing_goals' => [
+        'local_presence' => [
+            'label' => 'Hiện diện',
+            'description' => 'Tăng hiện diện địa phương.',
+        ],
+        'qr_checkin' => [
+            'label' => 'QR Check-in',
+            'description' => 'Thu lead ngay tại cửa hàng.',
+        ],
+        'voucher_return' => [
+            'label' => 'Mã ưu đãi',
+            'description' => 'Khuyến khích khách hàng quay lại.',
+        ],
+        'customer_retention' => [
+            'label' => 'Khách hàng',
+            'description' => 'Lưu và chăm sóc khách hàng cũ.',
+        ],
+    ],
     'provisional_email_domain' => env('FIZAHUB_PROVISIONAL_EMAIL_DOMAIN', 'provisional.mlhub.vn'),
     // URL do FizaHUB cung cấp — để trống thì webhook tự bỏ qua (không lỗi).
     'webhook_base_url' => env('FIZAHUB_WEBHOOK_BASE_URL', ''),

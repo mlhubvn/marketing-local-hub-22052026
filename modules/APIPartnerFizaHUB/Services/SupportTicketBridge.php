@@ -168,7 +168,8 @@ class SupportTicketBridge
         PartnerIntegration $integration,
         string $title,
         string $summary,
-        array $duplicates = []
+        array $duplicates = [],
+        ?string $auditReason = null
     ): SupportTicket {
         // Onboarding always provisions a real MLHUB user/team before a review ticket is
         // ever created (see OnboardingService::provision()), so support_tickets.uid and
@@ -189,6 +190,8 @@ class SupportTicketBridge
             'duplicate_check' => $duplicates,
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: $summary;
 
+        $ticket = null;
+
         if ($onboarding->support_ticket_id) {
             $existing = SupportTicket::query()->find($onboarding->support_ticket_id);
 
@@ -202,29 +205,63 @@ class SupportTicketBridge
                     'changed' => time(),
                     'admin_read' => true,
                     'user_read' => false,
-                    'status' => 1,
                 ])->save();
 
-                return $existing;
+                $ticket = $existing;
             }
         }
 
-        return SupportTicket::query()->create([
-            'id_secure' => Str::random(32),
-            'uid' => $userId,
-            'open_by' => $userId,
-            'team_id' => $teamId,
-            'cate_id' => null,
-            'type_id' => null,
-            'title' => $title,
-            'content' => $content,
-            'status' => 1,
-            'pin' => false,
-            'user_read' => false,
-            'admin_read' => true,
-            'created' => time(),
-            'changed' => time(),
-        ]);
+        if (! $ticket) {
+            $ticket = SupportTicket::query()->create([
+                'id_secure' => Str::random(32),
+                'uid' => $userId,
+                'open_by' => $userId,
+                'team_id' => $teamId,
+                'cate_id' => null,
+                'type_id' => null,
+                'title' => $title,
+                'content' => $content,
+                'status' => 1,
+                'pin' => false,
+                'user_read' => false,
+                'admin_read' => true,
+                'created' => time(),
+                'changed' => time(),
+            ]);
+        }
+
+        $this->storeOnboardingContext($integration, $ticket, $onboarding, $auditReason);
+
+        return $ticket;
+    }
+
+    private function storeOnboardingContext(
+        PartnerIntegration $integration,
+        SupportTicket $ticket,
+        PartnerOnboardingRequest $onboarding,
+        ?string $auditReason
+    ): void {
+        if (! Schema::hasTable('partner_support_ticket_contexts')) {
+            return;
+        }
+
+        PartnerSupportTicketContext::query()->updateOrCreate(
+            ['support_ticket_id' => $ticket->id],
+            [
+                'partner_integration_id' => $integration->id,
+                'external_business_id' => $integration->external_business_id,
+                'request_code' => 'fizahub_onboarding',
+                'package_code' => $integration->package_code,
+                'related_resource_type' => PartnerOnboardingRequest::class,
+                'related_resource_id' => (string) $onboarding->request_id,
+                'context' => [
+                    'ticket_type' => 'onboarding',
+                    'source' => 'fizahub',
+                    'preset_code' => 'fizahub_onboarding',
+                    'audit_reason' => $auditReason,
+                ],
+            ]
+        );
     }
 
     /**

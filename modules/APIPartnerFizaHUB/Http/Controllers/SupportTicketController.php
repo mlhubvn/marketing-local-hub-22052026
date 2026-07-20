@@ -6,7 +6,6 @@ use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\APIPartnerFizaHUB\Http\Requests\CreateSupportTicketRequest;
-use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
 use Modules\APIPartnerFizaHUB\Services\SupportTicketBridge;
 use Modules\APIPartnerFizaHUB\Support\PartnerApiResponse;
 use Throwable;
@@ -38,13 +37,9 @@ class SupportTicketController
         );
     }
 
-    public function close(Request $request, string $ticket_id): JsonResponse
+    public function close(Request $request, string $external_business_id, string $ticket_id): JsonResponse
     {
-        $integration = $this->resolveScopedIntegration($request);
-
-        if ($integration instanceof JsonResponse) {
-            return $integration;
-        }
+        $integration = $this->bridge->findIntegrationOrFail($external_business_id);
 
         $reason = $request->input('reason');
 
@@ -53,33 +48,13 @@ class SupportTicketController
         );
     }
 
-    public function reopen(Request $request, string $ticket_id): JsonResponse
+    public function reopen(Request $request, string $external_business_id, string $ticket_id): JsonResponse
     {
-        $integration = $this->resolveScopedIntegration($request);
-
-        if ($integration instanceof JsonResponse) {
-            return $integration;
-        }
+        $integration = $this->bridge->findIntegrationOrFail($external_business_id);
 
         return PartnerApiResponse::success(
             $this->bridge->reopen($integration, $ticket_id)
         );
-    }
-
-    private function resolveScopedIntegration(Request $request): PartnerIntegration|JsonResponse
-    {
-        $externalBusinessId = trim((string) $request->query('external_business_id', $request->input('external_business_id', '')));
-
-        if ($externalBusinessId === '') {
-            return PartnerApiResponse::error(
-                'validation_failed',
-                'The given data was invalid.',
-                422,
-                ['external_business_id' => ['The external_business_id parameter is required for ticket scope.']]
-            );
-        }
-
-        return $this->bridge->findIntegrationOrFail($externalBusinessId);
     }
 
     public function index(Request $request, string $external_business_id): JsonResponse
@@ -104,20 +79,9 @@ class SupportTicketController
         ]);
     }
 
-    public function show(Request $request, string $ticket_id): JsonResponse
+    public function show(Request $request, string $external_business_id, string $ticket_id): JsonResponse
     {
-        $externalBusinessId = trim((string) $request->query('external_business_id', ''));
-
-        if ($externalBusinessId === '') {
-            return PartnerApiResponse::error(
-                'validation_failed',
-                'The given data was invalid.',
-                422,
-                ['external_business_id' => ['The external_business_id query parameter is required for ticket scope.']]
-            );
-        }
-
-        $integration = $this->bridge->findIntegrationOrFail($externalBusinessId);
+        $integration = $this->bridge->findIntegrationOrFail($external_business_id);
         $since = $this->parseSince($request->query('since'));
         $detail = $this->bridge->detail($integration, $ticket_id, $since);
 

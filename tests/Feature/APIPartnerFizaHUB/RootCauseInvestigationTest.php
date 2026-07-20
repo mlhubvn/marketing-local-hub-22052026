@@ -22,7 +22,7 @@ use Modules\APIPartnerFizaHUB\Models\PartnerApiLog;
 use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
 use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingRequest;
 use Modules\APIPartnerFizaHUB\Services\OnboardingService;
-use Modules\APIPartnerFizaHUB\Services\PartnerMappingService;
+use Modules\APIPartnerFizaHUB\Services\PartnerIdentityService;
 use Modules\APIPartnerFizaHUB\Services\SupportTicketBridge;
 use Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine;
 use Modules\APIPartnerFizaHUB\Support\PartnerApiException;
@@ -39,6 +39,7 @@ function productionOnboardingPayload(): array
         'external_business_id' => 'fh-biz-demo-001',
         'external_user_id' => 'fh-user-demo-001',
         'package_code' => 'base',
+        'marketing_goal_codes' => ['local_presence', 'qr_checkin'],
         'owner' => [
             'name' => 'Nguyen Van A',
             'phone' => '0901 234 567',
@@ -48,6 +49,7 @@ function productionOnboardingPayload(): array
             'name' => 'Fiza Demo Store - Com Tam Da Nang',
             'industry' => 'restaurant_food',
             'phone' => '0901 234 567',
+            'email' => 'demo-store@example.com',
             'address' => '123 Le Duan, Da Nang',
             'tax_code' => '0101 234 567',
             'business_license_number' => 'GPKD 123',
@@ -200,7 +202,7 @@ test('ROOT CAUSE, FIXED: onboarding returns a typed 503 default_plan_not_found (
     );
 });
 
-test('ROOT CAUSE: onboarding must not 500 when the deterministic partner username already belongs to an orphaned user (partner_integrations mapping missing/deleted)', function (): void {
+test('email-derived username collision uses a stable hash suffix instead of failing onboarding', function (): void {
     // EVIDENCE: PartnerMappingService::deterministicUsername() derives `users.username`
     // purely from external_business_id, and `users.username` has a UNIQUE index
     // (users_username_unique). detectDuplicates() only guards against a duplicate
@@ -226,7 +228,7 @@ test('ROOT CAUSE: onboarding must not 500 when the deterministic partner usernam
         'permissions' => [],
     ]);
 
-    $orphanedUsername = app(PartnerMappingService::class)->deterministicUsername('fh-biz-demo-001');
+    $orphanedUsername = app(PartnerIdentityService::class)->usernameFromEmail('nguyenvana+demo001@example.com');
 
     $orphanedUser = User::query()->create([
         'name' => 'Orphaned FizaHUB Demo User',
@@ -254,18 +256,16 @@ test('ROOT CAUSE: onboarding must not 500 when the deterministic partner usernam
     // account for manual review instead of crashing. needs_review is intentionally
     // reported as 202 Accepted (OnboardingController::httpStatus) — accepted, but a
     // human must look at it before it's fully "created".
-    $response->assertStatus(202)
+    $response->assertCreated()
         ->assertJsonPath('success', true)
-        ->assertJsonPath('data.status', 'needs_review')
+        ->assertJsonPath('data.status', 'awaiting_consultant')
         ->assertHeader('X-Request-Id', 'fef28d55-a74f-4e43-ae96-c172334eb20e');
 
     $newUser = User::query()->where('id', $response->json('data.mlhub_user_id'))->first();
     expect($newUser)->not->toBeNull()
         ->and($newUser->username)->not->toBe($orphanedUsername)
+        ->and($newUser->username)->toStartWith($orphanedUsername)
         ->and($newUser->id)->not->toBe($orphanedUser->id);
-
-    $duplicateCheck = (array) $response->json('data.duplicate_check');
-    expect(collect($duplicateCheck)->contains(fn (array $row): bool => ($row['type'] ?? '') === 'username'))->toBeTrue();
 });
 
 test('onboarding creates review ticket using the provisioned user under production foreign keys', function (): void {
@@ -293,6 +293,7 @@ test('onboarding creates review ticket using the provisioned user under producti
         'external_business_id' => 'fh-biz-demo-888',
         'external_user_id' => 'fh-user-demo-888',
         'package_code' => 'base',
+        'marketing_goal_codes' => ['local_presence', 'qr_checkin'],
         'owner' => [
             'name' => 'Nguyen Van 888',
             'phone' => '0901 234 888',
@@ -302,6 +303,7 @@ test('onboarding creates review ticket using the provisioned user under producti
             'name' => 'Fiza Demo 888 - Com Tam Da Nang',
             'industry' => 'restaurant_food',
             'phone' => '0901 234 888',
+            'email' => 'demo-888@example.com',
             'address' => '888 Le Duan, Da Nang',
             'tax_code' => '0101 234 888',
             'business_license_number' => 'GPKD 888',
@@ -435,6 +437,7 @@ test('if support ticket creation fails mid-onboarding, the whole transaction rol
         'external_business_id' => $externalBusinessId,
         'external_user_id' => 'fh-user-rollback-test',
         'package_code' => 'base',
+        'marketing_goal_codes' => ['local_presence', 'qr_checkin'],
         'owner' => [
             'name' => 'Rollback Owner',
             'phone' => '0901 234 000',
@@ -444,6 +447,7 @@ test('if support ticket creation fails mid-onboarding, the whole transaction rol
             'name' => 'Rollback Store',
             'industry' => 'restaurant_food',
             'phone' => '0901 234 000',
+            'email' => 'rollback-store@example.com',
             'address' => '1 Le Duan, Da Nang',
             'tax_code' => '0101 000 000',
             'business_license_number' => 'GPKD 000',

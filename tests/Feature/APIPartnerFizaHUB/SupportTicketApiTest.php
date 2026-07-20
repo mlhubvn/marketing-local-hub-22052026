@@ -316,7 +316,7 @@ test('detail returns initial message and supports since polling', function (): v
     ]);
 
     $detail = $this->getJson(
-        '/api/v1/partners/fizahub/support-tickets/'.$ticketId.'?external_business_id=biz-a',
+        '/api/v1/partners/fizahub/businesses/biz-a/support-tickets/'.$ticketId,
         supportHeaders()
     )->assertOk();
 
@@ -329,7 +329,7 @@ test('detail returns initial message and supports since polling', function (): v
     $since = urlencode((string) $detail->json('data.messages.0.created_at'));
 
     $polled = $this->getJson(
-        '/api/v1/partners/fizahub/support-tickets/'.$ticketId.'?external_business_id=biz-a&since='.$since,
+        '/api/v1/partners/fizahub/businesses/biz-a/support-tickets/'.$ticketId.'?since='.$since,
         supportHeaders()
     )->assertOk();
 
@@ -349,7 +349,7 @@ test('partner message strips html and rejects closed tickets', function (): void
     )->json('data.ticket_id');
 
     $this->postJson(
-        '/api/v1/partners/fizahub/support-tickets/'.$ticketId.'/messages?external_business_id=biz-a',
+        '/api/v1/partners/fizahub/businesses/biz-a/support-tickets/'.$ticketId.'/messages',
         ['message' => '<p>Hello <b>world</b></p>'],
         supportHeaders()
     )
@@ -368,7 +368,7 @@ test('partner message strips html and rejects closed tickets', function (): void
     $ticket->forceFill(['status' => 2])->save();
 
     $this->postJson(
-        '/api/v1/partners/fizahub/support-tickets/'.$ticketId.'/messages?external_business_id=biz-a',
+        '/api/v1/partners/fizahub/businesses/biz-a/support-tickets/'.$ticketId.'/messages',
         ['message' => 'Should fail'],
         supportHeaders()
     )
@@ -387,14 +387,14 @@ test('tenant isolation blocks cross business ticket access', function (): void {
     )->json('data.ticket_id');
 
     $this->getJson(
-        '/api/v1/partners/fizahub/support-tickets/'.$ticketA.'?external_business_id=biz-b',
+        '/api/v1/partners/fizahub/businesses/biz-b/support-tickets/'.$ticketA,
         supportHeaders()
     )
         ->assertNotFound()
         ->assertJsonPath('error.code', 'ticket_not_found');
 
     $this->postJson(
-        '/api/v1/partners/fizahub/support-tickets/'.$ticketA.'/messages?external_business_id=biz-b',
+        '/api/v1/partners/fizahub/businesses/biz-b/support-tickets/'.$ticketA.'/messages',
         ['message' => 'intrusion'],
         supportHeaders()
     )
@@ -444,7 +444,7 @@ test('message endpoint requires idempotency key', function (): void {
     )->json('data.ticket_id');
 
     $this->postJson(
-        '/api/v1/partners/fizahub/support-tickets/'.$ticketId.'/messages?external_business_id=biz-a',
+        '/api/v1/partners/fizahub/businesses/biz-a/support-tickets/'.$ticketId.'/messages',
         ['message' => 'No key'],
         supportHeaders(['Idempotency-Key' => ''])
     )

@@ -31,6 +31,7 @@ class OnboardingController
                 (bool) $result['account_created'],
                 (bool) $result['business_created'],
                 (bool) $result['integration_created'],
+                (bool) $result['already_registered'],
             ),
             $status,
             $requestId

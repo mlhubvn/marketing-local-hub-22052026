@@ -69,6 +69,11 @@ class PartnerOnboardingRequest extends Model
 
     public function statusLabel(): string
     {
-        return OnboardingStatusMachine::label((string) $this->status);
+        return OnboardingStatusMachine::label($this->publicStatus());
+    }
+
+    public function publicStatus(): string
+    {
+        return OnboardingStatusMachine::publicStatus((string) $this->status);
     }
 }

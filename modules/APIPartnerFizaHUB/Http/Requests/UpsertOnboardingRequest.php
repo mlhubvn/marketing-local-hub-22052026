@@ -26,29 +26,33 @@ class UpsertOnboardingRequest extends FormRequest
     public function rules(): array
     {
         $packageCodes = array_keys((array) config('modules.apipartnerfizahub.package_map', []));
+        $goalCodes = array_keys((array) config('modules.apipartnerfizahub.marketing_goals', []));
 
         return [
             'external_business_id' => ['required', 'string', 'max:128'],
             'external_user_id' => ['nullable', 'string', 'max:128'],
+            'marketing_goal_codes' => ['required', 'array', 'min:1', 'max:3'],
+            'marketing_goal_codes.*' => ['required', 'string', Rule::in($goalCodes)],
             'package_code' => ['required_without:requested_package_code', 'nullable', 'string', Rule::in($packageCodes)],
             'requested_package_code' => ['required_without:package_code', 'nullable', 'string', Rule::in($packageCodes)],
             'owner' => ['required', 'array'],
             'owner.name' => ['required', 'string', 'max:255'],
-            'owner.phone' => ['required', 'string', 'max:40'],
-            'owner.email' => ['required', 'email', 'max:255'],
+            'owner.phone' => ['nullable', 'string', 'max:40'],
+            'owner.email' => ['required', 'email:rfc', 'max:255'],
             'business' => ['required', 'array'],
             'business.name' => ['required', 'string', 'max:255'],
             'business.industry' => ['required', 'string', 'max:80'],
-            'business.phone' => ['nullable', 'string', 'max:40'],
-            'business.email' => ['nullable', 'email', 'max:255'],
-            'business.website' => ['nullable', 'url', 'max:2048'],
-            'business.address' => ['nullable', 'string', 'max:1000'],
+            'business.phone' => ['required', 'string', 'max:40'],
+            'business.email' => ['required', 'email:rfc', 'max:255'],
+            'business.website' => ['nullable', 'url', 'max:500'],
+            'business.address' => ['required', 'string', 'max:1000'],
             'business.tax_code' => ['nullable', 'string', 'max:80'],
             'business.business_license_number' => ['nullable', 'string', 'max:80'],
-            'verification' => ['required', 'array'],
-            'verification.identity_verified' => ['required', 'boolean'],
+            'verification' => ['nullable', 'array'],
+            'verification.identity_verified' => ['nullable', 'boolean'],
             'verification.verified_at' => ['nullable', 'date'],
             'verification.verified_by' => ['nullable', 'string', 'max:80'],
+            'metadata' => ['nullable', 'array'],
         ];
     }
 
