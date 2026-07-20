@@ -58,7 +58,11 @@ Successful responses use:
 ```json
 {
   "success": true,
-  "data": {}
+  "data": {},
+  "meta": {
+    "request_id": "uuid"
+  },
+  "error": null
 }
 ```
 
@@ -67,6 +71,10 @@ Errors use:
 ```json
 {
   "success": false,
+  "data": null,
+  "meta": {
+    "request_id": "uuid"
+  },
   "error": {
     "code": "machine_readable_code",
     "message": "Human-readable Vietnamese message.",
@@ -74,6 +82,19 @@ Errors use:
   }
 }
 ```
+
+Every response, including authentication, validation, not-found, conflict, readiness, and rate-limit errors, echoes the effective `X-Request-Id` as `meta.request_id`.
+
+### Idempotency semantics
+
+Every write endpoint requires `Idempotency-Key` and applies these rules:
+
+- The same key and the same normalized payload return the original HTTP status and response without repeating side effects.
+- The same key with a different normalized payload returns HTTP 409 `idempotency_conflict`.
+- Sending a support message cannot create a duplicate message.
+- Campaign approval cannot record the same decision twice.
+- Repeated close or reopen requests never produce an untyped server error; an exact idempotent replay returns the stored response, while a new key is evaluated against the current state machine.
+- Reusing a CRM login-link key returns the same link while it remains unused and unexpired. Once used or expired, the client must send a new key.
 
 ### Identifier handoff
 
@@ -86,7 +107,24 @@ Growth read endpoints accept:
 - `range=today|7d|30d|90d|custom`
 - `from=YYYY-MM-DD` and `to=YYYY-MM-DD` when `range=custom`
 
-The default timezone is the configured FizaHUB partner timezone.
+The default range is `30d`. A custom range requires both dates, `from` must not be after `to`, and the inclusive range must not exceed 366 days. Invalid ranges return HTTP 422 `validation_failed`. The default timezone is the configured FizaHUB partner timezone.
+
+### Cursor pagination
+
+All cursor-paginated collections use:
+
+```json
+{
+  "items": [],
+  "pagination": {
+    "next_cursor": null,
+    "has_more": false,
+    "per_page": 20
+  }
+}
+```
+
+The server caps `per_page` at the documented maximum and returns HTTP 422 `validation_failed` for malformed cursors.
 
 ## Core Endpoint Contract
 
@@ -175,6 +213,16 @@ Optional fields include `external_user_id`, `owner.phone`, `business.website`, a
 
 First registration provisions exactly one user, personal team/workspace, local business, partner integration, active Free package assignment, canonical onboarding request, and onboarding support ticket in one transaction.
 
+Onboarding HTTP outcomes are fixed:
+
+- HTTP 201 when new resources are created in `awaiting_consultant`.
+- HTTP 202 when new resources are created but onboarding is paused in `needs_review`.
+- HTTP 200 when the same business and mapped login email were already registered.
+- HTTP 409 `email_already_registered` when the login email belongs to another account.
+- HTTP 409 `onboarding_email_mismatch` when the business is mapped to another login email.
+- HTTP 422 `validation_failed` for an invalid payload.
+- HTTP 503 when schema, default plan mapping, or another required dependency is not ready.
+
 The response returns:
 
 - `request_id`
@@ -201,6 +249,22 @@ Returns the onboarding resource and a five-step timeline:
 Each step has `code`, `label`, `status`, `completed_at`, and `description`.
 
 Stable public statuses are `awaiting_consultant`, `needs_review`, `in_consultation`, `configuring`, `ready`, `completed`, and `cancelled`. Existing internal values are mapped to these public values.
+
+`needs_review` is not a sixth timeline step. It blocks the onboarding flow at the intake/review position before `in_consultation`.
+
+Timeline step status is one of `completed`, `current`, `pending`, or `blocked`. A serialized step follows:
+
+```json
+{
+  "code": "awaiting_consultant",
+  "label": "Chờ tư vấn viên liên hệ",
+  "status": "current",
+  "completed_at": null,
+  "description": "Yêu cầu đã vào hàng đợi tư vấn."
+}
+```
+
+Activation status is one of `inactive`, `onboarding`, `active`, or `suspended`.
 
 #### 7. PATCH `/businesses/{external_business_id}/profile`
 
@@ -325,7 +389,7 @@ Creates a single-use, short-lived CRM URL for the mapped user and workspace. It 
 | Screen | API |
 |---|---|
 | 01 — Unactivated home | Marketing Status |
-| 02 — Marketing solution selection | Marketing Catalog |
+| 02 — Marketing solution selection | Marketing Catalog; Marketing Preferences when the business is already onboarded |
 | 03 — Registration information | Create Onboarding |
 | 04 — Account created | Create Onboarding response and Marketing Status |
 | 05 — Onboarding tracking | Onboarding Detail |
@@ -333,7 +397,7 @@ Creates a single-use, short-lived CRM URL for the mapped user and workspace. It 
 | 07 — Growth overview | Dashboard with a selected range |
 | 08 — Growth analysis | Growth Insights |
 | 09 — Marketing campaigns | Campaign List |
-| 10 — Service package | Business Package |
+| 10 — Service package | Business Package; Marketing Preferences to save package interest |
 | 11 — Campaign detail | Campaign Detail and Campaign Approval when applicable |
 | 12 — Support Center | Support Ticket List with embedded summary |
 | 13 — Create support request | Support Presets and Create Ticket |
@@ -452,3 +516,24 @@ No destructive migration is permitted. A new additive migration is allowed only 
 - Dashboard and campaign empty states return HTTP 200.
 - Postman can execute the full UI path without guessed identifiers.
 - The complete APIPartnerFizaHUB test suite, Pint, and FizaHUB Doctor pass.
+
+## Breaking v1 Cutover
+
+This contract is an intentional breaking replacement of the previous API v1 surface. Public aliases for old routes are not retained because the route set must contain exactly 22 Core endpoints.
+
+Route replacements include:
+
+- `integration-status` to `marketing-status`;
+- `packages` to `marketing-catalog`;
+- separate `insights` and `recommendations` to `growth-insights`;
+- `one-time-login` to `crm-login-links`;
+- query-scoped support ticket routes to routes nested beneath the external business.
+
+The cutover is deployed as one coordinated release:
+
+1. Deploy the application code exposing the 22 endpoints.
+2. Publish the new Postman collection.
+3. Publish the matching README, public documentation, help page, and endpoint matrix.
+4. Instruct FizaHUB developers to delete the old collection and import the new collection.
+5. Execute the staging smoke test and full UI happy path.
+6. Cut over production only after staging evidence is accepted.
