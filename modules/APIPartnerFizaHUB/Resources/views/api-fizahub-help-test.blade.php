@@ -21,9 +21,13 @@
     <p><a href="{{ route('partner.fizahub.docs.postman') }}">Tải Postman collection</a> · <a href="{{ route('partner.fizahub.docs') }}">Xem tài liệu contract</a></p>
 
     <article>
-        <h2>1. Cấu hình duy nhất cần nhập</h2>
-        <p>Điền <code>partner_token</code>. Collection tự sinh <code>external_business_id</code>, <code>external_user_id</code>, <code>from</code> và <code>to</code>.</p>
+        <h2>1. Nhập partner_token một lần</h2>
+        <p>File tải từ trang này đã có sẵn URL production. Sau khi import, dán token được MLHUB cấp vào collection variable <code>partner_token</code>:</p>
+        <pre><code>base_url={{ $appUrl }}
+partner_token=&lt;dán token FizaHUB được cấp&gt;</code></pre>
+        <p>Collection tự sinh <code>external_business_id</code>, <code>external_user_id</code>, <code>from</code> và <code>to</code>.</p>
         <p>Mỗi request dùng <code>X-Request-Id</code> là UUID mới. Mỗi write request dùng <code>Idempotency-Key</code> mới.</p>
+        <div class="note">Token không nằm trong HTML hoặc JSON tải công khai. Chỉ lưu token trong Postman collection/environment riêng của đội FizaHUB.</div>
     </article>
 
     <article>

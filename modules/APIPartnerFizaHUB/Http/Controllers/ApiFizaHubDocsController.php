@@ -4,13 +4,13 @@ namespace Modules\APIPartnerFizaHUB\Http\Controllers;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Response;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ApiFizaHubDocsController
 {
     public function show(): View
     {
         return view('apipartnerfizahub::api-fizahub', [
+            'appUrl' => rtrim((string) config('app.url'), '/'),
             'baseUrl' => rtrim((string) config('app.url'), '/').'/api/v1/partners/fizahub',
             'postmanUrl' => route('partner.fizahub.docs.postman'),
             'helpTestUrl' => route('partner.fizahub.docs.help-test'),
@@ -35,14 +35,10 @@ class ApiFizaHubDocsController
             'appUrl' => rtrim((string) config('app.url'), '/'),
             'dashboardFrom' => $dashboardFrom,
             'dashboardTo' => $dashboardTo,
-            // Always mirrors the live FIZAHUB_PARTNER_TOKEN so this page can never drift from
-            // the real token FizaHUB must use — testing-phase choice to show it in the clear
-            // (see .env.example §8), not a leftover hardcoded demo value.
-            'demoPartnerToken' => (string) config('modules.apipartnerfizahub.token', 'fizahub'),
         ]);
     }
 
-    public function postman(): BinaryFileResponse|Response
+    public function postman(): Response
     {
         return $this->downloadCollection(
             'FizaHUB-Partner-API.postman_collection.json',
@@ -53,22 +49,39 @@ class ApiFizaHubDocsController
     /**
      * Backward-compatible alias: old Extended Beta download links now serve the unified collection.
      */
-    public function postmanExtended(): BinaryFileResponse|Response
+    public function postmanExtended(): Response
     {
         return $this->postman();
     }
 
-    private function downloadCollection(string $sourceFilename, string $downloadFilename): BinaryFileResponse|Response
+    private function downloadCollection(string $sourceFilename, string $downloadFilename): Response
     {
         $path = base_path('modules/APIPartnerFizaHUB/docs/'.$sourceFilename);
 
         abort_unless(is_file($path), 404);
 
-        return response()->download(
-            $path,
-            $downloadFilename,
+        $collection = json_decode((string) file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
+        $runtimeVariables = [
+            'base_url' => rtrim((string) config('app.url'), '/'),
+        ];
+
+        foreach ($collection['variable'] as &$variable) {
+            $key = (string) ($variable['key'] ?? '');
+
+            if (array_key_exists($key, $runtimeVariables)) {
+                $variable['value'] = $runtimeVariables[$key];
+            }
+        }
+        unset($variable);
+
+        return response(
+            json_encode($collection, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)."\n",
+            200,
             [
-                'Content-Type' => 'application/json',
+                'Content-Type' => 'application/json; charset=UTF-8',
+                'Content-Disposition' => 'attachment; filename="'.$downloadFilename.'"',
+                'Cache-Control' => 'no-store, private',
+                'X-Content-Type-Options' => 'nosniff',
             ]
         );
     }

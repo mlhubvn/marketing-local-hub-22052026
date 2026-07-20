@@ -25,6 +25,16 @@ function fizahubPostmanPath(array $item): string
     return explode('?', $path, 2)[0];
 }
 
+function fizahubEnvExampleValue(string $key): string
+{
+    $line = collect(file(base_path('.env.example'), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES))
+        ->first(fn (string $line): bool => str_starts_with($line, $key.'='));
+
+    expect($line)->toBeString("Missing {$key} in .env.example");
+
+    return explode('=', $line, 2)[1] ?? '';
+}
+
 test('postman publishes the exact executable 22 request UI contract', function (): void {
     $collection = fizahubPostmanCollection();
     $folders = $collection['item'] ?? [];
@@ -123,6 +133,22 @@ test('postman headers variables scripts and dependency guards support a sequenti
     $listTests = implode("\n", data_get(collect($listTickets['event'] ?? [])->firstWhere('listen', 'test'), 'script.exec', []));
     expect($listTests)->toContain("ticket_type !== 'onboarding'")
         ->and($listTests)->not->toContain("set('ticket_id', '{{ticket_id}}')");
+});
+
+test('repository Postman defaults to production URL without publishing the partner credential', function (): void {
+    $collection = fizahubPostmanCollection();
+    $variables = collect($collection['variable'] ?? [])->pluck('value', 'key');
+
+    expect($variables->get('base_url'))->toBe(fizahubEnvExampleValue('APP_URL'))
+        ->and($variables->get('partner_token'))->toBe('')
+        ->and($variables->get('external_business_id'))->toBe('')
+        ->and($variables->get('external_user_id'))->toBe('');
+
+    expect(json_encode($collection))->not->toContain(fizahubEnvExampleValue('FIZAHUB_PARTNER_TOKEN'));
+
+    $preRequest = implode("\n", data_get($collection, 'event.0.script.exec', []));
+    expect($preRequest)->toContain("cv.set('external_business_id'")
+        ->and($preRequest)->toContain("cv.set('external_user_id'");
 });
 
 test('readme and endpoint matrix document the approved cutover without attachment promises', function (): void {

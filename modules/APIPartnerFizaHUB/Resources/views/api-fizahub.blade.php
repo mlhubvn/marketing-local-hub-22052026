@@ -21,6 +21,9 @@
         pre code { background:none; padding:0; border-radius:0; color:inherit; white-space:pre; }
         .actions { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:26px; }
         .actions a { text-decoration:none; border:1px solid var(--brand); border-radius:999px; padding:8px 14px; font-weight:700; }
+        .quickstart { margin:22px 0 30px; padding:18px 20px; border:1px solid #99d5c5; border-radius:14px; background:#eefaf6; }
+        .quickstart h2 { margin-top:0; }
+        .warning { color:#8a4b08; font-weight:650; }
     </style>
 </head>
 <body>
@@ -29,6 +32,14 @@
         <a href="{{ route('partner.fizahub.docs.postman') }}">Download Postman JSON (22 request)</a>
         <a href="{{ route('partner.fizahub.docs.help-test') }}">Hướng dẫn chạy tuần tự</a>
     </div>
+    <section class="quickstart">
+        <h2>Quick start — chỉ nhập token một lần</h2>
+        <p>Postman collection đã cấu hình sẵn URL production. Dev chỉ cần nhập <code>partner_token</code> một lần; collection tự sinh business/user ID và tự lưu các ID phụ thuộc.</p>
+        <pre><code>base_url={{ $appUrl }}
+api_prefix={{ $baseUrl }}
+partner_token=&lt;dán token FizaHUB được cấp&gt;</code></pre>
+        <p class="warning">Token không được nhúng vào trang hoặc file công khai. MLHUB gửi token cho đầu mối dev FizaHUB qua kênh riêng.</p>
+    </section>
     {!! Illuminate\Support\Str::markdown((string) file_get_contents(base_path('modules/APIPartnerFizaHUB/README.md'))) !!}
 </main>
 </body>

@@ -37,6 +37,34 @@ test('legacy extended download URL serves the same unified cutover collection', 
         ->assertDownload('MLHUB-FizaHUB-Partner-API.postman_collection.json');
 });
 
+test('public docs preconfigure the URL but never publish the live partner credential', function (): void {
+    config()->set('app.url', 'https://mlhub.vn');
+    config()->set('modules.apipartnerfizahub.token', 'fizahub-ready-to-run-test-token');
+
+    $this->get('/api-fizahub')
+        ->assertOk()
+        ->assertSee('https://mlhub.vn/api/v1/partners/fizahub', false)
+        ->assertDontSee('fizahub-ready-to-run-test-token', false)
+        ->assertSee('chỉ nhập token một lần', false);
+
+    $this->get('/api-fizahub/help-test')
+        ->assertOk()
+        ->assertSee('https://mlhub.vn', false)
+        ->assertDontSee('fizahub-ready-to-run-test-token', false)
+        ->assertSee('partner_token', false);
+
+    $response = $this->get('/api-fizahub/postman')->assertOk();
+    $baseResponse = $response->baseResponse;
+    $content = $baseResponse instanceof \Symfony\Component\HttpFoundation\BinaryFileResponse
+        ? (string) file_get_contents($baseResponse->getFile()->getPathname())
+        : (string) $response->getContent();
+    $collection = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+    $variables = collect($collection['variable'] ?? [])->pluck('value', 'key');
+
+    expect($variables->get('base_url'))->toBe('https://mlhub.vn')
+        ->and($variables->get('partner_token'))->toBe('');
+});
+
 test('public help page explains the sequential UI flow and dependency IDs without secrets', function (): void {
     $html = $this->get('/api-fizahub/help-test')->assertOk()->getContent();
 
