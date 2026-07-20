@@ -18,6 +18,7 @@
         th,td { border:1px solid var(--line); padding:8px 10px; text-align:left; white-space:nowrap; }
         code { background:#edf5f1; padding:2px 5px; border-radius:5px; }
         pre { overflow:auto; padding:16px; background:#10201a; color:#d9f2e7; border-radius:12px; }
+        pre code { background:none; padding:0; border-radius:0; color:inherit; white-space:pre; }
         .actions { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:26px; }
         .actions a { text-decoration:none; border:1px solid var(--brand); border-radius:999px; padding:8px 14px; font-weight:700; }
     </style>
