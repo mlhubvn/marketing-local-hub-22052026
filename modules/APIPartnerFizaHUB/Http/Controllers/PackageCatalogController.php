@@ -3,19 +3,20 @@
 namespace Modules\APIPartnerFizaHUB\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
-use Modules\APIPartnerFizaHUB\Services\PackageService;
+use Illuminate\Http\Request;
+use Modules\APIPartnerFizaHUB\Services\MarketingCatalogService;
 use Modules\APIPartnerFizaHUB\Support\PartnerApiResponse;
 
 class PackageCatalogController
 {
     public function __construct(
-        protected PackageService $packages
+        protected MarketingCatalogService $catalog
     ) {}
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         return PartnerApiResponse::success(
-            $this->packages->list()
+            $this->catalog->catalog($request->query('industry'))
         );
     }
 }

@@ -57,6 +57,10 @@ function createBusinessProfileApiTables(): void
         $table->unsignedBigInteger('user_id');
         $table->string('name');
         $table->string('type', 60)->default('other');
+        $table->string('industry_group_code', 64)->nullable();
+        $table->string('industry_category_code', 80)->nullable();
+        $table->json('industry_metadata')->nullable();
+        $table->string('taxonomy_version', 20)->nullable();
         $table->string('phone')->nullable();
         $table->string('email')->nullable();
         $table->string('website')->nullable();
@@ -144,7 +148,10 @@ test('profile update accepts the canonical nested owner/business schema', functi
             'owner' => ['name' => 'Nguyen Van A'],
             'business' => [
                 'name' => 'Fiza Demo Store - Com Tam Da Nang',
+                'industry' => 'restaurant_food',
                 'phone' => '0901 234 567',
+                'email' => 'contact@fizastore.vn',
+                'website' => 'https://fizastore.vn',
                 'address' => '123 Le Duan, Da Nang',
             ],
         ],
@@ -156,9 +163,34 @@ test('profile update accepts the canonical nested owner/business schema', functi
 
     expect($seed['user']->refresh()->name)->toBe('Nguyen Van A')
         ->and($seed['business']->refresh()->name)->toBe('Fiza Demo Store - Com Tam Da Nang')
+        ->and($seed['business']->refresh()->industry_category_code)->toBe('restaurant_eatery')
         ->and($seed['business']->refresh()->phone)->toBe('0901 234 567')
+        ->and($seed['business']->refresh()->email)->toBe('contact@fizastore.vn')
+        ->and($seed['business']->refresh()->website)->toBe('https://fizastore.vn')
         ->and($seed['business']->refresh()->address)->toBe('123 Le Duan, Da Nang');
 });
+
+test('profile rejects login email and external or MLHUB identity fields', function (array $payload): void {
+    $seed = seedProfileBusiness();
+
+    $this->patchJson(
+        '/api/v1/partners/fizahub/businesses/biz-profile/profile',
+        $payload,
+        profileHeaders()
+    )->assertUnprocessable()
+        ->assertJsonPath('error.code', 'validation_failed');
+
+    expect($seed['user']->refresh()->email)->toBe('profile-owner@example.com')
+        ->and($seed['integration']->refresh()->external_business_id)->toBe('biz-profile')
+        ->and($seed['integration']->external_user_id)->toBe('ext-profile');
+})->with([
+    'login email' => [['owner' => ['email' => 'changed@example.com']]],
+    'external business' => [['external_business_id' => 'other-business', 'business' => ['name' => 'No change']]],
+    'external user' => [['external_user_id' => 'other-user', 'business' => ['name' => 'No change']]],
+    'MLHUB user' => [['mlhub_user_id' => 999, 'business' => ['name' => 'No change']]],
+    'MLHUB business' => [['mlhub_business_id' => 999, 'business' => ['name' => 'No change']]],
+    'MLHUB workspace' => [['mlhub_workspace_id' => 999, 'business' => ['name' => 'No change']]],
+]);
 
 test('profile update normalizes a flat top-level name/phone/address body into business and adds a deprecation notice', function (): void {
     $seed = seedProfileBusiness();

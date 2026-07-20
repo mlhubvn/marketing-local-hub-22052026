@@ -40,11 +40,17 @@ class UpdateBusinessProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'external_business_id' => ['prohibited'],
+            'external_user_id' => ['prohibited'],
+            'mlhub_user_id' => ['prohibited'],
+            'mlhub_business_id' => ['prohibited'],
+            'mlhub_workspace_id' => ['prohibited'],
             'owner' => ['sometimes', 'array'],
             'owner.name' => ['sometimes', 'nullable', 'string', 'max:255'],
-            'owner.email' => ['sometimes', 'nullable', 'email', 'max:255'],
+            'owner.email' => ['prohibited'],
             'business' => ['sometimes', 'array'],
             'business.name' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'business.industry' => ['sometimes', 'nullable', 'string', 'max:80'],
             'business.phone' => ['sometimes', 'nullable', 'string', 'max:40'],
             'business.email' => ['sometimes', 'nullable', 'email', 'max:255'],
             'business.website' => ['sometimes', 'nullable', 'url', 'max:2048'],

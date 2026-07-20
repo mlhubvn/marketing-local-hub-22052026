@@ -220,17 +220,20 @@ test('package api maps base package to mlhub-free-da-nang with whitelisted limit
         ->and($encoded)->not->toContain('credit_balance_view');
 });
 
-test('package catalog lists available packages with a default and free flag', function (): void {
+test('marketing catalog lists available packages with goals industries and a default free flag', function (): void {
     seedPackageBusiness();
 
     $response = $this->getJson(
-        '/api/v1/partners/fizahub/packages',
+        '/api/v1/partners/fizahub/marketing-catalog?industry=restaurant_food',
         packageHeaders()
     )->assertOk();
 
     $data = $response->json('data');
 
     expect($data['default_package_code'])->toBe('free')
+        ->and($data['max_goal_selection'])->toBe(3)
+        ->and($data['marketing_goals'])->toHaveCount(4)
+        ->and($data['industries'])->not->toBeEmpty()
         ->and(collect($data['packages'])->pluck('package_code')->all())
         ->toContain('free')
         ->toContain('base');
@@ -238,7 +241,11 @@ test('package catalog lists available packages with a default and free flag', fu
     $free = collect($data['packages'])->firstWhere('package_code', 'free');
     expect($free['plan_slug'])->toBe('mlhub-free-da-nang')
         ->and($free['is_default'])->toBeTrue()
-        ->and($free['is_free'])->toBeTrue();
+        ->and($free['is_free'])->toBeTrue()
+        ->and($free['description'])->toBeString()
+        ->and($free['features'])->toBeArray()
+        ->and($free['recommended_goal_codes'])->toBeArray()
+        ->and($free['industry_codes'])->toBeArray();
 });
 
 test('package api returns 404 for unmapped business', function (): void {

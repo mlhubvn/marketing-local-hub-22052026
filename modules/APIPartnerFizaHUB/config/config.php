@@ -13,6 +13,20 @@ return [
         'free' => 'mlhub-free-da-nang',
         'base' => 'mlhub-free-da-nang',
     ],
+    'package_definitions' => [
+        'free' => [
+            'description' => 'Gói khởi tạo miễn phí để doanh nghiệp bắt đầu Marketing cùng MLHUB.',
+            'features' => ['Hiện diện địa phương', 'QR Check-in cơ bản', 'Theo dõi khách hàng'],
+            'recommended_goal_codes' => ['local_presence', 'qr_checkin'],
+            'industry_codes' => [],
+        ],
+        'base' => [
+            'description' => 'Gói doanh nghiệp quan tâm với tư vấn và cấu hình tăng trưởng mở rộng.',
+            'features' => ['Mã ưu đãi', 'Chăm sóc khách hàng', 'Tư vấn chiến dịch'],
+            'recommended_goal_codes' => ['voucher_return', 'customer_retention'],
+            'industry_codes' => [],
+        ],
+    ],
     'marketing_goals' => [
         'local_presence' => [
             'label' => 'Hiện diện',

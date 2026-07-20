@@ -590,7 +590,7 @@ git commit -m "fix: prevent duplicate FizaHUB accounts and onboarding tickets"
 - Produces: `IntegrationProfileService::updatePreferences(string, array): array`.
 - Produces: `MarketingCatalogService::catalog(?string $industryCode): array`.
 
-- [ ] **Step 1: Write failing bootstrap/catalog/preferences tests**
+- [x] **Step 1: Write failing bootstrap/catalog/preferences tests**
 
 ```php
 test('unknown business marketing status returns the onboarding next action', function (): void {
@@ -624,7 +624,7 @@ test('preferences change requested package without changing effective package', 
 });
 ```
 
-- [ ] **Step 2: Run the new tests and verify RED**
+- [x] **Step 2: Run the new tests and verify RED**
 
 Run:
 
@@ -634,7 +634,7 @@ php artisan test tests/Feature/APIPartnerFizaHUB/MarketingBootstrapApiTest.php
 
 Expected: FAIL because the aggregate catalog, capabilities, activation enum, and preferences method do not exist.
 
-- [ ] **Step 3: Implement the catalog aggregate**
+- [x] **Step 3: Implement the catalog aggregate**
 
 Configure four stable goals:
 
@@ -649,7 +649,7 @@ Configure four stable goals:
 
 `MarketingCatalogService` combines this config, `BusinessTypeCatalog`, and `PackageAssignmentService::catalog()`. It enriches package rows with `description`, `features`, `recommended_goal_codes`, and `industry_codes` while preserving `is_default` and `is_free`.
 
-- [ ] **Step 4: Implement marketing status**
+- [x] **Step 4: Implement marketing status**
 
 Return:
 
@@ -675,15 +675,15 @@ Return:
 ];
 ```
 
-- [ ] **Step 5: Implement preferences without package activation**
+- [x] **Step 5: Implement preferences without package activation**
 
 Validate one-to-three configured goals and a mapped package code. Store goals and requested package in `partner_integrations.metadata`, update the latest onboarding request payload/requested package, and never call `assignEffectivePackage()`.
 
-- [ ] **Step 6: Keep profile updates constrained**
+- [x] **Step 6: Keep profile updates constrained**
 
 Retain nested owner/business input. Add prohibited-key assertions for login email and all external/MLHUB IDs. Verify the business fields and owner name persist, while the login email remains unchanged.
 
-- [ ] **Step 7: Run bootstrap/package/profile tests GREEN**
+- [x] **Step 7: Run bootstrap/package/profile tests GREEN**
 
 Run:
 
@@ -693,7 +693,7 @@ php artisan test tests/Feature/APIPartnerFizaHUB/MarketingBootstrapApiTest.php t
 
 Expected: PASS with the new route names and response fields.
 
-- [ ] **Step 8: Commit Task 3**
+- [x] **Step 8: Commit Task 3**
 
 ```powershell
 git add modules/APIPartnerFizaHUB/Services modules/APIPartnerFizaHUB/Http/Requests/UpdateMarketingPreferencesRequest.php modules/APIPartnerFizaHUB/Http/Controllers modules/APIPartnerFizaHUB/config/config.php tests/Feature/APIPartnerFizaHUB

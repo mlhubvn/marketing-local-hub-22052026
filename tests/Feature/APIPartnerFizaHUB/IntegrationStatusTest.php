@@ -103,9 +103,9 @@ afterEach(function (): void {
     Schema::dropIfExists('users');
 });
 
-test('integration status returns 404 integration_not_found for an unmapped business', function (): void {
+test('marketing status returns 404 integration_not_found for an unmapped business', function (): void {
     $this->getJson(
-        '/api/v1/partners/fizahub/businesses/unknown-biz/integration-status',
+        '/api/v1/partners/fizahub/businesses/unknown-biz/marketing-status',
         integrationStatusHeaders()
     )
         ->assertNotFound()
@@ -113,7 +113,7 @@ test('integration status returns 404 integration_not_found for an unmapped busin
         ->assertJsonPath('error.details.next_action', 'create_onboarding_request');
 });
 
-test('integration status returns mapping, onboarding status and package for a mapped business', function (): void {
+test('marketing status returns activation capabilities onboarding and package for a mapped business', function (): void {
     $user = User::query()->create([
         'name' => 'Status Owner',
         'username' => 'status_'.Str::lower(Str::random(8)),
@@ -161,20 +161,22 @@ test('integration status returns mapping, onboarding status and package for a ma
     ]);
 
     $response = $this->getJson(
-        '/api/v1/partners/fizahub/businesses/biz-status/integration-status',
+        '/api/v1/partners/fizahub/businesses/biz-status/marketing-status',
         integrationStatusHeaders()
     )->assertOk();
 
     $response->assertJsonPath('data.external_business_id', 'biz-status')
-        ->assertJsonPath('data.integration_status', 'active')
+        ->assertJsonPath('data.activation_status', 'active')
         ->assertJsonPath('data.mlhub_user_id', $user->id)
-        ->assertJsonPath('data.onboarding.status', OnboardingStatusMachine::READY)
-        ->assertJsonPath('data.package.package_code', 'free');
+        ->assertJsonPath('data.onboarding_status', OnboardingStatusMachine::READY)
+        ->assertJsonPath('data.is_ready', true)
+        ->assertJsonPath('data.effective_package_code', 'free')
+        ->assertJsonPath('data.capabilities.crm', true);
 
     expect($integration->fresh())->not->toBeNull();
 });
 
-test('integration status for another business external id never leaks a different tenant mapping', function (): void {
+test('marketing status for another business external id never leaks a different tenant mapping', function (): void {
     $userA = User::query()->create([
         'name' => 'Tenant A',
         'username' => 'tenant_a_'.Str::lower(Str::random(6)),
@@ -196,7 +198,7 @@ test('integration status for another business external id never leaks a differen
 
     // biz-tenant-b was never onboarded.
     $this->getJson(
-        '/api/v1/partners/fizahub/businesses/biz-tenant-b/integration-status',
+        '/api/v1/partners/fizahub/businesses/biz-tenant-b/marketing-status',
         integrationStatusHeaders()
     )
         ->assertNotFound()

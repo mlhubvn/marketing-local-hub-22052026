@@ -34,29 +34,74 @@ class IntegrationProfileService
      */
     public function status(string $externalBusinessId): array
     {
+        return $this->marketingStatus($externalBusinessId);
+    }
+
+    /** @return array<string, mixed> */
+    public function marketingStatus(string $externalBusinessId): array
+    {
         $integration = $this->findIntegration($externalBusinessId);
         $onboarding = $this->latestOnboarding($integration->external_business_id);
+        $onboardingStatus = $onboarding?->publicStatus();
+        $isReady = in_array($onboardingStatus, ['ready', 'completed'], true);
+        $isActive = $integration->status === 'active' && $isReady;
+        $ticketSecureId = $onboarding?->supportTicket?->id_secure;
 
         return [
             'external_business_id' => $integration->external_business_id,
             'external_user_id' => $integration->external_user_id,
-            'integration_status' => $integration->status,
+            'activation_status' => $this->activationStatus($integration, $onboarding),
+            'onboarding_status' => $onboardingStatus,
+            'is_ready' => $isReady,
+            'effective_package_code' => $integration->package_code,
+            'requested_package_code' => $onboarding?->requested_package_code,
+            'onboarding_request_id' => $onboarding?->request_id,
+            'support_ticket_id' => $ticketSecureId,
             'mlhub_user_id' => $integration->mlhub_user_id,
             'mlhub_workspace_id' => $integration->mlhub_workspace_id,
             'mlhub_business_id' => $integration->mlhub_business_id,
-            'onboarding' => $onboarding ? [
-                'request_id' => $onboarding->request_id,
-                'status' => $onboarding->status,
-                'current_step' => $onboarding->current_step,
-                'status_label' => $onboarding->statusLabel(),
-            ] : null,
-            'package' => [
-                'package_code' => $integration->package_code,
-                'requested_package_code' => $onboarding?->requested_package_code,
-                'approved_package_code' => $onboarding?->approved_package_code,
+            'capabilities' => [
+                'dashboard' => $isActive,
+                'support' => true,
+                'crm' => $isReady,
             ],
-            'last_synced_at' => optional($onboarding?->last_synced_at)?->utc()?->toIso8601String(),
+            'links' => $this->linksFor($integration, $onboarding, $ticketSecureId),
         ];
+    }
+
+    /** @param array<string, mixed> $input */
+    public function updatePreferences(string $externalBusinessId, array $input): array
+    {
+        $integration = $this->findIntegration($externalBusinessId);
+
+        return DB::transaction(function () use ($integration, $input): array {
+            $goals = array_values((array) $input['marketing_goal_codes']);
+            $requestedPackage = (string) $input['requested_package_code'];
+            $metadata = (array) ($integration->metadata ?? []);
+            $metadata['marketing_goal_codes'] = $goals;
+            $metadata['requested_package_code'] = $requestedPackage;
+
+            $integration->forceFill(['metadata' => $metadata])->save();
+
+            $onboarding = $this->latestOnboarding($integration->external_business_id);
+
+            if ($onboarding) {
+                $payload = (array) ($onboarding->payload ?? []);
+                $payload['marketing_goal_codes'] = $goals;
+                $payload['requested_package_code'] = $requestedPackage;
+                $onboarding->forceFill([
+                    'requested_package_code' => $requestedPackage,
+                    'payload' => $payload,
+                ])->save();
+            }
+
+            return [
+                'external_business_id' => $integration->external_business_id,
+                'marketing_goal_codes' => $goals,
+                'requested_package_code' => $requestedPackage,
+                'effective_package_code' => $integration->package_code,
+            ];
+        });
     }
 
     /**
@@ -98,19 +143,21 @@ class IntegrationProfileService
                 }
             }
 
+            if (array_key_exists('industry', $business) && trim((string) $business['industry']) !== '') {
+                $industry = $this->mapping->resolveIndustry((string) $business['industry']);
+                $businessUpdates += [
+                    'type' => $industry['legacy_type'],
+                    'industry_group_code' => $industry['group_code'],
+                    'industry_category_code' => $industry['category_code'],
+                    'industry_metadata' => $industry['metadata_snapshot'],
+                    'taxonomy_version' => $industry['taxonomy_version'],
+                ];
+            }
+
             if ($businessUpdates !== []) {
                 $localBusiness->forceFill($businessUpdates)->save();
             }
 
-            $metadata = (array) ($integration->metadata ?? []);
-
-            if (array_key_exists('email', $owner) && $owner['email'] !== '') {
-                $metadata['contact_email'] = $this->mapping->normalizeEmail((string) $owner['email']);
-            }
-
-            $integration->forceFill([
-                'metadata' => $metadata,
-            ])->save();
         });
 
         return $this->status($integration->external_business_id);
@@ -123,5 +170,39 @@ class IntegrationProfileService
             ->where('external_business_id', $externalBusinessId)
             ->orderByDesc('id')
             ->first();
+    }
+
+    private function activationStatus(
+        PartnerIntegration $integration,
+        ?PartnerOnboardingRequest $onboarding
+    ): string {
+        if ($integration->status !== 'active') {
+            return 'suspended';
+        }
+
+        return in_array($onboarding?->publicStatus(), ['ready', 'completed'], true)
+            ? 'active'
+            : 'onboarding';
+    }
+
+    /** @return array<string, string|null> */
+    private function linksFor(
+        PartnerIntegration $integration,
+        ?PartnerOnboardingRequest $onboarding,
+        ?string $ticketSecureId
+    ): array {
+        $base = '/api/v1/partners/fizahub/businesses/'.$integration->external_business_id;
+
+        return [
+            'onboarding' => $onboarding
+                ? '/api/v1/partners/fizahub/onboarding-requests/'.$onboarding->request_id
+                : null,
+            'dashboard' => $base.'/dashboard',
+            'support_tickets' => $base.'/support-tickets',
+            'onboarding_ticket' => $ticketSecureId
+                ? $base.'/support-tickets/'.$ticketSecureId
+                : null,
+            'crm_login_links' => $base.'/crm-login-links',
+        ];
     }
 }

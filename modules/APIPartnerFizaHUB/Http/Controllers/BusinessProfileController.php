@@ -4,6 +4,7 @@ namespace Modules\APIPartnerFizaHUB\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Modules\APIPartnerFizaHUB\Http\Requests\UpdateBusinessProfileRequest;
+use Modules\APIPartnerFizaHUB\Http\Requests\UpdateMarketingPreferencesRequest;
 use Modules\APIPartnerFizaHUB\Services\IntegrationProfileService;
 use Modules\APIPartnerFizaHUB\Support\PartnerApiResponse;
 
@@ -16,7 +17,16 @@ class BusinessProfileController
     public function status(string $external_business_id): JsonResponse
     {
         return PartnerApiResponse::success(
-            $this->profiles->status($external_business_id)
+            $this->profiles->marketingStatus($external_business_id)
+        );
+    }
+
+    public function updatePreferences(
+        UpdateMarketingPreferencesRequest $request,
+        string $external_business_id
+    ): JsonResponse {
+        return PartnerApiResponse::success(
+            $this->profiles->updatePreferences($external_business_id, $request->validated())
         );
     }
 
