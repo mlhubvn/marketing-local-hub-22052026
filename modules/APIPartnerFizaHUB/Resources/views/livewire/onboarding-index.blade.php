@@ -71,28 +71,35 @@
                     </div>
 
                     <div class="flex flex-wrap items-center gap-2">
-                        @if (in_array($request->status, [
-                            \Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine::AWAITING_CONSULTANT,
-                            \Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine::NEEDS_REVIEW,
-                        ], true))
-                            <x-ui.button size="sm" variant="outline" wire:click="markContacted({{ $request->id }})">{{ __('Contacted') }}</x-ui.button>
+                        @php($nextStages = $nextStagesById[$request->id] ?? [])
+                        @if ($nextStages !== [])
+                            <div class="min-w-[200px] max-w-[280px] flex-1 sm:flex-none">
+                                <x-ui.select
+                                    wire:model="stageSelections.{{ $request->id }}"
+                                    name="stageSelections.{{ $request->id }}"
+                                    aria-label="{{ __('Choose stage') }}"
+                                >
+                                    <option value="">{{ __('Choose stage') }}</option>
+                                    @foreach ($nextStages as $value => $label)
+                                        <option value="{{ $value }}">{{ $label }}</option>
+                                    @endforeach
+                                </x-ui.select>
+                            </div>
+                            <x-ui.button type="button" size="sm" wire:click="applyStage({{ $request->id }})">
+                                {{ __('Send') }}
+                            </x-ui.button>
                         @endif
-                        @if ($request->status === \Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine::CONSULTING)
-                            <x-ui.button size="sm" variant="outline" wire:click="startConfiguring({{ $request->id }})">{{ __('Configure') }}</x-ui.button>
-                        @endif
-                        @if ($request->status === \Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine::CONFIGURING)
-                            <x-ui.button size="sm" wire:click="markReady({{ $request->id }})">{{ __('Mark ready') }}</x-ui.button>
-                        @endif
-                        @if ($request->status === \Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine::READY)
-                            <x-ui.button size="sm" wire:click="markCompleted({{ $request->id }})">{{ __('Complete') }}</x-ui.button>
-                        @endif
-                        <x-ui.button size="sm" variant="outline" wire:click="resendWebhook({{ $request->id }})">{{ __('Resend webhook') }}</x-ui.button>
-                        @unless (in_array($request->status, [
-                            \Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine::COMPLETED,
-                            \Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine::CANCELLED,
-                        ], true))
-                            <x-ui.button size="sm" variant="danger" wire:click="cancel({{ $request->id }})">{{ __('Cancel') }}</x-ui.button>
-                        @endunless
+                        <x-ui.button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            class="!px-2.5"
+                            wire:click="resendWebhook({{ $request->id }})"
+                            title="{{ __('Resend webhook') }}"
+                            aria-label="{{ __('Resend webhook') }}"
+                        >
+                            <i class="fa-light fa-rotate-right" aria-hidden="true"></i>
+                        </x-ui.button>
                     </div>
                 </div>
             @empty

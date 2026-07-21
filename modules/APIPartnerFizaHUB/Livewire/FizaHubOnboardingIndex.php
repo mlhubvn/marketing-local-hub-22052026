@@ -4,6 +4,7 @@ namespace Modules\APIPartnerFizaHUB\Livewire;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -28,6 +29,9 @@ class FizaHubOnboardingIndex extends Component
 
     public ?string $errorMessage = null;
 
+    /** @var array<int|string, string> */
+    public array $stageSelections = [];
+
     public function updatingSearch(): void
     {
         $this->resetPage();
@@ -44,34 +48,38 @@ class FizaHubOnboardingIndex extends Component
         $this->resetPage();
     }
 
-    public function markContacted(int $id): void
+    public function applyStage(int $id): void
     {
-        $this->runAction($id, fn (PartnerOnboardingRequest $row) => app(OnboardingAdminService::class)
-            ->markContacted($row, auth()->id()), __('Marked as contacted by consultant.'));
-    }
+        $toStatus = trim((string) ($this->stageSelections[$id] ?? ''));
 
-    public function startConfiguring(int $id): void
-    {
-        $this->runAction($id, fn (PartnerOnboardingRequest $row) => app(OnboardingAdminService::class)
-            ->startConfiguring($row, auth()->id()), __('Configuration started.'));
-    }
+        if ($toStatus === '') {
+            $this->statusMessage = null;
+            $this->errorMessage = __('Please choose a stage.');
 
-    public function markReady(int $id): void
-    {
-        $this->runAction($id, fn (PartnerOnboardingRequest $row) => app(OnboardingAdminService::class)
-            ->markReady($row, auth()->id()), __('Account marked as ready.'));
-    }
+            return;
+        }
 
-    public function markCompleted(int $id): void
-    {
-        $this->runAction($id, fn (PartnerOnboardingRequest $row) => app(OnboardingAdminService::class)
-            ->markCompleted($row, auth()->id()), __('Onboarding completed.'));
-    }
+        $this->runAction($id, function (PartnerOnboardingRequest $row) use ($toStatus): void {
+            $allowed = array_keys($this->nextStagesFor($row));
 
-    public function cancel(int $id): void
-    {
-        $this->runAction($id, fn (PartnerOnboardingRequest $row) => app(OnboardingAdminService::class)
-            ->cancel($row, __('Cancelled by admin.'), auth()->id()), __('Onboarding cancelled.'));
+            if (! in_array($toStatus, $allowed, true)) {
+                throw new InvalidArgumentException(__('The selected stage is not allowed from the current status.'));
+            }
+
+            $reason = $toStatus === OnboardingStatusMachine::CANCELLED
+                ? __('Cancelled by admin.')
+                : null;
+
+            app(OnboardingAdminService::class)->transition(
+                $row,
+                $toStatus,
+                'admin',
+                auth()->id(),
+                $reason
+            );
+        }, __('Stage updated.'));
+
+        unset($this->stageSelections[$id]);
     }
 
     public function resendWebhook(int $id): void
@@ -91,14 +99,40 @@ class FizaHubOnboardingIndex extends Component
             ->pluck('total', 'status')
             ->all();
 
+        $nextStagesById = [];
+        foreach ($requests as $request) {
+            $nextStagesById[$request->id] = $this->nextStagesFor($request);
+        }
+
         return view('apipartnerfizahub::livewire.onboarding-index', [
             'requests' => $requests,
             'counts' => $counts,
             'totalCount' => array_sum($counts),
             'statusOptions' => OnboardingStatusMachine::labels(),
+            'nextStagesById' => $nextStagesById,
         ])->layout(theme_view('layouts.app', 'app'), [
             'title' => __('FizaHUB onboarding'),
         ]);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function nextStagesFor(PartnerOnboardingRequest $request): array
+    {
+        $from = (string) $request->status;
+        $targets = OnboardingStatusMachine::transitions()[$from]
+            ?? OnboardingStatusMachine::transitions()[OnboardingStatusMachine::publicStatus($from)]
+            ?? [];
+        $labels = OnboardingStatusMachine::labels();
+        $options = [];
+
+        foreach ($targets as $code) {
+            $public = OnboardingStatusMachine::publicStatus($code);
+            $options[$public] = $labels[$public] ?? $public;
+        }
+
+        return $options;
     }
 
     protected function baseQuery()
