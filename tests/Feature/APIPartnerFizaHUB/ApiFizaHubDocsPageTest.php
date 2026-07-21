@@ -37,7 +37,10 @@ test('legacy extended download URL serves the same unified cutover collection', 
         ->assertDownload('MLHUB-FizaHUB-Partner-API.postman_collection.json');
 });
 
-test('public docs preconfigure the URL but never publish the live partner credential', function (): void {
+test('public docs keep the token off the HTML pages while the downloaded Postman ships it ready to run', function (): void {
+    // Testing-phase choice (.env.example §8): the token is not printed on the HTML help pages
+    // (to avoid casual scraping), but the downloaded Postman collection has it prefilled so the
+    // FizaHUB dev can run every request immediately.
     config()->set('app.url', 'https://mlhub.vn');
     config()->set('modules.apipartnerfizahub.token', 'fizahub-ready-to-run-test-token');
 
@@ -45,7 +48,7 @@ test('public docs preconfigure the URL but never publish the live partner creden
         ->assertOk()
         ->assertSee('https://mlhub.vn/api/v1/partners/fizahub', false)
         ->assertDontSee('fizahub-ready-to-run-test-token', false)
-        ->assertSee('chỉ nhập token một lần', false);
+        ->assertSee('Tải về là chạy được ngay', false);
 
     $this->get('/api-fizahub/help-test')
         ->assertOk()
@@ -62,7 +65,7 @@ test('public docs preconfigure the URL but never publish the live partner creden
     $variables = collect($collection['variable'] ?? [])->pluck('value', 'key');
 
     expect($variables->get('base_url'))->toBe('https://mlhub.vn')
-        ->and($variables->get('partner_token'))->toBe('');
+        ->and($variables->get('partner_token'))->toBe('fizahub-ready-to-run-test-token');
 });
 
 test('public help page explains the sequential UI flow and dependency IDs without secrets', function (): void {
@@ -74,6 +77,9 @@ test('public help page explains the sequential UI flow and dependency IDs withou
         ->and($html)->toContain('ticket_id')
         ->and($html)->toContain('Idempotency-Key')
         ->and($html)->toContain('text-only')
+        ->and($html)->toContain('Collection Runner')
+        ->and($html)->toContain('Examples')
+        ->and($html)->toContain('marketing_goal_codes')
         ->and($html)->not->toContain('/attachments')
         ->and($html)->not->toContain('test-fizahub-partner-token');
 });

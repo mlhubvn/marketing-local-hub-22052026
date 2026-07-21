@@ -151,7 +151,15 @@ Không có destructive migration. `SupportTicketBridge` và bảng `support_tick
 
 ## Postman và diagnostics
 
-Import [`docs/FizaHUB-Partner-API.postman_collection.json`](docs/FizaHUB-Partner-API.postman_collection.json): System 2, Onboarding 6, Growth 6, Support 7, CRM 1. Script tự sinh external IDs, lưu onboarding/ticket/campaign IDs và skip request phụ thuộc khi thiếu ID.
+Import [`docs/FizaHUB-Partner-API.postman_collection.json`](docs/FizaHUB-Partner-API.postman_collection.json): System 2, Onboarding 6, Growth 6, Support 7, CRM 1.
+
+Giai đoạn thử nghiệm: `base_url` + `partner_token` đã điền sẵn (trùng `.env.example`). Collection tự sinh external IDs, lưu onboarding/ticket/campaign IDs, skip request phụ thuộc khi thiếu ID. Mỗi request có Params/Body đầy đủ và Examples cho các HTTP status chính.
+
+Regenerate collection sau khi sửa contract:
+
+```bash
+php modules/APIPartnerFizaHUB/docs/_build_postman.php
+```
 
 ```bash
 php artisan test tests/Feature/APIPartnerFizaHUB
@@ -159,7 +167,13 @@ vendor/bin/pint --test modules/APIPartnerFizaHUB tests/Feature/APIPartnerFizaHUB
 php artisan fizahub:doctor
 ```
 
-Public pages: `/api-fizahub`, `/api-fizahub/help-test`, `/api-fizahub/postman`.
+Public pages (gửi cho dev FizaHUB):
+
+| URL | Nội dung |
+|---|---|
+| `/api-fizahub` | Contract + quick start |
+| `/api-fizahub/help-test` | Hướng dẫn click từng bước (người chưa biết Postman) |
+| `/api-fizahub/postman` | Tải JSON đã cấu hình sẵn token |
 
 ## Breaking cutover checklist
 

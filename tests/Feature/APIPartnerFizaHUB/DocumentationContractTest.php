@@ -90,7 +90,8 @@ test('postman headers variables scripts and dependency guards support a sequenti
 
     expect($variables)->toEqualCanonicalizing([
         'base_url', 'partner_token', 'external_user_id', 'external_business_id',
-        'onboarding_request_id', 'onboarding_ticket_id', 'ticket_id', 'campaign_id',
+        'onboarding_request_id', 'onboarding_ticket_id', 'onboarding_ready',
+        'ticket_id', 'campaign_id', 'campaign_approval_ready',
         'from', 'to',
     ]);
 
@@ -119,32 +120,32 @@ test('postman headers variables scripts and dependency guards support a sequenti
         }
     }
 
-    $onboarding = collect($items)->firstWhere('name', 'Create Onboarding');
+    $onboarding = collect($items)->first(fn (array $item): bool => str_contains((string) $item['name'], 'Create Onboarding'));
     $onboardingTests = implode("\n", data_get(collect($onboarding['event'] ?? [])->firstWhere('listen', 'test'), 'script.exec', []));
     expect($onboardingTests)->toContain('[200, 201, 202]')
         ->and($onboardingTests)->toContain("set('onboarding_request_id'")
         ->and($onboardingTests)->toContain("set('onboarding_ticket_id'");
 
-    $createTicket = collect($items)->firstWhere('name', 'Create Support Ticket');
+    $createTicket = collect($items)->first(fn (array $item): bool => str_contains((string) $item['name'], 'Create Support Ticket'));
     $createTicketTests = implode("\n", data_get(collect($createTicket['event'] ?? [])->firstWhere('listen', 'test'), 'script.exec', []));
     expect($createTicketTests)->toContain("set('ticket_id'");
 
-    $listTickets = collect($items)->firstWhere('name', 'List Support Tickets');
+    $listTickets = collect($items)->first(fn (array $item): bool => str_contains((string) $item['name'], 'List Support Tickets'));
     $listTests = implode("\n", data_get(collect($listTickets['event'] ?? [])->firstWhere('listen', 'test'), 'script.exec', []));
     expect($listTests)->toContain("ticket_type !== 'onboarding'")
         ->and($listTests)->not->toContain("set('ticket_id', '{{ticket_id}}')");
 });
 
-test('repository Postman defaults to production URL without publishing the partner credential', function (): void {
+test('repository Postman defaults to production URL and preconfigures the testing partner token', function (): void {
+    // Testing-phase choice (.env.example §8): the repository collection ships with the base URL
+    // and partner token prefilled so the FizaHUB dev can download and run it without any setup.
     $collection = fizahubPostmanCollection();
     $variables = collect($collection['variable'] ?? [])->pluck('value', 'key');
 
     expect($variables->get('base_url'))->toBe(fizahubEnvExampleValue('APP_URL'))
-        ->and($variables->get('partner_token'))->toBe('')
+        ->and($variables->get('partner_token'))->toBe(fizahubEnvExampleValue('FIZAHUB_PARTNER_TOKEN'))
         ->and($variables->get('external_business_id'))->toBe('')
         ->and($variables->get('external_user_id'))->toBe('');
-
-    expect(json_encode($collection))->not->toContain(fizahubEnvExampleValue('FIZAHUB_PARTNER_TOKEN'));
 
     $preRequest = implode("\n", data_get($collection, 'event.0.script.exec', []));
     expect($preRequest)->toContain("cv.set('external_business_id'")

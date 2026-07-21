@@ -61,8 +61,11 @@ class ApiFizaHubDocsController
         abort_unless(is_file($path), 404);
 
         $collection = json_decode((string) file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
+        // Testing-phase choice (see .env.example §8): inject the live base URL and partner token
+        // so the downloaded collection runs immediately without any manual configuration.
         $runtimeVariables = [
             'base_url' => rtrim((string) config('app.url'), '/'),
+            'partner_token' => (string) config('modules.apipartnerfizahub.token', ''),
         ];
 
         foreach ($collection['variable'] as &$variable) {
