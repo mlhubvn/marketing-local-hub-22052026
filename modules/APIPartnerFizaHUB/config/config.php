@@ -8,6 +8,7 @@ return [
     'rate_limit_per_minute' => (int) env('FIZAHUB_RATE_LIMIT_PER_MINUTE', 60),
     'one_time_login_ttl_minutes' => (int) env('FIZAHUB_ONE_TIME_LOGIN_TTL_MINUTES', 5),
     'timezone' => 'Asia/Ho_Chi_Minh',
+    'locale' => env('FIZAHUB_PARTNER_LOCALE', 'vi'),
     'default_package' => env('FIZAHUB_DEFAULT_PACKAGE', 'free'),
     'package_map' => [
         'free' => 'mlhub-free-da-nang',

@@ -32,6 +32,9 @@ class HandlePartnerRequest
         $request->attributes->set('partner_request_id', $requestId);
         $request->headers->set('X-Request-Id', $requestId);
 
+        // Partner API user-facing copy is Vietnamese for FizaHUB app screens.
+        app()->setLocale((string) config('modules.apipartnerfizahub.locale', 'vi'));
+
         $idempotencyKey = trim((string) $request->headers->get('Idempotency-Key', ''));
         $requestHash = $this->requestHash($request);
         $log = null;

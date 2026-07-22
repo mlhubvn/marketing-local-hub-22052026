@@ -227,7 +227,7 @@ class DashboardService
         if ($actions === []) {
             $actions[] = [
                 'code' => 'growth_review',
-                'message' => 'Tiếp tục theo dõi và tối ưu hoạt động Marketing.',
+                'message' => __('Keep tracking and optimizing Marketing activities.'),
             ];
         }
 
@@ -235,24 +235,24 @@ class DashboardService
             'growth_score' => $score,
             'growth_score_change' => 0,
             'customer_sources' => [
-                ['code' => 'qr_checkin', 'label' => 'QR Check-in', 'value' => (int) $metrics['qr_scans']],
-                ['code' => 'lead_form', 'label' => 'Khách hàng mới', 'value' => (int) $metrics['new_customers']],
+                ['code' => 'qr_checkin', 'label' => __('QR Check-in'), 'value' => (int) $metrics['qr_scans']],
+                ['code' => 'lead_form', 'label' => __('New customers'), 'value' => (int) $metrics['new_customers']],
             ],
             'highlights' => $summary['insights'],
             'recommendations' => collect($actions)->map(function (array $action): array {
                 return [
                     'code' => (string) $action['code'],
-                    'label' => (string) ($action['label'] ?? 'Đề xuất tăng trưởng'),
+                    'label' => (string) ($action['label'] ?? __('Growth recommendation')),
                     'description' => (string) ($action['description'] ?? $action['message'] ?? ''),
                     'priority' => (string) ($action['priority'] ?? 'medium'),
                     'preset_code' => 'growth_recommendation',
                     'related_campaign_id' => null,
-                    'cta_label' => 'Thiết lập ngay',
+                    'cta_label' => __('Set up now'),
                     'cta' => [
                         'action_type' => 'create_support_ticket',
                         'preset_code' => 'growth_recommendation',
                         'campaign_id' => null,
-                        'label' => 'Thiết lập ngay',
+                        'label' => __('Set up now'),
                     ],
                 ];
             })->values()->all(),
@@ -380,8 +380,8 @@ class DashboardService
             'last_synced_at' => now()->utc()->toIso8601String(),
             'recommendations' => [[
                 'code' => 'campaign_review',
-                'label' => 'Yêu cầu điều chỉnh',
-                'description' => 'Gửi yêu cầu để MLHUB rà soát và điều chỉnh chiến dịch.',
+                'label' => __('Request campaign changes'),
+                'description' => __('Ask MLHUB to review and adjust this campaign.'),
                 'preset_code' => 'campaign_request',
                 'campaign_id' => (string) $campaign->id,
             ]],
@@ -752,15 +752,15 @@ class DashboardService
         return [
             [
                 'code' => 'period_scans',
-                'message' => 'QR scans in this period: '.(int) $metrics['qr_scans'],
+                'message' => __('QR scans in this period: :count', ['count' => (int) $metrics['qr_scans']]),
             ],
             [
                 'code' => 'period_leads',
-                'message' => 'New leads in this period: '.(int) $metrics['new_leads'],
+                'message' => __('New leads in this period: :count', ['count' => (int) $metrics['new_leads']]),
             ],
             [
                 'code' => 'period_conversion',
-                'message' => 'Conversion rate in this period: '.$metrics['conversion_rate'].'%',
+                'message' => __('Conversion rate in this period: :rate%', ['rate' => $metrics['conversion_rate']]),
             ],
         ];
     }
@@ -776,42 +776,42 @@ class DashboardService
         if ((int) $metrics['campaigns'] === 0) {
             $actions[] = [
                 'code' => 'create_campaign',
-                'message' => 'Create your first campaign to start collecting scans and leads.',
+                'message' => __('Create your first campaign to start collecting scans and leads.'),
             ];
         }
 
         if ((int) $metrics['campaigns'] > 0 && (int) $metrics['active_campaigns'] === 0) {
             $actions[] = [
                 'code' => 'publish_campaign',
-                'message' => 'Publish a campaign so customers can scan your QR.',
+                'message' => __('Publish a campaign so customers can scan your QR.'),
             ];
         }
 
         if ((int) $metrics['active_campaigns'] > 0 && (int) $metrics['qr_scans'] === 0) {
             $actions[] = [
                 'code' => 'share_qr',
-                'message' => 'Share your QR code to generate the first scans.',
+                'message' => __('Share your QR code to generate the first scans.'),
             ];
         }
 
         if ((int) $metrics['new_leads'] > 0) {
             $actions[] = [
                 'code' => 'follow_up_leads',
-                'message' => 'Follow up on new leads captured in this period.',
+                'message' => __('Follow up on new leads captured in this period.'),
             ];
         }
 
         if ($lowFeedbackTotal > 0) {
             $actions[] = [
                 'code' => 'reply_feedback',
-                'message' => 'Reply to low-score feedback to protect reputation.',
+                'message' => __('Reply to low-score feedback to protect reputation.'),
             ];
         }
 
         if ((int) $metrics['qr_scans'] >= 20 && (float) $metrics['conversion_rate'] < 5.0) {
             $actions[] = [
                 'code' => 'improve_conversion',
-                'message' => 'Improve offer and CTA to raise conversion above 5%.',
+                'message' => __('Improve offer and CTA to raise conversion above 5%.'),
             ];
         }
 
