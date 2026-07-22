@@ -103,7 +103,7 @@
                         <x-ui.table-cell>
                             <div class="space-y-2">
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <p class="text-[1rem] font-semibold tracking-[-0.02em]" style="color: var(--theme-header-text-color);">{{ $ticket->title }}</p>
+                                    <p class="text-[1rem] font-semibold tracking-[-0.02em]" style="color: var(--theme-header-text-color);">{{ $ticket->displayTitle() }}</p>
                                     @if ($ticket->user_read)
                                         <x-ui.badge variant="danger" class="px-2 py-0.5 text-[10px] tracking-[0.16em]">{{ __('Unread') }}</x-ui.badge>
                                     @endif

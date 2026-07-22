@@ -10741,6 +10741,8 @@
     "Account marked as ready.": "Account marked as ready.",
     "Account provisioned with Free package. Consultant should contact the business owner.": "Account provisioned with Free package. Consultant should contact the business owner.",
     "Onboarding needs manual review before consultation.": "Onboarding needs manual review before consultation.",
+    "FizaHUB onboarding awaiting consultant: :business": "FizaHUB onboarding awaiting consultant: :business",
+    "FizaHUB onboarding needs review: :business": "FizaHUB onboarding needs review: :business",
     "Onboarding completed.": "Onboarding completed.",
     "Onboarding cancelled.": "Onboarding cancelled.",
     "Webhook re-queued for delivery.": "Webhook re-queued for delivery.",

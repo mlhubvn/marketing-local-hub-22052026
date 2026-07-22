@@ -138,6 +138,32 @@ class SupportTicket extends Model
         return Carbon::createFromTimestamp((int) $this->changed)->diffForHumans();
     }
 
+    /**
+     * Localized ticket title for admin/portal UI (DB keeps English source strings).
+     */
+    public function displayTitle(): string
+    {
+        $title = trim((string) $this->title);
+
+        if ($title === '') {
+            return __('Untitled');
+        }
+
+        if (preg_match('/^FizaHUB onboarding awaiting consultant:\s*(.+)$/u', $title, $matches) === 1) {
+            return __('FizaHUB onboarding awaiting consultant: :business', [
+                'business' => trim((string) $matches[1]),
+            ]);
+        }
+
+        if (preg_match('/^FizaHUB onboarding needs review:\s*(.+)$/u', $title, $matches) === 1) {
+            return __('FizaHUB onboarding needs review: :business', [
+                'business' => trim((string) $matches[1]),
+            ]);
+        }
+
+        return __($title);
+    }
+
     public function excerpt(int $limit = 180): string
     {
         $content = trim(strip_tags($this->plainTextContent()));
@@ -146,7 +172,9 @@ class SupportTicket extends Model
             return __('No details');
         }
 
-        return mb_strimwidth($content, 0, $limit, '...');
+        $localized = __($content);
+
+        return mb_strimwidth($localized, 0, $limit, '...');
     }
 
     /**

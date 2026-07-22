@@ -245,7 +245,7 @@ class SupportShow extends Component
             'labels' => SupportLabel::query()->where('status', true)->orderBy('name')->get(),
             'statusMessage' => $this->statusMessage,
         ])->layout(theme_view('layouts.app', 'app'), [
-            'title' => $ticket->title,
+            'title' => $ticket->displayTitle(),
         ]);
     }
 

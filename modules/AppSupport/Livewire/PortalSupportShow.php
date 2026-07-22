@@ -114,7 +114,7 @@ class PortalSupportShow extends Component
         return view('appsupport::livewire.show', [
             'ticket' => $ticket,
         ])->layout(theme_view('layouts.app', 'app'), [
-            'title' => $ticket->title,
+            'title' => $ticket->displayTitle(),
         ]);
     }
 

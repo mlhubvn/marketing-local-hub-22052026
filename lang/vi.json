@@ -10768,6 +10768,8 @@
     "Account marked as ready.": "Đã đánh dấu tài khoản sẵn sàng.",
     "Account provisioned with Free package. Consultant should contact the business owner.": "Tài khoản đã được tạo với gói Free. Tư vấn viên nên liên hệ chủ doanh nghiệp.",
     "Onboarding needs manual review before consultation.": "Onboarding cần kiểm tra thủ công trước khi tư vấn.",
+    "FizaHUB onboarding awaiting consultant: :business": "FizaHUB onboarding — chờ tư vấn viên: :business",
+    "FizaHUB onboarding needs review: :business": "FizaHUB onboarding — cần kiểm tra: :business",
     "Onboarding completed.": "Đã hoàn tất onboarding.",
     "Onboarding cancelled.": "Đã hủy onboarding.",
     "Webhook re-queued for delivery.": "Đã đưa webhook vào hàng đợi gửi lại.",

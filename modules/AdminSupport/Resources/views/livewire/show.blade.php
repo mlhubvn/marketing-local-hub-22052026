@@ -5,7 +5,7 @@
 
     <x-ui.page-hero
         :eyebrow="__('Support ticket')"
-        :title="$ticket->title"
+        :title="$ticket->displayTitle()"
         :description="$ticket->id_secure"
         icon="fa-light fa-message-lines"
     >
