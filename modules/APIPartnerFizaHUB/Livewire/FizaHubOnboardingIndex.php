@@ -32,6 +32,9 @@ class FizaHubOnboardingIndex extends Component
     /** @var array<int|string, string> */
     public array $stageSelections = [];
 
+    /** @var array<int|string, string> */
+    public array $packageSelections = [];
+
     public function updatingSearch(): void
     {
         $this->resetPage();
@@ -60,26 +63,47 @@ class FizaHubOnboardingIndex extends Component
         }
 
         $this->runAction($id, function (PartnerOnboardingRequest $row) use ($toStatus): void {
-            $allowed = array_keys($this->nextStagesFor($row));
-
-            if (! in_array($toStatus, $allowed, true)) {
+            if (! in_array($toStatus, OnboardingStatusMachine::PUBLIC_STATUSES, true)) {
                 throw new InvalidArgumentException(__('The selected stage is not allowed from the current status.'));
             }
 
-            $reason = $toStatus === OnboardingStatusMachine::CANCELLED
-                ? __('Cancelled by admin.')
-                : null;
+            $reason = match ($toStatus) {
+                OnboardingStatusMachine::CANCELLED => __('Cancelled by admin.'),
+                default => __('Status updated by admin.'),
+            };
 
-            app(OnboardingAdminService::class)->transition(
+            app(OnboardingAdminService::class)->adminSetStatus(
                 $row,
                 $toStatus,
-                'admin',
                 auth()->id(),
                 $reason
             );
         }, __('Stage updated.'));
 
         unset($this->stageSelections[$id]);
+    }
+
+    public function applyPackage(int $id): void
+    {
+        $packageCode = trim((string) ($this->packageSelections[$id] ?? ''));
+
+        if ($packageCode === '') {
+            $this->statusMessage = null;
+            $this->errorMessage = __('Please choose a package.');
+
+            return;
+        }
+
+        $this->runAction($id, function (PartnerOnboardingRequest $row) use ($packageCode): void {
+            app(OnboardingAdminService::class)->adminAssignPackage(
+                $row,
+                $packageCode,
+                auth()->id(),
+                __('Package updated by admin.')
+            );
+        }, __('Package updated.'));
+
+        unset($this->packageSelections[$id]);
     }
 
     public function resendWebhook(int $id): void
@@ -99,9 +123,9 @@ class FizaHubOnboardingIndex extends Component
             ->pluck('total', 'status')
             ->all();
 
-        $nextStagesById = [];
+        $stageOptionsById = [];
         foreach ($requests as $request) {
-            $nextStagesById[$request->id] = $this->nextStagesFor($request);
+            $stageOptionsById[$request->id] = $this->adminStageOptionsFor($request);
         }
 
         return view('apipartnerfizahub::livewire.onboarding-index', [
@@ -109,7 +133,8 @@ class FizaHubOnboardingIndex extends Component
             'counts' => $counts,
             'totalCount' => array_sum($counts),
             'statusOptions' => OnboardingStatusMachine::labels(),
-            'nextStagesById' => $nextStagesById,
+            'stageOptionsById' => $stageOptionsById,
+            'packageOptions' => $this->packageOptions(),
         ])->layout(theme_view('layouts.app', 'app'), [
             'title' => __('FizaHUB onboarding'),
         ]);
@@ -118,18 +143,32 @@ class FizaHubOnboardingIndex extends Component
     /**
      * @return array<string, string>
      */
-    protected function nextStagesFor(PartnerOnboardingRequest $request): array
+    protected function adminStageOptionsFor(PartnerOnboardingRequest $request): array
     {
-        $from = (string) $request->status;
-        $targets = OnboardingStatusMachine::transitions()[$from]
-            ?? OnboardingStatusMachine::transitions()[OnboardingStatusMachine::publicStatus($from)]
-            ?? [];
+        $current = OnboardingStatusMachine::publicStatus((string) $request->status);
         $labels = OnboardingStatusMachine::labels();
         $options = [];
 
-        foreach ($targets as $code) {
-            $public = OnboardingStatusMachine::publicStatus($code);
-            $options[$public] = $labels[$public] ?? $public;
+        foreach (OnboardingStatusMachine::PUBLIC_STATUSES as $code) {
+            if ($code === $current) {
+                continue;
+            }
+
+            $options[$code] = $labels[$code] ?? $code;
+        }
+
+        return $options;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function packageOptions(): array
+    {
+        $options = [];
+
+        foreach (array_keys((array) config('modules.apipartnerfizahub.package_map', [])) as $code) {
+            $options[(string) $code] = strtoupper((string) $code);
         }
 
         return $options;

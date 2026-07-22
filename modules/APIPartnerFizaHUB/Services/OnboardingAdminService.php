@@ -29,6 +29,81 @@ class OnboardingAdminService
     ): PartnerOnboardingRequest {
         OnboardingStatusMachine::assertCanTransition($onboarding->status, $toStatus);
 
+        return $this->applyStatusChange($onboarding, $toStatus, $changedByType, $changedById, $reason, $metadata);
+    }
+
+    /**
+     * Admin board override: set any public status (including reactivation from cancelled/completed).
+     * Partner API / normal transitions still use assertCanTransition via transition().
+     */
+    public function adminSetStatus(
+        PartnerOnboardingRequest $onboarding,
+        string $toStatus,
+        ?int $changedById = null,
+        ?string $reason = null,
+        array $metadata = []
+    ): PartnerOnboardingRequest {
+        if (! in_array($toStatus, OnboardingStatusMachine::PUBLIC_STATUSES, true)) {
+            throw new InvalidArgumentException(__('The selected stage is not allowed from the current status.'));
+        }
+
+        $fromPublic = OnboardingStatusMachine::publicStatus((string) $onboarding->status);
+
+        if ($fromPublic === $toStatus && (string) $onboarding->status === $toStatus) {
+            return $onboarding->fresh(['supportTicket', 'consultant', 'business', 'user', 'statusHistories']) ?? $onboarding;
+        }
+
+        return $this->applyStatusChange(
+            $onboarding,
+            $toStatus,
+            'admin',
+            $changedById,
+            $reason,
+            array_merge(['admin_override' => true], $metadata)
+        );
+    }
+
+    public function adminAssignPackage(
+        PartnerOnboardingRequest $onboarding,
+        string $packageCode,
+        ?int $changedById = null,
+        ?string $reason = null
+    ): PartnerOnboardingRequest {
+        $allowed = array_keys((array) config('modules.apipartnerfizahub.package_map', []));
+
+        if (! in_array($packageCode, $allowed, true)) {
+            throw new InvalidArgumentException(__('Please choose a valid package.'));
+        }
+
+        $integration = $this->integrationFor($onboarding);
+
+        if (! $integration) {
+            throw new InvalidArgumentException(__('Integration mapping is missing for this onboarding request.'));
+        }
+
+        $this->packages->assignEffectivePackage(
+            $integration,
+            $packageCode,
+            $changedById,
+            $reason ?: __('Package updated by admin.'),
+            $onboarding,
+            true
+        );
+
+        return $onboarding->fresh(['supportTicket', 'consultant', 'business', 'user', 'statusHistories']) ?? $onboarding;
+    }
+
+    /**
+     * @param  array<string, mixed>  $metadata
+     */
+    protected function applyStatusChange(
+        PartnerOnboardingRequest $onboarding,
+        string $toStatus,
+        string $changedByType = 'admin',
+        ?int $changedById = null,
+        ?string $reason = null,
+        array $metadata = []
+    ): PartnerOnboardingRequest {
         return DB::transaction(function () use ($onboarding, $toStatus, $changedByType, $changedById, $reason, $metadata) {
             $from = (string) $onboarding->status;
             $now = now();
@@ -85,6 +160,7 @@ class OnboardingAdminService
                     'to' => $toStatus,
                     'reason' => $reason,
                     'request_id' => $onboarding->request_id,
+                    'admin_override' => (bool) ($metadata['admin_override'] ?? false),
                 ],
             ]);
 

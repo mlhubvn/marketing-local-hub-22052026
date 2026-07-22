@@ -141,6 +141,10 @@ Luồng đầy đủ Create → List → Detail → Message → Close → Reopen
 - Link có TTL, dùng một lần. Link hết hạn/đã dùng yêu cầu Idempotency-Key mới.
 - URL nhạy cảm bị redact khỏi partner API log.
 
+## Admin onboarding board
+
+Route `admin-fizahub.onboarding`: admin có thể set **bất kỳ** public status (kể cả kích hoạt lại từ `cancelled` / `completed`) và áp gói `free`|`base` trên từng dòng. Partner API vẫn giữ máy trạng thái chặt; chỉ board gọi `OnboardingAdminService::adminSetStatus` / `adminAssignPackage` (history + webhook như thường).
+
 ## Migrations
 
 - `2026_07_13_000000_create_fizahub_partner_api_tables.php`

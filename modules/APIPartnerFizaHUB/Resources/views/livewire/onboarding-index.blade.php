@@ -68,11 +68,17 @@
                                 · {{ __('Consultant') }}: {{ $request->consultant?->name ?: '#'.$request->assigned_consultant_id }}
                             @endif
                         </p>
+                        <p class="text-xs" style="color: var(--theme-muted-text-color);">
+                            {{ __('Package') }}: {{ strtoupper((string) ($request->package_code ?: '—')) }}
+                            @if ($request->requested_package_code)
+                                · {{ __('Requested package') }}: {{ strtoupper((string) $request->requested_package_code) }}
+                            @endif
+                        </p>
                     </div>
 
                     <div class="flex flex-wrap items-center gap-2">
-                        @php($nextStages = $nextStagesById[$request->id] ?? [])
-                        @if ($nextStages !== [])
+                        @php($stageOptions = $stageOptionsById[$request->id] ?? [])
+                        @if ($stageOptions !== [])
                             <div class="min-w-[200px] max-w-[280px] flex-1 sm:flex-none">
                                 <x-ui.select
                                     wire:model="stageSelections.{{ $request->id }}"
@@ -80,7 +86,7 @@
                                     aria-label="{{ __('Choose stage') }}"
                                 >
                                     <option value="">{{ __('Choose stage') }}</option>
-                                    @foreach ($nextStages as $value => $label)
+                                    @foreach ($stageOptions as $value => $label)
                                         <option value="{{ $value }}">{{ $label }}</option>
                                     @endforeach
                                 </x-ui.select>
@@ -89,6 +95,25 @@
                                 {{ __('Send') }}
                             </x-ui.button>
                         @endif
+
+                        @if ($packageOptions !== [])
+                            <div class="min-w-[140px] max-w-[180px] flex-1 sm:flex-none">
+                                <x-ui.select
+                                    wire:model="packageSelections.{{ $request->id }}"
+                                    name="packageSelections.{{ $request->id }}"
+                                    aria-label="{{ __('Choose package') }}"
+                                >
+                                    <option value="">{{ __('Choose package') }}</option>
+                                    @foreach ($packageOptions as $value => $label)
+                                        <option value="{{ $value }}">{{ $label }}</option>
+                                    @endforeach
+                                </x-ui.select>
+                            </div>
+                            <x-ui.button type="button" size="sm" variant="outline" wire:click="applyPackage({{ $request->id }})">
+                                {{ __('Apply package') }}
+                            </x-ui.button>
+                        @endif
+
                         <x-ui.button
                             type="button"
                             size="sm"

@@ -184,3 +184,49 @@ test('invalid admin transition is rejected', function (): void {
     expect($seed['onboarding']->fresh()->status)->toBe('awaiting_consultant')
         ->and(PartnerOnboardingStatusHistory::query()->count())->toBe(0);
 });
+
+test('adminSetStatus can reactivate a cancelled onboarding request', function (): void {
+    $seed = seedAdminOnboarding();
+    $service = app(OnboardingAdminService::class);
+
+    $service->transition($seed['onboarding'], OnboardingStatusMachine::CANCELLED, 'admin', 7, 'Cancelled.');
+    $reactivated = $service->adminSetStatus(
+        $seed['onboarding']->fresh(),
+        OnboardingStatusMachine::IN_CONSULTATION,
+        7,
+        'Reactivated by admin.'
+    );
+
+    expect($reactivated->status)->toBe(OnboardingStatusMachine::IN_CONSULTATION)
+        ->and($reactivated->current_step)->toBe(OnboardingStatusMachine::IN_CONSULTATION)
+        ->and($reactivated->consultant_contacted_at)->not->toBeNull();
+
+    $last = PartnerOnboardingStatusHistory::query()
+        ->where('onboarding_request_id', $seed['onboarding']->id)
+        ->orderByDesc('id')
+        ->first();
+
+    expect($last)->not->toBeNull()
+        ->and($last->from_status)->toBe(OnboardingStatusMachine::CANCELLED)
+        ->and($last->to_status)->toBe(OnboardingStatusMachine::IN_CONSULTATION)
+        ->and(data_get($last->metadata, 'admin_override'))->toBeTrue();
+});
+
+test('adminAssignPackage upgrades effective package and marks approved', function (): void {
+    $seed = seedAdminOnboarding();
+
+    $plan = \Modules\AdminPlans\Models\AdminPlan::query()->create([
+        'name' => 'MLHUB Free Da Nang',
+        'slug' => 'mlhub-free-da-nang',
+        'status' => true,
+        'free_plan' => true,
+    ]);
+
+    $service = app(OnboardingAdminService::class);
+    $updated = $service->adminAssignPackage($seed['onboarding'], 'base', 7);
+
+    expect($updated->package_code)->toBe('base')
+        ->and($updated->approved_package_code)->toBe('base')
+        ->and($seed['integration']->fresh()->package_code)->toBe('base')
+        ->and(\Modules\AdminUser\Models\User::query()->find($seed['integration']->mlhub_user_id)?->plan_id)->toBe($plan->id);
+});
