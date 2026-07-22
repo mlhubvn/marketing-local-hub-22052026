@@ -143,7 +143,7 @@ Luồng đầy đủ Create → List → Detail → Message → Close → Reopen
 
 ## Admin onboarding board
 
-Route `admin-fizahub.onboarding`: admin có thể set **bất kỳ** public status (kể cả kích hoạt lại từ `cancelled` / `completed`) và áp gói `free`|`base` trên từng dòng. Partner API vẫn giữ máy trạng thái chặt; chỉ board gọi `OnboardingAdminService::adminSetStatus` / `adminAssignPackage` (history + webhook như thường).
+Route `admin-fizahub.onboarding`: admin có thể set **bất kỳ** public status (kể cả kích hoạt lại từ `cancelled` / `completed`), áp gói `free`|`base`, và **xóa sạch** dữ liệu partner onboarding (request/history/integration/ticket context/webhook) — **không** xóa user MLHUB (xóa user ở Admin → Users). Partner API vẫn giữ máy trạng thái chặt; board gọi `adminSetStatus` / `adminAssignPackage` / `adminPurgeOnboarding`.
 
 ## Migrations
 

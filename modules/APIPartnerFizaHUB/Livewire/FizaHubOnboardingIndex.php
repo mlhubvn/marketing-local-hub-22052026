@@ -117,6 +117,15 @@ class FizaHubOnboardingIndex extends Component
         }, __('Webhook re-queued for delivery.'));
     }
 
+    public function deleteOnboarding(int $id): void
+    {
+        $this->runAction($id, function (PartnerOnboardingRequest $row): void {
+            app(OnboardingAdminService::class)->adminPurgeOnboarding($row, auth()->id());
+
+            unset($this->stageSelections[$row->id], $this->packageSelections[$row->id]);
+        }, __('Onboarding data deleted. The MLHUB user account was kept.'));
+    }
+
     public function render(): View
     {
         $requests = $this->baseQuery()->paginate(15);

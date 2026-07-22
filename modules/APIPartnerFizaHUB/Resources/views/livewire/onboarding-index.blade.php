@@ -123,6 +123,32 @@
                         >
                             <i class="fa-light fa-rotate-right" aria-hidden="true"></i>
                         </x-ui.button>
+
+                        <x-ui.dialog
+                            :title="__('Delete this onboarding?')"
+                            :description="__('This permanently removes the FizaHUB partner mapping, onboarding history, related support tickets, and webhooks for this business. The MLHUB user account is kept — delete it from Users if needed. This cannot be undone.')"
+                            width="sm"
+                            dismissible
+                        >
+                            <x-slot:trigger>
+                                <x-ui.button
+                                    type="button"
+                                    size="sm"
+                                    variant="danger"
+                                    class="!px-2.5"
+                                    title="{{ __('Delete onboarding') }}"
+                                    aria-label="{{ __('Delete onboarding') }}"
+                                >
+                                    <i class="fa-light fa-trash-can" aria-hidden="true"></i>
+                                </x-ui.button>
+                            </x-slot:trigger>
+                            <x-slot:footer>
+                                <div class="flex justify-end gap-3">
+                                    <x-ui.button type="button" variant="outline" x-on:click="open = false">{{ __('Cancel') }}</x-ui.button>
+                                    <x-ui.button type="button" variant="danger" wire:click="deleteOnboarding({{ $request->id }})" x-on:click="open = false">{{ __('Delete') }}</x-ui.button>
+                                </div>
+                            </x-slot:footer>
+                        </x-ui.dialog>
                     </div>
                 </div>
             @empty

@@ -212,6 +212,58 @@ test('adminSetStatus can reactivate a cancelled onboarding request', function ()
         ->and(data_get($last->metadata, 'admin_override'))->toBeTrue();
 });
 
+test('adminPurgeOnboarding removes partner mapping and keeps the mlhub user', function (): void {
+    $seed = seedAdminOnboarding();
+    $userId = (int) $seed['integration']->mlhub_user_id;
+    $onboardingId = (int) $seed['onboarding']->id;
+    $integrationId = (int) $seed['integration']->id;
+
+    $ticket = \Modules\AdminSupport\Models\SupportTicket::query()->create([
+        'id_secure' => str()->random(32),
+        'uid' => $userId,
+        'open_by' => $userId,
+        'team_id' => $seed['integration']->mlhub_workspace_id,
+        'title' => 'FizaHUB onboarding awaiting consultant: biz-admin',
+        'content' => '{"summary":"Account provisioned with Free package."}',
+        'status' => 1,
+        'created' => time(),
+        'changed' => time(),
+    ]);
+
+    $seed['onboarding']->forceFill(['support_ticket_id' => $ticket->id])->save();
+
+    \Modules\APIPartnerFizaHUB\Models\PartnerSupportTicketContext::query()->create([
+        'support_ticket_id' => $ticket->id,
+        'partner_integration_id' => $integrationId,
+        'external_business_id' => 'biz-admin',
+        'request_code' => 'fizahub_onboarding',
+        'package_code' => 'free',
+        'related_resource_type' => PartnerOnboardingRequest::class,
+        'related_resource_id' => (string) $seed['onboarding']->request_id,
+        'context' => ['ticket_type' => 'onboarding'],
+    ]);
+
+    \Modules\APIPartnerFizaHUB\Models\PartnerWebhookOutbox::query()->create([
+        'partner_code' => 'fizahub',
+        'event_type' => 'onboarding.status',
+        'dedupe_key' => $seed['onboarding']->request_id.'|purge-test',
+        'endpoint_path' => '/webhooks/onboarding',
+        'payload' => ['external_business_id' => 'biz-admin', 'request_id' => $seed['onboarding']->request_id],
+        'status' => 'pending',
+        'attempts' => 0,
+        'available_at' => now(),
+    ]);
+
+    $result = app(OnboardingAdminService::class)->adminPurgeOnboarding($seed['onboarding']->fresh(), 7);
+
+    expect($result['external_business_id'])->toBe('biz-admin')
+        ->and(PartnerOnboardingRequest::query()->find($onboardingId))->toBeNull()
+        ->and(\Modules\APIPartnerFizaHUB\Models\PartnerIntegration::query()->find($integrationId))->toBeNull()
+        ->and(\Modules\AdminSupport\Models\SupportTicket::query()->find($ticket->id))->toBeNull()
+        ->and(\Modules\APIPartnerFizaHUB\Models\PartnerWebhookOutbox::query()->count())->toBe(0)
+        ->and(\Modules\AdminUser\Models\User::query()->find($userId))->not->toBeNull();
+});
+
 test('adminAssignPackage upgrades effective package and marks approved', function (): void {
     $seed = seedAdminOnboarding();
 
