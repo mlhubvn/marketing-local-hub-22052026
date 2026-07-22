@@ -85,7 +85,6 @@
                                     name="stageSelections.{{ $request->id }}"
                                     aria-label="{{ __('Choose stage') }}"
                                 >
-                                    <option value="">{{ __('Choose stage') }}</option>
                                     @foreach ($stageOptions as $value => $label)
                                         <option value="{{ $value }}">{{ $label }}</option>
                                     @endforeach
@@ -103,7 +102,6 @@
                                     name="packageSelections.{{ $request->id }}"
                                     aria-label="{{ __('Choose package') }}"
                                 >
-                                    <option value="">{{ __('Choose package') }}</option>
                                     @foreach ($packageOptions as $value => $label)
                                         <option value="{{ $value }}">{{ $label }}</option>
                                     @endforeach

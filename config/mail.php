@@ -39,7 +39,11 @@ return [
 
         'smtp' => [
             'transport' => 'smtp',
-            'scheme' => env('MAIL_SCHEME'),
+            // MAIL_SCHEME in .env may be tls/ssl (Admin encryption). Symfony DSN needs smtp|smtps.
+            'scheme' => match (strtolower((string) env('MAIL_SCHEME', env('MAIL_ENCRYPTION', 'smtp')))) {
+                'smtps', 'ssl' => 'smtps',
+                default => 'smtp',
+            },
             'url' => env('MAIL_URL'),
             'host' => env('MAIL_HOST', '127.0.0.1'),
             'port' => env('MAIL_PORT', 2525),

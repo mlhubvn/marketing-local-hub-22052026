@@ -111,7 +111,7 @@
                                     <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ $ticket->user?->name ?: __('Unknown user') }}</p>
                                     <span class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em]" style="border-color: color-mix(in srgb, var(--theme-accent) 20%, var(--theme-border-color)); color: var(--theme-accent); background-color: color-mix(in srgb, var(--theme-accent) 8%, transparent);">{{ __('Original') }}</span>
                                 </div>
-                                <p class="mt-3 text-sm leading-7" style="color: var(--theme-header-text-color);">{{ $ticket->content }}</p>
+                                @include('adminsupport::partials.ticket-original-content', ['ticket' => $ticket])
                             </div>
                         </div>
 

@@ -80,7 +80,9 @@ class FizaHubOnboardingIndex extends Component
             );
         }, __('Stage updated.'));
 
-        unset($this->stageSelections[$id]);
+        if ($this->errorMessage === null) {
+            $this->stageSelections[$id] = $toStatus;
+        }
     }
 
     public function applyPackage(int $id): void
@@ -103,7 +105,9 @@ class FizaHubOnboardingIndex extends Component
             );
         }, __('Package updated.'));
 
-        unset($this->packageSelections[$id]);
+        if ($this->errorMessage === null) {
+            $this->packageSelections[$id] = $packageCode;
+        }
     }
 
     public function resendWebhook(int $id): void
@@ -126,6 +130,7 @@ class FizaHubOnboardingIndex extends Component
         $stageOptionsById = [];
         foreach ($requests as $request) {
             $stageOptionsById[$request->id] = $this->adminStageOptionsFor($request);
+            $this->syncRowSelections($request);
         }
 
         return view('apipartnerfizahub::livewire.onboarding-index', [
@@ -145,19 +150,37 @@ class FizaHubOnboardingIndex extends Component
      */
     protected function adminStageOptionsFor(PartnerOnboardingRequest $request): array
     {
-        $current = OnboardingStatusMachine::publicStatus((string) $request->status);
         $labels = OnboardingStatusMachine::labels();
         $options = [];
 
         foreach (OnboardingStatusMachine::PUBLIC_STATUSES as $code) {
-            if ($code === $current) {
-                continue;
-            }
-
             $options[$code] = $labels[$code] ?? $code;
         }
 
         return $options;
+    }
+
+    /**
+     * Prefill selects with the row's current status/package so admins see the live value.
+     */
+    protected function syncRowSelections(PartnerOnboardingRequest $request): void
+    {
+        $id = $request->id;
+        $currentStatus = OnboardingStatusMachine::publicStatus((string) $request->status);
+        $currentPackage = strtolower(trim((string) ($request->package_code ?: '')));
+        $packageCodes = array_keys($this->packageOptions());
+
+        $stageSelection = trim((string) ($this->stageSelections[$id] ?? ''));
+        if ($stageSelection === '' || ! in_array($stageSelection, OnboardingStatusMachine::PUBLIC_STATUSES, true)) {
+            $this->stageSelections[$id] = $currentStatus;
+        }
+
+        $packageSelection = strtolower(trim((string) ($this->packageSelections[$id] ?? '')));
+        if ($packageSelection === '' || ! in_array($packageSelection, $packageCodes, true)) {
+            $this->packageSelections[$id] = in_array($currentPackage, $packageCodes, true)
+                ? $currentPackage
+                : (string) ($packageCodes[0] ?? '');
+        }
     }
 
     /**

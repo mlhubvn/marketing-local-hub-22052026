@@ -140,12 +140,47 @@ class SupportTicket extends Model
 
     public function excerpt(int $limit = 180): string
     {
-        $content = trim(strip_tags((string) $this->content));
+        $content = trim(strip_tags($this->plainTextContent()));
 
         if ($content === '') {
             return __('No details');
         }
 
         return mb_strimwidth($content, 0, $limit, '...');
+    }
+
+    /**
+     * Decode FizaHUB-style JSON ticket bodies into a structured array for UI display.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function structuredContent(): ?array
+    {
+        $raw = trim((string) $this->content);
+
+        if ($raw === '' || ! str_starts_with($raw, '{')) {
+            return null;
+        }
+
+        $decoded = json_decode($raw, true);
+
+        if (! is_array($decoded) || ! array_key_exists('summary', $decoded)) {
+            return null;
+        }
+
+        return $decoded;
+    }
+
+    public function plainTextContent(): string
+    {
+        $structured = $this->structuredContent();
+
+        if ($structured === null) {
+            return trim(strip_tags((string) $this->content));
+        }
+
+        $summary = trim((string) ($structured['summary'] ?? ''));
+
+        return $summary !== '' ? $summary : trim(strip_tags((string) $this->content));
     }
 }

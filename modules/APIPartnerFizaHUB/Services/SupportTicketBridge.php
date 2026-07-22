@@ -927,7 +927,9 @@ class SupportTicketBridge
             $messages[] = [
                 'message_id' => $ticket->id_secure.':initial',
                 'sender_type' => 'business',
-                'body' => (string) $ticket->content,
+                'body' => $ticket->plainTextContent() !== ''
+                    ? $ticket->plainTextContent()
+                    : (string) $ticket->content,
                 'created_at' => $this->isoFromUnix($ticket->created),
             ];
         }
@@ -975,7 +977,7 @@ class SupportTicketBridge
             ->orderByDesc('id')
             ->first();
 
-        return (string) ($comment?->comment ?? $ticket->content);
+        return (string) ($comment?->comment ?? ($ticket->plainTextContent() !== '' ? $ticket->plainTextContent() : $ticket->content));
     }
 
     private function tenantTicketQuery(PartnerIntegration $integration): \Illuminate\Database\Eloquent\Builder
