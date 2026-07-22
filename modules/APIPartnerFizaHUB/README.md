@@ -33,7 +33,7 @@ Idempotency semantics:
 - Cùng key và cùng payload: trả cùng kết quả, không tạo dữ liệu lần hai.
 - Cùng key nhưng payload khác: HTTP 409 `idempotency_conflict`.
 - Send Message và Campaign Approval không ghi trùng.
-- Close/Reopen lặp không phát sinh 500.
+- Close/Reopen lặp trả `200` với trạng thái hiện tại (idempotent), không 409/500.
 - CRM cùng key trả cùng link khi còn hiệu lực/chưa dùng; nếu đã dùng hoặc hết hạn trả `crm_login_link_not_reusable`, `next_action=new_idempotency_key`.
 
 ## 22 endpoint chính thức

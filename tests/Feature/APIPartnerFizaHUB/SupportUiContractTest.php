@@ -233,12 +233,14 @@ test('canonical preset ticket runs the complete text lifecycle and message repla
     $closeUrl = '/api/v1/partners/fizahub/businesses/biz-life/support-tickets/'.$ticketId.'/close';
     $this->postJson($closeUrl, [], supportUiHeaders())->assertOk()->assertJsonPath('data.status', 'closed');
     $this->postJson($closeUrl, [], supportUiHeaders())
-        ->assertConflict()->assertJsonPath('error.code', 'ticket_already_closed');
+        ->assertOk()
+        ->assertJsonPath('data.status', 'closed');
 
     $reopenUrl = '/api/v1/partners/fizahub/businesses/biz-life/support-tickets/'.$ticketId.'/reopen';
     $this->postJson($reopenUrl, [], supportUiHeaders())->assertOk()->assertJsonPath('data.status', 'open');
     $this->postJson($reopenUrl, [], supportUiHeaders())
-        ->assertConflict()->assertJsonPath('error.code', 'ticket_not_closed');
+        ->assertOk()
+        ->assertJsonPath('data.status', 'open');
 });
 
 test('all ticket operations are tenant isolated and attachment route is absent', function (): void {

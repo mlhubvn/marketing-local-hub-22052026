@@ -525,12 +525,9 @@ class SupportTicketBridge
     {
         $ticket = $this->findScopedTicketOrFail($integration, $ticketSecureId);
 
+        // Idempotent: closing an already-closed ticket is a no-op success (APK may retry).
         if ((int) $ticket->status === 0) {
-            throw PartnerApiException::make(
-                'ticket_already_closed',
-                __('Phiếu hỗ trợ này đã được đóng.'),
-                409
-            );
+            return $this->serializeTicket($ticket);
         }
 
         if ($reason !== null && trim($reason) !== '') {
@@ -571,6 +568,11 @@ class SupportTicketBridge
     public function reopen(PartnerIntegration $integration, string $ticketSecureId): array
     {
         $ticket = $this->findScopedTicketOrFail($integration, $ticketSecureId);
+
+        // Idempotent: reopening an already-open ticket is a no-op success.
+        if ((int) $ticket->status === 1) {
+            return $this->serializeTicket($ticket);
+        }
 
         if (! in_array((int) $ticket->status, [0, 2], true)) {
             throw PartnerApiException::make(

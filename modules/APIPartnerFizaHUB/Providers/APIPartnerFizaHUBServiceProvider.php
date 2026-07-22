@@ -13,6 +13,7 @@ use Modules\APIPartnerFizaHUB\Console\Commands\RetryPartnerWebhooksCommand;
 use Modules\APIPartnerFizaHUB\Console\Commands\WarmPartnerDashboardsCommand;
 use Modules\APIPartnerFizaHUB\Http\Middleware\HandlePartnerRequest;
 use Modules\APIPartnerFizaHUB\Http\Middleware\VerifyPartnerToken;
+use Modules\APIPartnerFizaHUB\Support\PartnerApiException;
 use Modules\APIPartnerFizaHUB\Support\PartnerExceptionRenderer;
 use Throwable;
 
@@ -42,6 +43,13 @@ class APIPartnerFizaHUBServiceProvider extends ServiceProvider
         $this->app->make(ExceptionHandler::class)->renderable(
             function (Throwable $exception, Request $request) {
                 return app(PartnerExceptionRenderer::class)->render($exception, $request);
+            }
+        );
+
+        // Business 4xx PartnerApiException responses must not flood production.ERROR logs.
+        $this->app->make(ExceptionHandler::class)->reportable(
+            function (PartnerApiException $exception): false {
+                return false;
             }
         );
 

@@ -209,7 +209,7 @@ afterEach(function (): void {
     Schema::dropIfExists('audit_logs');
 });
 
-test('close transitions an open ticket to closed and is rejected (409) if already closed', function (): void {
+test('close transitions an open ticket to closed and is idempotent when already closed', function (): void {
     seedLifecycleBusiness('biz-close', 'close@example.com');
     $ticketId = createLifecycleTicket('biz-close');
 
@@ -226,22 +226,24 @@ test('close transitions an open ticket to closed and is rejected (409) if alread
         [],
         supportLifecycleHeaders()
     )
-        ->assertStatus(409)
-        ->assertJsonPath('error.code', 'ticket_already_closed');
+        ->assertOk()
+        ->assertJsonPath('data.status', 'closed')
+        ->assertJsonPath('data.ticket_id', $ticketId);
 });
 
-test('reopen brings a closed ticket back to open and 409s on an already-open ticket', function (): void {
+test('reopen brings a closed ticket back to open and is idempotent when already open', function (): void {
     seedLifecycleBusiness('biz-reopen', 'reopen@example.com');
     $ticketId = createLifecycleTicket('biz-reopen');
 
-    // Cannot reopen an already-open ticket.
+    // Already-open ticket: reopen is a no-op success.
     $this->postJson(
         '/api/v1/partners/fizahub/businesses/biz-reopen/support-tickets/'.$ticketId.'/reopen',
         [],
         supportLifecycleHeaders()
     )
-        ->assertStatus(409)
-        ->assertJsonPath('error.code', 'ticket_not_closed');
+        ->assertOk()
+        ->assertJsonPath('data.status', 'open')
+        ->assertJsonPath('data.ticket_id', $ticketId);
 
     $this->postJson(
         '/api/v1/partners/fizahub/businesses/biz-reopen/support-tickets/'.$ticketId.'/close',

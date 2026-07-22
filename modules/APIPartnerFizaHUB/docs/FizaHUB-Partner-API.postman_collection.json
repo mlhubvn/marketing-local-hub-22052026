@@ -5159,7 +5159,7 @@
                                 "close"
                             ]
                         },
-                        "description": "**Màn hình 14 — Đóng ticket.**\n\n**Body:** `reason` (tùy chọn) — nếu có sẽ thêm 1 tin nhắn ghi chú lý do đóng. Có thể gửi `{}`.\n\n**HTTP:**\n- `200`: đã đóng (`status=closed`).\n- `409 ticket_already_closed`: đã đóng trước đó.\n- `404 ticket_not_found` / `integration_not_found`."
+                        "description": "**Màn hình 14 — Đóng ticket.**\n\n**Body:** `reason` (tùy chọn) — nếu có sẽ thêm 1 tin nhắn ghi chú lý do đóng. Có thể gửi `{}`.\n\n**HTTP:**\n- `200`: đã đóng (`status=closed`). Gọi lại khi đã đóng vẫn `200` (idempotent).\n- `404 ticket_not_found` / `integration_not_found`."
                     },
                     "event": [
                         {
@@ -5243,7 +5243,7 @@
                             "body": "{\n    \"success\": true,\n    \"data\": {\n        \"ticket_id\": \"tkt_7de1f9a4c0\",\n        \"ticket_type\": \"support\",\n        \"source\": \"fizahub\",\n        \"preset_code\": \"qr_scan_not_recorded\",\n        \"campaign_id\": null,\n        \"subject\": \"QR check-in không ghi nhận lượt quét\",\n        \"status\": \"closed\",\n        \"last_message\": \"QR đã đặt tại quầy nhưng dashboard chưa cập nhật lượt quét.\",\n        \"created_at\": \"2026-07-21T01:05:00+00:00\",\n        \"updated_at\": \"2026-07-21T01:05:00+00:00\",\n        \"last_message_at\": \"2026-07-21T01:05:00+00:00\",\n        \"unread_by_business\": false\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
                         },
                         {
-                            "name": "409 · Đã đóng trước đó",
+                            "name": "200 · Đã đóng sẵn (idempotent)",
                             "originalRequest": {
                                 "method": "POST",
                                 "header": [
@@ -5299,8 +5299,8 @@
                                     ]
                                 }
                             },
-                            "status": "Conflict",
-                            "code": 409,
+                            "status": "OK",
+                            "code": 200,
                             "_postman_previewlanguage": "json",
                             "header": [
                                 {
@@ -5309,7 +5309,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"ticket_already_closed\",\n        \"message\": \"Phiếu hỗ trợ này đã được đóng.\",\n        \"details\": {}\n    }\n}"
+                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"ticket_id\": \"tkt_7de1f9a4c0\",\n        \"ticket_type\": \"support\",\n        \"source\": \"fizahub\",\n        \"preset_code\": \"qr_scan_not_recorded\",\n        \"campaign_id\": null,\n        \"subject\": \"QR check-in không ghi nhận lượt quét\",\n        \"status\": \"closed\",\n        \"last_message\": \"QR đã đặt tại quầy nhưng dashboard chưa cập nhật lượt quét.\",\n        \"created_at\": \"2026-07-21T01:05:00+00:00\",\n        \"updated_at\": \"2026-07-21T01:05:00+00:00\",\n        \"last_message_at\": \"2026-07-21T01:05:00+00:00\",\n        \"unread_by_business\": false\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
                         },
                         {
                             "name": "404 · Không tìm thấy ticket",
@@ -5442,7 +5442,7 @@
                                 "reopen"
                             ]
                         },
-                        "description": "**Màn hình 14 — Mở lại ticket đã đóng/đã xử lý.**\n\n**Body:** gửi `{}`.\n\n**HTTP:**\n- `200`: đã mở lại (`status=open`).\n- `409 ticket_not_closed`: ticket đang mở, không thể reopen.\n- `404 ticket_not_found` / `integration_not_found`."
+                        "description": "**Màn hình 14 — Mở lại ticket đã đóng/đã xử lý.**\n\n**Body:** gửi `{}`.\n\n**HTTP:**\n- `200`: đã mở lại (`status=open`). Gọi lại khi đang mở vẫn `200` (idempotent).\n- `404 ticket_not_found` / `integration_not_found`."
                     },
                     "event": [
                         {
@@ -5526,7 +5526,7 @@
                             "body": "{\n    \"success\": true,\n    \"data\": {\n        \"ticket_id\": \"tkt_7de1f9a4c0\",\n        \"ticket_type\": \"support\",\n        \"source\": \"fizahub\",\n        \"preset_code\": \"qr_scan_not_recorded\",\n        \"campaign_id\": null,\n        \"subject\": \"QR check-in không ghi nhận lượt quét\",\n        \"status\": \"open\",\n        \"last_message\": \"QR đã đặt tại quầy nhưng dashboard chưa cập nhật lượt quét.\",\n        \"created_at\": \"2026-07-21T01:05:00+00:00\",\n        \"updated_at\": \"2026-07-21T01:05:00+00:00\",\n        \"last_message_at\": \"2026-07-21T01:05:00+00:00\",\n        \"unread_by_business\": false\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
                         },
                         {
-                            "name": "409 · Chưa đóng",
+                            "name": "200 · Đang mở sẵn (idempotent)",
                             "originalRequest": {
                                 "method": "POST",
                                 "header": [
@@ -5582,8 +5582,8 @@
                                     ]
                                 }
                             },
-                            "status": "Conflict",
-                            "code": 409,
+                            "status": "OK",
+                            "code": 200,
                             "_postman_previewlanguage": "json",
                             "header": [
                                 {
@@ -5592,7 +5592,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"ticket_not_closed\",\n        \"message\": \"Chỉ có thể mở lại phiếu đã đóng hoặc đã xử lý.\",\n        \"details\": {}\n    }\n}"
+                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"ticket_id\": \"tkt_7de1f9a4c0\",\n        \"ticket_type\": \"support\",\n        \"source\": \"fizahub\",\n        \"preset_code\": \"qr_scan_not_recorded\",\n        \"campaign_id\": null,\n        \"subject\": \"QR check-in không ghi nhận lượt quét\",\n        \"status\": \"open\",\n        \"last_message\": \"QR đã đặt tại quầy nhưng dashboard chưa cập nhật lượt quét.\",\n        \"created_at\": \"2026-07-21T01:05:00+00:00\",\n        \"updated_at\": \"2026-07-21T01:05:00+00:00\",\n        \"last_message_at\": \"2026-07-21T01:05:00+00:00\",\n        \"unread_by_business\": false\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
                         },
                         {
                             "name": "404 · Không tìm thấy ticket",

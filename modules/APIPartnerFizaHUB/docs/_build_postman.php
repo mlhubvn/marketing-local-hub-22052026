@@ -805,11 +805,11 @@ $close = [
     'request' => $reqClose + ['description' =>
         "**Màn hình 14 — Đóng ticket.**\n\n".
         "**Body:** `reason` (tùy chọn) — nếu có sẽ thêm 1 tin nhắn ghi chú lý do đóng. Có thể gửi `{}`.\n\n".
-        "**HTTP:**\n- `200`: đã đóng (`status=closed`).\n- `409 ticket_already_closed`: đã đóng trước đó.\n- `404 ticket_not_found` / `integration_not_found`."],
+        "**HTTP:**\n- `200`: đã đóng (`status=closed`). Gọi lại khi đã đóng vẫn `200` (idempotent).\n- `404 ticket_not_found` / `integration_not_found`."],
     'event' => [preEvent(["if (!pm.collectionVariables.get('ticket_id')) pm.execution.skipRequest();"])],
     'response' => [
         ex($reqClose, '200 · Đã đóng', 200, 'OK', ok(array_merge($ticketData, ['status' => 'closed']))),
-        ex($reqClose, '409 · Đã đóng trước đó', 409, 'Conflict', err('ticket_already_closed', 'Phiếu hỗ trợ này đã được đóng.')),
+        ex($reqClose, '200 · Đã đóng sẵn (idempotent)', 200, 'OK', ok(array_merge($ticketData, ['status' => 'closed']))),
         ex($reqClose, '404 · Không tìm thấy ticket', 404, 'Not Found', err('ticket_not_found', 'Không tìm thấy phiếu hỗ trợ.', ['next_action' => 'create_support_ticket'])),
     ],
 ];
@@ -820,11 +820,11 @@ $reopen = [
     'request' => $reqReopen + ['description' =>
         "**Màn hình 14 — Mở lại ticket đã đóng/đã xử lý.**\n\n".
         "**Body:** gửi `{}`.\n\n".
-        "**HTTP:**\n- `200`: đã mở lại (`status=open`).\n- `409 ticket_not_closed`: ticket đang mở, không thể reopen.\n- `404 ticket_not_found` / `integration_not_found`."],
+        "**HTTP:**\n- `200`: đã mở lại (`status=open`). Gọi lại khi đang mở vẫn `200` (idempotent).\n- `404 ticket_not_found` / `integration_not_found`."],
     'event' => [preEvent(["if (!pm.collectionVariables.get('ticket_id')) pm.execution.skipRequest();"])],
     'response' => [
         ex($reqReopen, '200 · Đã mở lại', 200, 'OK', ok(array_merge($ticketData, ['status' => 'open']))),
-        ex($reqReopen, '409 · Chưa đóng', 409, 'Conflict', err('ticket_not_closed', 'Chỉ có thể mở lại phiếu đã đóng hoặc đã xử lý.')),
+        ex($reqReopen, '200 · Đang mở sẵn (idempotent)', 200, 'OK', ok(array_merge($ticketData, ['status' => 'open']))),
         ex($reqReopen, '404 · Không tìm thấy ticket', 404, 'Not Found', err('ticket_not_found', 'Không tìm thấy phiếu hỗ trợ.', ['next_action' => 'create_support_ticket'])),
     ],
 ];

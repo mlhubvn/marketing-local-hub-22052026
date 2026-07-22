@@ -180,16 +180,6 @@
                     <td>{{ __('Do not send a new message to this ticket') }}</td>
                 </tr>
                 <tr>
-                    <td><code>ticket_already_closed</code></td>
-                    <td>{{ __('Phiếu hỗ trợ này đã được đóng') }}</td>
-                    <td>{{ __('Reopen the ticket first with POST Reopen Support Ticket') }}</td>
-                </tr>
-                <tr>
-                    <td><code>ticket_not_closed</code></td>
-                    <td>{{ __('Phiếu hỗ trợ này chưa được đóng') }}</td>
-                    <td>{{ __('Only closed tickets can be reopened') }}</td>
-                </tr>
-                <tr>
                     <td><code>invalid_status_transition</code></td>
                     <td>{{ __('Trạng thái hiện tại không cho phép thao tác này') }}</td>
                     <td>{{ __('Check current status with GET Onboarding Status before calling confirm/cancel') }}</td>
