@@ -1,39 +1,83 @@
 @php
     $structured = $ticket->structuredContent();
+
+    $asDisplayText = static function (mixed $value): string {
+        if ($value === null) {
+            return '';
+        }
+
+        if (is_bool($value)) {
+            return $value ? __('Yes') : __('No');
+        }
+
+        if (is_scalar($value)) {
+            return trim((string) $value);
+        }
+
+        if (is_array($value)) {
+            if ($value === []) {
+                return '';
+            }
+
+            // Common onboarding shape: {identity_verified: bool, ...}
+            if (array_key_exists('identity_verified', $value)) {
+                return ((bool) $value['identity_verified']) ? __('Verified') : __('Not verified');
+            }
+
+            return collect($value)
+                ->map(function (mixed $item, mixed $key): string {
+                    if (is_array($item)) {
+                        $type = trim((string) ($item['type'] ?? $key));
+                        $id = $item['id'] ?? null;
+
+                        return trim($type.($id !== null && $id !== '' ? ' #'.$id : ''));
+                    }
+
+                    if (is_bool($item)) {
+                        return trim((string) $key).': '.($item ? __('Yes') : __('No'));
+                    }
+
+                    if (is_scalar($item)) {
+                        $label = is_string($key) || is_int($key) ? trim((string) $key) : '';
+
+                        return $label !== '' && ! is_int($key)
+                            ? $label.': '.trim((string) $item)
+                            : trim((string) $item);
+                    }
+
+                    return '';
+                })
+                ->filter()
+                ->implode(', ');
+        }
+
+        return '';
+    };
 @endphp
 
 @if ($structured)
     @php
-        $summary = trim((string) ($structured['summary'] ?? ''));
-        $statusCode = trim((string) ($structured['status'] ?? ''));
+        $summary = $asDisplayText($structured['summary'] ?? '');
+        $statusCode = $asDisplayText($structured['status'] ?? '');
         $statusLabel = $statusCode !== '' && class_exists(\Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine::class)
             ? \Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine::label($statusCode)
             : $statusCode;
-        $packageCode = strtoupper(trim((string) ($structured['package_code'] ?? '')));
-        $verificationStatus = trim((string) ($structured['verification_status'] ?? ''));
-        if ($verificationStatus === '' && is_array($structured['verification_details'] ?? null)) {
-            $identityVerified = (bool) data_get($structured, 'verification_details.identity_verified', false);
-            $verificationStatus = $identityVerified ? __('Verified') : __('Not verified');
-        }
-        $duplicates = $structured['duplicate_check'] ?? [];
-        $duplicateText = is_array($duplicates) && $duplicates !== []
-            ? collect($duplicates)->map(function ($item): string {
-                if (is_array($item)) {
-                    return trim(($item['type'] ?? 'item').(isset($item['id']) ? ' #'.$item['id'] : ''));
-                }
+        $packageCode = strtoupper($asDisplayText($structured['package_code'] ?? ''));
+        $verificationStatus = $asDisplayText(
+            $structured['verification_status']
+                ?? $structured['verification_details']
+                ?? null
+        );
+        $duplicateText = $asDisplayText($structured['duplicate_check'] ?? null);
 
-                return trim((string) $item);
-            })->filter()->implode(', ')
-            : '';
-
-        $rows = array_filter([
-            [__('Request'), $structured['request_id'] ?? null],
-            [__('Business ID'), $structured['external_business_id'] ?? null],
-            [__('Package'), $packageCode !== '' ? $packageCode : null],
-            [__('Status'), $statusLabel !== '' ? $statusLabel : null],
-            [__('Verification'), $verificationStatus !== '' ? $verificationStatus : null],
-            [__('Duplicate check'), $duplicateText !== '' ? $duplicateText : null],
-        ], static fn (array $row): bool => filled($row[1]));
+        $rows = array_values(array_filter([
+            [__('Request'), $asDisplayText($structured['request_id'] ?? null)],
+            [__('Business ID'), $asDisplayText($structured['external_business_id'] ?? null)],
+            [__('Package'), $packageCode],
+            [__('Status'), $statusLabel],
+            [__('Verification'), $verificationStatus],
+            [__('Duplicate check'), $duplicateText],
+        ], static fn (array $row): bool => $row[1] !== ''));
     @endphp
 
     <div class="mt-3 space-y-3">
