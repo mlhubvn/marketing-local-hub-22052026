@@ -4,9 +4,10 @@ namespace Modules\APIPartnerFizaHUB\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
 use Modules\AdminSupport\Models\SupportTicket;
+use Modules\AdminUser\Models\User;
+use Modules\AdminUser\Support\UserDeletionStorageCleanup;
 use Modules\APIPartnerFizaHUB\Models\PartnerApiLog;
 use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
 use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingRequest;
@@ -23,6 +24,7 @@ class OnboardingAdminService
         protected PartnerMappingService $mapping,
         protected WebhookOutboxService $webhooks,
         protected PackageAssignmentService $packages,
+        protected UserDeletionStorageCleanup $storageCleanup,
     ) {}
 
     public function transition(
@@ -394,7 +396,7 @@ class OnboardingAdminService
             ];
         }
 
-        return DB::transaction(function () use ($userId, $changedById): array {
+        $purge = function () use ($userId, $changedById): array {
             $businessIds = Schema::hasTable('lb_businesses')
                 ? DB::table('lb_businesses')
                     ->where('user_id', $userId)
@@ -458,7 +460,66 @@ class OnboardingAdminService
                 'request_ids' => array_values(array_unique($requestIds)),
                 'tickets_deleted' => $ticketsDeleted,
             ];
-        });
+        };
+
+        return DB::transactionLevel() > 0
+            ? $purge()
+            : DB::transaction($purge);
+    }
+
+    public function resolveUserForDeletion(PartnerOnboardingRequest $onboarding): User
+    {
+        $candidateIds = collect();
+
+        if ((int) $onboarding->mlhub_user_id > 0) {
+            $candidateIds->push((int) $onboarding->mlhub_user_id);
+        }
+
+        $integration = PartnerIntegration::query()
+            ->where('partner_code', (string) $onboarding->partner_code)
+            ->where('external_business_id', (string) $onboarding->external_business_id)
+            ->first();
+
+        if ($integration && (int) $integration->mlhub_user_id > 0) {
+            $candidateIds->push((int) $integration->mlhub_user_id);
+        }
+
+        $businessIds = collect([
+            $onboarding->mlhub_business_id,
+            $integration?->mlhub_business_id,
+        ])->map(fn ($id) => (int) $id)->filter()->unique()->values();
+
+        if ($businessIds->isNotEmpty() && Schema::hasTable('lb_businesses')
+            && Schema::hasColumn('lb_businesses', 'user_id')) {
+            $candidateIds = $candidateIds->merge(
+                DB::table('lb_businesses')
+                    ->whereIn('id', $businessIds)
+                    ->pluck('user_id')
+                    ->map(fn ($id) => (int) $id)
+            );
+        }
+
+        $candidateIds = $candidateIds
+            ->filter(fn (int $id): bool => $id > 0)
+            ->unique()
+            ->values();
+
+        if ($candidateIds->count() > 1) {
+            throw new InvalidArgumentException(
+                __('The onboarding mapping points to multiple MLHUB users. No account was deleted.')
+            );
+        }
+
+        $userId = (int) ($candidateIds->first() ?? 0);
+        $user = $userId > 0 ? User::query()->find($userId) : null;
+
+        if (! $user) {
+            throw new InvalidArgumentException(
+                __('No unambiguous MLHUB user could be resolved from this onboarding mapping.')
+            );
+        }
+
+        return $user;
     }
 
     /**
@@ -532,7 +593,12 @@ class OnboardingAdminService
                 ->delete();
         }
 
-        $this->deleteSupportTickets($ticketIds);
+        $subjectUserId = $mlhubUserId
+            ?: ($requests->first()?->mlhub_user_id
+                ? (int) $requests->first()->mlhub_user_id
+                : ($integration?->mlhub_user_id ? (int) $integration->mlhub_user_id : 0));
+
+        $this->deleteSupportTickets($ticketIds, $subjectUserId);
 
         // Histories cascade with onboarding requests.
         PartnerOnboardingRequest::query()
@@ -541,6 +607,13 @@ class OnboardingAdminService
             ->delete();
 
         if ($integration) {
+            DB::afterCommit(function () use ($integration): void {
+                app(DashboardService::class)->forgetForPartnerBusiness(
+                    (string) $integration->partner_code,
+                    (string) $integration->external_business_id,
+                );
+            });
+
             // Cascades: one-time logins, package assignments, remaining ticket contexts.
             $integration->delete();
         }
@@ -572,7 +645,7 @@ class OnboardingAdminService
     /**
      * @param  list<int>  $ticketIds
      */
-    private function deleteSupportTickets(array $ticketIds): void
+    private function deleteSupportTickets(array $ticketIds, int $subjectUserId = 0): void
     {
         $ticketIds = array_values(array_unique(array_filter($ticketIds)));
 
@@ -599,17 +672,17 @@ class OnboardingAdminService
                 ->all();
 
             if ($storedAttachments !== []) {
-                DB::afterCommit(function () use ($storedAttachments): void {
+                DB::afterCommit(function () use ($storedAttachments, $subjectUserId): void {
                     foreach ($storedAttachments as $attachment) {
                         if ($attachment['disk'] === '' || $attachment['path'] === '') {
                             continue;
                         }
 
-                        try {
-                            Storage::disk($attachment['disk'])->delete($attachment['path']);
-                        } catch (Throwable $exception) {
-                            report($exception);
-                        }
+                        $this->storageCleanup->delete($subjectUserId, [
+                            'disk' => $attachment['disk'],
+                            'path' => $attachment['path'],
+                            'directory' => false,
+                        ]);
                     }
                 });
             }

@@ -9,6 +9,7 @@ use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Modules\AdminUser\Actions\DeleteUser;
 use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingRequest;
 use Modules\APIPartnerFizaHUB\Services\OnboardingAdminService;
 use Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine;
@@ -126,6 +127,26 @@ class FizaHubOnboardingIndex extends Component
         }, __('Onboarding data deleted. The MLHUB user account was kept.'));
     }
 
+    public function deleteUserAndData(int $id): void
+    {
+        $this->runAction($id, function (PartnerOnboardingRequest $row): void {
+            $service = app(OnboardingAdminService::class);
+            $user = $service->resolveUserForDeletion($row);
+
+            if ((int) auth()->id() === (int) $user->id) {
+                throw new InvalidArgumentException(__('You cannot delete the account currently signed in.'));
+            }
+
+            $result = app(DeleteUser::class)->execute($user, (int) auth()->id());
+
+            if (! $result->deleted) {
+                throw new InvalidArgumentException(__('The MLHUB user was already deleted or could not be found.'));
+            }
+
+            unset($this->stageSelections[$row->id], $this->packageSelections[$row->id]);
+        }, __('The MLHUB user and all owned operational data were deleted.'));
+    }
+
     public function render(): View
     {
         $requests = $this->baseQuery()->paginate(15);
@@ -137,8 +158,10 @@ class FizaHubOnboardingIndex extends Component
             ->all();
 
         $stageOptionsById = [];
+        $userDeletionPreviews = [];
         foreach ($requests as $request) {
             $stageOptionsById[$request->id] = $this->adminStageOptionsFor($request);
+            $userDeletionPreviews[$request->id] = $this->userDeletionPreview($request);
             $this->syncRowSelections($request);
         }
 
@@ -149,9 +172,55 @@ class FizaHubOnboardingIndex extends Component
             'statusOptions' => OnboardingStatusMachine::labels(),
             'stageOptionsById' => $stageOptionsById,
             'packageOptions' => $this->packageOptions(),
+            'userDeletionPreviews' => $userDeletionPreviews,
         ])->layout(theme_view('layouts.app', 'app'), [
             'title' => __('FizaHUB onboarding'),
         ]);
+    }
+
+    /**
+     * @return array{name:string,identity:string,business:string,resolvable:bool}
+     */
+    protected function userDeletionPreview(PartnerOnboardingRequest $request): array
+    {
+        try {
+            $user = app(OnboardingAdminService::class)->resolveUserForDeletion($request);
+
+            return [
+                'name' => (string) $user->name,
+                'identity' => $this->maskIdentity((string) ($user->email ?: $user->username)),
+                'business' => (string) ($request->business?->name
+                    ?: data_get($request->payload, 'business.name')
+                    ?: $request->external_business_id),
+                'resolvable' => true,
+            ];
+        } catch (Throwable) {
+            return [
+                'name' => __('Unresolved user'),
+                'identity' => '—',
+                'business' => (string) ($request->business?->name
+                    ?: data_get($request->payload, 'business.name')
+                    ?: $request->external_business_id),
+                'resolvable' => false,
+            ];
+        }
+    }
+
+    protected function maskIdentity(string $identity): string
+    {
+        $identity = trim($identity);
+
+        if ($identity === '') {
+            return '—';
+        }
+
+        if (str_contains($identity, '@')) {
+            [$local, $domain] = array_pad(explode('@', $identity, 2), 2, '');
+
+            return mb_substr($local, 0, 1).'***@'.$domain;
+        }
+
+        return mb_substr($identity, 0, min(2, mb_strlen($identity))).'***';
     }
 
     /**

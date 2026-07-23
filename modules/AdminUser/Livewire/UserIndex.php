@@ -3,13 +3,13 @@
 namespace Modules\AdminUser\Livewire;
 
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Modules\AdminUser\Actions\DeleteUser;
 use Modules\AdminUser\Models\User;
+use Throwable;
 
 #[Title('Admin Users')]
 class UserIndex extends Component
@@ -72,18 +72,19 @@ class UserIndex extends Component
             return;
         }
 
-        $metadata = [
-            'username' => $user->username,
-            'email' => $user->email,
-        ];
+        try {
+            $result = app(DeleteUser::class)->execute($user, (int) auth()->id());
+        } catch (Throwable $exception) {
+            session()->flash('error', $exception->getMessage());
 
-        app(DeleteUser::class)->execute($user, (int) auth()->id());
+            return;
+        }
 
-        log_activity('admin.users.delete', 'Deleted a backend user.', [
-            'subject_type' => User::class,
-            'subject_id' => $userId,
-            'metadata' => $metadata,
-        ]);
+        if (! $result->deleted) {
+            session()->flash('error', __('The user was already deleted or could not be found.'));
+
+            return;
+        }
 
         $this->selectedUserIds = array_values(array_filter($this->selectedUserIds, fn ($id) => (int) $id !== $userId));
         session()->flash('status', __('User deleted successfully.'));
@@ -112,34 +113,42 @@ class UserIndex extends Component
             return;
         }
 
-        $deletedUsers = User::query()
+        $usersToDelete = User::query()
             ->whereIn('id', $deletableIds)
-            ->get(['id', 'username', 'email']);
+            ->get();
 
-        if ($deletedUsers->isEmpty()) {
+        if ($usersToDelete->isEmpty()) {
             session()->flash('error', __('No matching users were available for deletion.'));
 
             return;
         }
 
         $deleteUser = app(DeleteUser::class);
-        $usersToDelete = $deletedUsers;
-        $deletedUsers = DB::transaction(
-            fn () => $usersToDelete
-                ->filter(fn (User $user): bool => $deleteUser->execute($user, $currentUserId))
-                ->values()
-        );
+        $deletedCount = 0;
+        $failures = [];
 
-        log_activity('admin.users.bulk-delete', 'Deleted backend users in bulk.', [
-            'metadata' => [
-                'count' => $deletedUsers->count(),
-                'usernames' => $deletedUsers->pluck('username')->filter()->values()->all(),
-                'emails' => $deletedUsers->pluck('email')->filter()->values()->all(),
-            ],
-        ]);
+        foreach ($usersToDelete as $user) {
+            try {
+                $result = $deleteUser->execute($user, $currentUserId);
+
+                if ($result->deleted) {
+                    $deletedCount++;
+                } else {
+                    $failures[] = '#'.$user->id.': '.__('already missing');
+                }
+            } catch (Throwable $exception) {
+                $failures[] = '#'.$user->id.': '.$exception->getMessage();
+            }
+        }
 
         $this->selectedUserIds = [];
-        session()->flash('status', __('Deleted :count users successfully.', ['count' => $deletedUsers->count()]));
+        session()->flash('status', __('Deleted :count users successfully.', ['count' => $deletedCount]));
+
+        if ($failures !== []) {
+            session()->flash('error', __('Some users could not be deleted: :failures', [
+                'failures' => implode(' | ', $failures),
+            ]));
+        }
     }
 
     public function render(): View

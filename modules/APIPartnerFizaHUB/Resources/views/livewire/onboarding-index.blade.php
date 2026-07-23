@@ -48,6 +48,7 @@
 
         <div class="divide-y" style="border-color: var(--theme-border-color);">
             @forelse ($requests as $request)
+                @php($deletionPreview = $userDeletionPreviews[$request->id] ?? ['name' => __('Unresolved user'), 'identity' => '—', 'business' => $request->external_business_id, 'resolvable' => false])
                 <div class="flex flex-wrap items-start justify-between gap-4 px-5 py-4">
                     <div class="min-w-[240px] space-y-1">
                         <div class="flex items-center gap-2">
@@ -125,7 +126,7 @@
                         </x-ui.button>
 
                         <x-ui.dialog
-                            :title="__('Delete this onboarding?')"
+                            :title="__('Xóa dữ liệu onboarding')"
                             :description="__('This permanently removes the FizaHUB partner mapping, onboarding history, related support tickets, and webhooks for this business. The MLHUB user account is kept — delete it from Users if needed. This cannot be undone.')"
                             width="sm"
                             dismissible
@@ -134,18 +135,57 @@
                                 <x-ui.button
                                     type="button"
                                     size="sm"
-                                    variant="danger"
-                                    class="!px-2.5"
-                                    title="{{ __('Delete onboarding') }}"
-                                    aria-label="{{ __('Delete onboarding') }}"
+                                    variant="outline"
+                                    title="{{ __('Xóa dữ liệu onboarding') }}"
+                                    aria-label="{{ __('Xóa dữ liệu onboarding') }}"
                                 >
-                                    <i class="fa-light fa-trash-can" aria-hidden="true"></i>
+                                    {{ __('Xóa dữ liệu onboarding') }}
                                 </x-ui.button>
                             </x-slot:trigger>
                             <x-slot:footer>
                                 <div class="flex justify-end gap-3">
                                     <x-ui.button type="button" variant="outline" x-on:click="open = false">{{ __('Cancel') }}</x-ui.button>
-                                    <x-ui.button type="button" variant="danger" wire:click="deleteOnboarding({{ $request->id }})" x-on:click="open = false">{{ __('Delete') }}</x-ui.button>
+                                    <x-ui.button type="button" variant="danger" wire:click="deleteOnboarding({{ $request->id }})" x-on:click="open = false">{{ __('Xóa dữ liệu onboarding') }}</x-ui.button>
+                                </div>
+                            </x-slot:footer>
+                        </x-ui.dialog>
+
+                        <x-ui.dialog
+                            :title="__('Xóa User và toàn bộ dữ liệu')"
+                            :description="__('This permanently deletes the MLHUB account, businesses, campaigns, customers, marketing data, personal workspace, FizaHUB integration/onboarding, and physical files. This cannot be undone.')"
+                            width="md"
+                            dismissible
+                        >
+                            <x-slot:trigger>
+                                <x-ui.button
+                                    type="button"
+                                    size="sm"
+                                    variant="danger"
+                                    :disabled="! $deletionPreview['resolvable']"
+                                >
+                                    {{ __('Xóa User và toàn bộ dữ liệu') }}
+                                </x-ui.button>
+                            </x-slot:trigger>
+
+                            <div class="mt-4 space-y-3 rounded-xl border p-4 text-sm" style="border-color: var(--theme-border-color);">
+                                <p><span class="font-semibold">{{ __('User') }}:</span> {{ $deletionPreview['name'] }}</p>
+                                <p><span class="font-semibold">{{ __('Email/username') }}:</span> {{ $deletionPreview['identity'] }}</p>
+                                <p><span class="font-semibold">{{ __('Business') }}:</span> {{ $deletionPreview['business'] }}</p>
+                                <p class="font-semibold text-red-600">{{ __('Confirm that this deletes the entire MLHUB account and all owned data.') }}</p>
+                            </div>
+
+                            <x-slot:footer>
+                                <div class="flex justify-end gap-3">
+                                    <x-ui.button type="button" variant="outline" x-on:click="open = false">{{ __('Cancel') }}</x-ui.button>
+                                    <x-ui.button
+                                        type="button"
+                                        variant="danger"
+                                        wire:click="deleteUserAndData({{ $request->id }})"
+                                        x-on:click="open = false"
+                                        :disabled="! $deletionPreview['resolvable']"
+                                    >
+                                        {{ __('Xóa User và toàn bộ dữ liệu') }}
+                                    </x-ui.button>
                                 </div>
                             </x-slot:footer>
                         </x-ui.dialog>

@@ -90,7 +90,7 @@ class TemplateImportExportService
         $packId = $this->createImportedPackIfNeeded($payload, $createdTemplateIds, $user);
 
         if (Schema::hasTable('lb_template_imports')) {
-            DB::table('lb_template_imports')->insert([
+            $importLog = [
                 'team_id' => null,
                 'file_name' => (string) ($payload['name'] ?? 'template-import.json'),
                 'status' => $errors === [] ? 'completed' : 'completed_with_errors',
@@ -99,7 +99,13 @@ class TemplateImportExportService
                 'error_log' => $errors === [] ? null : json_encode($errors),
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]);
+            ];
+
+            if (Schema::hasColumn('lb_template_imports', 'user_id')) {
+                $importLog['user_id'] = $user->id;
+            }
+
+            DB::table('lb_template_imports')->insert($importLog);
         }
 
         return ['imported' => $imported, 'failed' => count($errors), 'pack_id' => $packId];
@@ -124,7 +130,7 @@ class TemplateImportExportService
         $name = (string) ($payload['name'] ?? 'Imported Template Pack');
         $slug = $this->uniquePackSlug((string) ($payload['slug'] ?? $name));
 
-        $packId = DB::table('lb_template_packs')->insertGetId([
+        $pack = [
             'team_id' => null,
             'name' => $name,
             'slug' => $slug,
@@ -138,7 +144,13 @@ class TemplateImportExportService
             'install_count' => 0,
             'created_at' => now(),
             'updated_at' => now(),
-        ]);
+        ];
+
+        if (Schema::hasColumn('lb_template_packs', 'created_by_user_id')) {
+            $pack['created_by_user_id'] = $user->id;
+        }
+
+        $packId = DB::table('lb_template_packs')->insertGetId($pack);
 
         foreach ($templateIds as $sort => $templateId) {
             DB::table('lb_template_pack_items')->insert([

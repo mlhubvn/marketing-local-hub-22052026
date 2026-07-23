@@ -2,8 +2,14 @@
 
 namespace Modules\AdminUser\Providers;
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Modules\AdminUser\Console\Commands\RetryUserDeletionStorageCommand;
+use Modules\AdminUser\Models\AdminRole;
+use Modules\AdminUser\Models\AuditLog;
+use Modules\AdminUser\Models\Team;
+use Modules\AdminUser\Models\User;
 
 class AdminUserServiceProvider extends ServiceProvider
 {
@@ -21,7 +27,21 @@ class AdminUserServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
+        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
         $this->loadViewsFrom(__DIR__.'/../Resources/views', 'adminuser');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                RetryUserDeletionStorageCommand::class,
+            ]);
+
+            $this->app->booted(function (): void {
+                $this->app->make(Schedule::class)
+                    ->command('mlhub:user-deletion-storage-retry')
+                    ->everyTenMinutes()
+                    ->withoutOverlapping();
+            });
+        }
 
         register_setting_item('general', [
             'label' => 'Authentication Rules',
@@ -101,7 +121,7 @@ class AdminUserServiceProvider extends ServiceProvider
             'order' => 20,
             'data' => fn () => [
                 'signupReport' => (function () {
-                    $query = \Modules\AdminUser\Models\User::query();
+                    $query = User::query();
                     $today = now()->startOfDay();
                     $weekStart = now()->subDays(6)->startOfDay();
 
@@ -125,10 +145,10 @@ class AdminUserServiceProvider extends ServiceProvider
                     ];
                 })(),
                 'metrics' => [
-                    'users' => \Modules\AdminUser\Models\User::query()->count(),
-                    'teams' => \Modules\AdminUser\Models\Team::query()->count(),
-                    'roles' => \Modules\AdminUser\Models\AdminRole::query()->count(),
-                    'new_users' => \Modules\AdminUser\Models\User::query()->where('created_at', '>=', now()->subDays(7))->count(),
+                    'users' => User::query()->count(),
+                    'teams' => Team::query()->count(),
+                    'roles' => AdminRole::query()->count(),
+                    'new_users' => User::query()->where('created_at', '>=', now()->subDays(7))->count(),
                 ],
                 'route' => route('admin-users.index'),
                 'reportRoute' => route('admin-user-report.index'),
@@ -199,7 +219,7 @@ class AdminUserServiceProvider extends ServiceProvider
                     return [$module, $action];
                 };
 
-                $baseQuery = \Modules\AdminUser\Models\AuditLog::query()
+                $baseQuery = AuditLog::query()
                     ->where('causer_user_id', $user->id);
 
                 $latestLogs = (clone $baseQuery)

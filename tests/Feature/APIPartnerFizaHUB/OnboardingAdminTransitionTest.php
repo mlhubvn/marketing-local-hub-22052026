@@ -1,13 +1,17 @@
 <?php
 
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Livewire;
 use Modules\AdminPlans\Models\AdminPlan;
 use Modules\AdminSupport\Models\SupportTicket;
+use Modules\AdminUser\Actions\DeleteUser;
 use Modules\AdminUser\Livewire\UserIndex;
 use Modules\AdminUser\Models\Team;
 use Modules\AdminUser\Models\User;
+use Modules\APIPartnerFizaHUB\Livewire\FizaHubOnboardingIndex;
 use Modules\APIPartnerFizaHUB\Models\PartnerApiLog;
 use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
 use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingRequest;
@@ -418,6 +422,138 @@ test('admin user deletion purges FizaHUB onboarding before deleting owned busine
 
     Storage::disk('local')->assertMissing($avatarPath);
     Storage::disk('local')->assertMissing($filePath);
+});
+
+test('admin user deletion purges every FizaHUB business for the target and preserves unrelated mappings', function (): void {
+    $seed = seedAdminOnboarding();
+    $target = User::query()->findOrFail($seed['integration']->mlhub_user_id);
+    $secondBusiness = LocalBusiness::query()->create([
+        'user_id' => $target->id,
+        'name' => 'Owner Second Shop',
+        'type' => 'other',
+    ]);
+    PartnerIntegration::query()->create([
+        'partner_code' => 'fizahub',
+        'external_business_id' => 'biz-admin-second',
+        'mlhub_user_id' => $target->id,
+        'mlhub_workspace_id' => $seed['integration']->mlhub_workspace_id,
+        'mlhub_business_id' => $secondBusiness->id,
+        'package_code' => 'base',
+        'status' => 'active',
+    ]);
+    PartnerOnboardingRequest::query()->create([
+        'partner_code' => 'fizahub',
+        'request_id' => (string) str()->uuid(),
+        'external_business_id' => 'biz-admin-second',
+        'package_code' => 'base',
+        'requested_package_code' => 'base',
+        'status' => OnboardingStatusMachine::READY,
+        'current_step' => OnboardingStatusMachine::READY,
+        'admin_status' => OnboardingStatusMachine::READY,
+        'mlhub_user_id' => $target->id,
+        'mlhub_workspace_id' => $seed['integration']->mlhub_workspace_id,
+        'mlhub_business_id' => $secondBusiness->id,
+    ]);
+
+    $unrelated = User::query()->create([
+        'name' => 'Unrelated Owner',
+        'username' => 'unrelated_owner',
+        'email' => 'unrelated-owner@example.com',
+        'password' => 'password-password-password-password-password-password-1234',
+    ]);
+    $unrelatedBusiness = LocalBusiness::query()->create([
+        'user_id' => $unrelated->id,
+        'name' => 'Unrelated Shop',
+        'type' => 'other',
+    ]);
+    $unrelatedIntegration = PartnerIntegration::query()->create([
+        'partner_code' => 'fizahub',
+        'external_business_id' => 'biz-unrelated-owner',
+        'mlhub_user_id' => $unrelated->id,
+        'mlhub_business_id' => $unrelatedBusiness->id,
+        'package_code' => 'free',
+        'status' => 'active',
+    ]);
+    $admin = User::query()->create([
+        'name' => 'Admin',
+        'username' => 'multi_business_admin',
+        'email' => 'multi-business-admin@example.com',
+        'password' => 'password-password-password-password-password-password-1234',
+        'is_super_admin' => true,
+    ]);
+    $dashboardCacheKey = 'fizahub:dashboard|fizahub|biz-admin-second|2026-07-01|2026-07-23';
+    $dashboardIndexKey = 'fizahub:dashboard:index:'.hash('sha256', 'fizahub|biz-admin-second');
+    Cache::put($dashboardCacheKey, ['private' => true], 600);
+    Cache::put($dashboardCacheKey.':generated_at', now()->toIso8601String(), 600);
+    Cache::put($dashboardCacheKey.':cooldown', true, 600);
+    Cache::put($dashboardIndexKey, [$dashboardCacheKey], 600);
+
+    $result = app(DeleteUser::class)->execute($target, $admin->id);
+
+    expect($result->onboardingBusinessesPurged)->toBe(2)
+        ->and(PartnerOnboardingRequest::query()->where('mlhub_user_id', $target->id)->count())->toBe(0)
+        ->and(PartnerIntegration::query()->where('mlhub_user_id', $target->id)->count())->toBe(0)
+        ->and(LocalBusiness::query()->where('user_id', $target->id)->count())->toBe(0)
+        ->and(User::query()->find($unrelated->id))->not->toBeNull()
+        ->and(PartnerIntegration::query()->find($unrelatedIntegration->id))->not->toBeNull()
+        ->and(Cache::has($dashboardCacheKey))->toBeFalse()
+        ->and(Cache::has($dashboardCacheKey.':generated_at'))->toBeFalse()
+        ->and(Cache::has($dashboardCacheKey.':cooldown'))->toBeFalse()
+        ->and(Cache::has($dashboardIndexKey))->toBeFalse();
+});
+
+test('FizaHub UserDeletion action removes the resolved MLHUB user and all onboarding rows', function (): void {
+    $seed = seedAdminOnboarding();
+    $targetUserId = (int) $seed['onboarding']->mlhub_user_id;
+    $admin = User::query()->create([
+        'name' => 'Admin',
+        'username' => 'fizahub_delete_admin',
+        'email' => 'fizahub-delete-admin@example.com',
+        'password' => 'password-password-password-password-password-password-1234',
+        'is_super_admin' => true,
+    ]);
+
+    Livewire::actingAs($admin)
+        ->test(FizaHubOnboardingIndex::class)
+        ->assertSee('Xóa dữ liệu onboarding')
+        ->assertSee('Xóa User và toàn bộ dữ liệu')
+        ->assertSee('o***@example.com')
+        ->call('deleteUserAndData', $seed['onboarding']->id)
+        ->assertSet('errorMessage', null);
+
+    expect(User::query()->find($targetUserId))->toBeNull()
+        ->and(PartnerOnboardingRequest::query()->where('external_business_id', 'biz-admin')->count())->toBe(0)
+        ->and(PartnerIntegration::query()->where('external_business_id', 'biz-admin')->count())->toBe(0);
+});
+
+test('FizaHub UserDeletion action refuses ambiguous user mappings', function (): void {
+    $seed = seedAdminOnboarding();
+    $firstUserId = (int) $seed['onboarding']->mlhub_user_id;
+    $other = User::query()->create([
+        'name' => 'Conflicting Owner',
+        'username' => 'conflicting_owner',
+        'email' => 'conflicting-owner@example.com',
+        'password' => 'password-password-password-password-password-password-1234',
+    ]);
+    $admin = User::query()->create([
+        'name' => 'Admin',
+        'username' => 'ambiguous_admin',
+        'email' => 'ambiguous-admin@example.com',
+        'password' => 'password-password-password-password-password-password-1234',
+        'is_super_admin' => true,
+    ]);
+
+    $seed['integration']->forceFill(['mlhub_user_id' => $other->id])->save();
+
+    Livewire::actingAs($admin)
+        ->test(FizaHubOnboardingIndex::class)
+        ->call('deleteUserAndData', $seed['onboarding']->id)
+        ->assertSet('statusMessage', null)
+        ->assertSet('errorMessage', __('The onboarding mapping points to multiple MLHUB users. No account was deleted.'));
+
+    expect(User::query()->find($firstUserId))->not->toBeNull()
+        ->and(User::query()->find($other->id))->not->toBeNull()
+        ->and(PartnerOnboardingRequest::query()->find($seed['onboarding']->id))->not->toBeNull();
 });
 
 test('adminAssignPackage upgrades effective package and marks approved', function (): void {

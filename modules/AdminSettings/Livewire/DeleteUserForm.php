@@ -9,6 +9,7 @@ use Livewire\Component;
 use Modules\AdminSettings\Actions\Logout;
 use Modules\AdminUser\Actions\DeleteUser;
 use Modules\AdminUser\Models\User;
+use Throwable;
 
 class DeleteUserForm extends Component
 {
@@ -28,7 +29,20 @@ class DeleteUserForm extends Component
             return;
         }
 
-        app(DeleteUser::class)->execute($user, (int) $user->id);
+        try {
+            $result = app(DeleteUser::class)->execute($user, (int) $user->id);
+        } catch (Throwable $exception) {
+            $this->addError('password', $exception->getMessage());
+
+            return;
+        }
+
+        if (! $result->deleted) {
+            $this->addError('password', __('The account was already deleted or could not be found.'));
+
+            return;
+        }
+
         $logout();
 
         $this->redirect('/', navigate: true);

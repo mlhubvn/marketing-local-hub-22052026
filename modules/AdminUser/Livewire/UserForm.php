@@ -13,6 +13,7 @@ use Modules\AdminUser\Actions\DeleteUser;
 use Modules\AdminUser\Models\AdminRole;
 use Modules\AdminUser\Models\User;
 use Modules\AdminUser\Support\PersonalTeamProvisioner;
+use Throwable;
 
 class UserForm extends Component
 {
@@ -173,18 +174,19 @@ class UserForm extends Component
             return;
         }
 
-        $metadata = [
-            'username' => $user->username,
-            'email' => $user->email,
-        ];
+        try {
+            $result = app(DeleteUser::class)->execute($user, (int) auth()->id());
+        } catch (Throwable $exception) {
+            session()->flash('error', $exception->getMessage());
 
-        app(DeleteUser::class)->execute($user, (int) auth()->id());
+            return null;
+        }
 
-        log_activity('admin.users.delete', 'Deleted a backend user.', [
-            'subject_type' => User::class,
-            'subject_id' => $this->userId,
-            'metadata' => $metadata,
-        ]);
+        if (! $result->deleted) {
+            session()->flash('error', __('The user was already deleted or could not be found.'));
+
+            return null;
+        }
 
         return redirect()
             ->route('admin-users.index')
@@ -289,7 +291,7 @@ class UserForm extends Component
             $this->storageDriverManager->ensureDiskReadyForWrites($disk);
 
             return $disk;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return 'public';
         }
     }

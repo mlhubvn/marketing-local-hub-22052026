@@ -147,6 +147,7 @@ class DashboardService
 
         $key = $this->cacheKey($integration, $from, $to);
         $metaKey = $key.':generated_at';
+        $this->trackCacheKey($integration, $key, $ttlMinutes, $cooldown);
 
         if ($forceRefresh) {
             // Force refresh is only honoured once per cooldown window to protect the app.
@@ -410,6 +411,50 @@ class DashboardService
             $from->timezone($timezone)->toDateString(),
             $to->timezone($timezone)->toDateString(),
         ]);
+    }
+
+    public function forgetForPartnerBusiness(string $partnerCode, string $externalBusinessId): void
+    {
+        $indexKey = $this->cacheIndexKey($partnerCode, $externalBusinessId);
+        $keys = Cache::get($indexKey, []);
+
+        foreach (is_array($keys) ? $keys : [] as $key) {
+            if (! is_string($key) || $key === '') {
+                continue;
+            }
+
+            Cache::forget($key);
+            Cache::forget($key.':generated_at');
+            Cache::forget($key.':cooldown');
+        }
+
+        Cache::forget($indexKey);
+    }
+
+    private function trackCacheKey(
+        PartnerIntegration $integration,
+        string $key,
+        int $ttlMinutes,
+        int $cooldownSeconds
+    ): void {
+        $indexKey = $this->cacheIndexKey(
+            (string) $integration->partner_code,
+            (string) $integration->external_business_id,
+        );
+        $keys = Cache::get($indexKey, []);
+        $keys = is_array($keys) ? $keys : [];
+        $keys[] = $key;
+
+        Cache::put(
+            $indexKey,
+            array_values(array_unique(array_filter($keys, 'is_string'))),
+            now()->addSeconds(max(($ttlMinutes * 60) + 300, $cooldownSeconds + 300)),
+        );
+    }
+
+    private function cacheIndexKey(string $partnerCode, string $externalBusinessId): string
+    {
+        return 'fizahub:dashboard:index:'.hash('sha256', $partnerCode.'|'.$externalBusinessId);
     }
 
     /**
