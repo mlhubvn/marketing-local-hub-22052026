@@ -92,13 +92,25 @@
         );
         $duplicateText = $asDisplayText($structured['duplicate_check'] ?? null);
         $goalsText = $goalLabels($structured['marketing_goal_codes'] ?? []);
-        $industry = $asDisplayText($structured['industry'] ?? null);
+        $industryRaw = $asDisplayText($structured['industry'] ?? null);
+        $industryLabel = $industryRaw;
+        if ($industryRaw !== '' && class_exists(\Modules\AppBusinessProfiles\Support\BusinessTypeCatalog::class)) {
+            $alias = (string) config('modules.apipartnerfizahub.industry_aliases.'.$industryRaw, $industryRaw);
+            $resolved = \Modules\AppBusinessProfiles\Support\BusinessTypeCatalog::resolveSelection(null, $alias);
+            $meta = \Modules\AppBusinessProfiles\Support\BusinessTypeCatalog::categoryMeta(
+                (string) ($resolved['category_code'] ?? $alias)
+            );
+            $industryLabel = trim((string) ($meta['category_label'] ?? $industryRaw));
+            if ($industryLabel === '') {
+                $industryLabel = $industryRaw;
+            }
+        }
 
         $rows = array_values(array_filter([
             [__('Request'), $asDisplayText($structured['request_id'] ?? null)],
             [__('Business ID'), $asDisplayText($structured['external_business_id'] ?? null)],
             [__('Business name'), $asDisplayText($structured['business_name'] ?? null)],
-            [__('Industry'), $industry !== '' ? __($industry) : ''],
+            [__('Industry'), $industryLabel],
             [__('Business phone'), $asDisplayText($structured['business_phone'] ?? null)],
             [__('Business address'), $asDisplayText($structured['business_address'] ?? null)],
             [__('Owner'), $asDisplayText($structured['owner_name'] ?? null)],
