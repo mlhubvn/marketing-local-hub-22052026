@@ -3,10 +3,12 @@
 namespace Modules\AdminUser\Livewire;
 
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Modules\AdminUser\Actions\DeleteUser;
 use Modules\AdminUser\Models\User;
 
 #[Title('Admin Users')]
@@ -75,7 +77,7 @@ class UserIndex extends Component
             'email' => $user->email,
         ];
 
-        $user->delete();
+        app(DeleteUser::class)->execute($user, (int) auth()->id());
 
         log_activity('admin.users.delete', 'Deleted a backend user.', [
             'subject_type' => User::class,
@@ -120,7 +122,13 @@ class UserIndex extends Component
             return;
         }
 
-        User::query()->whereIn('id', $deletedUsers->pluck('id'))->delete();
+        $deleteUser = app(DeleteUser::class);
+        $usersToDelete = $deletedUsers;
+        $deletedUsers = DB::transaction(
+            fn () => $usersToDelete
+                ->filter(fn (User $user): bool => $deleteUser->execute($user, $currentUserId))
+                ->values()
+        );
 
         log_activity('admin.users.bulk-delete', 'Deleted backend users in bulk.', [
             'metadata' => [

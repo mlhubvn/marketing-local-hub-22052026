@@ -4,6 +4,7 @@ namespace Modules\APIPartnerFizaHUB\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
 use Modules\AdminSupport\Models\SupportTicket;
 use Modules\APIPartnerFizaHUB\Models\PartnerApiLog;
@@ -366,93 +367,206 @@ class OnboardingAdminService
         PartnerOnboardingRequest $onboarding,
         ?int $changedById = null
     ): array {
-        return DB::transaction(function () use ($onboarding, $changedById) {
-            $partnerCode = (string) $onboarding->partner_code;
-            $externalBusinessId = (string) $onboarding->external_business_id;
+        return DB::transaction(fn (): array => $this->purgePartnerBusiness(
+            (string) $onboarding->partner_code,
+            (string) $onboarding->external_business_id,
+            $changedById,
+            (int) $onboarding->id,
+            $onboarding->mlhub_user_id ? (int) $onboarding->mlhub_user_id : null
+        ));
+    }
 
-            $requests = PartnerOnboardingRequest::query()
-                ->where('partner_code', $partnerCode)
-                ->where('external_business_id', $externalBusinessId)
-                ->get();
+    /**
+     * Remove every FizaHUB mapping that still points at the user or one of the
+     * user's businesses. This must run before the user/business rows are deleted,
+     * otherwise nullable foreign keys preserve orphaned onboarding records.
+     *
+     * @return array{businesses_purged: int, request_ids: list<string>, tickets_deleted: int}
+     */
+    public function adminPurgeForUser(int $userId, ?int $changedById = null): array
+    {
+        if (! Schema::hasTable('partner_onboarding_requests')
+            || ! Schema::hasTable('partner_integrations')) {
+            return [
+                'businesses_purged' => 0,
+                'request_ids' => [],
+                'tickets_deleted' => 0,
+            ];
+        }
 
-            $requestIds = $requests->pluck('request_id')->map(fn ($id) => (string) $id)->filter()->values()->all();
-            $integration = $this->integrationFor($onboarding);
+        return DB::transaction(function () use ($userId, $changedById): array {
+            $businessIds = Schema::hasTable('lb_businesses')
+                ? DB::table('lb_businesses')
+                    ->where('user_id', $userId)
+                    ->pluck('id')
+                    ->map(fn ($id) => (int) $id)
+                    ->all()
+                : [];
 
-            $ticketIds = $requests->pluck('support_ticket_id')
-                ->filter()
-                ->map(fn ($id) => (int) $id)
-                ->values()
-                ->all();
+            $scopes = collect();
 
-            if ($integration && Schema::hasTable('partner_support_ticket_contexts')) {
-                $ticketIds = array_values(array_unique(array_merge(
-                    $ticketIds,
-                    PartnerSupportTicketContext::query()
-                        ->where('partner_integration_id', $integration->id)
-                        ->pluck('support_ticket_id')
-                        ->map(fn ($id) => (int) $id)
-                        ->all()
-                )));
+            $onboardingQuery = PartnerOnboardingRequest::query()
+                ->where(function ($query) use ($userId, $businessIds): void {
+                    $query->where('mlhub_user_id', $userId);
+
+                    if ($businessIds !== []) {
+                        $query->orWhereIn('mlhub_business_id', $businessIds);
+                    }
+                });
+
+            foreach ($onboardingQuery->get(['partner_code', 'external_business_id']) as $request) {
+                $scopes->put(
+                    $request->partner_code.'|'.$request->external_business_id,
+                    [(string) $request->partner_code, (string) $request->external_business_id]
+                );
             }
 
-            // Detach FK before deleting tickets.
-            PartnerOnboardingRequest::query()
-                ->whereIn('id', $requests->pluck('id'))
-                ->update(['support_ticket_id' => null]);
+            $integrationQuery = PartnerIntegration::query()
+                ->where(function ($query) use ($userId, $businessIds): void {
+                    $query->where('mlhub_user_id', $userId);
 
-            if ($requestIds !== [] && Schema::hasTable('partner_api_logs')) {
-                PartnerApiLog::query()
-                    ->where('partner_code', $partnerCode)
-                    ->whereIn('request_id', $requestIds)
-                    ->delete();
+                    if ($businessIds !== []) {
+                        $query->orWhereIn('mlhub_business_id', $businessIds);
+                    }
+                });
+
+            foreach ($integrationQuery->get(['partner_code', 'external_business_id']) as $integration) {
+                $scopes->put(
+                    $integration->partner_code.'|'.$integration->external_business_id,
+                    [(string) $integration->partner_code, (string) $integration->external_business_id]
+                );
             }
 
-            if (Schema::hasTable('partner_webhook_outbox')) {
-                PartnerWebhookOutbox::query()
-                    ->where('partner_code', $partnerCode)
-                    ->where(function ($query) use ($requestIds, $externalBusinessId): void {
-                        foreach ($requestIds as $requestId) {
-                            $query->orWhere('dedupe_key', 'like', $requestId.'%');
-                        }
+            $requestIds = [];
+            $ticketsDeleted = 0;
 
-                        $query->orWhere('payload', 'like', '%'.$externalBusinessId.'%');
-                    })
-                    ->delete();
+            foreach ($scopes->values() as [$partnerCode, $externalBusinessId]) {
+                $result = $this->purgePartnerBusiness(
+                    $partnerCode,
+                    $externalBusinessId,
+                    $changedById,
+                    null,
+                    $userId
+                );
+
+                $requestIds = array_merge($requestIds, $result['request_ids']);
+                $ticketsDeleted += $result['tickets_deleted'];
             }
-
-            $this->deleteSupportTickets($ticketIds);
-
-            // Histories cascade with onboarding requests.
-            PartnerOnboardingRequest::query()
-                ->where('partner_code', $partnerCode)
-                ->where('external_business_id', $externalBusinessId)
-                ->delete();
-
-            if ($integration) {
-                // Cascades: one-time logins, package assignments, remaining ticket contexts.
-                $integration->delete();
-            }
-
-            $this->safeAudit('partner.fizahub.onboarding.purge', 'Purged FizaHUB partner onboarding data.', [
-                'subject_type' => PartnerOnboardingRequest::class,
-                'subject_id' => $onboarding->id,
-                'area' => 'admin',
-                'causer_user_id' => $changedById,
-                'metadata' => [
-                    'external_business_id' => $externalBusinessId,
-                    'request_ids' => $requestIds,
-                    'tickets_deleted' => count($ticketIds),
-                    'integration_id' => $integration?->id,
-                    'mlhub_user_id' => $onboarding->mlhub_user_id,
-                ],
-            ]);
 
             return [
+                'businesses_purged' => $scopes->count(),
+                'request_ids' => array_values(array_unique($requestIds)),
+                'tickets_deleted' => $ticketsDeleted,
+            ];
+        });
+    }
+
+    /**
+     * @return array{external_business_id: string, request_ids: list<string>, tickets_deleted: int}
+     */
+    private function purgePartnerBusiness(
+        string $partnerCode,
+        string $externalBusinessId,
+        ?int $changedById = null,
+        ?int $subjectId = null,
+        ?int $mlhubUserId = null
+    ): array {
+        $requests = PartnerOnboardingRequest::query()
+            ->where('partner_code', $partnerCode)
+            ->where('external_business_id', $externalBusinessId)
+            ->get();
+
+        $requestIds = $requests->pluck('request_id')->map(fn ($id) => (string) $id)->filter()->values()->all();
+        $integration = PartnerIntegration::query()
+            ->where('partner_code', $partnerCode)
+            ->where('external_business_id', $externalBusinessId)
+            ->first();
+
+        $ticketIds = $requests->pluck('support_ticket_id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->values()
+            ->all();
+
+        if ($integration && Schema::hasTable('partner_support_ticket_contexts')) {
+            $ticketIds = array_values(array_unique(array_merge(
+                $ticketIds,
+                PartnerSupportTicketContext::query()
+                    ->where('partner_integration_id', $integration->id)
+                    ->pluck('support_ticket_id')
+                    ->map(fn ($id) => (int) $id)
+                    ->all()
+            )));
+        }
+
+        // Detach FK before deleting tickets.
+        PartnerOnboardingRequest::query()
+            ->whereIn('id', $requests->pluck('id'))
+            ->update(['support_ticket_id' => null]);
+
+        if (Schema::hasTable('partner_api_logs')) {
+            PartnerApiLog::query()
+                ->where('partner_code', $partnerCode)
+                ->where(function ($query) use ($requestIds, $externalBusinessId): void {
+                    if ($requestIds !== []) {
+                        $query->whereIn('request_id', $requestIds);
+                    }
+
+                    $query
+                        ->orWhere('request_payload->external_business_id', $externalBusinessId)
+                        ->orWhere('response_payload->data->external_business_id', $externalBusinessId);
+                })
+                ->delete();
+        }
+
+        if (Schema::hasTable('partner_webhook_outbox')) {
+            PartnerWebhookOutbox::query()
+                ->where('partner_code', $partnerCode)
+                ->where(function ($query) use ($requestIds, $externalBusinessId): void {
+                    foreach ($requestIds as $requestId) {
+                        $query->orWhere('dedupe_key', 'like', $requestId.'%');
+                    }
+
+                    $query->orWhere('payload->external_business_id', $externalBusinessId);
+                })
+                ->delete();
+        }
+
+        $this->deleteSupportTickets($ticketIds);
+
+        // Histories cascade with onboarding requests.
+        PartnerOnboardingRequest::query()
+            ->where('partner_code', $partnerCode)
+            ->where('external_business_id', $externalBusinessId)
+            ->delete();
+
+        if ($integration) {
+            // Cascades: one-time logins, package assignments, remaining ticket contexts.
+            $integration->delete();
+        }
+
+        $this->safeAudit('partner.fizahub.onboarding.purge', 'Purged FizaHUB partner onboarding data.', [
+            'subject_type' => PartnerOnboardingRequest::class,
+            'subject_id' => $subjectId ?: $requests->first()?->id,
+            'area' => 'admin',
+            'causer_user_id' => $changedById,
+            'metadata' => [
                 'external_business_id' => $externalBusinessId,
                 'request_ids' => $requestIds,
                 'tickets_deleted' => count($ticketIds),
-            ];
-        });
+                'integration_id' => $integration?->id,
+                'mlhub_user_id' => $mlhubUserId
+                    ?: ($requests->first()?->mlhub_user_id
+                        ? (int) $requests->first()->mlhub_user_id
+                        : ($integration?->mlhub_user_id ? (int) $integration->mlhub_user_id : null)),
+            ],
+        ]);
+
+        return [
+            'external_business_id' => $externalBusinessId,
+            'request_ids' => $requestIds,
+            'tickets_deleted' => count($ticketIds),
+        ];
     }
 
     /**
@@ -475,6 +589,31 @@ class OnboardingAdminService
         }
 
         if (Schema::hasTable('partner_support_attachments')) {
+            $storedAttachments = PartnerSupportAttachment::query()
+                ->whereIn('support_ticket_id', $ticketIds)
+                ->get(['disk', 'path'])
+                ->map(fn (PartnerSupportAttachment $attachment): array => [
+                    'disk' => (string) $attachment->disk,
+                    'path' => (string) $attachment->path,
+                ])
+                ->all();
+
+            if ($storedAttachments !== []) {
+                DB::afterCommit(function () use ($storedAttachments): void {
+                    foreach ($storedAttachments as $attachment) {
+                        if ($attachment['disk'] === '' || $attachment['path'] === '') {
+                            continue;
+                        }
+
+                        try {
+                            Storage::disk($attachment['disk'])->delete($attachment['path']);
+                        } catch (Throwable $exception) {
+                            report($exception);
+                        }
+                    }
+                });
+            }
+
             PartnerSupportAttachment::query()->whereIn('support_ticket_id', $ticketIds)->delete();
         }
 

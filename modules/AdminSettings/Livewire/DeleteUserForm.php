@@ -7,6 +7,8 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Modules\AdminSettings\Actions\Logout;
+use Modules\AdminUser\Actions\DeleteUser;
+use Modules\AdminUser\Models\User;
 
 class DeleteUserForm extends Component
 {
@@ -20,7 +22,14 @@ class DeleteUserForm extends Component
             'password' => $this->currentPasswordRules(),
         ]);
 
-        tap(Auth::user(), $logout(...))->delete();
+        $user = Auth::user();
+
+        if (! $user instanceof User) {
+            return;
+        }
+
+        app(DeleteUser::class)->execute($user, (int) $user->id);
+        $logout();
 
         $this->redirect('/', navigate: true);
     }

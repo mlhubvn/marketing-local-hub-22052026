@@ -9,6 +9,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Modules\AdminPlans\Models\AdminPlan;
 use Modules\AdminPlans\Support\DefaultSignupPlanResolver;
+use Modules\AdminUser\Actions\DeleteUser;
 use Modules\AdminUser\Models\AdminRole;
 use Modules\AdminUser\Models\User;
 use Modules\AdminUser\Support\PersonalTeamProvisioner;
@@ -177,7 +178,7 @@ class UserForm extends Component
             'email' => $user->email,
         ];
 
-        $user->delete();
+        app(DeleteUser::class)->execute($user, (int) auth()->id());
 
         log_activity('admin.users.delete', 'Deleted a backend user.', [
             'subject_type' => User::class,
@@ -208,7 +209,7 @@ class UserForm extends Component
         }
 
         return view('adminuser::livewire.user-form', [
-            'user' => $user ?? new User(),
+            'user' => $user ?? new User,
             'isEditing' => $user !== null,
             'authUser' => auth()->user(),
             'roles' => AdminRole::query()->orderBy('name')->get(['id', 'name']),
