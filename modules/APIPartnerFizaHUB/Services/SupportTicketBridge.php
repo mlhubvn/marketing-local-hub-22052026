@@ -243,11 +243,29 @@ class SupportTicketBridge
         // whole onboarding transaction, which is the exact production 500 this guards.
         [$userId, $teamId] = $this->resolveTicketOwnerOrFail($integration);
 
+        $payload = (array) ($onboarding->payload ?? []);
+        $business = (array) ($payload['business'] ?? []);
+        $owner = (array) ($payload['owner'] ?? []);
+        $goalCodes = array_values(array_filter(array_map(
+            static fn (mixed $code): string => trim((string) $code),
+            (array) ($payload['marketing_goal_codes'] ?? data_get($payload, 'metadata.marketing_goal_codes', []))
+        )));
+
         $content = json_encode([
             'summary' => $summary,
             'request_id' => $onboarding->request_id,
             'external_business_id' => $onboarding->external_business_id,
             'package_code' => $onboarding->package_code,
+            'requested_package_code' => $onboarding->requested_package_code
+                ?: ($payload['requested_package_code'] ?? $onboarding->package_code),
+            'marketing_goal_codes' => $goalCodes,
+            'business_name' => $business['name'] ?? $onboarding->business?->name,
+            'industry' => $business['industry'] ?? null,
+            'business_phone' => $business['phone'] ?? null,
+            'business_address' => $business['address'] ?? null,
+            'owner_name' => $owner['name'] ?? null,
+            'owner_phone' => $owner['phone'] ?? null,
+            'owner_email' => $owner['email'] ?? null,
             'status' => $onboarding->status,
             'verification_status' => $onboarding->verification_status,
             'duplicate_check' => $duplicates,

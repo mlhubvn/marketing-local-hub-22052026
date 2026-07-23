@@ -196,7 +196,61 @@ class SupportTicket extends Model
             return null;
         }
 
-        return $decoded;
+        return $this->enrichOnboardingStructuredContent($decoded);
+    }
+
+    /**
+     * Backfill newer display fields from the linked onboarding payload when older tickets
+     * only stored a slim JSON body.
+     *
+     * @param  array<string, mixed>  $structured
+     * @return array<string, mixed>
+     */
+    protected function enrichOnboardingStructuredContent(array $structured): array
+    {
+        $requestId = trim((string) ($structured['request_id'] ?? ''));
+
+        if ($requestId === '' || ! class_exists(\Modules\APIPartnerFizaHUB\Models\PartnerOnboardingRequest::class)) {
+            return $structured;
+        }
+
+        $onboarding = \Modules\APIPartnerFizaHUB\Models\PartnerOnboardingRequest::query()
+            ->where('request_id', $requestId)
+            ->first();
+
+        if (! $onboarding) {
+            return $structured;
+        }
+
+        $payload = (array) ($onboarding->payload ?? []);
+        $business = (array) ($payload['business'] ?? []);
+        $owner = (array) ($payload['owner'] ?? []);
+        $goals = array_values(array_filter(array_map(
+            static fn (mixed $code): string => trim((string) $code),
+            (array) ($structured['marketing_goal_codes']
+                ?? $payload['marketing_goal_codes']
+                ?? data_get($payload, 'metadata.marketing_goal_codes', []))
+        )));
+
+        $fill = static function (array &$target, string $key, mixed $value): void {
+            if (($target[$key] ?? null) === null || $target[$key] === '' || $target[$key] === []) {
+                if ($value !== null && $value !== '' && $value !== []) {
+                    $target[$key] = $value;
+                }
+            }
+        };
+
+        $fill($structured, 'marketing_goal_codes', $goals);
+        $fill($structured, 'requested_package_code', $onboarding->requested_package_code ?: ($payload['requested_package_code'] ?? null));
+        $fill($structured, 'business_name', $business['name'] ?? $onboarding->business?->name);
+        $fill($structured, 'industry', $business['industry'] ?? null);
+        $fill($structured, 'business_phone', $business['phone'] ?? null);
+        $fill($structured, 'business_address', $business['address'] ?? null);
+        $fill($structured, 'owner_name', $owner['name'] ?? null);
+        $fill($structured, 'owner_phone', $owner['phone'] ?? null);
+        $fill($structured, 'owner_email', $owner['email'] ?? null);
+
+        return $structured;
     }
 
     public function plainTextContent(): string

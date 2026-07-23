@@ -53,6 +53,27 @@
 
         return '';
     };
+
+    $goalLabels = static function (mixed $codes): string {
+        $codes = array_values(array_filter(array_map(
+            static fn (mixed $code): string => trim((string) $code),
+            is_array($codes) ? $codes : []
+        )));
+
+        if ($codes === []) {
+            return '';
+        }
+
+        $catalog = (array) config('modules.apipartnerfizahub.marketing_goals', []);
+
+        return collect($codes)
+            ->map(function (string $code) use ($catalog): string {
+                $label = trim((string) data_get($catalog, $code.'.label', $code));
+
+                return $label !== '' ? __($label) : $code;
+            })
+            ->implode(', ');
+    };
 @endphp
 
 @if ($structured)
@@ -63,17 +84,29 @@
             ? \Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine::label($statusCode)
             : $statusCode;
         $packageCode = strtoupper($asDisplayText($structured['package_code'] ?? ''));
+        $requestedPackage = strtoupper($asDisplayText($structured['requested_package_code'] ?? ''));
         $verificationStatus = $asDisplayText(
             $structured['verification_status']
                 ?? $structured['verification_details']
                 ?? null
         );
         $duplicateText = $asDisplayText($structured['duplicate_check'] ?? null);
+        $goalsText = $goalLabels($structured['marketing_goal_codes'] ?? []);
+        $industry = $asDisplayText($structured['industry'] ?? null);
 
         $rows = array_values(array_filter([
             [__('Request'), $asDisplayText($structured['request_id'] ?? null)],
             [__('Business ID'), $asDisplayText($structured['external_business_id'] ?? null)],
+            [__('Business name'), $asDisplayText($structured['business_name'] ?? null)],
+            [__('Industry'), $industry !== '' ? __($industry) : ''],
+            [__('Business phone'), $asDisplayText($structured['business_phone'] ?? null)],
+            [__('Business address'), $asDisplayText($structured['business_address'] ?? null)],
+            [__('Owner'), $asDisplayText($structured['owner_name'] ?? null)],
+            [__('Owner phone'), $asDisplayText($structured['owner_phone'] ?? null)],
+            [__('Owner email'), $asDisplayText($structured['owner_email'] ?? null)],
             [__('Package'), $packageCode],
+            [__('Requested package'), $requestedPackage],
+            [__('Priority needs'), $goalsText],
             [__('Status'), $statusLabel],
             [__('Verification'), $verificationStatus],
             [__('Duplicate check'), $duplicateText],
