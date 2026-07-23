@@ -216,7 +216,7 @@ test('canonical preset ticket runs the complete text lifecycle and message repla
         supportUiHeaders()
     )->assertOk()->assertJsonStructure(['data' => [
         'ticket_id', 'ticket_type', 'source', 'preset_code', 'campaign_id', 'subject',
-        'status', 'messages', 'created_at', 'updated_at', 'next_poll_after_seconds',
+        'status', 'status_label', 'messages', 'created_at', 'updated_at', 'next_poll_after_seconds',
     ]]);
     expect(strtolower((string) json_encode($detail->json())))->not->toContain('attachment');
 

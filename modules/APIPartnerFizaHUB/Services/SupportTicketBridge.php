@@ -503,14 +503,17 @@ class SupportTicketBridge
         $presetCode = $context?->request_code ?: ($contextData['preset_code'] ?? null);
         $ticketType = (string) ($contextData['ticket_type'] ?? 'support');
 
+        $status = $this->statusCode((int) $ticket->status);
+
         return [
             'ticket_id' => $ticket->id_secure,
             'ticket_type' => $ticketType,
             'source' => (string) ($contextData['source'] ?? 'fizahub'),
             'preset_code' => $presetCode,
             'campaign_id' => $contextData['campaign_id'] ?? $context?->related_resource_id,
-            'subject' => $ticket->title,
-            'status' => $this->statusCode((int) $ticket->status),
+            'subject' => $ticket->displayTitle(),
+            'status' => $status,
+            'status_label' => $this->statusLabel($status),
             'last_message' => $this->lastMessageBody($ticket),
             'created_at' => $this->isoFromUnix($ticket->created),
             'updated_at' => $this->isoFromUnix($ticket->changed),
@@ -942,12 +945,14 @@ class SupportTicketBridge
 
         $initialCreated = (int) ($ticket->created ?: 0);
         if ($since === null || $initialCreated > $since->timestamp) {
+            $rawBody = $ticket->plainTextContent() !== ''
+                ? $ticket->plainTextContent()
+                : (string) $ticket->content;
+
             $messages[] = [
                 'message_id' => $ticket->id_secure.':initial',
                 'sender_type' => 'business',
-                'body' => $ticket->plainTextContent() !== ''
-                    ? $ticket->plainTextContent()
-                    : (string) $ticket->content,
+                'body' => $this->localizePartnerText($rawBody),
                 'created_at' => $this->isoFromUnix($ticket->created),
             ];
         }
@@ -995,7 +1000,35 @@ class SupportTicketBridge
             ->orderByDesc('id')
             ->first();
 
-        return (string) ($comment?->comment ?? ($ticket->plainTextContent() !== '' ? $ticket->plainTextContent() : $ticket->content));
+        if ($comment?->comment) {
+            return (string) $comment->comment;
+        }
+
+        $raw = $ticket->plainTextContent() !== ''
+            ? $ticket->plainTextContent()
+            : (string) $ticket->content;
+
+        return $this->localizePartnerText($raw);
+    }
+
+    private function localizePartnerText(string $text): string
+    {
+        $text = trim($text);
+
+        if ($text === '') {
+            return '';
+        }
+
+        return (string) __($text);
+    }
+
+    private function statusLabel(string $status): string
+    {
+        return match ($status) {
+            'resolved' => (string) __('Resolved'),
+            'closed' => (string) __('Closed'),
+            default => (string) __('Ticket status open'),
+        };
     }
 
     private function tenantTicketQuery(PartnerIntegration $integration): \Illuminate\Database\Eloquent\Builder

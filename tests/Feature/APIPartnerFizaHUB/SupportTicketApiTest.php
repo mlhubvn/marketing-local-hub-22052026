@@ -451,3 +451,38 @@ test('message endpoint requires idempotency key', function (): void {
         ->assertStatus(422)
         ->assertJsonPath('error.code', 'validation_failed');
 });
+
+test('partner support API localizes onboarding ticket subject and summary for APK', function (): void {
+    config()->set('modules.apipartnerfizahub.locale', 'vi');
+    app()->setLocale('vi');
+
+    seedMappedBusiness('biz-vi-ticket', 'vi-ticket@example.com');
+
+    $ticket = SupportTicket::query()->create([
+        'id_secure' => Str::random(32),
+        'uid' => (int) PartnerIntegration::query()->where('external_business_id', 'biz-vi-ticket')->value('mlhub_user_id'),
+        'open_by' => (int) PartnerIntegration::query()->where('external_business_id', 'biz-vi-ticket')->value('mlhub_user_id'),
+        'team_id' => (int) PartnerIntegration::query()->where('external_business_id', 'biz-vi-ticket')->value('mlhub_workspace_id'),
+        'title' => 'FizaHUB onboarding awaiting consultant: 121',
+        'content' => json_encode([
+            'summary' => 'Account provisioned with Free package. Consultant should contact the business owner.',
+        ], JSON_UNESCAPED_UNICODE),
+        'status' => 1,
+        'pin' => false,
+        'user_read' => false,
+        'admin_read' => true,
+        'created' => time(),
+        'changed' => time(),
+    ]);
+
+    $detail = $this->getJson(
+        '/api/v1/partners/fizahub/businesses/biz-vi-ticket/support-tickets/'.$ticket->id_secure,
+        supportHeaders()
+    )->assertOk();
+
+    expect($detail->json('data.subject'))->toBe('FizaHUB onboarding — chờ tư vấn viên: 121')
+        ->and($detail->json('data.status'))->toBe('open')
+        ->and($detail->json('data.status_label'))->toBe('Đang mở')
+        ->and($detail->json('data.last_message'))->toBe('Tài khoản đã được tạo với gói Free. Tư vấn viên nên liên hệ chủ doanh nghiệp.')
+        ->and($detail->json('data.messages.0.body'))->toBe('Tài khoản đã được tạo với gói Free. Tư vấn viên nên liên hệ chủ doanh nghiệp.');
+});
