@@ -10,7 +10,7 @@ class CustomerActivityService
     public function record(Customer $customer, string $type, string $title, array $data = []): CustomerActivity
     {
         $activity = CustomerActivity::query()->create([
-            'team_id' => data_get($data, 'team_id', $customer->team_id),
+            'owner_user_id' => data_get($data, 'owner_user_id', $customer->user_id),
             'business_id' => data_get($data, 'business_id', $customer->business_id),
             'customer_id' => $customer->id,
             'type' => $type,

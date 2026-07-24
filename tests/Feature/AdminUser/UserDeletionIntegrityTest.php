@@ -81,6 +81,25 @@ function createUserDeletionIntegrityTables(): void
         $table->timestamps();
     });
 
+    Schema::create('lb_customer_tags', function (Blueprint $table): void {
+        $table->id();
+        $table->unsignedBigInteger('team_id')->nullable()->index();
+        $table->string('name');
+        $table->string('slug');
+        $table->boolean('is_system')->default(false);
+        $table->timestamps();
+        $table->unique(['team_id', 'slug']);
+    });
+
+    Schema::create('lb_customer_tag_maps', function (Blueprint $table): void {
+        $table->id();
+        $table->unsignedBigInteger('team_id')->nullable()->index();
+        $table->unsignedBigInteger('customer_id');
+        $table->unsignedBigInteger('tag_id');
+        $table->unsignedBigInteger('created_by')->nullable();
+        $table->timestamp('created_at')->nullable();
+    });
+
     Schema::create('custom_domains', function (Blueprint $table): void {
         $table->id();
         $table->unsignedBigInteger('owner_user_id');
@@ -117,6 +136,25 @@ function createUserDeletionIntegrityTables(): void
         $table->unsignedBigInteger('user_id')->nullable();
         $table->longText('payload');
         $table->integer('last_activity');
+    });
+
+    Schema::create('personal_access_tokens', function (Blueprint $table): void {
+        $table->id();
+        $table->string('tokenable_type');
+        $table->unsignedBigInteger('tokenable_id');
+        $table->string('name');
+        $table->string('token', 64)->unique();
+        $table->timestamps();
+    });
+
+    Schema::create('oauth_access_tokens', function (Blueprint $table): void {
+        $table->string('id')->primary();
+        $table->unsignedBigInteger('user_id')->nullable();
+    });
+
+    Schema::create('oauth_auth_codes', function (Blueprint $table): void {
+        $table->string('id')->primary();
+        $table->unsignedBigInteger('user_id')->nullable();
     });
 
     Schema::create('notifications', function (Blueprint $table): void {
@@ -269,6 +307,9 @@ function createUserDeletionIntegrityTables(): void
 function dropUserDeletionIntegrityTables(): void
 {
     foreach ([
+        'partner_webhook_outbox',
+        'partner_api_logs',
+        'lb_loyalty_stamps',
         'user_deletion_storage_failures',
         'lb_template_packs',
         'lb_template_imports',
@@ -288,12 +329,17 @@ function dropUserDeletionIntegrityTables(): void
         'notification_manual_states',
         'notification_manual',
         'notifications',
+        'oauth_auth_codes',
+        'oauth_access_tokens',
+        'personal_access_tokens',
         'sessions',
         'files',
         'ai_prompt_histories',
         'ai_image_jobs',
         'ai_content_plans',
         'custom_domains',
+        'lb_customer_tag_maps',
+        'lb_customer_tags',
         'lb_customers',
         'lb_campaigns',
         'lb_businesses',
@@ -519,6 +565,19 @@ test('UserDeletion removes owned operational records personal workspace and stor
     foreach ([$qrLogo, $customerAvatar] as $path) {
         Storage::disk('public')->assertMissing($path);
     }
+
+    $deletionAudit = json_decode((string) DB::table('audit_logs')
+        ->where('event', 'admin.users.delete')
+        ->value('metadata'), true);
+
+    expect($result->status)->toBe('completed')
+        ->and($result->storageAssetsDeleted)->toBe(7)
+        ->and($result->storageAssetsMissing)->toBe(0)
+        ->and($result->storageFailureCount)->toBe(0)
+        ->and($deletionAudit['status'] ?? null)->toBe('completed')
+        ->and($deletionAudit['storage_assets_deleted'] ?? null)->toBe(7)
+        ->and($deletionAudit['storage_assets_missing'] ?? null)->toBe(0)
+        ->and($deletionAudit['storage_failure_count'] ?? null)->toBe(0);
 });
 
 test('UserDeletion blocks an owned shared team before deleting any database row or storage asset', function (): void {
@@ -636,6 +695,99 @@ test('UserDeletion does not delete storage when the database transaction rolls b
     expect(DB::table('users')->where('id', $target->id)->exists())->toBeTrue();
 });
 
+test('UserDeletion deletes only personal access tokens belonging to the target User model', function (): void {
+    $target = makeDeletionUser('token-target');
+    $other = makeDeletionUser('token-other');
+
+    DB::table('personal_access_tokens')->insert([
+        [
+            'tokenable_type' => User::class,
+            'tokenable_id' => $target->id,
+            'name' => 'target-token',
+            'token' => hash('sha256', 'target-token'),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ],
+        [
+            'tokenable_type' => User::class,
+            'tokenable_id' => $other->id,
+            'name' => 'other-token',
+            'token' => hash('sha256', 'other-token'),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ],
+        [
+            'tokenable_type' => 'App\\Models\\ServiceAccount',
+            'tokenable_id' => $target->id,
+            'name' => 'same-id-different-type',
+            'token' => hash('sha256', 'same-id-different-type'),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ],
+    ]);
+
+    app(DeleteUser::class)->execute($target);
+
+    expect(DB::table('personal_access_tokens')->where('name', 'target-token')->exists())->toBeFalse()
+        ->and(DB::table('personal_access_tokens')->where('name', 'other-token')->exists())->toBeTrue()
+        ->and(DB::table('personal_access_tokens')->where('name', 'same-id-different-type')->exists())->toBeTrue()
+        ->and(User::query()->whereKey($other->id)->exists())->toBeTrue();
+});
+
+test('UserDeletion anonymizes audit subjects only when the subject is the target User', function (): void {
+    $target = makeDeletionUser('audit-target');
+    $other = makeDeletionUser('audit-other');
+
+    $causedOtherSubjectId = DB::table('audit_logs')->insertGetId([
+        'causer_user_id' => $target->id,
+        'event' => 'business.updated',
+        'description' => 'caused by target',
+        'subject_type' => 'Modules\\AppBusiness\\Models\\Business',
+        'subject_id' => 777,
+        'metadata' => json_encode(['source' => 'target']),
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    $targetUserSubjectId = DB::table('audit_logs')->insertGetId([
+        'causer_user_id' => $other->id,
+        'event' => 'user.updated',
+        'description' => 'target user subject',
+        'subject_type' => User::class,
+        'subject_id' => $target->id,
+        'metadata' => json_encode(['source' => 'other']),
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    $sameNumericBusinessSubjectId = DB::table('audit_logs')->insertGetId([
+        'causer_user_id' => $other->id,
+        'event' => 'business.updated',
+        'description' => 'business with same numeric id',
+        'subject_type' => 'Modules\\AppBusiness\\Models\\Business',
+        'subject_id' => $target->id,
+        'metadata' => json_encode(['must' => 'remain']),
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    app(DeleteUser::class)->execute($target);
+
+    expect((array) DB::table('audit_logs')->find($causedOtherSubjectId))
+        ->toMatchArray(['causer_user_id' => null, 'subject_id' => null])
+        ->and((array) DB::table('audit_logs')->find($targetUserSubjectId))
+        ->toMatchArray(['causer_user_id' => null, 'subject_id' => null])
+        ->and((array) DB::table('audit_logs')->find($sameNumericBusinessSubjectId))
+        ->toMatchArray([
+            'causer_user_id' => $other->id,
+            'description' => 'business with same numeric id',
+            'subject_type' => 'Modules\\AppBusiness\\Models\\Business',
+            'subject_id' => $target->id,
+        ])
+        ->and(json_decode((string) DB::table('audit_logs')
+            ->where('id', $sameNumericBusinessSubjectId)
+            ->value('metadata'), true))->toBe(['must' => 'remain'])
+        ->and(User::query()->whereKey($other->id)->exists())->toBeTrue();
+});
+
 test('UserDeletion residue inspector reports exact table and storage leftovers', function (): void {
     $target = makeDeletionUser('residue');
     $teamId = DB::table('teams')->insertGetId([
@@ -670,8 +822,164 @@ test('UserDeletion residue inspector reports exact table and storage leftovers',
 
     expect($residue['database'])->toHaveKey('custom_domains.owner_user_id')
         ->and($residue['database']['custom_domains.owner_user_id'])->toBe(1)
+        ->and($residue['records'])->toContainEqual([
+            'table' => 'custom_domains',
+            'column' => 'owner_user_id',
+            'record_id' => 1,
+            'ownership_reason' => 'direct_user_reference',
+            'remaining_reference' => (string) $target->id,
+        ])
         ->and($residue['storage'])->toBe(['local:residue/asset.txt'])
         ->and($residue['clean'])->toBeFalse();
+});
+
+test('UserDeletion residue inspector catches authentication shared-record and retained PII residue', function (): void {
+    $target = makeDeletionUser('deep-residue');
+    $other = makeDeletionUser('deep-residue-other');
+    $phone = '0909123456';
+
+    DB::table('personal_access_tokens')->insert([
+        'tokenable_type' => User::class,
+        'tokenable_id' => $target->id,
+        'name' => 'residue-token',
+        'token' => hash('sha256', 'residue-token'),
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    DB::table('oauth_access_tokens')->insert(['id' => 'access-residue', 'user_id' => $target->id]);
+    DB::table('oauth_auth_codes')->insert(['id' => 'code-residue', 'user_id' => $target->id]);
+    DB::table('password_reset_tokens')->insert([
+        'email' => $target->email,
+        'token' => 'reset-secret',
+        'created_at' => now(),
+    ]);
+    $teamId = DB::table('teams')->insertGetId([
+        'name' => 'Shared residue team',
+        'slug' => 'shared-residue-team',
+        'owner_user_id' => $other->id,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    $conversationId = DB::table('team_conversations')->insertGetId([
+        'team_id' => $teamId,
+        'created_by_user_id' => $other->id,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    DB::table('team_messages')->insert([
+        'conversation_id' => $conversationId,
+        'user_id' => $target->id,
+        'body' => 'residue',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    DB::table('social_accounts')->insert([
+        'display_name' => 'Shared social',
+        'created_by_user_id' => $target->id,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    Schema::create('lb_loyalty_stamps', function (Blueprint $table): void {
+        $table->id();
+        $table->unsignedBigInteger('staff_id')->nullable();
+    });
+    DB::table('lb_loyalty_stamps')->insert(['staff_id' => $target->id]);
+    DB::table('audit_logs')->insert([
+        'causer_user_id' => null,
+        'event' => 'retained',
+        'description' => 'Retained '.$target->email,
+        'metadata' => json_encode(['username' => $target->username, 'phone' => $phone]),
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $residue = app(UserDeletionResidueInspector::class)->inspect([
+        'user_id' => $target->id,
+        'user_email' => $target->email,
+        'user_username' => $target->username,
+        'user_phone' => $phone,
+        'team_ids' => [],
+        'business_ids' => [],
+        'campaign_ids' => [],
+        'customer_ids' => [],
+        'external_business_ids' => [],
+        'request_ids' => [],
+        'storage_assets' => [],
+    ]);
+
+    expect($residue['database'])
+        ->toHaveKeys([
+            'personal_access_tokens.tokenable_type+tokenable_id',
+            'oauth_access_tokens.user_id',
+            'oauth_auth_codes.user_id',
+            'password_reset_tokens.email',
+            'team_messages.user_id',
+            'social_accounts.created_by_user_id',
+            'lb_loyalty_stamps.staff_id',
+        ])
+        ->and($residue['json'])->toHaveKeys([
+            'audit_logs.description',
+            'audit_logs.metadata',
+        ])
+        ->and($residue['clean'])->toBeFalse()
+        ->and(User::query()->whereKey($other->id)->exists())->toBeTrue();
+});
+
+test('UserDeletion residue inspector catches FizaHUB request and external business payload residue only in supplied scope', function (): void {
+    Schema::create('partner_api_logs', function (Blueprint $table): void {
+        $table->id();
+        $table->string('request_id');
+        $table->json('request_payload')->nullable();
+        $table->json('response_payload')->nullable();
+    });
+    Schema::create('partner_webhook_outbox', function (Blueprint $table): void {
+        $table->id();
+        $table->string('dedupe_key');
+        $table->json('payload')->nullable();
+    });
+    DB::table('partner_api_logs')->insert([
+        [
+            'request_id' => 'request-target',
+            'request_payload' => json_encode(['external_business_id' => 'external-target']),
+            'response_payload' => null,
+        ],
+        [
+            'request_id' => 'request-other',
+            'request_payload' => json_encode(['external_business_id' => 'external-other']),
+            'response_payload' => null,
+        ],
+    ]);
+    DB::table('partner_webhook_outbox')->insert([
+        [
+            'dedupe_key' => 'request-target|event',
+            'payload' => json_encode(['external_business_id' => 'external-target']),
+        ],
+        [
+            'dedupe_key' => 'request-other|event',
+            'payload' => json_encode(['external_business_id' => 'external-other']),
+        ],
+    ]);
+
+    $residue = app(UserDeletionResidueInspector::class)->inspect([
+        'user_id' => 99999,
+        'team_ids' => [],
+        'business_ids' => [],
+        'campaign_ids' => [],
+        'customer_ids' => [],
+        'external_business_ids' => ['external-target'],
+        'request_ids' => ['request-target'],
+        'storage_assets' => [],
+    ]);
+
+    expect($residue['json'])->toHaveKeys([
+        'partner_api_logs.request_payload/response_payload',
+        'partner_api_logs.request_id',
+        'partner_webhook_outbox.payload',
+        'partner_webhook_outbox.dedupe_key',
+    ])
+        ->and(collect($residue['records'])->pluck('remaining_reference'))
+        ->not->toContain('external-other')
+        ->not->toContain('request-other');
 });
 
 test('UserDeletion residue inspector is clean after a complete deletion', function (): void {
@@ -781,6 +1089,88 @@ test('all admin and self-service entrypoints delegate to the same deletion servi
     expect(User::query()->whereKey($selfTarget->id)->exists())->toBeFalse();
 });
 
+test('admin user list reports completed storage cleanup warnings without claiming clean success', function (): void {
+    $admin = makeDeletionUser('warning-ui-admin', true);
+    $target = makeDeletionUser('warning-ui-target');
+    $target->forceFill([
+        'avatar_disk' => 'warning-ui-unsupported',
+        'avatar_path' => 'avatars/warning-ui.png',
+    ])->save();
+    config(['filesystems.disks.warning-ui-unsupported' => ['driver' => 'unsupported-test-driver']]);
+    Auth::login($admin);
+
+    (new UserIndex)->deleteUser($target->id);
+
+    expect(session('status'))->toBeNull()
+        ->and((string) session('warning'))->toContain('storage')
+        ->and(User::query()->whereKey($target->id)->exists())->toBeFalse();
+});
+
+test('bulk admin deletion categorizes clean warning verification already-deleted and blocked outcomes', function (): void {
+    $admin = makeDeletionUser('bulk-outcome-admin', true);
+    $clean = makeDeletionUser('bulk-outcome-clean');
+    $warning = makeDeletionUser('bulk-outcome-warning');
+    $verification = makeDeletionUser('bulk-outcome-verification');
+    $missing = makeDeletionUser('bulk-outcome-missing');
+    $blocked = makeDeletionUser('bulk-outcome-blocked');
+    Auth::login($admin);
+
+    $fake = new class($clean->id, $warning->id, $verification->id, $missing->id, $blocked->id) extends DeleteUser
+    {
+        public function __construct(
+            private int $cleanId,
+            private int $warningId,
+            private int $verificationId,
+            private int $missingId,
+            private int $blockedId,
+        ) {}
+
+        public function execute(User $user, ?int $deletedByUserId = null): UserDeletionResult
+        {
+            if ((int) $user->id === $this->blockedId) {
+                throw new RuntimeException('shared team ownership');
+            }
+
+            $result = new UserDeletionResult((int) $user->id);
+
+            if ((int) $user->id === $this->cleanId) {
+                $result->deleted = true;
+                $result->status = 'completed';
+            } elseif ((int) $user->id === $this->warningId) {
+                $result->deleted = true;
+                $result->status = 'completed_with_warnings';
+                $result->storageFailureCount = 2;
+            } elseif ((int) $user->id === $this->verificationId) {
+                $result->deleted = true;
+                $result->status = 'failed_verification';
+                $result->databaseResidueCount = 3;
+            } elseif ((int) $user->id === $this->missingId) {
+                $result->status = 'already_deleted';
+            }
+
+            return $result;
+        }
+    };
+    app()->instance(DeleteUser::class, $fake);
+
+    $index = new UserIndex;
+    $index->selectedUserIds = [
+        $clean->id,
+        $warning->id,
+        $verification->id,
+        $missing->id,
+        $blocked->id,
+    ];
+    $index->deleteSelectedUsers();
+
+    expect((string) session('status'))->toContain('1')
+        ->and((string) session('warning'))->toContain('#'.$warning->id)
+        ->and((string) session('error'))
+        ->toContain('#'.$verification->id)
+        ->toContain('#'.$missing->id)
+        ->toContain('#'.$blocked->id);
+});
+
 test('UserDeletion protects the final super administrator', function (): void {
     $lastAdmin = makeDeletionUser('last-admin', true);
     $regularUser = makeDeletionUser('regular');
@@ -824,6 +1214,129 @@ test('failed post-commit storage deletion is encrypted and can be retried', func
     Storage::disk('local')->assertMissing($path);
 });
 
+test('UserDeletion records missing storage separately and remains idempotent', function (): void {
+    $target = makeDeletionUser('missing-storage');
+    $target->forceFill([
+        'avatar_disk' => 'local',
+        'avatar_path' => 'avatars/already-missing.png',
+    ])->save();
+
+    $result = app(DeleteUser::class)->execute($target, null);
+    $secondResult = app(DeleteUser::class)->execute($target, null);
+    $audit = json_decode((string) DB::table('audit_logs')
+        ->where('event', 'admin.users.delete')
+        ->value('metadata'), true);
+
+    expect($result->status)->toBe('completed')
+        ->and($result->storageAssetsScheduled)->toBe(1)
+        ->and($result->storageAssetsDeleted)->toBe(0)
+        ->and($result->storageAssetsMissing)->toBe(1)
+        ->and($audit['storage_assets_missing'] ?? null)->toBe(1)
+        ->and($secondResult->status)->toBe('already_deleted')
+        ->and($secondResult->deleted)->toBeFalse();
+});
+
+test('UserDeletion audit exposes storage failure reason and pending retry status', function (): void {
+    $target = makeDeletionUser('storage-audit-failure');
+    $target->forceFill([
+        'avatar_disk' => 'user-deletion-audit-failure',
+        'avatar_path' => 'avatars/private.png',
+    ])->save();
+    config([
+        'filesystems.disks.user-deletion-audit-failure' => [
+            'driver' => 'unsupported-test-driver',
+        ],
+    ]);
+
+    $result = app(DeleteUser::class)->execute($target, null);
+    $audit = json_decode((string) DB::table('audit_logs')
+        ->where('event', 'admin.users.delete')
+        ->value('metadata'), true);
+
+    expect($result->status)->toBe('completed_with_warnings')
+        ->and($result->storageFailureCount)->toBe(1)
+        ->and($audit['storage_failure_count'] ?? null)->toBe(1)
+        ->and($audit['storage_failures'][0]['reason'] ?? null)->not->toBeNull()
+        ->and($audit['storage_failures'][0]['retry_status'] ?? null)->toBe('pending')
+        ->and(DB::table('user_deletion_storage_failures')->count())->toBe(1);
+});
+
+test('UserDeletion never removes another users file from a shared directory', function (): void {
+    $target = makeDeletionUser('shared-storage-target');
+    $other = makeDeletionUser('shared-storage-other');
+    $targetPath = 'uploads/shared/target.txt';
+    $otherPath = 'uploads/shared/other.txt';
+
+    Storage::disk('local')->put($targetPath, 'target');
+    Storage::disk('local')->put($otherPath, 'other');
+    DB::table('files')->insert([
+        [
+            'owner_user_id' => $target->id,
+            'disk' => 'local',
+            'path' => 'uploads/shared',
+            'is_folder' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ],
+        [
+            'owner_user_id' => $target->id,
+            'disk' => 'local',
+            'path' => $targetPath,
+            'is_folder' => false,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ],
+        [
+            'owner_user_id' => $other->id,
+            'disk' => 'local',
+            'path' => $otherPath,
+            'is_folder' => false,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ],
+    ]);
+
+    $result = app(DeleteUser::class)->execute($target);
+
+    Storage::disk('local')->assertMissing($targetPath);
+    Storage::disk('local')->assertExists($otherPath);
+    expect(DB::table('files')->where('owner_user_id', $other->id)->where('path', $otherPath)->exists())->toBeTrue()
+        ->and($result->storageFailureCount)->toBe(1)
+        ->and($result->storageFailures[0]['reason'] ?? null)->toBe('shared_storage_path');
+});
+
+test('UserDeletion refuses a broad top-level directory asset', function (): void {
+    $target = makeDeletionUser('unsafe-storage-target');
+    $other = makeDeletionUser('unsafe-storage-other');
+
+    Storage::disk('local')->put('files/other.txt', 'other');
+    DB::table('files')->insert([
+        [
+            'owner_user_id' => $target->id,
+            'disk' => 'local',
+            'path' => 'files',
+            'is_folder' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ],
+        [
+            'owner_user_id' => $other->id,
+            'disk' => 'local',
+            'path' => 'files/other.txt',
+            'is_folder' => false,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ],
+    ]);
+
+    $result = app(DeleteUser::class)->execute($target);
+
+    Storage::disk('local')->assertExists('files/other.txt');
+    expect(DB::table('files')->where('owner_user_id', $other->id)->exists())->toBeTrue()
+        ->and($result->storageFailureCount)->toBe(1)
+        ->and($result->storageFailures[0]['reason'] ?? null)->toBe('unsafe_asset_path');
+});
+
 test('template ownership migration makes new import records deletable by user', function (): void {
     Schema::create('lb_template_imports', function (Blueprint $table): void {
         $table->id();
@@ -840,6 +1353,7 @@ test('template ownership migration makes new import records deletable by user', 
         $table->unsignedBigInteger('team_id')->nullable();
         $table->string('name');
         $table->string('slug')->unique();
+        $table->string('preview_image')->nullable();
         $table->timestamps();
     });
 
@@ -851,6 +1365,8 @@ test('template ownership migration makes new import records deletable by user', 
 
     $target = makeDeletionUser('template-owner');
     $admin = makeDeletionUser('template-admin', true);
+    $previewPath = 'template-packs/private-pack.png';
+    Storage::disk('public')->put($previewPath, 'private preview');
     DB::table('lb_template_imports')->insert([
         'user_id' => $target->id,
         'file_name' => 'private-import.json',
@@ -862,6 +1378,7 @@ test('template ownership migration makes new import records deletable by user', 
         'created_by_user_id' => $target->id,
         'name' => 'Private pack',
         'slug' => 'private-pack',
+        'preview_image' => $previewPath,
         'created_at' => now(),
         'updated_at' => now(),
     ]);
@@ -870,6 +1387,136 @@ test('template ownership migration makes new import records deletable by user', 
 
     expect(DB::table('lb_template_imports')->count())->toBe(0)
         ->and(DB::table('lb_template_packs')->count())->toBe(0);
+    Storage::disk('public')->assertMissing($previewPath);
 
     $migration->down();
+});
+
+test('CRM ownership migration prevents a personal team id collision from deleting another users tag', function (): void {
+    DB::table('users')->insert([
+        [
+            'id' => 50,
+            'name' => 'User B',
+            'username' => 'crm_user_b',
+            'email' => 'crm-user-b@example.test',
+            'password' => 'password-password-password-password',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ],
+        [
+            'id' => 101,
+            'name' => 'User A',
+            'username' => 'crm_user_a',
+            'email' => 'crm-user-a@example.test',
+            'password' => 'password-password-password-password',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ],
+    ]);
+
+    DB::table('teams')->insert([
+        'id' => 50,
+        'name' => 'Personal team A',
+        'slug' => 'personal-team-a',
+        'owner_user_id' => 101,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    DB::table('team_user')->insert([
+        'team_id' => 50,
+        'user_id' => 101,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $tagA = DB::table('lb_customer_tags')->insertGetId([
+        'team_id' => 101,
+        'name' => 'Tag A',
+        'slug' => 'tag-a',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    $tagB = DB::table('lb_customer_tags')->insertGetId([
+        'team_id' => 50,
+        'name' => 'Tag B',
+        'slug' => 'tag-b',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $migration = require base_path('modules/AppAdvancedCustomerCrm/database/migrations/2026_07_23_130000_normalize_advanced_crm_user_ownership.php');
+    $migration->up();
+
+    expect(DB::table('lb_customer_tags')->where('id', $tagA)->value('owner_user_id'))->toBe(101)
+        ->and(DB::table('lb_customer_tags')->where('id', $tagB)->value('owner_user_id'))->toBe(50);
+
+    app(DeleteUser::class)->execute(User::query()->findOrFail(101), null);
+
+    expect(DB::table('lb_customer_tags')->where('id', $tagA)->exists())->toBeFalse()
+        ->and(DB::table('lb_customer_tags')->where('id', $tagB)->exists())->toBeTrue()
+        ->and(DB::table('lb_customer_tags')->where('id', $tagB)->value('owner_user_id'))->toBe(50);
+
+    $migration->down();
+});
+
+test('orphan cleanup is dry run by default and only executes demonstrably safe CRM cleanup', function (): void {
+    Schema::table('lb_customer_tags', function (Blueprint $table): void {
+        $table->unsignedBigInteger('owner_user_id')->nullable()->index();
+    });
+    Schema::create('lb_template_imports', function (Blueprint $table): void {
+        $table->id();
+        $table->unsignedBigInteger('team_id')->nullable();
+        $table->unsignedBigInteger('user_id')->nullable();
+        $table->string('file_name');
+        $table->timestamps();
+    });
+    Schema::create('lb_template_packs', function (Blueprint $table): void {
+        $table->id();
+        $table->unsignedBigInteger('team_id')->nullable();
+        $table->unsignedBigInteger('created_by_user_id')->nullable();
+        $table->string('source')->default('custom');
+        $table->string('visibility')->default('private');
+        $table->string('name');
+        $table->string('slug')->unique();
+        $table->timestamps();
+    });
+
+    $orphanTagId = DB::table('lb_customer_tags')->insertGetId([
+        'team_id' => 999999,
+        'owner_user_id' => null,
+        'name' => 'Legacy orphan',
+        'slug' => 'legacy-orphan',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    $packId = DB::table('lb_template_packs')->insertGetId([
+        'team_id' => null,
+        'created_by_user_id' => null,
+        'source' => 'custom',
+        'visibility' => 'private',
+        'name' => 'Unattributed pack',
+        'slug' => 'unattributed-pack',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    $importId = DB::table('lb_template_imports')->insertGetId([
+        'team_id' => null,
+        'user_id' => null,
+        'file_name' => 'historical-unattributed-import.json',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    expect(Artisan::call('users:inspect-orphans'))->toBe(0)
+        ->and(Artisan::output())->toContain('lb_customer_tags')
+        ->toContain('legacy_owner_missing')
+        ->and(DB::table('lb_customer_tags')->where('id', $orphanTagId)->exists())->toBeTrue();
+
+    expect(Artisan::call('users:cleanup-orphans'))->toBe(0)
+        ->and(DB::table('lb_customer_tags')->where('id', $orphanTagId)->exists())->toBeTrue();
+
+    expect(Artisan::call('users:cleanup-orphans', ['--execute' => true, '--force' => true]))->toBe(0)
+        ->and(DB::table('lb_customer_tags')->where('id', $orphanTagId)->exists())->toBeFalse()
+        ->and(DB::table('lb_template_packs')->where('id', $packId)->exists())->toBeTrue()
+        ->and(DB::table('lb_template_imports')->where('id', $importId)->exists())->toBeTrue();
 });

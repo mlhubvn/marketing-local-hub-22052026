@@ -4,12 +4,12 @@ namespace Modules\AppAdvancedCustomerCrm\Livewire;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
-use Livewire\Attributes\Url;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Modules\AppAdvancedCustomerCrm\Models\CustomerTag;
 use Modules\AppAdvancedCustomerCrm\Models\CustomerSegment;
+use Modules\AppAdvancedCustomerCrm\Models\CustomerTag;
 use Modules\AppAdvancedCustomerCrm\Models\CustomerTask;
 use Modules\AppAdvancedCustomerCrm\Support\CustomerActivityService;
 use Modules\AppAdvancedCustomerCrm\Support\CustomerSegmentService;
@@ -22,15 +22,21 @@ class CrmCustomersIndex extends Component
     use WithPagination;
 
     public string $search = '';
+
     #[Url(as: 'business')]
     public string $businessFilter = 'all';
+
     #[Url(as: 'status')]
     public string $statusFilter = 'all';
+
     #[Url(as: 'tag')]
     public string $tagFilter = 'all';
+
     #[Url(as: 'segment')]
     public string $segmentFilter = 'all';
+
     public int $perPage = 10;
+
     public ?string $statusMessage = null;
 
     public function mount(): void
@@ -81,10 +87,8 @@ class CrmCustomersIndex extends Component
     public function render(): View
     {
         $businesses = LocalBusiness::query()->where('user_id', auth()->id())->orderBy('name')->get();
-        $tags = CustomerTag::query()->where(function ($query): void {
-            $query->whereNull('team_id')->orWhere('team_id', auth()->id());
-        })->orderBy('name')->get();
-        $segments = CustomerSegment::query()->where('team_id', auth()->id())->orderBy('name')->get();
+        $tags = CustomerTag::query()->where('owner_user_id', auth()->id())->orderBy('name')->get();
+        $segments = CustomerSegment::query()->where('owner_user_id', auth()->id())->orderBy('name')->get();
 
         $base = Customer::query()
             ->where('user_id', auth()->id())
@@ -96,10 +100,11 @@ class CrmCustomersIndex extends Component
             ->when($this->tagFilter !== 'all', fn ($query) => $query->whereHas('crmTags', fn ($tagQuery) => $tagQuery->whereKey((int) $this->tagFilter)))
             ->when($this->segmentFilter !== 'all', function ($query): void {
                 if (is_numeric($this->segmentFilter)) {
-                    $segment = CustomerSegment::query()->where('team_id', auth()->id())->find((int) $this->segmentFilter);
+                    $segment = CustomerSegment::query()->where('owner_user_id', auth()->id())->find((int) $this->segmentFilter);
                     if ($segment) {
                         $query->whereIn('id', app(CustomerSegmentService::class)->query($segment)->pluck('id'));
                     }
+
                     return;
                 }
 
@@ -182,7 +187,7 @@ class CrmCustomersIndex extends Component
             ['Inactive', '#64748b'],
         ] as [$name, $color]) {
             CustomerTag::query()->firstOrCreate(
-                ['team_id' => auth()->id(), 'slug' => str($name)->slug()->toString()],
+                ['owner_user_id' => auth()->id(), 'slug' => str($name)->slug()->toString()],
                 ['name' => $name, 'color' => $color, 'is_system' => true]
             );
         }

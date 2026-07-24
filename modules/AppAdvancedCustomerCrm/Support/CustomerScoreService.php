@@ -15,7 +15,7 @@ class CustomerScoreService
         $customer->forceFill(['score' => $newScore])->save();
 
         CustomerScoreLog::query()->create([
-            'team_id' => $customer->team_id,
+            'owner_user_id' => $customer->user_id,
             'customer_id' => $customer->id,
             'old_score' => $oldScore,
             'new_score' => $newScore,

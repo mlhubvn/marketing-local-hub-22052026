@@ -5,6 +5,8 @@ namespace Modules\AdminUser\Providers;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Modules\AdminUser\Console\Commands\CleanupUserOwnershipOrphansCommand;
+use Modules\AdminUser\Console\Commands\InspectUserOwnershipOrphansCommand;
 use Modules\AdminUser\Console\Commands\RetryUserDeletionStorageCommand;
 use Modules\AdminUser\Models\AdminRole;
 use Modules\AdminUser\Models\AuditLog;
@@ -32,6 +34,8 @@ class AdminUserServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->commands([
+                CleanupUserOwnershipOrphansCommand::class,
+                InspectUserOwnershipOrphansCommand::class,
                 RetryUserDeletionStorageCommand::class,
             ]);
 

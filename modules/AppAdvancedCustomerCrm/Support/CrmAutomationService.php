@@ -3,6 +3,7 @@
 namespace Modules\AppAdvancedCustomerCrm\Support;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Modules\AppAdvancedCustomerCrm\Models\CrmAutomation;
 use Modules\AppAdvancedCustomerCrm\Models\CrmAutomationJob;
 use Modules\AppAdvancedCustomerCrm\Models\CrmAutomationLog;
@@ -16,6 +17,7 @@ class CrmAutomationService
     public function handle(string $eventName, Customer $customer, array $payload = []): void
     {
         CrmAutomation::query()
+            ->where('owner_user_id', $customer->user_id)
             ->where('status', 'active')
             ->where('trigger_event', $eventName)
             ->where(function ($query) use ($customer): void {
@@ -25,6 +27,7 @@ class CrmAutomationService
             ->each(function (CrmAutomation $automation) use ($eventName, $customer, $payload): void {
                 if ($this->shouldDelay($automation)) {
                     $this->queue($automation, $eventName, $customer, $payload);
+
                     return;
                 }
 
@@ -38,6 +41,7 @@ class CrmAutomationService
 
         if (! $job->automation || ! $job->customer || $job->automation->status !== 'active') {
             $job->forceFill(['status' => 'skipped', 'processed_at' => now(), 'message' => __('Automation or customer is no longer available.')])->save();
+
             return;
         }
 
@@ -49,6 +53,7 @@ class CrmAutomationService
     {
         if (! $this->matches($automation, $customer, $payload)) {
             $this->log($automation, $customer, 'skipped', __('Conditions did not match.'), $payload);
+
             return;
         }
 
@@ -101,7 +106,7 @@ class CrmAutomationService
             'add_tag' => $this->addTag($customer, (string) data_get($action, 'value')),
             'change_status' => $customer->forceFill(['status' => (string) data_get($action, 'value', 'active')])->save(),
             'create_task' => CustomerTask::query()->create([
-                'team_id' => $customer->team_id ?: $customer->user_id,
+                'owner_user_id' => $customer->user_id,
                 'business_id' => $customer->business_id,
                 'customer_id' => $customer->id,
                 'assigned_to' => auth()->id() ?: $automation->created_by ?: $customer->user_id,
@@ -114,7 +119,7 @@ class CrmAutomationService
                 'created_by' => auth()->id() ?: $automation->created_by ?: $customer->user_id,
             ]),
             'add_note' => CustomerNote::query()->create([
-                'team_id' => $customer->team_id ?: $customer->user_id,
+                'owner_user_id' => $customer->user_id,
                 'business_id' => $customer->business_id,
                 'customer_id' => $customer->id,
                 'user_id' => auth()->id() ?: $automation->created_by ?: $customer->user_id,
@@ -136,19 +141,19 @@ class CrmAutomationService
         }
 
         $tag = CustomerTag::query()->firstOrCreate(
-            ['team_id' => $customer->team_id ?: $customer->user_id, 'slug' => str($tagName)->slug()->toString()],
+            ['owner_user_id' => $customer->user_id, 'slug' => str($tagName)->slug()->toString()],
             ['name' => $tagName, 'color' => '#0f766e', 'is_system' => false]
         );
 
         $customer->crmTags()->syncWithoutDetaching([
-            $tag->id => ['team_id' => $tag->team_id, 'created_by' => auth()->id(), 'created_at' => now()],
+            $tag->id => ['owner_user_id' => $tag->owner_user_id, 'created_by' => auth()->id(), 'created_at' => now()],
         ]);
     }
 
     protected function log(CrmAutomation $automation, Customer $customer, string $status, string $message, array $payload): void
     {
         CrmAutomationLog::query()->create([
-            'team_id' => $automation->team_id,
+            'owner_user_id' => $automation->owner_user_id,
             'automation_id' => $automation->id,
             'customer_id' => $customer->id,
             'status' => $status,
@@ -165,7 +170,7 @@ class CrmAutomationService
     protected function queue(CrmAutomation $automation, string $eventName, Customer $customer, array $payload): void
     {
         CrmAutomationJob::query()->create([
-            'team_id' => $automation->team_id,
+            'owner_user_id' => $automation->owner_user_id,
             'automation_id' => $automation->id,
             'customer_id' => $customer->id,
             'event_name' => $eventName,
@@ -177,7 +182,7 @@ class CrmAutomationService
         $this->log($automation, $customer, 'queued', __('Automation queued for delayed processing.'), $payload);
     }
 
-    protected function runAt(CrmAutomation $automation): \Illuminate\Support\Carbon
+    protected function runAt(CrmAutomation $automation): Carbon
     {
         return match ((string) $automation->delay_unit) {
             'hours' => now()->addHours((int) $automation->delay_value),

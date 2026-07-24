@@ -18,7 +18,7 @@ class CrmExportController extends Controller
         $query = Customer::query()->where('user_id', $request->user()->id)->with('business');
 
         if ($request->filled('segment')) {
-            $segment = CustomerSegment::query()->where('team_id', $request->user()->id)->findOrFail((int) $request->query('segment'));
+            $segment = CustomerSegment::query()->where('owner_user_id', $request->user()->id)->findOrFail((int) $request->query('segment'));
             $query = app(CustomerSegmentService::class)->query($segment)->with('business');
         }
 

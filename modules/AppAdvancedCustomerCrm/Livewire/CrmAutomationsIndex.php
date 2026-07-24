@@ -15,20 +15,35 @@ class CrmAutomationsIndex extends Component
     use WithPagination;
 
     public string $name = 'Low-score follow-up';
+
     public string $business_id = '';
+
     public string $trigger_event = 'low_score_feedback_submitted';
+
     public string $condition_field = '';
+
     public string $condition_operator = '=';
+
     public string $condition_value = '';
+
     public string $action_type = 'create_task';
+
     public string $action_value = 'feedback.low_score';
+
     public string $action_title = 'Follow up with customer';
+
     public string $action_priority = 'high';
+
     public string $delay_type = 'immediate';
+
     public string $delay_value = '';
+
     public string $delay_unit = 'days';
+
     public string $status = 'active';
+
     public ?int $editingId = null;
+
     public ?string $statusMessage = null;
 
     public function mount(): void
@@ -69,7 +84,7 @@ class CrmAutomationsIndex extends Component
         ]]];
 
         $data = [
-            'team_id' => auth()->id(),
+            'owner_user_id' => auth()->id(),
             'business_id' => filled($payload['business_id']) ? (int) $payload['business_id'] : null,
             'name' => $payload['name'],
             'trigger_event' => $payload['trigger_event'],
@@ -83,7 +98,7 @@ class CrmAutomationsIndex extends Component
         ];
 
         if ($this->editingId) {
-            CrmAutomation::query()->where('team_id', auth()->id())->whereKey($this->editingId)->update($data);
+            CrmAutomation::query()->where('owner_user_id', auth()->id())->whereKey($this->editingId)->update($data);
             $this->statusMessage = __('Automation updated.');
         } else {
             $this->ensureAutomationLimit();
@@ -98,7 +113,7 @@ class CrmAutomationsIndex extends Component
 
     public function edit(int $id): void
     {
-        $automation = CrmAutomation::query()->where('team_id', auth()->id())->findOrFail($id);
+        $automation = CrmAutomation::query()->where('owner_user_id', auth()->id())->findOrFail($id);
         $rule = (array) data_get($automation->condition_json, 'rules.0', []);
         $action = (array) data_get($automation->action_json, 'actions.0', []);
 
@@ -121,7 +136,7 @@ class CrmAutomationsIndex extends Component
 
     public function delete(int $id): void
     {
-        CrmAutomation::query()->where('team_id', auth()->id())->whereKey($id)->delete();
+        CrmAutomation::query()->where('owner_user_id', auth()->id())->whereKey($id)->delete();
         $this->statusMessage = __('Automation deleted.');
     }
 
@@ -131,7 +146,7 @@ class CrmAutomationsIndex extends Component
             'businesses' => LocalBusiness::query()->where('user_id', auth()->id())->orderBy('name')->get(),
             'triggers' => $this->triggers(),
             'externalTriggers' => $this->externalTriggers(),
-            'automations' => CrmAutomation::query()->where('team_id', auth()->id())->withCount('logs')->latest()->paginate(10),
+            'automations' => CrmAutomation::query()->where('owner_user_id', auth()->id())->withCount('logs')->latest()->paginate(10),
         ])->layout(theme_view('layouts.app', 'app'), ['title' => __('CRM Automations')]);
     }
 
@@ -200,6 +215,6 @@ class CrmAutomationsIndex extends Component
         if ((int) $limit === -1) {
             return;
         }
-        abort_if(CrmAutomation::query()->where('team_id', auth()->id())->count() >= (int) $limit, 403, __('Your CRM automation limit has been reached.'));
+        abort_if(CrmAutomation::query()->where('owner_user_id', auth()->id())->count() >= (int) $limit, 403, __('Your CRM automation limit has been reached.'));
     }
 }

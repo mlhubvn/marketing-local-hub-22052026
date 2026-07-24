@@ -9,7 +9,7 @@ class CrmCustomerResolver
 {
     public function fromRelated(Model $related, ?object $campaign = null, ?object $business = null, string $source = 'crm'): ?Customer
     {
-        $userId = (int) ($related->user_id ?? $related->team_id ?? $campaign?->user_id ?? $business?->user_id ?? 0);
+        $userId = (int) ($related->user_id ?? $campaign?->user_id ?? $business?->user_id ?? 0);
         $businessId = $business?->id ?? $campaign?->business_id ?? $related->business_id ?? null;
         $name = (string) ($related->customer_name ?? $related->reviewer_name ?? $related->name ?? 'Guest');
         $phone = (string) ($related->customer_phone ?? $related->phone ?? '');
@@ -41,7 +41,6 @@ class CrmCustomerResolver
 
         if ($customer) {
             $customer->forceFill([
-                'team_id' => $customer->team_id ?: $userId,
                 'business_id' => $customer->business_id ?: $businessId,
                 'name' => $name !== 'Guest' ? $name : $customer->name,
                 'phone' => $phone ?: $customer->phone,
@@ -58,7 +57,6 @@ class CrmCustomerResolver
 
         return Customer::query()->create([
             'user_id' => $userId,
-            'team_id' => $userId,
             'business_id' => $businessId,
             'name' => $name,
             'phone' => $phone ?: null,

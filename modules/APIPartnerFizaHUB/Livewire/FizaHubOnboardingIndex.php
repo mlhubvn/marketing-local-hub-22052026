@@ -113,14 +113,14 @@ class FizaHubOnboardingIndex extends Component
 
     public function resendWebhook(int $id): void
     {
-        $this->runAction($id, function (PartnerOnboardingRequest $row): void {
+        $this->runAction($id, function (PartnerOnboardingRequest $row): ?string {
             app(OnboardingAdminService::class)->resendWebhook($row);
         }, __('Webhook re-queued for delivery.'));
     }
 
     public function deleteOnboarding(int $id): void
     {
-        $this->runAction($id, function (PartnerOnboardingRequest $row): void {
+        $this->runAction($id, function (PartnerOnboardingRequest $row): ?string {
             app(OnboardingAdminService::class)->adminPurgeOnboarding($row, auth()->id());
 
             unset($this->stageSelections[$row->id], $this->packageSelections[$row->id]);
@@ -129,7 +129,7 @@ class FizaHubOnboardingIndex extends Component
 
     public function deleteUserAndData(int $id): void
     {
-        $this->runAction($id, function (PartnerOnboardingRequest $row): void {
+        $this->runAction($id, function (PartnerOnboardingRequest $row): ?string {
             $service = app(OnboardingAdminService::class);
             $user = $service->resolveUserForDeletion($row);
 
@@ -139,11 +139,23 @@ class FizaHubOnboardingIndex extends Component
 
             $result = app(DeleteUser::class)->execute($user, (int) auth()->id());
 
-            if (! $result->deleted) {
+            if ($result->status === 'already_deleted' || ! $result->deleted) {
                 throw new InvalidArgumentException(__('The MLHUB user was already deleted or could not be found.'));
             }
 
+            if ($result->failedVerification()) {
+                throw new InvalidArgumentException(__('The user row was deleted, but verification found :count remaining database references.', [
+                    'count' => $result->databaseResidueCount,
+                ]));
+            }
+
             unset($this->stageSelections[$row->id], $this->packageSelections[$row->id]);
+
+            return $result->completedWithWarnings()
+                ? __('The MLHUB user and database data were deleted, but :count storage item(s) are pending safe retry.', [
+                    'count' => $result->storageFailureCount,
+                ])
+                : null;
         }, __('The MLHUB user and all owned operational data were deleted.'));
     }
 
@@ -305,8 +317,10 @@ class FizaHubOnboardingIndex extends Component
         }
 
         try {
-            $callback($row);
-            $this->statusMessage = $successMessage;
+            $outcomeMessage = $callback($row);
+            $this->statusMessage = is_string($outcomeMessage) && $outcomeMessage !== ''
+                ? $outcomeMessage
+                : $successMessage;
         } catch (Throwable $exception) {
             $this->errorMessage = $exception->getMessage();
         }

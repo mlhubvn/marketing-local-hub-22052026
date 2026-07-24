@@ -14,10 +14,15 @@ class CrmTagsIndex extends Component
     use WithPagination;
 
     public string $name = '';
+
     public string $description = '';
+
     public string $color = '#0f766e';
+
     public int $perPage = 10;
+
     public ?int $editingId = null;
+
     public ?string $statusMessage = null;
 
     public function mount(): void
@@ -35,7 +40,7 @@ class CrmTagsIndex extends Component
         ]);
 
         $data = [
-            'team_id' => auth()->id(),
+            'owner_user_id' => auth()->id(),
             'name' => $payload['name'],
             'slug' => str($payload['name'])->slug()->toString(),
             'description' => $payload['description'],
@@ -44,12 +49,12 @@ class CrmTagsIndex extends Component
         ];
 
         if ($this->editingId) {
-            CustomerTag::query()->where('team_id', auth()->id())->whereKey($this->editingId)->where('is_system', false)->update($data);
+            CustomerTag::query()->where('owner_user_id', auth()->id())->whereKey($this->editingId)->where('is_system', false)->update($data);
             $this->statusMessage = __('Tag updated.');
         } else {
             $this->ensureTagLimit();
             CustomerTag::query()->updateOrCreate(
-                ['team_id' => auth()->id(), 'slug' => $data['slug']],
+                ['owner_user_id' => auth()->id(), 'slug' => $data['slug']],
                 $data
             );
             $this->statusMessage = __('Tag created.');
@@ -62,7 +67,7 @@ class CrmTagsIndex extends Component
 
     public function edit(int $id): void
     {
-        $tag = CustomerTag::query()->where('team_id', auth()->id())->whereKey($id)->firstOrFail();
+        $tag = CustomerTag::query()->where('owner_user_id', auth()->id())->whereKey($id)->firstOrFail();
 
         $this->editingId = $tag->id;
         $this->name = $tag->name;
@@ -72,7 +77,7 @@ class CrmTagsIndex extends Component
 
     public function delete(int $id): void
     {
-        CustomerTag::query()->where('team_id', auth()->id())->whereKey($id)->where('is_system', false)->delete();
+        CustomerTag::query()->where('owner_user_id', auth()->id())->whereKey($id)->where('is_system', false)->delete();
         $this->statusMessage = __('Tag deleted.');
     }
 
@@ -86,7 +91,7 @@ class CrmTagsIndex extends Component
     {
         return view('appadvancedcustomercrm::tags-index', [
             'tags' => CustomerTag::query()
-                ->where('team_id', auth()->id())
+                ->where('owner_user_id', auth()->id())
                 ->withCount('customers')
                 ->orderByDesc('is_system')
                 ->orderBy('name')
@@ -108,7 +113,7 @@ class CrmTagsIndex extends Component
         if ((int) $limit === -1) {
             return;
         }
-        abort_if(CustomerTag::query()->where('team_id', auth()->id())->count() >= (int) $limit, 403, __('Your CRM tag limit has been reached.'));
+        abort_if(CustomerTag::query()->where('owner_user_id', auth()->id())->count() >= (int) $limit, 403, __('Your CRM tag limit has been reached.'));
     }
 
     protected function seedSystemTags(): void
@@ -128,7 +133,7 @@ class CrmTagsIndex extends Component
             ['Inactive', '#64748b'],
         ] as [$name, $color]) {
             CustomerTag::query()->firstOrCreate(
-                ['team_id' => auth()->id(), 'slug' => str($name)->slug()->toString()],
+                ['owner_user_id' => auth()->id(), 'slug' => str($name)->slug()->toString()],
                 ['name' => $name, 'color' => $color, 'is_system' => true]
             );
         }

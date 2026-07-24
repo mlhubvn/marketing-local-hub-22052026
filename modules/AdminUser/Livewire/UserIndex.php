@@ -80,14 +80,25 @@ class UserIndex extends Component
             return;
         }
 
-        if (! $result->deleted) {
+        if ($result->status === 'already_deleted' || ! $result->deleted) {
             session()->flash('error', __('The user was already deleted or could not be found.'));
 
             return;
         }
 
         $this->selectedUserIds = array_values(array_filter($this->selectedUserIds, fn ($id) => (int) $id !== $userId));
-        session()->flash('status', __('User deleted successfully.'));
+
+        if ($result->failedVerification()) {
+            session()->flash('error', __('The user row was deleted, but verification found :count remaining database references.', [
+                'count' => $result->databaseResidueCount,
+            ]));
+        } elseif ($result->completedWithWarnings()) {
+            session()->flash('warning', __('The user and database data were deleted, but :count storage item(s) are pending safe retry.', [
+                'count' => $result->storageFailureCount,
+            ]));
+        } else {
+            session()->flash('status', __('User deleted successfully.'));
+        }
     }
 
     public function deleteSelectedUsers(): void
@@ -124,29 +135,51 @@ class UserIndex extends Component
         }
 
         $deleteUser = app(DeleteUser::class);
-        $deletedCount = 0;
-        $failures = [];
+        $completed = [];
+        $warnings = [];
+        $verificationFailures = [];
+        $alreadyDeleted = [];
+        $blocked = [];
 
         foreach ($usersToDelete as $user) {
             try {
                 $result = $deleteUser->execute($user, $currentUserId);
 
-                if ($result->deleted) {
-                    $deletedCount++;
+                if ($result->completedCleanly()) {
+                    $completed[] = (int) $user->id;
+                } elseif ($result->completedWithWarnings()) {
+                    $warnings[] = '#'.$user->id.' ('.$result->storageFailureCount.' storage retry)';
+                } elseif ($result->failedVerification()) {
+                    $verificationFailures[] = '#'.$user->id.' ('.$result->databaseResidueCount.' database residue)';
                 } else {
-                    $failures[] = '#'.$user->id.': '.__('already missing');
+                    $alreadyDeleted[] = '#'.$user->id;
                 }
             } catch (Throwable $exception) {
-                $failures[] = '#'.$user->id.': '.$exception->getMessage();
+                $blocked[] = '#'.$user->id.': '.$exception->getMessage();
             }
         }
 
         $this->selectedUserIds = [];
-        session()->flash('status', __('Deleted :count users successfully.', ['count' => $deletedCount]));
 
-        if ($failures !== []) {
-            session()->flash('error', __('Some users could not be deleted: :failures', [
-                'failures' => implode(' | ', $failures),
+        if ($completed !== []) {
+            session()->flash('status', __('Deleted :count users successfully.', ['count' => count($completed)]));
+        }
+
+        if ($warnings !== []) {
+            session()->flash('warning', __('Deleted with storage retry pending: :users', [
+                'users' => implode(' | ', $warnings),
+            ]));
+        }
+
+        $problems = array_merge(
+            array_map(fn (string $item): string => $item.' '.__('failed verification'), $verificationFailures),
+            array_map(fn (string $item): string => $item.' '.__('was already deleted'), $alreadyDeleted),
+            $blocked,
+        );
+
+        if ($problems !== []) {
+            session()->flash('error', __('Some users were not cleanly deleted: :failures', [
+                'failures' => implode(' | ', $problems),
             ]));
         }
     }

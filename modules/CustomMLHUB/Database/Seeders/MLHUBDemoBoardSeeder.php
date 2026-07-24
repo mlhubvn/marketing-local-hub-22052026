@@ -177,7 +177,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'phone' => $business->phone ?? null,
                 'email' => $business->email ?? null,
                 'address' => $addresses[($index + 5) % count($addresses)],
-                'google_maps_url' => "https://maps.google.com/?q=".rawurlencode($business->name.' Da Nang'),
+                'google_maps_url' => 'https://maps.google.com/?q='.rawurlencode($business->name.' Da Nang'),
                 'opening_hours' => $this->openingHours($index + 1),
                 'is_active' => true,
                 'created_at' => $createdAt,
@@ -617,7 +617,7 @@ class MLHUBDemoBoardSeeder extends Seeder
 
         for ($i = 0; $i < $count; $i++) {
             $this->writer->insert('lb_customer_tags', [
-                'team_id' => $userId,
+                'owner_user_id' => $userId,
                 'name' => $names[$i],
                 'slug' => DemoContentCatalog::slug($names[$i], 'demo-'.$userId),
                 'color' => ['#0f766e', '#2563eb', '#dc2626', '#9333ea', '#ca8a04'][$i % 5],
@@ -629,7 +629,7 @@ class MLHUBDemoBoardSeeder extends Seeder
         }
 
         return DB::table('lb_customer_tags')
-            ->where('team_id', $userId)
+            ->where('owner_user_id', $userId)
             ->orderBy('id')
             ->pluck('id')
             ->map(fn ($id): int => (int) $id)
@@ -647,7 +647,7 @@ class MLHUBDemoBoardSeeder extends Seeder
 
         for ($i = 0; $i < $max; $i++) {
             $rows[] = [
-                'team_id' => $userId,
+                'owner_user_id' => $userId,
                 'customer_id' => $customers[$i]->id,
                 'tag_id' => $tagIds[$i % count($tagIds)],
                 'created_by' => $userId,
@@ -672,7 +672,7 @@ class MLHUBDemoBoardSeeder extends Seeder
             $business = $businesses[$i % count($businesses)];
 
             $this->writer->insert('lb_customer_segments', [
-                'team_id' => $userId,
+                'owner_user_id' => $userId,
                 'business_id' => $business->id,
                 'name' => $names[$i],
                 'description' => 'Phân khúc khách hàng cho '.$business->name,
@@ -704,7 +704,7 @@ class MLHUBDemoBoardSeeder extends Seeder
             $createdAt = $this->timeline->at($i + 15, $count);
 
             $rows[] = [
-                'team_id' => $userId,
+                'owner_user_id' => $userId,
                 'business_id' => $customer->business_id ?: $businesses[$i % count($businesses)]->id,
                 'customer_id' => $customer->id,
                 'assigned_to' => $userId,
@@ -738,7 +738,7 @@ class MLHUBDemoBoardSeeder extends Seeder
             $createdAt = $this->timeline->at($i + 22, $count);
 
             $rows[] = [
-                'team_id' => $userId,
+                'owner_user_id' => $userId,
                 'business_id' => $customer->business_id ?: $businesses[$i % count($businesses)]->id,
                 'customer_id' => $customer->id,
                 'user_id' => $userId,
@@ -769,7 +769,7 @@ class MLHUBDemoBoardSeeder extends Seeder
             $occurredAt = $this->timeline->at($i + 11, $count);
 
             $rows[] = [
-                'team_id' => $userId,
+                'owner_user_id' => $userId,
                 'business_id' => $customer->business_id ?: $businesses[$i % count($businesses)]->id,
                 'customer_id' => $customer->id,
                 'type' => $type,
@@ -807,7 +807,7 @@ class MLHUBDemoBoardSeeder extends Seeder
             $createdAt = $this->timeline->at($i + 18, $count);
 
             $rows[] = [
-                'team_id' => $userId,
+                'owner_user_id' => $userId,
                 'customer_id' => $customer->id,
                 'old_score' => max(0, min(100, $newScore - $delta)),
                 'new_score' => $newScore,
@@ -833,7 +833,7 @@ class MLHUBDemoBoardSeeder extends Seeder
         for ($i = 0; $i < $count; $i++) {
             $business = $businesses[$i % count($businesses)];
             $automationId = $this->writer->insert('lb_crm_automations', [
-                'team_id' => $userId,
+                'owner_user_id' => $userId,
                 'business_id' => $business->id,
                 'name' => 'Tự động hóa CRM #'.($i + 1),
                 'trigger_event' => ['customer.created', 'coupon.used', 'booking.completed'][$i % 3],
@@ -1777,7 +1777,7 @@ class MLHUBDemoBoardSeeder extends Seeder
             $createdAt = $this->timeline->at($i + 97, $count);
 
             $rows[] = [
-                'team_id' => $userId,
+                'owner_user_id' => $userId,
                 'automation_id' => $automationId,
                 'business_id' => $businessId,
                 'customer_id' => null,
@@ -1816,15 +1816,15 @@ class MLHUBDemoBoardSeeder extends Seeder
             ? DB::table($table)->where($column, $userId)->count()
             : 0;
 
-        $crm = $count('lb_customer_tags', 'team_id')
-            + $count('lb_customer_tag_maps', 'team_id')
-            + $count('lb_customer_segments', 'team_id')
-            + $count('lb_customer_tasks', 'team_id')
-            + $count('lb_customer_notes', 'team_id')
-            + $count('lb_customer_activities', 'team_id')
-            + $count('lb_customer_score_logs', 'team_id')
-            + $count('lb_crm_automations', 'team_id')
-            + $count('lb_crm_automation_logs', 'team_id');
+        $crm = $count('lb_customer_tags', 'owner_user_id')
+            + $count('lb_customer_tag_maps', 'owner_user_id')
+            + $count('lb_customer_segments', 'owner_user_id')
+            + $count('lb_customer_tasks', 'owner_user_id')
+            + $count('lb_customer_notes', 'owner_user_id')
+            + $count('lb_customer_activities', 'owner_user_id')
+            + $count('lb_customer_score_logs', 'owner_user_id')
+            + $count('lb_crm_automations', 'owner_user_id')
+            + $count('lb_crm_automation_logs', 'owner_user_id');
 
         $automation = $count('lb_email_automations')
             + $count('lb_email_automation_logs')

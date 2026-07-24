@@ -17,8 +17,11 @@ use Modules\AppCustomers\Models\Customer;
 class CrmReportsIndex extends Component
 {
     public string $businessFilter = 'all';
+
     public string $dateRange = '12_months';
+
     public string $segmentFilter = 'all';
+
     public string $tagFilter = 'all';
 
     public function mount(): void
@@ -36,7 +39,7 @@ class CrmReportsIndex extends Component
             $customerQuery->whereHas('crmTags', fn ($query) => $query->whereKey((int) $this->tagFilter));
         }
         if ($this->segmentFilter !== 'all') {
-            $segment = CustomerSegment::query()->where('team_id', auth()->id())->find((int) $this->segmentFilter);
+            $segment = CustomerSegment::query()->where('owner_user_id', auth()->id())->find((int) $this->segmentFilter);
             if ($segment) {
                 $segmentIds = app(CustomerSegmentService::class)->query($segment)->pluck('id');
                 $customerQuery->whereIn('id', $segmentIds);
@@ -139,14 +142,14 @@ class CrmReportsIndex extends Component
                 ])->all(),
             ]],
             'tags' => CustomerTag::query()
-                ->where('team_id', auth()->id())
+                ->where('owner_user_id', auth()->id())
                 ->withCount('customers')
                 ->orderByDesc('customers_count')
                 ->limit(8)
                 ->get(),
             'businesses' => LocalBusiness::query()->where('user_id', auth()->id())->orderBy('name')->get(),
-            'segments' => CustomerSegment::query()->where('team_id', auth()->id())->orderBy('name')->get(),
-            'allTags' => CustomerTag::query()->where('team_id', auth()->id())->orderBy('name')->get(),
+            'segments' => CustomerSegment::query()->where('owner_user_id', auth()->id())->orderBy('name')->get(),
+            'allTags' => CustomerTag::query()->where('owner_user_id', auth()->id())->orderBy('name')->get(),
             'taskCategories' => array_keys($taskStatus),
             'taskSeries' => [['name' => __('Tasks'), 'data' => array_values($taskStatus)]],
             'sourceSeries' => [[

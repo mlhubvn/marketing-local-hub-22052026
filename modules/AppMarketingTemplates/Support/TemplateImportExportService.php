@@ -90,6 +90,12 @@ class TemplateImportExportService
         $packId = $this->createImportedPackIfNeeded($payload, $createdTemplateIds, $user);
 
         if (Schema::hasTable('lb_template_imports')) {
+            if (! Schema::hasColumn('lb_template_imports', 'user_id')) {
+                throw new \RuntimeException(
+                    'Template imports require the user ownership migration.'
+                );
+            }
+
             $importLog = [
                 'team_id' => null,
                 'file_name' => (string) ($payload['name'] ?? 'template-import.json'),
@@ -101,9 +107,7 @@ class TemplateImportExportService
                 'updated_at' => now(),
             ];
 
-            if (Schema::hasColumn('lb_template_imports', 'user_id')) {
-                $importLog['user_id'] = $user->id;
-            }
+            $importLog['user_id'] = $user->id;
 
             DB::table('lb_template_imports')->insert($importLog);
         }
@@ -127,6 +131,12 @@ class TemplateImportExportService
             return null;
         }
 
+        if (! Schema::hasColumn('lb_template_packs', 'created_by_user_id')) {
+            throw new \RuntimeException(
+                'Private template packs require the user ownership migration.'
+            );
+        }
+
         $name = (string) ($payload['name'] ?? 'Imported Template Pack');
         $slug = $this->uniquePackSlug((string) ($payload['slug'] ?? $name));
 
@@ -146,9 +156,7 @@ class TemplateImportExportService
             'updated_at' => now(),
         ];
 
-        if (Schema::hasColumn('lb_template_packs', 'created_by_user_id')) {
-            $pack['created_by_user_id'] = $user->id;
-        }
+        $pack['created_by_user_id'] = $user->id;
 
         $packId = DB::table('lb_template_packs')->insertGetId($pack);
 

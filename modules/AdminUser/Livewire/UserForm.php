@@ -182,10 +182,26 @@ class UserForm extends Component
             return null;
         }
 
-        if (! $result->deleted) {
+        if ($result->status === 'already_deleted' || ! $result->deleted) {
             session()->flash('error', __('The user was already deleted or could not be found.'));
 
             return null;
+        }
+
+        if ($result->failedVerification()) {
+            return redirect()
+                ->route('admin-users.index')
+                ->with('error', __('The user row was deleted, but verification found :count remaining database references.', [
+                    'count' => $result->databaseResidueCount,
+                ]));
+        }
+
+        if ($result->completedWithWarnings()) {
+            return redirect()
+                ->route('admin-users.index')
+                ->with('warning', __('The user and database data were deleted, but :count storage item(s) are pending safe retry.', [
+                    'count' => $result->storageFailureCount,
+                ]));
         }
 
         return redirect()

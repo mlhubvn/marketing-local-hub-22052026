@@ -47,7 +47,7 @@ class CustomerMergeService
             ])->save();
 
             CustomerMergeLog::query()->create([
-                'team_id' => $primary->team_id,
+                'owner_user_id' => $primary->user_id,
                 'primary_customer_id' => $primary->id,
                 'merged_customer_id' => $duplicate->id,
                 'merged_by' => auth()->id(),

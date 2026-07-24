@@ -14,8 +14,10 @@ use Modules\AdminUser\Exceptions\LastSuperAdminDeletionException;
 use Modules\AdminUser\Exceptions\SharedTeamOwnershipException;
 use Modules\AdminUser\Models\User;
 use Modules\AdminUser\Support\UserDeletionDataMatrix;
+use Modules\AdminUser\Support\UserDeletionResidueInspector;
 use Modules\AdminUser\Support\UserDeletionStorageCleanup;
 use Modules\APIPartnerFizaHUB\Services\OnboardingAdminService;
+use Throwable;
 
 class DeleteUser
 {
@@ -25,21 +27,28 @@ class DeleteUser
     public function __construct(
         protected OnboardingAdminService $onboarding,
         protected UserDeletionStorageCleanup $storageCleanup,
+        protected UserDeletionResidueInspector $residueInspector,
     ) {}
 
     public function execute(User $user, ?int $deletedByUserId = null): UserDeletionResult
     {
         $result = new UserDeletionResult((int) $user->getKey());
+        $result->status = 'deleting_database';
 
         return DB::transaction(function () use ($user, $deletedByUserId, $result): UserDeletionResult {
             $lockedUser = User::query()->lockForUpdate()->find($user->getKey());
 
             if (! $lockedUser) {
+                $result->status = 'already_deleted';
+
                 return $result;
             }
 
             $this->assertNotLastSuperAdmin($lockedUser);
             $context = $this->collectContext($lockedUser);
+            $result->deletedBusinessIds = $context['business_ids'];
+            $result->deletedTeamIds = $context['personal_team_ids'];
+            $result->detachedSharedTeamIds = $context['shared_member_team_ids'];
 
             if ($context['shared_owned_team_ids'] !== []) {
                 throw new SharedTeamOwnershipException($context['shared_owned_team_ids']);
@@ -51,6 +60,8 @@ class DeleteUser
             $partner = $this->onboarding->adminPurgeForUser((int) $lockedUser->id, $deletedByUserId);
             $result->onboardingBusinessesPurged = (int) ($partner['businesses_purged'] ?? 0);
             $result->partnerTicketsDeleted = (int) ($partner['tickets_deleted'] ?? 0);
+            $context['external_business_ids'] = array_values($partner['external_business_ids'] ?? []);
+            $context['request_ids'] = array_values($partner['request_ids'] ?? []);
 
             $this->deleteSupportData($context, $result);
             $this->deleteScopedProductData($context, $result);
@@ -58,14 +69,15 @@ class DeleteUser
             $this->deleteDirectOwnedData($context, $result);
             $this->deleteAuthenticationState($lockedUser, $result);
             $this->deleteCoreGrowthData($context, $result);
-            $this->anonymizeRetainedData($lockedUser, $context);
+            $this->anonymizeRetainedData($lockedUser, $context, $result);
             $this->deletePersonalTeams($context, $result);
 
             $result->deleted = (bool) $lockedUser->delete();
 
             if ($result->deleted) {
-                $this->writeDeletionAudit($deletedByUserId, $result);
-                $this->runAfterCommit($assets, $context, $result);
+                $result->status = 'deleting_storage';
+                $auditId = $this->writeDeletionAudit($deletedByUserId, $result);
+                $this->runAfterCommit($assets, $context, $result, $auditId);
             }
 
             return $result;
@@ -75,7 +87,9 @@ class DeleteUser
     /**
      * @return array{
      *   user_id:int,
-     *   email:string,
+     *   user_email:string,
+     *   user_username:string,
+     *   user_phone:string,
      *   locale:string,
      *   business_ids:list<int>,
      *   campaign_ids:list<int>,
@@ -122,7 +136,6 @@ class DeleteUser
         $customerIds = $this->pluckIds('lb_customers', [
             'user_id' => $userId,
             'business_id' => $businessIds,
-            'team_id' => $personalTeamIds,
         ]);
         $ownedSocialAccountIds = $this->pluckIds('social_accounts', ['created_by_user_id' => $userId]);
         $sharedSocialAccountIds = $this->sharedSocialAccountIds($userId, $ownedSocialAccountIds);
@@ -130,6 +143,9 @@ class DeleteUser
         return [
             'user_id' => $userId,
             'email' => (string) $user->email,
+            'user_email' => (string) $user->email,
+            'user_username' => (string) ($user->username ?? ''),
+            'user_phone' => (string) ($user->phone ?? ''),
             'locale' => (string) ($user->locale ?: app()->getLocale()),
             'business_ids' => $businessIds,
             'campaign_ids' => $campaignIds,
@@ -224,8 +240,15 @@ class DeleteUser
             'merged_customer_id' => $context['customer_ids'],
             'team_id' => $context['personal_team_ids'],
         ];
+        $crmUserScope = [
+            'owner_user_id' => $context['user_id'],
+            'business_id' => $context['business_ids'],
+            'customer_id' => $context['customer_ids'],
+            'primary_customer_id' => $context['customer_ids'],
+            'merged_customer_id' => $context['customer_ids'],
+        ];
 
-        $crmAutomationIds = $this->pluckIds('lb_crm_automations', $userScope);
+        $crmAutomationIds = $this->pluckIds('lb_crm_automations', $crmUserScope);
         $googleConnectionIds = $this->pluckIds('lb_google_business_connections', [
             'user_id' => $context['user_id'],
             // This module's historical schema names a users.id foreign key team_id.
@@ -271,17 +294,17 @@ class DeleteUser
             'lb_google_auto_reply_rules' => array_merge($userScope, ['team_id' => $context['user_id'], 'id' => $googleRuleIds]),
             'lb_google_business_locations' => array_merge($userScope, ['team_id' => $context['user_id'], 'id' => $googleLocationIds]),
             'lb_google_business_connections' => ['user_id' => $context['user_id'], 'team_id' => $context['user_id'], 'id' => $googleConnectionIds],
-            'lb_crm_automation_jobs' => array_merge($userScope, ['automation_id' => $crmAutomationIds]),
-            'lb_crm_automation_logs' => array_merge($userScope, ['automation_id' => $crmAutomationIds]),
-            'lb_customer_merge_logs' => $userScope,
-            'lb_customer_score_logs' => $userScope,
-            'lb_customer_tag_maps' => $userScope,
-            'lb_customer_activities' => $userScope,
-            'lb_customer_notes' => $userScope,
-            'lb_customer_tasks' => $userScope,
-            'lb_customer_segments' => $userScope,
-            'lb_customer_tags' => $userScope,
-            'lb_crm_automations' => array_merge($userScope, ['id' => $crmAutomationIds]),
+            'lb_crm_automation_jobs' => array_merge($crmUserScope, ['automation_id' => $crmAutomationIds]),
+            'lb_crm_automation_logs' => array_merge($crmUserScope, ['automation_id' => $crmAutomationIds]),
+            'lb_customer_merge_logs' => $crmUserScope,
+            'lb_customer_score_logs' => $crmUserScope,
+            'lb_customer_tag_maps' => $crmUserScope,
+            'lb_customer_activities' => $crmUserScope,
+            'lb_customer_notes' => $crmUserScope,
+            'lb_customer_tasks' => $crmUserScope,
+            'lb_customer_segments' => $crmUserScope,
+            'lb_customer_tags' => $crmUserScope,
+            'lb_crm_automations' => array_merge($crmUserScope, ['id' => $crmAutomationIds]),
             'lb_email_automation_logs' => array_merge($userScope, ['email_template_id' => $emailTemplateIds, 'automation_id' => $emailAutomationIds]),
             'lb_email_automations' => array_merge($userScope, ['id' => $emailAutomationIds, 'email_template_id' => $emailTemplateIds]),
             'lb_email_templates' => array_merge($userScope, ['id' => $emailTemplateIds]),
@@ -433,7 +456,8 @@ class DeleteUser
                 $conditions[$column] = $context['user_id'];
             }
 
-            if (in_array('team_id', $this->columns($table), true)) {
+            if (! in_array($table, UserDeletionDataMatrix::USER_OWNED_CRM, true)
+                && in_array('team_id', $this->columns($table), true)) {
                 $conditions['team_id'] = $context['personal_team_ids'];
             }
 
@@ -453,7 +477,7 @@ class DeleteUser
     {
         $this->deleteWhereAny('sessions', ['user_id' => $user->id], $result);
         $this->deleteWhereAny('password_reset_tokens', ['email' => (string) $user->email], $result);
-        $this->deleteWhereAny('personal_access_tokens', [
+        $this->deleteWhereAll('personal_access_tokens', [
             'tokenable_type' => User::class,
             'tokenable_id' => $user->id,
         ], $result);
@@ -492,7 +516,6 @@ class DeleteUser
             'id' => $context['customer_ids'],
             'user_id' => $context['user_id'],
             'business_id' => $context['business_ids'],
-            'team_id' => $context['personal_team_ids'],
         ], $result);
         $result->campaignsDeleted = $this->deleteWhereAny('lb_campaigns', [
             'id' => $context['campaign_ids'],
@@ -508,48 +531,60 @@ class DeleteUser
     /**
      * @param  array<string, mixed>  $context
      */
-    private function anonymizeRetainedData(User $user, array $context): void
-    {
-        $this->updateWhereAny('affiliate_commissions', ['referred_user_id' => $user->id], [
+    private function anonymizeRetainedData(
+        User $user,
+        array $context,
+        UserDeletionResult $result
+    ): void {
+        $result->addAnonymized('affiliate_commissions', $this->updateWhereAny('affiliate_commissions', ['referred_user_id' => $user->id], [
             'referred_user_id' => null,
             'meta' => null,
-        ]);
-        $this->updateWhereAny('credit_usage_logs', ['user_id' => $user->id], [
+        ]));
+        $result->addAnonymized('credit_usage_logs', $this->updateWhereAny('credit_usage_logs', ['user_id' => $user->id], [
             'user_id' => null,
             'metadata' => null,
-        ]);
-        $this->updateWhereAny('payment_history', ['uid' => $user->id], [
+        ]));
+        $result->addAnonymized('payment_history', $this->updateWhereAny('payment_history', ['uid' => $user->id], [
             'uid' => null,
             'meta' => null,
-        ]);
-        $this->updateWhereAny('payment_manual', ['uid' => $user->id], [
+        ]));
+        $result->addAnonymized('payment_manual', $this->updateWhereAny('payment_manual', ['uid' => $user->id], [
             'uid' => null,
             'payment_info' => null,
             'notes' => null,
-        ]);
-        $this->updateWhereAny('payment_subscriptions', ['uid' => $user->id], [
+        ]));
+        $result->addAnonymized('payment_subscriptions', $this->updateWhereAny('payment_subscriptions', ['uid' => $user->id], [
             'uid' => null,
             'subscription_id' => null,
             'customer_id' => null,
             'status' => 0,
-        ]);
-        $this->updateWhereAny('audit_logs', [
-            'causer_user_id' => $user->id,
-            'subject_id' => $user->id,
-        ], [
+        ]));
+        $auditQuery = null;
+
+        if ($this->hasTableAndColumns('audit_logs', ['causer_user_id', 'subject_type', 'subject_id'])) {
+            $auditQuery = DB::table('audit_logs')->where(function (Builder $query) use ($user): void {
+                $query->where('causer_user_id', $user->id)
+                    ->orWhere(function (Builder $subject) use ($user): void {
+                        $subject->where('subject_type', User::class)
+                            ->where('subject_id', $user->id);
+                    });
+            });
+        }
+
+        $result->addAnonymized('audit_logs', $this->updateQuery($auditQuery, 'audit_logs', [
             'causer_user_id' => null,
             'description' => 'Retained anonymized audit event.',
             'subject_id' => null,
             'ip_address' => null,
             'user_agent' => null,
             'metadata' => null,
-        ]);
-        $this->updateWhereAny('notification_manual', ['created_by' => $user->id], [
+        ]));
+        $result->addAnonymized('notification_manual', $this->updateWhereAny('notification_manual', ['created_by' => $user->id], [
             'created_by' => null,
             'title' => 'Notification retained after account deletion',
             'message' => 'Content removed during user deletion.',
             'url' => null,
-        ]);
+        ]));
 
         foreach ([
             'lb_customer_activities',
@@ -560,7 +595,10 @@ class DeleteUser
             'lb_customer_merge_logs',
         ] as $table) {
             foreach (['created_by', 'assigned_to', 'merged_by'] as $column) {
-                $this->updateWhereAny($table, [$column => $user->id], [$column => null]);
+                $result->addAnonymized(
+                    $table,
+                    $this->updateWhereAny($table, [$column => $user->id], [$column => null])
+                );
             }
         }
     }
@@ -584,25 +622,70 @@ class DeleteUser
     }
 
     /**
-     * @param  list<array{disk:string,path:string,directory:bool}>  $assets
+     * @param  list<array{disk:string,path:string,directory:bool,verified_user_owned:bool}>  $assets
      * @param  array<string, mixed>  $context
      */
-    private function runAfterCommit(array $assets, array $context, UserDeletionResult $result): void
-    {
-        DB::afterCommit(function () use ($assets, $context, $result): void {
-            foreach ($assets as $asset) {
-                $cleanup = $this->storageCleanup->delete((int) $context['user_id'], $asset);
+    private function runAfterCommit(
+        array $assets,
+        array $context,
+        UserDeletionResult $result,
+        ?int $auditId
+    ): void {
+        DB::afterCommit(function () use ($assets, $context, $result, $auditId): void {
+            try {
+                foreach ($assets as $asset) {
+                    $cleanup = $this->storageCleanup->delete((int) $context['user_id'], $asset);
 
-                if ($cleanup['deleted']) {
-                    $result->storageAssetsDeleted++;
-                } else {
-                    $result->warnings[] = 'storage_delete_failed:'.$cleanup['fingerprint'];
+                    if ($cleanup['status'] === 'deleted') {
+                        $result->storageAssetsDeleted++;
+                    } elseif ($cleanup['status'] === 'missing') {
+                        $result->storageAssetsMissing++;
+                    } else {
+                        $result->storageFailureCount++;
+                        $result->storageFailures[] = [
+                            'asset_fingerprint' => $cleanup['fingerprint'],
+                            'reason' => $cleanup['failure_reason'],
+                            'retry_status' => $cleanup['retry_status'],
+                        ];
+                        $result->warnings[] = implode(':', [
+                            'storage_delete_failed',
+                            $cleanup['fingerprint'],
+                            (string) $cleanup['failure_reason'],
+                            $cleanup['retry_status'],
+                        ]);
+                    }
                 }
-            }
 
-            PortalGrowthDashboardMetrics::forget((int) $context['user_id']);
-            PlanLimitGuard::forgetPlanUsageCache((int) $context['user_id']);
-            $this->forgetAiContextCache($context);
+                PortalGrowthDashboardMetrics::forget((int) $context['user_id']);
+                PlanLimitGuard::forgetPlanUsageCache((int) $context['user_id']);
+                $this->forgetAiContextCache($context);
+
+                $residue = $this->residueInspector->inspect([
+                    'user_id' => (int) $context['user_id'],
+                    'user_email' => (string) $context['user_email'],
+                    'user_username' => (string) $context['user_username'],
+                    'user_phone' => (string) $context['user_phone'],
+                    'team_ids' => $context['personal_team_ids'],
+                    'business_ids' => $context['business_ids'],
+                    'campaign_ids' => $context['campaign_ids'],
+                    'customer_ids' => $context['customer_ids'],
+                    'external_business_ids' => $context['external_business_ids'] ?? [],
+                    'request_ids' => $context['request_ids'] ?? [],
+                    'storage_assets' => $assets,
+                ]);
+                $result->databaseResidueCount =
+                    array_sum($residue['database']) + array_sum($residue['json']);
+                $result->status = match (true) {
+                    $result->databaseResidueCount > 0 => 'failed_verification',
+                    $result->storageFailureCount > 0 => 'completed_with_warnings',
+                    default => 'completed',
+                };
+            } catch (Throwable $exception) {
+                $result->status = 'failed_verification';
+                $result->warnings[] = 'post_commit_verification_failed:'.$exception::class;
+            } finally {
+                $this->updateDeletionAudit($auditId, $result);
+            }
         });
     }
 
@@ -632,7 +715,7 @@ class DeleteUser
 
     /**
      * @param  array<string, mixed>  $context
-     * @return list<array{disk:string,path:string,directory:bool}>
+     * @return list<array{disk:string,path:string,directory:bool,verified_user_owned:bool}>
      */
     private function collectStorageAssets(User $user, array $context): array
     {
@@ -651,7 +734,8 @@ class DeleteUser
                     $assets,
                     (string) ($file->disk ?: 'public'),
                     (string) $file->path,
-                    (bool) ($file->is_folder ?? false)
+                    (bool) ($file->is_folder ?? false),
+                    true
                 );
             }
         }
@@ -731,15 +815,31 @@ class DeleteUser
     }
 
     /**
-     * @param  list<array{disk:string,path:string,directory:bool}>  $assets
+     * @param  list<array{disk:string,path:string,directory:bool,verified_user_owned:bool}>  $assets
      */
-    private function addAsset(array &$assets, string $disk, string $path, bool $directory = false): void
-    {
+    private function addAsset(
+        array &$assets,
+        string $disk,
+        string $path,
+        bool $directory = false,
+        bool $verifiedUserOwned = false
+    ): void {
         $disk = trim($disk) ?: 'public';
         $path = trim(str_replace('\\', '/', $path));
 
         if ($path === '' || Str::startsWith(Str::lower($path), ['http://', 'https://', '//', 'data:'])) {
             return;
+        }
+
+        if (preg_match('/^[a-z]:\//i', $path) === 1) {
+            return;
+        }
+
+        if (Str::startsWith($path, '/')) {
+            if ($disk !== 'public'
+                || ! Str::startsWith(Str::lower($path), ['/storage/', '/public/storage/'])) {
+                return;
+            }
         }
 
         $path = ltrim($path, '/');
@@ -754,11 +854,16 @@ class DeleteUser
             return;
         }
 
-        $assets[] = compact('disk', 'path', 'directory');
+        $assets[] = [
+            'disk' => $disk,
+            'path' => $path,
+            'directory' => $directory,
+            'verified_user_owned' => $verifiedUserOwned,
+        ];
     }
 
     /**
-     * @param  list<array{disk:string,path:string,directory:bool}>  $assets
+     * @param  list<array{disk:string,path:string,directory:bool,verified_user_owned:bool}>  $assets
      * @param  array<mixed>  $value
      */
     private function addAssetsFromJson(array &$assets, array $value): void
@@ -800,6 +905,21 @@ class DeleteUser
     {
         $query = $this->queryWhereAny($table, $conditions);
 
+        return $this->deleteQuery($query, $table, $result);
+    }
+
+    /**
+     * @param  array<string, int|list<int>|string>  $conditions
+     */
+    private function deleteWhereAll(string $table, array $conditions, UserDeletionResult $result): int
+    {
+        $query = $this->queryWhereAll($table, $conditions);
+
+        return $this->deleteQuery($query, $table, $result);
+    }
+
+    private function deleteQuery(?Builder $query, string $table, UserDeletionResult $result): int
+    {
         if (! $query) {
             return 0;
         }
@@ -817,6 +937,26 @@ class DeleteUser
     private function updateWhereAny(string $table, array $conditions, array $payload): int
     {
         $query = $this->queryWhereAny($table, $conditions);
+
+        return $this->updateQuery($query, $table, $payload);
+    }
+
+    /**
+     * @param  array<string, int|list<int>|string>  $conditions
+     * @param  array<string, mixed>  $payload
+     */
+    private function updateWhereAll(string $table, array $conditions, array $payload): int
+    {
+        $query = $this->queryWhereAll($table, $conditions);
+
+        return $this->updateQuery($query, $table, $payload);
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function updateQuery(?Builder $query, string $table, array $payload): int
+    {
         $payload = $this->existingPayload($table, $payload);
 
         if (! $query || $payload === []) {
@@ -830,6 +970,22 @@ class DeleteUser
      * @param  array<string, int|list<int>|string>  $conditions
      */
     private function queryWhereAny(string $table, array $conditions): ?Builder
+    {
+        return $this->queryWhere($table, $conditions, false);
+    }
+
+    /**
+     * @param  array<string, int|list<int>|string>  $conditions
+     */
+    private function queryWhereAll(string $table, array $conditions): ?Builder
+    {
+        return $this->queryWhere($table, $conditions, true);
+    }
+
+    /**
+     * @param  array<string, int|list<int>|string>  $conditions
+     */
+    private function queryWhere(string $table, array $conditions, bool $requireAll): ?Builder
     {
         if (! Schema::hasTable($table)) {
             return null;
@@ -857,11 +1013,11 @@ class DeleteUser
             return null;
         }
 
-        return DB::table($table)->where(function (Builder $query) use ($valid): void {
+        return DB::table($table)->where(function (Builder $query) use ($valid, $requireAll): void {
             $first = true;
 
             foreach ($valid as $column => $value) {
-                $method = $first ? 'where' : 'orWhere';
+                $method = $first || $requireAll ? 'where' : 'orWhere';
 
                 if (is_array($value)) {
                     $query->{$method}(fn (Builder $nested) => $nested->whereIn($column, $value));
@@ -967,10 +1123,10 @@ class DeleteUser
         $this->updateWhereAny($table, ['created_by' => $userId], ['created_by' => null]);
     }
 
-    private function writeDeletionAudit(?int $actorUserId, UserDeletionResult $result): void
+    private function writeDeletionAudit(?int $actorUserId, UserDeletionResult $result): ?int
     {
         if (! Schema::hasTable('audit_logs')) {
-            return;
+            return null;
         }
 
         $payload = $this->existingPayload('audit_logs', [
@@ -978,7 +1134,7 @@ class DeleteUser
             'event' => 'admin.users.delete',
             'description' => 'Deleted a user and owned operational data.',
             'subject_type' => User::class,
-            'subject_id' => $result->userId,
+            'subject_id' => null,
             'area' => 'admin',
             'ip_address' => null,
             'user_agent' => null,
@@ -987,6 +1143,29 @@ class DeleteUser
             'updated_at' => now(),
         ]);
 
+        if (in_array('id', $this->columns('audit_logs'), true)) {
+            return (int) DB::table('audit_logs')->insertGetId($payload);
+        }
+
         DB::table('audit_logs')->insert($payload);
+
+        return null;
+    }
+
+    private function updateDeletionAudit(?int $auditId, UserDeletionResult $result): void
+    {
+        if (! $auditId || ! $this->hasTableAndColumns('audit_logs', ['id', 'metadata'])) {
+            return;
+        }
+
+        DB::table('audit_logs')
+            ->where('id', $auditId)
+            ->update($this->existingPayload('audit_logs', [
+                'metadata' => json_encode(
+                    $result->auditMetadata(),
+                    JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+                ),
+                'updated_at' => now(),
+            ]));
     }
 }

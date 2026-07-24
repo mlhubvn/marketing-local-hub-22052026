@@ -2,7 +2,12 @@
 
 namespace Modules\AppAdvancedCustomerCrm\Providers;
 
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Modules\AppAdvancedCustomerCrm\Console\CleanupCrmActivitiesCommand;
+use Modules\AppAdvancedCustomerCrm\Console\CrmLifecycleCommand;
+use Modules\AppAdvancedCustomerCrm\Console\ProcessCrmAutomationsCommand;
+use Modules\AppAdvancedCustomerCrm\Console\SeedAdvancedCrmDemoCommand;
 use Modules\AppAdvancedCustomerCrm\Models\CustomerActivity;
 use Modules\AppAdvancedCustomerCrm\Models\CustomerNote;
 use Modules\AppAdvancedCustomerCrm\Models\CustomerTag;
@@ -12,6 +17,7 @@ use Modules\AppAdvancedCustomerCrm\Support\CrmCustomerResolver;
 use Modules\AppAdvancedCustomerCrm\Support\CustomerActivityService;
 use Modules\AppAdvancedCustomerCrm\Support\CustomerScoreService;
 use Modules\AppCustomers\Models\Customer;
+use Modules\AppQRCampaigns\Models\QrCampaign;
 
 class AppAdvancedCustomerCrmServiceProvider extends ServiceProvider
 {
@@ -29,10 +35,10 @@ class AppAdvancedCustomerCrmServiceProvider extends ServiceProvider
         $this->registerExternalModuleHooks();
         if ($this->app->runningInConsole()) {
             $this->commands([
-                \Modules\AppAdvancedCustomerCrm\Console\CleanupCrmActivitiesCommand::class,
-                \Modules\AppAdvancedCustomerCrm\Console\CrmLifecycleCommand::class,
-                \Modules\AppAdvancedCustomerCrm\Console\ProcessCrmAutomationsCommand::class,
-                \Modules\AppAdvancedCustomerCrm\Console\SeedAdvancedCrmDemoCommand::class,
+                CleanupCrmActivitiesCommand::class,
+                CrmLifecycleCommand::class,
+                ProcessCrmAutomationsCommand::class,
+                SeedAdvancedCrmDemoCommand::class,
             ]);
         }
 
@@ -146,7 +152,7 @@ class AppAdvancedCustomerCrmServiceProvider extends ServiceProvider
         Customer::resolveRelationUsing('tasks', fn (Customer $customer) => $customer->hasMany(CustomerTask::class, 'customer_id'));
         Customer::resolveRelationUsing('crmTags', fn (Customer $customer) => $customer
             ->belongsToMany(CustomerTag::class, 'lb_customer_tag_maps', 'customer_id', 'tag_id')
-            ->withPivot(['team_id', 'created_by', 'created_at']));
+            ->withPivot(['owner_user_id', 'created_by', 'created_at']));
 
         Customer::created(function (Customer $customer): void {
             app(CustomerActivityService::class)->record($customer, 'customer_created', __('Customer created'), [
@@ -241,7 +247,7 @@ class AppAdvancedCustomerCrmServiceProvider extends ServiceProvider
     {
         $campaign = null;
         if (isset($related->campaign_id) && class_exists('Modules\\AppQRCampaigns\\Models\\QrCampaign')) {
-            $campaign = \Modules\AppQRCampaigns\Models\QrCampaign::query()->with('business')->find($related->campaign_id);
+            $campaign = QrCampaign::query()->with('business')->find($related->campaign_id);
         }
 
         $business = method_exists($related, 'business') ? $related->business()->first() : ($campaign?->business);
@@ -259,7 +265,7 @@ class AppAdvancedCustomerCrmServiceProvider extends ServiceProvider
             'related_id' => method_exists($related, 'getKey') ? $related->getKey() : null,
         ], $payload);
 
-        if ($counter && \Illuminate\Support\Facades\Schema::hasColumn('lb_customers', $counter)) {
+        if ($counter && Schema::hasColumn('lb_customers', $counter)) {
             $customer->increment($counter);
             $customer->refresh();
         }

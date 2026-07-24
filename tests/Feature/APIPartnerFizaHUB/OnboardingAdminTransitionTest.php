@@ -424,6 +424,23 @@ test('admin user deletion purges FizaHUB onboarding before deleting owned busine
     Storage::disk('local')->assertMissing($filePath);
 });
 
+test('admin purge for user returns the exact FizaHUB verification context', function (): void {
+    $seed = seedAdminOnboarding();
+    $targetUserId = (int) $seed['integration']->mlhub_user_id;
+    $requestId = (string) $seed['onboarding']->request_id;
+
+    $result = app(OnboardingAdminService::class)->adminPurgeForUser($targetUserId, 7);
+
+    expect($result)->toMatchArray([
+        'businesses_purged' => 1,
+        'external_business_ids' => ['biz-admin'],
+        'request_ids' => [$requestId],
+    ])
+        ->and(PartnerOnboardingRequest::query()->where('external_business_id', 'biz-admin')->exists())->toBeFalse()
+        ->and(PartnerIntegration::query()->where('external_business_id', 'biz-admin')->exists())->toBeFalse()
+        ->and(User::query()->whereKey($targetUserId)->exists())->toBeTrue();
+});
+
 test('admin user deletion purges every FizaHUB business for the target and preserves unrelated mappings', function (): void {
     $seed = seedAdminOnboarding();
     $target = User::query()->findOrFail($seed['integration']->mlhub_user_id);
@@ -490,7 +507,8 @@ test('admin user deletion purges every FizaHUB business for the target and prese
 
     $result = app(DeleteUser::class)->execute($target, $admin->id);
 
-    expect($result->onboardingBusinessesPurged)->toBe(2)
+    expect($result->status)->toBe('completed')
+        ->and($result->onboardingBusinessesPurged)->toBe(2)
         ->and(PartnerOnboardingRequest::query()->where('mlhub_user_id', $target->id)->count())->toBe(0)
         ->and(PartnerIntegration::query()->where('mlhub_user_id', $target->id)->count())->toBe(0)
         ->and(LocalBusiness::query()->where('user_id', $target->id)->count())->toBe(0)

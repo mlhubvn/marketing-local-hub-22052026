@@ -383,7 +383,7 @@ class OnboardingAdminService
      * user's businesses. This must run before the user/business rows are deleted,
      * otherwise nullable foreign keys preserve orphaned onboarding records.
      *
-     * @return array{businesses_purged: int, request_ids: list<string>, tickets_deleted: int}
+     * @return array{businesses_purged: int, external_business_ids: list<string>, request_ids: list<string>, tickets_deleted: int}
      */
     public function adminPurgeForUser(int $userId, ?int $changedById = null): array
     {
@@ -391,6 +391,7 @@ class OnboardingAdminService
             || ! Schema::hasTable('partner_integrations')) {
             return [
                 'businesses_purged' => 0,
+                'external_business_ids' => [],
                 'request_ids' => [],
                 'tickets_deleted' => 0,
             ];
@@ -457,6 +458,11 @@ class OnboardingAdminService
 
             return [
                 'businesses_purged' => $scopes->count(),
+                'external_business_ids' => $scopes->values()
+                    ->map(fn (array $scope): string => $scope[1])
+                    ->unique()
+                    ->values()
+                    ->all(),
                 'request_ids' => array_values(array_unique($requestIds)),
                 'tickets_deleted' => $ticketsDeleted,
             ];

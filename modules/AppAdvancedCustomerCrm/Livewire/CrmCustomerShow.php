@@ -3,6 +3,7 @@
 namespace Modules\AppAdvancedCustomerCrm\Livewire;
 
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -10,41 +11,67 @@ use Modules\AdminUser\Models\User;
 use Modules\AppAdvancedCustomerCrm\Models\CustomerNote;
 use Modules\AppAdvancedCustomerCrm\Models\CustomerTag;
 use Modules\AppAdvancedCustomerCrm\Models\CustomerTask;
+use Modules\AppAdvancedCustomerCrm\Support\CrmAutomationService;
 use Modules\AppAdvancedCustomerCrm\Support\CustomerActivityService;
 use Modules\AppAdvancedCustomerCrm\Support\CustomerMergeService;
 use Modules\AppAdvancedCustomerCrm\Support\CustomerScoreService;
-use Modules\AppAdvancedCustomerCrm\Support\CrmAutomationService;
 use Modules\AppCustomers\Models\Customer;
 
 #[Title('CRM Customer')]
 class CrmCustomerShow extends Component
 {
     public Customer $customer;
+
     public string $tab = 'overview';
+
     public string $timelineFilter = 'all';
+
     public string $note = '';
+
     public bool $notePinned = false;
+
     public ?int $editingNoteId = null;
+
     public string $editingNote = '';
+
     public bool $editingNotePinned = false;
+
     public string $taskTitle = '';
+
     public string $taskDescription = '';
+
     public string $taskType = 'follow_up';
+
     public string $taskPriority = 'medium';
+
     public string $taskDueAt = '';
+
     public string $taskAssignedTo = '';
+
     public ?int $editingTaskId = null;
+
     public string $editingTaskTitle = '';
+
     public string $editingTaskDescription = '';
+
     public string $editingTaskType = 'follow_up';
+
     public string $editingTaskPriority = 'medium';
+
     public string $editingTaskStatus = 'open';
+
     public string $editingTaskDueAt = '';
+
     public string $editingTaskAssignedTo = '';
+
     public string $selectedTagId = '';
+
     public string $newTagName = '';
+
     public string $newTagColor = '#0f766e';
+
     public string $status = 'active';
+
     public ?string $statusMessage = null;
 
     public function mount(Customer $customer): void
@@ -65,7 +92,7 @@ class CrmCustomerShow extends Component
         ]);
 
         CustomerNote::query()->create([
-            'team_id' => $this->customer->team_id,
+            'owner_user_id' => $this->customer->user_id,
             'business_id' => $this->customer->business_id,
             'customer_id' => $this->customer->id,
             'user_id' => auth()->id(),
@@ -145,7 +172,7 @@ class CrmCustomerShow extends Component
         ]);
 
         CustomerTask::query()->create([
-            'team_id' => $this->customer->team_id,
+            'owner_user_id' => $this->customer->user_id,
             'business_id' => $this->customer->business_id,
             'customer_id' => $this->customer->id,
             'assigned_to' => filled($payload['taskAssignedTo']) ? (int) $payload['taskAssignedTo'] : auth()->id(),
@@ -251,10 +278,12 @@ class CrmCustomerShow extends Component
     public function addTag(): void
     {
         $payload = $this->validate(['selectedTagId' => ['required', 'integer']]);
-        $tag = CustomerTag::query()->findOrFail((int) $payload['selectedTagId']);
+        $tag = CustomerTag::query()
+            ->where('owner_user_id', auth()->id())
+            ->findOrFail((int) $payload['selectedTagId']);
 
         $this->customer->crmTags()->syncWithoutDetaching([
-            $tag->id => ['team_id' => $tag->team_id, 'created_by' => auth()->id(), 'created_at' => now()],
+            $tag->id => ['owner_user_id' => $tag->owner_user_id, 'created_by' => auth()->id(), 'created_at' => now()],
         ]);
 
         app(CustomerActivityService::class)->record($this->customer, 'tag_added', __('Tag added'), ['description' => __(':tag was added to this customer.', ['tag' => $tag->name])]);
@@ -271,12 +300,12 @@ class CrmCustomerShow extends Component
         ]);
 
         $tag = CustomerTag::query()->firstOrCreate(
-            ['team_id' => auth()->id(), 'slug' => str($payload['newTagName'])->slug()->toString()],
+            ['owner_user_id' => auth()->id(), 'slug' => str($payload['newTagName'])->slug()->toString()],
             ['name' => $payload['newTagName'], 'color' => $payload['newTagColor'], 'description' => null, 'is_system' => false]
         );
 
         $this->customer->crmTags()->syncWithoutDetaching([
-            $tag->id => ['team_id' => auth()->id(), 'created_by' => auth()->id(), 'created_at' => now()],
+            $tag->id => ['owner_user_id' => auth()->id(), 'created_by' => auth()->id(), 'created_at' => now()],
         ]);
 
         app(CustomerActivityService::class)->record($this->customer, 'tag_added', __('Tag added'), ['description' => __(':tag was added to this customer.', ['tag' => $tag->name])]);
@@ -373,15 +402,13 @@ class CrmCustomerShow extends Component
             'color' => $tag->color ?: '#0f766e',
             'is_system' => (bool) $tag->is_system,
             'created_at' => $tag->pivot?->created_at,
-            'created_at_label' => $tag->pivot?->created_at ? format_datetime_locale(\Illuminate\Support\Carbon::parse($tag->pivot->created_at)) : null,
+            'created_at_label' => $tag->pivot?->created_at ? format_datetime_locale(Carbon::parse($tag->pivot->created_at)) : null,
             'created_by' => $tag->pivot?->created_by,
             'created_by_name' => $tag->pivot?->created_by ? $tagCreatorNames->get($tag->pivot->created_by) : null,
         ]);
 
         return view('appadvancedcustomercrm::customer-show', [
-            'tags' => CustomerTag::query()->where(function ($query): void {
-                $query->whereNull('team_id')->orWhere('team_id', auth()->id());
-            })->orderBy('name')->get(),
+            'tags' => CustomerTag::query()->where('owner_user_id', auth()->id())->orderBy('name')->get(),
             'duplicates' => $duplicates,
             'recentActivities' => $this->customer->activities->take(5),
             'timelineCategories' => $timelineCategories,

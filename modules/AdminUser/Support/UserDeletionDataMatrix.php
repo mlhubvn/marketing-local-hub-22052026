@@ -11,6 +11,21 @@ namespace Modules\AdminUser\Support;
  */
 class UserDeletionDataMatrix
 {
+    /** @var list<string> */
+    public const USER_OWNED_CRM = [
+        'lb_crm_automation_jobs',
+        'lb_crm_automation_logs',
+        'lb_crm_automations',
+        'lb_customer_activities',
+        'lb_customer_merge_logs',
+        'lb_customer_notes',
+        'lb_customer_score_logs',
+        'lb_customer_segments',
+        'lb_customer_tag_maps',
+        'lb_customer_tags',
+        'lb_customer_tasks',
+    ];
+
     /** @var array<string, list<string>> */
     public const HARD_DELETE_OWNED = [
         'affiliate_commissions' => ['affiliate_user_id'],
@@ -28,6 +43,17 @@ class UserDeletionDataMatrix
         'credit_topup_ledgers' => ['user_id'],
         'custom_domains' => ['owner_user_id'],
         'files' => ['owner_user_id'],
+        'lb_crm_automation_jobs' => ['owner_user_id'],
+        'lb_crm_automation_logs' => ['owner_user_id'],
+        'lb_crm_automations' => ['owner_user_id'],
+        'lb_customer_activities' => ['owner_user_id'],
+        'lb_customer_merge_logs' => ['owner_user_id'],
+        'lb_customer_notes' => ['owner_user_id'],
+        'lb_customer_score_logs' => ['owner_user_id'],
+        'lb_customer_segments' => ['owner_user_id'],
+        'lb_customer_tag_maps' => ['owner_user_id'],
+        'lb_customer_tags' => ['owner_user_id'],
+        'lb_customer_tasks' => ['owner_user_id'],
         'lb_template_imports' => ['user_id'],
         'lb_template_packs' => ['created_by_user_id'],
         'notifications' => ['user_id'],

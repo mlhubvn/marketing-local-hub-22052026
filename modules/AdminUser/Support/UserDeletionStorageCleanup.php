@@ -12,32 +12,119 @@ use Throwable;
 class UserDeletionStorageCleanup
 {
     /**
-     * @param  array{disk:string,path:string,directory:bool}  $asset
-     * @return array{deleted:bool,fingerprint:string}
+     * @param  array{disk:string,path:string,directory:bool,verified_user_owned?:bool}  $asset
+     * @return array{deleted:bool,status:'deleted'|'missing'|'failed',fingerprint:string,failure_reason:?string,retry_status:'not_needed'|'pending'}
      */
     public function delete(int $deletedUserId, array $asset): array
     {
         $fingerprint = hash('sha256', $asset['disk'].'|'.$asset['path']);
+        $safetyFailure = $this->safetyFailure($deletedUserId, $asset);
+
+        if ($safetyFailure !== null) {
+            $this->recordFailure($deletedUserId, $asset, $fingerprint, $safetyFailure);
+
+            return [
+                'deleted' => false,
+                'status' => 'failed',
+                'fingerprint' => $fingerprint,
+                'failure_reason' => $safetyFailure,
+                'retry_status' => 'pending',
+            ];
+        }
 
         try {
             $disk = Storage::disk($asset['disk']);
-            $deleted = ! $disk->exists($asset['path'])
-                || ($asset['directory']
-                    ? $disk->deleteDirectory($asset['path'])
-                    : $disk->delete($asset['path']));
+
+            if (! $disk->exists($asset['path'])) {
+                $this->forgetFailure($fingerprint);
+
+                return [
+                    'deleted' => true,
+                    'status' => 'missing',
+                    'fingerprint' => $fingerprint,
+                    'failure_reason' => null,
+                    'retry_status' => 'not_needed',
+                ];
+            }
+
+            $deleted = $asset['directory']
+                ? $disk->deleteDirectory($asset['path'])
+                : $disk->delete($asset['path']);
 
             if ($deleted) {
                 $this->forgetFailure($fingerprint);
 
-                return ['deleted' => true, 'fingerprint' => $fingerprint];
+                return [
+                    'deleted' => true,
+                    'status' => 'deleted',
+                    'fingerprint' => $fingerprint,
+                    'failure_reason' => null,
+                    'retry_status' => 'not_needed',
+                ];
             }
 
-            $this->recordFailure($deletedUserId, $asset, $fingerprint, 'delete_returned_false');
+            $failureReason = 'delete_returned_false';
+            $this->recordFailure($deletedUserId, $asset, $fingerprint, $failureReason);
         } catch (Throwable $exception) {
-            $this->recordFailure($deletedUserId, $asset, $fingerprint, $exception::class);
+            $failureReason = $exception::class;
+            $this->recordFailure($deletedUserId, $asset, $fingerprint, $failureReason);
         }
 
-        return ['deleted' => false, 'fingerprint' => $fingerprint];
+        return [
+            'deleted' => false,
+            'status' => 'failed',
+            'fingerprint' => $fingerprint,
+            'failure_reason' => $failureReason,
+            'retry_status' => 'pending',
+        ];
+    }
+
+    /**
+     * @param  array{disk:string,path:string,directory:bool,verified_user_owned?:bool}  $asset
+     */
+    private function safetyFailure(int $deletedUserId, array $asset): ?string
+    {
+        $path = trim(str_replace('\\', '/', (string) $asset['path']));
+
+        if ($path === ''
+            || str_starts_with($path, '/')
+            || preg_match('/^[a-z]:\//i', $path) === 1
+            || in_array($path, ['.', '..'], true)
+            || str_contains('/'.$path.'/', '/../')
+            || str_contains('/'.$path.'/', '/./')) {
+            return 'unsafe_asset_path';
+        }
+
+        $segments = array_values(array_filter(explode('/', trim($path, '/')), fn (string $part): bool => $part !== ''));
+
+        if ((bool) $asset['directory'] && count($segments) < 2) {
+            return 'unsafe_asset_path';
+        }
+
+        if ((bool) $asset['directory'] && ! (bool) ($asset['verified_user_owned'] ?? false)) {
+            return 'unverified_directory_ownership';
+        }
+
+        if (! Schema::hasTable('files')
+            || ! Schema::hasColumns('files', ['owner_user_id', 'path'])) {
+            return null;
+        }
+
+        $query = DB::table('files')
+            ->where('owner_user_id', '!=', $deletedUserId)
+            ->where(function ($builder) use ($path, $asset): void {
+                $builder->where('path', $path);
+
+                if ((bool) $asset['directory']) {
+                    $builder->orWhere('path', 'like', rtrim($path, '/').'/%');
+                }
+            });
+
+        if (Schema::hasColumn('files', 'disk')) {
+            $query->where('disk', (string) $asset['disk']);
+        }
+
+        return $query->exists() ? 'shared_storage_path' : null;
     }
 
     /**
@@ -75,14 +162,14 @@ class UserDeletionStorageCleanup
                 'directory' => (bool) $row->is_directory,
             ]);
 
-            $summary[$result['deleted'] ? 'deleted' : 'failed']++;
+            $summary[$result['status'] === 'failed' ? 'failed' : 'deleted']++;
         }
 
         return $summary;
     }
 
     /**
-     * @param  array{disk:string,path:string,directory:bool}  $asset
+     * @param  array{disk:string,path:string,directory:bool,verified_user_owned?:bool}  $asset
      */
     private function recordFailure(
         int $deletedUserId,

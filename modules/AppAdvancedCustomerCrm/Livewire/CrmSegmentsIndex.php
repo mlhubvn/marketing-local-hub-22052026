@@ -14,14 +14,21 @@ use Modules\AppCustomers\Models\Customer;
 class CrmSegmentsIndex extends Component
 {
     public string $name = 'High score customers';
+
     public string $description = '';
+
     public string $business_id = '';
+
     public string $match = 'all';
+
     public array $rules = [
         ['field' => 'score', 'operator' => '>=', 'value' => '50'],
     ];
+
     public string $color = '#0f766e';
+
     public ?int $editingId = null;
+
     public ?string $statusMessage = null;
 
     public function mount(): void
@@ -41,9 +48,9 @@ class CrmSegmentsIndex extends Component
 
         CustomerSegment::query()->updateOrCreate([
             'id' => $this->editingId,
-            'team_id' => auth()->id(),
+            'owner_user_id' => auth()->id(),
         ], [
-            'team_id' => auth()->id(),
+            'owner_user_id' => auth()->id(),
             'business_id' => filled($payload['business_id']) ? (int) $payload['business_id'] : null,
             'name' => $payload['name'],
             'description' => $payload['description'],
@@ -72,7 +79,7 @@ class CrmSegmentsIndex extends Component
 
     public function edit(int $id): void
     {
-        $segment = CustomerSegment::query()->where('team_id', auth()->id())->findOrFail($id);
+        $segment = CustomerSegment::query()->where('owner_user_id', auth()->id())->findOrFail($id);
         $this->editingId = $segment->id;
         $this->name = $segment->name;
         $this->description = (string) $segment->description;
@@ -86,10 +93,10 @@ class CrmSegmentsIndex extends Component
     {
         $this->ensureSegmentLimit();
 
-        $segment = CustomerSegment::query()->where('team_id', auth()->id())->findOrFail($id);
+        $segment = CustomerSegment::query()->where('owner_user_id', auth()->id())->findOrFail($id);
 
         CustomerSegment::query()->create([
-            'team_id' => auth()->id(),
+            'owner_user_id' => auth()->id(),
             'business_id' => $segment->business_id,
             'name' => __('Copy of :name', ['name' => $segment->name]),
             'description' => $segment->description,
@@ -123,14 +130,14 @@ class CrmSegmentsIndex extends Component
 
     public function delete(int $id): void
     {
-        CustomerSegment::query()->where('team_id', auth()->id())->whereKey($id)->delete();
+        CustomerSegment::query()->where('owner_user_id', auth()->id())->whereKey($id)->delete();
         $this->statusMessage = __('Segment deleted.');
     }
 
     public function render(): View
     {
         $base = Customer::query()->where('user_id', auth()->id());
-        $savedSegments = CustomerSegment::query()->where('team_id', auth()->id())->latest()->get();
+        $savedSegments = CustomerSegment::query()->where('owner_user_id', auth()->id())->latest()->get();
         $segmentService = app(CustomerSegmentService::class);
         $previewSegment = new CustomerSegment([
             'business_id' => filled($this->business_id) ? (int) $this->business_id : null,
@@ -194,6 +201,6 @@ class CrmSegmentsIndex extends Component
         if ((int) $limit === -1) {
             return;
         }
-        abort_if(CustomerSegment::query()->where('team_id', auth()->id())->count() >= (int) $limit, 403, __('Your CRM segment limit has been reached.'));
+        abort_if(CustomerSegment::query()->where('owner_user_id', auth()->id())->count() >= (int) $limit, 403, __('Your CRM segment limit has been reached.'));
     }
 }

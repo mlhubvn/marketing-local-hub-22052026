@@ -37,10 +37,26 @@ class DeleteUserForm extends Component
             return;
         }
 
-        if (! $result->deleted) {
+        if ($result->status === 'already_deleted' || ! $result->deleted) {
             $this->addError('password', __('The account was already deleted or could not be found.'));
 
             return;
+        }
+
+        if ($result->failedVerification()) {
+            session()->flash('error', __('The account row was deleted, but verification found :count remaining database references.', [
+                'count' => $result->databaseResidueCount,
+            ]));
+            $logout();
+            $this->redirect('/', navigate: true);
+
+            return;
+        }
+
+        if ($result->completedWithWarnings()) {
+            session()->flash('warning', __('The account was deleted, but :count storage item(s) are pending safe retry.', [
+                'count' => $result->storageFailureCount,
+            ]));
         }
 
         $logout();

@@ -85,7 +85,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
     }
 
     /* ------------------------------------------------------------------ */
-    /* Dữ liệu admin / hệ thống dùng chung                                 */
+    /* Dữ liệu admin / hệ thống dùng chung */
     /* ------------------------------------------------------------------ */
 
     protected function seedAdminRoles(): void
@@ -339,7 +339,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
     }
 
     /* ------------------------------------------------------------------ */
-    /* Dữ liệu theo từng user                                              */
+    /* Dữ liệu theo từng user */
     /* ------------------------------------------------------------------ */
 
     protected function seedNotifications(int $userId): void
@@ -781,11 +781,13 @@ class MLHUBDemoExtrasSeeder extends Seeder
         }
 
         if ($this->writer->hasTable('lb_template_packs')
+            && $this->writer->hasColumn('lb_template_packs', 'created_by_user_id')
             && $this->writer->hasTable('lb_template_pack_items')
             && ! DB::table('lb_template_pack_items')->whereIn('template_id', $templateIds)->exists()) {
             $packCreatedAt = CarbonImmutable::now()->subDays(45);
             $packId = $this->writer->insert('lb_template_packs', [
                 'team_id' => null,
+                'created_by_user_id' => $userId,
                 'name' => 'Bộ mẫu marketing địa phương Đà Nẵng',
                 'slug' => DemoContentCatalog::slug('Bo mau marketing', 'pack-'.$userId),
                 'category' => 'local-business',
@@ -816,6 +818,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
         }
 
         if ($this->writer->hasTable('lb_template_imports')
+            && $this->writer->hasColumn('lb_template_imports', 'user_id')
             && ! DB::table('lb_template_imports')->where('file_name', 'like', 'mlhub-demo-'.$userId.'-%')->exists()) {
             $importStatuses = ['completed', 'completed', 'failed'];
             for ($i = 0; $i < 3; $i++) {
@@ -823,6 +826,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
                 $createdAt = CarbonImmutable::now()->subDays(35 - $i * 7);
                 $this->writer->insert('lb_template_imports', [
                     'team_id' => null,
+                    'user_id' => $userId,
                     'file_name' => 'mlhub-demo-'.$userId.'-'.($i + 1).'.mlhub-template.json',
                     'status' => $status,
                     'imported_count' => $status === 'completed' ? 4 + $i : 0,
@@ -1323,8 +1327,8 @@ class MLHUBDemoExtrasSeeder extends Seeder
     {
         // Hàng đợi automation CRM.
         if ($this->writer->hasTable('lb_crm_automation_jobs') && $this->writer->hasTable('lb_crm_automations')) {
-            if ($this->countOwned('lb_crm_automation_jobs', 'team_id', $userId) === 0) {
-                $automations = DB::table('lb_crm_automations')->where('team_id', $userId)->orderBy('id')->get()->all();
+            if ($this->countOwned('lb_crm_automation_jobs', 'owner_user_id', $userId) === 0) {
+                $automations = DB::table('lb_crm_automations')->where('owner_user_id', $userId)->orderBy('id')->get()->all();
 
                 if ($automations !== [] && $customers !== []) {
                     $rows = [];
@@ -1335,7 +1339,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
                         $createdAt = $this->timeline->at($i + 9, 24);
                         $status = $statuses[$i % count($statuses)];
                         $rows[] = [
-                            'team_id' => $userId,
+                            'owner_user_id' => $userId,
                             'automation_id' => $automation->id,
                             'customer_id' => $customer->id,
                             'event_name' => ['customer.created', 'coupon.used', 'booking.completed'][$i % 3],
@@ -1356,14 +1360,14 @@ class MLHUBDemoExtrasSeeder extends Seeder
 
         // Nhật ký gộp khách hàng trùng.
         if ($this->writer->hasTable('lb_customer_merge_logs') && count($customers) >= 10) {
-            if ($this->countOwned('lb_customer_merge_logs', 'team_id', $userId) === 0) {
+            if ($this->countOwned('lb_customer_merge_logs', 'owner_user_id', $userId) === 0) {
                 $rows = [];
                 for ($i = 0; $i < 5; $i++) {
                     $primary = $customers[$i * 2];
                     $merged = $customers[$i * 2 + 1];
                     $createdAt = $this->timeline->at($i + 13, 5);
                     $rows[] = [
-                        'team_id' => $userId,
+                        'owner_user_id' => $userId,
                         'primary_customer_id' => $primary->id,
                         'merged_customer_id' => $merged->id,
                         'merged_by' => $userId,
@@ -1608,7 +1612,7 @@ class MLHUBDemoExtrasSeeder extends Seeder
     }
 
     /* ------------------------------------------------------------------ */
-    /* Helpers                                                             */
+    /* Helpers */
     /* ------------------------------------------------------------------ */
 
     /**

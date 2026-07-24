@@ -4,6 +4,7 @@ namespace Modules\AppAdvancedCustomerCrm\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
+use Modules\AdminUser\Models\User;
 use Modules\AppAdvancedCustomerCrm\Models\CustomerActivity;
 use Modules\AppAdvancedCustomerCrm\Models\CustomerNote;
 use Modules\AppAdvancedCustomerCrm\Models\CustomerScoreLog;
@@ -12,7 +13,6 @@ use Modules\AppAdvancedCustomerCrm\Models\CustomerTask;
 use Modules\AppAdvancedCustomerCrm\Support\CustomerScoreService;
 use Modules\AppBusinessProfiles\Models\LocalBusiness;
 use Modules\AppCustomers\Models\Customer;
-use Modules\AdminUser\Models\User;
 
 class SeedAdvancedCrmDemoCommand extends Command
 {
@@ -25,12 +25,14 @@ class SeedAdvancedCrmDemoCommand extends Command
         $user = User::query()->find((int) $this->option('user')) ?: User::query()->first();
         if (! $user) {
             $this->error('No user found.');
+
             return self::FAILURE;
         }
 
         $business = LocalBusiness::query()->where('user_id', $user->id)->first();
         if (! $business) {
             $this->error('No business found for user.');
+
             return self::FAILURE;
         }
 
@@ -41,7 +43,7 @@ class SeedAdvancedCrmDemoCommand extends Command
             ['Referral Customer', '#0891b2'],
             ['Coupon Claimed', '#7c3aed'],
         ])->map(fn ($tag) => CustomerTag::query()->firstOrCreate(
-            ['team_id' => $user->id, 'slug' => Str::slug($tag[0])],
+            ['owner_user_id' => $user->id, 'slug' => Str::slug($tag[0])],
             ['name' => $tag[0], 'color' => $tag[1], 'is_system' => true]
         ));
 
@@ -49,7 +51,6 @@ class SeedAdvancedCrmDemoCommand extends Command
             $customer = Customer::query()->firstOrCreate(
                 ['user_id' => $user->id, 'business_id' => $business->id, 'email' => "crm{$i}@demo.test"],
                 [
-                    'team_id' => $user->id,
                     'name' => "CRM Demo Customer {$i}",
                     'phone' => '555-01'.str_pad((string) $i, 2, '0', STR_PAD_LEFT),
                     'status' => $i % 7 === 0 ? 'vip' : 'active',
@@ -65,7 +66,7 @@ class SeedAdvancedCrmDemoCommand extends Command
             );
 
             $tag = $tags[$i % $tags->count()];
-            $customer->crmTags()->syncWithoutDetaching([$tag->id => ['team_id' => $user->id, 'created_by' => $user->id, 'created_at' => now()]]);
+            $customer->crmTags()->syncWithoutDetaching([$tag->id => ['owner_user_id' => $user->id, 'created_by' => $user->id, 'created_at' => now()]]);
 
             $this->recordDemoActivity($customer, 'customer_created', 'Customer profile created', 'CRM demo import', 'advanced_crm', $user->id, $i + 12);
             $this->recordDemoActivity($customer, 'booking_completed', 'Booking completed', 'Massage Therapy · '.$business->name, 'AppBookingPages', $user->id, $i + 8);
@@ -89,19 +90,20 @@ class SeedAdvancedCrmDemoCommand extends Command
             if ($i <= 12) {
                 CustomerTask::query()->firstOrCreate(
                     ['customer_id' => $customer->id, 'title' => "Follow up demo customer {$i}"],
-                    ['team_id' => $user->id, 'business_id' => $business->id, 'assigned_to' => $user->id, 'type' => 'follow_up', 'priority' => $i % 3 === 0 ? 'high' : 'medium', 'status' => 'open', 'due_at' => now()->addDays($i % 7), 'created_by' => $user->id]
+                    ['owner_user_id' => $user->id, 'business_id' => $business->id, 'assigned_to' => $user->id, 'type' => 'follow_up', 'priority' => $i % 3 === 0 ? 'high' : 'medium', 'status' => 'open', 'due_at' => now()->addDays($i % 7), 'created_by' => $user->id]
                 );
             }
 
             if ($i <= 5) {
                 CustomerNote::query()->firstOrCreate(
                     ['customer_id' => $customer->id, 'note' => "Demo CRM note for customer {$i}."],
-                    ['team_id' => $user->id, 'business_id' => $business->id, 'user_id' => $user->id, 'visibility' => 'team']
+                    ['owner_user_id' => $user->id, 'business_id' => $business->id, 'user_id' => $user->id, 'visibility' => 'team']
                 );
             }
         }
 
         $this->info('Advanced CRM demo data seeded.');
+
         return self::SUCCESS;
     }
 
@@ -114,7 +116,7 @@ class SeedAdvancedCrmDemoCommand extends Command
                 'title' => $title,
             ],
             [
-                'team_id' => $customer->team_id,
+                'owner_user_id' => $customer->user_id,
                 'business_id' => $customer->business_id,
                 'description' => $description,
                 'source_module' => $sourceModule,
