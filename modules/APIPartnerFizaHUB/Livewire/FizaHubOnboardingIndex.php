@@ -113,7 +113,7 @@ class FizaHubOnboardingIndex extends Component
 
     public function resendWebhook(int $id): void
     {
-        $this->runAction($id, function (PartnerOnboardingRequest $row): ?string {
+        $this->runAction($id, function (PartnerOnboardingRequest $row): void {
             app(OnboardingAdminService::class)->resendWebhook($row);
         }, __('Webhook re-queued for delivery.'));
     }

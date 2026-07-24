@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
@@ -572,6 +573,28 @@ test('FizaHub UserDeletion action refuses ambiguous user mappings', function ():
     expect(User::query()->find($firstUserId))->not->toBeNull()
         ->and(User::query()->find($other->id))->not->toBeNull()
         ->and(PartnerOnboardingRequest::query()->find($seed['onboarding']->id))->not->toBeNull();
+});
+
+test('FizaHub resend webhook action queues delivery without a callback return type error', function (): void {
+    Queue::fake();
+    config()->set('modules.apipartnerfizahub.webhook_base_url', 'https://fizahub.test');
+
+    $seed = seedAdminOnboarding();
+    $admin = User::query()->create([
+        'name' => 'Admin',
+        'username' => 'fizahub_webhook_admin',
+        'email' => 'fizahub-webhook-admin@example.com',
+        'password' => 'password-password-password-password-password-password-1234',
+        'is_super_admin' => true,
+    ]);
+
+    Livewire::actingAs($admin)
+        ->test(FizaHubOnboardingIndex::class)
+        ->call('resendWebhook', $seed['onboarding']->id)
+        ->assertSet('errorMessage', null)
+        ->assertSet('statusMessage', __('Webhook re-queued for delivery.'));
+
+    expect(PartnerWebhookOutbox::query()->count())->toBe(1);
 });
 
 test('adminAssignPackage upgrades effective package and marks approved', function (): void {
