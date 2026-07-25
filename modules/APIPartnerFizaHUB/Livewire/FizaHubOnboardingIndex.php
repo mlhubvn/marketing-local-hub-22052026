@@ -36,6 +36,27 @@ class FizaHubOnboardingIndex extends Component
     /** @var array<int|string, string> */
     public array $packageSelections = [];
 
+    /**
+     * Server-side confirmation text typed by the admin for the "Xóa dữ liệu
+     * onboarding" dialog, keyed by onboarding request id. Validated exactly against
+     * `XOA ONBOARDING` inside deleteOnboarding() — never trust the browser-side
+     * disabled state, the user can bypass JavaScript entirely.
+     *
+     * @var array<int, string>
+     */
+    public array $onboardingDeleteConfirmation = [];
+
+    /**
+     * Server-side confirmation text typed by the admin for the "Xóa User và toàn bộ
+     * dữ liệu" dialog, keyed by onboarding request id. Validated exactly against
+     * `XOA USER {resolved mlhub user id}` inside deleteUserAndData().
+     *
+     * @var array<int, string>
+     */
+    public array $userDeleteConfirmation = [];
+
+    public const ONBOARDING_DELETE_CONFIRMATION_PHRASE = 'XOA ONBOARDING';
+
     public function updatingSearch(): void
     {
         $this->resetPage();
@@ -118,20 +139,56 @@ class FizaHubOnboardingIndex extends Component
         }, __('Webhook re-queued for delivery.'));
     }
 
+    public function resetOnboardingDeleteConfirmation(int $id): void
+    {
+        unset($this->onboardingDeleteConfirmation[$id]);
+    }
+
+    public function resetUserDeleteConfirmation(int $id): void
+    {
+        unset($this->userDeleteConfirmation[$id]);
+    }
+
     public function deleteOnboarding(int $id): void
     {
+        $confirmation = trim((string) ($this->onboardingDeleteConfirmation[$id] ?? ''));
+
+        if ($confirmation !== self::ONBOARDING_DELETE_CONFIRMATION_PHRASE) {
+            $this->statusMessage = null;
+            $this->errorMessage = __('Type ":phrase" exactly to confirm this deletion.', [
+                'phrase' => self::ONBOARDING_DELETE_CONFIRMATION_PHRASE,
+            ]);
+            $this->resetOnboardingDeleteConfirmation($id);
+
+            return;
+        }
+
         $this->runAction($id, function (PartnerOnboardingRequest $row): ?string {
             app(OnboardingAdminService::class)->adminPurgeOnboarding($row, auth()->id());
 
             unset($this->stageSelections[$row->id], $this->packageSelections[$row->id]);
-        }, __('Onboarding data deleted. The MLHUB user account was kept.'));
+
+            return null;
+        }, __('Đã xóa dữ liệu onboarding FizaHUB. Tài khoản MLHUB vẫn được giữ lại.'));
+
+        $this->resetOnboardingDeleteConfirmation($id);
     }
 
     public function deleteUserAndData(int $id): void
     {
-        $this->runAction($id, function (PartnerOnboardingRequest $row): ?string {
+        $confirmationInput = trim((string) ($this->userDeleteConfirmation[$id] ?? ''));
+
+        $this->runAction($id, function (PartnerOnboardingRequest $row) use ($confirmationInput): ?string {
             $service = app(OnboardingAdminService::class);
             $user = $service->resolveUserForDeletion($row);
+
+            $expectedConfirmation = 'XOA USER '.$user->id;
+
+            if ($confirmationInput !== $expectedConfirmation) {
+                throw new InvalidArgumentException(__('Type ":phrase" exactly to confirm this deletion.', [
+                    'phrase' => $expectedConfirmation,
+                ]));
+            }
 
             if ((int) auth()->id() === (int) $user->id) {
                 throw new InvalidArgumentException(__('You cannot delete the account currently signed in.'));
@@ -157,6 +214,8 @@ class FizaHubOnboardingIndex extends Component
                 ])
                 : null;
         }, __('The MLHUB user and all owned operational data were deleted.'));
+
+        $this->resetUserDeleteConfirmation($id);
     }
 
     public function render(): View
@@ -191,7 +250,7 @@ class FizaHubOnboardingIndex extends Component
     }
 
     /**
-     * @return array{name:string,identity:string,business:string,resolvable:bool}
+     * @return array{id:?int,name:string,identity:string,business:string,resolvable:bool}
      */
     protected function userDeletionPreview(PartnerOnboardingRequest $request): array
     {
@@ -199,6 +258,7 @@ class FizaHubOnboardingIndex extends Component
             $user = app(OnboardingAdminService::class)->resolveUserForDeletion($request);
 
             return [
+                'id' => (int) $user->id,
                 'name' => (string) $user->name,
                 'identity' => $this->maskIdentity((string) ($user->email ?: $user->username)),
                 'business' => (string) ($request->business?->name
@@ -208,6 +268,7 @@ class FizaHubOnboardingIndex extends Component
             ];
         } catch (Throwable) {
             return [
+                'id' => null,
                 'name' => __('Unresolved user'),
                 'identity' => '—',
                 'business' => (string) ($request->business?->name

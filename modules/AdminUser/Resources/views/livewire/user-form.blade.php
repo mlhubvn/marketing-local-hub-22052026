@@ -306,19 +306,38 @@
             @endif
 
             @if ($isEditing)
+                @php($userFormDeletePhrase = 'XOA USER '.$user->id)
                 <x-ui.card>
                     <p class="text-[11px] font-semibold uppercase tracking-[0.22em]" style="color: var(--theme-muted-text-color);">{{ __('Danger zone') }}</p>
-                    <h3 class="mt-3 text-[1.2rem] font-semibold tracking-[-0.03em]" style="color: var(--theme-header-text-color);">{{ __('Delete this user') }}</h3>
-                    <p class="mt-2 text-sm leading-7" style="color: var(--theme-muted-text-color);">{{ __('Remove this user record if it is no longer needed in the backend.') }}</p>
+                    <h3 class="mt-3 text-[1.2rem] font-semibold tracking-[-0.03em]" style="color: var(--theme-header-text-color);">{{ __('Xóa User và toàn bộ dữ liệu') }}</h3>
+                    <p class="mt-2 text-sm leading-7" style="color: var(--theme-muted-text-color);">{{ __('Xóa vĩnh viễn tài khoản, dữ liệu SQL, file, tích hợp và lịch sử liên quan. Hành động này không thể hoàn tác.') }}</p>
 
-                    <x-ui.dialog :title="__('Delete this user?')" :description="__('This permanently removes the account from the system. This action cannot be undone.')" width="sm" dismissible>
+                    <x-ui.dialog :title="__('Xóa User và toàn bộ dữ liệu')" :description="__('Xóa vĩnh viễn tài khoản, dữ liệu SQL, file, tích hợp và lịch sử liên quan. Hành động này không thể hoàn tác.')" width="sm" dismissible>
                         <x-slot:trigger>
-                            <x-ui.button type="button" variant="danger" class="mt-5">{{ __('Delete user') }}</x-ui.button>
+                            <x-ui.button type="button" variant="danger" class="mt-5">{{ __('Xóa User và toàn bộ dữ liệu') }}</x-ui.button>
                         </x-slot:trigger>
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-medium" style="color: var(--theme-muted-text-color);">
+                                {{ __('Nhập ":phrase" để xác nhận', ['phrase' => $userFormDeletePhrase]) }}
+                            </label>
+                            <x-ui.input
+                                type="text"
+                                wire:model.live.debounce.200ms="deleteConfirmation"
+                                autocomplete="off"
+                                placeholder="{{ $userFormDeletePhrase }}"
+                            />
+                        </div>
+
                         <x-slot:footer>
                             <div class="flex justify-end gap-3">
-                                <x-ui.button type="button" variant="outline" x-on:click="open = false">{{ __('Cancel') }}</x-ui.button>
-                                <x-ui.button type="button" variant="danger" wire:click="deleteUser">{{ __('Delete') }}</x-ui.button>
+                                <x-ui.button type="button" variant="outline" wire:click="resetDeleteConfirmation" x-on:click="open = false">{{ __('Cancel') }}</x-ui.button>
+                                <x-ui.button
+                                    type="button"
+                                    variant="danger"
+                                    wire:click="deleteUser"
+                                    :disabled="$deleteConfirmation !== $userFormDeletePhrase"
+                                >{{ __('Xóa User và toàn bộ dữ liệu') }}</x-ui.button>
                             </div>
                         </x-slot:footer>
                     </x-ui.dialog>

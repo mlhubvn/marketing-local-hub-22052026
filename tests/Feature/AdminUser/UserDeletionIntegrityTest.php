@@ -926,36 +926,76 @@ test('UserDeletion residue inspector catches authentication shared-record and re
 });
 
 test('UserDeletion residue inspector catches FizaHUB request and external business payload residue only in supplied scope', function (): void {
+    // Real production schema (partner_code, endpoint, request_id, request_payload,
+    // response_payload) — NOT a hand-rolled reduced schema — so the inspector's
+    // Schema::hasColumn() checks and partner_code scoping are exercised for real.
     Schema::create('partner_api_logs', function (Blueprint $table): void {
         $table->id();
-        $table->string('request_id');
+        $table->string('partner_code', 32);
+        $table->string('method', 16);
+        $table->string('endpoint', 255);
+        $table->string('request_id')->nullable();
         $table->json('request_payload')->nullable();
         $table->json('response_payload')->nullable();
     });
     Schema::create('partner_webhook_outbox', function (Blueprint $table): void {
         $table->id();
+        $table->string('partner_code', 32);
         $table->string('dedupe_key');
+        $table->string('endpoint_path', 255);
         $table->json('payload')->nullable();
     });
+
+    config()->set('modules.apipartnerfizahub.partner_code', 'fizahub');
+
     DB::table('partner_api_logs')->insert([
         [
+            // Nested under `body`, exactly like HandlePartnerRequest::finalizeLog().
+            'partner_code' => 'fizahub',
+            'method' => 'POST',
+            'endpoint' => '/api/v1/partners/fizahub/onboarding-requests',
             'request_id' => 'request-target',
-            'request_payload' => json_encode(['external_business_id' => 'external-target']),
+            'request_payload' => json_encode(['body' => ['external_business_id' => 'external-target']]),
             'response_payload' => null,
         ],
         [
+            // Endpoint-only match: no external_business_id anywhere in the payload.
+            'partner_code' => 'fizahub',
+            'method' => 'GET',
+            'endpoint' => '/api/v1/partners/fizahub/businesses/external-target/dashboard',
+            'request_id' => 'request-endpoint-only',
+            'request_payload' => json_encode(['_request_hash' => 'h']),
+            'response_payload' => null,
+        ],
+        [
+            'partner_code' => 'fizahub',
+            'method' => 'POST',
+            'endpoint' => '/api/v1/partners/fizahub/onboarding-requests',
             'request_id' => 'request-other',
-            'request_payload' => json_encode(['external_business_id' => 'external-other']),
+            'request_payload' => json_encode(['body' => ['external_business_id' => 'external-other']]),
+            'response_payload' => null,
+        ],
+        [
+            // Same business id but a different partner_code must never be reported.
+            'partner_code' => 'another-partner',
+            'method' => 'GET',
+            'endpoint' => '/api/v1/partners/another-partner/businesses/external-target/dashboard',
+            'request_id' => 'request-cross-partner',
+            'request_payload' => null,
             'response_payload' => null,
         ],
     ]);
     DB::table('partner_webhook_outbox')->insert([
         [
+            'partner_code' => 'fizahub',
             'dedupe_key' => 'request-target|event',
+            'endpoint_path' => '/webhooks/onboarding',
             'payload' => json_encode(['external_business_id' => 'external-target']),
         ],
         [
+            'partner_code' => 'fizahub',
             'dedupe_key' => 'request-other|event',
+            'endpoint_path' => '/webhooks/onboarding',
             'payload' => json_encode(['external_business_id' => 'external-other']),
         ],
     ]);
@@ -971,12 +1011,13 @@ test('UserDeletion residue inspector catches FizaHUB request and external busine
         'storage_assets' => [],
     ]);
 
-    expect($residue['json'])->toHaveKeys([
-        'partner_api_logs.request_payload/response_payload',
-        'partner_api_logs.request_id',
-        'partner_webhook_outbox.payload',
-        'partner_webhook_outbox.dedupe_key',
+    expect($residue['json'])->toMatchArray([
+        'partner_api_logs.external_business_id_boundary_match' => 2,
+        'partner_api_logs.request_id_boundary_match' => 1,
+        'partner_webhook_outbox.external_business_id_boundary_match' => 1,
+        'partner_webhook_outbox.request_id_boundary_match' => 1,
     ])
+        ->and($residue['clean'])->toBeFalse()
         ->and(collect($residue['records'])->pluck('remaining_reference'))
         ->not->toContain('external-other')
         ->not->toContain('request-other');
@@ -1063,12 +1104,14 @@ test('all admin and self-service entrypoints delegate to the same deletion servi
     Auth::login($admin);
 
     $index = new UserIndex;
+    $index->deleteConfirmation[$listTarget->id] = 'XOA USER '.$listTarget->id;
     $index->deleteUser($listTarget->id);
     $index->selectedUserIds = [$bulkTargetA->id, $bulkTargetB->id, $admin->id];
     $index->deleteSelectedUsers();
 
     $form = new UserForm;
     $form->userId = $formTarget->id;
+    $form->deleteConfirmation = 'XOA USER '.$formTarget->id;
     $form->deleteUser();
 
     expect(User::query()->whereKey($listTarget->id)->exists())->toBeFalse()
@@ -1099,7 +1142,9 @@ test('admin user list reports completed storage cleanup warnings without claimin
     config(['filesystems.disks.warning-ui-unsupported' => ['driver' => 'unsupported-test-driver']]);
     Auth::login($admin);
 
-    (new UserIndex)->deleteUser($target->id);
+    $index = new UserIndex;
+    $index->deleteConfirmation[$target->id] = 'XOA USER '.$target->id;
+    $index->deleteUser($target->id);
 
     expect(session('status'))->toBeNull()
         ->and((string) session('warning'))->toContain('storage')
@@ -1519,4 +1564,113 @@ test('orphan cleanup is dry run by default and only executes demonstrably safe C
         ->and(DB::table('lb_customer_tags')->where('id', $orphanTagId)->exists())->toBeFalse()
         ->and(DB::table('lb_template_packs')->where('id', $packId)->exists())->toBeTrue()
         ->and(DB::table('lb_template_imports')->where('id', $importId)->exists())->toBeTrue();
+});
+
+test('UserIndex deleteUser refuses an empty confirmation and never calls the delete service', function (): void {
+    $admin = makeDeletionUser('confirm-empty-admin', true);
+    $target = makeDeletionUser('confirm-empty-target');
+    Auth::login($admin);
+
+    $index = new UserIndex;
+    $index->deleteUser($target->id);
+
+    expect(User::query()->whereKey($target->id)->exists())->toBeTrue()
+        ->and((string) session('error'))->toContain('XOA USER '.$target->id)
+        ->and($index->deleteConfirmation)->toBe([]);
+});
+
+test('UserIndex deleteUser refuses a wrong confirmation and never calls the delete service', function (): void {
+    $admin = makeDeletionUser('confirm-wrong-admin', true);
+    $target = makeDeletionUser('confirm-wrong-target');
+    Auth::login($admin);
+
+    $index = new UserIndex;
+    $index->deleteConfirmation[$target->id] = 'XOA USER 999999';
+    $index->deleteUser($target->id);
+
+    expect(User::query()->whereKey($target->id)->exists())->toBeTrue()
+        ->and((string) session('error'))->toContain('XOA USER '.$target->id);
+});
+
+test('UserIndex deleteUser succeeds only once the exact confirmation phrase is typed', function (): void {
+    $admin = makeDeletionUser('confirm-exact-admin', true);
+    $target = makeDeletionUser('confirm-exact-target');
+    Auth::login($admin);
+
+    $index = new UserIndex;
+    $index->deleteConfirmation[$target->id] = 'XOA USER '.$target->id;
+    $index->deleteUser($target->id);
+
+    expect(User::query()->whereKey($target->id)->exists())->toBeFalse()
+        ->and((string) session('status'))->toContain('deleted');
+});
+
+test('UserForm deleteUser refuses a wrong confirmation and never calls the delete service', function (): void {
+    $admin = makeDeletionUser('form-confirm-wrong-admin', true);
+    $target = makeDeletionUser('form-confirm-wrong-target');
+    Auth::login($admin);
+
+    $form = new UserForm;
+    $form->userId = $target->id;
+    $form->deleteConfirmation = 'not the right phrase';
+    $form->deleteUser();
+
+    expect(User::query()->whereKey($target->id)->exists())->toBeTrue()
+        ->and((string) session('error'))->toContain('XOA USER '.$target->id)
+        ->and($form->deleteConfirmation)->toBe('');
+});
+
+test('UserIndex deleteUser never reports success when verification finds residue', function (): void {
+    $admin = makeDeletionUser('residue-ui-admin', true);
+    $target = makeDeletionUser('residue-ui-target');
+    Auth::login($admin);
+
+    $fake = new class extends DeleteUser
+    {
+        public function __construct() {}
+
+        public function execute(User $user, ?int $deletedByUserId = null): UserDeletionResult
+        {
+            $result = new UserDeletionResult((int) $user->id);
+            $result->deleted = true;
+            $result->status = 'failed_verification';
+            $result->databaseResidueCount = 2;
+
+            return $result;
+        }
+    };
+    app()->instance(DeleteUser::class, $fake);
+
+    $index = new UserIndex;
+    $index->deleteConfirmation[$target->id] = 'XOA USER '.$target->id;
+    $index->deleteUser($target->id);
+
+    expect(session('status'))->toBeNull()
+        ->and((string) session('error'))->toContain('2');
+});
+
+test('UserIndex deleteUser refuses to delete the account currently signed in even with the exact confirmation', function (): void {
+    $admin = makeDeletionUser('self-delete-admin', true);
+    Auth::login($admin);
+
+    $index = new UserIndex;
+    $index->deleteConfirmation[$admin->id] = 'XOA USER '.$admin->id;
+    $index->deleteUser($admin->id);
+
+    expect(User::query()->whereKey($admin->id)->exists())->toBeTrue()
+        ->and((string) session('error'))->toBe(__('You cannot delete the account currently signed in.'));
+});
+
+test('UserIndex deleteUser with a wrong confirmation deletes zero SQL rows across the whole schema', function (): void {
+    $admin = makeDeletionUser('confirm-zero-rows-admin', true);
+    $target = makeDeletionUser('confirm-zero-rows-target');
+    $usersBefore = DB::table('users')->count();
+    Auth::login($admin);
+
+    $index = new UserIndex;
+    $index->deleteConfirmation[$target->id] = 'wrong phrase';
+    $index->deleteUser($target->id);
+
+    expect(DB::table('users')->count())->toBe($usersBefore)
+        ->and(User::query()->whereKey($target->id)->exists())->toBeTrue();
 });

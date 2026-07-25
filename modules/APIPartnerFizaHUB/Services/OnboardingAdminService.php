@@ -8,14 +8,14 @@ use InvalidArgumentException;
 use Modules\AdminSupport\Models\SupportTicket;
 use Modules\AdminUser\Models\User;
 use Modules\AdminUser\Support\UserDeletionStorageCleanup;
-use Modules\APIPartnerFizaHUB\Models\PartnerApiLog;
 use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
 use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingRequest;
 use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingStatusHistory;
 use Modules\APIPartnerFizaHUB\Models\PartnerSupportAttachment;
 use Modules\APIPartnerFizaHUB\Models\PartnerSupportTicketContext;
-use Modules\APIPartnerFizaHUB\Models\PartnerWebhookOutbox;
 use Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine;
+use Modules\APIPartnerFizaHUB\Support\PartnerBusinessIdentifiers;
+use Modules\APIPartnerFizaHUB\Support\PartnerBusinessLogMatcher;
 use Throwable;
 
 class OnboardingAdminService
@@ -571,32 +571,14 @@ class OnboardingAdminService
             ->whereIn('id', $requests->pluck('id'))
             ->update(['support_ticket_id' => null]);
 
-        if (Schema::hasTable('partner_api_logs')) {
-            PartnerApiLog::query()
-                ->where('partner_code', $partnerCode)
-                ->where(function ($query) use ($requestIds, $externalBusinessId): void {
-                    if ($requestIds !== []) {
-                        $query->whereIn('request_id', $requestIds);
-                    }
+        $identifiers = new PartnerBusinessIdentifiers($partnerCode, $externalBusinessId, $requestIds);
 
-                    $query
-                        ->orWhere('request_payload->external_business_id', $externalBusinessId)
-                        ->orWhere('response_payload->data->external_business_id', $externalBusinessId);
-                })
-                ->delete();
+        if (Schema::hasTable('partner_api_logs')) {
+            PartnerBusinessLogMatcher::applyToApiLogs(DB::table('partner_api_logs'), $identifiers)->delete();
         }
 
         if (Schema::hasTable('partner_webhook_outbox')) {
-            PartnerWebhookOutbox::query()
-                ->where('partner_code', $partnerCode)
-                ->where(function ($query) use ($requestIds, $externalBusinessId): void {
-                    foreach ($requestIds as $requestId) {
-                        $query->orWhere('dedupe_key', 'like', $requestId.'%');
-                    }
-
-                    $query->orWhere('payload->external_business_id', $externalBusinessId);
-                })
-                ->delete();
+            PartnerBusinessLogMatcher::applyToWebhookOutbox(DB::table('partner_webhook_outbox'), $identifiers)->delete();
         }
 
         $subjectUserId = $mlhubUserId

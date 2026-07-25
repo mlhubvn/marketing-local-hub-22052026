@@ -30,6 +30,16 @@ class UserIndex extends Component
     #[Url(as: 'direction', except: 'desc')]
     public string $direction = 'desc';
 
+    /**
+     * Server-side confirmation text typed by the admin in the "Xóa User và toàn bộ dữ
+     * liệu" dialog, keyed by target user id. Validated exactly against
+     * `XOA USER {userId}` inside deleteUser() — the browser-side disabled state on
+     * the confirm button is a UX hint only and is never trusted server-side.
+     *
+     * @var array<int, string>
+     */
+    public array $deleteConfirmation = [];
+
     public function updatedQ(): void
     {
         $this->resetPage();
@@ -58,6 +68,11 @@ class UserIndex extends Component
         $this->resetPage();
     }
 
+    public function resetDeleteConfirmation(int $userId): void
+    {
+        unset($this->deleteConfirmation[$userId]);
+    }
+
     public function deleteUser(int $userId): void
     {
         $user = User::query()->find($userId);
@@ -66,8 +81,21 @@ class UserIndex extends Component
             return;
         }
 
+        $expectedConfirmation = 'XOA USER '.$user->id;
+        $confirmation = trim((string) ($this->deleteConfirmation[$userId] ?? ''));
+
+        if ($confirmation !== $expectedConfirmation) {
+            session()->flash('error', __('Type ":phrase" exactly to confirm this deletion.', [
+                'phrase' => $expectedConfirmation,
+            ]));
+            $this->resetDeleteConfirmation($userId);
+
+            return;
+        }
+
         if ((int) auth()->id() === (int) $user->id) {
             session()->flash('error', __('You cannot delete the account currently signed in.'));
+            $this->resetDeleteConfirmation($userId);
 
             return;
         }
@@ -76,17 +104,20 @@ class UserIndex extends Component
             $result = app(DeleteUser::class)->execute($user, (int) auth()->id());
         } catch (Throwable $exception) {
             session()->flash('error', $exception->getMessage());
+            $this->resetDeleteConfirmation($userId);
 
             return;
         }
 
         if ($result->status === 'already_deleted' || ! $result->deleted) {
             session()->flash('error', __('The user was already deleted or could not be found.'));
+            $this->resetDeleteConfirmation($userId);
 
             return;
         }
 
         $this->selectedUserIds = array_values(array_filter($this->selectedUserIds, fn ($id) => (int) $id !== $userId));
+        $this->resetDeleteConfirmation($userId);
 
         if ($result->failedVerification()) {
             session()->flash('error', __('The user row was deleted, but verification found :count remaining database references.', [

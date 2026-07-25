@@ -413,7 +413,9 @@ test('admin user deletion purges FizaHUB onboarding before deleting owned busine
 
     $this->actingAs($admin);
 
-    (new UserIndex)->deleteUser($targetUserId);
+    $index = new UserIndex;
+    $index->deleteConfirmation[$targetUserId] = 'XOA USER '.$targetUserId;
+    $index->deleteUser($targetUserId);
 
     expect(User::query()->find($targetUserId))->toBeNull()
         ->and(DB::table('lb_businesses')->where('user_id', $targetUserId)->count())->toBe(0)
@@ -537,6 +539,7 @@ test('FizaHub UserDeletion action removes the resolved MLHUB user and all onboar
         ->assertSee('Xóa dữ liệu onboarding')
         ->assertSee('Xóa User và toàn bộ dữ liệu')
         ->assertSee('o***@example.com')
+        ->set('userDeleteConfirmation.'.$seed['onboarding']->id, 'XOA USER '.$targetUserId)
         ->call('deleteUserAndData', $seed['onboarding']->id)
         ->assertSet('errorMessage', null);
 
@@ -572,6 +575,85 @@ test('FizaHub UserDeletion action refuses ambiguous user mappings', function ():
 
     expect(User::query()->find($firstUserId))->not->toBeNull()
         ->and(User::query()->find($other->id))->not->toBeNull()
+        ->and(PartnerOnboardingRequest::query()->find($seed['onboarding']->id))->not->toBeNull();
+});
+
+test('deleteOnboarding refuses an empty or wrong confirmation and never purges data', function (): void {
+    $seed = seedAdminOnboarding();
+    $admin = User::query()->create([
+        'name' => 'Admin',
+        'username' => 'onboarding_confirm_admin',
+        'email' => 'onboarding-confirm-admin@example.com',
+        'password' => 'password-password-password-password-password-password-1234',
+        'is_super_admin' => true,
+    ]);
+
+    Livewire::actingAs($admin)
+        ->test(FizaHubOnboardingIndex::class)
+        ->call('deleteOnboarding', $seed['onboarding']->id)
+        ->assertSet('statusMessage', null)
+        ->assertSet('errorMessage', __('Type ":phrase" exactly to confirm this deletion.', ['phrase' => 'XOA ONBOARDING']));
+
+    expect(PartnerOnboardingRequest::query()->find($seed['onboarding']->id))->not->toBeNull()
+        ->and(PartnerIntegration::query()->find($seed['integration']->id))->not->toBeNull();
+
+    Livewire::actingAs($admin)
+        ->test(FizaHubOnboardingIndex::class)
+        ->set('onboardingDeleteConfirmation.'.$seed['onboarding']->id, 'xoa onboarding')
+        ->call('deleteOnboarding', $seed['onboarding']->id)
+        ->assertSet('errorMessage', __('Type ":phrase" exactly to confirm this deletion.', ['phrase' => 'XOA ONBOARDING']));
+
+    expect(PartnerOnboardingRequest::query()->find($seed['onboarding']->id))->not->toBeNull()
+        ->and(PartnerIntegration::query()->find($seed['integration']->id))->not->toBeNull();
+});
+
+test('deleteOnboarding purges data once the exact confirmation phrase is typed', function (): void {
+    $seed = seedAdminOnboarding();
+    $onboardingId = (int) $seed['onboarding']->id;
+    $admin = User::query()->create([
+        'name' => 'Admin',
+        'username' => 'onboarding_confirm_exact_admin',
+        'email' => 'onboarding-confirm-exact-admin@example.com',
+        'password' => 'password-password-password-password-password-password-1234',
+        'is_super_admin' => true,
+    ]);
+
+    Livewire::actingAs($admin)
+        ->test(FizaHubOnboardingIndex::class)
+        ->set('onboardingDeleteConfirmation.'.$onboardingId, 'XOA ONBOARDING')
+        ->call('deleteOnboarding', $onboardingId)
+        ->assertSet('errorMessage', null)
+        ->assertSet('statusMessage', 'Đã xóa dữ liệu onboarding FizaHUB. Tài khoản MLHUB vẫn được giữ lại.');
+
+    expect(PartnerOnboardingRequest::query()->find($onboardingId))->toBeNull()
+        ->and(User::query()->find($seed['integration']->mlhub_user_id))->not->toBeNull();
+});
+
+test('deleteUserAndData refuses an empty or wrong confirmation and never deletes the MLHUB user', function (): void {
+    $seed = seedAdminOnboarding();
+    $targetUserId = (int) $seed['integration']->mlhub_user_id;
+    $admin = User::query()->create([
+        'name' => 'Admin',
+        'username' => 'user_delete_confirm_admin',
+        'email' => 'user-delete-confirm-admin@example.com',
+        'password' => 'password-password-password-password-password-password-1234',
+        'is_super_admin' => true,
+    ]);
+
+    Livewire::actingAs($admin)
+        ->test(FizaHubOnboardingIndex::class)
+        ->call('deleteUserAndData', $seed['onboarding']->id)
+        ->assertSet('errorMessage', __('Type ":phrase" exactly to confirm this deletion.', ['phrase' => 'XOA USER '.$targetUserId]));
+
+    expect(User::query()->find($targetUserId))->not->toBeNull();
+
+    Livewire::actingAs($admin)
+        ->test(FizaHubOnboardingIndex::class)
+        ->set('userDeleteConfirmation.'.$seed['onboarding']->id, 'XOA USER 999999')
+        ->call('deleteUserAndData', $seed['onboarding']->id)
+        ->assertSet('errorMessage', __('Type ":phrase" exactly to confirm this deletion.', ['phrase' => 'XOA USER '.$targetUserId]));
+
+    expect(User::query()->find($targetUserId))->not->toBeNull()
         ->and(PartnerOnboardingRequest::query()->find($seed['onboarding']->id))->not->toBeNull();
 });
 

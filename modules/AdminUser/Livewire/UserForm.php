@@ -41,6 +41,13 @@ class UserForm extends Component
 
     public string $password_confirmation = '';
 
+    /**
+     * Server-side confirmation text typed by the admin in the "Xóa User và toàn bộ dữ
+     * liệu" dialog. Validated exactly against `XOA USER {userId}` inside
+     * deleteUser() — the browser-side disabled state is a UX hint only.
+     */
+    public string $deleteConfirmation = '';
+
     public function boot(StorageDriverManager $storageDriverManager): void
     {
         $this->storageDriverManager = $storageDriverManager;
@@ -160,6 +167,11 @@ class UserForm extends Component
             ->with('status', __('User created successfully.'));
     }
 
+    public function resetDeleteConfirmation(): void
+    {
+        $this->deleteConfirmation = '';
+    }
+
     public function deleteUser()
     {
         $user = $this->userRecord();
@@ -168,19 +180,35 @@ class UserForm extends Component
             return;
         }
 
+        $expectedConfirmation = 'XOA USER '.$user->id;
+        $confirmation = trim($this->deleteConfirmation);
+
+        if ($confirmation !== $expectedConfirmation) {
+            session()->flash('error', __('Type ":phrase" exactly to confirm this deletion.', [
+                'phrase' => $expectedConfirmation,
+            ]));
+            $this->resetDeleteConfirmation();
+
+            return null;
+        }
+
         if ((int) auth()->id() === (int) $user->id) {
             session()->flash('error', __('You cannot delete the account currently signed in.'));
+            $this->resetDeleteConfirmation();
 
-            return;
+            return null;
         }
 
         try {
             $result = app(DeleteUser::class)->execute($user, (int) auth()->id());
         } catch (Throwable $exception) {
             session()->flash('error', $exception->getMessage());
+            $this->resetDeleteConfirmation();
 
             return null;
         }
+
+        $this->resetDeleteConfirmation();
 
         if ($result->status === 'already_deleted' || ! $result->deleted) {
             session()->flash('error', __('The user was already deleted or could not be found.'));

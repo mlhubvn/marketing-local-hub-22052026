@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Modules\AdminUser\Models\User;
+use Modules\APIPartnerFizaHUB\Support\PartnerBusinessIdentifiers;
+use Modules\APIPartnerFizaHUB\Support\PartnerBusinessLogMatcher;
 use Throwable;
 
 class UserDeletionResidueInspector
@@ -336,34 +338,36 @@ class UserDeletionResidueInspector
      * @param  array<string, mixed>  $context
      * @param  array<string, int>  $residue
      */
+    /**
+     * Reuses the exact same matching rules as the purge service
+     * (PartnerBusinessLogMatcher) so a row that survives the purge is guaranteed to be
+     * reported here — the inspector never invents its own, looser or stricter,
+     * matching logic. Each identifier is checked in its own query so residue findings
+     * stay attributable to the specific external_business_id / request_id that
+     * produced them.
+     */
     private function inspectPartnerPayloads(array $context, array &$residue, array &$records): void
     {
-        foreach (($context['external_business_ids'] ?? []) as $externalBusinessId) {
-            if (Schema::hasTable('partner_api_logs')) {
-                $query = DB::table('partner_api_logs')
-                    ->where(function ($builder) use ($externalBusinessId): void {
-                        $builder->where('request_payload->external_business_id', $externalBusinessId)
-                            ->orWhere('response_payload->data->external_business_id', $externalBusinessId);
-                    });
-                $this->recordQueryFindings(
-                    'partner_api_logs',
-                    'request_payload/response_payload',
-                    $query,
-                    'external_business_id_in_json',
-                    $externalBusinessId,
-                    $residue,
-                    $records
-                );
-            }
+        $partnerCode = (string) config('modules.apipartnerfizahub.partner_code', 'fizahub');
+        $tables = [
+            'partner_api_logs' => [PartnerBusinessLogMatcher::class, 'applyToApiLogs'],
+            'partner_webhook_outbox' => [PartnerBusinessLogMatcher::class, 'applyToWebhookOutbox'],
+        ];
 
-            if (Schema::hasTable('partner_webhook_outbox')) {
+        foreach (($context['external_business_ids'] ?? []) as $externalBusinessId) {
+            $identifiers = new PartnerBusinessIdentifiers($partnerCode, (string) $externalBusinessId, []);
+
+            foreach ($tables as $table => $applyCallback) {
+                if (! Schema::hasTable($table)) {
+                    continue;
+                }
+
                 $this->recordQueryFindings(
-                    'partner_webhook_outbox',
-                    'payload',
-                    DB::table('partner_webhook_outbox')
-                        ->where('payload->external_business_id', $externalBusinessId),
-                    'external_business_id_in_json',
-                    $externalBusinessId,
+                    $table,
+                    'external_business_id_boundary_match',
+                    $applyCallback(DB::table($table), $identifiers),
+                    'external_business_id_in_json_or_endpoint',
+                    (string) $externalBusinessId,
                     $residue,
                     $records
                 );
@@ -371,26 +375,19 @@ class UserDeletionResidueInspector
         }
 
         foreach (($context['request_ids'] ?? []) as $requestId) {
-            if (Schema::hasTable('partner_api_logs') && Schema::hasColumn('partner_api_logs', 'request_id')) {
-                $this->recordQueryFindings(
-                    'partner_api_logs',
-                    'request_id',
-                    DB::table('partner_api_logs')->where('request_id', $requestId),
-                    'deleted_onboarding_request_reference',
-                    $requestId,
-                    $residue,
-                    $records
-                );
-            }
+            $identifiers = new PartnerBusinessIdentifiers($partnerCode, '', [(string) $requestId]);
 
-            if (Schema::hasTable('partner_webhook_outbox') && Schema::hasColumn('partner_webhook_outbox', 'dedupe_key')) {
+            foreach ($tables as $table => $applyCallback) {
+                if (! Schema::hasTable($table)) {
+                    continue;
+                }
+
                 $this->recordQueryFindings(
-                    'partner_webhook_outbox',
-                    'dedupe_key',
-                    DB::table('partner_webhook_outbox')
-                        ->where('dedupe_key', 'like', $requestId.'%'),
+                    $table,
+                    'request_id_boundary_match',
+                    $applyCallback(DB::table($table), $identifiers),
                     'deleted_onboarding_request_reference',
-                    $requestId,
+                    (string) $requestId,
                     $residue,
                     $records
                 );
