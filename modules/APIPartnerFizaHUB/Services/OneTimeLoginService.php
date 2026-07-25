@@ -28,8 +28,7 @@ class OneTimeLoginService
         PartnerIntegration $integration,
         string $idempotencyKey,
         string $requestId
-    ): array
-    {
+    ): array {
         if (! $integration->mlhub_user_id || ! $integration->mlhub_workspace_id || ! $integration->mlhub_business_id) {
             throw (new ModelNotFoundException)
                 ->setModel(PartnerIntegration::class, [$integration->external_business_id]);
@@ -114,6 +113,22 @@ class OneTimeLoginService
         );
     }
 
+    /**
+     * Read-only check used by the GET confirm page. Deliberately performs zero writes
+     * (no lock, no used_at mutation) so that a chat-app link-preview crawler fetching the
+     * raw URL (Zalo/Messenger/Telegram scrape a pasted link to build a preview card,
+     * before any human opens it) can never burn a single-use login link. Throws the same
+     * generic 403 as consume() when the token is not currently consumable.
+     */
+    public function peek(string $plainToken): void
+    {
+        $login = PartnerOneTimeLogin::query()
+            ->where('token_hash', hash('sha256', $plainToken))
+            ->first();
+
+        $this->rejectUnlessConsumable($login);
+    }
+
     public function consume(string $plainToken, Request $request)
     {
         $hash = hash('sha256', $plainToken);
@@ -124,24 +139,10 @@ class OneTimeLoginService
                 ->lockForUpdate()
                 ->first();
 
-            if (! $login || $login->used_at !== null || $login->expires_at->isPast()) {
-                throw new HttpException(403, 'This one-time login link is invalid or has expired.');
-            }
+            $this->rejectUnlessConsumable($login);
 
             $integration = PartnerIntegration::query()->find($login->partner_integration_id);
-
-            if (! $integration
-                || (int) $integration->mlhub_user_id !== (int) $login->user_id
-                || ! $integration->mlhub_workspace_id
-                || ! $integration->mlhub_business_id) {
-                throw new HttpException(403, 'This one-time login link is invalid or has expired.');
-            }
-
             $user = User::query()->find($login->user_id);
-
-            if (! $user) {
-                throw new HttpException(403, 'This one-time login link is invalid or has expired.');
-            }
 
             $login->forceFill([
                 'used_at' => now(),
@@ -163,6 +164,67 @@ class OneTimeLoginService
 
             return redirect()->route('portal.dashboard');
         });
+    }
+
+    /**
+     * Shared validity check for both peek() and consume() so the two paths can never
+     * disagree on what counts as a usable token. Throws (never returns false) so both
+     * callers get identical 403 behavior.
+     */
+    private function rejectUnlessConsumable(?PartnerOneTimeLogin $login): void
+    {
+        if (! $login) {
+            $this->logConsumeFailure('token_not_found', null);
+            throw new HttpException(403, 'This one-time login link is invalid or has expired.');
+        }
+
+        if ($login->used_at !== null) {
+            $this->logConsumeFailure('already_used', $login);
+            throw new HttpException(403, 'This one-time login link is invalid or has expired.');
+        }
+
+        if ($login->expires_at->isPast()) {
+            $this->logConsumeFailure('expired', $login);
+            throw new HttpException(403, 'This one-time login link is invalid or has expired.');
+        }
+
+        $integration = PartnerIntegration::query()->find($login->partner_integration_id);
+
+        if (! $integration
+            || (int) $integration->mlhub_user_id !== (int) $login->user_id
+            || ! $integration->mlhub_workspace_id
+            || ! $integration->mlhub_business_id) {
+            $this->logConsumeFailure('integration_mapping_broken', $login);
+            throw new HttpException(403, 'This one-time login link is invalid or has expired.');
+        }
+
+        if (! User::query()->whereKey($login->user_id)->exists()) {
+            $this->logConsumeFailure('user_missing', $login);
+            throw new HttpException(403, 'This one-time login link is invalid or has expired.');
+        }
+    }
+
+    /**
+     * Logs *why* a one-time login link failed (expired vs already used vs unknown token
+     * vs broken mapping) without exposing that distinction to the end user — the HTTP
+     * response always stays the same generic 403 so a token cannot be enumerated/probed.
+     * This is the only place an admin can diagnose "expired or invalid" reports after the
+     * fact, since the token itself is never logged in plaintext.
+     */
+    private function logConsumeFailure(string $reason, ?PartnerOneTimeLogin $login): void
+    {
+        $this->safeLog('partner.fizahub.login.consume_failed', 'Rejected a FizaHUB one-time login attempt.', [
+            'subject_type' => PartnerOneTimeLogin::class,
+            'subject_id' => $login?->id,
+            'area' => 'user',
+            'causer_user_id' => $login?->user_id,
+            'metadata' => [
+                'reason' => $reason,
+                'partner_integration_id' => $login?->partner_integration_id,
+                'expires_at' => $login?->expires_at?->toIso8601String(),
+                'used_at' => $login?->used_at?->toIso8601String(),
+            ],
+        ]);
     }
 
     /**

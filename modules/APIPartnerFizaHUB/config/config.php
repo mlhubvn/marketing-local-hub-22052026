@@ -6,7 +6,10 @@ return [
     // ⚠️ Đặt FIZAHUB_PARTNER_TOKEN token mạnh trên Coolify trước khi chạy chính thức.
     'token' => env('FIZAHUB_PARTNER_TOKEN', 'fizahub'),
     'rate_limit_per_minute' => (int) env('FIZAHUB_RATE_LIMIT_PER_MINUTE', 60),
-    'one_time_login_ttl_minutes' => (int) env('FIZAHUB_ONE_TIME_LOGIN_TTL_MINUTES', 5),
+    // 15 phút (không phải 5) để chịu được độ trễ thực tế giữa lúc partner gọi API lấy
+    // link và lúc người dùng cuối thực sự bấm (test tay copy/paste, mạng chậm, lệch giờ
+    // client). Partner luôn nên đọc `expires_in_seconds` từ response, không hard-code số này.
+    'one_time_login_ttl_minutes' => (int) env('FIZAHUB_ONE_TIME_LOGIN_TTL_MINUTES', 15),
     'timezone' => 'Asia/Ho_Chi_Minh',
     'locale' => env('FIZAHUB_PARTNER_LOCALE', 'vi'),
     'default_package' => env('FIZAHUB_DEFAULT_PACKAGE', 'free'),

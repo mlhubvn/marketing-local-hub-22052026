@@ -140,6 +140,7 @@ Luồng đầy đủ Create → List → Detail → Message → Close → Reopen
 - Token 256-bit; DB lưu SHA-256 và ciphertext mã hóa cho secure replay.
 - Link có TTL, dùng một lần. Link hết hạn/đã dùng yêu cầu Idempotency-Key mới.
 - URL nhạy cảm bị redact khỏi partner API log.
+- GET link chỉ hiển thị trang xác nhận (không tiêu token) — trình duyệt thật tự động submit form POST (JS) để thực sự đăng nhập. Mục đích: bot quét preview link của app chat (Zalo/Messenger/Telegram) chỉ GET, không chạy JS, nên không thể tiêu token trước khi người dùng thật bấm vào.
 
 ## Admin onboarding board
 

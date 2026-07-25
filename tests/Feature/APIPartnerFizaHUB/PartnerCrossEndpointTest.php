@@ -539,7 +539,7 @@ test('partner api logs redact secrets and route surface stays within mvp', funct
         'POST api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets/{ticket_id}/close',
         'POST api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets/{ticket_id}/reopen',
         'POST api/v1/partners/fizahub/businesses/{external_business_id}/crm-login-links',
-        'GET|HEAD partners/fizahub/one-time-login/{token}',
+        'GET|POST|HEAD partners/fizahub/one-time-login/{token}',
     ];
 
     expect($partnerApiRoutes)->toEqualCanonicalizing($expectedApi);

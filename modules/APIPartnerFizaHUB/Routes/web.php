@@ -24,6 +24,12 @@ Route::middleware(['web', 'auth', 'verified'])
         Route::get('onboarding', FizaHubOnboardingIndex::class)->name('onboarding');
     });
 
+// GET only renders a confirmation page and never marks the token used — a chat-app link
+// preview crawler (Zalo/Messenger/Telegram fetch the raw URL to build a preview the
+// instant it is pasted into a message, before any human clicks it) must not be able to
+// burn a single-use login link. The actual login only happens on POST, which the
+// confirmation page auto-submits via JS for a real browser (see one-time-login-confirm
+// view) — real users still experience a single tap/click.
 Route::middleware(['web', 'signed'])
-    ->get('/partners/fizahub/one-time-login/{token}', ConsumeOneTimeLoginController::class)
+    ->match(['get', 'post'], '/partners/fizahub/one-time-login/{token}', ConsumeOneTimeLoginController::class)
     ->name('partner.fizahub.login.consume');

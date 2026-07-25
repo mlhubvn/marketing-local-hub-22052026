@@ -159,8 +159,11 @@ test('same key returns the same live CRM link bound to the non-admin mapped user
         ->and(PartnerOneTimeLogin::query()->count())->toBe(1)
         ->and($mapping['user']->is_super_admin)->toBeFalse();
 
-    $this->withSession(['portal_team_id' => 999999])
+    $this->withSession(['portal_team_id' => 999999, '_token' => 'crm-replay-token'])
         ->get((string) $first->json('data.url'))
+        ->assertOk();
+
+    $this->post((string) $first->json('data.url'), ['_token' => 'crm-replay-token'])
         ->assertRedirect(route('portal.dashboard'));
 
     $this->assertAuthenticatedAs($mapping['user']);
@@ -172,7 +175,9 @@ test('a consumed or expired key is not reusable and a new key creates a differen
     $url = crmUrl('biz-crm-replace');
 
     $first = $this->postJson($url, [], crmHeaders('crm-used'))->assertCreated();
-    $this->get((string) $first->json('data.url'))->assertRedirect(route('portal.dashboard'));
+    $this->withSession(['_token' => 'crm-used-token'])->get((string) $first->json('data.url'))->assertOk();
+    $this->post((string) $first->json('data.url'), ['_token' => 'crm-used-token'])
+        ->assertRedirect(route('portal.dashboard'));
     Auth::guard('web')->logout();
     $this->flushSession();
 

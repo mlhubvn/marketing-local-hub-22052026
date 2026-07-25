@@ -384,9 +384,15 @@ test('consume logs in mapped user once then rejects reuse expired invalid and un
     $url = $issue->json('data.url');
     $plainToken = basename(parse_url($url, PHP_URL_PATH));
 
-    $this->withSession(['_token' => 'before-login'])
-        ->get($url)
-        ->assertRedirect(route('portal.dashboard'));
+    // GET only renders the confirm page and must never mark the token used — this is
+    // exactly the request a chat-app link-preview crawler (Zalo/Messenger/Telegram) makes
+    // the instant the raw URL is pasted into a message, before any human opens it.
+    $this->withSession(['_token' => 'before-login'])->get($url)->assertOk();
+    expect(PartnerOneTimeLogin::query()->where('token_hash', hash('sha256', $plainToken))->value('used_at'))
+        ->toBeNull();
+    $this->assertGuest();
+
+    $this->post($url, ['_token' => 'before-login'])->assertRedirect(route('portal.dashboard'));
 
     $this->assertAuthenticatedAs($seed['user']);
     expect(Auth::guard('web')->user()->is_super_admin)->toBeFalse();
@@ -451,7 +457,11 @@ test('consume marks used_at under lock so a second consumer cannot succeed', fun
         ['token' => $plainToken]
     );
 
-    $this->get($url)->assertRedirect(route('portal.dashboard'));
+    $this->withSession(['_token' => 'lock-token'])->get($url)->assertOk();
+    $login->refresh();
+    expect($login->used_at)->toBeNull();
+
+    $this->post($url, ['_token' => 'lock-token'])->assertRedirect(route('portal.dashboard'));
     $this->assertAuthenticatedAs($seed['user']);
 
     $login->refresh();
@@ -463,4 +473,36 @@ test('consume marks used_at under lock so a second consumer cannot succeed', fun
     $this->get($url)->assertForbidden();
     $this->assertGuest();
     expect(PartnerOneTimeLogin::query()->whereKey($login->id)->whereNotNull('used_at')->exists())->toBeTrue();
+});
+
+test('a chat app link preview crawler repeatedly fetching the raw url via GET never burns the token for the real user', function (): void {
+    $seed = seedOneTimeLoginBusiness('biz-crawler', 'crawler@example.com');
+    markOneTimeLoginReady($seed, 'biz-crawler');
+
+    $issue = $this->postJson(
+        '/api/v1/partners/fizahub/businesses/biz-crawler/crm-login-links',
+        [],
+        oneTimeLoginHeaders()
+    )->assertCreated();
+
+    $url = $issue->json('data.url');
+    $plainToken = basename(parse_url($url, PHP_URL_PATH));
+
+    // Simulate the link being pasted into a Zalo/Messenger/Telegram chat: several
+    // preview-crawler GETs (no cookies carried between them, just like a stateless
+    // server-side crawler) before the real user ever opens it.
+    for ($i = 0; $i < 3; $i++) {
+        $this->get($url, ['User-Agent' => 'Zalo-Link-Preview-Bot/1.0'])->assertOk();
+    }
+
+    expect(PartnerOneTimeLogin::query()->where('token_hash', hash('sha256', $plainToken))->value('used_at'))
+        ->toBeNull();
+
+    // The real user opens the same link afterwards and it still works exactly once.
+    $this->withSession(['_token' => 'real-user'])->get($url)->assertOk();
+    $this->post($url, ['_token' => 'real-user'])->assertRedirect(route('portal.dashboard'));
+    $this->assertAuthenticatedAs($seed['user']);
+
+    expect(PartnerOneTimeLogin::query()->where('token_hash', hash('sha256', $plainToken))->value('used_at'))
+        ->not->toBeNull();
 });
