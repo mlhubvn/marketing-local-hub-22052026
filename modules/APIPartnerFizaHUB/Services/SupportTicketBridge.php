@@ -7,8 +7,11 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Modules\AdminSupport\Models\SupportCategory;
 use Modules\AdminSupport\Models\SupportComment;
+use Modules\AdminSupport\Models\SupportLabel;
 use Modules\AdminSupport\Models\SupportTicket;
+use Modules\AdminSupport\Models\SupportType;
 use Modules\AdminUser\Models\Team;
 use Modules\AdminUser\Models\User;
 use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
@@ -298,22 +301,99 @@ class SupportTicketBridge
                 'uid' => $userId,
                 'open_by' => $userId,
                 'team_id' => $teamId,
-                'cate_id' => null,
-                'type_id' => null,
+                'cate_id' => $this->onboardingDefaultCategoryId(),
+                'type_id' => $this->onboardingDefaultTypeId(),
                 'title' => $title,
                 'content' => $content,
-                'status' => 1,
+                'status' => self::ONBOARDING_DEFAULT_STATUS,
                 'pin' => false,
                 'user_read' => false,
                 'admin_read' => true,
                 'created' => time(),
                 'changed' => time(),
             ]);
+
+            // "Ưu tiên" chỉ tồn tại dưới dạng Nhãn (Label) trong hệ thống hỗ trợ này.
+            $labelId = $this->onboardingDefaultLabelId();
+            if ($labelId !== null && Schema::hasTable('support_map_labels')) {
+                $ticket->labels()->syncWithoutDetaching([$labelId]);
+            }
         }
 
         $this->storeOnboardingContext($integration, $ticket, $onboarding, $auditReason);
 
         return $ticket;
+    }
+
+    /**
+     * Onboarding tickets always start with this default routing/triage so admins see a
+     * consistent starting point (business decision — see .cursorrules onboarding note).
+     * Only applied when the ticket is first created, never re-applied on updates, so an
+     * admin's manual re-categorization of an existing onboarding ticket is preserved.
+     */
+    private const ONBOARDING_DEFAULT_STATUS = 2;
+
+    private const ONBOARDING_DEFAULT_CATEGORY_NAME = 'Tài khoản & đăng nhập';
+
+    private const ONBOARDING_DEFAULT_TYPE_NAME = 'Hướng dẫn sử dụng';
+
+    private const ONBOARDING_DEFAULT_LABEL_NAME = 'Khẩn cấp';
+
+    private function onboardingDefaultCategoryId(): ?int
+    {
+        if (! Schema::hasTable('support_categories')) {
+            return null;
+        }
+
+        return SupportCategory::query()->firstOrCreate(
+            ['name' => self::ONBOARDING_DEFAULT_CATEGORY_NAME],
+            [
+                'id_secure' => Str::random(32),
+                'icon' => 'fa-light fa-user-lock',
+                'color' => '#2563eb',
+                'status' => true,
+                'created' => time(),
+                'changed' => time(),
+            ]
+        )->id;
+    }
+
+    private function onboardingDefaultTypeId(): ?int
+    {
+        if (! Schema::hasTable('support_types')) {
+            return null;
+        }
+
+        return SupportType::query()->firstOrCreate(
+            ['name' => self::ONBOARDING_DEFAULT_TYPE_NAME],
+            [
+                'id_secure' => Str::random(32),
+                'icon' => 'fa-light fa-book-open',
+                'color' => '#2563eb',
+                'status' => true,
+                'created' => time(),
+                'changed' => time(),
+            ]
+        )->id;
+    }
+
+    private function onboardingDefaultLabelId(): ?int
+    {
+        if (! Schema::hasTable('support_labels')) {
+            return null;
+        }
+
+        return SupportLabel::query()->firstOrCreate(
+            ['name' => self::ONBOARDING_DEFAULT_LABEL_NAME],
+            [
+                'id_secure' => Str::random(32),
+                'icon' => 'fa-light fa-bolt',
+                'color' => '#dc2626',
+                'status' => true,
+                'created' => time(),
+                'changed' => time(),
+            ]
+        )->id;
     }
 
     private function storeOnboardingContext(
