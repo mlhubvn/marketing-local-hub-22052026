@@ -22,6 +22,8 @@ class RegisterPage extends Component
     use PasswordValidationRules;
     use ProfileValidationRules;
 
+    protected const DEFAULT_TIMEZONE = 'Asia/Ho_Chi_Minh';
+
     public string $name = '';
 
     public string $email = '';
@@ -34,6 +36,8 @@ class RegisterPage extends Component
 
     public string $timezone = '';
 
+    public string $referral_code = '';
+
     public bool $accept_terms = false;
 
     public string $captchaToken = '';
@@ -42,14 +46,25 @@ class RegisterPage extends Component
     {
         abort_unless(auth_signup_enabled(), 404);
 
-        $this->timezone = (string) config('app.timezone', 'UTC');
+        $this->timezone = self::DEFAULT_TIMEZONE;
+        $this->referral_code = (string) session('affiliate_referral_code', '');
     }
 
     public function register(CreateNewUser $creator): mixed
     {
         $validated = $this->validate($this->rules(), [], [
             'accept_terms' => __('terms and conditions'),
+            'referral_code' => __('referral code'),
         ]);
+
+        $referralCode = strtoupper(trim($validated['referral_code']));
+        $referrer = User::query()->whereRaw('UPPER(referral_code) = ?', [$referralCode])->first();
+
+        if (! $referrer) {
+            $this->addError('referral_code', __('This referral code is invalid.'));
+
+            return null;
+        }
 
         if (function_exists('captcha_enabled') && captcha_enabled()) {
             if (! captcha_verify_token(
@@ -65,10 +80,16 @@ class RegisterPage extends Component
             }
         }
 
+        session([
+            'affiliate_referral_code' => $referrer->referral_code,
+            'affiliate_referrer_user_id' => $referrer->id,
+        ]);
+
         $user = $creator->create([
             ...$validated,
             'username' => strtolower($validated['username']),
             'email' => strtolower($validated['email']),
+            'timezone' => self::DEFAULT_TIMEZONE,
             'accept_terms' => $validated['accept_terms'] ? '1' : '0',
             'password_confirmation' => $this->password_confirmation,
         ]);
@@ -105,6 +126,7 @@ class RegisterPage extends Component
         return [
             ...$this->profileRules(),
             'timezone' => ['required', 'string', 'timezone:all', Rule::in(timezone_options())],
+            'referral_code' => ['required', 'string', 'max:20'],
             'accept_terms' => ['accepted'],
             'password' => $this->passwordRules(),
         ];

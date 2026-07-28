@@ -11026,5 +11026,9 @@
     "Các bước có nhãn (Extended Beta) nằm trong folder B của cùng 1 file Postman. Nếu chỉ cần luồng chính (onboarding → dashboard → hỗ trợ), chạy folder A (MVP) và bỏ qua các bước Extended Beta.": "Steps labeled (Extended Beta) are in folder B of the same Postman file. If you only need the main flow (onboarding → dashboard → support), run folder A (MVP) and skip the Extended Beta steps.",
     "Chọn file vừa tải: MLHUB-FizaHUB-Partner-API.postman_collection.json.": "Select the file you just downloaded: MLHUB-FizaHUB-Partner-API.postman_collection.json.",
     "Bạn sẽ thấy collection tên MLHUB × FizaHUB Partner API với 2 folder: A. MVP (10 request) và B. Extended Beta (14 request).": "You will see a collection named MLHUB × FizaHUB Partner API with 2 folders: A. MVP (10 requests) and B. Extended Beta (14 requests).",
-    "Xong khi: thấy 24 request trong 1 collection, chia 2 folder MVP / Extended Beta (khớp 4 nhóm A/B/C/D ở mục lục bên trên).": "Done when: you see 24 requests in 1 collection, split into MVP / Extended Beta folders (matching groups A/B/C/D in the table of contents above)."
+    "Xong khi: thấy 24 request trong 1 collection, chia 2 folder MVP / Extended Beta (khớp 4 nhóm A/B/C/D ở mục lục bên trên).": "Done when: you see 24 requests in 1 collection, split into MVP / Extended Beta folders (matching groups A/B/C/D in the table of contents above).",
+    "Referral Code": "Referral Code",
+    "Enter the referral code you received": "Enter the referral code you received",
+    "This referral code is invalid.": "This referral code is invalid.",
+    "referral code": "referral code"
 }
