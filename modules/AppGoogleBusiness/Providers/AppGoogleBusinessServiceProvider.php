@@ -72,7 +72,7 @@ class AppGoogleBusinessServiceProvider extends ServiceProvider
             register_user_sidebar_item('google-business', [
                 'label' => $item['label'],
                 'route' => url($googleBusinessPath).'?tab='.$item['tab'],
-                'active' => request()->routeIs('portal.google-business') && request()->query('tab', 'overview') === $item['tab'],
+                'active' => fn (): bool => request()->routeIs('portal.google-business') && request()->query('tab', 'overview') === $item['tab'],
                 'icon' => $item['icon'],
                 'order' => $item['order'],
                 'visible' => $googleBusinessVisible,

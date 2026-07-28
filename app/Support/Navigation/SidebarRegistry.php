@@ -212,7 +212,9 @@ class SidebarRegistry
             }
         }
 
-        return (bool) ($item['active'] ?? false);
+        $active = $item['active'] ?? false;
+
+        return $active instanceof \Closure ? (bool) $active() : (bool) $active;
     }
 
     protected function resolveRouteUrl(string $routeName): string
