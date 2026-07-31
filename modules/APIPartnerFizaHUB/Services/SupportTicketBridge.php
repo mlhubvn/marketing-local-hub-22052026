@@ -897,6 +897,17 @@ class SupportTicketBridge
         SupportTicket $ticket,
         PartnerSupportAttachment $attachment
     ): array {
+        $downloadUrl = route('partner.fizahub.businesses.support-tickets.attachments.show', [
+            'external_business_id' => $integration->external_business_id,
+            'ticket_id' => $ticket->id_secure,
+            'attachment_id' => $attachment->id_secure,
+        ]);
+
+        // image_url: same authenticated endpoint as download_url, only for image/*
+        // so FizaHUB can preview in the consultation UI without a separate download step.
+        // Non-image attachments return null. Caller still sends the partner Bearer token.
+        $isImage = str_starts_with(strtolower((string) $attachment->mime_type), 'image/');
+
         return [
             'attachment_id' => $attachment->id_secure,
             'original_name' => $attachment->original_name,
@@ -904,11 +915,8 @@ class SupportTicketBridge
             'size_bytes' => $attachment->size_bytes,
             'sender_type' => ((int) $attachment->uploaded_by_user_id === (int) $ticket->uid) ? 'business' : 'admin',
             'created_at' => $attachment->created_at?->utc()->toAtomString() ?? $this->isoFromUnix(time()),
-            'download_url' => route('partner.fizahub.businesses.support-tickets.attachments.show', [
-                'external_business_id' => $integration->external_business_id,
-                'ticket_id' => $ticket->id_secure,
-                'attachment_id' => $attachment->id_secure,
-            ]),
+            'download_url' => $downloadUrl,
+            'image_url' => $isImage ? $downloadUrl : null,
         ];
     }
 

@@ -119,6 +119,8 @@ qua 3 request `GET/POST attachments` và `GET attachments/{attachment_id}` (`Sup
 - **Lưu trữ:** disk `local` (không public), theo thư mục riêng từng ticket
   (`partner-fizahub/support/{ticket_id}/...`); tải xuống luôn qua endpoint `attachments/{attachment_id}`
   có xác thực partner token + tenant scope, không có URL public đoán được.
+- **Preview ảnh:** list/upload trả thêm `image_url` khi `mime_type` là `image/*` (cùng URL với
+  `download_url`, vẫn cần Bearer); GET ảnh trả `Content-Disposition: inline`, tệp khác `attachment`.
 - **Hai chiều:** tệp do FizaHUB tải lên và tệp admin MLHUB đính kèm khi trả lời đều nằm trong cùng
   danh sách `GET attachments`, phân biệt bằng `sender_type` (`business` | `admin`).
 - **Vòng đời:** khi xóa user, ticket support và toàn bộ tệp đính kèm liên quan (kể cả file vật lý

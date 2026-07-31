@@ -169,9 +169,24 @@ test('readme and endpoint matrix document the approved cutover with the attachme
         'marketing-catalog', 'marketing-preferences', 'growth-insights',
         'support-presets', 'crm-login-links', 'breaking cutover',
         'attachment_type_not_allowed', 'attachment_too_large', 'attachment_not_found',
+        'image_url',
     ] as $needle) {
         expect(stripos($combined, $needle))->not->toBeFalse("Missing docs phrase: {$needle}");
     }
 
     expect($combined)->toContain('/attachments');
+});
+
+test('postman examples and docs pages advertise image_url for image attachment preview', function (): void {
+    $collection = fizahubPostmanCollection();
+    $raw = json_encode($collection, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+    expect($raw)->toContain('image_url')
+        ->and(data_get($collection, 'info.description'))->toContain('image_url');
+
+    $docs = (string) file_get_contents(base_path('modules/APIPartnerFizaHUB/Resources/views/api-fizahub.blade.php'));
+    $help = (string) file_get_contents(base_path('modules/APIPartnerFizaHUB/Resources/views/api-fizahub-help-test.blade.php'));
+
+    expect($docs)->toContain('image_url')
+        ->and($help)->toContain('image_url');
 });

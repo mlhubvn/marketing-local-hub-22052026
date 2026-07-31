@@ -303,7 +303,8 @@ test('attachment upload, list, and download work end-to-end for an open ticket',
 
     expect($attachmentId)->not->toBe('')
         ->and($upload->json('data.original_name'))->toBe('receipt.txt')
-        ->and($upload->json('data.download_url'))->toContain($attachmentId);
+        ->and($upload->json('data.download_url'))->toContain($attachmentId)
+        ->and($upload->json('data.image_url'))->toBeNull();
 
     $this->getJson(
         '/api/v1/partners/fizahub/businesses/biz-attachment/support-tickets/'.$ticketId.'/attachments',
@@ -311,7 +312,8 @@ test('attachment upload, list, and download work end-to-end for an open ticket',
     )
         ->assertOk()
         ->assertJsonPath('data.items.0.attachment_id', $attachmentId)
-        ->assertJsonPath('data.items.0.sender_type', 'business');
+        ->assertJsonPath('data.items.0.sender_type', 'business')
+        ->assertJsonPath('data.items.0.image_url', null);
 
     $download = $this->get(
         '/api/v1/partners/fizahub/businesses/biz-attachment/support-tickets/'.$ticketId.'/attachments/'.$attachmentId,
@@ -319,7 +321,45 @@ test('attachment upload, list, and download work end-to-end for an open ticket',
     );
 
     $download->assertOk();
-    expect($download->headers->get('content-disposition'))->toContain('receipt.txt');
+    expect($download->headers->get('content-disposition'))->toContain('receipt.txt')
+        ->and(strtolower((string) $download->headers->get('content-disposition')))->toContain('attachment');
+});
+
+test('image attachments expose image_url and are served inline for preview', function (): void {
+    seedLifecycleBusiness('biz-image-attach', 'image-attach@example.com');
+    $ticketId = createLifecycleTicket('biz-image-attach');
+
+    $upload = $this->post(
+        '/api/v1/partners/fizahub/businesses/biz-image-attach/support-tickets/'.$ticketId.'/attachments',
+        ['file' => UploadedFile::fake()->image('may-quet-qr.jpg', 80, 60)],
+        supportLifecycleHeaders()
+    )->assertCreated();
+
+    $attachmentId = (string) $upload->json('data.attachment_id');
+    $downloadUrl = (string) $upload->json('data.download_url');
+    $imageUrl = (string) $upload->json('data.image_url');
+
+    expect($attachmentId)->not->toBe('')
+        ->and($imageUrl)->toBe($downloadUrl)
+        ->and($imageUrl)->toContain($attachmentId)
+        ->and($upload->json('data.mime_type'))->toStartWith('image/');
+
+    $this->getJson(
+        '/api/v1/partners/fizahub/businesses/biz-image-attach/support-tickets/'.$ticketId.'/attachments',
+        supportLifecycleHeaders()
+    )
+        ->assertOk()
+        ->assertJsonPath('data.items.0.attachment_id', $attachmentId)
+        ->assertJsonPath('data.items.0.image_url', $imageUrl);
+
+    $preview = $this->get(
+        '/api/v1/partners/fizahub/businesses/biz-image-attach/support-tickets/'.$ticketId.'/attachments/'.$attachmentId,
+        supportLifecycleHeaders()
+    );
+
+    $preview->assertOk();
+    expect(strtolower((string) $preview->headers->get('content-disposition')))->toContain('inline')
+        ->and(strtolower((string) $preview->headers->get('content-type')))->toStartWith('image/');
 });
 
 test('attachment endpoints enforce tenant isolation: business A cannot upload, list, or download on business B ticket', function (): void {

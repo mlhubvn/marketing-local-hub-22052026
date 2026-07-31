@@ -50,6 +50,11 @@ health={{ $healthUrl }}</code></pre>
         <p><strong>Chưa từng dùng Postman?</strong> Làm theo <a href="{{ $helpTestUrl }}">hướng dẫn click từng nút</a> (cài Postman → Import → Variables → Run → tra lỗi).</p>
         <p class="warning">⚠️ Token trong file là token thử nghiệm. Khi chạy chính thức, MLHUB sẽ đổi token và gửi lại — vui lòng tải/import bản mới.</p>
     </section>
+    <section class="portal-callout">
+        <h2><span class="new-tag">CẬP NHẬT</span>Support attachments — field <code>image_url</code> (preview ảnh trên app tư vấn)</h2>
+        <p>List/Upload attachments (request <strong>22–23</strong>) giờ trả thêm <code>image_url</code> khi <code>mime_type</code> là ảnh (<code>image/*</code>). Cùng URL với <code>download_url</code>, vẫn gửi Bearer token. Tệp không phải ảnh → <code>image_url = null</code>. GET file ảnh (request <strong>24</strong>) trả <code>Content-Disposition: inline</code> để app hiển thị preview ngay, không cần tải về rồi mới mở.</p>
+        <p><strong>Dev FizaHUB:</strong> xóa collection Postman cũ → <a href="{{ route('partner.fizahub.docs.postman') }}">tải JSON mới</a> → Import lại → chạy bước 22–24 với file ảnh để kiểm tra <code>image_url</code>.</p>
+    </section>
     @if($reportingPortalUrl)
         <section class="portal-callout">
             <h2><span class="new-tag">MỚI</span>Cổng báo cáo dành cho lãnh đạo FizaHUB</h2>

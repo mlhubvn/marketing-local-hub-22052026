@@ -44,6 +44,7 @@
     <header class="hero">
         <h1>Chạy thử API FizaHUB × MLHUB — hướng dẫn từng bước</h1>
         <p>Viết cho người <strong>chưa từng dùng Postman</strong>. Làm đúng thứ tự bên dưới là gọi được đủ <strong>25 request</strong> bám <strong>15 màn hình Marketing</strong>. Hỗ trợ (Support) có cả tin nhắn text và <strong>đính kèm tệp</strong> (ảnh/video/zip/văn bản).</p>
+        <div class="ok"><strong>Cập nhật mới:</strong> attachments trả thêm <code>image_url</code> khi tệp là ảnh — dùng để preview ngay trên màn tư vấn (app). Xóa collection cũ → tải file Postman mới → Import lại trước khi test bước 22–24.</div>
         <p>
             <a class="btn btn-primary" href="{{ route('partner.fizahub.docs.postman') }}">⬇ 1. Tải file Postman (đã cấu hình sẵn)</a>
             <a class="btn" href="{{ route('partner.fizahub.docs') }}">Xem tài liệu contract</a>
@@ -218,9 +219,9 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
                 <tr><td>19</td><td>Send Message</td><td>Màn 14</td><td><code>201</code></td></tr>
                 <tr><td>20</td><td>Close Ticket</td><td>Màn 14</td><td><code>200</code> closed</td></tr>
                 <tr><td>21</td><td>Reopen Ticket</td><td>Màn 14</td><td><code>200</code> open</td></tr>
-                <tr><td>22</td><td>List Attachments</td><td>Màn 14</td><td>danh sách tệp đính kèm (business + admin)</td></tr>
-                <tr><td>23</td><td>Upload Attachment</td><td>Màn 14</td><td><code>201</code> + lưu attachment_id</td></tr>
-                <tr><td>24</td><td>Download Attachment</td><td>Màn 14</td><td><code>200</code> trả file nhị phân</td></tr>
+                <tr><td>22</td><td>List Attachments</td><td>Màn 14</td><td>danh sách đính kèm; ảnh có thêm <code>image_url</code></td></tr>
+                <tr><td>23</td><td>Upload Attachment</td><td>Màn 14</td><td><code>201</code> + lưu attachment_id; ảnh có <code>image_url</code></td></tr>
+                <tr><td>24</td><td>Download Attachment</td><td>Màn 14</td><td>ảnh: <code>inline</code> (preview); tệp khác: tải về</td></tr>
                 <tr><td>25</td><td>CRM Login Link</td><td>Màn 15</td><td><code>201</code> khi ready (không thì skip)</td></tr>
             </tbody>
         </table>
@@ -265,6 +266,7 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
             </tbody>
         </table>
         <div class="note">Đúng <strong>1 tệp / request</strong>. Cần gửi nhiều tệp thì gọi lại request 23 nhiều lần. Server tự dò định dạng thật của tệp (không tin theo phần mở rộng hay Content-Type client khai) — đổi tên tệp nguy hiểm thành đuôi ảnh/văn bản sẽ vẫn bị từ chối.</div>
+        <div class="ok"><strong>Preview ảnh trên app tư vấn:</strong> nếu upload/list trả <code>mime_type</code> dạng <code>image/*</code> thì có thêm <code>image_url</code> (cùng URL với <code>download_url</code>, vẫn cần Bearer token). Tệp không phải ảnh → <code>image_url = null</code>. App dùng <code>image_url</code> để hiện ảnh ngay; bước 24 với ảnh trả <code>Content-Disposition: inline</code>.</div>
 
         <h3>Query Dashboard / Insights / Campaigns</h3>
         <table>
@@ -305,6 +307,7 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
             <li><strong>Create Onboarding</strong>: <code>200</code>/<code>201</code>/<code>202</code> và có <code>request_id</code></li>
             <li><strong>Dashboard / Campaigns / Tickets</strong>: luôn <code>200</code> dù chưa có dữ liệu (số 0 / mảng rỗng)</li>
             <li><strong>Create Support Ticket</strong>: <code>201</code>, rồi Detail → Message (<code>201</code>) → Close → Reopen dùng chung <code>ticket_id</code></li>
+            <li><strong>Upload ảnh (bước 23)</strong>: <code>201</code> có cả <code>download_url</code> và <code>image_url</code>; List (bước 22) cũng có <code>image_url</code>; Download ảnh (bước 24) header có <code>inline</code></li>
             <li>Gọi lại Onboarding cùng business/email đã map → <code>200</code>, <code>already_registered=true</code> (không tạo trùng)</li>
             <li>Mọi response có <code>meta.request_id</code> — gửi kèm khi hỏi MLHUB</li>
         </ul>
@@ -328,7 +331,7 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
                 <tr><td><code>429 rate_limit_exceeded</code></td><td>Gọi quá nhanh</td><td>Đợi ~1 phút rồi chạy lại</td></tr>
             </tbody>
         </table>
-        <div class="ok"><strong>Support đã hỗ trợ đính kèm.</strong> Ngoài tin nhắn text trong <code>messages[]</code>, dùng nhóm request 22–24 để liệt kê/tải lên/tải xuống ảnh, video, zip và văn bản đính kèm ticket.</div>
+        <div class="ok"><strong>Support đã hỗ trợ đính kèm + preview ảnh.</strong> Ngoài tin nhắn text trong <code>messages[]</code>, dùng nhóm request 22–24 để liệt kê/tải lên/tải xuống ảnh, video, zip và văn bản. Với ảnh, dùng field <code>image_url</code> để hiển thị ngay trên màn tư vấn (không cần bắt user tải về trước).</div>
     </article>
 
     <article id="buoc-8">

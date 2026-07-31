@@ -83,6 +83,15 @@ class SupportAttachmentController
             );
         }
 
-        return Storage::disk($attachment->disk)->download($attachment->path, $attachment->original_name);
+        $mime = (string) ($attachment->mime_type ?: 'application/octet-stream');
+        $isImage = str_starts_with(strtolower($mime), 'image/');
+
+        // Images: inline so FizaHUB can render via image_url; other types stay as download.
+        return Storage::disk($attachment->disk)->response(
+            $attachment->path,
+            $attachment->original_name,
+            ['Content-Type' => $mime],
+            $isImage ? 'inline' : 'attachment'
+        );
     }
 }

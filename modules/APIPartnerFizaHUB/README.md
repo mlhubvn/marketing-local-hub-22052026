@@ -152,6 +152,7 @@ Luồng đầy đủ Create → List → Detail → Message → Close → Reopen
 - MIME được server tự dò theo nội dung (`UploadedFile::getMimeType()`) và đối chiếu song song với đuôi file — cả hai phải khớp `support_allowed_attachment_types` / `support_allowed_attachment_extensions` trong `config/config.php`.
 - Trần dung lượng cấu hình qua `FIZAHUB_SUPPORT_MAX_ATTACHMENT_SIZE_MB` (mặc định 25MB) và riêng `FIZAHUB_SUPPORT_MAX_VIDEO_ATTACHMENT_SIZE_MB` (mặc định 100MB) cho video.
 - Lưu trên disk `local` (không public) theo từng ticket; tải xuống luôn qua endpoint có xác thực + tenant scope, không có URL đoán được.
+- Response list/upload luôn có `download_url`; nếu `mime_type` là ảnh (`image/*`) thì thêm `image_url` (cùng URL, vẫn cần Bearer token) để app FizaHUB preview ngay trên màn tư vấn — tệp không phải ảnh thì `image_url = null`. GET file ảnh trả `Content-Disposition: inline`; tệp khác vẫn `attachment`.
 - Hai chiều: `sender_type` trong response phân biệt `business` (FizaHUB tải lên) và `admin` (MLHUB đính kèm khi trả lời trong `/admin/support`).
 - Sai `attachment_id` hoặc file vật lý không còn trên disk → `404 attachment_not_found` (không phải `route_not_found`).
 - Idempotency-Key cho request tải lên tính theo nội dung tệp thật (SHA-256), không chỉ tên field: gửi 2 tệp khác nhau cùng key → `409 idempotency_conflict` đúng chuẩn, không âm thầm phát lại kết quả tệp đầu tiên.

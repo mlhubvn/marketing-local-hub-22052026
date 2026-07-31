@@ -207,6 +207,7 @@ $attachmentData = [
     'sender_type' => 'business',
     'created_at' => '2026-07-21T01:08:00+00:00',
     'download_url' => '{{base_url}}/api/v1/partners/fizahub/businesses/fiza-store-001/support-tickets/tkt_7de1f9a4c0/attachments/att_4f8c1a2b9d',
+    'image_url' => '{{base_url}}/api/v1/partners/fizahub/businesses/fiza-store-001/support-tickets/tkt_7de1f9a4c0/attachments/att_4f8c1a2b9d',
 ];
 
 // ---------------------------------------------------------------------------
@@ -848,6 +849,7 @@ $listAttachments = [
         "**Màn hình 14 — Tệp đính kèm của ticket.** Danh sách tệp cả hai chiều (business tải lên và admin MLHUB đính kèm khi trả lời).\n\n".
         "**Path param:** `ticket_id` (tự lấy từ bước 16/17).\n\n".
         "`sender_type`: `business` | `admin`. Dùng `download_url` (hoặc bước 24) để tải tệp.\n\n".
+        "Nếu `mime_type` là ảnh (`image/*`) thì response có thêm `image_url` (cùng URL với `download_url`, vẫn cần Bearer token) — app FizaHUB dùng để hiển thị preview ngay trên màn tư vấn; tệp không phải ảnh thì `image_url = null`.\n\n".
         "**HTTP:** `200` | `404 ticket_not_found` / `integration_not_found`."],
     'event' => [preEvent(["if (!pm.collectionVariables.get('ticket_id')) pm.execution.skipRequest();"])],
     'response' => [
@@ -875,7 +877,7 @@ $uploadAttachment = [
         "**Dung lượng:** mặc định tối đa 25MB (ảnh/zip/văn bản) hoặc 100MB (video) — MLHUB có thể chỉnh qua cấu hình server.\n".
         "Server tự dò MIME thật theo nội dung file (không tin `Content-Type` client gửi) và đối chiếu song song với đuôi file.\n".
         "Chỉ gửi được khi ticket đang `open`.\n\n".
-        "**HTTP:**\n- `201`: tải lên thành công, trả về `attachment_id` + `download_url`.\n".
+        "**HTTP:**\n- `201`: tải lên thành công, trả về `attachment_id` + `download_url` (+ `image_url` nếu là ảnh).\n".
         "- `422 attachment_type_not_allowed`: sai định dạng/đuôi file.\n".
         "- `422 attachment_too_large`: vượt dung lượng cho phép.\n".
         "- `409 ticket_not_open`: ticket đã đóng/đã xử lý.\n".
@@ -901,7 +903,9 @@ $reqDownloadAttachment = ['method' => 'GET', 'header' => h(false), 'url' => u('b
 $downloadAttachment = [
     'name' => '24 · Download Support Attachment (tải xuống đính kèm)',
     'request' => $reqDownloadAttachment + ['description' =>
-        "**Màn hình 14 — Tải nội dung tệp đính kèm.** Trả về file nhị phân (`Content-Disposition: attachment`), không phải JSON envelope.\n\n".
+        "**Màn hình 14 — Tải nội dung tệp đính kèm.** Trả về file nhị phân (không phải JSON envelope).\n\n".
+        "- Ảnh (`image/*`): `Content-Disposition: inline` + `Content-Type` ảnh — dùng với `image_url` để preview trên app tư vấn.\n".
+        "- Tệp khác: `Content-Disposition: attachment` (tải về).\n\n".
         "**Path param:** `attachment_id` (lấy từ bước 22/23). Luôn xác thực partner token + tenant scope theo ticket.\n\n".
         "**HTTP:** `200` (file) | `404 attachment_not_found` (sai id hoặc file vật lý không còn) | `404 ticket_not_found` / `integration_not_found`."],
     'event' => [preEvent(["if (!pm.collectionVariables.get('ticket_id') || !pm.collectionVariables.get('attachment_id')) pm.execution.skipRequest();"])],
@@ -946,6 +950,7 @@ $collection = [
         'description' =>
             "# MLHUB × FizaHUB Partner API (v1)\n\n".
             "Breaking cutover: **25 request** cho **15 màn hình Marketing** đã được Product duyệt. Support hỗ trợ cả tin nhắn text và đính kèm tệp (ảnh/video/zip/văn bản).\n\n".
+            "**Cập nhật:** List/Upload attachments trả thêm `image_url` khi `mime_type` là ảnh (`image/*`) — dùng preview trên màn tư vấn; tệp khác `image_url = null`. GET ảnh trả `Content-Disposition: inline`.\n\n".
             "## Dùng ngay trong 3 bước (không cần biết Postman sâu)\n".
             "1. **Import** file này vào Postman: nút **Import** (góc trên trái) → chọn file → Import.\n".
             "2. Mở collection → tab **Variables**: `base_url` và `partner_token` **ĐÃ điền sẵn**. Không cần gõ tay.\n".
@@ -1010,7 +1015,7 @@ $collection = [
         ['name' => 'System', 'description' => '2 request hệ thống: kiểm tra API sống và xác minh token.', 'item' => [$health, $sso]],
         ['name' => 'Onboarding', 'description' => '6 request cho luồng đăng ký và theo dõi onboarding (màn hình 01–05).', 'item' => [$catalog, $createOnboarding, $onboardingDetail, $status, $profile, $pref]],
         ['name' => 'Growth', 'description' => '6 request cho dashboard, phân tích tăng trưởng, chiến dịch và gói (màn hình 06–11).', 'item' => [$dashboard, $insights, $campaignList, $campaignDetail, $approval, $package]],
-        ['name' => 'Support', 'description' => '10 request cho trung tâm hỗ trợ, gồm tin nhắn text và đính kèm tệp (màn hình 12–14).', 'item' => [$presets, $createTicket, $listTickets, $ticketDetail, $sendMsg, $close, $reopen, $listAttachments, $uploadAttachment, $downloadAttachment]],
+        ['name' => 'Support', 'description' => '10 request cho trung tâm hỗ trợ, gồm tin nhắn text và đính kèm tệp (màn hình 12–14). Ảnh có thêm field `image_url` để preview trên app tư vấn.', 'item' => [$presets, $createTicket, $listTickets, $ticketDetail, $sendMsg, $close, $reopen, $listAttachments, $uploadAttachment, $downloadAttachment]],
         ['name' => 'CRM', 'description' => '1 request tạo link đăng nhập CRM một lần (màn hình 15).', 'item' => [$crm]],
     ],
 ];
