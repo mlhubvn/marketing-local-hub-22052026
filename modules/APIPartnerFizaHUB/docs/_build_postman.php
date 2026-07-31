@@ -973,7 +973,7 @@ $collection = [
             "| Header | Giá trị |\n|---|---|\n| Authorization | Bearer {{partner_token}} |\n| X-Partner | fizahub |\n| X-Request-Id | UUID mới mỗi lần |\n| Idempotency-Key | UUID (mọi POST/PATCH trừ SSO Verify) |\n| Accept | application/json |\n\n".
             "> ⚠️ Token trong file này là token **thử nghiệm**. Khi chạy chính thức, MLHUB sẽ đổi token và gửi lại — tải file mới từ https://mlhub.vn/api-fizahub/postman\n\n".
             "## Ngoài phạm vi collection này: Cổng báo cáo cho lãnh đạo FizaHUB\n".
-            "25 request ở trên là API cho **đội kỹ thuật** tích hợp app. Nếu chỉ cần **xem báo cáo** onboarding/HKD (không sửa gì), MLHUB có một **website riêng** cho lãnh đạo FizaHUB, không liên quan Postman/token ở đây: https://fzh.vmo.vn — đăng nhập bằng tài khoản MLHUB có sẵn, được MLHUB cấp quyền theo danh sách email do FizaHUB cung cấp. Xem chi tiết tại https://mlhub.vn/api-fizahub/help-test (Bước 9).",
+            "25 request ở trên là API cho **đội kỹ thuật** tích hợp app. Nếu chỉ cần **xem báo cáo** onboarding/HKD (không sửa gì), MLHUB có một **website riêng** cho lãnh đạo FizaHUB, không liên quan Postman/token ở đây: https://fzh.vmo.com.vn — đăng nhập bằng tài khoản MLHUB có sẵn, được MLHUB cấp quyền theo danh sách email do FizaHUB cung cấp. Xem chi tiết tại https://mlhub.vn/api-fizahub/help-test (Bước 9).",
         'schema' => 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
     ],
     'event' => [
