@@ -51,9 +51,15 @@ health={{ $healthUrl }}</code></pre>
         <p class="warning">⚠️ Token trong file là token thử nghiệm. Khi chạy chính thức, MLHUB sẽ đổi token và gửi lại — vui lòng tải/import bản mới.</p>
     </section>
     <section class="portal-callout">
-        <h2><span class="new-tag">CẬP NHẬT</span>Support attachments — field <code>image_url</code> (preview ảnh trên app tư vấn)</h2>
-        <p>List/Upload attachments (request <strong>22–23</strong>) giờ trả thêm <code>image_url</code> khi <code>mime_type</code> là ảnh (<code>image/*</code>). Cùng URL với <code>download_url</code>, vẫn gửi Bearer token. Tệp không phải ảnh → <code>image_url = null</code>. GET file ảnh (request <strong>24</strong>) trả <code>Content-Disposition: inline</code> để app hiển thị preview ngay, không cần tải về rồi mới mở.</p>
-        <p><strong>Dev FizaHUB:</strong> xóa collection Postman cũ → <a href="{{ route('partner.fizahub.docs.postman') }}">tải JSON mới</a> → Import lại → chạy bước 22–24 với file ảnh để kiểm tra <code>image_url</code>.</p>
+        <h2><span class="new-tag">CẬP NHẬT</span>Đính kèm hỗ trợ — 3 nhóm + <code>image_url</code></h2>
+        <p><strong>Cho phép:</strong> ảnh (<code>jpg/png/webp/gif</code>) · video (<code>mp4/mov/webm</code>) · tài liệu (<code>pdf/doc/docx/xls/xlsx</code>).</p>
+        <p><strong>Không nhận:</strong> zip, txt, csv, ppt/pptx, avi.</p>
+        <ul>
+            <li><code>extension</code> — đuôi file (<code>jpg</code>, <code>pdf</code>…)</li>
+            <li><code>image_url</code> — chỉ ảnh: URL ký tạm có đuôi thật, <strong>không cần</strong> header — gắn ImageView. TTL 7 ngày.</li>
+            <li><code>download_url</code> — tải tệp (cần Bearer); dùng cho video/tài liệu, <strong>không</strong> dùng để hiện ảnh.</li>
+        </ul>
+        <p><strong>Dev FizaHUB:</strong> <a href="{{ route('partner.fizahub.docs.postman') }}">tải JSON mới</a> → Import đè → Upload ảnh (23) mở <code>image_url</code> trên trình duyệt phải thấy ảnh.</p>
     </section>
     @if($reportingPortalUrl)
         <section class="portal-callout">

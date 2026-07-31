@@ -6,6 +6,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Modules\AdminSupport\Models\SupportCategory;
 use Modules\AdminSupport\Models\SupportComment;
@@ -903,21 +904,66 @@ class SupportTicketBridge
             'attachment_id' => $attachment->id_secure,
         ]);
 
-        // image_url: same authenticated endpoint as download_url, only for image/*
-        // so FizaHUB can preview in the consultation UI without a separate download step.
-        // Non-image attachments return null. Caller still sends the partner Bearer token.
-        $isImage = str_starts_with(strtolower((string) $attachment->mime_type), 'image/');
+        $extension = $this->attachmentExtension($attachment);
+        $isImage = str_starts_with(strtolower((string) $attachment->mime_type), 'image/')
+            && $extension !== null
+            && in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true);
+
+        // Signed preview URL (no X-Partner / Bearer): ends with real image extension so
+        // FizaHUB chat can put it straight into <img> / ImageView. Fresh URL on every list/upload.
+        $imageUrl = null;
+        if ($isImage) {
+            $ttlDays = max(1, (int) config('modules.apipartnerfizahub.support_image_preview_ttl_days', 7));
+            $imageUrl = URL::temporarySignedRoute(
+                'partner.fizahub.support-attachments.preview',
+                now()->addDays($ttlDays),
+                [
+                    'attachment_id' => $attachment->id_secure,
+                    'filename' => 'preview.'.$extension,
+                ]
+            );
+        }
 
         return [
             'attachment_id' => $attachment->id_secure,
             'original_name' => $attachment->original_name,
             'mime_type' => $attachment->mime_type,
+            'extension' => $extension,
             'size_bytes' => $attachment->size_bytes,
             'sender_type' => ((int) $attachment->uploaded_by_user_id === (int) $ticket->uid) ? 'business' : 'admin',
             'created_at' => $attachment->created_at?->utc()->toAtomString() ?? $this->isoFromUnix(time()),
             'download_url' => $downloadUrl,
-            'image_url' => $isImage ? $downloadUrl : null,
+            'image_url' => $imageUrl,
         ];
+    }
+
+    /**
+     * File extension without dot (jpg, png, pdf…). Prefer original_name, fall back to MIME.
+     */
+    private function attachmentExtension(PartnerSupportAttachment $attachment): ?string
+    {
+        $fromName = strtolower((string) pathinfo((string) $attachment->original_name, PATHINFO_EXTENSION));
+        $allowed = (array) config('modules.apipartnerfizahub.support_allowed_attachment_extensions', []);
+
+        if ($fromName !== '' && ($allowed === [] || in_array($fromName, $allowed, true))) {
+            return $fromName;
+        }
+
+        return match (strtolower((string) $attachment->mime_type)) {
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+            'image/gif' => 'gif',
+            'video/mp4' => 'mp4',
+            'video/quicktime' => 'mov',
+            'video/webm' => 'webm',
+            'application/pdf' => 'pdf',
+            'application/msword' => 'doc',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+            'application/vnd.ms-excel' => 'xls',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
+            default => $fromName !== '' ? $fromName : null,
+        };
     }
 
     /** @return array{items: list<array<string, mixed>>} */

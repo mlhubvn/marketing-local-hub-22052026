@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Modules\APIPartnerFizaHUB\Http\Controllers\ApiFizaHubDocsController;
 use Modules\APIPartnerFizaHUB\Http\Controllers\ConsumeOneTimeLoginController;
+use Modules\APIPartnerFizaHUB\Http\Controllers\SupportAttachmentController;
 use Modules\APIPartnerFizaHUB\Livewire\FizaHubOnboardingIndex;
 use Modules\APIPartnerFizaHUB\Livewire\FizaHubPartnerDashboard;
 use Modules\APIPartnerFizaHUB\Livewire\FizaHubPartnerOnboardingShow;
@@ -35,6 +36,14 @@ Route::middleware(['web', 'auth', 'verified'])
 Route::middleware(['web', 'signed'])
     ->match(['get', 'post'], '/partners/fizahub/one-time-login/{token}', ConsumeOneTimeLoginController::class)
     ->name('partner.fizahub.login.consume');
+
+// Signed image preview for FizaHUB chat UI: no partner token / X-Partner required.
+// URL ends with a real image extension (preview.jpg) so <img> / ImageView can load it.
+// Signature + expiry are required; only image/* attachments are served.
+Route::middleware(['web', 'signed', 'throttle:60,1'])
+    ->get('/partners/fizahub/support-attachments/{attachment_id}/{filename}', [SupportAttachmentController::class, 'preview'])
+    ->where('filename', '[A-Za-z0-9._-]+\.(jpe?g|png|gif|webp)')
+    ->name('partner.fizahub.support-attachments.preview');
 
 // FizaHUB Partner Reporting Portal — view-only dashboard on its own domain
 // (FIZAHUB_DOMAIN). Reuses the standard MLHUB login (auth/verified) plus a plain user-ID

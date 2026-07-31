@@ -5,6 +5,7 @@ namespace Modules\APIPartnerFizaHUB\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Modules\APIPartnerFizaHUB\Models\PartnerSupportAttachment;
 use Modules\APIPartnerFizaHUB\Services\SupportTicketBridge;
 use Modules\APIPartnerFizaHUB\Support\PartnerApiException;
 use Modules\APIPartnerFizaHUB\Support\PartnerApiResponse;
@@ -86,12 +87,44 @@ class SupportAttachmentController
         $mime = (string) ($attachment->mime_type ?: 'application/octet-stream');
         $isImage = str_starts_with(strtolower($mime), 'image/');
 
-        // Images: inline so FizaHUB can render via image_url; other types stay as download.
+        // Images: inline so authenticated download can also preview; other types stay as download.
         return Storage::disk($attachment->disk)->response(
             $attachment->path,
             $attachment->original_name,
             ['Content-Type' => $mime],
             $isImage ? 'inline' : 'attachment'
+        );
+    }
+
+    /**
+     * Public signed image preview for FizaHUB chat (<img src=image_url>).
+     * No partner headers. Only image/*; invalid/expired signature → 403 from signed middleware.
+     */
+    public function preview(string $attachment_id, string $filename): Response
+    {
+        $attachment = PartnerSupportAttachment::query()
+            ->where('id_secure', $attachment_id)
+            ->first();
+
+        $mime = strtolower((string) ($attachment?->mime_type ?? ''));
+
+        if (
+            ! $attachment
+            || ! str_starts_with($mime, 'image/')
+            || ! filled($attachment->path)
+            || ! Storage::disk($attachment->disk)->exists($attachment->path)
+        ) {
+            abort(404);
+        }
+
+        return Storage::disk($attachment->disk)->response(
+            $attachment->path,
+            $filename,
+            [
+                'Content-Type' => (string) $attachment->mime_type,
+                'Cache-Control' => 'private, max-age=3600',
+            ],
+            'inline'
         );
     }
 }

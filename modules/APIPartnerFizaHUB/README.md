@@ -1,6 +1,6 @@
 # APIPartnerFizaHUB
 
-API tích hợp **FizaHUB × MLHUB** cho **15 màn hình** Marketing đã được Product duyệt. Đây là **breaking cutover API v1** với đúng **25 endpoint** dưới prefix `/api/v1/partners/fizahub`. Support hỗ trợ cả tin nhắn text và **đính kèm tệp** (ảnh/video/zip/văn bản).
+API tích hợp **FizaHUB × MLHUB** cho **15 màn hình** Marketing đã được Product duyệt. Đây là **breaking cutover API v1** với đúng **25 endpoint** dưới prefix `/api/v1/partners/fizahub`. Support hỗ trợ cả tin nhắn text và **đính kèm tệp** (ảnh / video / tài liệu PDF-Office).
 
 ## Header và response envelope
 
@@ -148,11 +148,12 @@ Luồng đầy đủ Create → List → Detail → Message → Close → Reopen
 
 **Đính kèm tệp** (`SupportAttachmentController`, bảng `partner_support_attachments`):
 
-- Chấp nhận ảnh (`jpg/jpeg/png/webp/gif`), video (`mp4/mov/webm/avi`), nén (`zip`), văn bản (`pdf/txt/csv/doc(x)/xls(x)/ppt(x)`).
+- Chấp nhận **3 nhóm**: ảnh (`jpg/jpeg/png/webp/gif`), video (`mp4/mov/webm`), tài liệu (`pdf/doc/docx/xls/xlsx`). **Không** nhận zip, txt, csv, ppt/pptx.
 - MIME được server tự dò theo nội dung (`UploadedFile::getMimeType()`) và đối chiếu song song với đuôi file — cả hai phải khớp `support_allowed_attachment_types` / `support_allowed_attachment_extensions` trong `config/config.php`.
-- Trần dung lượng cấu hình qua `FIZAHUB_SUPPORT_MAX_ATTACHMENT_SIZE_MB` (mặc định 25MB) và riêng `FIZAHUB_SUPPORT_MAX_VIDEO_ATTACHMENT_SIZE_MB` (mặc định 100MB) cho video.
+- Trần dung lượng cấu hình qua `FIZAHUB_SUPPORT_MAX_ATTACHMENT_SIZE_MB` (mặc định 25MB, ảnh/tài liệu) và riêng `FIZAHUB_SUPPORT_MAX_VIDEO_ATTACHMENT_SIZE_MB` (mặc định 100MB) cho video.
 - Lưu trên disk `local` (không public) theo từng ticket; tải xuống luôn qua endpoint có xác thực + tenant scope, không có URL đoán được.
-- Response list/upload luôn có `download_url`; nếu `mime_type` là ảnh (`image/*`) thì thêm `image_url` (cùng URL, vẫn cần Bearer token) để app FizaHUB preview ngay trên màn tư vấn — tệp không phải ảnh thì `image_url = null`. GET file ảnh trả `Content-Disposition: inline`; tệp khác vẫn `attachment`.
+- Response list/upload luôn có `download_url` (cần Bearer + X-Partner) và `extension` (đuôi file không dấu chấm: `jpg`, `png`, `pdf`…).
+- Nếu `mime_type` là ảnh (`image/*`) thì thêm `image_url`: URL ký tạm, path kết thúc bằng đuôi thật (`preview.jpg`…), **không cần** header partner — app FizaHUB gắn thẳng vào `<img>` / ImageView trên màn tư vấn. TTL mặc định 7 ngày (`FIZAHUB_SUPPORT_IMAGE_PREVIEW_TTL_DAYS`); hết hạn thì gọi lại List để lấy URL mới. Tệp không phải ảnh → `image_url = null`.
 - Hai chiều: `sender_type` trong response phân biệt `business` (FizaHUB tải lên) và `admin` (MLHUB đính kèm khi trả lời trong `/admin/support`).
 - Sai `attachment_id` hoặc file vật lý không còn trên disk → `404 attachment_not_found` (không phải `route_not_found`).
 - Idempotency-Key cho request tải lên tính theo nội dung tệp thật (SHA-256), không chỉ tên field: gửi 2 tệp khác nhau cùng key → `409 idempotency_conflict` đúng chuẩn, không âm thầm phát lại kết quả tệp đầu tiên.

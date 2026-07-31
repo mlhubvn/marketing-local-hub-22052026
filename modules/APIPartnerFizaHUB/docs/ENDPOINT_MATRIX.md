@@ -61,7 +61,7 @@ trạng thái cần `Idempotency-Key`, ngoại trừ `POST partner/sso/verify` l
 | 20 | POST | `/api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets/{ticket_id}/close` | `partner.fizahub.businesses.support-tickets.close` | `SupportTicketController::close` | Đóng ticket an toàn và tenant-scoped. |
 | 21 | POST | `/api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets/{ticket_id}/reopen` | `partner.fizahub.businesses.support-tickets.reopen` | `SupportTicketController::reopen` | Mở lại ticket đã đóng an toàn và tenant-scoped. |
 | 22 | GET | `/api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets/{ticket_id}/attachments` | `partner.fizahub.businesses.support-tickets.attachments.index` | `SupportAttachmentController::index` | Danh sách tệp đính kèm của ticket (business + admin). |
-| 23 | POST | `/api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets/{ticket_id}/attachments` | `partner.fizahub.businesses.support-tickets.attachments.store` | `SupportAttachmentController::store` | Tải lên 1 tệp đính kèm (ảnh/video/zip/văn bản) cho ticket. |
+| 23 | POST | `/api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets/{ticket_id}/attachments` | `partner.fizahub.businesses.support-tickets.attachments.store` | `SupportAttachmentController::store` | Tải lên 1 tệp đính kèm (ảnh/video/tài liệu) cho ticket. |
 | 24 | GET | `/api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets/{ticket_id}/attachments/{attachment_id}` | `partner.fizahub.businesses.support-tickets.attachments.show` | `SupportAttachmentController::show` | Tải xuống một tệp đính kèm đã lưu, tenant-scoped. |
 | 25 | POST | `/api/v1/partners/fizahub/businesses/{external_business_id}/crm-login-links` | `partner.fizahub.businesses.crm-login-links.store` | `OneTimeLoginController::store` | Tạo link CRM dùng một lần cho onboarding ready/completed. |
 
@@ -106,21 +106,22 @@ one-time login.
 
 ## Đính kèm tệp cho Support (bổ sung 2026-07-31)
 
-Support không còn text-only: cho phép đính kèm ảnh, video, file nén (zip) và văn bản đời thường
+Support không còn text-only: cho phép đính kèm **3 nhóm** — ảnh, video và tài liệu (PDF/Office)
 qua 3 request `GET/POST attachments` và `GET attachments/{attachment_id}` (`SupportAttachmentController`).
 
 - **Upload:** `multipart/form-data`, field `file`. MIME được server tự dò (không tin theo
   `Content-Type` client gửi) và đối chiếu song song với đuôi file — cả hai phải khớp danh sách
   cho phép, chặn kiểu đổi tên file nguy hiểm thành đuôi vô hại.
-- **Loại được hỗ trợ:** ảnh (`jpg/jpeg/png/webp/gif`), video (`mp4/mov/webm/avi`), nén (`zip`),
-  văn bản (`pdf/txt/csv/doc/docx/xls/xlsx/ppt/pptx`).
-- **Giới hạn dung lượng:** mặc định 25MB cho ảnh/zip/văn bản, 100MB riêng cho video (cấu hình qua
+- **Loại được hỗ trợ:** ảnh (`jpg/jpeg/png/webp/gif`), video (`mp4/mov/webm`),
+  tài liệu (`pdf/doc/docx/xls/xlsx`). **Không** nhận zip / txt / csv / ppt / pptx / avi.
+- **Giới hạn dung lượng:** mặc định 25MB cho ảnh/tài liệu, 100MB riêng cho video (cấu hình qua
   `FIZAHUB_SUPPORT_MAX_ATTACHMENT_SIZE_MB` / `FIZAHUB_SUPPORT_MAX_VIDEO_ATTACHMENT_SIZE_MB`).
 - **Lưu trữ:** disk `local` (không public), theo thư mục riêng từng ticket
   (`partner-fizahub/support/{ticket_id}/...`); tải xuống luôn qua endpoint `attachments/{attachment_id}`
   có xác thực partner token + tenant scope, không có URL public đoán được.
-- **Preview ảnh:** list/upload trả thêm `image_url` khi `mime_type` là `image/*` (cùng URL với
-  `download_url`, vẫn cần Bearer); GET ảnh trả `Content-Disposition: inline`, tệp khác `attachment`.
+- **Preview ảnh:** list/upload trả `extension` + `image_url` (URL ký tạm, đuôi `.jpg`/`.png`…,
+  không cần X-Partner/Bearer) khi `mime_type` là `image/*`. TTL mặc định 7 ngày
+  (`FIZAHUB_SUPPORT_IMAGE_PREVIEW_TTL_DAYS`). Route: `GET /partners/fizahub/support-attachments/{id}/{filename}`.
 - **Hai chiều:** tệp do FizaHUB tải lên và tệp admin MLHUB đính kèm khi trả lời đều nằm trong cùng
   danh sách `GET attachments`, phân biệt bằng `sender_type` (`business` | `admin`).
 - **Vòng đời:** khi xóa user, ticket support và toàn bộ tệp đính kèm liên quan (kể cả file vật lý

@@ -296,7 +296,7 @@
                                 class="mt-2 block w-full rounded-xl border px-3 py-2 text-sm"
                                 style="border-color: var(--theme-border-color); background: var(--theme-input-surface); color: var(--theme-input-text);"
                             >
-                            <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Images, video, ZIP, and common documents up to 5 files per reply.') }}</p>
+                            <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Images, video, and documents (PDF/Office) up to 5 files per reply.') }}</p>
                             @error('replyAttachments') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
                             @foreach ($errors->get('replyAttachments.*') as $fieldErrors)
                                 @foreach ($fieldErrors as $fieldError)

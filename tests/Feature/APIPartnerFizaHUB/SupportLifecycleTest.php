@@ -295,15 +295,16 @@ test('attachment upload, list, and download work end-to-end for an open ticket',
 
     $upload = $this->post(
         '/api/v1/partners/fizahub/businesses/biz-attachment/support-tickets/'.$ticketId.'/attachments',
-        ['file' => UploadedFile::fake()->createWithContent('receipt.txt', 'hoa don thanh toan')],
+        ['file' => UploadedFile::fake()->create('receipt.pdf', 120, 'application/pdf')],
         supportLifecycleHeaders()
     )->assertCreated();
 
     $attachmentId = (string) $upload->json('data.attachment_id');
 
     expect($attachmentId)->not->toBe('')
-        ->and($upload->json('data.original_name'))->toBe('receipt.txt')
+        ->and($upload->json('data.original_name'))->toBe('receipt.pdf')
         ->and($upload->json('data.download_url'))->toContain($attachmentId)
+        ->and($upload->json('data.extension'))->toBe('pdf')
         ->and($upload->json('data.image_url'))->toBeNull();
 
     $this->getJson(
@@ -313,6 +314,7 @@ test('attachment upload, list, and download work end-to-end for an open ticket',
         ->assertOk()
         ->assertJsonPath('data.items.0.attachment_id', $attachmentId)
         ->assertJsonPath('data.items.0.sender_type', 'business')
+        ->assertJsonPath('data.items.0.extension', 'pdf')
         ->assertJsonPath('data.items.0.image_url', null);
 
     $download = $this->get(
@@ -321,11 +323,32 @@ test('attachment upload, list, and download work end-to-end for an open ticket',
     );
 
     $download->assertOk();
-    expect($download->headers->get('content-disposition'))->toContain('receipt.txt')
+    expect($download->headers->get('content-disposition'))->toContain('receipt.pdf')
         ->and(strtolower((string) $download->headers->get('content-disposition')))->toContain('attachment');
 });
 
-test('image attachments expose image_url and are served inline for preview', function (): void {
+test('zip and plain-text attachments are rejected for household-business support uploads', function (): void {
+    seedLifecycleBusiness('biz-attach-reject', 'attach-reject@example.com');
+    $ticketId = createLifecycleTicket('biz-attach-reject');
+
+    $this->post(
+        '/api/v1/partners/fizahub/businesses/biz-attach-reject/support-tickets/'.$ticketId.'/attachments',
+        ['file' => UploadedFile::fake()->create('dump.zip', 200, 'application/zip')],
+        supportLifecycleHeaders()
+    )
+        ->assertStatus(422)
+        ->assertJsonPath('error.code', 'attachment_type_not_allowed');
+
+    $this->post(
+        '/api/v1/partners/fizahub/businesses/biz-attach-reject/support-tickets/'.$ticketId.'/attachments',
+        ['file' => UploadedFile::fake()->createWithContent('note.txt', 'plain text')],
+        supportLifecycleHeaders()
+    )
+        ->assertStatus(422)
+        ->assertJsonPath('error.code', 'attachment_type_not_allowed');
+});
+
+test('image attachments expose extension and a signed image_url that opens without partner headers', function (): void {
     seedLifecycleBusiness('biz-image-attach', 'image-attach@example.com');
     $ticketId = createLifecycleTicket('biz-image-attach');
 
@@ -340,9 +363,12 @@ test('image attachments expose image_url and are served inline for preview', fun
     $imageUrl = (string) $upload->json('data.image_url');
 
     expect($attachmentId)->not->toBe('')
-        ->and($imageUrl)->toBe($downloadUrl)
-        ->and($imageUrl)->toContain($attachmentId)
-        ->and($upload->json('data.mime_type'))->toStartWith('image/');
+        ->and($upload->json('data.extension'))->toBe('jpg')
+        ->and($upload->json('data.mime_type'))->toStartWith('image/')
+        ->and($imageUrl)->not->toBe($downloadUrl)
+        ->and($imageUrl)->toContain('/partners/fizahub/support-attachments/'.$attachmentId.'/preview.jpg')
+        ->and($imageUrl)->toContain('signature=')
+        ->and($imageUrl)->toContain('expires=');
 
     $this->getJson(
         '/api/v1/partners/fizahub/businesses/biz-image-attach/support-tickets/'.$ticketId.'/attachments',
@@ -350,16 +376,18 @@ test('image attachments expose image_url and are served inline for preview', fun
     )
         ->assertOk()
         ->assertJsonPath('data.items.0.attachment_id', $attachmentId)
-        ->assertJsonPath('data.items.0.image_url', $imageUrl);
+        ->assertJsonPath('data.items.0.extension', 'jpg');
 
-    $preview = $this->get(
-        '/api/v1/partners/fizahub/businesses/biz-image-attach/support-tickets/'.$ticketId.'/attachments/'.$attachmentId,
-        supportLifecycleHeaders()
-    );
+    // Browser / <img> path: no Authorization, no X-Partner — only the signed query string.
+    $preview = $this->get($imageUrl);
 
     $preview->assertOk();
     expect(strtolower((string) $preview->headers->get('content-disposition')))->toContain('inline')
         ->and(strtolower((string) $preview->headers->get('content-type')))->toStartWith('image/');
+
+    // Unsigned URL must not serve the file.
+    $this->get('/partners/fizahub/support-attachments/'.$attachmentId.'/preview.jpg')
+        ->assertForbidden();
 });
 
 test('attachment endpoints enforce tenant isolation: business A cannot upload, list, or download on business B ticket', function (): void {
