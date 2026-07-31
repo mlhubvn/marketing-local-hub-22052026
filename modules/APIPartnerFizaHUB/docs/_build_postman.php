@@ -280,7 +280,7 @@ $catalog = [
         "- `industry` (tùy chọn): mã ngành, để MLHUB gợi ý gói theo ngành.\n\n".
         "**Giá trị dùng ở các bước sau:**\n".
         "- `marketing_goals[].code`: `local_presence`, `qr_checkin`, `voucher_return`, `customer_retention` (chọn tối đa 3).\n".
-        "- `packages[].package_code`: `free`, `base`."],
+        "- `packages[].package_code`: `free`, `base`, `biz`, `plus`."],
     'response' => [
         ex($reqCatalog, '200 · OK', 200, 'OK', ok([
             'max_goal_selection' => 3,
@@ -295,6 +295,8 @@ $catalog = [
             'packages' => [
                 ['package_code' => 'free', 'description' => 'Gói khởi tạo miễn phí để doanh nghiệp bắt đầu Marketing cùng MLHUB.', 'features' => ['Hiện diện địa phương', 'QR Check-in cơ bản', 'Theo dõi khách hàng'], 'recommended_goal_codes' => ['local_presence', 'qr_checkin'], 'industry_codes' => ['restaurant_eatery']],
                 ['package_code' => 'base', 'description' => 'Gói doanh nghiệp quan tâm với tư vấn và cấu hình tăng trưởng mở rộng.', 'features' => ['Mã ưu đãi', 'Chăm sóc khách hàng', 'Tư vấn chiến dịch'], 'recommended_goal_codes' => ['voucher_return', 'customer_retention'], 'industry_codes' => ['restaurant_eatery']],
+                ['package_code' => 'biz', 'description' => 'Gói doanh nghiệp mở rộng: tự động hóa Marketing, CRM đa kênh và quản lý nhiều cơ sở.', 'features' => ['Tự động hóa Marketing', 'CRM nâng cao', 'Quản lý nhiều cơ sở'], 'recommended_goal_codes' => ['voucher_return', 'customer_retention'], 'industry_codes' => ['restaurant_eatery']],
+                ['package_code' => 'plus', 'description' => 'Gói cao cấp cho doanh nghiệp cần đầy đủ AI Studio, CRM không giới hạn và thương hiệu riêng.', 'features' => ['AI Studio đầy đủ', 'CRM không giới hạn', 'Loại bỏ thương hiệu MLHUB'], 'recommended_goal_codes' => ['local_presence', 'qr_checkin', 'voucher_return'], 'industry_codes' => ['restaurant_eatery']],
             ],
         ])),
     ],
@@ -324,7 +326,7 @@ $createOnboarding = [
         "- `external_business_id` (bắt buộc): ID business phía FizaHUB. Collection tự sinh.\n".
         "- `external_user_id` (tùy chọn): ID user phía FizaHUB.\n".
         "- `marketing_goal_codes` (bắt buộc, 1–3): trong `local_presence`, `qr_checkin`, `voucher_return`, `customer_retention`.\n".
-        "- `package_code` HOẶC `requested_package_code` (bắt buộc 1 trong 2): `free` | `base`.\n".
+        "- `package_code` HOẶC `requested_package_code` (bắt buộc 1 trong 2): `free` | `base` | `biz` | `plus`.\n".
         "- `owner.name` (bắt buộc), `owner.email` (bắt buộc), `owner.phone` (tùy chọn).\n".
         "- `business.name/industry/phone/email/address` (bắt buộc), `business.website` (tùy chọn).\n".
         "- KHÔNG gửi giấy tờ tùy thân/CCCD/giấy phép kinh doanh dạng file — sẽ bị 422.\n\n".
@@ -450,7 +452,7 @@ $pref = [
         "**Màn hình 02/10 — lưu mục tiêu + gói quan tâm.** KHÔNG tự kích hoạt gói (chỉ ghi nhận nguyện vọng).\n\n".
         "**Body (đều bắt buộc):**\n".
         "- `marketing_goal_codes` (array, 1–3, distinct): `local_presence` | `qr_checkin` | `voucher_return` | `customer_retention`.\n".
-        "- `requested_package_code`: `free` | `base`.\n\n".
+        "- `requested_package_code`: `free` | `base` | `biz` | `plus`.\n\n".
         "**HTTP:**\n- `200`: lưu thành công (`effective_package_code` vẫn là gói đang chạy).\n- `404 integration_not_found`.\n- `422 validation_failed`."],
     'response' => [
         ex($reqPref, '200 · OK', 200, 'OK', ok([

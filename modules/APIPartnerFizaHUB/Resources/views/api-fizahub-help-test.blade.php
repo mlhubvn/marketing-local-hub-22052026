@@ -244,7 +244,7 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
                 <tr><td><code>external_business_id</code></td><td>Có</td><td>Tự sinh trong collection</td></tr>
                 <tr><td><code>external_user_id</code></td><td>Không</td><td>Tự sinh</td></tr>
                 <tr><td><code>marketing_goal_codes</code></td><td>Có (1–3)</td><td><code>local_presence</code>, <code>qr_checkin</code>, <code>voucher_return</code>, <code>customer_retention</code></td></tr>
-                <tr><td><code>package_code</code> hoặc <code>requested_package_code</code></td><td>Có 1 trong 2</td><td><code>free</code> | <code>base</code></td></tr>
+                <tr><td><code>package_code</code> hoặc <code>requested_package_code</code></td><td>Có 1 trong 2</td><td><code>free</code> | <code>base</code> | <code>biz</code> | <code>plus</code></td></tr>
                 <tr><td><code>owner.name</code>, <code>owner.email</code></td><td>Có</td><td><code>owner.phone</code> tùy chọn</td></tr>
                 <tr><td><code>business.name/industry/phone/email/address</code></td><td>Có</td><td><code>website</code> tùy chọn</td></tr>
             </tbody>

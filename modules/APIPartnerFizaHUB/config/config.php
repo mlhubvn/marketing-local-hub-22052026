@@ -16,6 +16,8 @@ return [
     'package_map' => [
         'free' => 'mlhub-free-da-nang',
         'base' => 'mlhub-free-da-nang',
+        'biz' => 'mlhub-growth-monthly',
+        'plus' => 'mlhub-pro-monthly',
     ],
     'package_definitions' => [
         'free' => [
@@ -28,6 +30,18 @@ return [
             'description' => 'Gói doanh nghiệp quan tâm với tư vấn và cấu hình tăng trưởng mở rộng.',
             'features' => ['Mã ưu đãi', 'Chăm sóc khách hàng', 'Tư vấn chiến dịch'],
             'recommended_goal_codes' => ['voucher_return', 'customer_retention'],
+            'industry_codes' => [],
+        ],
+        'biz' => [
+            'description' => 'Gói doanh nghiệp mở rộng: tự động hóa Marketing, CRM đa kênh và quản lý nhiều cơ sở.',
+            'features' => ['Tự động hóa Marketing', 'CRM nâng cao', 'Quản lý nhiều cơ sở'],
+            'recommended_goal_codes' => ['voucher_return', 'customer_retention'],
+            'industry_codes' => [],
+        ],
+        'plus' => [
+            'description' => 'Gói cao cấp cho doanh nghiệp cần đầy đủ AI Studio, CRM không giới hạn và thương hiệu riêng.',
+            'features' => ['AI Studio đầy đủ', 'CRM không giới hạn', 'Loại bỏ thương hiệu MLHUB'],
+            'recommended_goal_codes' => ['local_presence', 'qr_checkin', 'voucher_return'],
             'industry_codes' => [],
         ],
     ],
