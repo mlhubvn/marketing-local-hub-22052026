@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Route;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Modules\AdminPlans\Models\AdminPlan;
@@ -289,20 +289,68 @@ test('close/reopen enforce tenant isolation: business A cannot close or reopen b
     )->assertNotFound()->assertJsonPath('error.code', 'ticket_not_found');
 });
 
-test('attachment upload route is absent while the future storage table remains untouched', function (): void {
-    seedLifecycleBusiness('biz-no-attachment', 'no-attachment@example.com');
-    $ticketId = createLifecycleTicket('biz-no-attachment');
-    $headers = supportLifecycleHeaders();
+test('attachment upload, list, and download work end-to-end for an open ticket', function (): void {
+    seedLifecycleBusiness('biz-attachment', 'attachment@example.com');
+    $ticketId = createLifecycleTicket('biz-attachment');
 
-    $this->postJson(
-        '/api/v1/partners/fizahub/businesses/biz-no-attachment/support-tickets/'.$ticketId.'/attachments',
-        [],
-        $headers
+    $upload = $this->post(
+        '/api/v1/partners/fizahub/businesses/biz-attachment/support-tickets/'.$ticketId.'/attachments',
+        ['file' => UploadedFile::fake()->createWithContent('receipt.txt', 'hoa don thanh toan')],
+        supportLifecycleHeaders()
+    )->assertCreated();
+
+    $attachmentId = (string) $upload->json('data.attachment_id');
+
+    expect($attachmentId)->not->toBe('')
+        ->and($upload->json('data.original_name'))->toBe('receipt.txt')
+        ->and($upload->json('data.download_url'))->toContain($attachmentId);
+
+    $this->getJson(
+        '/api/v1/partners/fizahub/businesses/biz-attachment/support-tickets/'.$ticketId.'/attachments',
+        supportLifecycleHeaders()
+    )
+        ->assertOk()
+        ->assertJsonPath('data.items.0.attachment_id', $attachmentId)
+        ->assertJsonPath('data.items.0.sender_type', 'business');
+
+    $download = $this->get(
+        '/api/v1/partners/fizahub/businesses/biz-attachment/support-tickets/'.$ticketId.'/attachments/'.$attachmentId,
+        supportLifecycleHeaders()
+    );
+
+    $download->assertOk();
+    expect($download->headers->get('content-disposition'))->toContain('receipt.txt');
+});
+
+test('attachment endpoints enforce tenant isolation: business A cannot upload, list, or download on business B ticket', function (): void {
+    seedLifecycleBusiness('biz-attach-a', 'attach-a@example.com');
+    seedLifecycleBusiness('biz-attach-b', 'attach-b@example.com');
+
+    $ticketB = createLifecycleTicket('biz-attach-b');
+
+    $this->post(
+        '/api/v1/partners/fizahub/businesses/biz-attach-a/support-tickets/'.$ticketB.'/attachments',
+        ['file' => UploadedFile::fake()->createWithContent('x.txt', 'x')],
+        supportLifecycleHeaders()
+    )->assertNotFound()->assertJsonPath('error.code', 'ticket_not_found');
+
+    $this->getJson(
+        '/api/v1/partners/fizahub/businesses/biz-attach-a/support-tickets/'.$ticketB.'/attachments',
+        supportLifecycleHeaders()
+    )->assertNotFound()->assertJsonPath('error.code', 'ticket_not_found');
+});
+
+test('downloading an unknown attachment id returns a typed attachment_not_found, not a generic route error', function (): void {
+    // Regression guard: SupportAttachmentController::show() used to abort_unless(...,404), which
+    // PartnerExceptionRenderer misreported as "route_not_found" ("API endpoint not found") even
+    // though the route exists and only the attachment id was wrong.
+    seedLifecycleBusiness('biz-attach-missing', 'attach-missing@example.com');
+    $ticketId = createLifecycleTicket('biz-attach-missing');
+
+    $this->getJson(
+        '/api/v1/partners/fizahub/businesses/biz-attach-missing/support-tickets/'.$ticketId.'/attachments/'.Str::random(32),
+        supportLifecycleHeaders()
     )
         ->assertNotFound()
-        ->assertJsonPath('meta.request_id', $headers['X-Request-Id'])
-        ->assertJsonPath('error.code', 'route_not_found');
-
-    expect(Route::has('partner.fizahub.support-tickets.attachments.store'))->toBeFalse()
-        ->and(Schema::hasTable('partner_support_attachments'))->toBeTrue();
+        ->assertJsonPath('error.code', 'attachment_not_found');
 });

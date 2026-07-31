@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Modules\AdminPlans\Models\AdminPlan;
@@ -243,7 +243,7 @@ test('canonical preset ticket runs the complete text lifecycle and message repla
         ->assertJsonPath('data.status', 'open');
 });
 
-test('all ticket operations are tenant isolated and attachment route is absent', function (): void {
+test('all ticket operations including attachments are tenant isolated', function (): void {
     seedSupportUiBusiness('biz-tenant-a', 'tenant-a@example.com');
     seedSupportUiBusiness('biz-tenant-b', 'tenant-b@example.com');
 
@@ -262,12 +262,17 @@ test('all ticket operations are tenant isolated and attachment route is absent',
     $this->postJson($base.'/reopen', [], supportUiHeaders())
         ->assertNotFound()->assertJsonPath('error.code', 'ticket_not_found');
 
-    $headers = supportUiHeaders('attachment-must-not-exist');
-    $this->postJson($base.'/attachments', [], $headers)
+    $headers = supportUiHeaders('attachment-tenant-guard');
+    $this->post(
+        $base.'/attachments',
+        ['file' => UploadedFile::fake()->createWithContent('intrusion.txt', 'x')],
+        $headers
+    )
         ->assertNotFound()
         ->assertJsonPath('success', false)
         ->assertJsonPath('meta.request_id', $headers['X-Request-Id'])
-        ->assertJsonPath('error.code', 'route_not_found');
+        ->assertJsonPath('error.code', 'ticket_not_found');
 
-    expect(Route::has('partner.fizahub.support-tickets.attachments.store'))->toBeFalse();
+    $this->getJson($base.'/attachments', supportUiHeaders())
+        ->assertNotFound()->assertJsonPath('error.code', 'ticket_not_found');
 });

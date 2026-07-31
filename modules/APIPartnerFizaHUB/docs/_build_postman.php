@@ -901,9 +901,11 @@ $downloadAttachment = [
     'request' => $reqDownloadAttachment + ['description' =>
         "**Màn hình 14 — Tải nội dung tệp đính kèm.** Trả về file nhị phân (`Content-Disposition: attachment`), không phải JSON envelope.\n\n".
         "**Path param:** `attachment_id` (lấy từ bước 22/23). Luôn xác thực partner token + tenant scope theo ticket.\n\n".
-        "**HTTP:** `200` (file) | `404` (không tìm thấy tệp/ticket/integration)."],
+        "**HTTP:** `200` (file) | `404 attachment_not_found` (sai id hoặc file vật lý không còn) | `404 ticket_not_found` / `integration_not_found`."],
     'event' => [preEvent(["if (!pm.collectionVariables.get('ticket_id') || !pm.collectionVariables.get('attachment_id')) pm.execution.skipRequest();"])],
-    'response' => [],
+    'response' => [
+        ex($reqDownloadAttachment, '404 · Không tìm thấy tệp đính kèm', 404, 'Not Found', err('attachment_not_found', 'Không tìm thấy tệp đính kèm này.', ['next_action' => 'list_attachments'])),
+    ],
 ];
 
 // ---------------------------------------------------------------------------

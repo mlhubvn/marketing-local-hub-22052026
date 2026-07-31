@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Modules\APIPartnerFizaHUB\Services\SupportTicketBridge;
+use Modules\APIPartnerFizaHUB\Support\PartnerApiException;
 use Modules\APIPartnerFizaHUB\Support\PartnerApiResponse;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
@@ -69,10 +70,18 @@ class SupportAttachmentController
         $integration = $this->bridge->findIntegrationOrFail($external_business_id);
         $attachment = $this->bridge->findScopedAttachmentOrFail($integration, $ticket_id, $attachment_id);
 
-        abort_unless(
-            filled($attachment->path) && Storage::disk($attachment->disk)->exists($attachment->path),
-            404
-        );
+        // Deliberately a typed PartnerApiException (not abort_unless/404): a bare 404 here
+        // would bubble past PartnerExceptionRenderer's ModelNotFoundException branch and get
+        // misreported as the generic "route_not_found" ("API endpoint not found"), which is
+        // wrong and confusing — the route exists, only the file content is missing.
+        if (! filled($attachment->path) || ! Storage::disk($attachment->disk)->exists($attachment->path)) {
+            throw PartnerApiException::make(
+                'attachment_not_found',
+                __('Không tìm thấy tệp đính kèm này.'),
+                404,
+                ['next_action' => 'list_attachments']
+            );
+        }
 
         return Storage::disk($attachment->disk)->download($attachment->path, $attachment->original_name);
     }

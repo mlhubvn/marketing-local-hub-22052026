@@ -11,6 +11,7 @@ use InvalidArgumentException;
 use Modules\AdminSupport\Models\SupportTicket;
 use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
 use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingRequest;
+use Modules\APIPartnerFizaHUB\Models\PartnerSupportAttachment;
 use Modules\AppQRCampaigns\Models\QrCampaign;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -139,6 +140,12 @@ class PartnerExceptionRenderer
                 __('Không tìm thấy phiếu hỗ trợ này.'),
                 404,
                 ['next_action' => 'create_support_ticket']
+            ),
+            PartnerSupportAttachment::class => PartnerApiResponse::error(
+                'attachment_not_found',
+                __('Không tìm thấy tệp đính kèm này.'),
+                404,
+                ['next_action' => 'list_attachments']
             ),
             default => PartnerApiResponse::error(
                 'resource_not_found',

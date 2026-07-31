@@ -65,14 +65,16 @@ test('doctor passes everything once the module is fully migrated, seeded, and ro
         ->and($output)->toContain('[PASS] default_plan')
         ->and($output)->toContain('[PASS] support_tables')
         ->and($output)->toContain('[PASS] routes')
-        ->and($output)->toContain('All 22 documented partner routes are registered')
+        ->and($output)->toContain('All 25 documented partner routes are registered')
         ->and($output)->toContain('OVERALL: PASS');
 
     expect(Route::has('partner.fizahub.onboarding.confirm'))->toBeFalse()
         ->and(Route::has('partner.fizahub.onboarding.cancel'))->toBeFalse()
-        ->and(Route::has('partner.fizahub.support-tickets.attachments.store'))->toBeFalse()
         ->and(Route::has('partner.fizahub.businesses.integration-status'))->toBeFalse()
-        ->and(Route::has('partner.fizahub.businesses.one-time-login'))->toBeFalse();
+        ->and(Route::has('partner.fizahub.businesses.one-time-login'))->toBeFalse()
+        ->and(Route::has('partner.fizahub.businesses.support-tickets.attachments.index'))->toBeTrue()
+        ->and(Route::has('partner.fizahub.businesses.support-tickets.attachments.store'))->toBeTrue()
+        ->and(Route::has('partner.fizahub.businesses.support-tickets.attachments.show'))->toBeTrue();
 });
 
 test('doctor reports migrations ran but plan missing as two distinct failures', function (): void {

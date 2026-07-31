@@ -4,6 +4,7 @@ namespace Modules\APIPartnerFizaHUB\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Modules\APIPartnerFizaHUB\Models\PartnerApiLog;
@@ -36,7 +37,10 @@ class HandlePartnerRequest
         app()->setLocale((string) config('modules.apipartnerfizahub.locale', 'vi'));
 
         $idempotencyKey = trim((string) $request->headers->get('Idempotency-Key', ''));
-        $requestHash = $this->requestHash($request);
+        // Computed once per request and reused by requestHash()/finalizeLog(): hashing every
+        // uploaded file (up to 100MB) twice would double the CPU cost for no benefit.
+        $fileFingerprints = $this->fileFingerprints($request->allFiles());
+        $requestHash = $this->requestHash($request, $fileFingerprints);
         $log = null;
 
         if ($this->requiresIdempotency($request) && ($idempotencyKey === '' || strlen($idempotencyKey) > 128)) {
@@ -51,7 +55,7 @@ class HandlePartnerRequest
                 $requestId
             );
 
-            $this->finalizeLog($request, $response, $requestId, '', $requestHash, null);
+            $this->finalizeLog($request, $response, $requestId, '', $requestHash, null, $fileFingerprints);
 
             return $this->withRequestId($response, $requestId);
         }
@@ -89,7 +93,7 @@ class HandlePartnerRequest
         }
 
         $response = $this->withRequestId($response, $requestId);
-        $this->finalizeLog($request, $response, $requestId, $idempotencyKey, $requestHash, $log);
+        $this->finalizeLog($request, $response, $requestId, $idempotencyKey, $requestHash, $log, $fileFingerprints);
 
         return $response;
     }
@@ -182,13 +186,17 @@ class HandlePartnerRequest
         return response()->json($payload, $status)->header('X-Request-Id', $requestId);
     }
 
+    /**
+     * @param  array<string, mixed>  $fileFingerprints
+     */
     private function finalizeLog(
         Request $request,
         Response $response,
         string $requestId,
         string $idempotencyKey,
         string $requestHash,
-        ?PartnerApiLog $log
+        ?PartnerApiLog $log,
+        array $fileFingerprints = []
     ): void {
         if (! Schema::hasTable('partner_api_logs')) {
             return;
@@ -196,7 +204,10 @@ class HandlePartnerRequest
 
         $statusCode = $response->getStatusCode();
         $responsePayload = $this->decodeJsonResponse($response);
-        $requestPayload = PartnerPayloadRedactor::redactAndCap([
+        // Use input() (not all()) so raw UploadedFile objects never leak into the JSON log —
+        // they aren't JsonSerializable and would silently collapse to "{}", which was also the
+        // root cause of the request-hash bug fixed alongside this: see fileFingerprints().
+        $requestPayload = PartnerPayloadRedactor::redactAndCap(array_filter([
             '_request_hash' => $requestHash,
             'headers' => [
                 'authorization' => $request->headers->get('Authorization'),
@@ -204,8 +215,9 @@ class HandlePartnerRequest
                 'x-request-id' => $requestId,
                 'idempotency-key' => $idempotencyKey !== '' ? $idempotencyKey : null,
             ],
-            'body' => $request->isJson() ? ($request->json()->all() ?: []) : $request->all(),
-        ]);
+            'body' => $request->isJson() ? ($request->json()->all() ?: []) : $request->input(),
+            'files' => $fileFingerprints,
+        ], static fn (mixed $value): bool => $value !== []));
         $redactedResponse = PartnerPayloadRedactor::redactAndCap($responsePayload);
 
         if ($log instanceof PartnerApiLog) {
@@ -233,18 +245,62 @@ class HandlePartnerRequest
         ]);
     }
 
-    private function requestHash(Request $request): string
+    /**
+     * @param  array<string, mixed>  $fileFingerprints
+     */
+    private function requestHash(Request $request, array $fileFingerprints = []): string
     {
-        $payload = $request->isJson() ? $request->json()->all() : $request->all();
+        // input() (not all()) so multipart uploads (e.g. support attachments) don't merge raw
+        // UploadedFile objects into $payload — see fileFingerprints() for why that mattered.
+        $payload = $request->isJson() ? $request->json()->all() : $request->input();
         $canonical = [
             'query' => $this->canonicalize($request->query()),
             'body' => $this->canonicalize($payload),
+            'files' => $fileFingerprints,
         ];
 
         return hash('sha256', json_encode(
             $canonical,
             JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR
         ));
+    }
+
+    /**
+     * Content fingerprint for uploaded files (name + size + sha256 of bytes) so the
+     * Idempotency-Key hash actually distinguishes multipart uploads. Without this, every
+     * UploadedFile object collapsed to "{}" when JSON-encoded (it isn't JsonSerializable and
+     * exposes no public properties), so two DIFFERENT files sent under the SAME Idempotency-Key
+     * hashed identically — the middleware would silently replay the first file's cached response
+     * instead of returning `409 idempotency_conflict` for the second, mismatched file.
+     *
+     * @param  array<string, mixed>  $files
+     * @return array<string, mixed>
+     */
+    private function fileFingerprints(array $files): array
+    {
+        $result = [];
+
+        foreach ($files as $key => $file) {
+            if (is_array($file)) {
+                $result[$key] = $this->fileFingerprints($file);
+
+                continue;
+            }
+
+            if (! $file instanceof UploadedFile || ! $file->isValid()) {
+                continue;
+            }
+
+            $result[$key] = [
+                'name' => $file->getClientOriginalName(),
+                'size' => $file->getSize(),
+                'sha256' => @hash_file('sha256', $file->getRealPath()) ?: null,
+            ];
+        }
+
+        ksort($result);
+
+        return $result;
     }
 
     private function requiresIdempotency(Request $request): bool

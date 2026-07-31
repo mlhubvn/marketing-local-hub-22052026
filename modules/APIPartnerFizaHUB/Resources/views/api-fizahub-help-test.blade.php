@@ -319,6 +319,7 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
                 <tr><td><code>409 ticket_not_open</code></td><td>Gửi tin/đính kèm vào ticket đã đóng</td><td>Reopen ticket (bước 21) rồi thử lại</td></tr>
                 <tr><td><code>422 attachment_type_not_allowed</code></td><td>Sai định dạng/đuôi tệp đính kèm</td><td>Xem bảng loại tệp cho phép ở Bước 6</td></tr>
                 <tr><td><code>422 attachment_too_large</code></td><td>Tệp vượt dung lượng cho phép</td><td>Xem <code>error.details.max_size_mb</code></td></tr>
+                <tr><td><code>404 attachment_not_found</code></td><td>Sai <code>attachment_id</code> hoặc file đã bị xóa</td><td>Gọi lại bước 22 List Attachments để lấy id đúng</td></tr>
                 <tr><td><code>404 integration_not_found</code></td><td>Chưa onboarding / sai business id</td><td>Chạy lại từ bước 04 Create Onboarding</td></tr>
                 <tr><td><code>503</code> / degraded</td><td>Máy chủ chưa sẵn sàng</td><td>Chạy lại Health; vẫn lỗi thì gửi <code>meta.request_id</code> cho MLHUB</td></tr>
                 <tr><td><code>429 rate_limit_exceeded</code></td><td>Gọi quá nhanh</td><td>Đợi ~1 phút rồi chạy lại</td></tr>

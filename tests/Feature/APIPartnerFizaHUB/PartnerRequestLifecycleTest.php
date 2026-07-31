@@ -3,6 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
@@ -97,6 +98,15 @@ beforeEach(function (): void {
                     'subject' => ['The subject field is required.'],
                 ]);
             });
+
+            Route::post('_lifecycle/upload', function (Request $request): JsonResponse {
+                $file = $request->file('file');
+
+                return PartnerApiResponse::success([
+                    'original_name' => $file?->getClientOriginalName(),
+                    'sha256' => $file ? hash_file('sha256', $file->getRealPath()) : null,
+                ], 201);
+            });
         });
 });
 
@@ -162,6 +172,43 @@ test('same idempotency key with different body returns conflict', function (): v
         ['value' => 2],
         lifecycleHeaders(['Idempotency-Key' => $idempotencyKey])
     )
+        ->assertStatus(409)
+        ->assertJsonPath('error.code', 'idempotency_conflict');
+});
+
+test('retrying a multipart upload with the same file under the same idempotency key replays the cached response', function (): void {
+    $idempotencyKey = (string) str()->uuid();
+    $headers = lifecycleHeaders(['Idempotency-Key' => $idempotencyKey]);
+    unset($headers['Content-Type']);
+
+    $makeFile = fn () => UploadedFile::fake()->createWithContent('a.txt', 'same file bytes');
+
+    $first = $this->post('/api/v1/partners/fizahub/_lifecycle/upload', ['file' => $makeFile()], $headers)
+        ->assertCreated();
+
+    $second = $this->post('/api/v1/partners/fizahub/_lifecycle/upload', ['file' => $makeFile()], $headers)
+        ->assertCreated();
+
+    expect($second->json('data'))->toBe($first->json('data'))
+        ->and(PartnerApiLog::query()->where('idempotency_key', $idempotencyKey)->count())->toBe(1);
+});
+
+test('reusing an idempotency key with a DIFFERENT uploaded file returns a conflict instead of silently replaying the first file', function (): void {
+    // Regression test: HandlePartnerRequest::requestHash() used to hash $request->all(), and
+    // an UploadedFile JSON-encodes to "{}" (no public properties) — so two different files sent
+    // under the same Idempotency-Key hashed identically and the second file's upload was never
+    // actually processed, the partner just silently got back the first file's cached response.
+    $idempotencyKey = (string) str()->uuid();
+    $headers = lifecycleHeaders(['Idempotency-Key' => $idempotencyKey]);
+    unset($headers['Content-Type']);
+
+    $this->post('/api/v1/partners/fizahub/_lifecycle/upload', [
+        'file' => UploadedFile::fake()->createWithContent('a.txt', 'file A content'),
+    ], $headers)->assertCreated();
+
+    $this->post('/api/v1/partners/fizahub/_lifecycle/upload', [
+        'file' => UploadedFile::fake()->createWithContent('b.txt', 'a totally different file B content'),
+    ], $headers)
         ->assertStatus(409)
         ->assertJsonPath('error.code', 'idempotency_conflict');
 });

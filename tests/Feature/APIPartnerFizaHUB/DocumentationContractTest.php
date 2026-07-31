@@ -35,7 +35,7 @@ function fizahubEnvExampleValue(string $key): string
     return explode('=', $line, 2)[1] ?? '';
 }
 
-test('postman publishes the exact executable 22 request UI contract', function (): void {
+test('postman publishes the exact executable 25 request UI contract', function (): void {
     $collection = fizahubPostmanCollection();
     $folders = $collection['item'] ?? [];
 
@@ -45,7 +45,7 @@ test('postman publishes the exact executable 22 request UI contract', function (
             'System', 'Onboarding', 'Growth', 'Support', 'CRM',
         ])
         ->and(collect($folders)->map(fn (array $folder): int => count($folder['item'] ?? []))->all())
-        ->toBe([2, 6, 6, 7, 1]);
+        ->toBe([2, 6, 6, 10, 1]);
 
     $items = fizahubPostmanItems($folders);
     $actual = collect($items)->map(fn (array $item): string =>
@@ -74,11 +74,16 @@ test('postman publishes the exact executable 22 request UI contract', function (
         'POST businesses/{{external_business_id}}/support-tickets/{{ticket_id}}/messages',
         'POST businesses/{{external_business_id}}/support-tickets/{{ticket_id}}/close',
         'POST businesses/{{external_business_id}}/support-tickets/{{ticket_id}}/reopen',
+        'GET businesses/{{external_business_id}}/support-tickets/{{ticket_id}}/attachments',
+        'POST businesses/{{external_business_id}}/support-tickets/{{ticket_id}}/attachments',
+        'GET businesses/{{external_business_id}}/support-tickets/{{ticket_id}}/attachments/{{attachment_id}}',
         'POST businesses/{{external_business_id}}/crm-login-links',
     ]);
 
+    // Legacy dead paths that must never resurface. `/attachments` was removed from this list on
+    // purpose: it is now a real, approved part of the Support contract (see UiApiContractTest).
     $raw = json_encode($collection, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    foreach (['/integration-status', '/packages', '/insights', '/recommendations', '/one-time-login', '/support-summary', '/attachments'] as $legacy) {
+    foreach (['/integration-status', '/packages', '/insights', '/recommendations', '/one-time-login', '/support-summary'] as $legacy) {
         expect($raw)->not->toContain($legacy);
     }
 });
@@ -91,7 +96,7 @@ test('postman headers variables scripts and dependency guards support a sequenti
     expect($variables)->toEqualCanonicalizing([
         'base_url', 'partner_token', 'external_user_id', 'external_business_id',
         'onboarding_request_id', 'onboarding_ticket_id', 'onboarding_ready',
-        'ticket_id', 'campaign_id', 'campaign_approval_ready',
+        'ticket_id', 'attachment_id', 'campaign_id', 'campaign_approval_ready',
         'from', 'to',
     ]);
 
@@ -152,21 +157,21 @@ test('repository Postman defaults to production URL and preconfigures the testin
         ->and($preRequest)->toContain("cv.set('external_user_id'");
 });
 
-test('readme and endpoint matrix document the approved cutover without attachment promises', function (): void {
+test('readme and endpoint matrix document the approved cutover with the attachment contract', function (): void {
     $readme = (string) file_get_contents(base_path('modules/APIPartnerFizaHUB/README.md'));
     $matrix = (string) file_get_contents(base_path('modules/APIPartnerFizaHUB/docs/ENDPOINT_MATRIX.md'));
     $combined = $readme."\n".$matrix;
 
     foreach ([
-        '22 endpoint', '15 màn hình', 'meta.request_id', 'idempotency_conflict',
+        '25 endpoint', '15 màn hình', 'meta.request_id', 'idempotency_conflict',
         'awaiting_consultant', 'needs_review', 'in_consultation', 'configuring',
         'ready', 'completed', 'cancelled', 'next_cursor', '366',
         'marketing-catalog', 'marketing-preferences', 'growth-insights',
         'support-presets', 'crm-login-links', 'breaking cutover',
+        'attachment_type_not_allowed', 'attachment_too_large', 'attachment_not_found',
     ] as $needle) {
         expect(stripos($combined, $needle))->not->toBeFalse("Missing docs phrase: {$needle}");
     }
 
-    expect(strtolower($combined))->not->toContain('upload support attachment')
-        ->and($combined)->not->toContain('/attachments');
+    expect($combined)->toContain('/attachments');
 });

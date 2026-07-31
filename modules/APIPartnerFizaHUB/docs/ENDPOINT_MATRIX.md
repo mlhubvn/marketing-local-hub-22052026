@@ -124,4 +124,4 @@ qua 3 request `GET/POST attachments` và `GET attachments/{attachment_id}` (`Sup
 - **Vòng đời:** khi xóa user, ticket support và toàn bộ tệp đính kèm liên quan (kể cả file vật lý
   trên disk) đều bị xóa theo (xem `DeleteUser`), tránh rác file mồ côi.
 - **Lỗi thường gặp:** `422 attachment_type_not_allowed`, `422 attachment_too_large`,
-  `409 ticket_not_open`, `503 support_attachments_unavailable`.
+  `404 attachment_not_found`, `409 ticket_not_open`, `503 support_attachments_unavailable`.
