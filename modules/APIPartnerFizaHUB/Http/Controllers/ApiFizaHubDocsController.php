@@ -20,6 +20,7 @@ class ApiFizaHubDocsController
             // needing a separate out-of-band secret exchange.
             'webhookSecret' => (string) config('modules.apipartnerfizahub.webhook_secret', ''),
             'webhookBaseUrl' => (string) config('modules.apipartnerfizahub.webhook_base_url', ''),
+            'reportingPortalUrl' => $this->reportingPortalUrl(),
         ]);
     }
 
@@ -35,7 +36,21 @@ class ApiFizaHubDocsController
             'appUrl' => rtrim((string) config('app.url'), '/'),
             'dashboardFrom' => $dashboardFrom,
             'dashboardTo' => $dashboardTo,
+            'reportingPortalUrl' => $this->reportingPortalUrl(),
         ]);
+    }
+
+    /**
+     * Public URL of the separate FizaHUB Partner Reporting Portal (view-only dashboard for
+     * FizaHUB leadership on its own domain), or null when the feature is disabled
+     * (`FIZAHUB_DOMAIN` empty) — the docs pages hide the callout entirely in that case
+     * instead of advertising a portal that has no routes registered.
+     */
+    private function reportingPortalUrl(): ?string
+    {
+        $domain = trim((string) config('modules.apipartnerfizahub.partner_reporting_domain', ''));
+
+        return $domain === '' ? null : 'https://'.$domain;
     }
 
     public function postman(): Response

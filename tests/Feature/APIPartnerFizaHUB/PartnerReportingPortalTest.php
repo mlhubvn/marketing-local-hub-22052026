@@ -26,7 +26,7 @@ require_once __DIR__.'/FizaHubTestHelpers.php';
  */
 function reportingUrl(string $path = '/'): string
 {
-    return 'http://fzh.vmo.vn'.$path;
+    return 'http://fzh.vmo.com.vn'.$path;
 }
 
 /**
@@ -443,7 +443,7 @@ test('an unrelated MLHUB route redirects an authenticated allowlisted user back 
     $response = $this->actingAs($admin)->get(reportingUrl('/api-fizahub/postman'));
 
     $response->assertRedirect();
-    expect($response->headers->get('Location'))->toContain('fzh.vmo.vn');
+    expect($response->headers->get('Location'))->toContain('fzh.vmo.com.vn');
 });
 
 // 11. Graceful empty states — dashboard and detail pages must not error when there is no

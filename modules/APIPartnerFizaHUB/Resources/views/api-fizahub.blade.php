@@ -24,6 +24,9 @@
         .quickstart { margin:22px 0 30px; padding:18px 20px; border:1px solid #99d5c5; border-radius:14px; background:#eefaf6; }
         .quickstart h2 { margin-top:0; }
         .warning { color:#8a4b08; font-weight:650; }
+        .portal-callout { margin:0 0 30px; padding:18px 20px; border:1px solid #a9c6f0; border-radius:14px; background:#eef4fd; }
+        .portal-callout h2 { margin-top:0; }
+        .new-tag { display:inline-block; background:#1d4ed8; color:#fff; border-radius:6px; padding:1px 8px; font-size:12px; font-weight:700; margin-right:8px; vertical-align:middle; }
     </style>
 </head>
 <body>
@@ -47,6 +50,15 @@ health={{ $healthUrl }}</code></pre>
         <p><strong>Chưa từng dùng Postman?</strong> Làm theo <a href="{{ $helpTestUrl }}">hướng dẫn click từng nút</a> (cài Postman → Import → Variables → Run → tra lỗi).</p>
         <p class="warning">⚠️ Token trong file là token thử nghiệm. Khi chạy chính thức, MLHUB sẽ đổi token và gửi lại — vui lòng tải/import bản mới.</p>
     </section>
+    @if($reportingPortalUrl)
+        <section class="portal-callout">
+            <h2><span class="new-tag">MỚI</span>Cổng báo cáo dành cho lãnh đạo FizaHUB</h2>
+            <p>Ngoài 25 request API ở trên (dành cho đội kỹ thuật FizaHUB tích hợp app), MLHUB có thêm một <strong>website riêng, chỉ để xem báo cáo</strong> — dành cho lãnh đạo FizaHUB, <strong>không cần biết Postman hay lập trình</strong>:</p>
+            <pre><code>{{ $reportingPortalUrl }}</code></pre>
+            <p>Đăng nhập bằng <strong>tài khoản MLHUB có sẵn</strong> (không cần tạo tài khoản mới). Sau khi đăng nhập, xem được: tổng số yêu cầu onboarding và tình trạng xử lý, số HKD đã có tài khoản, biểu đồ tăng trưởng theo ngày/tháng, danh sách toàn bộ HKD thuộc FizaHUB kèm bộ lọc/tìm kiếm, và trang chi tiết từng HKD (gói dịch vụ, thời hạn, chỉ số hoạt động, vé hỗ trợ) — hoàn toàn <strong>chỉ xem, không sửa được</strong> bất kỳ dữ liệu nào.</p>
+            <p><strong>Cách cấp quyền:</strong> gửi cho MLHUB danh sách <em>tên và email tài khoản MLHUB</em> của những người bên FizaHUB cần xem báo cáo (mỗi người phải đã có sẵn tài khoản MLHUB) — MLHUB sẽ cấp quyền theo đúng danh sách đó. Người chưa được cấp quyền đăng nhập vào sẽ thấy thông báo từ chối truy cập rõ ràng, không thấy được dữ liệu.</p>
+        </section>
+    @endif
     {!! Illuminate\Support\Str::markdown((string) file_get_contents(base_path('modules/APIPartnerFizaHUB/README.md'))) !!}
 </main>
 </body>

@@ -60,6 +60,9 @@
             <a href="#buoc-6">Bước 6 · Tham số đầu vào thường dùng</a>
             <a href="#buoc-7">Bước 7 · Kết quả mong đợi &amp; lỗi thường gặp</a>
             <a href="#buoc-8">Bước 8 · Checklist gửi cho MLHUB khi kẹt</a>
+            @if($reportingPortalUrl)
+                <a href="#buoc-9">Bước 9 · Cổng báo cáo cho lãnh đạo (không cần Postman)</a>
+            @endif
         </nav>
     </header>
 
@@ -342,6 +345,20 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
         </p>
         <p class="muted">Endpoint gốc: <code>{{ $appUrl }}/api/v1/partners/fizahub</code> · Khoảng ngày mẫu Dashboard: <code>{{ $dashboardFrom }}</code> → <code>{{ $dashboardTo }}</code></p>
     </article>
+
+    @if($reportingPortalUrl)
+        <article id="buoc-9">
+            <h2>Bước 9 · Cổng báo cáo cho lãnh đạo (không cần Postman, không cần biết lập trình)</h2>
+            <p>Tất cả nội dung ở trên (Postman, 25 request) là dành cho <strong>đội kỹ thuật</strong> FizaHUB tích hợp app. Nếu chỉ cần <strong>xem báo cáo onboarding/HKD</strong> — không sửa gì cả — thì không cần làm các bước 0–8, chỉ cần:</p>
+            <ol class="steps">
+                <li>Mở trình duyệt, vào thẳng: <a href="{{ $reportingPortalUrl }}" target="_blank" rel="noreferrer">{{ $reportingPortalUrl }}</a></li>
+                <li>Đăng nhập bằng <strong>tài khoản MLHUB có sẵn</strong> của bạn (email + mật khẩu như khi vào MLHUB bình thường). Không cần cài gì thêm, không cần Postman.</li>
+                <li>Nếu báo <em>"không có quyền truy cập"</em>: tài khoản của bạn chưa nằm trong danh sách được MLHUB cấp quyền — nhờ người phụ trách bên FizaHUB gửi email/tài khoản MLHUB của bạn cho MLHUB để được thêm vào.</li>
+            </ol>
+            <div class="ok">Đây là trang <strong>chỉ xem</strong>: tổng số yêu cầu onboarding, tình trạng xử lý, số HKD đã có tài khoản, biểu đồ tăng trưởng theo ngày/tháng, danh sách và chi tiết từng HKD (gói dịch vụ, thời hạn, chỉ số hoạt động, vé hỗ trợ). Không có nút sửa/xóa bất kỳ dữ liệu nào ở đây.</div>
+            <div class="note">Cổng này chạy trên một địa chỉ web riêng (<code>{{ $reportingPortalUrl }}</code>), tách biệt hoàn toàn với 25 request API ở các bước trên — không liên quan đến Postman hay <code>partner_token</code>.</div>
+        </article>
+    @endif
 </main>
 </body>
 </html>

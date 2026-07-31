@@ -123,7 +123,7 @@ return [
 
     // --- FizaHUB Partner Reporting Portal (cổng báo cáo view-only, domain riêng) ---
     // Domain chạy cổng báo cáo. Rỗng = tính năng tắt hẳn (không đăng ký route domain).
-    'partner_reporting_domain' => trim((string) env('FIZAHUB_DOMAIN', 'fzh.vmo.vn')),
+    'partner_reporting_domain' => trim((string) env('FIZAHUB_DOMAIN', 'fzh.vmo.com.vn')),
     // Danh sách ID user MLHUB (users.id) được phép xem cổng báo cáo. env() chỉ được gọi ở
     // đây (tương thích `config:cache`); luật parse (khoảng trắng, giá trị rỗng/không hợp lệ,
     // trùng lặp) nằm trong PartnerReportingAdminIds::parse() để có thể unit-test độc lập.

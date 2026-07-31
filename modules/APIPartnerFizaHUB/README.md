@@ -36,55 +36,63 @@ Idempotency semantics:
 - Close/Reopen lặp trả `200` với trạng thái hiện tại (idempotent), không 409/500.
 - CRM cùng key trả cùng link khi còn hiệu lực/chưa dùng; nếu đã dùng hoặc hết hạn trả `crm_login_link_not_reusable`, `next_action=new_idempotency_key`.
 
+
+
 ## 25 endpoint chính thức
 
-| # | Method | Path | Mô tả |
-|---:|:---:|---|---|
-| 1 | GET | `/health` | Readiness API, schema, plan và dependency. |
-| 2 | POST | `/partner/sso/verify` | Xác minh partner token. |
-| 3 | GET | `/marketing-catalog` | Mục tiêu Marketing, ngành nghề và package. |
-| 4 | POST | `/onboarding-requests` | Atomic onboarding và provision Free workspace. |
-| 5 | GET | `/onboarding-requests/{request_id}` | Trạng thái và timeline onboarding. |
-| 6 | GET | `/businesses/{external_business_id}/marketing-status` | Activation, capability và navigation links. |
-| 7 | PATCH | `/businesses/{external_business_id}/profile` | Cập nhật profile được phép. |
-| 8 | PATCH | `/businesses/{external_business_id}/marketing-preferences` | Lưu goals và gói quan tâm. |
-| 9 | GET | `/businesses/{external_business_id}/dashboard` | KPI/trend; zero-data vẫn 200. |
-| 10 | GET | `/businesses/{external_business_id}/growth-insights` | Score, sources, highlights, recommendations. |
-| 11 | GET | `/businesses/{external_business_id}/campaigns` | List/filter/search/cursor. |
-| 12 | GET | `/businesses/{external_business_id}/campaigns/{campaign_id}` | Campaign detail. |
-| 13 | POST | `/businesses/{external_business_id}/campaigns/{campaign_id}/approval` | Duyệt hoặc yêu cầu chỉnh sửa. |
-| 14 | GET | `/businesses/{external_business_id}/package` | Effective/requested/approved package. |
-| 15 | GET | `/businesses/{external_business_id}/support-presets` | Preset SOP. |
-| 16 | POST | `/businesses/{external_business_id}/support-tickets` | Tạo ticket text. |
-| 17 | GET | `/businesses/{external_business_id}/support-tickets` | Summary và list cursor. |
-| 18 | GET | `/businesses/{external_business_id}/support-tickets/{ticket_id}` | Detail và hội thoại. |
-| 19 | POST | `/businesses/{external_business_id}/support-tickets/{ticket_id}/messages` | Gửi message. |
-| 20 | POST | `/businesses/{external_business_id}/support-tickets/{ticket_id}/close` | Đóng ticket. |
-| 21 | POST | `/businesses/{external_business_id}/support-tickets/{ticket_id}/reopen` | Mở lại ticket. |
-| 22 | GET | `/businesses/{external_business_id}/support-tickets/{ticket_id}/attachments` | Danh sách đính kèm (business + admin). |
-| 23 | POST | `/businesses/{external_business_id}/support-tickets/{ticket_id}/attachments` | Tải lên 1 tệp đính kèm. |
-| 24 | GET | `/businesses/{external_business_id}/support-tickets/{ticket_id}/attachments/{attachment_id}` | Tải xuống một tệp đính kèm. |
-| 25 | POST | `/businesses/{external_business_id}/crm-login-links` | Link CRM dùng một lần. |
+
+| #   | Method | Path                                                                                         | Mô tả                                          |
+| --- | ------ | -------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| 1   | GET    | `/health`                                                                                    | Readiness API, schema, plan và dependency.     |
+| 2   | POST   | `/partner/sso/verify`                                                                        | Xác minh partner token.                        |
+| 3   | GET    | `/marketing-catalog`                                                                         | Mục tiêu Marketing, ngành nghề và package.     |
+| 4   | POST   | `/onboarding-requests`                                                                       | Atomic onboarding và provision Free workspace. |
+| 5   | GET    | `/onboarding-requests/{request_id}`                                                          | Trạng thái và timeline onboarding.             |
+| 6   | GET    | `/businesses/{external_business_id}/marketing-status`                                        | Activation, capability và navigation links.    |
+| 7   | PATCH  | `/businesses/{external_business_id}/profile`                                                 | Cập nhật profile được phép.                    |
+| 8   | PATCH  | `/businesses/{external_business_id}/marketing-preferences`                                   | Lưu goals và gói quan tâm.                     |
+| 9   | GET    | `/businesses/{external_business_id}/dashboard`                                               | KPI/trend; zero-data vẫn 200.                  |
+| 10  | GET    | `/businesses/{external_business_id}/growth-insights`                                         | Score, sources, highlights, recommendations.   |
+| 11  | GET    | `/businesses/{external_business_id}/campaigns`                                               | List/filter/search/cursor.                     |
+| 12  | GET    | `/businesses/{external_business_id}/campaigns/{campaign_id}`                                 | Campaign detail.                               |
+| 13  | POST   | `/businesses/{external_business_id}/campaigns/{campaign_id}/approval`                        | Duyệt hoặc yêu cầu chỉnh sửa.                  |
+| 14  | GET    | `/businesses/{external_business_id}/package`                                                 | Effective/requested/approved package.          |
+| 15  | GET    | `/businesses/{external_business_id}/support-presets`                                         | Preset SOP.                                    |
+| 16  | POST   | `/businesses/{external_business_id}/support-tickets`                                         | Tạo ticket text.                               |
+| 17  | GET    | `/businesses/{external_business_id}/support-tickets`                                         | Summary và list cursor.                        |
+| 18  | GET    | `/businesses/{external_business_id}/support-tickets/{ticket_id}`                             | Detail và hội thoại.                           |
+| 19  | POST   | `/businesses/{external_business_id}/support-tickets/{ticket_id}/messages`                    | Gửi message.                                   |
+| 20  | POST   | `/businesses/{external_business_id}/support-tickets/{ticket_id}/close`                       | Đóng ticket.                                   |
+| 21  | POST   | `/businesses/{external_business_id}/support-tickets/{ticket_id}/reopen`                      | Mở lại ticket.                                 |
+| 22  | GET    | `/businesses/{external_business_id}/support-tickets/{ticket_id}/attachments`                 | Danh sách đính kèm (business + admin).         |
+| 23  | POST   | `/businesses/{external_business_id}/support-tickets/{ticket_id}/attachments`                 | Tải lên 1 tệp đính kèm.                        |
+| 24  | GET    | `/businesses/{external_business_id}/support-tickets/{ticket_id}/attachments/{attachment_id}` | Tải xuống một tệp đính kèm.                    |
+| 25  | POST   | `/businesses/{external_business_id}/crm-login-links`                                         | Link CRM dùng một lần.                         |
+
+
+
 
 ## Mapping 15 màn hình UI
 
-| Màn hình | Endpoint |
-|---|---|
-| 01 — Trang chủ chưa kích hoạt | `GET marketing-status` |
-| 02 — Chọn giải pháp Marketing | `GET marketing-catalog`; sau onboarding dùng `PATCH marketing-preferences` |
-| 03 — Thông tin đăng ký | `POST onboarding-requests` |
-| 04 — Tạo tài khoản thành công | Response onboarding và `GET marketing-status` |
-| 05 — Theo dõi Onboarding | `GET onboarding-requests/{request_id}` |
-| 06 — Trang chủ đã kích hoạt | `GET dashboard` |
-| 07 — Tổng quan tăng trưởng | `GET dashboard?range=7d|30d|90d|custom` |
-| 08 — Phân tích tăng trưởng | `GET growth-insights` |
-| 09 — Danh sách chiến dịch | `GET campaigns` |
-| 10 — Quản lý gói | `GET package`; `PATCH marketing-preferences` để lưu gói quan tâm |
-| 11 — Chi tiết chiến dịch | `GET campaigns/{campaign_id}`; `POST approval` |
-| 12 — Trung tâm hỗ trợ | `GET support-presets`; `GET support-tickets` |
-| 13 — Tạo yêu cầu hỗ trợ | `POST support-tickets` |
-| 14 — Chi tiết và hội thoại | `GET detail`; `POST messages`; `POST close`; `POST reopen`; `GET/POST/GET attachments` |
-| 15 — Truy cập CRM MLHUB | `POST crm-login-links` khi ready/completed |
+
+| Màn hình                      | Endpoint                                                                               |
+| ----------------------------- | -------------------------------------------------------------------------------------- |
+| 01 — Trang chủ chưa kích hoạt | `GET marketing-status`                                                                 |
+| 02 — Chọn giải pháp Marketing | `GET marketing-catalog`; sau onboarding dùng `PATCH marketing-preferences`             |
+| 03 — Thông tin đăng ký        | `POST onboarding-requests`                                                             |
+| 04 — Tạo tài khoản thành công | Response onboarding và `GET marketing-status`                                          |
+| 05 — Theo dõi Onboarding      | `GET onboarding-requests/{request_id}`                                                 |
+| 06 — Trang chủ đã kích hoạt   | `GET dashboard`                                                                        |
+| 07 — Tổng quan tăng trưởng    | `GET dashboard?range=7d                                                                |
+| 08 — Phân tích tăng trưởng    | `GET growth-insights`                                                                  |
+| 09 — Danh sách chiến dịch     | `GET campaigns`                                                                        |
+| 10 — Quản lý gói              | `GET package`; `PATCH marketing-preferences` để lưu gói quan tâm                       |
+| 11 — Chi tiết chiến dịch      | `GET campaigns/{campaign_id}`; `POST approval`                                         |
+| 12 — Trung tâm hỗ trợ         | `GET support-presets`; `GET support-tickets`                                           |
+| 13 — Tạo yêu cầu hỗ trợ       | `POST support-tickets`                                                                 |
+| 14 — Chi tiết và hội thoại    | `GET detail`; `POST messages`; `POST close`; `POST reopen`; `GET/POST/GET attachments` |
+| 15 — Truy cập CRM MLHUB       | `POST crm-login-links` khi ready/completed                                             |
+
 
 `partner/sso/verify` là endpoint hệ thống, không gắn với màn hình người dùng.
 
@@ -130,6 +138,8 @@ Username sinh từ local-part email: lowercase, `Str::ascii()`, bỏ ký tự ng
 - Date range mặc định `30d`; hỗ trợ `today`, `7d`, `30d`, `90d`, `custom`.
 - Custom cần `from`, `to`, `from <= to`, tối đa **366** ngày; sai trả `422 validation_failed`.
 
+
+
 ## Support lifecycle
 
 Preset public: `qr_scan_not_recorded`, `growth_recommendation`, `campaign_request`, `package_upgrade`. Ticket onboarding nội bộ vẫn xuất hiện trong list.
@@ -147,6 +157,8 @@ Luồng đầy đủ Create → List → Detail → Message → Close → Reopen
 - Idempotency-Key cho request tải lên tính theo nội dung tệp thật (SHA-256), không chỉ tên field: gửi 2 tệp khác nhau cùng key → `409 idempotency_conflict` đúng chuẩn, không âm thầm phát lại kết quả tệp đầu tiên.
 - Khi xóa user MLHUB (`Admin → Users → Delete`), ticket support và toàn bộ tệp đính kèm (kể cả file vật lý trên disk) bị xóa theo, không để lại rác.
 
+
+
 ## CRM Login Link
 
 - Chỉ cấp khi onboarding mới nhất là `ready` hoặc `completed`.
@@ -155,6 +167,8 @@ Luồng đầy đủ Create → List → Detail → Message → Close → Reopen
 - Link có TTL, dùng một lần. Link hết hạn/đã dùng yêu cầu Idempotency-Key mới.
 - URL nhạy cảm bị redact khỏi partner API log.
 - GET link chỉ hiển thị trang xác nhận (không tiêu token) — trình duyệt thật tự động submit form POST (JS) để thực sự đăng nhập. Mục đích: bot quét preview link của app chat (Zalo/Messenger/Telegram) chỉ GET, không chạy JS, nên không thể tiêu token trước khi người dùng thật bấm vào.
+
+
 
 ## Admin onboarding board
 
@@ -166,10 +180,12 @@ Cổng riêng cho **lãnh đạo FizaHUB** đăng nhập bằng tài khoản MLH
 
 ### Domain và ENV
 
-| Biến | Ý nghĩa |
-|---|---|
-| `FIZAHUB_DOMAIN` | Domain riêng chạy portal, ví dụ `fzh.vmo.vn`. Route domain-group chỉ đăng ký khi biến này không rỗng. |
-| `FIZAHUB_ADMIN` | Danh sách `users.id` (MLHUB) được phép xem portal, cách nhau dấu phẩy; cho phép khoảng trắng thừa, tự loại giá trị rỗng/không hợp lệ/≤0, tự dedupe. Rỗng hoặc toàn giá trị không hợp lệ ⇒ **không ai** được truy cập (kể cả super-admin). |
+
+| Biến             | Ý nghĩa                                                                                                                                                                                                                                   |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `FIZAHUB_DOMAIN` | Domain riêng chạy portal, ví dụ `fzh.vmo.com.vn`. Route domain-group chỉ đăng ký khi biến này không rỗng.                                                                                                                                 |
+| `FIZAHUB_ADMIN`  | Danh sách `users.id` (MLHUB) được phép xem portal, cách nhau dấu phẩy; cho phép khoảng trắng thừa, tự loại giá trị rỗng/không hợp lệ/≤0, tự dedupe. Rỗng hoặc toàn giá trị không hợp lệ ⇒ **không ai** được truy cập (kể cả super-admin). |
+
 
 Logic parse `FIZAHUB_ADMIN` nằm ở `Support/PartnerReportingAdminIds::parse()` (unit test riêng tại `tests/Unit/APIPartnerFizaHUB/PartnerReportingAdminIdsTest.php`), đọc một lần trong `config/config.php` (namespace `modules.apipartnerfizahub`, giống mọi config khác của module) thành `config('modules.apipartnerfizahub.partner_reporting_domain')` và `config('modules.apipartnerfizahub.partner_reporting_admin_ids')` — không gọi `env()` ngoài file config nên tương thích `config:cache`.
 
@@ -180,12 +196,16 @@ Logic parse `FIZAHUB_ADMIN` nằm ở `Support/PartnerReportingAdminIds::parse()
 3. `RestrictFizaHubDomainHost` (đăng ký global trong `APIPartnerFizaHUBServiceProvider`) chặn mọi route MLHUB khác khi `Host` là `FIZAHUB_DOMAIN`: route không nằm trong allowlist (login/logout, dashboard, chi tiết HKD, asset Livewire/Vite, health) → 404 nếu là guest, hoặc redirect về dashboard nếu đã đăng nhập hợp lệ (tránh lộ menu/tính năng MLHUB, không tạo redirect loop vì chính dashboard/login luôn nằm trong allowlist).
 4. Session trên `FIZAHUB_DOMAIN` là **host-only, tách biệt hoàn toàn** khỏi session `mlhub.vn`: `APIPartnerFizaHUBServiceProvider::configurePartnerReportingSessionIsolation()` so khớp `Host` request lúc boot (trước `StartSession`) và nếu khớp `FIZAHUB_DOMAIN` thì ghi đè `session.domain = null` (bỏ attribute `domain` trên cookie ⇒ trình duyệt chỉ gửi đúng host này) và đổi tên cookie thành `fizahub_partner_session` (khác hẳn `mlhub_session` của domain chính, không thể trùng/ghi đè lẫn nhau) — chỉ request đúng `Host` này bị ảnh hưởng, mọi request khác (kể cả toàn bộ `mlhub.vn`) giữ nguyên config session hiện tại.
 
+
+
 ### Route (domain-scoped, chỉ tồn tại khi `FIZAHUB_DOMAIN` khác rỗng)
 
-| Method | Path | Middleware | Mô tả |
-|---|---|---|---|
-| GET | `/` | `web`, `auth`, `verified`, `ensure.fizahub-partner-access` | Dashboard tổng quan |
-| GET | `/onboarding/{onboardingRequestId}` | như trên | Chi tiết một HKD |
+
+| Method | Path                                | Middleware                                                 | Mô tả               |
+| ------ | ----------------------------------- | ---------------------------------------------------------- | ------------------- |
+| GET    | `/`                                 | `web`, `auth`, `verified`, `ensure.fizahub-partner-access` | Dashboard tổng quan |
+| GET    | `/onboarding/{onboardingRequestId}` | như trên                                                   | Chi tiết một HKD    |
+
 
 Đăng nhập/đăng xuất/2FA dùng nguyên route Fortify hiện có (không tạo route auth riêng); các route MLHUB khác bị `RestrictFizaHubDomainHost` chặn như mô tả ở trên.
 
@@ -198,6 +218,8 @@ Logic parse `FIZAHUB_ADMIN` nằm ở `Support/PartnerReportingAdminIds::parse()
 - **Danh sách HKD**: `businessListQuery()` phân trang bằng `paginate()` (không tải hết vào mảng rồi lọc tay), `with(['user:...', 'user.plan:...', 'business:...'])` để tránh N+1, hỗ trợ tìm kiếm theo tên HKD/chủ tài khoản/email/số điện thoại, lọc theo trạng thái và gói, sắp xếp theo `created_at desc`.
 - **Chi tiết HKD**: tái sử dụng `DashboardService::summarizeCached()` sẵn có cho chỉ số hoạt động (QR scan, lead mới, đánh giá, ưu đãi, đặt lịch, tỷ lệ chuyển đổi, xu hướng 30 ngày) và `SupportTicketBridge` cho danh sách/nội dung vé hỗ trợ chỉ-đọc (không có nút trả lời/đóng/mở lại/xoá trên view).
 - **Chỉ số chưa có dữ liệu** (ví dụ HKD chưa từng có `PartnerIntegration` liên kết `lb_businesses`, hoặc chưa phát sinh growth data) hiển thị nguyên trạng "Chưa có dữ liệu" từ các service gốc — portal không tự chế số liệu giả.
+
+
 
 ### An toàn
 
@@ -217,7 +239,7 @@ Không có destructive migration. `SupportTicketBridge` và bảng `support_tick
 
 ## Postman và diagnostics
 
-Import [`docs/FizaHUB-Partner-API.postman_collection.json`](docs/FizaHUB-Partner-API.postman_collection.json): System 2, Onboarding 6, Growth 6, Support 10, CRM 1.
+Import `[docs/FizaHUB-Partner-API.postman_collection.json](docs/FizaHUB-Partner-API.postman_collection.json)`: System 2, Onboarding 6, Growth 6, Support 10, CRM 1.
 
 Giai đoạn thử nghiệm: `base_url` + `partner_token` đã điền sẵn (trùng `.env.example`). Collection tự sinh external IDs, lưu onboarding/ticket/campaign IDs, skip request phụ thuộc khi thiếu ID. Mỗi request có Params/Body đầy đủ và Examples cho các HTTP status chính.
 
@@ -235,11 +257,15 @@ php artisan fizahub:doctor
 
 Public pages (gửi cho dev FizaHUB):
 
-| URL | Nội dung |
-|---|---|
-| `/api-fizahub` | Contract + quick start |
+
+| URL                      | Nội dung                                            |
+| ------------------------ | --------------------------------------------------- |
+| `/api-fizahub`           | Contract + quick start                              |
 | `/api-fizahub/help-test` | Hướng dẫn click từng bước (người chưa biết Postman) |
-| `/api-fizahub/postman` | Tải JSON đã cấu hình sẵn token |
+| `/api-fizahub/postman`   | Tải JSON đã cấu hình sẵn token                      |
+
+
+
 
 ## Breaking cutover checklist
 
@@ -249,3 +275,4 @@ Public pages (gửi cho dev FizaHUB):
 4. Chạy staging smoke/Newman và full UI happy path.
 5. Cutover production; không bật alias public route cũ.
 6. Theo dõi `meta.request_id`, audit log và FizaHUB Doctor.
+
