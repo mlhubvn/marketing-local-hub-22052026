@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MLHUB × FizaHUB Partner API</title>
-    <meta name="description" content="FizaHUB Partner API: 22 endpoint cho 15 màn hình Marketing.">
+    <meta name="description" content="FizaHUB Partner API: 25 endpoint cho 15 màn hình Marketing.">
     <link rel="icon" href="{{ asset('img/favicon.svg') }}" type="image/svg+xml">
     <style>
         :root { color-scheme: light; --ink:#17231e; --muted:#5d6c65; --line:#d9e2dd; --brand:#0f766e; }
@@ -29,7 +29,7 @@
 <body>
 <main>
     <div class="actions">
-        <a href="{{ route('partner.fizahub.docs.postman') }}">⬇ Tải Postman JSON (22 request, đã cấu hình sẵn)</a>
+        <a href="{{ route('partner.fizahub.docs.postman') }}">⬇ Tải Postman JSON (25 request, đã cấu hình sẵn)</a>
         <a href="{{ route('partner.fizahub.docs.help-test') }}">📘 Hướng dẫn chạy từng bước (cho người mới)</a>
     </div>
     <section class="quickstart">
@@ -38,7 +38,7 @@
         <ol>
             <li>Bấm nút <strong>Tải Postman JSON</strong> ở trên → file <code>MLHUB-FizaHUB-Partner-API.postman_collection.json</code>.</li>
             <li>Mở Postman → <strong>Import</strong> → chọn file vừa tải.</li>
-            <li>Đưa chuột vào collection → bấm <strong>Run</strong> → chạy lần lượt 01 → 22 (hoặc mở từng request bấm <strong>Send</strong>).</li>
+            <li>Đưa chuột vào collection → bấm <strong>Run</strong> → chạy lần lượt 01 → 25 (hoặc mở từng request bấm <strong>Send</strong>).</li>
         </ol>
         <p>Collection tự sinh <code>external_business_id</code>, <code>external_user_id</code>, <code>from</code>, <code>to</code>; tự gắn <code>X-Request-Id</code> và <code>Idempotency-Key</code>; tự lưu <code>onboarding_request_id</code> / <code>campaign_id</code> / <code>ticket_id</code>. Endpoint gốc:</p>
         <pre><code>base_url={{ $appUrl }}

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\AdminUser\Models\Team;
 use Modules\AdminUser\Models\User;
+use Modules\APIPartnerFizaHUB\Models\PartnerSupportAttachment;
 
 class SupportTicket extends Model
 {
@@ -69,6 +70,15 @@ class SupportTicket extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(SupportComment::class, 'ticket_id')->orderBy('created');
+    }
+
+    /**
+     * Tệp đính kèm hai chiều: FizaHUB tải lên qua API hoặc admin đính kèm khi trả lời.
+     * Phân biệt bằng `sender_type` tính từ `uploaded_by_user_id` so với `uid` của ticket.
+     */
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(PartnerSupportAttachment::class, 'support_ticket_id')->orderBy('created_at');
     }
 
     public function scopeSearch(Builder $query, ?string $term): Builder

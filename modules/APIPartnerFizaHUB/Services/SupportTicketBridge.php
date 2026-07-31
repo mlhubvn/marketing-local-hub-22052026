@@ -718,50 +718,9 @@ class SupportTicketBridge
             throw new RuntimeException('ticket_not_open');
         }
 
-        if (! Schema::hasTable('partner_support_attachments')) {
-            throw PartnerApiException::make(
-                'support_attachments_unavailable',
-                __('Tính năng đính kèm tệp chưa sẵn sàng.'),
-                503
-            );
-        }
+        $attachment = $this->persistAttachment($ticket, $file, (int) $integration->mlhub_user_id);
 
-        $maxBytes = max(1, (int) config('modules.apipartnerfizahub.support_max_attachment_size_mb', 10)) * 1024 * 1024;
-        $allowedTypes = (array) config('modules.apipartnerfizahub.support_allowed_attachment_types', []);
-        $mime = (string) ($file->getMimeType() ?: $file->getClientMimeType());
-
-        if ($allowedTypes !== [] && ! in_array($mime, $allowedTypes, true)) {
-            throw PartnerApiException::make(
-                'attachment_type_not_allowed',
-                __('Định dạng tệp đính kèm không được hỗ trợ.'),
-                422,
-                ['file' => [$mime]]
-            );
-        }
-
-        if ($file->getSize() > $maxBytes) {
-            throw PartnerApiException::make(
-                'attachment_too_large',
-                __('Tệp đính kèm vượt quá dung lượng cho phép.'),
-                422
-            );
-        }
-
-        $disk = 'local';
-        $directory = 'partner-fizahub/support/'.$ticket->id;
-        $path = $file->store($directory, $disk);
-
-        $attachment = PartnerSupportAttachment::query()->create([
-            'support_ticket_id' => $ticket->id,
-            'id_secure' => Str::random(32),
-            'original_name' => Str::limit((string) $file->getClientOriginalName(), 250, ''),
-            'mime_type' => $mime,
-            'size_bytes' => (int) $file->getSize(),
-            'disk' => $disk,
-            'path' => $path,
-            'uploaded_by_user_id' => (int) $integration->mlhub_user_id,
-        ]);
-
+        // Business (FizaHUB) uploaded → flag pending for admin attention, same pattern as create()/addMessage().
         $ticket->forceFill([
             'admin_read' => true,
             'user_read' => false,
@@ -780,12 +739,176 @@ class SupportTicketBridge
             ],
         ]);
 
+        return $this->serializeAttachment($integration, $ticket, $attachment);
+    }
+
+    /**
+     * Đính kèm tệp khi admin MLHUB trả lời ticket (`/admin/support`). Dùng chung logic kiểm
+     * tra loại file/dung lượng với `storeAttachment` để không lệch quy tắc giữa hai chiều.
+     */
+    public function storeAdminAttachment(SupportTicket $ticket, UploadedFile $file, int $adminUserId): PartnerSupportAttachment
+    {
+        $attachment = $this->persistAttachment($ticket, $file, $adminUserId);
+
+        // Admin uploaded → flag pending for business attention, same pattern as sendReply().
+        $ticket->forceFill([
+            'user_read' => true,
+            'admin_read' => false,
+            'changed' => time(),
+        ])->save();
+
+        $this->safeLog('admin.support.attachment', 'Uploaded a support attachment as admin reply.', [
+            'subject_type' => SupportTicket::class,
+            'subject_id' => $ticket->id,
+            'area' => 'admin',
+            'causer_user_id' => $adminUserId,
+            'metadata' => [
+                'ticket' => $ticket->id_secure,
+                'attachment' => $attachment->id_secure,
+            ],
+        ]);
+
+        return $attachment;
+    }
+
+    /**
+     * Đối chiếu MIME/đuôi/dung lượng và lưu 1 tệp đính kèm ticket. Nguồn kiểm tra dùng chung
+     * cho cả FizaHUB (`storeAttachment`) và admin MLHUB (`storeAdminAttachment`).
+     */
+    private function persistAttachment(SupportTicket $ticket, UploadedFile $file, int $uploaderUserId): PartnerSupportAttachment
+    {
+        if (! Schema::hasTable('partner_support_attachments')) {
+            throw PartnerApiException::make(
+                'support_attachments_unavailable',
+                __('Tính năng đính kèm tệp chưa sẵn sàng.'),
+                503
+            );
+        }
+
+        $mime = (string) ($file->getMimeType() ?: $file->getClientMimeType());
+        $extension = strtolower((string) $file->getClientOriginalExtension());
+        $allowedTypes = (array) config('modules.apipartnerfizahub.support_allowed_attachment_types', []);
+        $allowedExtensions = (array) config('modules.apipartnerfizahub.support_allowed_attachment_extensions', []);
+
+        if ($allowedTypes !== [] && ! in_array($mime, $allowedTypes, true)) {
+            throw PartnerApiException::make(
+                'attachment_type_not_allowed',
+                __('Định dạng tệp đính kèm không được hỗ trợ.'),
+                422,
+                ['file' => [$mime]]
+            );
+        }
+
+        // Đối chiếu song song đuôi file: chặn kiểu đổi tên file nguy hiểm thành đuôi vô hại
+        // ngay cả khi MIME server dò được (hiếm khi) trùng với danh sách cho phép.
+        if ($extension === '' || ($allowedExtensions !== [] && ! in_array($extension, $allowedExtensions, true))) {
+            throw PartnerApiException::make(
+                'attachment_type_not_allowed',
+                __('Phần mở rộng tệp đính kèm không được hỗ trợ.'),
+                422,
+                ['file' => [$extension !== '' ? $extension : '(none)']]
+            );
+        }
+
+        $isVideo = str_starts_with($mime, 'video/');
+        $maxSizeMb = max(1, (int) config(
+            $isVideo
+                ? 'modules.apipartnerfizahub.support_max_video_attachment_size_mb'
+                : 'modules.apipartnerfizahub.support_max_attachment_size_mb',
+            $isVideo ? 100 : 25
+        ));
+        $maxBytes = $maxSizeMb * 1024 * 1024;
+
+        if ($file->getSize() > $maxBytes) {
+            throw PartnerApiException::make(
+                'attachment_too_large',
+                __('Tệp đính kèm vượt quá dung lượng cho phép (:max MB).', ['max' => $maxSizeMb]),
+                422,
+                ['max_size_mb' => $maxSizeMb]
+            );
+        }
+
+        $disk = 'local';
+        $directory = 'partner-fizahub/support/'.$ticket->id;
+        $path = $file->store($directory, $disk);
+
+        $attachment = PartnerSupportAttachment::query()->create([
+            'support_ticket_id' => $ticket->id,
+            'id_secure' => Str::random(32),
+            'original_name' => Str::limit(basename(str_replace('\\', '/', (string) $file->getClientOriginalName())), 250, ''),
+            'mime_type' => $mime,
+            'size_bytes' => (int) $file->getSize(),
+            'disk' => $disk,
+            'path' => $path,
+            'uploaded_by_user_id' => $uploaderUserId,
+        ]);
+
+        return $attachment;
+    }
+
+    /**
+     * @return array{items: list<array<string, mixed>>}
+     */
+    public function listAttachments(PartnerIntegration $integration, string $ticketSecureId): array
+    {
+        $ticket = $this->findScopedTicketOrFail($integration, $ticketSecureId);
+
+        if (! Schema::hasTable('partner_support_attachments')) {
+            return ['items' => []];
+        }
+
+        $items = PartnerSupportAttachment::query()
+            ->where('support_ticket_id', $ticket->id)
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->get()
+            ->map(fn (PartnerSupportAttachment $attachment): array => $this->serializeAttachment($integration, $ticket, $attachment))
+            ->all();
+
+        return ['items' => $items];
+    }
+
+    public function findScopedAttachmentOrFail(
+        PartnerIntegration $integration,
+        string $ticketSecureId,
+        string $attachmentSecureId
+    ): PartnerSupportAttachment {
+        $ticket = $this->findScopedTicketOrFail($integration, $ticketSecureId);
+
+        $attachment = Schema::hasTable('partner_support_attachments')
+            ? PartnerSupportAttachment::query()
+                ->where('support_ticket_id', $ticket->id)
+                ->where('id_secure', $attachmentSecureId)
+                ->first()
+            : null;
+
+        if (! $attachment) {
+            throw (new ModelNotFoundException)->setModel(PartnerSupportAttachment::class, [$attachmentSecureId]);
+        }
+
+        return $attachment;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function serializeAttachment(
+        PartnerIntegration $integration,
+        SupportTicket $ticket,
+        PartnerSupportAttachment $attachment
+    ): array {
         return [
             'attachment_id' => $attachment->id_secure,
             'original_name' => $attachment->original_name,
             'mime_type' => $attachment->mime_type,
             'size_bytes' => $attachment->size_bytes,
-            'created_at' => $this->isoFromUnix(time()),
+            'sender_type' => ((int) $attachment->uploaded_by_user_id === (int) $ticket->uid) ? 'business' : 'admin',
+            'created_at' => $attachment->created_at?->utc()->toAtomString() ?? $this->isoFromUnix(time()),
+            'download_url' => route('partner.fizahub.businesses.support-tickets.attachments.show', [
+                'external_business_id' => $integration->external_business_id,
+                'ticket_id' => $ticket->id_secure,
+                'attachment_id' => $attachment->id_secure,
+            ]),
         ];
     }
 

@@ -56,13 +56,43 @@ return [
     'webhook_secret' => env('FIZAHUB_WEBHOOK_SECRET', '600b3a729836b0461ea51c2067a1911acb83200e0b148404676f037e8556e56a'),
     'dashboard_cache_ttl_minutes' => (int) env('FIZAHUB_DASHBOARD_CACHE_TTL_MINUTES', 45),
     'dashboard_force_refresh_cooldown_seconds' => (int) env('FIZAHUB_DASHBOARD_FORCE_REFRESH_COOLDOWN_SECONDS', 300),
-    'support_max_attachment_size_mb' => (int) env('FIZAHUB_SUPPORT_MAX_ATTACHMENT_SIZE_MB', 10),
+    // Giới hạn chung (ảnh, zip, văn bản). Video dùng trần riêng cao hơn bên dưới.
+    'support_max_attachment_size_mb' => (int) env('FIZAHUB_SUPPORT_MAX_ATTACHMENT_SIZE_MB', 25),
+    // Trần riêng cho video vì clip quay tại chỗ thường nặng hơn nhiều so với ảnh/PDF.
+    'support_max_video_attachment_size_mb' => (int) env('FIZAHUB_SUPPORT_MAX_VIDEO_ATTACHMENT_SIZE_MB', 100),
+    // Đối chiếu bằng MIME thật (server tự dò nội dung, không tin theo Content-Type client gửi).
     'support_allowed_attachment_types' => [
+        // Hình ảnh
         'image/jpeg',
         'image/png',
         'image/webp',
+        'image/gif',
+        // Video
+        'video/mp4',
+        'video/quicktime',
+        'video/webm',
+        'video/x-msvideo',
+        // Nén
+        'application/zip',
+        'application/x-zip-compressed',
+        // Văn bản đời thường
         'application/pdf',
         'text/plain',
+        'text/csv',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    ],
+    // Đối chiếu song song với phần mở rộng tên file để chặn kiểu đổi tên file nguy hiểm
+    // thành đuôi vô hại (vd .php đổi thành .jpg) — cả hai điều kiện đều phải khớp.
+    'support_allowed_attachment_extensions' => [
+        'jpg', 'jpeg', 'png', 'webp', 'gif',
+        'mp4', 'mov', 'webm', 'avi',
+        'zip',
+        'pdf', 'txt', 'csv', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
     ],
     'support_categories' => [
         ['code' => 'general', 'label' => 'Hỗ trợ chung'],

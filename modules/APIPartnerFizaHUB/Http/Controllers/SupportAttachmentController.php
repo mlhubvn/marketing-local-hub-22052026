@@ -4,9 +4,11 @@ namespace Modules\APIPartnerFizaHUB\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Modules\APIPartnerFizaHUB\Services\SupportTicketBridge;
 use Modules\APIPartnerFizaHUB\Support\PartnerApiResponse;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\Response;
 
 class SupportAttachmentController
 {
@@ -14,19 +16,15 @@ class SupportAttachmentController
         protected SupportTicketBridge $bridge
     ) {}
 
-    public function store(Request $request, string $ticket_id): JsonResponse
+    public function index(string $external_business_id, string $ticket_id): JsonResponse
     {
-        $externalBusinessId = trim((string) $request->query('external_business_id', $request->input('external_business_id', '')));
+        $integration = $this->bridge->findIntegrationOrFail($external_business_id);
 
-        if ($externalBusinessId === '') {
-            return PartnerApiResponse::error(
-                'validation_failed',
-                'The given data was invalid.',
-                422,
-                ['external_business_id' => ['The external_business_id parameter is required for ticket scope.']]
-            );
-        }
+        return PartnerApiResponse::success($this->bridge->listAttachments($integration, $ticket_id));
+    }
 
+    public function store(Request $request, string $external_business_id, string $ticket_id): JsonResponse
+    {
         if (! $request->hasFile('file')) {
             return PartnerApiResponse::error(
                 'validation_failed',
@@ -47,7 +45,7 @@ class SupportAttachmentController
             );
         }
 
-        $integration = $this->bridge->findIntegrationOrFail($externalBusinessId);
+        $integration = $this->bridge->findIntegrationOrFail($external_business_id);
 
         try {
             $payload = $this->bridge->storeAttachment($integration, $ticket_id, $file);
@@ -64,5 +62,18 @@ class SupportAttachmentController
         }
 
         return PartnerApiResponse::success($payload, 201);
+    }
+
+    public function show(string $external_business_id, string $ticket_id, string $attachment_id): Response
+    {
+        $integration = $this->bridge->findIntegrationOrFail($external_business_id);
+        $attachment = $this->bridge->findScopedAttachmentOrFail($integration, $ticket_id, $attachment_id);
+
+        abort_unless(
+            filled($attachment->path) && Storage::disk($attachment->disk)->exists($attachment->path),
+            404
+        );
+
+        return Storage::disk($attachment->disk)->download($attachment->path, $attachment->original_name);
     }
 }

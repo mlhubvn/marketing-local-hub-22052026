@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>FizaHUB Partner API — Hướng dẫn chạy Postman từng bước</title>
-    <meta name="description" content="Hướng dẫn từng bước cho dev FizaHUB: tải Postman, import collection 22 request, chạy thử API MLHUB.">
+    <meta name="description" content="Hướng dẫn từng bước cho dev FizaHUB: tải Postman, import collection 25 request, chạy thử API MLHUB.">
     <link rel="icon" href="{{ asset('img/favicon.svg') }}" type="image/svg+xml">
     <style>
         :root { --ink:#17231e; --muted:#5d6c65; --line:#d9e2dd; --brand:#0f766e; --soft:#eaf7f3; }
@@ -43,7 +43,7 @@
 <main>
     <header class="hero">
         <h1>Chạy thử API FizaHUB × MLHUB — hướng dẫn từng bước</h1>
-        <p>Viết cho người <strong>chưa từng dùng Postman</strong>. Làm đúng thứ tự bên dưới là gọi được đủ <strong>22 request</strong> bám <strong>15 màn hình Marketing</strong>. Hỗ trợ (Support) là <strong>text-only</strong> — không đính kèm tệp.</p>
+        <p>Viết cho người <strong>chưa từng dùng Postman</strong>. Làm đúng thứ tự bên dưới là gọi được đủ <strong>25 request</strong> bám <strong>15 màn hình Marketing</strong>. Hỗ trợ (Support) có cả tin nhắn text và <strong>đính kèm tệp</strong> (ảnh/video/zip/văn bản).</p>
         <p>
             <a class="btn btn-primary" href="{{ route('partner.fizahub.docs.postman') }}">⬇ 1. Tải file Postman (đã cấu hình sẵn)</a>
             <a class="btn" href="{{ route('partner.fizahub.docs') }}">Xem tài liệu contract</a>
@@ -56,7 +56,7 @@
             <a href="#buoc-2">Bước 2 · Kiểm tra biến (Variables)</a>
             <a href="#buoc-3">Bước 3 · Chạy cả collection (khuyên dùng)</a>
             <a href="#buoc-4">Bước 4 · Chạy từng request + xem Examples</a>
-            <a href="#buoc-5">Bước 5 · 22 request nghĩa là gì?</a>
+            <a href="#buoc-5">Bước 5 · 25 request nghĩa là gì?</a>
             <a href="#buoc-6">Bước 6 · Tham số đầu vào thường dùng</a>
             <a href="#buoc-7">Bước 7 · Kết quả mong đợi &amp; lỗi thường gặp</a>
             <a href="#buoc-8">Bước 8 · Checklist gửi cho MLHUB khi kẹt</a>
@@ -80,7 +80,7 @@
     <article id="buoc-1">
         <h2>Bước 1 · Tải và Import collection</h2>
         <ol class="steps">
-            <li>Trên trang này, bấm nút xanh <strong>⬇ 1. Tải file Postman</strong>. File tải về tên:
+            <li>Trên trang này, bấm nút xanh <strong>⬇ 1. Tải file Postman</strong> (đủ 25 request). File tải về tên:
                 <br><code>MLHUB-FizaHUB-Partner-API.postman_collection.json</code></li>
             <li>Trong Postman, góc trên bên trái, bấm nút <span class="kbd">Import</span>.</li>
             <li>Kéo–thả file vừa tải vào cửa sổ, hoặc bấm <em>Upload Files</em> / <em>Files</em> rồi chọn file.</li>
@@ -102,7 +102,7 @@
 │     ▸ System (2)                      │
 │     ▸ Onboarding (6)                  │
 │     ▸ Growth (6)                      │
-│     ▸ Support (7)                     │
+│     ▸ Support (10)                    │
 │     ▸ CRM (1)                         │
 └───────────────────────────────────────┘</div>
         <div class="warn">Nếu trước đó bạn đã import bản cũ: xóa collection cũ (chuột phải → Delete) rồi Import lại file mới nhất từ trang này.</div>
@@ -127,7 +127,8 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
                 <tr><td><code>onboarding_request_id</code></td><td>Sau bước 04</td><td>Onboarding Detail</td></tr>
                 <tr><td><code>ticket_id</code></td><td>Sau bước 16/17</td><td>Support Detail → Reopen</td></tr>
                 <tr><td><code>campaign_id</code></td><td>Sau bước 11</td><td>Campaign Detail / Approval</td></tr>
-                <tr><td><code>onboarding_ready</code></td><td>Sau bước 05/06</td><td>Bật bước 22 CRM khi = <code>1</code></td></tr>
+                <tr><td><code>onboarding_ready</code></td><td>Sau bước 05/06</td><td>Bật bước 25 CRM khi = <code>1</code></td></tr>
+                <tr><td><code>attachment_id</code></td><td>Sau bước 23</td><td>Download Attachment (bước 24)</td></tr>
                 <tr><td><code>campaign_approval_ready</code></td><td>Sau bước 11</td><td>Bật bước 13 khi = <code>1</code></td></tr>
             </tbody>
         </table>
@@ -139,7 +140,7 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
         <ol class="steps">
             <li>Đưa chuột vào tên collection → bấm nút <span class="kbd">Run</span>
                 <br><span class="muted">(hoặc menu ba chấm <em>…</em> → <em>Run collection</em>).</span></li>
-            <li>Giữ nguyên thứ tự request từ trên xuống (01 → 22).</li>
+            <li>Giữ nguyên thứ tự request từ trên xuống (01 → 25).</li>
             <li>Nếu thấy tùy chọn <em>Keep variable values</em> — hãy <strong>bật</strong>.</li>
             <li>Bấm nút lớn <strong>Run MLHUB × FizaHUB Partner API</strong>.</li>
             <li>Đợi Postman chạy xong. Các bước kiểm tra (Tests) hiện màu xanh là ổn.</li>
@@ -158,11 +159,11 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
                 <tr><td><span class="tag">System</span></td><td>2</td><td>Kiểm tra API sống + xác minh token.</td></tr>
                 <tr><td><span class="tag">Onboarding</span></td><td>6</td><td>Catalog → tạo tài khoản → theo dõi → cập nhật hồ sơ/mục tiêu.</td></tr>
                 <tr><td><span class="tag">Growth</span></td><td>6</td><td>Dashboard, phân tích, chiến dịch, gói.</td></tr>
-                <tr><td><span class="tag">Support</span></td><td>7</td><td>Preset → tạo ticket → hội thoại text → đóng/mở lại.</td></tr>
+                <tr><td><span class="tag">Support</span></td><td>10</td><td>Preset → tạo ticket → hội thoại text → đóng/mở lại → liệt kê/tải lên/tải xuống đính kèm.</td></tr>
                 <tr><td><span class="tag">CRM</span></td><td>1</td><td>Tạo link đăng nhập 1 lần (chỉ khi onboarding sẵn sàng).</td></tr>
             </tbody>
         </table>
-        <div class="note"><strong>Skip là bình thường:</strong> bước 12/13/18–22 có thể tự bỏ qua nếu chưa có <code>campaign_id</code>, <code>ticket_id</code>, hoặc onboarding chưa <code>ready</code>. Không phải lỗi máy chủ.</div>
+        <div class="note"><strong>Skip là bình thường:</strong> bước 12/13/18–24 có thể tự bỏ qua nếu chưa có <code>campaign_id</code>, <code>ticket_id</code>, hoặc onboarding chưa <code>ready</code>. Không phải lỗi máy chủ.</div>
     </article>
 
     <article id="buoc-4">
@@ -189,7 +190,7 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
     </article>
 
     <article id="buoc-5">
-        <h2>Bước 5 · 22 request nghĩa là gì? (map 15 màn hình)</h2>
+        <h2>Bước 5 · 25 request nghĩa là gì? (map 15 màn hình)</h2>
         <table>
             <thead><tr><th>#</th><th>Request trong Postman</th><th>Màn hình / việc</th><th>Kết quả mong đợi</th></tr></thead>
             <tbody>
@@ -214,7 +215,10 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
                 <tr><td>19</td><td>Send Message</td><td>Màn 14</td><td><code>201</code></td></tr>
                 <tr><td>20</td><td>Close Ticket</td><td>Màn 14</td><td><code>200</code> closed</td></tr>
                 <tr><td>21</td><td>Reopen Ticket</td><td>Màn 14</td><td><code>200</code> open</td></tr>
-                <tr><td>22</td><td>CRM Login Link</td><td>Màn 15</td><td><code>201</code> khi ready (không thì skip)</td></tr>
+                <tr><td>22</td><td>List Attachments</td><td>Màn 14</td><td>danh sách tệp đính kèm (business + admin)</td></tr>
+                <tr><td>23</td><td>Upload Attachment</td><td>Màn 14</td><td><code>201</code> + lưu attachment_id</td></tr>
+                <tr><td>24</td><td>Download Attachment</td><td>Màn 14</td><td><code>200</code> trả file nhị phân</td></tr>
+                <tr><td>25</td><td>CRM Login Link</td><td>Màn 15</td><td><code>201</code> khi ready (không thì skip)</td></tr>
             </tbody>
         </table>
     </article>
@@ -245,7 +249,19 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
                 <tr><td><code>business.name/industry/phone/email/address</code></td><td>Có</td><td><code>website</code> tùy chọn</td></tr>
             </tbody>
         </table>
-        <div class="warn">Không gửi giấy tờ/CCCD/file giấy phép trong payload — sẽ bị <code>422</code>. Support cũng không có upload tệp.</div>
+        <div class="warn">Không gửi giấy tờ/CCCD/file giấy phép trong payload JSON của Onboarding — sẽ bị <code>422</code>. Tệp đính kèm (ảnh/video/zip/văn bản) chỉ gửi qua request <em>23 · Upload Attachment</em> ở nhóm Support (<code>multipart/form-data</code>, field <code>file</code>).</div>
+
+        <h3>Upload Attachment (bước 23) — field <code>file</code></h3>
+        <table>
+            <thead><tr><th>Loại</th><th>Đuôi/MIME cho phép</th><th>Dung lượng tối đa</th></tr></thead>
+            <tbody>
+                <tr><td>Hình ảnh</td><td><code>jpg</code>, <code>jpeg</code>, <code>png</code>, <code>webp</code>, <code>gif</code></td><td>25MB (mặc định)</td></tr>
+                <tr><td>Video</td><td><code>mp4</code>, <code>mov</code>, <code>webm</code>, <code>avi</code></td><td>100MB (mặc định, riêng cho video)</td></tr>
+                <tr><td>Nén</td><td><code>zip</code></td><td>25MB (mặc định)</td></tr>
+                <tr><td>Văn bản</td><td><code>pdf</code>, <code>txt</code>, <code>csv</code>, <code>doc(x)</code>, <code>xls(x)</code>, <code>ppt(x)</code></td><td>25MB (mặc định)</td></tr>
+            </tbody>
+        </table>
+        <div class="note">Đúng <strong>1 tệp / request</strong>. Cần gửi nhiều tệp thì gọi lại request 23 nhiều lần. Server tự dò định dạng thật của tệp (không tin theo phần mở rộng hay Content-Type client khai) — đổi tên tệp nguy hiểm thành đuôi ảnh/văn bản sẽ vẫn bị từ chối.</div>
 
         <h3>Query Dashboard / Insights / Campaigns</h3>
         <table>
@@ -298,14 +314,17 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
                 <tr><td><code>400 invalid_partner_header</code></td><td>Sai <code>X-Partner</code> hoặc <code>X-Request-Id</code></td><td>Dùng lại request trong collection (đã đúng sẵn)</td></tr>
                 <tr><td><code>422 validation_failed</code></td><td>Dữ liệu sai</td><td>Xem <code>error.details</code> — trường nào sai</td></tr>
                 <tr><td><code>409 idempotency_conflict</code></td><td>Cùng key nhưng body khác</td><td>Gửi lại (Postman tự sinh Idempotency-Key mới)</td></tr>
-                <tr><td><code>409 onboarding_not_ready</code></td><td>CRM khi chưa ready</td><td>Chờ MLHUB cấu hình xong; request 22 sẽ skip tự động</td></tr>
+                <tr><td><code>409 onboarding_not_ready</code></td><td>CRM khi chưa ready</td><td>Chờ MLHUB cấu hình xong; request 25 sẽ skip tự động</td></tr>
                 <tr><td><code>409 campaign_invalid_state</code></td><td>Duyệt khi không còn pending</td><td>Bình thường nếu chiến dịch đã active</td></tr>
+                <tr><td><code>409 ticket_not_open</code></td><td>Gửi tin/đính kèm vào ticket đã đóng</td><td>Reopen ticket (bước 21) rồi thử lại</td></tr>
+                <tr><td><code>422 attachment_type_not_allowed</code></td><td>Sai định dạng/đuôi tệp đính kèm</td><td>Xem bảng loại tệp cho phép ở Bước 6</td></tr>
+                <tr><td><code>422 attachment_too_large</code></td><td>Tệp vượt dung lượng cho phép</td><td>Xem <code>error.details.max_size_mb</code></td></tr>
                 <tr><td><code>404 integration_not_found</code></td><td>Chưa onboarding / sai business id</td><td>Chạy lại từ bước 04 Create Onboarding</td></tr>
                 <tr><td><code>503</code> / degraded</td><td>Máy chủ chưa sẵn sàng</td><td>Chạy lại Health; vẫn lỗi thì gửi <code>meta.request_id</code> cho MLHUB</td></tr>
                 <tr><td><code>429 rate_limit_exceeded</code></td><td>Gọi quá nhanh</td><td>Đợi ~1 phút rồi chạy lại</td></tr>
             </tbody>
         </table>
-        <div class="warn"><strong>Support text-only.</strong> Contract này không có upload tệp đính kèm. Mọi trao đổi hỗ trợ đều là văn bản trong <code>messages[]</code>.</div>
+        <div class="ok"><strong>Support đã hỗ trợ đính kèm.</strong> Ngoài tin nhắn text trong <code>messages[]</code>, dùng nhóm request 22–24 để liệt kê/tải lên/tải xuống ảnh, video, zip và văn bản đính kèm ticket.</div>
     </article>
 
     <article id="buoc-8">

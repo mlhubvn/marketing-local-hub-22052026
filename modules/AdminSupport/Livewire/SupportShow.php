@@ -7,14 +7,19 @@ use DOMElement;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Modules\AdminSupport\Models\SupportCategory;
 use Modules\AdminSupport\Models\SupportComment;
 use Modules\AdminSupport\Models\SupportLabel;
 use Modules\AdminSupport\Models\SupportTicket;
 use Modules\AdminSupport\Models\SupportType;
+use Modules\APIPartnerFizaHUB\Services\SupportTicketBridge;
+use Modules\APIPartnerFizaHUB\Support\PartnerApiException;
 
 class SupportShow extends Component
 {
+    use WithFileUploads;
+
     public SupportTicket $ticket;
 
     public string $status = '1';
@@ -28,6 +33,9 @@ class SupportShow extends Component
     public array $labelIds = [];
 
     public string $comment = '';
+
+    /** @var array<int, \Livewire\Features\SupportFileUploads\TemporaryUploadedFile> */
+    public array $replyAttachments = [];
 
     public int $replyEditorIteration = 0;
 
@@ -84,44 +92,104 @@ class SupportShow extends Component
     public function sendReply(): void
     {
         $validated = $this->validate([
-            'comment' => ['required', 'string', 'max:5000'],
+            'comment' => ['nullable', 'string', 'max:5000'],
+            'replyAttachments' => ['nullable', 'array', 'max:5'],
+            'replyAttachments.*' => $this->attachmentRules(),
         ]);
 
-        $sanitizedComment = $this->sanitizeCommentHtml($validated['comment']);
+        $sanitizedComment = $this->sanitizeCommentHtml((string) ($validated['comment'] ?? ''));
+        $hasComment = $this->hasMeaningfulHtmlContent($sanitizedComment);
+        $hasAttachments = $this->replyAttachments !== [];
 
-        if (! $this->hasMeaningfulHtmlContent($sanitizedComment)) {
+        if (! $hasComment && ! $hasAttachments) {
             $this->addError('comment', __('The comment field is required.'));
 
             return;
         }
 
-        SupportComment::query()->create([
-            'id_secure' => Str::random(32),
-            'ticket_id' => $this->ticket->id,
-            'user_id' => auth()->id(),
-            'comment' => $sanitizedComment,
-            'changed' => time(),
-            'created' => time(),
-        ]);
+        if ($hasComment) {
+            SupportComment::query()->create([
+                'id_secure' => Str::random(32),
+                'ticket_id' => $this->ticket->id,
+                'user_id' => auth()->id(),
+                'comment' => $sanitizedComment,
+                'changed' => time(),
+                'created' => time(),
+            ]);
 
-        $this->ticket->update([
-            'user_read' => true,
-            'admin_read' => false,
-            'changed' => time(),
-        ]);
+            $this->ticket->update([
+                'user_read' => true,
+                'admin_read' => false,
+                'changed' => time(),
+            ]);
+        }
+
+        $uploadedCount = $this->storeReplyAttachments();
+
+        if ($uploadedCount === null) {
+            return;
+        }
 
         log_activity('admin.support.reply', 'Replied to a support ticket.', [
             'subject_type' => SupportTicket::class,
             'subject_id' => $this->ticket->id,
             'metadata' => [
                 'ticket' => $this->ticket->id_secure,
+                'attachments' => $uploadedCount,
             ],
         ]);
 
         $this->comment = '';
+        $this->replyAttachments = [];
         $this->replyEditorIteration++;
         $this->ticket->refresh();
         $this->statusMessage = __('Reply sent successfully.');
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function attachmentRules(): array
+    {
+        $allowedExtensions = (array) config('modules.apipartnerfizahub.support_allowed_attachment_extensions', []);
+        $generalMaxMb = max(1, (int) config('modules.apipartnerfizahub.support_max_attachment_size_mb', 25));
+        $videoMaxMb = max(1, (int) config('modules.apipartnerfizahub.support_max_video_attachment_size_mb', 100));
+        $maxKb = max($generalMaxMb, $videoMaxMb) * 1024;
+
+        $rules = ['nullable', 'file', 'max:'.$maxKb];
+
+        if ($allowedExtensions !== []) {
+            $rules[] = 'mimes:'.implode(',', $allowedExtensions);
+        }
+
+        return $rules;
+    }
+
+    /**
+     * Lưu các tệp đính kèm khi admin trả lời, dùng chung logic kiểm tra loại/dung lượng với
+     * FizaHUB Partner API để hai chiều không lệch quy tắc. Trả về null nếu có lỗi cần hiển thị.
+     */
+    private function storeReplyAttachments(): ?int
+    {
+        if ($this->replyAttachments === []) {
+            return 0;
+        }
+
+        $bridge = app(SupportTicketBridge::class);
+        $stored = 0;
+
+        foreach ($this->replyAttachments as $index => $file) {
+            try {
+                $bridge->storeAdminAttachment($this->ticket, $file, (int) auth()->id());
+                $stored++;
+            } catch (PartnerApiException $exception) {
+                $this->addError("replyAttachments.{$index}", $exception->getMessage());
+
+                return null;
+            }
+        }
+
+        return $stored;
     }
 
     public function editComment(int $commentId): void
@@ -131,6 +199,12 @@ class SupportShow extends Component
         $this->editingCommentId = $comment->id;
         $this->editingCommentContent = (string) $comment->comment;
         $this->editingCommentEditorIteration++;
+    }
+
+    public function removeReplyAttachment(int $index): void
+    {
+        unset($this->replyAttachments[$index]);
+        $this->replyAttachments = array_values($this->replyAttachments);
     }
 
     public function cancelCommentEdit(): void
@@ -236,6 +310,7 @@ class SupportShow extends Component
             'team:id,name',
             'labels:id,name,color,icon',
             'comments.user:id,name,username,email',
+            'attachments',
         ]);
 
         return view('adminsupport::livewire.show', [

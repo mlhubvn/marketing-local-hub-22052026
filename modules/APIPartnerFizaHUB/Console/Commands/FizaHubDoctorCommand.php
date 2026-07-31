@@ -51,6 +51,9 @@ class FizaHubDoctorCommand extends Command
         'partner.fizahub.businesses.support-tickets.messages.store',
         'partner.fizahub.businesses.support-tickets.close',
         'partner.fizahub.businesses.support-tickets.reopen',
+        'partner.fizahub.businesses.support-tickets.attachments.index',
+        'partner.fizahub.businesses.support-tickets.attachments.store',
+        'partner.fizahub.businesses.support-tickets.attachments.show',
         'partner.fizahub.businesses.crm-login-links.store',
     ];
 

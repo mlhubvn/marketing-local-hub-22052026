@@ -1,7 +1,7 @@
 {
     "info": {
         "name": "MLHUB × FizaHUB Partner API",
-        "description": "# MLHUB × FizaHUB Partner API (v1)\n\nBreaking cutover: **22 request** cho **15 màn hình Marketing** đã được Product duyệt. Support hoàn toàn **text-only** (không upload file).\n\n## Dùng ngay trong 3 bước (không cần biết Postman sâu)\n1. **Import** file này vào Postman: nút **Import** (góc trên trái) → chọn file → Import.\n2. Mở collection → tab **Variables**: `base_url` và `partner_token` **ĐÃ điền sẵn**. Không cần gõ tay.\n3. Đưa chuột vào tên collection → bấm **Run** → **Run MLHUB × FizaHUB Partner API**. Hoặc mở từng request 01→22 rồi bấm **Send**.\n\nHướng dẫn click từng nút (tiếng Việt, cho người mới): https://mlhub.vn/api-fizahub/help-test\n\n## Vì sao chạy được ngay?\n- `partner_token`, `base_url` cấu hình sẵn cho giai đoạn thử nghiệm.\n- Collection **tự sinh** `external_business_id`, `external_user_id`, `from`, `to`.\n- Mỗi request tự gắn `X-Request-Id` (UUID); request ghi tự gắn `Idempotency-Key` (UUID).\n- Các ID phụ thuộc (`onboarding_request_id`, `campaign_id`, `ticket_id`) được **tự lưu**; bước phụ thuộc tự **skip** nếu chưa có ID.\n\n## Chạy theo folder\n1. **System (2):** Health, SSO Verify.\n2. **Onboarding (6):** Catalog → Create → Detail → Marketing Status → Profile → Preferences.\n3. **Growth (6):** Dashboard → Insights → Campaign List → Campaign Detail → Approval → Package.\n4. **Support (7):** Presets → Create → List → Detail → Message → Close → Reopen.\n5. **CRM (1):** tạo link khi onboarding ready/completed.\n\n## Xem đầy đủ tham số & trạng thái\n- Tab **Params** / **Body** của mỗi request: liệt kê đủ trường (một số param tắt sẵn — bật checkbox khi cần).\n- Mục **Examples** (góc phải trên): mẫu response thành công + lỗi (401/404/409/422/503…).\n- Phần **Description** của mỗi request: màn hình UI, input, enum, HTTP status.\n\n## Response envelope\nThành công: `{ \"success\": true, \"data\": {...}, \"meta\": { \"request_id\": \"uuid\" }, \"error\": null }`\n\nLỗi: `{ \"success\": false, \"data\": null, \"meta\": { \"request_id\": \"uuid\" }, \"error\": { \"code\": \"...\", \"message\": \"...\", \"details\": {} } }`\n\n## Header bắt buộc (đã gắn sẵn)\n| Header | Giá trị |\n|---|---|\n| Authorization | Bearer {{partner_token}} |\n| X-Partner | fizahub |\n| X-Request-Id | UUID mới mỗi lần |\n| Idempotency-Key | UUID (mọi POST/PATCH trừ SSO Verify) |\n| Accept | application/json |\n\n> ⚠️ Token trong file này là token **thử nghiệm**. Khi chạy chính thức, MLHUB sẽ đổi token và gửi lại — tải file mới từ https://mlhub.vn/api-fizahub/postman",
+        "description": "# MLHUB × FizaHUB Partner API (v1)\n\nBreaking cutover: **25 request** cho **15 màn hình Marketing** đã được Product duyệt. Support hỗ trợ cả tin nhắn text và đính kèm tệp (ảnh/video/zip/văn bản).\n\n## Dùng ngay trong 3 bước (không cần biết Postman sâu)\n1. **Import** file này vào Postman: nút **Import** (góc trên trái) → chọn file → Import.\n2. Mở collection → tab **Variables**: `base_url` và `partner_token` **ĐÃ điền sẵn**. Không cần gõ tay.\n3. Đưa chuột vào tên collection → bấm **Run** → **Run MLHUB × FizaHUB Partner API**. Hoặc mở từng request 01→25 rồi bấm **Send**.\n\nHướng dẫn click từng nút (tiếng Việt, cho người mới): https://mlhub.vn/api-fizahub/help-test\n\n## Vì sao chạy được ngay?\n- `partner_token`, `base_url` cấu hình sẵn cho giai đoạn thử nghiệm.\n- Collection **tự sinh** `external_business_id`, `external_user_id`, `from`, `to`.\n- Mỗi request tự gắn `X-Request-Id` (UUID); request ghi tự gắn `Idempotency-Key` (UUID).\n- Các ID phụ thuộc (`onboarding_request_id`, `campaign_id`, `ticket_id`) được **tự lưu**; bước phụ thuộc tự **skip** nếu chưa có ID.\n\n## Chạy theo folder\n1. **System (2):** Health, SSO Verify.\n2. **Onboarding (6):** Catalog → Create → Detail → Marketing Status → Profile → Preferences.\n3. **Growth (6):** Dashboard → Insights → Campaign List → Campaign Detail → Approval → Package.\n4. **Support (10):** Presets → Create → List → Detail → Message → Close → Reopen → List Attachments → Upload Attachment → Download Attachment.\n5. **CRM (1):** tạo link khi onboarding ready/completed.\n\n## Xem đầy đủ tham số & trạng thái\n- Tab **Params** / **Body** của mỗi request: liệt kê đủ trường (một số param tắt sẵn — bật checkbox khi cần).\n- Mục **Examples** (góc phải trên): mẫu response thành công + lỗi (401/404/409/422/503…).\n- Phần **Description** của mỗi request: màn hình UI, input, enum, HTTP status.\n\n## Response envelope\nThành công: `{ \"success\": true, \"data\": {...}, \"meta\": { \"request_id\": \"uuid\" }, \"error\": null }`\n\nLỗi: `{ \"success\": false, \"data\": null, \"meta\": { \"request_id\": \"uuid\" }, \"error\": { \"code\": \"...\", \"message\": \"...\", \"details\": {} } }`\n\n## Header bắt buộc (đã gắn sẵn)\n| Header | Giá trị |\n|---|---|\n| Authorization | Bearer {{partner_token}} |\n| X-Partner | fizahub |\n| X-Request-Id | UUID mới mỗi lần |\n| Idempotency-Key | UUID (mọi POST/PATCH trừ SSO Verify) |\n| Accept | application/json |\n\n> ⚠️ Token trong file này là token **thử nghiệm**. Khi chạy chính thức, MLHUB sẽ đổi token và gửi lại — tải file mới từ https://mlhub.vn/api-fizahub/postman",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "event": [
@@ -67,6 +67,12 @@
             "value": "",
             "type": "string",
             "description": "Tự lưu từ bước 16/17."
+        },
+        {
+            "key": "attachment_id",
+            "value": "",
+            "type": "string",
+            "description": "Tự lưu từ bước 23 Upload Attachment."
         },
         {
             "key": "campaign_id",
@@ -3839,7 +3845,7 @@
         },
         {
             "name": "Support",
-            "description": "7 request cho trung tâm hỗ trợ text-only (màn hình 12–14).",
+            "description": "10 request cho trung tâm hỗ trợ, gồm tin nhắn text và đính kèm tệp (màn hình 12–14).",
             "item": [
                 {
                     "name": "15 · Support Presets (mẫu yêu cầu)",
@@ -3881,7 +3887,7 @@
                                 "support-presets"
                             ]
                         },
-                        "description": "**Màn hình 12/13 — Trung tâm hỗ trợ.** Danh sách preset SOP công khai.\n\n**Preset công khai:**\n- `qr_scan_not_recorded`\n- `growth_recommendation`\n- `campaign_request` (**bắt buộc** `campaign_id` khi tạo ticket)\n- `package_upgrade`\n\n`response_channels`: `in_app` | `phone`.\nSupport hoàn toàn **text-only** (không upload file, không endpoint attachments).\n\n**HTTP:** `200` | `404 integration_not_found`."
+                        "description": "**Màn hình 12/13 — Trung tâm hỗ trợ.** Danh sách preset SOP công khai.\n\n**Preset công khai:**\n- `qr_scan_not_recorded`\n- `growth_recommendation`\n- `campaign_request` (**bắt buộc** `campaign_id` khi tạo ticket)\n- `package_upgrade`\n\n`response_channels`: `in_app` | `phone`.\nCó thể đính kèm ảnh/video/zip/văn bản qua nhóm request **Attachments** (bước 22–24).\n\n**HTTP:** `200` | `404 integration_not_found`."
                     },
                     "response": [
                         {
@@ -4044,7 +4050,7 @@
                                 "support-tickets"
                             ]
                         },
-                        "description": "**Màn hình 13 — Tạo yêu cầu hỗ trợ (text-only).**\n\n**Body — đầy đủ trường:**\n- `preset_code` (tùy chọn, ≤80): mã preset ở bước 15. Có preset thì `subject` lấy từ preset.\n- `subject` (bắt buộc nếu KHÔNG có `preset_code`, 1–255).\n- `message` (bắt buộc, 1–5000).\n- `response_channel` (tùy chọn): `in_app` | `phone` (mặc định `in_app`).\n- `campaign_id` (bắt buộc nếu `preset_code=campaign_request`, ≤128).\n- `metadata` (tùy chọn, object).\n\n**HTTP:**\n- `201`: tạo thành công (collection lưu `ticket_id`).\n- `422 support_ticket_invalid` / `support_preset_not_found` / `support_context_required` / `validation_failed`.\n- `404 integration_not_found`.\n- `409 integration_mapping_invalid`."
+                        "description": "**Màn hình 13 — Tạo yêu cầu hỗ trợ.**\n\n**Body — đầy đủ trường:**\n- `preset_code` (tùy chọn, ≤80): mã preset ở bước 15. Có preset thì `subject` lấy từ preset.\n- `subject` (bắt buộc nếu KHÔNG có `preset_code`, 1–255).\n- `message` (bắt buộc, 1–5000).\n- `response_channel` (tùy chọn): `in_app` | `phone` (mặc định `in_app`).\n- `campaign_id` (bắt buộc nếu `preset_code=campaign_request`, ≤128).\n- `metadata` (tùy chọn, object).\n\n**HTTP:**\n- `201`: tạo thành công (collection lưu `ticket_id`).\n- `422 support_ticket_invalid` / `support_preset_not_found` / `support_context_required` / `validation_failed`.\n- `404 integration_not_found`.\n- `409 integration_mapping_invalid`."
                     },
                     "event": [
                         {
@@ -4682,7 +4688,7 @@
                                 }
                             ]
                         },
-                        "description": "**Màn hình 14 — Chi tiết và hội thoại.** Chỉ có `messages[]` dạng text và `next_poll_after_seconds` (thường 15).\n\n**Path param:** `ticket_id` (tự lấy từ bước 16/17).\n**Query:** `messages_since` hoặc `since` (ISO8601) để polling tin mới — giá trị sai sẽ bị bỏ qua (không 422).\n\n`sender_type`: `business` | `admin`. **Không có attachments.**\n\n**HTTP:** `200` | `404 ticket_not_found` / `integration_not_found`."
+                        "description": "**Màn hình 14 — Chi tiết và hội thoại.** `messages[]` dạng text và `next_poll_after_seconds` (thường 15).\n\n**Path param:** `ticket_id` (tự lấy từ bước 16/17).\n**Query:** `messages_since` hoặc `since` (ISO8601) để polling tin mới — giá trị sai sẽ bị bỏ qua (không 422).\n\n`sender_type`: `business` | `admin`. Tệp đính kèm nằm ở request riêng **List Attachments** (bước 22), không trả trong `messages[]`.\n\n**HTTP:** `200` | `404 ticket_not_found` / `integration_not_found`."
                     },
                     "event": [
                         {
@@ -5664,6 +5670,645 @@
                             "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"ticket_not_found\",\n        \"message\": \"Không tìm thấy phiếu hỗ trợ.\",\n        \"details\": {\n            \"next_action\": \"create_support_ticket\"\n        }\n    }\n}"
                         }
                     ]
+                },
+                {
+                    "name": "22 · List Support Attachments (đính kèm)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{partner_token}}",
+                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                            },
+                            {
+                                "key": "X-Partner",
+                                "value": "fizahub",
+                                "description": "Mã đối tác cố định. Luôn là \"fizahub\"."
+                            },
+                            {
+                                "key": "X-Request-Id",
+                                "value": "{{$guid}}",
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-tickets/{{ticket_id}}/attachments",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "partners",
+                                "fizahub",
+                                "businesses",
+                                "{{external_business_id}}",
+                                "support-tickets",
+                                "{{ticket_id}}",
+                                "attachments"
+                            ]
+                        },
+                        "description": "**Màn hình 14 — Tệp đính kèm của ticket.** Danh sách tệp cả hai chiều (business tải lên và admin MLHUB đính kèm khi trả lời).\n\n**Path param:** `ticket_id` (tự lấy từ bước 16/17).\n\n`sender_type`: `business` | `admin`. Dùng `download_url` (hoặc bước 24) để tải tệp.\n\n**HTTP:** `200` | `404 ticket_not_found` / `integration_not_found`."
+                    },
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "if (!pm.collectionVariables.get('ticket_id')) pm.execution.skipRequest();"
+                                ]
+                            }
+                        }
+                    ],
+                    "response": [
+                        {
+                            "name": "200 · OK",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{partner_token}}"
+                                    },
+                                    {
+                                        "key": "X-Partner",
+                                        "value": "fizahub"
+                                    },
+                                    {
+                                        "key": "X-Request-Id",
+                                        "value": "{{$guid}}"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-tickets/{{ticket_id}}/attachments",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partners",
+                                        "fizahub",
+                                        "businesses",
+                                        "{{external_business_id}}",
+                                        "support-tickets",
+                                        "{{ticket_id}}",
+                                        "attachments"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json; charset=utf-8"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"items\": [\n            {\n                \"attachment_id\": \"att_4f8c1a2b9d\",\n                \"original_name\": \"may-quet-qr-loi.jpg\",\n                \"mime_type\": \"image/jpeg\",\n                \"size_bytes\": 482133,\n                \"sender_type\": \"business\",\n                \"created_at\": \"2026-07-21T01:08:00+00:00\",\n                \"download_url\": \"{{base_url}}/api/v1/partners/fizahub/businesses/fiza-store-001/support-tickets/tkt_7de1f9a4c0/attachments/att_4f8c1a2b9d\"\n            }\n        ]\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
+                        },
+                        {
+                            "name": "404 · Không tìm thấy ticket",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{partner_token}}"
+                                    },
+                                    {
+                                        "key": "X-Partner",
+                                        "value": "fizahub"
+                                    },
+                                    {
+                                        "key": "X-Request-Id",
+                                        "value": "{{$guid}}"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-tickets/{{ticket_id}}/attachments",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partners",
+                                        "fizahub",
+                                        "businesses",
+                                        "{{external_business_id}}",
+                                        "support-tickets",
+                                        "{{ticket_id}}",
+                                        "attachments"
+                                    ]
+                                }
+                            },
+                            "status": "Not Found",
+                            "code": 404,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json; charset=utf-8"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"ticket_not_found\",\n        \"message\": \"Không tìm thấy phiếu hỗ trợ.\",\n        \"details\": {\n            \"next_action\": \"create_support_ticket\"\n        }\n    }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "23 · Upload Support Attachment (tải lên đính kèm)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{partner_token}}",
+                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                            },
+                            {
+                                "key": "X-Partner",
+                                "value": "fizahub",
+                                "description": "Mã đối tác cố định. Luôn là \"fizahub\"."
+                            },
+                            {
+                                "key": "X-Request-Id",
+                                "value": "{{$guid}}",
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Idempotency-Key",
+                                "value": "{{$guid}}",
+                                "description": "BẮT BUỘC cho mọi request ghi. Cùng key + cùng payload = không tạo trùng; khác payload = HTTP 409 idempotency_conflict."
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "file",
+                                    "type": "file",
+                                    "src": [],
+                                    "description": "Ảnh (jpg/png/webp/gif), video (mp4/mov/webm/avi), zip, hoặc văn bản (pdf/txt/csv/doc(x)/xls(x)/ppt(x))."
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-tickets/{{ticket_id}}/attachments",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "partners",
+                                "fizahub",
+                                "businesses",
+                                "{{external_business_id}}",
+                                "support-tickets",
+                                "{{ticket_id}}",
+                                "attachments"
+                            ]
+                        },
+                        "description": "**Màn hình 14 — Gửi tệp đính kèm vào ticket.** `multipart/form-data`, field `file` (đúng 1 tệp / request).\n\n**Loại được hỗ trợ:** ảnh `jpg/jpeg/png/webp/gif`; video `mp4/mov/webm/avi`; nén `zip`; văn bản `pdf/txt/csv/doc/docx/xls/xlsx/ppt/pptx`.\n**Dung lượng:** mặc định tối đa 25MB (ảnh/zip/văn bản) hoặc 100MB (video) — MLHUB có thể chỉnh qua cấu hình server.\nServer tự dò MIME thật theo nội dung file (không tin `Content-Type` client gửi) và đối chiếu song song với đuôi file.\nChỉ gửi được khi ticket đang `open`.\n\n**HTTP:**\n- `201`: tải lên thành công, trả về `attachment_id` + `download_url`.\n- `422 attachment_type_not_allowed`: sai định dạng/đuôi file.\n- `422 attachment_too_large`: vượt dung lượng cho phép.\n- `409 ticket_not_open`: ticket đã đóng/đã xử lý.\n- `404 ticket_not_found` / `integration_not_found`.\n- `503 support_attachments_unavailable`: tính năng chưa sẵn sàng trên môi trường này."
+                    },
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "if (!pm.collectionVariables.get('ticket_id')) pm.execution.skipRequest();"
+                                ]
+                            }
+                        },
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "const a = (pm.response.json() || {}).data || {};",
+                                    "if (a.attachment_id) pm.collectionVariables.set('attachment_id', a.attachment_id);"
+                                ]
+                            }
+                        }
+                    ],
+                    "response": [
+                        {
+                            "name": "201 · Đã tải lên",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{partner_token}}"
+                                    },
+                                    {
+                                        "key": "X-Partner",
+                                        "value": "fizahub"
+                                    },
+                                    {
+                                        "key": "X-Request-Id",
+                                        "value": "{{$guid}}"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Idempotency-Key",
+                                        "value": "{{$guid}}"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "file",
+                                            "type": "file",
+                                            "src": [],
+                                            "description": "Ảnh (jpg/png/webp/gif), video (mp4/mov/webm/avi), zip, hoặc văn bản (pdf/txt/csv/doc(x)/xls(x)/ppt(x))."
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-tickets/{{ticket_id}}/attachments",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partners",
+                                        "fizahub",
+                                        "businesses",
+                                        "{{external_business_id}}",
+                                        "support-tickets",
+                                        "{{ticket_id}}",
+                                        "attachments"
+                                    ]
+                                }
+                            },
+                            "status": "Created",
+                            "code": 201,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json; charset=utf-8"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"attachment_id\": \"att_4f8c1a2b9d\",\n        \"original_name\": \"may-quet-qr-loi.jpg\",\n        \"mime_type\": \"image/jpeg\",\n        \"size_bytes\": 482133,\n        \"sender_type\": \"business\",\n        \"created_at\": \"2026-07-21T01:08:00+00:00\",\n        \"download_url\": \"{{base_url}}/api/v1/partners/fizahub/businesses/fiza-store-001/support-tickets/tkt_7de1f9a4c0/attachments/att_4f8c1a2b9d\"\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
+                        },
+                        {
+                            "name": "422 · Sai định dạng",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{partner_token}}"
+                                    },
+                                    {
+                                        "key": "X-Partner",
+                                        "value": "fizahub"
+                                    },
+                                    {
+                                        "key": "X-Request-Id",
+                                        "value": "{{$guid}}"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Idempotency-Key",
+                                        "value": "{{$guid}}"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "file",
+                                            "type": "file",
+                                            "src": [],
+                                            "description": "Ảnh (jpg/png/webp/gif), video (mp4/mov/webm/avi), zip, hoặc văn bản (pdf/txt/csv/doc(x)/xls(x)/ppt(x))."
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-tickets/{{ticket_id}}/attachments",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partners",
+                                        "fizahub",
+                                        "businesses",
+                                        "{{external_business_id}}",
+                                        "support-tickets",
+                                        "{{ticket_id}}",
+                                        "attachments"
+                                    ]
+                                }
+                            },
+                            "status": "Unprocessable Entity",
+                            "code": 422,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json; charset=utf-8"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"attachment_type_not_allowed\",\n        \"message\": \"Định dạng tệp đính kèm không được hỗ trợ.\",\n        \"details\": {\n            \"file\": [\n                \"application/x-msdownload\"\n            ]\n        }\n    }\n}"
+                        },
+                        {
+                            "name": "422 · Vượt dung lượng",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{partner_token}}"
+                                    },
+                                    {
+                                        "key": "X-Partner",
+                                        "value": "fizahub"
+                                    },
+                                    {
+                                        "key": "X-Request-Id",
+                                        "value": "{{$guid}}"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Idempotency-Key",
+                                        "value": "{{$guid}}"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "file",
+                                            "type": "file",
+                                            "src": [],
+                                            "description": "Ảnh (jpg/png/webp/gif), video (mp4/mov/webm/avi), zip, hoặc văn bản (pdf/txt/csv/doc(x)/xls(x)/ppt(x))."
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-tickets/{{ticket_id}}/attachments",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partners",
+                                        "fizahub",
+                                        "businesses",
+                                        "{{external_business_id}}",
+                                        "support-tickets",
+                                        "{{ticket_id}}",
+                                        "attachments"
+                                    ]
+                                }
+                            },
+                            "status": "Unprocessable Entity",
+                            "code": 422,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json; charset=utf-8"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"attachment_too_large\",\n        \"message\": \"Tệp đính kèm vượt quá dung lượng cho phép (25 MB).\",\n        \"details\": {\n            \"max_size_mb\": 25\n        }\n    }\n}"
+                        },
+                        {
+                            "name": "409 · Ticket không còn mở",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{partner_token}}"
+                                    },
+                                    {
+                                        "key": "X-Partner",
+                                        "value": "fizahub"
+                                    },
+                                    {
+                                        "key": "X-Request-Id",
+                                        "value": "{{$guid}}"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Idempotency-Key",
+                                        "value": "{{$guid}}"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "file",
+                                            "type": "file",
+                                            "src": [],
+                                            "description": "Ảnh (jpg/png/webp/gif), video (mp4/mov/webm/avi), zip, hoặc văn bản (pdf/txt/csv/doc(x)/xls(x)/ppt(x))."
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-tickets/{{ticket_id}}/attachments",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partners",
+                                        "fizahub",
+                                        "businesses",
+                                        "{{external_business_id}}",
+                                        "support-tickets",
+                                        "{{ticket_id}}",
+                                        "attachments"
+                                    ]
+                                }
+                            },
+                            "status": "Conflict",
+                            "code": 409,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json; charset=utf-8"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"ticket_not_open\",\n        \"message\": \"This support ticket is closed or resolved.\",\n        \"details\": {}\n    }\n}"
+                        },
+                        {
+                            "name": "404 · Không tìm thấy ticket",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{partner_token}}"
+                                    },
+                                    {
+                                        "key": "X-Partner",
+                                        "value": "fizahub"
+                                    },
+                                    {
+                                        "key": "X-Request-Id",
+                                        "value": "{{$guid}}"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Idempotency-Key",
+                                        "value": "{{$guid}}"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "file",
+                                            "type": "file",
+                                            "src": [],
+                                            "description": "Ảnh (jpg/png/webp/gif), video (mp4/mov/webm/avi), zip, hoặc văn bản (pdf/txt/csv/doc(x)/xls(x)/ppt(x))."
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-tickets/{{ticket_id}}/attachments",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partners",
+                                        "fizahub",
+                                        "businesses",
+                                        "{{external_business_id}}",
+                                        "support-tickets",
+                                        "{{ticket_id}}",
+                                        "attachments"
+                                    ]
+                                }
+                            },
+                            "status": "Not Found",
+                            "code": 404,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json; charset=utf-8"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"ticket_not_found\",\n        \"message\": \"Không tìm thấy phiếu hỗ trợ.\",\n        \"details\": {\n            \"next_action\": \"create_support_ticket\"\n        }\n    }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "24 · Download Support Attachment (tải xuống đính kèm)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{partner_token}}",
+                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                            },
+                            {
+                                "key": "X-Partner",
+                                "value": "fizahub",
+                                "description": "Mã đối tác cố định. Luôn là \"fizahub\"."
+                            },
+                            {
+                                "key": "X-Request-Id",
+                                "value": "{{$guid}}",
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/partners/fizahub/businesses/{{external_business_id}}/support-tickets/{{ticket_id}}/attachments/{{attachment_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "partners",
+                                "fizahub",
+                                "businesses",
+                                "{{external_business_id}}",
+                                "support-tickets",
+                                "{{ticket_id}}",
+                                "attachments",
+                                "{{attachment_id}}"
+                            ]
+                        },
+                        "description": "**Màn hình 14 — Tải nội dung tệp đính kèm.** Trả về file nhị phân (`Content-Disposition: attachment`), không phải JSON envelope.\n\n**Path param:** `attachment_id` (lấy từ bước 22/23). Luôn xác thực partner token + tenant scope theo ticket.\n\n**HTTP:** `200` (file) | `404` (không tìm thấy tệp/ticket/integration)."
+                    },
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "if (!pm.collectionVariables.get('ticket_id') || !pm.collectionVariables.get('attachment_id')) pm.execution.skipRequest();"
+                                ]
+                            }
+                        }
+                    ],
+                    "response": []
                 }
             ]
         },
@@ -5672,7 +6317,7 @@
             "description": "1 request tạo link đăng nhập CRM một lần (màn hình 15).",
             "item": [
                 {
-                    "name": "22 · Create CRM Login Link (đăng nhập 1 lần)",
+                    "name": "25 · Create CRM Login Link (đăng nhập 1 lần)",
                     "request": {
                         "method": "POST",
                         "header": [

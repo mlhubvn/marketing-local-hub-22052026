@@ -1,6 +1,6 @@
 # APIPartnerFizaHUB
 
-API tích hợp **FizaHUB × MLHUB** cho **15 màn hình** Marketing đã được Product duyệt. Đây là **breaking cutover API v1** với đúng **22 endpoint** dưới prefix `/api/v1/partners/fizahub` và Support hoàn toàn **text-only**.
+API tích hợp **FizaHUB × MLHUB** cho **15 màn hình** Marketing đã được Product duyệt. Đây là **breaking cutover API v1** với đúng **25 endpoint** dưới prefix `/api/v1/partners/fizahub`. Support hỗ trợ cả tin nhắn text và **đính kèm tệp** (ảnh/video/zip/văn bản).
 
 ## Header và response envelope
 
@@ -36,7 +36,7 @@ Idempotency semantics:
 - Close/Reopen lặp trả `200` với trạng thái hiện tại (idempotent), không 409/500.
 - CRM cùng key trả cùng link khi còn hiệu lực/chưa dùng; nếu đã dùng hoặc hết hạn trả `crm_login_link_not_reusable`, `next_action=new_idempotency_key`.
 
-## 22 endpoint chính thức
+## 25 endpoint chính thức
 
 | # | Method | Path | Mô tả |
 |---:|:---:|---|---|
@@ -61,7 +61,10 @@ Idempotency semantics:
 | 19 | POST | `/businesses/{external_business_id}/support-tickets/{ticket_id}/messages` | Gửi message. |
 | 20 | POST | `/businesses/{external_business_id}/support-tickets/{ticket_id}/close` | Đóng ticket. |
 | 21 | POST | `/businesses/{external_business_id}/support-tickets/{ticket_id}/reopen` | Mở lại ticket. |
-| 22 | POST | `/businesses/{external_business_id}/crm-login-links` | Link CRM dùng một lần. |
+| 22 | GET | `/businesses/{external_business_id}/support-tickets/{ticket_id}/attachments` | Danh sách đính kèm (business + admin). |
+| 23 | POST | `/businesses/{external_business_id}/support-tickets/{ticket_id}/attachments` | Tải lên 1 tệp đính kèm. |
+| 24 | GET | `/businesses/{external_business_id}/support-tickets/{ticket_id}/attachments/{attachment_id}` | Tải xuống một tệp đính kèm. |
+| 25 | POST | `/businesses/{external_business_id}/crm-login-links` | Link CRM dùng một lần. |
 
 ## Mapping 15 màn hình UI
 
@@ -80,7 +83,7 @@ Idempotency semantics:
 | 11 — Chi tiết chiến dịch | `GET campaigns/{campaign_id}`; `POST approval` |
 | 12 — Trung tâm hỗ trợ | `GET support-presets`; `GET support-tickets` |
 | 13 — Tạo yêu cầu hỗ trợ | `POST support-tickets` |
-| 14 — Chi tiết và hội thoại | `GET detail`; `POST messages`; `POST close`; `POST reopen` |
+| 14 — Chi tiết và hội thoại | `GET detail`; `POST messages`; `POST close`; `POST reopen`; `GET/POST/GET attachments` |
 | 15 — Truy cập CRM MLHUB | `POST crm-login-links` khi ready/completed |
 
 `partner/sso/verify` là endpoint hệ thống, không gắn với màn hình người dùng.
@@ -131,7 +134,16 @@ Username sinh từ local-part email: lowercase, `Str::ascii()`, bỏ ký tự ng
 
 Preset public: `qr_scan_not_recorded`, `growth_recommendation`, `campaign_request`, `package_upgrade`. Ticket onboarding nội bộ vẫn xuất hiện trong list.
 
-Luồng đầy đủ Create → List → Detail → Message → Close → Reopen. Mọi operation resolve business từ path; business khác nhận 404. Detail chỉ có `messages[]` text và `next_poll_after_seconds`.
+Luồng đầy đủ Create → List → Detail → Message → Close → Reopen → Attachments. Mọi operation resolve business từ path; business khác nhận 404. Detail có `messages[]` text và `next_poll_after_seconds`; đính kèm tệp nằm ở nhóm endpoint `attachments` riêng (không lẫn vào `messages[]`).
+
+**Đính kèm tệp** (`SupportAttachmentController`, bảng `partner_support_attachments`):
+
+- Chấp nhận ảnh (`jpg/jpeg/png/webp/gif`), video (`mp4/mov/webm/avi`), nén (`zip`), văn bản (`pdf/txt/csv/doc(x)/xls(x)/ppt(x)`).
+- MIME được server tự dò theo nội dung (`UploadedFile::getMimeType()`) và đối chiếu song song với đuôi file — cả hai phải khớp `support_allowed_attachment_types` / `support_allowed_attachment_extensions` trong `config/config.php`.
+- Trần dung lượng cấu hình qua `FIZAHUB_SUPPORT_MAX_ATTACHMENT_SIZE_MB` (mặc định 25MB) và riêng `FIZAHUB_SUPPORT_MAX_VIDEO_ATTACHMENT_SIZE_MB` (mặc định 100MB) cho video.
+- Lưu trên disk `local` (không public) theo từng ticket; tải xuống luôn qua endpoint có xác thực + tenant scope, không có URL đoán được.
+- Hai chiều: `sender_type` trong response phân biệt `business` (FizaHUB tải lên) và `admin` (MLHUB đính kèm khi trả lời trong `/admin/support`).
+- Khi xóa user MLHUB (`Admin → Users → Delete`), ticket support và toàn bộ tệp đính kèm (kể cả file vật lý trên disk) bị xóa theo, không để lại rác.
 
 ## CRM Login Link
 
@@ -156,7 +168,7 @@ Không có destructive migration. `SupportTicketBridge` và bảng `support_tick
 
 ## Postman và diagnostics
 
-Import [`docs/FizaHUB-Partner-API.postman_collection.json`](docs/FizaHUB-Partner-API.postman_collection.json): System 2, Onboarding 6, Growth 6, Support 7, CRM 1.
+Import [`docs/FizaHUB-Partner-API.postman_collection.json`](docs/FizaHUB-Partner-API.postman_collection.json): System 2, Onboarding 6, Growth 6, Support 10, CRM 1.
 
 Giai đoạn thử nghiệm: `base_url` + `partner_token` đã điền sẵn (trùng `.env.example`). Collection tự sinh external IDs, lưu onboarding/ticket/campaign IDs, skip request phụ thuộc khi thiếu ID. Mỗi request có Params/Body đầy đủ và Examples cho các HTTP status chính.
 
@@ -182,7 +194,7 @@ Public pages (gửi cho dev FizaHUB):
 
 ## Breaking cutover checklist
 
-1. Deploy code và additive migrations của 22 endpoint.
+1. Deploy code và additive migrations của 25 endpoint.
 2. Deploy đồng thời Postman, README, public docs và endpoint matrix.
 3. Dev FizaHUB xóa collection cũ và import collection mới.
 4. Chạy staging smoke/Newman và full UI happy path.

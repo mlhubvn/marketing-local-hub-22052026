@@ -222,6 +222,33 @@
                     </div>
                 </div>
 
+                @if ($ticket->attachments->isNotEmpty())
+                    <div class="border-t px-6 py-6 lg:px-7" style="border-color: var(--theme-border-color);">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.2em]" style="color: var(--theme-muted-text-color);">{{ __('Attachments') }}</p>
+                        <div class="mt-3 grid gap-2 sm:grid-cols-2">
+                            @foreach ($ticket->attachments as $attachment)
+                                <a
+                                    href="{{ route('admin-support.attachments.show', ['ticket' => $ticket, 'attachment' => $attachment->id_secure]) }}"
+                                    target="_blank"
+                                    class="flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm transition hover:bg-black/[0.02]"
+                                    style="border-color: var(--theme-border-color);"
+                                >
+                                    <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm" style="background-color: color-mix(in srgb, var(--theme-accent) 10%, transparent); color: var(--theme-accent);">
+                                        <i class="fa-light {{ $attachment->mimeIcon() }}"></i>
+                                    </span>
+                                    <span class="min-w-0 flex-1">
+                                        <span class="block truncate font-medium" style="color: var(--theme-header-text-color);">{{ $attachment->original_name }}</span>
+                                        <span class="block text-xs" style="color: var(--theme-muted-text-color);">
+                                            {{ $attachment->humanSize() }} &middot; {{ $attachment->senderType($ticket->uid) === 'business' ? __('Customer') : __('Admin') }}
+                                        </span>
+                                    </span>
+                                    <i class="fa-light fa-download shrink-0" style="color: var(--theme-muted-text-color);"></i>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 <div class="border-t px-6 py-6 lg:px-7" style="border-color: var(--theme-border-color); background:
                     linear-gradient(180deg, color-mix(in srgb, var(--theme-surface-soft) 38%, transparent), var(--theme-surface-base));">
                     <form wire:submit="sendReply" class="space-y-4">
@@ -258,6 +285,44 @@
                             />
                             <input type="hidden" x-ref="replyHidden" wire:model.defer="comment">
                         </div>
+
+                        <div>
+                            <label for="reply_attachments" class="text-[11px] font-semibold uppercase tracking-[0.2em]" style="color: var(--theme-muted-text-color);">{{ __('Attachments') }}</label>
+                            <input
+                                id="reply_attachments"
+                                type="file"
+                                multiple
+                                wire:model="replyAttachments"
+                                class="mt-2 block w-full rounded-xl border px-3 py-2 text-sm"
+                                style="border-color: var(--theme-border-color); background: var(--theme-input-surface); color: var(--theme-input-text);"
+                            >
+                            <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Images, video, ZIP, and common documents up to 5 files per reply.') }}</p>
+                            @error('replyAttachments') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                            @foreach ($errors->get('replyAttachments.*') as $fieldErrors)
+                                @foreach ($fieldErrors as $fieldError)
+                                    <p class="mt-1 text-xs text-rose-600">{{ $fieldError }}</p>
+                                @endforeach
+                            @endforeach
+
+                            <div wire:loading wire:target="replyAttachments" class="mt-2 text-xs" style="color: var(--theme-muted-text-color);">
+                                {{ __('Uploading...') }}
+                            </div>
+
+                            @if (! empty($replyAttachments))
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    @foreach ($replyAttachments as $index => $pendingFile)
+                                        <span class="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs" style="border-color: var(--theme-border-color); color: var(--theme-header-text-color);">
+                                            <i class="fa-light fa-paperclip"></i>
+                                            {{ Str::limit($pendingFile->getClientOriginalName(), 30) }}
+                                            <button type="button" wire:click="removeReplyAttachment({{ $index }})" class="text-rose-600" aria-label="{{ __('Remove') }}">
+                                                <i class="fa-light fa-xmark"></i>
+                                            </button>
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+
                         <div class="flex justify-end">
                             <x-ui.button type="submit">{{ __('Send reply') }}</x-ui.button>
                         </div>

@@ -9,6 +9,7 @@ use Modules\APIPartnerFizaHUB\Http\Controllers\OneTimeLoginController;
 use Modules\APIPartnerFizaHUB\Http\Controllers\PackageCatalogController;
 use Modules\APIPartnerFizaHUB\Http\Controllers\PackageController;
 use Modules\APIPartnerFizaHUB\Http\Controllers\SsoController;
+use Modules\APIPartnerFizaHUB\Http\Controllers\SupportAttachmentController;
 use Modules\APIPartnerFizaHUB\Http\Controllers\SupportMessageController;
 use Modules\APIPartnerFizaHUB\Http\Controllers\SupportTicketController;
 use Modules\APIPartnerFizaHUB\Http\Middleware\HandlePartnerRequest;
@@ -69,4 +70,11 @@ Route::middleware([
             ->name('businesses.support-tickets.close');
         Route::post('businesses/{external_business_id}/support-tickets/{ticket_id}/reopen', [SupportTicketController::class, 'reopen'])
             ->name('businesses.support-tickets.reopen');
+
+        Route::get('businesses/{external_business_id}/support-tickets/{ticket_id}/attachments', [SupportAttachmentController::class, 'index'])
+            ->name('businesses.support-tickets.attachments.index');
+        Route::post('businesses/{external_business_id}/support-tickets/{ticket_id}/attachments', [SupportAttachmentController::class, 'store'])
+            ->name('businesses.support-tickets.attachments.store');
+        Route::get('businesses/{external_business_id}/support-tickets/{ticket_id}/attachments/{attachment_id}', [SupportAttachmentController::class, 'show'])
+            ->name('businesses.support-tickets.attachments.show');
     });

@@ -199,6 +199,16 @@ $ticketData = [
     'unread_by_business' => false,
 ];
 
+$attachmentData = [
+    'attachment_id' => 'att_4f8c1a2b9d',
+    'original_name' => 'may-quet-qr-loi.jpg',
+    'mime_type' => 'image/jpeg',
+    'size_bytes' => 482133,
+    'sender_type' => 'business',
+    'created_at' => '2026-07-21T01:08:00+00:00',
+    'download_url' => '{{base_url}}/api/v1/partners/fizahub/businesses/fiza-store-001/support-tickets/tkt_7de1f9a4c0/attachments/att_4f8c1a2b9d',
+];
+
 // ---------------------------------------------------------------------------
 // 1. SYSTEM
 // ---------------------------------------------------------------------------
@@ -657,7 +667,7 @@ $presets = [
         "- `campaign_request` (**bắt buộc** `campaign_id` khi tạo ticket)\n".
         "- `package_upgrade`\n\n".
         "`response_channels`: `in_app` | `phone`.\n".
-        "Support hoàn toàn **text-only** (không upload file, không endpoint attachments).\n\n".
+        "Có thể đính kèm ảnh/video/zip/văn bản qua nhóm request **Attachments** (bước 22–24).\n\n".
         "**HTTP:** `200` | `404 integration_not_found`."],
     'response' => [
         ex($reqPresets, '200 · OK', 200, 'OK', ok([
@@ -690,7 +700,7 @@ $reqCreateTicketCampaign = ['method' => 'POST', 'header' => h(true), 'body' => b
 $createTicket = [
     'name' => '16 · Create Support Ticket',
     'request' => $reqCreateTicket + ['description' =>
-        "**Màn hình 13 — Tạo yêu cầu hỗ trợ (text-only).**\n\n".
+        "**Màn hình 13 — Tạo yêu cầu hỗ trợ.**\n\n".
         "**Body — đầy đủ trường:**\n".
         "- `preset_code` (tùy chọn, ≤80): mã preset ở bước 15. Có preset thì `subject` lấy từ preset.\n".
         "- `subject` (bắt buộc nếu KHÔNG có `preset_code`, 1–255).\n".
@@ -763,10 +773,10 @@ $reqTicketDetail = ['method' => 'GET', 'header' => h(false), 'url' => u('busines
 $ticketDetail = [
     'name' => '18 · Support Ticket Detail (hội thoại)',
     'request' => $reqTicketDetail + ['description' =>
-        "**Màn hình 14 — Chi tiết và hội thoại.** Chỉ có `messages[]` dạng text và `next_poll_after_seconds` (thường 15).\n\n".
+        "**Màn hình 14 — Chi tiết và hội thoại.** `messages[]` dạng text và `next_poll_after_seconds` (thường 15).\n\n".
         "**Path param:** `ticket_id` (tự lấy từ bước 16/17).\n".
         "**Query:** `messages_since` hoặc `since` (ISO8601) để polling tin mới — giá trị sai sẽ bị bỏ qua (không 422).\n\n".
-        "`sender_type`: `business` | `admin`. **Không có attachments.**\n\n".
+        "`sender_type`: `business` | `admin`. Tệp đính kèm nằm ở request riêng **List Attachments** (bước 22), không trả trong `messages[]`.\n\n".
         "**HTTP:** `200` | `404 ticket_not_found` / `integration_not_found`."],
     'event' => [preEvent(["if (!pm.collectionVariables.get('ticket_id')) pm.execution.skipRequest();"])],
     'response' => [
@@ -829,13 +839,80 @@ $reopen = [
     ],
 ];
 
+$reqListAttachments = ['method' => 'GET', 'header' => h(false), 'url' => u('businesses/{{external_business_id}}/support-tickets/{{ticket_id}}/attachments')];
+$listAttachments = [
+    'name' => '22 · List Support Attachments (đính kèm)',
+    'request' => $reqListAttachments + ['description' =>
+        "**Màn hình 14 — Tệp đính kèm của ticket.** Danh sách tệp cả hai chiều (business tải lên và admin MLHUB đính kèm khi trả lời).\n\n".
+        "**Path param:** `ticket_id` (tự lấy từ bước 16/17).\n\n".
+        "`sender_type`: `business` | `admin`. Dùng `download_url` (hoặc bước 24) để tải tệp.\n\n".
+        "**HTTP:** `200` | `404 ticket_not_found` / `integration_not_found`."],
+    'event' => [preEvent(["if (!pm.collectionVariables.get('ticket_id')) pm.execution.skipRequest();"])],
+    'response' => [
+        ex($reqListAttachments, '200 · OK', 200, 'OK', ok(['items' => [$attachmentData]])),
+        ex($reqListAttachments, '404 · Không tìm thấy ticket', 404, 'Not Found', err('ticket_not_found', 'Không tìm thấy phiếu hỗ trợ.', ['next_action' => 'create_support_ticket'])),
+    ],
+];
+
+$reqUploadAttachment = [
+    'method' => 'POST',
+    'header' => array_values(array_filter(h(true), fn (array $x): bool => $x['key'] !== 'Content-Type')),
+    'body' => [
+        'mode' => 'formdata',
+        'formdata' => [
+            ['key' => 'file', 'type' => 'file', 'src' => [], 'description' => 'Ảnh (jpg/png/webp/gif), video (mp4/mov/webm/avi), zip, hoặc văn bản (pdf/txt/csv/doc(x)/xls(x)/ppt(x)).'],
+        ],
+    ],
+    'url' => u('businesses/{{external_business_id}}/support-tickets/{{ticket_id}}/attachments'),
+];
+$uploadAttachment = [
+    'name' => '23 · Upload Support Attachment (tải lên đính kèm)',
+    'request' => $reqUploadAttachment + ['description' =>
+        "**Màn hình 14 — Gửi tệp đính kèm vào ticket.** `multipart/form-data`, field `file` (đúng 1 tệp / request).\n\n".
+        "**Loại được hỗ trợ:** ảnh `jpg/jpeg/png/webp/gif`; video `mp4/mov/webm/avi`; nén `zip`; văn bản `pdf/txt/csv/doc/docx/xls/xlsx/ppt/pptx`.\n".
+        "**Dung lượng:** mặc định tối đa 25MB (ảnh/zip/văn bản) hoặc 100MB (video) — MLHUB có thể chỉnh qua cấu hình server.\n".
+        "Server tự dò MIME thật theo nội dung file (không tin `Content-Type` client gửi) và đối chiếu song song với đuôi file.\n".
+        "Chỉ gửi được khi ticket đang `open`.\n\n".
+        "**HTTP:**\n- `201`: tải lên thành công, trả về `attachment_id` + `download_url`.\n".
+        "- `422 attachment_type_not_allowed`: sai định dạng/đuôi file.\n".
+        "- `422 attachment_too_large`: vượt dung lượng cho phép.\n".
+        "- `409 ticket_not_open`: ticket đã đóng/đã xử lý.\n".
+        "- `404 ticket_not_found` / `integration_not_found`.\n".
+        "- `503 support_attachments_unavailable`: tính năng chưa sẵn sàng trên môi trường này."],
+    'event' => [
+        preEvent(["if (!pm.collectionVariables.get('ticket_id')) pm.execution.skipRequest();"]),
+        testEvent([
+            "const a = (pm.response.json() || {}).data || {};",
+            "if (a.attachment_id) pm.collectionVariables.set('attachment_id', a.attachment_id);",
+        ]),
+    ],
+    'response' => [
+        ex($reqUploadAttachment, '201 · Đã tải lên', 201, 'Created', ok($attachmentData)),
+        ex($reqUploadAttachment, '422 · Sai định dạng', 422, 'Unprocessable Entity', err('attachment_type_not_allowed', 'Định dạng tệp đính kèm không được hỗ trợ.', ['file' => ['application/x-msdownload']])),
+        ex($reqUploadAttachment, '422 · Vượt dung lượng', 422, 'Unprocessable Entity', err('attachment_too_large', 'Tệp đính kèm vượt quá dung lượng cho phép (25 MB).', ['max_size_mb' => 25])),
+        ex($reqUploadAttachment, '409 · Ticket không còn mở', 409, 'Conflict', err('ticket_not_open', 'This support ticket is closed or resolved.')),
+        ex($reqUploadAttachment, '404 · Không tìm thấy ticket', 404, 'Not Found', err('ticket_not_found', 'Không tìm thấy phiếu hỗ trợ.', ['next_action' => 'create_support_ticket'])),
+    ],
+];
+
+$reqDownloadAttachment = ['method' => 'GET', 'header' => h(false), 'url' => u('businesses/{{external_business_id}}/support-tickets/{{ticket_id}}/attachments/{{attachment_id}}')];
+$downloadAttachment = [
+    'name' => '24 · Download Support Attachment (tải xuống đính kèm)',
+    'request' => $reqDownloadAttachment + ['description' =>
+        "**Màn hình 14 — Tải nội dung tệp đính kèm.** Trả về file nhị phân (`Content-Disposition: attachment`), không phải JSON envelope.\n\n".
+        "**Path param:** `attachment_id` (lấy từ bước 22/23). Luôn xác thực partner token + tenant scope theo ticket.\n\n".
+        "**HTTP:** `200` (file) | `404` (không tìm thấy tệp/ticket/integration)."],
+    'event' => [preEvent(["if (!pm.collectionVariables.get('ticket_id') || !pm.collectionVariables.get('attachment_id')) pm.execution.skipRequest();"])],
+    'response' => [],
+];
+
 // ---------------------------------------------------------------------------
 // 5. CRM
 // ---------------------------------------------------------------------------
 
 $reqCrm = ['method' => 'POST', 'header' => h(true), 'body' => body(new stdClass), 'url' => u('businesses/{{external_business_id}}/crm-login-links')];
 $crm = [
-    'name' => '22 · Create CRM Login Link (đăng nhập 1 lần)',
+    'name' => '25 · Create CRM Login Link (đăng nhập 1 lần)',
     'request' => $reqCrm + ['description' =>
         "**Màn hình 15 — Truy cập CRM MLHUB.** Tạo link đăng nhập dùng một lần, có hạn (mặc định 5 phút).\n\n".
         "**Điều kiện:** onboarding mới nhất phải `ready` hoặc `completed` (`is_ready=true` ở bước 06).\n".
@@ -864,11 +941,11 @@ $collection = [
         'name' => 'MLHUB × FizaHUB Partner API',
         'description' =>
             "# MLHUB × FizaHUB Partner API (v1)\n\n".
-            "Breaking cutover: **22 request** cho **15 màn hình Marketing** đã được Product duyệt. Support hoàn toàn **text-only** (không upload file).\n\n".
+            "Breaking cutover: **25 request** cho **15 màn hình Marketing** đã được Product duyệt. Support hỗ trợ cả tin nhắn text và đính kèm tệp (ảnh/video/zip/văn bản).\n\n".
             "## Dùng ngay trong 3 bước (không cần biết Postman sâu)\n".
             "1. **Import** file này vào Postman: nút **Import** (góc trên trái) → chọn file → Import.\n".
             "2. Mở collection → tab **Variables**: `base_url` và `partner_token` **ĐÃ điền sẵn**. Không cần gõ tay.\n".
-            "3. Đưa chuột vào tên collection → bấm **Run** → **Run MLHUB × FizaHUB Partner API**. Hoặc mở từng request 01→22 rồi bấm **Send**.\n\n".
+            "3. Đưa chuột vào tên collection → bấm **Run** → **Run MLHUB × FizaHUB Partner API**. Hoặc mở từng request 01→25 rồi bấm **Send**.\n\n".
             "Hướng dẫn click từng nút (tiếng Việt, cho người mới): https://mlhub.vn/api-fizahub/help-test\n\n".
             "## Vì sao chạy được ngay?\n".
             "- `partner_token`, `base_url` cấu hình sẵn cho giai đoạn thử nghiệm.\n".
@@ -879,7 +956,7 @@ $collection = [
             "1. **System (2):** Health, SSO Verify.\n".
             "2. **Onboarding (6):** Catalog → Create → Detail → Marketing Status → Profile → Preferences.\n".
             "3. **Growth (6):** Dashboard → Insights → Campaign List → Campaign Detail → Approval → Package.\n".
-            "4. **Support (7):** Presets → Create → List → Detail → Message → Close → Reopen.\n".
+            "4. **Support (10):** Presets → Create → List → Detail → Message → Close → Reopen → List Attachments → Upload Attachment → Download Attachment.\n".
             "5. **CRM (1):** tạo link khi onboarding ready/completed.\n\n".
             "## Xem đầy đủ tham số & trạng thái\n".
             "- Tab **Params** / **Body** của mỗi request: liệt kê đủ trường (một số param tắt sẵn — bật checkbox khi cần).\n".
@@ -917,6 +994,7 @@ $collection = [
         ['key' => 'onboarding_ticket_id', 'value' => '', 'type' => 'string', 'description' => 'Tự lưu từ bước 04 (ticket tiếp nhận onboarding).'],
         ['key' => 'onboarding_ready', 'value' => '0', 'type' => 'string', 'description' => '1 khi onboarding ready/completed — dùng để chạy bước 22 CRM.'],
         ['key' => 'ticket_id', 'value' => '', 'type' => 'string', 'description' => 'Tự lưu từ bước 16/17.'],
+        ['key' => 'attachment_id', 'value' => '', 'type' => 'string', 'description' => 'Tự lưu từ bước 23 Upload Attachment.'],
         ['key' => 'campaign_id', 'value' => '', 'type' => 'string', 'description' => 'Tự lưu từ bước 11 Campaign List.'],
         ['key' => 'campaign_approval_ready', 'value' => '0', 'type' => 'string', 'description' => '1 khi chiến dịch đầu tiên đang pending_approval — dùng cho bước 13.'],
         ['key' => 'from', 'value' => '', 'type' => 'string', 'description' => 'Tự sinh YYYY-MM-DD (30 ngày trước).'],
@@ -926,7 +1004,7 @@ $collection = [
         ['name' => 'System', 'description' => '2 request hệ thống: kiểm tra API sống và xác minh token.', 'item' => [$health, $sso]],
         ['name' => 'Onboarding', 'description' => '6 request cho luồng đăng ký và theo dõi onboarding (màn hình 01–05).', 'item' => [$catalog, $createOnboarding, $onboardingDetail, $status, $profile, $pref]],
         ['name' => 'Growth', 'description' => '6 request cho dashboard, phân tích tăng trưởng, chiến dịch và gói (màn hình 06–11).', 'item' => [$dashboard, $insights, $campaignList, $campaignDetail, $approval, $package]],
-        ['name' => 'Support', 'description' => '7 request cho trung tâm hỗ trợ text-only (màn hình 12–14).', 'item' => [$presets, $createTicket, $listTickets, $ticketDetail, $sendMsg, $close, $reopen]],
+        ['name' => 'Support', 'description' => '10 request cho trung tâm hỗ trợ, gồm tin nhắn text và đính kèm tệp (màn hình 12–14).', 'item' => [$presets, $createTicket, $listTickets, $ticketDetail, $sendMsg, $close, $reopen, $listAttachments, $uploadAttachment, $downloadAttachment]],
         ['name' => 'CRM', 'description' => '1 request tạo link đăng nhập CRM một lần (màn hình 15).', 'item' => [$crm]],
     ],
 ];

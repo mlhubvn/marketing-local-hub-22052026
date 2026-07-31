@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-test('public FizaHUB API is the exact approved 22 route cutover', function (): void {
+test('public FizaHUB API is the exact approved 25 route cutover', function (): void {
     $expected = [
         ['GET', 'api/v1/partners/fizahub/health'],
         ['POST', 'api/v1/partners/fizahub/partner/sso/verify'],
@@ -25,6 +25,9 @@ test('public FizaHUB API is the exact approved 22 route cutover', function (): v
         ['POST', 'api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets/{ticket_id}/messages'],
         ['POST', 'api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets/{ticket_id}/close'],
         ['POST', 'api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets/{ticket_id}/reopen'],
+        ['GET', 'api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets/{ticket_id}/attachments'],
+        ['POST', 'api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets/{ticket_id}/attachments'],
+        ['GET', 'api/v1/partners/fizahub/businesses/{external_business_id}/support-tickets/{ticket_id}/attachments/{attachment_id}'],
         ['POST', 'api/v1/partners/fizahub/businesses/{external_business_id}/crm-login-links'],
     ];
 
@@ -38,27 +41,26 @@ test('public FizaHUB API is the exact approved 22 route cutover', function (): v
         ->all();
 
     expect($actual)->toEqualCanonicalizing($expected)
-        ->and($actual)->toHaveCount(22)
+        ->and($actual)->toHaveCount(25)
         ->and(collect($actual)->pluck(1))->not->toContain(
             'api/v1/partners/fizahub/support-tickets/{ticket_id}/attachments'
         );
 });
 
-test('endpoint matrix publishes exactly the approved 22 public requests', function (): void {
+test('endpoint matrix publishes exactly the approved 25 public requests', function (): void {
     $matrix = file_get_contents(base_path('modules/APIPartnerFizaHUB/docs/ENDPOINT_MATRIX.md'));
 
     expect($matrix)->toBeString();
 
     preg_match_all('/^\|\s*\d+\s*\|\s*(GET|POST|PATCH)\s*\|\s*`(\/api\/v1\/partners\/fizahub[^`]*)`\s*\|/m', $matrix, $matches);
 
-    expect($matches[0])->toHaveCount(22)
+    expect($matches[0])->toHaveCount(25)
         ->and($matrix)->toContain(
             '| 3 | GET | `/api/v1/partners/fizahub/businesses/{external_business_id}/marketing-status` |',
             '| 8 | PATCH | `/api/v1/partners/fizahub/businesses/{external_business_id}/marketing-preferences` |',
             '| 13 | POST | `/api/v1/partners/fizahub/businesses/{external_business_id}/campaigns/{campaign_id}/approval` |',
-            '| 22 | POST | `/api/v1/partners/fizahub/businesses/{external_business_id}/crm-login-links` |'
+            '| 25 | POST | `/api/v1/partners/fizahub/businesses/{external_business_id}/crm-login-links` |'
         )
-        ->and($matrix)->toContain('Support public contract chỉ trao đổi text')
-        ->and($matrix)->not->toContain('/attachments')
-        ->and($matrix)->not->toContain('SupportAttachmentController');
+        ->and($matrix)->toContain('SupportAttachmentController')
+        ->and($matrix)->toContain('/support-tickets/{ticket_id}/attachments');
 });

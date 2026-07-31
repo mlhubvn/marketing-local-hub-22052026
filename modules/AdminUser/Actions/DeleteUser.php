@@ -740,6 +740,23 @@ class DeleteUser
             }
         }
 
+        if ($this->hasTableAndColumns('partner_support_attachments', ['support_ticket_id', 'disk', 'path'])) {
+            $ticketIds = $this->pluckIds('support_tickets', [
+                'uid' => $user->id,
+                'open_by' => $user->id,
+                'team_id' => $context['personal_team_ids'],
+            ]);
+
+            if ($ticketIds !== []) {
+                foreach (DB::table('partner_support_attachments')
+                    ->whereIn('support_ticket_id', $ticketIds)
+                    ->whereNotNull('path')
+                    ->get(['disk', 'path']) as $attachment) {
+                    $this->addAsset($assets, (string) ($attachment->disk ?: 'local'), (string) $attachment->path, false, true);
+                }
+            }
+        }
+
         if ($this->hasTableAndColumns('lb_businesses', ['id', 'qr_design'])
             && $context['business_ids'] !== []) {
             foreach (DB::table('lb_businesses')->whereIn('id', $context['business_ids'])->pluck('qr_design') as $design) {
