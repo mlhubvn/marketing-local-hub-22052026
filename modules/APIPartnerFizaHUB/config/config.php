@@ -1,5 +1,7 @@
 <?php
 
+use Modules\APIPartnerFizaHUB\Support\PartnerReportingAdminIds;
+
 return [
     'partner_code' => 'fizahub',
     // Default 'fizahub' cho GIAI ĐOẠN THỬ NGHIỆM để đối tác test không cần cấu hình Coolify.
@@ -118,4 +120,13 @@ return [
     'industry_aliases' => [
         'restaurant_food' => 'restaurant_eatery',
     ],
+
+    // --- FizaHUB Partner Reporting Portal (cổng báo cáo view-only, domain riêng) ---
+    // Domain chạy cổng báo cáo. Rỗng = tính năng tắt hẳn (không đăng ký route domain).
+    'partner_reporting_domain' => trim((string) env('FIZAHUB_DOMAIN', 'fzh.vmo.vn')),
+    // Danh sách ID user MLHUB (users.id) được phép xem cổng báo cáo. env() chỉ được gọi ở
+    // đây (tương thích `config:cache`); luật parse (khoảng trắng, giá trị rỗng/không hợp lệ,
+    // trùng lặp) nằm trong PartnerReportingAdminIds::parse() để có thể unit-test độc lập.
+    // Mặc định KHÔNG ai được truy cập nếu chưa cấu hình (chuỗi rỗng → mảng rỗng).
+    'partner_reporting_admin_ids' => PartnerReportingAdminIds::parse((string) env('FIZAHUB_ADMIN', '')),
 ];

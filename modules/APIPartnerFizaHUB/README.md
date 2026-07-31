@@ -160,6 +160,53 @@ Luồng đầy đủ Create → List → Detail → Message → Close → Reopen
 
 Route `admin-fizahub.onboarding`: admin có thể set **bất kỳ** public status (kể cả kích hoạt lại từ `cancelled` / `completed`), áp gói `free`|`base`|`biz`|`plus`, và **xóa sạch** dữ liệu partner onboarding (request/history/integration/ticket context/webhook) — **không** xóa user MLHUB (xóa user ở Admin → Users). Partner API vẫn giữ máy trạng thái chặt; board gọi `adminSetStatus` / `adminAssignPackage` / `adminPurgeOnboarding`.
 
+## Partner Reporting Portal (cổng báo cáo view-only cho lãnh đạo FizaHUB)
+
+Cổng riêng cho **lãnh đạo FizaHUB** đăng nhập bằng tài khoản MLHUB có sẵn để xem báo cáo onboarding/HKD của luồng FizaHUB — hoàn toàn tách biệt với 25 endpoint API partner ở trên (đó là API cho **app FizaHUB** gọi; portal này là **giao diện web** cho **người** của FizaHUB xem).
+
+### Domain và ENV
+
+| Biến | Ý nghĩa |
+|---|---|
+| `FIZAHUB_DOMAIN` | Domain riêng chạy portal, ví dụ `fzh.vmo.vn`. Route domain-group chỉ đăng ký khi biến này không rỗng. |
+| `FIZAHUB_ADMIN` | Danh sách `users.id` (MLHUB) được phép xem portal, cách nhau dấu phẩy; cho phép khoảng trắng thừa, tự loại giá trị rỗng/không hợp lệ/≤0, tự dedupe. Rỗng hoặc toàn giá trị không hợp lệ ⇒ **không ai** được truy cập (kể cả super-admin). |
+
+Logic parse `FIZAHUB_ADMIN` nằm ở `Support/PartnerReportingAdminIds::parse()` (unit test riêng tại `tests/Unit/APIPartnerFizaHUB/PartnerReportingAdminIdsTest.php`), đọc một lần trong `config/config.php` (namespace `modules.apipartnerfizahub`, giống mọi config khác của module) thành `config('modules.apipartnerfizahub.partner_reporting_domain')` và `config('modules.apipartnerfizahub.partner_reporting_admin_ids')` — không gọi `env()` ngoài file config nên tương thích `config:cache`.
+
+### Luồng truy cập
+
+1. Người dùng mở `https://{FIZAHUB_DOMAIN}/` → chưa đăng nhập thì Fortify chuyển tới trang login (route Fortify mặc định, không đổi core), login xong quay lại dashboard.
+2. `EnsureFizaHubPartnerAccess` (áp trên toàn bộ route domain-group) kiểm tra `auth()->id()` có trong `partner_reporting_admin_ids` không — không thì `abort(403)` kèm trang lỗi rõ ràng; user bị xoá/khoá thì middleware `auth` của Fortify đã chặn từ trước.
+3. `RestrictFizaHubDomainHost` (đăng ký global trong `APIPartnerFizaHUBServiceProvider`) chặn mọi route MLHUB khác khi `Host` là `FIZAHUB_DOMAIN`: route không nằm trong allowlist (login/logout, dashboard, chi tiết HKD, asset Livewire/Vite, health) → 404 nếu là guest, hoặc redirect về dashboard nếu đã đăng nhập hợp lệ (tránh lộ menu/tính năng MLHUB, không tạo redirect loop vì chính dashboard/login luôn nằm trong allowlist).
+4. Session trên `FIZAHUB_DOMAIN` là **host-only, tách biệt hoàn toàn** khỏi session `mlhub.vn`: `APIPartnerFizaHUBServiceProvider::configurePartnerReportingSessionIsolation()` so khớp `Host` request lúc boot (trước `StartSession`) và nếu khớp `FIZAHUB_DOMAIN` thì ghi đè `session.domain = null` (bỏ attribute `domain` trên cookie ⇒ trình duyệt chỉ gửi đúng host này) và đổi tên cookie thành `fizahub_partner_session` (khác hẳn `mlhub_session` của domain chính, không thể trùng/ghi đè lẫn nhau) — chỉ request đúng `Host` này bị ảnh hưởng, mọi request khác (kể cả toàn bộ `mlhub.vn`) giữ nguyên config session hiện tại.
+
+### Route (domain-scoped, chỉ tồn tại khi `FIZAHUB_DOMAIN` khác rỗng)
+
+| Method | Path | Middleware | Mô tả |
+|---|---|---|---|
+| GET | `/` | `web`, `auth`, `verified`, `ensure.fizahub-partner-access` | Dashboard tổng quan |
+| GET | `/onboarding/{onboardingRequestId}` | như trên | Chi tiết một HKD |
+
+Đăng nhập/đăng xuất/2FA dùng nguyên route Fortify hiện có (không tạo route auth riêng); các route MLHUB khác bị `RestrictFizaHubDomainHost` chặn như mô tả ở trên.
+
+### Dữ liệu và cô lập theo partner
+
+`Services/PartnerReportingService.php` là nơi duy nhất tổng hợp số liệu cho portal, mọi query lọc cứng `partner_code = PartnerMappingService::partnerCode()` (defense-in-depth, không chỉ dựa vào 1 điều kiện) trước khi trả về:
+
+- **Thẻ số liệu & phân bổ trạng thái**: đếm trực tiếp trên `partner_onboarding_requests` theo `status` (enum onboarding có sẵn, không tự bịa trạng thái mới) và trên `partner_integrations` (`mlhub_business_id is not null` = đã có tài khoản/liên kết); vé hỗ trợ đang mở đếm qua `partner_support_ticket_contexts` join `support_tickets` (đúng quan hệ hiện có, không suy diễn).
+- **Tăng trưởng 30 ngày/12 tháng**: group theo `created_at` của `partner_onboarding_requests`, bucket theo timezone ứng dụng (`config('app.timezone')`), ngày/tháng không phát sinh dữ liệu vẫn trả `0`.
+- **Danh sách HKD**: `businessListQuery()` phân trang bằng `paginate()` (không tải hết vào mảng rồi lọc tay), `with(['user:...', 'user.plan:...', 'business:...'])` để tránh N+1, hỗ trợ tìm kiếm theo tên HKD/chủ tài khoản/email/số điện thoại, lọc theo trạng thái và gói, sắp xếp theo `created_at desc`.
+- **Chi tiết HKD**: tái sử dụng `DashboardService::summarizeCached()` sẵn có cho chỉ số hoạt động (QR scan, lead mới, đánh giá, ưu đãi, đặt lịch, tỷ lệ chuyển đổi, xu hướng 30 ngày) và `SupportTicketBridge` cho danh sách/nội dung vé hỗ trợ chỉ-đọc (không có nút trả lời/đóng/mở lại/xoá trên view).
+- **Chỉ số chưa có dữ liệu** (ví dụ HKD chưa từng có `PartnerIntegration` liên kết `lb_businesses`, hoặc chưa phát sinh growth data) hiển thị nguyên trạng "Chưa có dữ liệu" từ các service gốc — portal không tự chế số liệu giả.
+
+### An toàn
+
+Chỉ có route `GET` (không có route mutation nào trong domain-group); view dùng Blade escape mặc định; tìm kiếm HKD dùng query builder tham số hoá (`where(...)->orWhere(...)`, không nối chuỗi SQL thô); lỗi runtime hiển thị qua trang lỗi chuẩn của Laravel (không bật debug riêng cho domain này); domain/user ID không được ghi vào log ngoài log request chuẩn của framework.
+
+### Test
+
+`tests/Feature/APIPartnerFizaHUB/PartnerReportingPortalTest.php` (16 kịch bản: guest redirect, allowlist cho phép/từ chối, ENV parsing rỗng, cô lập dữ liệu theo partner_code, chặn xem chéo HKD khác/partner khác qua đổi ID trên URL, không có route mutation, domain MLHUB không đổi hành vi, route MLHUB khác không lọt qua domain phụ, dashboard/detail không lỗi khi trắng dữ liệu, N+1) và `tests/Unit/APIPartnerFizaHUB/PartnerReportingAdminIdsTest.php` (9 kịch bản parse `FIZAHUB_ADMIN`).
+
 ## Migrations
 
 - `2026_07_13_000000_create_fizahub_partner_api_tables.php`

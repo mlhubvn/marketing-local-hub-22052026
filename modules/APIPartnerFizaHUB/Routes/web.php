@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Modules\APIPartnerFizaHUB\Http\Controllers\ApiFizaHubDocsController;
 use Modules\APIPartnerFizaHUB\Http\Controllers\ConsumeOneTimeLoginController;
 use Modules\APIPartnerFizaHUB\Livewire\FizaHubOnboardingIndex;
+use Modules\APIPartnerFizaHUB\Livewire\FizaHubPartnerDashboard;
+use Modules\APIPartnerFizaHUB\Livewire\FizaHubPartnerOnboardingShow;
 
 Route::middleware(['web'])
     ->group(function (): void {
@@ -33,3 +35,23 @@ Route::middleware(['web', 'auth', 'verified'])
 Route::middleware(['web', 'signed'])
     ->match(['get', 'post'], '/partners/fizahub/one-time-login/{token}', ConsumeOneTimeLoginController::class)
     ->name('partner.fizahub.login.consume');
+
+// FizaHUB Partner Reporting Portal — view-only dashboard on its own domain
+// (FIZAHUB_DOMAIN). Reuses the standard MLHUB login (auth/verified) plus a plain user-ID
+// allowlist (partner.fizahub.reporting-access, see EnsureFizaHubPartnerAccess) — no admin
+// role required. RestrictFizaHubDomainHost (registered globally on the `web` group by the
+// service provider) confines this host to only this group of routes plus sign-in/out.
+$partnerReportingDomain = trim((string) config('modules.apipartnerfizahub.partner_reporting_domain', ''));
+
+if ($partnerReportingDomain !== '') {
+    Route::domain($partnerReportingDomain)
+        ->middleware(['web', 'auth', 'verified', 'partner.fizahub.reporting-access'])
+        ->name('fizahub-partner.')
+        ->group(function (): void {
+            Route::get('/', FizaHubPartnerDashboard::class)->name('dashboard');
+            // Route param intentionally NOT named `onboardingRequest` — see the docblock on
+            // FizaHubPartnerOnboardingShow::mount() for why that would collide with
+            // Livewire's implicit route-model binding.
+            Route::get('/onboarding/{onboardingRequestId}', FizaHubPartnerOnboardingShow::class)->name('onboarding.show');
+        });
+}
