@@ -361,7 +361,7 @@ class OnboardingAdminService
 
     /**
      * Purge partner onboarding + integration mapping for this business.
-     * Keeps the MLHUB user / team / business (delete those from Users admin).
+     * Keeps the MKT user / team / business (delete those from Users admin).
      *
      * @return array{external_business_id: string, request_ids: list<string>, tickets_deleted: int}
      */
@@ -512,7 +512,7 @@ class OnboardingAdminService
 
         if ($candidateIds->count() > 1) {
             throw new InvalidArgumentException(
-                __('The onboarding mapping points to multiple MLHUB users. No account was deleted.')
+                __('The onboarding mapping points to multiple MKT users. No account was deleted.')
             );
         }
 
@@ -521,7 +521,7 @@ class OnboardingAdminService
 
         if (! $user) {
             throw new InvalidArgumentException(
-                __('No unambiguous MLHUB user could be resolved from this onboarding mapping.')
+                __('No unambiguous MKT user could be resolved from this onboarding mapping.')
             );
         }
 

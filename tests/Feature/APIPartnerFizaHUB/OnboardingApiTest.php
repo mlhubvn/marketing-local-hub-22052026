@@ -136,7 +136,7 @@ function createOnboardingTestTables(): void
 function seedOnboardingPlan(): AdminPlan
 {
     return AdminPlan::query()->create([
-        'name' => 'MLHUB Free Da Nang',
+        'name' => 'MKT Free Da Nang',
         'slug' => 'mlhub-free-da-nang',
         'status' => true,
         'free_plan' => true,

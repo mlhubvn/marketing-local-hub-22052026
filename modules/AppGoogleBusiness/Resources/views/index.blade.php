@@ -35,7 +35,7 @@
     @if ($configured && $googleCloudSetupRequired)
         <section class="rounded-[1.15rem] border p-5" style="border-color: rgba(var(--theme-warning-color-rgb), .32); background-color: color-mix(in srgb, var(--theme-warning-color) 9%, var(--theme-surface-overlay));">
             <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Google account connected — waiting for Google Cloud API approval') }}</p>
-            <p class="mt-2 text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('MLHUB saved your Google login. Google must approve Business Profile API access for your Cloud project before locations can load. Enable the two Business Profile APIs, link billing, and submit Application For Basic API Access. After approval (quota 300 QPM), click Refresh locations again.') }}</p>
+            <p class="mt-2 text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('MKT saved your Google login. Google must approve Business Profile API access for your Cloud project before locations can load. Enable the two Business Profile APIs, link billing, and submit Application For Basic API Access. After approval (quota 300 QPM), click Refresh locations again.') }}</p>
         </section>
     @endif
 
@@ -227,7 +227,7 @@
             <div class="flex flex-col gap-3 border-b px-5 py-4 lg:flex-row lg:items-center lg:justify-between" style="border-color: rgba(var(--theme-border-color-rgb), .68);">
                 <div>
                     <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Google locations') }}</p>
-                    <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Add only the Google locations you want to manage, then map them to MLHUB businesses.') }}</p>
+                    <p class="mt-1 text-xs" style="color: var(--theme-muted-text-color);">{{ __('Add only the Google locations you want to manage, then map them to MKT businesses.') }}</p>
                 </div>
                 <x-ui.button type="button" variant="outline" onclick="window.location.href='{{ route('portal.google-business.connect') }}'" :disabled="! $configured"><i class="fa-brands fa-google"></i>{{ __('Connect Google') }}</x-ui.button>
             </div>
@@ -270,7 +270,7 @@
                                     <x-ui.badge variant="success">{{ __('Choose locations') }}</x-ui.badge>
                                     <x-ui.badge variant="neutral">{{ count($locationCandidates) }} {{ __('available') }}</x-ui.badge>
                                 </div>
-                                <p class="mt-3 text-base font-semibold" style="color: var(--theme-header-text-color);">{{ __('Select Google locations to add into MLHUB') }}</p>
+                                <p class="mt-3 text-base font-semibold" style="color: var(--theme-header-text-color);">{{ __('Select Google locations to add into MKT') }}</p>
                                 <p class="mt-1 text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('Locations are not added automatically after Google connect. Add only the locations you want to manage for reviews, analytics, and auto reply.') }}</p>
                             </div>
                             <x-ui.button type="button" variant="outline" size="sm" wire:click="clearLocationCandidates"><i class="fa-light fa-xmark"></i>{{ __('Dismiss') }}</x-ui.button>
@@ -282,7 +282,7 @@
                                         <div class="flex flex-wrap items-center gap-2">
                                             <p class="font-semibold" style="color: var(--theme-header-text-color);">{{ $candidate['name'] ?? __('Google location') }}</p>
                                             @if (! empty($candidate['already_imported']))
-                                                <x-ui.badge variant="warning">{{ __('Already in MLHUB') }}</x-ui.badge>
+                                                <x-ui.badge variant="warning">{{ __('Already in MKT') }}</x-ui.badge>
                                             @endif
                                         </div>
                                         <p class="mt-1 max-w-3xl text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ $candidate['address'] ?? ($candidate['google_location_id'] ?? '') }}</p>
@@ -346,7 +346,7 @@
                             @endif
                         @else
                             <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('No Google locations added yet') }}</p>
-                            <p class="mx-auto mt-2 max-w-md text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('Connect Google, then choose the locations you want to manage. MLHUB will not import every Google location automatically.') }}</p>
+                            <p class="mx-auto mt-2 max-w-md text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('Connect Google, then choose the locations you want to manage. MKT will not import every Google location automatically.') }}</p>
                         @endif
                     </div>
                 @endforelse
@@ -513,7 +513,7 @@
                     @empty
                         <div class="px-5 py-12 text-center">
                             <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('No Google reviews synced yet') }}</p>
-                            <p class="mx-auto mt-2 max-w-md text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ $selectedLocation->business ? __('Sync reviews from the selected Google Business location to reply, analyze ratings, and use AI-generated responses.') : __('Map this Google location to a MLHUB business before syncing reviews.') }}</p>
+                            <p class="mx-auto mt-2 max-w-md text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ $selectedLocation->business ? __('Sync reviews from the selected Google Business location to reply, analyze ratings, and use AI-generated responses.') : __('Map this Google location to a MKT business before syncing reviews.') }}</p>
                         </div>
                     @endforelse
                     @if ($reviews->hasPages())
@@ -1424,7 +1424,7 @@
                             </div>
 
                             <div class="space-y-4">
-                                <x-ui.select wire:model="mapBusinessId" name="mapBusinessId" :label="__('MLHUB business')" :error="$errors->first('mapBusinessId')">
+                                <x-ui.select wire:model="mapBusinessId" name="mapBusinessId" :label="__('MKT business')" :error="$errors->first('mapBusinessId')">
                                     <option value="">{{ __('Choose business') }}</option>
                                     @foreach ($businesses as $business)
                                         <option value="{{ $business->id }}">{{ $business->name }}</option>
@@ -1460,7 +1460,7 @@
                         <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" style="background-color: color-mix(in srgb, var(--theme-warning-color) 12%, white); color: var(--theme-warning-color);"><i class="fa-light fa-triangle-exclamation"></i></span>
                         <div>
                             <p class="text-lg font-semibold" style="color: var(--theme-header-text-color);">{{ __('Possible duplicate business') }}</p>
-                            <p class="mt-1 text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('A similar MLHUB business already exists. Importing will create another business record. Use Map if you want to connect this Google location to an existing business.') }}</p>
+                            <p class="mt-1 text-sm leading-6" style="color: var(--theme-muted-text-color);">{{ __('A similar MKT business already exists. Importing will create another business record. Use Map if you want to connect this Google location to an existing business.') }}</p>
                         </div>
                     </div>
 

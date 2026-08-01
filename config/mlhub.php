@@ -47,9 +47,9 @@ return [
     'contact_email' => env('MLHUB_CONTACT_EMAIL', 'admin@mlhub.vn'),
 
     'site' => [
-        'title' => env('SITE_TITLE', 'MLHUB'),
+        'title' => env('SITE_TITLE', 'MKT'),
         'description' => env('SITE_DESCRIPTION', 'Nền tảng Marketing Automation cho hộ kinh doanh tại Việt Nam.'),
-        'keywords' => env('SITE_KEYWORDS', 'MLHUB, marketing, đánh giá Google, đặt lịch, phiếu giảm giá, hộ kinh doanh'),
+        'keywords' => env('SITE_KEYWORDS', 'MKT, marketing, đánh giá Google, đặt lịch, phiếu giảm giá, hộ kinh doanh'),
         'guest_theme' => env('THEME_FRONTEND', 'mlhubfrontend'),
         'backend_theme' => env('THEME_BACKEND', 'mlhubbackend'),
         'favicon' => 'img/favicon.svg',

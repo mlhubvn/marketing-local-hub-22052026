@@ -40,7 +40,7 @@ test('free plan does not gain google business access from the generic business l
     expect($seeder->normalizedFreePermissions()['google_business'])->toBeFalse();
 });
 
-test('seeds the official 13 plan MLHUB catalog with one default signup plan', function (): void {
+test('seeds the official 13 plan MKT catalog with one default signup plan', function (): void {
     createPlansTableForSeederTests();
 
     (new PlanSeeder)->run();
@@ -136,7 +136,7 @@ test('update mode updates official plans without deleting custom plans', functio
 
     expect(DB::table('plans')->where('slug', 'custom-plan')->exists())->toBeTrue()
         ->and(DB::table('plans')->where('slug', 'mlhub-starter-monthly')->first())
-        ->name->toBe('MLHUB Starter Monthly')
+        ->name->toBe('MKT Starter Monthly')
         ->status->toBe('1')
         ->currency->toBe('VND')
         ->price->toBe(199000)
@@ -144,7 +144,7 @@ test('update mode updates official plans without deleting custom plans', functio
         ->and(DB::table('plans')->where('slug', 'mlhub-free-da-nang')->value('default_signup_plan'))->toBe(1);
 });
 
-test('default signup resolver selects MLHUB Free Da Nang', function (): void {
+test('default signup resolver selects MKT Free Da Nang', function (): void {
     createPlansTableForSeederTests();
 
     (new PlanSeeder)->run();
@@ -152,7 +152,7 @@ test('default signup resolver selects MLHUB Free Da Nang', function (): void {
     expect(app(DefaultSignupPlanResolver::class)->resolve()?->slug)->toBe('mlhub-free-da-nang');
 });
 
-test('all official plans use the shared MLHUB permission baseline and AI credit costs', function (): void {
+test('all official plans use the shared MKT permission baseline and AI credit costs', function (): void {
     createPlansTableForSeederTests();
 
     (new PlanSeeder)->run();

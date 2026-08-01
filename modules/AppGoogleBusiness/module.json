@@ -1,7 +1,7 @@
 {
     "name": "AppGoogleBusiness",
     "alias": "appgooglebusiness",
-    "description": "Google Business Profile integration addon for MLHUB AI.",
+    "description": "Google Business Profile integration addon for MKT AI.",
     "keywords": ["mlhub", "google", "business-profile", "reviews", "locations"],
     "priority": 0,
     "providers": [

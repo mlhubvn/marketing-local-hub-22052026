@@ -14,9 +14,9 @@ $SAMPLE_REQUEST_ID = '9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80';
 function h(bool $write): array
 {
     $headers = [
-        ['key' => 'Authorization', 'value' => 'Bearer {{partner_token}}', 'description' => 'Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay.'],
+        ['key' => 'Authorization', 'value' => 'Bearer {{partner_token}}', 'description' => 'Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay.'],
         ['key' => 'X-Partner', 'value' => 'fizahub', 'description' => 'Mã đối tác cố định. Luôn là "fizahub".'],
-        ['key' => 'X-Request-Id', 'value' => '{{$guid}}', 'description' => 'UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB.'],
+        ['key' => 'X-Request-Id', 'value' => '{{$guid}}', 'description' => 'UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT.'],
         ['key' => 'Accept', 'value' => 'application/json'],
     ];
 
@@ -142,11 +142,11 @@ $onboardingData201 = [
     'current_step' => 'awaiting_consultant',
     'status_label' => 'Chờ tư vấn viên liên hệ',
     'timeline' => [
-        ['code' => 'account_created', 'label' => 'Đã tạo tài khoản và cơ sở', 'description' => 'Tài khoản MLHUB và cơ sở đã được khởi tạo.', 'status' => 'completed', 'completed_at' => '2026-07-21T01:00:00+00:00'],
-        ['code' => 'awaiting_consultant', 'label' => 'Chờ tư vấn viên liên hệ', 'description' => 'MLHUB đang tiếp nhận và kiểm tra yêu cầu.', 'status' => 'current', 'completed_at' => null],
+        ['code' => 'account_created', 'label' => 'Đã tạo tài khoản và cơ sở', 'description' => 'Tài khoản MKT và cơ sở đã được khởi tạo.', 'status' => 'completed', 'completed_at' => '2026-07-21T01:00:00+00:00'],
+        ['code' => 'awaiting_consultant', 'label' => 'Chờ tư vấn viên liên hệ', 'description' => 'MKT đang tiếp nhận và kiểm tra yêu cầu.', 'status' => 'current', 'completed_at' => null],
         ['code' => 'in_consultation', 'label' => 'Đang tư vấn nhu cầu', 'description' => 'Tư vấn viên đang làm rõ mục tiêu tăng trưởng.', 'status' => 'pending', 'completed_at' => null],
-        ['code' => 'configuring', 'label' => 'Đang cấu hình Marketing', 'description' => 'MLHUB đang cấu hình các công cụ Marketing.', 'status' => 'pending', 'completed_at' => null],
-        ['code' => 'ready', 'label' => 'Sẵn sàng sử dụng', 'description' => 'Doanh nghiệp có thể truy cập CRM MLHUB.', 'status' => 'pending', 'completed_at' => null],
+        ['code' => 'configuring', 'label' => 'Đang cấu hình Marketing', 'description' => 'MKT đang cấu hình các công cụ Marketing.', 'status' => 'pending', 'completed_at' => null],
+        ['code' => 'ready', 'label' => 'Sẵn sàng sử dụng', 'description' => 'Doanh nghiệp có thể truy cập CRM MKT.', 'status' => 'pending', 'completed_at' => null],
     ],
     'requested_package_code' => 'base',
     'approved_package_code' => null,
@@ -224,7 +224,7 @@ $health = [
         "**Không cần body.**\n\n".
         "**Trạng thái trả về:**\n".
         "- `200` + `data.status = \"ok\"`: mọi thứ sẵn sàng.\n".
-        "- `503` + `data.status = \"degraded\"`: có dependency thiếu (xem `data.checks`). MLHUB cần chạy migration/seed."],
+        "- `503` + `data.status = \"degraded\"`: có dependency thiếu (xem `data.checks`). MKT cần chạy migration/seed."],
     'response' => [
         ex($reqHealth, '200 · OK (sẵn sàng)', 200, 'OK', ok([
             'status' => 'ok', 'partner' => 'fizahub', 'api_version' => 'v1',
@@ -279,7 +279,7 @@ $catalog = [
         "**Màn hình 02 — Chọn giải pháp Marketing.**\n\n".
         "Lấy danh sách mục tiêu Marketing, cây ngành nghề và các gói dịch vụ.\n\n".
         "**Query params:**\n".
-        "- `industry` (tùy chọn): mã ngành, để MLHUB gợi ý gói theo ngành.\n\n".
+        "- `industry` (tùy chọn): mã ngành, để MKT gợi ý gói theo ngành.\n\n".
         "**Giá trị dùng ở các bước sau:**\n".
         "- `marketing_goals[].code`: `local_presence`, `qr_checkin`, `voucher_return`, `customer_retention` (chọn tối đa 3).\n".
         "- `packages[].package_code`: `free`, `base`, `biz`, `plus`."],
@@ -295,10 +295,10 @@ $catalog = [
             ],
             'industries' => [['code' => 'food_beverage', 'label' => 'Ẩm thực & Đồ uống', 'children' => [['code' => 'restaurant_eatery', 'label' => 'Nhà hàng / Quán ăn']]]],
             'packages' => [
-                ['package_code' => 'free', 'description' => 'Gói khởi tạo miễn phí để doanh nghiệp bắt đầu Marketing cùng MLHUB.', 'features' => ['Hiện diện địa phương', 'QR Check-in cơ bản', 'Theo dõi khách hàng'], 'recommended_goal_codes' => ['local_presence', 'qr_checkin'], 'industry_codes' => ['restaurant_eatery']],
+                ['package_code' => 'free', 'description' => 'Gói khởi tạo miễn phí để doanh nghiệp bắt đầu Marketing cùng MKT.', 'features' => ['Hiện diện địa phương', 'QR Check-in cơ bản', 'Theo dõi khách hàng'], 'recommended_goal_codes' => ['local_presence', 'qr_checkin'], 'industry_codes' => ['restaurant_eatery']],
                 ['package_code' => 'base', 'description' => 'Gói doanh nghiệp quan tâm với tư vấn và cấu hình tăng trưởng mở rộng.', 'features' => ['Mã ưu đãi', 'Chăm sóc khách hàng', 'Tư vấn chiến dịch'], 'recommended_goal_codes' => ['voucher_return', 'customer_retention'], 'industry_codes' => ['restaurant_eatery']],
                 ['package_code' => 'biz', 'description' => 'Gói doanh nghiệp mở rộng: tự động hóa Marketing, CRM đa kênh và quản lý nhiều cơ sở.', 'features' => ['Tự động hóa Marketing', 'CRM nâng cao', 'Quản lý nhiều cơ sở'], 'recommended_goal_codes' => ['voucher_return', 'customer_retention'], 'industry_codes' => ['restaurant_eatery']],
-                ['package_code' => 'plus', 'description' => 'Gói cao cấp cho doanh nghiệp cần đầy đủ AI Studio, CRM không giới hạn và thương hiệu riêng.', 'features' => ['AI Studio đầy đủ', 'CRM không giới hạn', 'Loại bỏ thương hiệu MLHUB'], 'recommended_goal_codes' => ['local_presence', 'qr_checkin', 'voucher_return'], 'industry_codes' => ['restaurant_eatery']],
+                ['package_code' => 'plus', 'description' => 'Gói cao cấp cho doanh nghiệp cần đầy đủ AI Studio, CRM không giới hạn và thương hiệu riêng.', 'features' => ['AI Studio đầy đủ', 'CRM không giới hạn', 'Loại bỏ thương hiệu MKT'], 'recommended_goal_codes' => ['local_presence', 'qr_checkin', 'voucher_return'], 'industry_codes' => ['restaurant_eatery']],
             ],
         ])),
     ],
@@ -323,7 +323,7 @@ $reqCreateOnboarding = ['method' => 'POST', 'header' => h(true), 'body' => body(
 $createOnboarding = [
     'name' => '04 · Create Onboarding (tạo tài khoản + provision Free)',
     'request' => $reqCreateOnboarding + ['description' =>
-        "**Màn hình 03 — Thông tin đăng ký.** Tạo tài khoản MLHUB + cơ sở + gói Free trong 1 lần (atomic).\n\n".
+        "**Màn hình 03 — Thông tin đăng ký.** Tạo tài khoản MKT + cơ sở + gói Free trong 1 lần (atomic).\n\n".
         "**Body — các trường:**\n".
         "- `external_business_id` (bắt buộc): ID business phía FizaHUB. Collection tự sinh.\n".
         "- `external_user_id` (tùy chọn): ID user phía FizaHUB.\n".
@@ -336,7 +336,7 @@ $createOnboarding = [
         "- `201` tạo mới → `awaiting_consultant`.\n".
         "- `202` tạo mới nhưng cần rà soát → `needs_review`.\n".
         "- `200` đã đăng ký trước đó → `already_registered=true`, trả request/ticket cũ.\n".
-        "- `409 email_already_registered`: email đã thuộc tài khoản MLHUB khác.\n".
+        "- `409 email_already_registered`: email đã thuộc tài khoản MKT khác.\n".
         "- `409 onboarding_email_mismatch`: business đã map bằng email khác.\n".
         "- `422 validation_failed`: payload sai.\n".
         "- `503`: schema/plan chưa sẵn sàng."],
@@ -358,10 +358,10 @@ $createOnboarding = [
         ex($reqCreateOnboarding, '200 · Đã đăng ký trước đó', 200, 'OK', ok(array_merge($onboardingData201, [
             'account_created' => false, 'business_created' => false, 'integration_created' => false, 'already_registered' => true,
         ]))),
-        ex($reqCreateOnboarding, '409 · Email đã tồn tại', 409, 'Conflict', err('email_already_registered', 'Địa chỉ email này đã được đăng ký trên MLHUB.', ['next_action' => 'use_existing_account_or_contact_support'])),
-        ex($reqCreateOnboarding, '409 · Email không khớp mapping', 409, 'Conflict', err('onboarding_email_mismatch', 'Doanh nghiệp đã liên kết với một email khác trên MLHUB.', ['next_action' => 'contact_support'])),
+        ex($reqCreateOnboarding, '409 · Email đã tồn tại', 409, 'Conflict', err('email_already_registered', 'Địa chỉ email này đã được đăng ký trên MKT.', ['next_action' => 'use_existing_account_or_contact_support'])),
+        ex($reqCreateOnboarding, '409 · Email không khớp mapping', 409, 'Conflict', err('onboarding_email_mismatch', 'Doanh nghiệp đã liên kết với một email khác trên MKT.', ['next_action' => 'contact_support'])),
         ex($reqCreateOnboarding, '422 · Sai dữ liệu', 422, 'Unprocessable Entity', err('validation_failed', 'Dữ liệu không hợp lệ.', ['marketing_goal_codes' => ['The marketing goal codes field is required.']])),
-        ex($reqCreateOnboarding, '503 · Plan mặc định chưa sẵn sàng', 503, 'Service Unavailable', err('default_plan_not_found', 'Gói Free mặc định chưa được cấu hình trên MLHUB.')),
+        ex($reqCreateOnboarding, '503 · Plan mặc định chưa sẵn sàng', 503, 'Service Unavailable', err('default_plan_not_found', 'Gói Free mặc định chưa được cấu hình trên MKT.')),
     ],
 ];
 
@@ -386,11 +386,11 @@ $onboardingDetail = [
         ex($reqOnboardingDetail, '200 · ready (cho phép CRM login)', 200, 'OK', ok(array_merge($onboardingData201, [
             'status' => 'ready', 'current_step' => 'ready', 'status_label' => 'Sẵn sàng sử dụng',
             'timeline' => [
-                ['code' => 'account_created', 'label' => 'Đã tạo tài khoản và cơ sở', 'description' => 'Tài khoản MLHUB và cơ sở đã được khởi tạo.', 'status' => 'completed', 'completed_at' => '2026-07-21T01:00:00+00:00'],
-                ['code' => 'awaiting_consultant', 'label' => 'Chờ tư vấn viên liên hệ', 'description' => 'MLHUB đang tiếp nhận và kiểm tra yêu cầu.', 'status' => 'completed', 'completed_at' => '2026-07-21T02:00:00+00:00'],
+                ['code' => 'account_created', 'label' => 'Đã tạo tài khoản và cơ sở', 'description' => 'Tài khoản MKT và cơ sở đã được khởi tạo.', 'status' => 'completed', 'completed_at' => '2026-07-21T01:00:00+00:00'],
+                ['code' => 'awaiting_consultant', 'label' => 'Chờ tư vấn viên liên hệ', 'description' => 'MKT đang tiếp nhận và kiểm tra yêu cầu.', 'status' => 'completed', 'completed_at' => '2026-07-21T02:00:00+00:00'],
                 ['code' => 'in_consultation', 'label' => 'Đang tư vấn nhu cầu', 'description' => 'Tư vấn viên đang làm rõ mục tiêu tăng trưởng.', 'status' => 'completed', 'completed_at' => '2026-07-21T03:00:00+00:00'],
-                ['code' => 'configuring', 'label' => 'Đang cấu hình Marketing', 'description' => 'MLHUB đang cấu hình các công cụ Marketing.', 'status' => 'completed', 'completed_at' => '2026-07-21T04:00:00+00:00'],
-                ['code' => 'ready', 'label' => 'Sẵn sàng sử dụng', 'description' => 'Doanh nghiệp có thể truy cập CRM MLHUB.', 'status' => 'current', 'completed_at' => null],
+                ['code' => 'configuring', 'label' => 'Đang cấu hình Marketing', 'description' => 'MKT đang cấu hình các công cụ Marketing.', 'status' => 'completed', 'completed_at' => '2026-07-21T04:00:00+00:00'],
+                ['code' => 'ready', 'label' => 'Sẵn sàng sử dụng', 'description' => 'Doanh nghiệp có thể truy cập CRM MKT.', 'status' => 'current', 'completed_at' => null],
             ],
         ]))),
         ex($reqOnboardingDetail, '404 · Không tìm thấy request', 404, 'Not Found', err('onboarding_request_not_found', 'Không tìm thấy yêu cầu onboarding.', ['next_action' => 'create_onboarding_request'])),
@@ -421,7 +421,7 @@ $status = [
             'activation_status' => 'suspended', 'onboarding_status' => 'ready', 'is_ready' => true,
             'capabilities' => ['dashboard' => false, 'support' => true, 'crm' => false],
         ]))),
-        ex($reqStatus, '404 · Chưa liên kết', 404, 'Not Found', err('integration_not_found', 'Chưa tìm thấy liên kết doanh nghiệp với MLHUB.', ['next_action' => 'create_onboarding_request'])),
+        ex($reqStatus, '404 · Chưa liên kết', 404, 'Not Found', err('integration_not_found', 'Chưa tìm thấy liên kết doanh nghiệp với MKT.', ['next_action' => 'create_onboarding_request'])),
     ],
 ];
 
@@ -441,7 +441,7 @@ $profile = [
         "**HTTP:**\n- `200`: trả marketing-status mới.\n- `404 integration_not_found`.\n- `422 validation_failed`."],
     'response' => [
         ex($reqProfile, '200 · OK', 200, 'OK', ok($marketingStatusActive)),
-        ex($reqProfile, '404 · Chưa liên kết', 404, 'Not Found', err('integration_not_found', 'Chưa tìm thấy liên kết doanh nghiệp với MLHUB.', ['next_action' => 'create_onboarding_request'])),
+        ex($reqProfile, '404 · Chưa liên kết', 404, 'Not Found', err('integration_not_found', 'Chưa tìm thấy liên kết doanh nghiệp với MKT.', ['next_action' => 'create_onboarding_request'])),
         ex($reqProfile, '422 · Gửi trường cấm', 422, 'Unprocessable Entity', err('validation_failed', 'Dữ liệu không hợp lệ.', ['owner.email' => ['The owner.email field is prohibited.']])),
     ],
 ];
@@ -464,7 +464,7 @@ $pref = [
             'effective_package_code' => 'free',
         ])),
         ex($reqPref, '422 · Sai mã mục tiêu', 422, 'Unprocessable Entity', err('validation_failed', 'Dữ liệu không hợp lệ.', ['marketing_goal_codes.0' => ['The selected marketing_goal_codes.0 is invalid.']])),
-        ex($reqPref, '404 · Chưa liên kết', 404, 'Not Found', err('integration_not_found', 'Chưa tìm thấy liên kết doanh nghiệp với MLHUB.', ['next_action' => 'create_onboarding_request'])),
+        ex($reqPref, '404 · Chưa liên kết', 404, 'Not Found', err('integration_not_found', 'Chưa tìm thấy liên kết doanh nghiệp với MKT.', ['next_action' => 'create_onboarding_request'])),
     ],
 ];
 
@@ -510,7 +510,7 @@ $dashboard = [
             'trend' => [], 'insights' => [], 'suggested_actions' => [],
         ]))),
         ex($reqDashboard, '422 · Sai khoảng ngày', 422, 'Unprocessable Entity', err('validation_failed', 'Dữ liệu không hợp lệ.', ['to' => ['The to must be a date after or equal to from.']])),
-        ex($reqDashboard, '404 · Chưa liên kết', 404, 'Not Found', err('integration_not_found', 'Chưa tìm thấy liên kết doanh nghiệp với MLHUB.', ['next_action' => 'create_onboarding_request'])),
+        ex($reqDashboard, '404 · Chưa liên kết', 404, 'Not Found', err('integration_not_found', 'Chưa tìm thấy liên kết doanh nghiệp với MKT.', ['next_action' => 'create_onboarding_request'])),
     ],
 ];
 
@@ -535,7 +535,7 @@ $insights = [
             'data_period' => ['from' => '2026-06-22', 'to' => '2026-07-21', 'timezone' => 'Asia/Ho_Chi_Minh', 'range' => '30d'],
             'data_freshness' => 'live',
         ])),
-        ex($reqInsights, '404 · Chưa liên kết', 404, 'Not Found', err('integration_not_found', 'Chưa tìm thấy liên kết doanh nghiệp với MLHUB.', ['next_action' => 'create_onboarding_request'])),
+        ex($reqInsights, '404 · Chưa liên kết', 404, 'Not Found', err('integration_not_found', 'Chưa tìm thấy liên kết doanh nghiệp với MKT.', ['next_action' => 'create_onboarding_request'])),
     ],
 ];
 
@@ -583,7 +583,7 @@ $campaignList = [
             'summary' => ['total' => 0, 'by_status' => (object) []],
             'pagination' => ['next_cursor' => null, 'has_more' => false, 'per_page' => 20],
         ])),
-        ex($reqCampaignList, '404 · Chưa liên kết', 404, 'Not Found', err('integration_not_found', 'Chưa tìm thấy liên kết doanh nghiệp với MLHUB.', ['next_action' => 'create_onboarding_request'])),
+        ex($reqCampaignList, '404 · Chưa liên kết', 404, 'Not Found', err('integration_not_found', 'Chưa tìm thấy liên kết doanh nghiệp với MKT.', ['next_action' => 'create_onboarding_request'])),
     ],
 ];
 
@@ -606,7 +606,7 @@ $campaignDetail = [
             'period' => ['from' => '2026-06-22', 'to' => '2026-07-21', 'timezone' => 'Asia/Ho_Chi_Minh'],
             'metrics' => ['scans' => 45, 'leads' => 12, 'reviews' => 5, 'coupons' => 4, 'bookings' => 1, 'feedback' => 1, 'conversions' => 20, 'conversion_rate' => 44.44],
             'qr_scans' => 45, 'qr_scan_change' => 0, 'valid_leads' => 12, 'conversion_rate' => 44.44, 'last_synced_at' => '2026-07-21T01:00:00+00:00',
-            'recommendations' => [['code' => 'campaign_review', 'label' => 'Yêu cầu điều chỉnh', 'description' => 'Gửi yêu cầu để MLHUB rà soát và điều chỉnh chiến dịch.', 'preset_code' => 'campaign_request', 'campaign_id' => '88']],
+            'recommendations' => [['code' => 'campaign_review', 'label' => 'Yêu cầu điều chỉnh', 'description' => 'Gửi yêu cầu để MKT rà soát và điều chỉnh chiến dịch.', 'preset_code' => 'campaign_request', 'campaign_id' => '88']],
             'campaign' => ['campaign_id' => 88, 'name' => 'QR Check-in quầy thu ngân', 'status' => 'active', 'published_at' => '2026-07-01T00:00:00+00:00', 'created_at' => '2026-06-30T00:00:00+00:00'],
             'trend' => [['date' => '2026-07-20', 'scans' => 3, 'leads' => 1, 'reviews' => 0, 'coupons' => 0, 'bookings' => 0, 'feedback' => 0]],
         ])),
@@ -651,8 +651,8 @@ $package = [
             'starts_at' => '2026-07-21T01:00:00+00:00', 'expires_at' => null, 'is_trial' => false, 'mapping_status' => 'active',
             'limits' => ['max_businesses' => 1, 'max_campaigns' => 3, 'max_landing_pages' => 1, 'max_qr_codes' => 5, 'max_team_members' => 2],
         ])),
-        ex($reqPackage, '404 · Chưa liên kết', 404, 'Not Found', err('integration_not_found', 'Chưa tìm thấy liên kết doanh nghiệp với MLHUB.', ['next_action' => 'create_onboarding_request'])),
-        ex($reqPackage, '409 · Mapping hỏng', 409, 'Conflict', err('integration_broken', 'Liên kết doanh nghiệp bị hỏng, cần hỗ trợ MLHUB.', ['next_action' => 'contact_support'])),
+        ex($reqPackage, '404 · Chưa liên kết', 404, 'Not Found', err('integration_not_found', 'Chưa tìm thấy liên kết doanh nghiệp với MKT.', ['next_action' => 'create_onboarding_request'])),
+        ex($reqPackage, '409 · Mapping hỏng', 409, 'Conflict', err('integration_broken', 'Liên kết doanh nghiệp bị hỏng, cần hỗ trợ MKT.', ['next_action' => 'contact_support'])),
     ],
 ];
 
@@ -677,12 +677,12 @@ $presets = [
         ex($reqPresets, '200 · OK', 200, 'OK', ok([
             'items' => [
                 ['preset_code' => 'qr_scan_not_recorded', 'subject' => 'QR check-in không ghi nhận lượt quét', 'subject_locked' => true, 'description' => 'Doanh nghiệp phản ánh mã QR check-in không phát sinh lượt quét nào.', 'ticket_type' => 'support', 'required_context' => ['related_resource'], 'sla_hours' => 24, 'response_channels' => ['in_app', 'phone'], 'requires_campaign' => false],
-                ['preset_code' => 'growth_recommendation', 'subject' => 'Yêu cầu hỗ trợ đề xuất tăng trưởng', 'subject_locked' => true, 'description' => 'Doanh nghiệp muốn MLHUB hỗ trợ triển khai đề xuất tăng trưởng.', 'ticket_type' => 'support', 'required_context' => [], 'sla_hours' => 24, 'response_channels' => ['in_app', 'phone'], 'requires_campaign' => false],
-                ['preset_code' => 'campaign_request', 'subject' => 'Yêu cầu điều chỉnh chiến dịch', 'subject_locked' => true, 'description' => 'Yêu cầu MLHUB rà soát một chiến dịch cụ thể.', 'ticket_type' => 'campaign_request', 'required_context' => ['campaign_id'], 'sla_hours' => 24, 'response_channels' => ['in_app', 'phone'], 'requires_campaign' => true],
+                ['preset_code' => 'growth_recommendation', 'subject' => 'Yêu cầu hỗ trợ đề xuất tăng trưởng', 'subject_locked' => true, 'description' => 'Doanh nghiệp muốn MKT hỗ trợ triển khai đề xuất tăng trưởng.', 'ticket_type' => 'support', 'required_context' => [], 'sla_hours' => 24, 'response_channels' => ['in_app', 'phone'], 'requires_campaign' => false],
+                ['preset_code' => 'campaign_request', 'subject' => 'Yêu cầu điều chỉnh chiến dịch', 'subject_locked' => true, 'description' => 'Yêu cầu MKT rà soát một chiến dịch cụ thể.', 'ticket_type' => 'campaign_request', 'required_context' => ['campaign_id'], 'sla_hours' => 24, 'response_channels' => ['in_app', 'phone'], 'requires_campaign' => true],
                 ['preset_code' => 'package_upgrade', 'subject' => 'Yêu cầu nâng cấp gói Marketing', 'subject_locked' => true, 'description' => 'Doanh nghiệp muốn tư vấn nâng cấp gói.', 'ticket_type' => 'support', 'required_context' => [], 'sla_hours' => 24, 'response_channels' => ['in_app', 'phone'], 'requires_campaign' => false],
             ],
         ])),
-        ex($reqPresets, '404 · Chưa liên kết', 404, 'Not Found', err('integration_not_found', 'Chưa tìm thấy liên kết doanh nghiệp với MLHUB.', ['next_action' => 'create_onboarding_request'])),
+        ex($reqPresets, '404 · Chưa liên kết', 404, 'Not Found', err('integration_not_found', 'Chưa tìm thấy liên kết doanh nghiệp với MKT.', ['next_action' => 'create_onboarding_request'])),
     ],
 ];
 
@@ -766,7 +766,7 @@ $listTickets = [
             'items' => [$ticketData, array_merge($ticketData, ['ticket_id' => 'tkt_onboarding_abc123', 'ticket_type' => 'onboarding', 'preset_code' => 'fizahub_onboarding', 'subject' => 'FizaHUB onboarding awaiting consultant: fiza-store-001'])],
             'pagination' => ['next_cursor' => null, 'has_more' => false, 'per_page' => 20],
         ])),
-        ex($reqListTickets, '404 · Chưa liên kết', 404, 'Not Found', err('integration_not_found', 'Chưa tìm thấy liên kết doanh nghiệp với MLHUB.', ['next_action' => 'create_onboarding_request'])),
+        ex($reqListTickets, '404 · Chưa liên kết', 404, 'Not Found', err('integration_not_found', 'Chưa tìm thấy liên kết doanh nghiệp với MKT.', ['next_action' => 'create_onboarding_request'])),
     ],
 ];
 
@@ -787,7 +787,7 @@ $ticketDetail = [
         ex($reqTicketDetail, '200 · OK', 200, 'OK', ok(array_merge($ticketData, [
             'messages' => [
                 ['message_id' => 'tkt_7de1f9a4c0:initial', 'sender_type' => 'business', 'body' => 'QR đã đặt tại quầy nhưng dashboard chưa cập nhật lượt quét.', 'created_at' => '2026-07-21T01:05:00+00:00'],
-                ['message_id' => 'cmt_1a2b3c', 'sender_type' => 'admin', 'body' => 'MLHUB đang kiểm tra, sẽ phản hồi trong 24h.', 'created_at' => '2026-07-21T01:20:00+00:00'],
+                ['message_id' => 'cmt_1a2b3c', 'sender_type' => 'admin', 'body' => 'MKT đang kiểm tra, sẽ phản hồi trong 24h.', 'created_at' => '2026-07-21T01:20:00+00:00'],
             ],
             'next_poll_after_seconds' => 15, 'last_message_at' => '2026-07-21T01:20:00+00:00',
         ]))),
@@ -847,7 +847,7 @@ $reqListAttachments = ['method' => 'GET', 'header' => h(false), 'url' => u('busi
 $listAttachments = [
     'name' => '22 · List Support Attachments (đính kèm)',
     'request' => $reqListAttachments + ['description' =>
-        "**Màn hình 14 — Tệp đính kèm của ticket.** Danh sách tệp cả hai chiều (business tải lên và admin MLHUB đính kèm khi trả lời).\n\n".
+        "**Màn hình 14 — Tệp đính kèm của ticket.** Danh sách tệp cả hai chiều (business tải lên và admin MKT đính kèm khi trả lời).\n\n".
         "**Path param:** `ticket_id` (tự lấy từ bước 16/17).\n\n".
         "`sender_type`: `business` | `admin`. Dùng `download_url` (hoặc bước 24) để tải tệp (cần Bearer + X-Partner).\n\n".
         "Mọi item có `extension` (đuôi file, không có dấu chấm — ví dụ `jpg`, `png`, `pdf`).\n\n".
@@ -876,7 +876,7 @@ $uploadAttachment = [
     'request' => $reqUploadAttachment + ['description' =>
         "**Màn hình 14 — Gửi tệp đính kèm vào ticket.** `multipart/form-data`, field `file` (đúng 1 tệp / request).\n\n".
         "**Loại được hỗ trợ (3 nhóm):** ảnh `jpg/jpeg/png/webp/gif`; video `mp4/mov/webm`; tài liệu `pdf/doc/docx/xls/xlsx`. **Không** nhận zip / txt / csv / ppt / avi.\n".
-        "**Dung lượng:** mặc định tối đa 25MB (ảnh/tài liệu) hoặc 100MB (video) — MLHUB có thể chỉnh qua cấu hình server.\n".
+        "**Dung lượng:** mặc định tối đa 25MB (ảnh/tài liệu) hoặc 100MB (video) — MKT có thể chỉnh qua cấu hình server.\n".
         "Server tự dò MIME thật theo nội dung file (không tin `Content-Type` client gửi) và đối chiếu song song với đuôi file.\n".
         "Chỉ gửi được khi ticket đang `open`.\n\n".
         "**HTTP:**\n- `201`: tải lên thành công, trả về `attachment_id` + `extension` + `download_url` (+ `image_url` ký tạm nếu là ảnh).\n".
@@ -924,7 +924,7 @@ $reqCrm = ['method' => 'POST', 'header' => h(true), 'body' => body(new stdClass)
 $crm = [
     'name' => '25 · Create CRM Login Link (đăng nhập 1 lần)',
     'request' => $reqCrm + ['description' =>
-        "**Màn hình 15 — Truy cập CRM MLHUB.** Tạo link đăng nhập dùng một lần, có hạn (mặc định 5 phút).\n\n".
+        "**Màn hình 15 — Truy cập CRM MKT.** Tạo link đăng nhập dùng một lần, có hạn (mặc định 5 phút).\n\n".
         "**Điều kiện:** onboarding mới nhất phải `ready` hoặc `completed` (`is_ready=true` ở bước 06).\n".
         "**Body:** gửi `{}`. Cùng Idempotency-Key trả lại cùng link khi còn hiệu lực / chưa dùng.\n\n".
         "**HTTP:**\n".
@@ -936,9 +936,9 @@ $crm = [
     'event' => [preEvent(["if (pm.collectionVariables.get('onboarding_ready') !== '1') pm.execution.skipRequest();"])],
     'response' => [
         ex($reqCrm, '201 · Tạo link', 201, 'Created', ok(['url' => 'https://mlhub.vn/partners/fizahub/login/<signed-token>?signature=<sig>', 'expires_at' => '2026-07-21T01:05:00+00:00', 'expires_in_seconds' => 300])),
-        ex($reqCrm, '409 · Chưa sẵn sàng', 409, 'Conflict', err('onboarding_not_ready', 'Tài khoản đang chờ tư vấn viên MLHUB hoàn tất cấu hình.', ['status' => 'awaiting_consultant', 'status_label' => 'Chờ tư vấn viên liên hệ'])),
+        ex($reqCrm, '409 · Chưa sẵn sàng', 409, 'Conflict', err('onboarding_not_ready', 'Tài khoản đang chờ tư vấn viên MKT hoàn tất cấu hình.', ['status' => 'awaiting_consultant', 'status_label' => 'Chờ tư vấn viên liên hệ'])),
         ex($reqCrm, '409 · Link cũ không tái sử dụng', 409, 'Conflict', err('crm_login_link_not_reusable', 'Link đăng nhập trước đó đã hết hạn hoặc đã được sử dụng.', ['next_action' => 'new_idempotency_key'])),
-        ex($reqCrm, '404 · Chưa liên kết', 404, 'Not Found', err('integration_not_found', 'Chưa tìm thấy liên kết doanh nghiệp với MLHUB.', ['next_action' => 'create_onboarding_request'])),
+        ex($reqCrm, '404 · Chưa liên kết', 404, 'Not Found', err('integration_not_found', 'Chưa tìm thấy liên kết doanh nghiệp với MKT.', ['next_action' => 'create_onboarding_request'])),
     ],
 ];
 
@@ -948,15 +948,15 @@ $crm = [
 
 $collection = [
     'info' => [
-        'name' => 'MLHUB × FizaHUB Partner API',
+        'name' => 'MKT × FizaHUB Partner API',
         'description' =>
-            "# MLHUB × FizaHUB Partner API (v1)\n\n".
+            "# MKT × FizaHUB Partner API (v1)\n\n".
             "Breaking cutover: **25 request** cho **15 màn hình Marketing** đã được Product duyệt. Support hỗ trợ tin nhắn text và đính kèm **3 nhóm**: ảnh / video / tài liệu (PDF/Office). Không nhận zip.\n\n".
             "**Cập nhật:** List/Upload trả `extension` + `image_url` ký tạm (ảnh) — URL có đuôi `.jpg`…, mở trong chat không cần header. Allow-list: ảnh, video (`mp4/mov/webm`), tài liệu (`pdf/doc/docx/xls/xlsx`).\n\n".
             "## Dùng ngay trong 3 bước (không cần biết Postman sâu)\n".
             "1. **Import** file này vào Postman: nút **Import** (góc trên trái) → chọn file → Import.\n".
             "2. Mở collection → tab **Variables**: `base_url` và `partner_token` **ĐÃ điền sẵn**. Không cần gõ tay.\n".
-            "3. Đưa chuột vào tên collection → bấm **Run** → **Run MLHUB × FizaHUB Partner API**. Hoặc mở từng request 01→25 rồi bấm **Send**.\n\n".
+            "3. Đưa chuột vào tên collection → bấm **Run** → **Run MKT × FizaHUB Partner API**. Hoặc mở từng request 01→25 rồi bấm **Send**.\n\n".
             "Hướng dẫn click từng nút (tiếng Việt, cho người mới): https://mlhub.vn/api-fizahub/help-test\n\n".
             "## Vì sao chạy được ngay?\n".
             "- `partner_token`, `base_url` cấu hình sẵn cho giai đoạn thử nghiệm.\n".
@@ -978,9 +978,9 @@ $collection = [
             "Lỗi: `{ \"success\": false, \"data\": null, \"meta\": { \"request_id\": \"uuid\" }, \"error\": { \"code\": \"...\", \"message\": \"...\", \"details\": {} } }`\n\n".
             "## Header bắt buộc (đã gắn sẵn)\n".
             "| Header | Giá trị |\n|---|---|\n| Authorization | Bearer {{partner_token}} |\n| X-Partner | fizahub |\n| X-Request-Id | UUID mới mỗi lần |\n| Idempotency-Key | UUID (mọi POST/PATCH trừ SSO Verify) |\n| Accept | application/json |\n\n".
-            "> ⚠️ Token trong file này là token **thử nghiệm**. Khi chạy chính thức, MLHUB sẽ đổi token và gửi lại — tải file mới từ https://mlhub.vn/api-fizahub/postman\n\n".
+            "> ⚠️ Token trong file này là token **thử nghiệm**. Khi chạy chính thức, MKT sẽ đổi token và gửi lại — tải file mới từ https://mlhub.vn/api-fizahub/postman\n\n".
             "## Ngoài phạm vi collection này: Cổng báo cáo cho lãnh đạo FizaHUB\n".
-            "25 request ở trên là API cho **đội kỹ thuật** tích hợp app. Nếu chỉ cần **xem báo cáo** onboarding/HKD (không sửa gì), MLHUB có một **website riêng** cho lãnh đạo FizaHUB, không liên quan Postman/token ở đây: https://fzh.vmo.com.vn — đăng nhập bằng tài khoản MLHUB có sẵn, được MLHUB cấp quyền theo danh sách email do FizaHUB cung cấp. Xem chi tiết tại https://mlhub.vn/api-fizahub/help-test (Bước 9).",
+            "25 request ở trên là API cho **đội kỹ thuật** tích hợp app. Nếu chỉ cần **xem báo cáo** onboarding/HKD (không sửa gì), MKT có một **website riêng** cho lãnh đạo FizaHUB, không liên quan Postman/token ở đây: https://fzh.vmo.com.vn — đăng nhập bằng tài khoản MKT có sẵn, được MKT cấp quyền theo danh sách email do FizaHUB cung cấp. Xem chi tiết tại https://mlhub.vn/api-fizahub/help-test (Bước 9).",
         'schema' => 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
     ],
     'event' => [
@@ -999,7 +999,7 @@ $collection = [
         ],
     ],
     'variable' => [
-        ['key' => 'base_url', 'value' => 'https://mlhub.vn', 'type' => 'string', 'description' => 'Gốc URL MLHUB. Đã điền sẵn https://mlhub.vn — không cần sửa khi test production.'],
+        ['key' => 'base_url', 'value' => 'https://mlhub.vn', 'type' => 'string', 'description' => 'Gốc URL MKT. Đã điền sẵn https://mlhub.vn — không cần sửa khi test production.'],
         ['key' => 'partner_token', 'value' => 'fizahub_6199e9a82d0e961002965d406c970efc0038d2a4e658c1cf', 'type' => 'string', 'description' => 'Token đối tác (thử nghiệm). Đã điền sẵn — không cần nhập tay. Khi chạy chính thức sẽ đổi.'],
         ['key' => 'external_user_id', 'value' => '', 'type' => 'string', 'description' => 'Tự sinh khi chạy (owner- + UUID).'],
         ['key' => 'external_business_id', 'value' => '', 'type' => 'string', 'description' => 'Tự sinh khi chạy (fiza- + UUID).'],

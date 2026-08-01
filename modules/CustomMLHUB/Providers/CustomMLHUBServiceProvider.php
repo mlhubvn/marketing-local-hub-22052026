@@ -40,14 +40,14 @@ class CustomMLHUBServiceProvider extends ServiceProvider
         register_credit_action([
             'key' => 'mlhub_ai_chat',
             'plan_key' => 'credit_cost_mlhub_ai_chat',
-            'label' => __('MLHUB AI Chat'),
+            'label' => __('MKT AI Chat'),
             'default_cost' => 1,
             'order' => 21,
-            'description' => __('Credits deducted when MLHUB AI answers with the OpenAI/Gemini layer.'),
+            'description' => __('Credits deducted when MKT AI answers with the OpenAI/Gemini layer.'),
         ]);
 
         register_user_sidebar_item('overview', [
-            'label' => __('MLHUB AI Assistant'),
+            'label' => __('MKT AI Assistant'),
             'route_name' => 'portal.chatmlhubai',
             'active_when' => ['portal.chatmlhubai'],
             'icon' => 'fa-light fa-robot',

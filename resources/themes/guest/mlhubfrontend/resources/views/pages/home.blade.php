@@ -984,7 +984,7 @@
                     {{ __('Digital transformation without barriers from limited finances or technology skills.') }}
                 </h2>
                 <p class="lb-body mx-auto mt-5 max-w-2xl" style="color: var(--lb-muted);">
-                    {{ __('MLHUB standardized SOP workflows help you create AI campaigns, publish lead capture landing pages, route through QR codes, and auto-update reports without juggling disconnected software. MLHUB walks with you step by step to transform digital asset management and make daily operations gentler, more affordable, and more effective with ready-made tools.') }}
+                    {{ __('MKT standardized SOP workflows help you create AI campaigns, publish lead capture landing pages, route through QR codes, and auto-update reports without juggling disconnected software. MKT walks with you step by step to transform digital asset management and make daily operations gentler, more affordable, and more effective with ready-made tools.') }}
                 </p>
             </div>
 
@@ -1116,7 +1116,7 @@
                     <span class="lb-pill inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('How it works') }}</span>
                     <h2 class="lb-serif lb-heading mt-5">{{ __('Launch your first automated campaign in just 4 steps') }}</h2>
                     <p class="lb-body mt-5" style="color: var(--lb-muted);">
-                        {{ __('From setup to go-live in minutes—AI handles the copy, you place the QR, and MLHUB tracks visits and leads in real time.') }}
+                        {{ __('From setup to go-live in minutes—AI handles the copy, you place the QR, and MKT tracks visits and leads in real time.') }}
                     </p>
                 </div>
                 <div class="relative">
@@ -1188,7 +1188,7 @@
                 <div>
                     <span class="lb-pill inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Master the toolkit') }}</span>
                     <h2 class="lb-serif lb-heading mt-5">{{ __('Every business model can show up and operate professionally') }}</h2>
-                    <p class="lb-body mt-5" style="color: var(--lb-muted);">{{ __('Beyond software, MLHUB delivers a standard process to keep winning new customers, retaining loyal ones, and training the next generation of staff—so household businesses grow sustainably.') }}</p>
+                    <p class="lb-body mt-5" style="color: var(--lb-muted);">{{ __('Beyond software, MKT delivers a standard process to keep winning new customers, retaining loyal ones, and training the next generation of staff—so household businesses grow sustainably.') }}</p>
                 </div>
             </div>
         </section>

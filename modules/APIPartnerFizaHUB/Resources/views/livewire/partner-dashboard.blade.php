@@ -1,6 +1,6 @@
 <div class="mx-auto max-w-[84rem] space-y-5">
     <x-ui.sub-header
-        :eyebrow="__('FizaHUB × MLHUB')"
+        :eyebrow="__('FizaHUB × MKT')"
         :title="__('Tổng quan onboarding HKD')"
         :description="__('Số liệu tổng hợp toàn bộ yêu cầu onboarding và tài khoản HKD thuộc luồng FizaHUB. Cổng báo cáo chỉ xem, không thể chỉnh sửa trạng thái, gói dịch vụ hoặc vé hỗ trợ.')"
     />
@@ -11,7 +11,7 @@
             <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($metrics['total']) }}</p>
         </x-ui.card>
         <x-ui.card>
-            <p class="text-[11px] font-semibold uppercase tracking-[0.22em]" style="color: var(--theme-muted-text-color);">{{ __('HKD đã liên kết MLHUB') }}</p>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.22em]" style="color: var(--theme-muted-text-color);">{{ __('HKD đã liên kết MKT') }}</p>
             <p class="mt-2 text-2xl font-semibold" style="color: var(--theme-header-text-color);">{{ format_number_locale($metrics['linked_businesses']) }}</p>
         </x-ui.card>
         <x-ui.card>
@@ -99,7 +99,7 @@
                         <th class="px-5 py-3">{{ __('Chủ tài khoản') }}</th>
                         <th class="px-5 py-3">{{ __('Liên hệ') }}</th>
                         <th class="px-5 py-3">{{ __('Trạng thái') }}</th>
-                        <th class="px-5 py-3">{{ __('Gói MLHUB') }}</th>
+                        <th class="px-5 py-3">{{ __('Gói MKT') }}</th>
                         <th class="px-5 py-3">{{ __('Ngày gửi yêu cầu') }}</th>
                         <th class="px-5 py-3">{{ __('Cập nhật gần nhất') }}</th>
                         <th class="px-5 py-3"></th>

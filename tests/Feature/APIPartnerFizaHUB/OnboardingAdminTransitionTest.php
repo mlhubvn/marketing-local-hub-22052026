@@ -523,7 +523,7 @@ test('admin user deletion purges every FizaHUB business for the target and prese
         ->and(Cache::has($dashboardIndexKey))->toBeFalse();
 });
 
-test('FizaHub UserDeletion action removes the resolved MLHUB user and all onboarding rows', function (): void {
+test('FizaHub UserDeletion action removes the resolved MKT user and all onboarding rows', function (): void {
     $seed = seedAdminOnboarding();
     $targetUserId = (int) $seed['onboarding']->mlhub_user_id;
     $admin = User::query()->create([
@@ -571,7 +571,7 @@ test('FizaHub UserDeletion action refuses ambiguous user mappings', function ():
         ->test(FizaHubOnboardingIndex::class)
         ->call('deleteUserAndData', $seed['onboarding']->id)
         ->assertSet('statusMessage', null)
-        ->assertSet('errorMessage', __('The onboarding mapping points to multiple MLHUB users. No account was deleted.'));
+        ->assertSet('errorMessage', __('The onboarding mapping points to multiple MKT users. No account was deleted.'));
 
     expect(User::query()->find($firstUserId))->not->toBeNull()
         ->and(User::query()->find($other->id))->not->toBeNull()
@@ -623,13 +623,13 @@ test('deleteOnboarding purges data once the exact confirmation phrase is typed',
         ->set('onboardingDeleteConfirmation.'.$onboardingId, 'XOA ONBOARDING')
         ->call('deleteOnboarding', $onboardingId)
         ->assertSet('errorMessage', null)
-        ->assertSet('statusMessage', 'Đã xóa dữ liệu onboarding FizaHUB. Tài khoản MLHUB vẫn được giữ lại.');
+        ->assertSet('statusMessage', 'Đã xóa dữ liệu onboarding FizaHUB. Tài khoản MKT vẫn được giữ lại.');
 
     expect(PartnerOnboardingRequest::query()->find($onboardingId))->toBeNull()
         ->and(User::query()->find($seed['integration']->mlhub_user_id))->not->toBeNull();
 });
 
-test('deleteUserAndData refuses an empty or wrong confirmation and never deletes the MLHUB user', function (): void {
+test('deleteUserAndData refuses an empty or wrong confirmation and never deletes the MKT user', function (): void {
     $seed = seedAdminOnboarding();
     $targetUserId = (int) $seed['integration']->mlhub_user_id;
     $admin = User::query()->create([
@@ -683,7 +683,7 @@ test('adminAssignPackage upgrades effective package and marks approved', functio
     $seed = seedAdminOnboarding();
 
     $plan = AdminPlan::query()->create([
-        'name' => 'MLHUB Free Da Nang',
+        'name' => 'MKT Free Da Nang',
         'slug' => 'mlhub-free-da-nang',
         'status' => true,
         'free_plan' => true,

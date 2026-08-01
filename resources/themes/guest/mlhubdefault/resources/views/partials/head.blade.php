@@ -7,7 +7,7 @@
     $gaTrackGuest = (string) $options->get('google_analytics_track_guest', '1') === '1';
     $siteFavicon = url((string) $options->get('website_favicon', 'img/favicon.png'));
     $siteTitle = trim((string) $options->get('website_title', ''));
-    $siteTitle = $siteTitle !== '' ? $siteTitle : 'MLHUB';
+    $siteTitle = $siteTitle !== '' ? $siteTitle : 'MKT';
     $cardRadius = theme_setting('card_radius', 'guest', 18);
     $inputRadius = theme_setting('input_radius', 'guest', 14);
     $buttonRadius = theme_setting('button_radius', 'guest', 14);

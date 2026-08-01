@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Cấu hình site MLHUB thị trường Việt Nam (không chứa mật khẩu SMTP/captcha).
+ * Cấu hình site MKT thị trường Việt Nam (không chứa mật khẩu SMTP/captcha).
  */
 return [
     'format_date' => 'd/m/Y',
@@ -37,7 +37,7 @@ return [
     'terms_of_use_title' => 'Điều khoản sử dụng',
     'terms_of_use_content' => 'Nội dung đang cập nhật...',
     'social_pages_title' => 'Các trang xã hội',
-    'social_pages_intro' => 'Theo dõi MLHUB trên mạng xã hội.',
+    'social_pages_intro' => 'Theo dõi MKT trên mạng xã hội.',
     'social_facebook_url' => 'https://mlhub.vn/#Facebook',
     'social_instagram_url' => 'https://mlhub.vn/#Instagram',
     'social_linkedin_url' => 'https://mlhub.vn/#LinkedIn',
@@ -64,7 +64,7 @@ return [
     'google_analytics_track_app' => '1',
     'mail_protocol' => 'smtp',
     'mail_sender_email' => 'hotro@mlhub.vn',
-    'mail_sender_name' => 'MLHUB.vn',
+    'mail_sender_name' => 'MKT',
     'smtp_server' => 'smtp.emailit.com',
     'smtp_username' => 'emailit',
     'smtp_port' => '587',

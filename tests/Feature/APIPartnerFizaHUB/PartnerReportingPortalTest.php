@@ -21,7 +21,7 @@ require_once __DIR__.'/FizaHubTestHelpers.php';
  * scenarios: guest login redirect, allowlist admin access, non-admin 403, FIZAHUB_ADMIN
  * parsing, data isolation to FizaHUB rows only, HKD detail access, cross-tenant/nonexistent
  * ID protection, read-only routing (no mutation endpoints), the mlhub.vn domain being
- * unaffected, unrelated MLHUB routes being blocked on the reporting domain, graceful empty
+ * unaffected, unrelated MKT routes being blocked on the reporting domain, graceful empty
  * states, and a bounded query count for the business list (no N+1).
  */
 function reportingUrl(string $path = '/'): string
@@ -227,7 +227,7 @@ beforeEach(function (): void {
     bootProductionLikeSchema();
 
     AdminPlan::query()->create([
-        'name' => 'MLHUB Free Da Nang',
+        'name' => 'MKT Free Da Nang',
         'slug' => 'mlhub-free-da-nang',
         'status' => true,
         'free_plan' => true,
@@ -293,7 +293,7 @@ test('user id in FIZAHUB_ADMIN allowlist can view the dashboard', function (): v
 // 3. Authenticated but not in allowlist → 403.
 test('authenticated user not in FIZAHUB_ADMIN allowlist receives 403', function (): void {
     $notAdmin = createVerifiedUser([
-        'name' => 'Random MLHUB User',
+        'name' => 'Random MKT User',
         'email' => 'random-user@example.com',
         'password' => bcrypt('password'),
     ]);
@@ -318,7 +318,7 @@ test('empty FIZAHUB_ADMIN allowlist denies every authenticated user', function (
         ->assertForbidden();
 });
 
-// 5. Dashboard only reflects FizaHUB data — unrelated MLHUB business/user must never appear
+// 5. Dashboard only reflects FizaHUB data — unrelated MKT business/user must never appear
 // and totals must exactly match the FizaHUB rows created in this test.
 test('dashboard totals and business list only reflect FizaHUB onboarding data', function (): void {
     $admin = createVerifiedUser([
@@ -331,15 +331,15 @@ test('dashboard totals and business list only reflect FizaHUB onboarding data', 
     seedFizaHubOnboarding(['business_name' => 'Fiza Store A', 'status' => OnboardingStatusMachine::COMPLETED]);
     seedFizaHubOnboarding(['business_name' => 'Fiza Store B', 'status' => OnboardingStatusMachine::AWAITING_CONSULTANT]);
 
-    // Unrelated MLHUB user/business with NO FizaHUB integration/onboarding row at all.
+    // Unrelated MKT user/business with NO FizaHUB integration/onboarding row at all.
     $unrelatedUser = createVerifiedUser([
-        'name' => 'Unrelated MLHUB User',
+        'name' => 'Unrelated MKT User',
         'email' => 'unrelated@example.com',
         'password' => bcrypt('password'),
     ]);
     LocalBusiness::query()->create([
         'user_id' => $unrelatedUser->id,
-        'name' => 'Unrelated MLHUB Business',
+        'name' => 'Unrelated MKT Business',
         'type' => 'other',
     ]);
 
@@ -347,7 +347,7 @@ test('dashboard totals and business list only reflect FizaHUB onboarding data', 
 
     $response->assertSee('Fiza Store A')
         ->assertSee('Fiza Store B')
-        ->assertDontSee('Unrelated MLHUB Business');
+        ->assertDontSee('Unrelated MKT Business');
 
     expect(PartnerOnboardingRequest::query()->count())->toBe(2);
 });
@@ -420,19 +420,19 @@ test('the reporting portal exposes no mutation routes', function (): void {
 });
 
 // 9. mlhub.vn (or any other host) keeps its existing behaviour untouched.
-test('an unrelated FizaHUB route still works normally on the main MLHUB domain', function (): void {
+test('an unrelated FizaHUB route still works normally on the main MKT domain', function (): void {
     $response = $this->get('http://mlhub.test/api-fizahub/postman');
 
     $response->assertOk();
     expect($response->headers->get('Content-Type'))->toContain('application/json');
 });
 
-// 10. Unrelated MLHUB routes are blocked when accessed through the reporting domain.
+// 10. Unrelated MKT routes are blocked when accessed through the reporting domain.
 test('an unrelated MLHUB route is not reachable through the reporting domain for a guest', function (): void {
     $this->get(reportingUrl('/api-fizahub/postman'))->assertNotFound();
 });
 
-test('an unrelated MLHUB route redirects an authenticated allowlisted user back to the dashboard instead of leaking through', function (): void {
+test('an unrelated MKT route redirects an authenticated allowlisted user back to the dashboard instead of leaking through', function (): void {
     $admin = createVerifiedUser([
         'name' => 'FizaHUB Leader',
         'email' => 'leader7@fizahub.example.com',
@@ -462,7 +462,7 @@ test('dashboard renders without error when there is no onboarding data at all', 
         ->assertSee('0');
 });
 
-test('HKD detail page renders without error when the business has no MLHUB integration/tickets yet', function (): void {
+test('HKD detail page renders without error when the business has no MKT integration/tickets yet', function (): void {
     $admin = createVerifiedUser([
         'name' => 'FizaHUB Leader',
         'email' => 'leader9@fizahub.example.com',
@@ -477,13 +477,13 @@ test('HKD detail page renders without error when the business has no MLHUB integ
         'package_code' => 'base',
         'status' => OnboardingStatusMachine::AWAITING_CONSULTANT,
         'current_step' => OnboardingStatusMachine::AWAITING_CONSULTANT,
-        'payload' => ['business' => ['name' => 'Chưa liên kết MLHUB']],
+        'payload' => ['business' => ['name' => 'Chưa liên kết MKT']],
     ]);
 
     $this->actingAs($admin)
         ->get(reportingUrl('/onboarding/'.$onboarding->id))
         ->assertOk()
-        ->assertSee('Chưa liên kết MLHUB')
+        ->assertSee('Chưa liên kết MKT')
         ->assertSee('Chưa có dữ liệu');
 });
 

@@ -101,7 +101,7 @@ function createPackageApiTables(): void
 function seedPackageBusiness(): array
 {
     $plan = AdminPlan::query()->create([
-        'name' => 'MLHUB Free Da Nang',
+        'name' => 'MKT Free Da Nang',
         'slug' => 'mlhub-free-da-nang',
         'status' => true,
         'free_plan' => true,
@@ -217,7 +217,7 @@ test('package api maps base package to mlhub-free-da-nang with whitelisted limit
     expect($data['effective_package'])->toBe('base')
         ->and($data['requested_package'])->toBe('base')
         ->and($data['approved_package'])->toBeNull()
-        ->and($data['package_name'])->toBe('MLHUB Free Da Nang')
+        ->and($data['package_name'])->toBe('MKT Free Da Nang')
         ->and($data['plan_slug'])->toBe('mlhub-free-da-nang')
         ->and($data['status'])->toBe('active')
         ->and($data['is_trial'])->toBeTrue()

@@ -7,7 +7,7 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Modules\CustomMLHUB\Livewire\Concerns\InteractsWithMLHUBAIAssistant;
 
-#[Title('MLHUB AI')]
+#[Title('MKT AI')]
 class ChatMLHUBAI extends Component
 {
     use InteractsWithMLHUBAIAssistant;
@@ -22,7 +22,7 @@ class ChatMLHUBAI extends Component
         return view('custommlhub::chat', [
             'compact' => false,
         ])->layout(theme_view('layouts.app', 'app'), [
-            'title' => __('MLHUB AI'),
+            'title' => __('MKT AI'),
         ]);
     }
 }

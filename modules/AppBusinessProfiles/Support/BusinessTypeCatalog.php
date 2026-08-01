@@ -529,7 +529,7 @@ class BusinessTypeCatalog
             'multi_industry_business' => ['group' => 'other_needs_classification', 'label' => __('Multi-industry Business'), 'legacy' => 'Other', 'aliases' => ['đa ngành', 'da nganh', 'multi industry', 'nhiều ngành']],
             'new_business_registering' => ['group' => 'other_needs_classification', 'label' => __('Newly Registered / Pre-launch'), 'legacy' => 'Other', 'aliases' => ['mới đăng ký', 'moi dang ky', 'chưa vận hành', 'new business', 'pre-launch']],
             'legacy_business_uncategorized' => ['group' => 'other_needs_classification', 'label' => __('Legacy Business (Uncategorized)'), 'legacy' => 'Other', 'aliases' => ['hộ cũ', 'ho cu', 'chưa phân loại', 'chua phan loai', 'uncategorized', 'legacy']],
-            'needs_manual_review' => ['group' => 'other_needs_classification', 'label' => __('Needs MLHUB Manual Review'), 'legacy' => 'Other', 'aliases' => ['rà soát', 'ra soat', 'manual review', 'cần kiểm tra']],
+            'needs_manual_review' => ['group' => 'other_needs_classification', 'label' => __('Needs MKT Manual Review'), 'legacy' => 'Other', 'aliases' => ['rà soát', 'ra soat', 'manual review', 'cần kiểm tra']],
             'restricted_sensitive_review' => ['group' => 'other_needs_classification', 'label' => __('Restricted / Sensitive (Needs Review)'), 'legacy' => 'Other', 'compliance' => true, 'aliases' => ['nhạy cảm', 'nhay cam', 'restricted', 'sensitive', 'cấm', 'cam']],
         ];
     }

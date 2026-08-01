@@ -28,7 +28,7 @@ function marketingBootstrapHeaders(array $overrides = []): array
 function seedMarketingBootstrapBusiness(string $status = OnboardingStatusMachine::AWAITING_CONSULTANT): array
 {
     $plan = AdminPlan::query()->firstOrCreate(['slug' => 'mlhub-free-da-nang'], [
-        'name' => 'MLHUB Free Da Nang',
+        'name' => 'MKT Free Da Nang',
         'status' => true,
         'free_plan' => true,
         'default_signup_plan' => true,
@@ -137,7 +137,7 @@ test('marketing status exposes stable activation onboarding capabilities and lin
 
 test('marketing catalog provides goals industries and enriched packages in one request', function (): void {
     AdminPlan::query()->create([
-        'name' => 'MLHUB Free Da Nang',
+        'name' => 'MKT Free Da Nang',
         'slug' => 'mlhub-free-da-nang',
         'status' => true,
         'free_plan' => true,

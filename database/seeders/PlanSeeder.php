@@ -41,7 +41,7 @@ class PlanSeeder extends Seeder
     {
         return [
             $this->plan(
-                name: 'MLHUB Free Da Nang',
+                name: 'MKT Free Da Nang',
                 slug: 'mlhub-free-da-nang',
                 price: 0,
                 type: 3,
@@ -53,18 +53,18 @@ class PlanSeeder extends Seeder
                 desc: $this->planDescription('free'),
                 permissions: $this->freePermissions(),
             ),
-            $this->plan('MLHUB Starter Monthly', 'mlhub-starter-monthly', 199000, 1, false, false, false, 7, 10, $this->planDescription('starter'), $this->starterPermissions(300)),
-            $this->plan('MLHUB Starter Yearly', 'mlhub-starter-yearly', 1990000, 2, false, false, false, 14, 11, $this->planDescription('starter'), $this->starterPermissions(3600)),
-            $this->plan('MLHUB Starter Lifetime', 'mlhub-starter-lifetime', 5990000, 3, false, false, false, 0, 12, $this->planDescription('starter'), $this->starterPermissions(300)),
-            $this->plan('MLHUB Growth Monthly', 'mlhub-growth-monthly', 349000, 1, true, false, false, 10, 20, $this->planDescription('growth'), $this->growthPermissions(1000)),
-            $this->plan('MLHUB Growth Yearly', 'mlhub-growth-yearly', 3490000, 2, false, false, false, 21, 21, $this->planDescription('growth'), $this->growthPermissions(12000)),
-            $this->plan('MLHUB Growth Lifetime', 'mlhub-growth-lifetime', 9990000, 3, false, false, false, 0, 22, $this->planDescription('growth'), $this->growthPermissions(1000)),
-            $this->plan('MLHUB Pro Monthly', 'mlhub-pro-monthly', 749000, 1, true, false, false, 14, 30, $this->planDescription('pro'), $this->proPermissions(5000)),
-            $this->plan('MLHUB Pro Yearly', 'mlhub-pro-yearly', 7490000, 2, false, false, false, 30, 31, $this->planDescription('pro'), $this->proPermissions(60000)),
-            $this->plan('MLHUB Pro Lifetime', 'mlhub-pro-lifetime', 21990000, 3, false, false, false, 0, 32, $this->planDescription('pro'), $this->proPermissions(5000)),
-            $this->plan('MLHUB Partner Monthly', 'mlhub-partner-monthly', 1249000, 1, false, false, false, 14, 40, $this->planDescription('partner'), $this->partnerPermissions(20000)),
-            $this->plan('MLHUB Partner Yearly', 'mlhub-partner-yearly', 12490000, 2, false, false, false, 30, 41, $this->planDescription('partner'), $this->partnerPermissions(240000)),
-            $this->plan('MLHUB Partner Lifetime', 'mlhub-partner-lifetime', 36990000, 3, false, false, false, 0, 42, $this->planDescription('partner'), $this->partnerPermissions(20000)),
+            $this->plan('MKT Starter Monthly', 'mlhub-starter-monthly', 199000, 1, false, false, false, 7, 10, $this->planDescription('starter'), $this->starterPermissions(300)),
+            $this->plan('MKT Starter Yearly', 'mlhub-starter-yearly', 1990000, 2, false, false, false, 14, 11, $this->planDescription('starter'), $this->starterPermissions(3600)),
+            $this->plan('MKT Starter Lifetime', 'mlhub-starter-lifetime', 5990000, 3, false, false, false, 0, 12, $this->planDescription('starter'), $this->starterPermissions(300)),
+            $this->plan('MKT Growth Monthly', 'mlhub-growth-monthly', 349000, 1, true, false, false, 10, 20, $this->planDescription('growth'), $this->growthPermissions(1000)),
+            $this->plan('MKT Growth Yearly', 'mlhub-growth-yearly', 3490000, 2, false, false, false, 21, 21, $this->planDescription('growth'), $this->growthPermissions(12000)),
+            $this->plan('MKT Growth Lifetime', 'mlhub-growth-lifetime', 9990000, 3, false, false, false, 0, 22, $this->planDescription('growth'), $this->growthPermissions(1000)),
+            $this->plan('MKT Pro Monthly', 'mlhub-pro-monthly', 749000, 1, true, false, false, 14, 30, $this->planDescription('pro'), $this->proPermissions(5000)),
+            $this->plan('MKT Pro Yearly', 'mlhub-pro-yearly', 7490000, 2, false, false, false, 30, 31, $this->planDescription('pro'), $this->proPermissions(60000)),
+            $this->plan('MKT Pro Lifetime', 'mlhub-pro-lifetime', 21990000, 3, false, false, false, 0, 32, $this->planDescription('pro'), $this->proPermissions(5000)),
+            $this->plan('MKT Partner Monthly', 'mlhub-partner-monthly', 1249000, 1, false, false, false, 14, 40, $this->planDescription('partner'), $this->partnerPermissions(20000)),
+            $this->plan('MKT Partner Yearly', 'mlhub-partner-yearly', 12490000, 2, false, false, false, 30, 41, $this->planDescription('partner'), $this->partnerPermissions(240000)),
+            $this->plan('MKT Partner Lifetime', 'mlhub-partner-lifetime', 36990000, 3, false, false, false, 0, 42, $this->planDescription('partner'), $this->partnerPermissions(20000)),
         ];
     }
 
@@ -75,7 +75,7 @@ class PlanSeeder extends Seeder
             'starter' => 'Start digital marketing with one local business. Run QR, coupons, reviews, and lead pages. Enough credits and limits for daily operations.',
             'growth' => 'Manage multiple locations and campaigns together. Unlock automation, CRM, and higher usage limits. Scale local marketing without switching tools.',
             'pro' => 'Built for professional teams and agencies. Full AI, CRM, automation, and white-label controls. Run advanced campaigns with reporting and branding.',
-            'partner' => 'For partners operating at large scale. Manage many businesses, clients, and workflows. Highest limits with full MLHUB workspace capacity.',
+            'partner' => 'For partners operating at large scale. Manage many businesses, clients, and workflows. Highest limits with full MKT workspace capacity.',
             default => '',
         };
     }

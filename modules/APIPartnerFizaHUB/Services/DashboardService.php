@@ -382,7 +382,7 @@ class DashboardService
             'recommendations' => [[
                 'code' => 'campaign_review',
                 'label' => __('Request campaign changes'),
-                'description' => __('Ask MLHUB to review and adjust this campaign.'),
+                'description' => __('Ask MKT to review and adjust this campaign.'),
                 'preset_code' => 'campaign_request',
                 'campaign_id' => (string) $campaign->id,
             ]],

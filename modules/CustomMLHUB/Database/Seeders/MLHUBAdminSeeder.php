@@ -35,7 +35,7 @@ class MLHUBAdminSeeder extends Seeder
         }
 
         $payload = [
-            'name' => (string) ($profile['name'] ?? 'MLHUB Admin'),
+            'name' => (string) ($profile['name'] ?? 'MKT Admin'),
             'username' => (string) ($profile['username'] ?? 'mlhubadmin'),
             'locale' => (string) ($profile['locale'] ?? 'vi'),
             'timezone' => (string) config('mlhub.timezone', 'Asia/Ho_Chi_Minh'),

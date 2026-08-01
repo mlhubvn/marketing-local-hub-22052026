@@ -74,7 +74,7 @@
             'goal' => 'Create copy for a local campaign landing page that converts visitors into leads, bookings, coupon claims, feedback, or review clicks.',
             'offer' => 'Local campaign offer or service',
             'target_customer' => 'Local customers',
-            'details' => 'Generate headline, subheadline, benefits, CTA, FAQ, terms, and thank you message for a MLHUB landing page.',
+            'details' => 'Generate headline, subheadline, benefits, CTA, FAQ, terms, and thank you message for a MKT landing page.',
             'source_type' => 'landing_page',
         ], fn ($value) => filled($value)));
     @endphp

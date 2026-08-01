@@ -59,7 +59,7 @@ class FizaHubPartnerOnboardingShow extends Component
         $integration = $service->findIntegrationFor($this->onboardingRequest);
 
         if (! $integration) {
-            $this->ticketError = __('Không tìm thấy dữ liệu liên kết MLHUB cho HKD này.');
+            $this->ticketError = __('Không tìm thấy dữ liệu liên kết MKT cho HKD này.');
 
             return;
         }

@@ -1,6 +1,6 @@
 {
     "name": "guest/mlhubfrontend",
-    "description": "MLHUB guest marketing theme",
+    "description": "MKT guest marketing theme",
     "type": "laravel-theme",
     "extra": {
         "laravel-theme": {

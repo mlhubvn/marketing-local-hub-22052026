@@ -6,8 +6,8 @@
                     <span class="lb-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">
                         <i class="fa-light fa-store"></i>{{ __('Business directory') }}
                     </span>
-                    <h1 class="lb-serif lb-hero-title lb-reveal mt-7">{{ __('Look up local businesses on MLHUB') }}</h1>
-                    <p class="lb-copy mt-5">{{ __('Search registered businesses, see which industry group they belong to, and find out which MLHUB account manages each profile.') }}</p>
+                    <h1 class="lb-serif lb-hero-title lb-reveal mt-7">{{ __('Look up local businesses on MKT') }}</h1>
+                    <p class="lb-copy mt-5">{{ __('Search registered businesses, see which industry group they belong to, and find out which MKT account manages each profile.') }}</p>
                     <p class="lb-copy mt-4 text-sm" style="color: var(--lb-muted);">{{ __('Contact details are partially masked so owners can recognize their own phone or email without exposing full records publicly.') }}</p>
 
                     <form method="GET" action="{{ route('guest.directory') }}" class="mt-7 space-y-4">
@@ -39,7 +39,7 @@
 
                 <div class="space-y-4">
                     <div class="lb-card lb-reveal rounded-xl border-dashed px-5 py-4 text-sm" style="color: var(--lb-muted);">
-                        {{ __('This directory helps household businesses check whether a profile already exists on MLHUB and which account currently manages it.') }}
+                        {{ __('This directory helps household businesses check whether a profile already exists on MKT and which account currently manages it.') }}
                     </div>
 
                     @forelse ($businesses as $entry)

@@ -1,7 +1,7 @@
 {
     "info": {
-        "name": "MLHUB × FizaHUB Partner API",
-        "description": "# MLHUB × FizaHUB Partner API (v1)\n\nBreaking cutover: **25 request** cho **15 màn hình Marketing** đã được Product duyệt. Support hỗ trợ tin nhắn text và đính kèm **3 nhóm**: ảnh / video / tài liệu (PDF/Office). Không nhận zip.\n\n**Cập nhật:** List/Upload trả `extension` + `image_url` ký tạm (ảnh) — URL có đuôi `.jpg`…, mở trong chat không cần header. Allow-list: ảnh, video (`mp4/mov/webm`), tài liệu (`pdf/doc/docx/xls/xlsx`).\n\n## Dùng ngay trong 3 bước (không cần biết Postman sâu)\n1. **Import** file này vào Postman: nút **Import** (góc trên trái) → chọn file → Import.\n2. Mở collection → tab **Variables**: `base_url` và `partner_token` **ĐÃ điền sẵn**. Không cần gõ tay.\n3. Đưa chuột vào tên collection → bấm **Run** → **Run MLHUB × FizaHUB Partner API**. Hoặc mở từng request 01→25 rồi bấm **Send**.\n\nHướng dẫn click từng nút (tiếng Việt, cho người mới): https://mlhub.vn/api-fizahub/help-test\n\n## Vì sao chạy được ngay?\n- `partner_token`, `base_url` cấu hình sẵn cho giai đoạn thử nghiệm.\n- Collection **tự sinh** `external_business_id`, `external_user_id`, `from`, `to`.\n- Mỗi request tự gắn `X-Request-Id` (UUID); request ghi tự gắn `Idempotency-Key` (UUID).\n- Các ID phụ thuộc (`onboarding_request_id`, `campaign_id`, `ticket_id`) được **tự lưu**; bước phụ thuộc tự **skip** nếu chưa có ID.\n\n## Chạy theo folder\n1. **System (2):** Health, SSO Verify.\n2. **Onboarding (6):** Catalog → Create → Detail → Marketing Status → Profile → Preferences.\n3. **Growth (6):** Dashboard → Insights → Campaign List → Campaign Detail → Approval → Package.\n4. **Support (10):** Presets → Create → List → Detail → Message → Close → Reopen → List Attachments → Upload Attachment → Download Attachment.\n5. **CRM (1):** tạo link khi onboarding ready/completed.\n\n## Xem đầy đủ tham số & trạng thái\n- Tab **Params** / **Body** của mỗi request: liệt kê đủ trường (một số param tắt sẵn — bật checkbox khi cần).\n- Mục **Examples** (góc phải trên): mẫu response thành công + lỗi (401/404/409/422/503…).\n- Phần **Description** của mỗi request: màn hình UI, input, enum, HTTP status.\n\n## Response envelope\nThành công: `{ \"success\": true, \"data\": {...}, \"meta\": { \"request_id\": \"uuid\" }, \"error\": null }`\n\nLỗi: `{ \"success\": false, \"data\": null, \"meta\": { \"request_id\": \"uuid\" }, \"error\": { \"code\": \"...\", \"message\": \"...\", \"details\": {} } }`\n\n## Header bắt buộc (đã gắn sẵn)\n| Header | Giá trị |\n|---|---|\n| Authorization | Bearer {{partner_token}} |\n| X-Partner | fizahub |\n| X-Request-Id | UUID mới mỗi lần |\n| Idempotency-Key | UUID (mọi POST/PATCH trừ SSO Verify) |\n| Accept | application/json |\n\n> ⚠️ Token trong file này là token **thử nghiệm**. Khi chạy chính thức, MLHUB sẽ đổi token và gửi lại — tải file mới từ https://mlhub.vn/api-fizahub/postman\n\n## Ngoài phạm vi collection này: Cổng báo cáo cho lãnh đạo FizaHUB\n25 request ở trên là API cho **đội kỹ thuật** tích hợp app. Nếu chỉ cần **xem báo cáo** onboarding/HKD (không sửa gì), MLHUB có một **website riêng** cho lãnh đạo FizaHUB, không liên quan Postman/token ở đây: https://fzh.vmo.com.vn — đăng nhập bằng tài khoản MLHUB có sẵn, được MLHUB cấp quyền theo danh sách email do FizaHUB cung cấp. Xem chi tiết tại https://mlhub.vn/api-fizahub/help-test (Bước 9).",
+        "name": "MKT × FizaHUB Partner API",
+        "description": "# MKT × FizaHUB Partner API (v1)\n\nBreaking cutover: **25 request** cho **15 màn hình Marketing** đã được Product duyệt. Support hỗ trợ tin nhắn text và đính kèm **3 nhóm**: ảnh / video / tài liệu (PDF/Office). Không nhận zip.\n\n**Cập nhật:** List/Upload trả `extension` + `image_url` ký tạm (ảnh) — URL có đuôi `.jpg`…, mở trong chat không cần header. Allow-list: ảnh, video (`mp4/mov/webm`), tài liệu (`pdf/doc/docx/xls/xlsx`).\n\n## Dùng ngay trong 3 bước (không cần biết Postman sâu)\n1. **Import** file này vào Postman: nút **Import** (góc trên trái) → chọn file → Import.\n2. Mở collection → tab **Variables**: `base_url` và `partner_token` **ĐÃ điền sẵn**. Không cần gõ tay.\n3. Đưa chuột vào tên collection → bấm **Run** → **Run MKT × FizaHUB Partner API**. Hoặc mở từng request 01→25 rồi bấm **Send**.\n\nHướng dẫn click từng nút (tiếng Việt, cho người mới): https://mlhub.vn/api-fizahub/help-test\n\n## Vì sao chạy được ngay?\n- `partner_token`, `base_url` cấu hình sẵn cho giai đoạn thử nghiệm.\n- Collection **tự sinh** `external_business_id`, `external_user_id`, `from`, `to`.\n- Mỗi request tự gắn `X-Request-Id` (UUID); request ghi tự gắn `Idempotency-Key` (UUID).\n- Các ID phụ thuộc (`onboarding_request_id`, `campaign_id`, `ticket_id`) được **tự lưu**; bước phụ thuộc tự **skip** nếu chưa có ID.\n\n## Chạy theo folder\n1. **System (2):** Health, SSO Verify.\n2. **Onboarding (6):** Catalog → Create → Detail → Marketing Status → Profile → Preferences.\n3. **Growth (6):** Dashboard → Insights → Campaign List → Campaign Detail → Approval → Package.\n4. **Support (10):** Presets → Create → List → Detail → Message → Close → Reopen → List Attachments → Upload Attachment → Download Attachment.\n5. **CRM (1):** tạo link khi onboarding ready/completed.\n\n## Xem đầy đủ tham số & trạng thái\n- Tab **Params** / **Body** của mỗi request: liệt kê đủ trường (một số param tắt sẵn — bật checkbox khi cần).\n- Mục **Examples** (góc phải trên): mẫu response thành công + lỗi (401/404/409/422/503…).\n- Phần **Description** của mỗi request: màn hình UI, input, enum, HTTP status.\n\n## Response envelope\nThành công: `{ \"success\": true, \"data\": {...}, \"meta\": { \"request_id\": \"uuid\" }, \"error\": null }`\n\nLỗi: `{ \"success\": false, \"data\": null, \"meta\": { \"request_id\": \"uuid\" }, \"error\": { \"code\": \"...\", \"message\": \"...\", \"details\": {} } }`\n\n## Header bắt buộc (đã gắn sẵn)\n| Header | Giá trị |\n|---|---|\n| Authorization | Bearer {{partner_token}} |\n| X-Partner | fizahub |\n| X-Request-Id | UUID mới mỗi lần |\n| Idempotency-Key | UUID (mọi POST/PATCH trừ SSO Verify) |\n| Accept | application/json |\n\n> ⚠️ Token trong file này là token **thử nghiệm**. Khi chạy chính thức, MKT sẽ đổi token và gửi lại — tải file mới từ https://mlhub.vn/api-fizahub/postman\n\n## Ngoài phạm vi collection này: Cổng báo cáo cho lãnh đạo FizaHUB\n25 request ở trên là API cho **đội kỹ thuật** tích hợp app. Nếu chỉ cần **xem báo cáo** onboarding/HKD (không sửa gì), MKT có một **website riêng** cho lãnh đạo FizaHUB, không liên quan Postman/token ở đây: https://fzh.vmo.com.vn — đăng nhập bằng tài khoản MKT có sẵn, được MKT cấp quyền theo danh sách email do FizaHUB cung cấp. Xem chi tiết tại https://mlhub.vn/api-fizahub/help-test (Bước 9).",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "event": [
@@ -24,7 +24,7 @@
             "key": "base_url",
             "value": "https://mlhub.vn",
             "type": "string",
-            "description": "Gốc URL MLHUB. Đã điền sẵn https://mlhub.vn — không cần sửa khi test production."
+            "description": "Gốc URL MKT. Đã điền sẵn https://mlhub.vn — không cần sửa khi test production."
         },
         {
             "key": "partner_token",
@@ -112,7 +112,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -122,7 +122,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -142,7 +142,7 @@
                                 "health"
                             ]
                         },
-                        "description": "**Màn hình:** hệ thống (chạy đầu tiên để chắc chắn API sống).\n\nKiểm tra API, schema DB, plan mặc định và bảng hỗ trợ.\n\n**Không cần body.**\n\n**Trạng thái trả về:**\n- `200` + `data.status = \"ok\"`: mọi thứ sẵn sàng.\n- `503` + `data.status = \"degraded\"`: có dependency thiếu (xem `data.checks`). MLHUB cần chạy migration/seed."
+                        "description": "**Màn hình:** hệ thống (chạy đầu tiên để chắc chắn API sống).\n\nKiểm tra API, schema DB, plan mặc định và bảng hỗ trợ.\n\n**Không cần body.**\n\n**Trạng thái trả về:**\n- `200` + `data.status = \"ok\"`: mọi thứ sẵn sàng.\n- `503` + `data.status = \"degraded\"`: có dependency thiếu (xem `data.checks`). MKT cần chạy migration/seed."
                     },
                     "response": [
                         {
@@ -251,7 +251,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -261,7 +261,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -488,7 +488,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -498,7 +498,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -525,7 +525,7 @@
                                 }
                             ]
                         },
-                        "description": "**Màn hình 02 — Chọn giải pháp Marketing.**\n\nLấy danh sách mục tiêu Marketing, cây ngành nghề và các gói dịch vụ.\n\n**Query params:**\n- `industry` (tùy chọn): mã ngành, để MLHUB gợi ý gói theo ngành.\n\n**Giá trị dùng ở các bước sau:**\n- `marketing_goals[].code`: `local_presence`, `qr_checkin`, `voucher_return`, `customer_retention` (chọn tối đa 3).\n- `packages[].package_code`: `free`, `base`, `biz`, `plus`."
+                        "description": "**Màn hình 02 — Chọn giải pháp Marketing.**\n\nLấy danh sách mục tiêu Marketing, cây ngành nghề và các gói dịch vụ.\n\n**Query params:**\n- `industry` (tùy chọn): mã ngành, để MKT gợi ý gói theo ngành.\n\n**Giá trị dùng ở các bước sau:**\n- `marketing_goals[].code`: `local_presence`, `qr_checkin`, `voucher_return`, `customer_retention` (chọn tối đa 3).\n- `packages[].package_code`: `free`, `base`, `biz`, `plus`."
                     },
                     "response": [
                         {
@@ -581,7 +581,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"max_goal_selection\": 3,\n        \"default_package_code\": \"free\",\n        \"marketing_goals\": [\n            {\n                \"code\": \"local_presence\",\n                \"label\": \"Hiện diện\",\n                \"description\": \"Tăng hiện diện địa phương.\"\n            },\n            {\n                \"code\": \"qr_checkin\",\n                \"label\": \"QR Check-in\",\n                \"description\": \"Thu lead ngay tại cửa hàng.\"\n            },\n            {\n                \"code\": \"voucher_return\",\n                \"label\": \"Mã ưu đãi\",\n                \"description\": \"Khuyến khích khách hàng quay lại.\"\n            },\n            {\n                \"code\": \"customer_retention\",\n                \"label\": \"Khách hàng\",\n                \"description\": \"Lưu và chăm sóc khách hàng cũ.\"\n            }\n        ],\n        \"industries\": [\n            {\n                \"code\": \"food_beverage\",\n                \"label\": \"Ẩm thực & Đồ uống\",\n                \"children\": [\n                    {\n                        \"code\": \"restaurant_eatery\",\n                        \"label\": \"Nhà hàng / Quán ăn\"\n                    }\n                ]\n            }\n        ],\n        \"packages\": [\n            {\n                \"package_code\": \"free\",\n                \"description\": \"Gói khởi tạo miễn phí để doanh nghiệp bắt đầu Marketing cùng MLHUB.\",\n                \"features\": [\n                    \"Hiện diện địa phương\",\n                    \"QR Check-in cơ bản\",\n                    \"Theo dõi khách hàng\"\n                ],\n                \"recommended_goal_codes\": [\n                    \"local_presence\",\n                    \"qr_checkin\"\n                ],\n                \"industry_codes\": [\n                    \"restaurant_eatery\"\n                ]\n            },\n            {\n                \"package_code\": \"base\",\n                \"description\": \"Gói doanh nghiệp quan tâm với tư vấn và cấu hình tăng trưởng mở rộng.\",\n                \"features\": [\n                    \"Mã ưu đãi\",\n                    \"Chăm sóc khách hàng\",\n                    \"Tư vấn chiến dịch\"\n                ],\n                \"recommended_goal_codes\": [\n                    \"voucher_return\",\n                    \"customer_retention\"\n                ],\n                \"industry_codes\": [\n                    \"restaurant_eatery\"\n                ]\n            },\n            {\n                \"package_code\": \"biz\",\n                \"description\": \"Gói doanh nghiệp mở rộng: tự động hóa Marketing, CRM đa kênh và quản lý nhiều cơ sở.\",\n                \"features\": [\n                    \"Tự động hóa Marketing\",\n                    \"CRM nâng cao\",\n                    \"Quản lý nhiều cơ sở\"\n                ],\n                \"recommended_goal_codes\": [\n                    \"voucher_return\",\n                    \"customer_retention\"\n                ],\n                \"industry_codes\": [\n                    \"restaurant_eatery\"\n                ]\n            },\n            {\n                \"package_code\": \"plus\",\n                \"description\": \"Gói cao cấp cho doanh nghiệp cần đầy đủ AI Studio, CRM không giới hạn và thương hiệu riêng.\",\n                \"features\": [\n                    \"AI Studio đầy đủ\",\n                    \"CRM không giới hạn\",\n                    \"Loại bỏ thương hiệu MLHUB\"\n                ],\n                \"recommended_goal_codes\": [\n                    \"local_presence\",\n                    \"qr_checkin\",\n                    \"voucher_return\"\n                ],\n                \"industry_codes\": [\n                    \"restaurant_eatery\"\n                ]\n            }\n        ]\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
+                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"max_goal_selection\": 3,\n        \"default_package_code\": \"free\",\n        \"marketing_goals\": [\n            {\n                \"code\": \"local_presence\",\n                \"label\": \"Hiện diện\",\n                \"description\": \"Tăng hiện diện địa phương.\"\n            },\n            {\n                \"code\": \"qr_checkin\",\n                \"label\": \"QR Check-in\",\n                \"description\": \"Thu lead ngay tại cửa hàng.\"\n            },\n            {\n                \"code\": \"voucher_return\",\n                \"label\": \"Mã ưu đãi\",\n                \"description\": \"Khuyến khích khách hàng quay lại.\"\n            },\n            {\n                \"code\": \"customer_retention\",\n                \"label\": \"Khách hàng\",\n                \"description\": \"Lưu và chăm sóc khách hàng cũ.\"\n            }\n        ],\n        \"industries\": [\n            {\n                \"code\": \"food_beverage\",\n                \"label\": \"Ẩm thực & Đồ uống\",\n                \"children\": [\n                    {\n                        \"code\": \"restaurant_eatery\",\n                        \"label\": \"Nhà hàng / Quán ăn\"\n                    }\n                ]\n            }\n        ],\n        \"packages\": [\n            {\n                \"package_code\": \"free\",\n                \"description\": \"Gói khởi tạo miễn phí để doanh nghiệp bắt đầu Marketing cùng MKT.\",\n                \"features\": [\n                    \"Hiện diện địa phương\",\n                    \"QR Check-in cơ bản\",\n                    \"Theo dõi khách hàng\"\n                ],\n                \"recommended_goal_codes\": [\n                    \"local_presence\",\n                    \"qr_checkin\"\n                ],\n                \"industry_codes\": [\n                    \"restaurant_eatery\"\n                ]\n            },\n            {\n                \"package_code\": \"base\",\n                \"description\": \"Gói doanh nghiệp quan tâm với tư vấn và cấu hình tăng trưởng mở rộng.\",\n                \"features\": [\n                    \"Mã ưu đãi\",\n                    \"Chăm sóc khách hàng\",\n                    \"Tư vấn chiến dịch\"\n                ],\n                \"recommended_goal_codes\": [\n                    \"voucher_return\",\n                    \"customer_retention\"\n                ],\n                \"industry_codes\": [\n                    \"restaurant_eatery\"\n                ]\n            },\n            {\n                \"package_code\": \"biz\",\n                \"description\": \"Gói doanh nghiệp mở rộng: tự động hóa Marketing, CRM đa kênh và quản lý nhiều cơ sở.\",\n                \"features\": [\n                    \"Tự động hóa Marketing\",\n                    \"CRM nâng cao\",\n                    \"Quản lý nhiều cơ sở\"\n                ],\n                \"recommended_goal_codes\": [\n                    \"voucher_return\",\n                    \"customer_retention\"\n                ],\n                \"industry_codes\": [\n                    \"restaurant_eatery\"\n                ]\n            },\n            {\n                \"package_code\": \"plus\",\n                \"description\": \"Gói cao cấp cho doanh nghiệp cần đầy đủ AI Studio, CRM không giới hạn và thương hiệu riêng.\",\n                \"features\": [\n                    \"AI Studio đầy đủ\",\n                    \"CRM không giới hạn\",\n                    \"Loại bỏ thương hiệu MKT\"\n                ],\n                \"recommended_goal_codes\": [\n                    \"local_presence\",\n                    \"qr_checkin\",\n                    \"voucher_return\"\n                ],\n                \"industry_codes\": [\n                    \"restaurant_eatery\"\n                ]\n            }\n        ]\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
                         }
                     ]
                 },
@@ -593,7 +593,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -603,7 +603,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -641,7 +641,7 @@
                                 "onboarding-requests"
                             ]
                         },
-                        "description": "**Màn hình 03 — Thông tin đăng ký.** Tạo tài khoản MLHUB + cơ sở + gói Free trong 1 lần (atomic).\n\n**Body — các trường:**\n- `external_business_id` (bắt buộc): ID business phía FizaHUB. Collection tự sinh.\n- `external_user_id` (tùy chọn): ID user phía FizaHUB.\n- `marketing_goal_codes` (bắt buộc, 1–3): trong `local_presence`, `qr_checkin`, `voucher_return`, `customer_retention`.\n- `package_code` HOẶC `requested_package_code` (bắt buộc 1 trong 2): `free` | `base` | `biz` | `plus`.\n- `owner.name` (bắt buộc), `owner.email` (bắt buộc), `owner.phone` (tùy chọn).\n- `business.name/industry/phone/email/address` (bắt buộc), `business.website` (tùy chọn).\n- KHÔNG gửi giấy tờ tùy thân/CCCD/giấy phép kinh doanh dạng file — sẽ bị 422.\n\n**Trạng thái (HTTP):**\n- `201` tạo mới → `awaiting_consultant`.\n- `202` tạo mới nhưng cần rà soát → `needs_review`.\n- `200` đã đăng ký trước đó → `already_registered=true`, trả request/ticket cũ.\n- `409 email_already_registered`: email đã thuộc tài khoản MLHUB khác.\n- `409 onboarding_email_mismatch`: business đã map bằng email khác.\n- `422 validation_failed`: payload sai.\n- `503`: schema/plan chưa sẵn sàng."
+                        "description": "**Màn hình 03 — Thông tin đăng ký.** Tạo tài khoản MKT + cơ sở + gói Free trong 1 lần (atomic).\n\n**Body — các trường:**\n- `external_business_id` (bắt buộc): ID business phía FizaHUB. Collection tự sinh.\n- `external_user_id` (tùy chọn): ID user phía FizaHUB.\n- `marketing_goal_codes` (bắt buộc, 1–3): trong `local_presence`, `qr_checkin`, `voucher_return`, `customer_retention`.\n- `package_code` HOẶC `requested_package_code` (bắt buộc 1 trong 2): `free` | `base` | `biz` | `plus`.\n- `owner.name` (bắt buộc), `owner.email` (bắt buộc), `owner.phone` (tùy chọn).\n- `business.name/industry/phone/email/address` (bắt buộc), `business.website` (tùy chọn).\n- KHÔNG gửi giấy tờ tùy thân/CCCD/giấy phép kinh doanh dạng file — sẽ bị 422.\n\n**Trạng thái (HTTP):**\n- `201` tạo mới → `awaiting_consultant`.\n- `202` tạo mới nhưng cần rà soát → `needs_review`.\n- `200` đã đăng ký trước đó → `already_registered=true`, trả request/ticket cũ.\n- `409 email_already_registered`: email đã thuộc tài khoản MKT khác.\n- `409 onboarding_email_mismatch`: business đã map bằng email khác.\n- `422 validation_failed`: payload sai.\n- `503`: schema/plan chưa sẵn sàng."
                     },
                     "event": [
                         {
@@ -724,7 +724,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"request_id\": \"req_9f8b2c14\",\n        \"external_business_id\": \"fiza-store-001\",\n        \"external_user_id\": \"fiza-owner-001\",\n        \"username\": \"vankhoa\",\n        \"account_created\": true,\n        \"business_created\": true,\n        \"integration_created\": true,\n        \"already_registered\": false,\n        \"status\": \"awaiting_consultant\",\n        \"current_step\": \"awaiting_consultant\",\n        \"status_label\": \"Chờ tư vấn viên liên hệ\",\n        \"timeline\": [\n            {\n                \"code\": \"account_created\",\n                \"label\": \"Đã tạo tài khoản và cơ sở\",\n                \"description\": \"Tài khoản MLHUB và cơ sở đã được khởi tạo.\",\n                \"status\": \"completed\",\n                \"completed_at\": \"2026-07-21T01:00:00+00:00\"\n            },\n            {\n                \"code\": \"awaiting_consultant\",\n                \"label\": \"Chờ tư vấn viên liên hệ\",\n                \"description\": \"MLHUB đang tiếp nhận và kiểm tra yêu cầu.\",\n                \"status\": \"current\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"in_consultation\",\n                \"label\": \"Đang tư vấn nhu cầu\",\n                \"description\": \"Tư vấn viên đang làm rõ mục tiêu tăng trưởng.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"configuring\",\n                \"label\": \"Đang cấu hình Marketing\",\n                \"description\": \"MLHUB đang cấu hình các công cụ Marketing.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"ready\",\n                \"label\": \"Sẵn sàng sử dụng\",\n                \"description\": \"Doanh nghiệp có thể truy cập CRM MLHUB.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            }\n        ],\n        \"requested_package_code\": \"base\",\n        \"approved_package_code\": null,\n        \"package_code\": \"free\",\n        \"duplicate_check\": [],\n        \"support_ticket_id\": \"tkt_onboarding_abc123\",\n        \"mlhub_user_id\": 1024,\n        \"mlhub_workspace_id\": 512,\n        \"mlhub_business_id\": 256,\n        \"partner_confirmed_at\": null,\n        \"assigned_consultant_id\": null,\n        \"last_synced_at\": null\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
+                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"request_id\": \"req_9f8b2c14\",\n        \"external_business_id\": \"fiza-store-001\",\n        \"external_user_id\": \"fiza-owner-001\",\n        \"username\": \"vankhoa\",\n        \"account_created\": true,\n        \"business_created\": true,\n        \"integration_created\": true,\n        \"already_registered\": false,\n        \"status\": \"awaiting_consultant\",\n        \"current_step\": \"awaiting_consultant\",\n        \"status_label\": \"Chờ tư vấn viên liên hệ\",\n        \"timeline\": [\n            {\n                \"code\": \"account_created\",\n                \"label\": \"Đã tạo tài khoản và cơ sở\",\n                \"description\": \"Tài khoản MKT và cơ sở đã được khởi tạo.\",\n                \"status\": \"completed\",\n                \"completed_at\": \"2026-07-21T01:00:00+00:00\"\n            },\n            {\n                \"code\": \"awaiting_consultant\",\n                \"label\": \"Chờ tư vấn viên liên hệ\",\n                \"description\": \"MKT đang tiếp nhận và kiểm tra yêu cầu.\",\n                \"status\": \"current\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"in_consultation\",\n                \"label\": \"Đang tư vấn nhu cầu\",\n                \"description\": \"Tư vấn viên đang làm rõ mục tiêu tăng trưởng.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"configuring\",\n                \"label\": \"Đang cấu hình Marketing\",\n                \"description\": \"MKT đang cấu hình các công cụ Marketing.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"ready\",\n                \"label\": \"Sẵn sàng sử dụng\",\n                \"description\": \"Doanh nghiệp có thể truy cập CRM MKT.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            }\n        ],\n        \"requested_package_code\": \"base\",\n        \"approved_package_code\": null,\n        \"package_code\": \"free\",\n        \"duplicate_check\": [],\n        \"support_ticket_id\": \"tkt_onboarding_abc123\",\n        \"mlhub_user_id\": 1024,\n        \"mlhub_workspace_id\": 512,\n        \"mlhub_business_id\": 256,\n        \"partner_confirmed_at\": null,\n        \"assigned_consultant_id\": null,\n        \"last_synced_at\": null\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
                         },
                         {
                             "name": "202 · Cần rà soát (needs_review)",
@@ -789,7 +789,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"request_id\": \"req_9f8b2c14\",\n        \"external_business_id\": \"fiza-store-001\",\n        \"external_user_id\": \"fiza-owner-001\",\n        \"username\": \"vankhoa\",\n        \"account_created\": true,\n        \"business_created\": true,\n        \"integration_created\": true,\n        \"already_registered\": false,\n        \"status\": \"needs_review\",\n        \"current_step\": \"awaiting_consultant\",\n        \"status_label\": \"Cần rà soát thủ công\",\n        \"timeline\": [\n            {\n                \"code\": \"account_created\",\n                \"label\": \"Đã tạo tài khoản và cơ sở\",\n                \"description\": \"Tài khoản MLHUB và cơ sở đã được khởi tạo.\",\n                \"status\": \"completed\",\n                \"completed_at\": \"2026-07-21T01:00:00+00:00\"\n            },\n            {\n                \"code\": \"awaiting_consultant\",\n                \"label\": \"Chờ tư vấn viên liên hệ\",\n                \"description\": \"MLHUB đang tiếp nhận và kiểm tra yêu cầu.\",\n                \"status\": \"current\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"in_consultation\",\n                \"label\": \"Đang tư vấn nhu cầu\",\n                \"description\": \"Tư vấn viên đang làm rõ mục tiêu tăng trưởng.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"configuring\",\n                \"label\": \"Đang cấu hình Marketing\",\n                \"description\": \"MLHUB đang cấu hình các công cụ Marketing.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"ready\",\n                \"label\": \"Sẵn sàng sử dụng\",\n                \"description\": \"Doanh nghiệp có thể truy cập CRM MLHUB.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            }\n        ],\n        \"requested_package_code\": \"base\",\n        \"approved_package_code\": null,\n        \"package_code\": \"free\",\n        \"duplicate_check\": [\n            {\n                \"type\": \"tax_code\",\n                \"id\": 77\n            }\n        ],\n        \"support_ticket_id\": \"tkt_onboarding_abc123\",\n        \"mlhub_user_id\": 1024,\n        \"mlhub_workspace_id\": 512,\n        \"mlhub_business_id\": 256,\n        \"partner_confirmed_at\": null,\n        \"assigned_consultant_id\": null,\n        \"last_synced_at\": null\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
+                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"request_id\": \"req_9f8b2c14\",\n        \"external_business_id\": \"fiza-store-001\",\n        \"external_user_id\": \"fiza-owner-001\",\n        \"username\": \"vankhoa\",\n        \"account_created\": true,\n        \"business_created\": true,\n        \"integration_created\": true,\n        \"already_registered\": false,\n        \"status\": \"needs_review\",\n        \"current_step\": \"awaiting_consultant\",\n        \"status_label\": \"Cần rà soát thủ công\",\n        \"timeline\": [\n            {\n                \"code\": \"account_created\",\n                \"label\": \"Đã tạo tài khoản và cơ sở\",\n                \"description\": \"Tài khoản MKT và cơ sở đã được khởi tạo.\",\n                \"status\": \"completed\",\n                \"completed_at\": \"2026-07-21T01:00:00+00:00\"\n            },\n            {\n                \"code\": \"awaiting_consultant\",\n                \"label\": \"Chờ tư vấn viên liên hệ\",\n                \"description\": \"MKT đang tiếp nhận và kiểm tra yêu cầu.\",\n                \"status\": \"current\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"in_consultation\",\n                \"label\": \"Đang tư vấn nhu cầu\",\n                \"description\": \"Tư vấn viên đang làm rõ mục tiêu tăng trưởng.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"configuring\",\n                \"label\": \"Đang cấu hình Marketing\",\n                \"description\": \"MKT đang cấu hình các công cụ Marketing.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"ready\",\n                \"label\": \"Sẵn sàng sử dụng\",\n                \"description\": \"Doanh nghiệp có thể truy cập CRM MKT.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            }\n        ],\n        \"requested_package_code\": \"base\",\n        \"approved_package_code\": null,\n        \"package_code\": \"free\",\n        \"duplicate_check\": [\n            {\n                \"type\": \"tax_code\",\n                \"id\": 77\n            }\n        ],\n        \"support_ticket_id\": \"tkt_onboarding_abc123\",\n        \"mlhub_user_id\": 1024,\n        \"mlhub_workspace_id\": 512,\n        \"mlhub_business_id\": 256,\n        \"partner_confirmed_at\": null,\n        \"assigned_consultant_id\": null,\n        \"last_synced_at\": null\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
                         },
                         {
                             "name": "200 · Đã đăng ký trước đó",
@@ -854,7 +854,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"request_id\": \"req_9f8b2c14\",\n        \"external_business_id\": \"fiza-store-001\",\n        \"external_user_id\": \"fiza-owner-001\",\n        \"username\": \"vankhoa\",\n        \"account_created\": false,\n        \"business_created\": false,\n        \"integration_created\": false,\n        \"already_registered\": true,\n        \"status\": \"awaiting_consultant\",\n        \"current_step\": \"awaiting_consultant\",\n        \"status_label\": \"Chờ tư vấn viên liên hệ\",\n        \"timeline\": [\n            {\n                \"code\": \"account_created\",\n                \"label\": \"Đã tạo tài khoản và cơ sở\",\n                \"description\": \"Tài khoản MLHUB và cơ sở đã được khởi tạo.\",\n                \"status\": \"completed\",\n                \"completed_at\": \"2026-07-21T01:00:00+00:00\"\n            },\n            {\n                \"code\": \"awaiting_consultant\",\n                \"label\": \"Chờ tư vấn viên liên hệ\",\n                \"description\": \"MLHUB đang tiếp nhận và kiểm tra yêu cầu.\",\n                \"status\": \"current\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"in_consultation\",\n                \"label\": \"Đang tư vấn nhu cầu\",\n                \"description\": \"Tư vấn viên đang làm rõ mục tiêu tăng trưởng.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"configuring\",\n                \"label\": \"Đang cấu hình Marketing\",\n                \"description\": \"MLHUB đang cấu hình các công cụ Marketing.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"ready\",\n                \"label\": \"Sẵn sàng sử dụng\",\n                \"description\": \"Doanh nghiệp có thể truy cập CRM MLHUB.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            }\n        ],\n        \"requested_package_code\": \"base\",\n        \"approved_package_code\": null,\n        \"package_code\": \"free\",\n        \"duplicate_check\": [],\n        \"support_ticket_id\": \"tkt_onboarding_abc123\",\n        \"mlhub_user_id\": 1024,\n        \"mlhub_workspace_id\": 512,\n        \"mlhub_business_id\": 256,\n        \"partner_confirmed_at\": null,\n        \"assigned_consultant_id\": null,\n        \"last_synced_at\": null\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
+                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"request_id\": \"req_9f8b2c14\",\n        \"external_business_id\": \"fiza-store-001\",\n        \"external_user_id\": \"fiza-owner-001\",\n        \"username\": \"vankhoa\",\n        \"account_created\": false,\n        \"business_created\": false,\n        \"integration_created\": false,\n        \"already_registered\": true,\n        \"status\": \"awaiting_consultant\",\n        \"current_step\": \"awaiting_consultant\",\n        \"status_label\": \"Chờ tư vấn viên liên hệ\",\n        \"timeline\": [\n            {\n                \"code\": \"account_created\",\n                \"label\": \"Đã tạo tài khoản và cơ sở\",\n                \"description\": \"Tài khoản MKT và cơ sở đã được khởi tạo.\",\n                \"status\": \"completed\",\n                \"completed_at\": \"2026-07-21T01:00:00+00:00\"\n            },\n            {\n                \"code\": \"awaiting_consultant\",\n                \"label\": \"Chờ tư vấn viên liên hệ\",\n                \"description\": \"MKT đang tiếp nhận và kiểm tra yêu cầu.\",\n                \"status\": \"current\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"in_consultation\",\n                \"label\": \"Đang tư vấn nhu cầu\",\n                \"description\": \"Tư vấn viên đang làm rõ mục tiêu tăng trưởng.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"configuring\",\n                \"label\": \"Đang cấu hình Marketing\",\n                \"description\": \"MKT đang cấu hình các công cụ Marketing.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"ready\",\n                \"label\": \"Sẵn sàng sử dụng\",\n                \"description\": \"Doanh nghiệp có thể truy cập CRM MKT.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            }\n        ],\n        \"requested_package_code\": \"base\",\n        \"approved_package_code\": null,\n        \"package_code\": \"free\",\n        \"duplicate_check\": [],\n        \"support_ticket_id\": \"tkt_onboarding_abc123\",\n        \"mlhub_user_id\": 1024,\n        \"mlhub_workspace_id\": 512,\n        \"mlhub_business_id\": 256,\n        \"partner_confirmed_at\": null,\n        \"assigned_consultant_id\": null,\n        \"last_synced_at\": null\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
                         },
                         {
                             "name": "409 · Email đã tồn tại",
@@ -919,7 +919,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"email_already_registered\",\n        \"message\": \"Địa chỉ email này đã được đăng ký trên MLHUB.\",\n        \"details\": {\n            \"next_action\": \"use_existing_account_or_contact_support\"\n        }\n    }\n}"
+                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"email_already_registered\",\n        \"message\": \"Địa chỉ email này đã được đăng ký trên MKT.\",\n        \"details\": {\n            \"next_action\": \"use_existing_account_or_contact_support\"\n        }\n    }\n}"
                         },
                         {
                             "name": "409 · Email không khớp mapping",
@@ -984,7 +984,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"onboarding_email_mismatch\",\n        \"message\": \"Doanh nghiệp đã liên kết với một email khác trên MLHUB.\",\n        \"details\": {\n            \"next_action\": \"contact_support\"\n        }\n    }\n}"
+                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"onboarding_email_mismatch\",\n        \"message\": \"Doanh nghiệp đã liên kết với một email khác trên MKT.\",\n        \"details\": {\n            \"next_action\": \"contact_support\"\n        }\n    }\n}"
                         },
                         {
                             "name": "422 · Sai dữ liệu",
@@ -1114,7 +1114,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"default_plan_not_found\",\n        \"message\": \"Gói Free mặc định chưa được cấu hình trên MLHUB.\",\n        \"details\": {}\n    }\n}"
+                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"default_plan_not_found\",\n        \"message\": \"Gói Free mặc định chưa được cấu hình trên MKT.\",\n        \"details\": {}\n    }\n}"
                         }
                     ]
                 },
@@ -1126,7 +1126,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -1136,7 +1136,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -1228,7 +1228,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"request_id\": \"req_9f8b2c14\",\n        \"external_business_id\": \"fiza-store-001\",\n        \"external_user_id\": \"fiza-owner-001\",\n        \"username\": \"vankhoa\",\n        \"account_created\": true,\n        \"business_created\": true,\n        \"integration_created\": true,\n        \"already_registered\": false,\n        \"status\": \"awaiting_consultant\",\n        \"current_step\": \"awaiting_consultant\",\n        \"status_label\": \"Chờ tư vấn viên liên hệ\",\n        \"timeline\": [\n            {\n                \"code\": \"account_created\",\n                \"label\": \"Đã tạo tài khoản và cơ sở\",\n                \"description\": \"Tài khoản MLHUB và cơ sở đã được khởi tạo.\",\n                \"status\": \"completed\",\n                \"completed_at\": \"2026-07-21T01:00:00+00:00\"\n            },\n            {\n                \"code\": \"awaiting_consultant\",\n                \"label\": \"Chờ tư vấn viên liên hệ\",\n                \"description\": \"MLHUB đang tiếp nhận và kiểm tra yêu cầu.\",\n                \"status\": \"current\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"in_consultation\",\n                \"label\": \"Đang tư vấn nhu cầu\",\n                \"description\": \"Tư vấn viên đang làm rõ mục tiêu tăng trưởng.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"configuring\",\n                \"label\": \"Đang cấu hình Marketing\",\n                \"description\": \"MLHUB đang cấu hình các công cụ Marketing.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"ready\",\n                \"label\": \"Sẵn sàng sử dụng\",\n                \"description\": \"Doanh nghiệp có thể truy cập CRM MLHUB.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            }\n        ],\n        \"requested_package_code\": \"base\",\n        \"approved_package_code\": null,\n        \"package_code\": \"free\",\n        \"duplicate_check\": [],\n        \"support_ticket_id\": \"tkt_onboarding_abc123\",\n        \"mlhub_user_id\": 1024,\n        \"mlhub_workspace_id\": 512,\n        \"mlhub_business_id\": 256,\n        \"partner_confirmed_at\": null,\n        \"assigned_consultant_id\": null,\n        \"last_synced_at\": null\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
+                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"request_id\": \"req_9f8b2c14\",\n        \"external_business_id\": \"fiza-store-001\",\n        \"external_user_id\": \"fiza-owner-001\",\n        \"username\": \"vankhoa\",\n        \"account_created\": true,\n        \"business_created\": true,\n        \"integration_created\": true,\n        \"already_registered\": false,\n        \"status\": \"awaiting_consultant\",\n        \"current_step\": \"awaiting_consultant\",\n        \"status_label\": \"Chờ tư vấn viên liên hệ\",\n        \"timeline\": [\n            {\n                \"code\": \"account_created\",\n                \"label\": \"Đã tạo tài khoản và cơ sở\",\n                \"description\": \"Tài khoản MKT và cơ sở đã được khởi tạo.\",\n                \"status\": \"completed\",\n                \"completed_at\": \"2026-07-21T01:00:00+00:00\"\n            },\n            {\n                \"code\": \"awaiting_consultant\",\n                \"label\": \"Chờ tư vấn viên liên hệ\",\n                \"description\": \"MKT đang tiếp nhận và kiểm tra yêu cầu.\",\n                \"status\": \"current\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"in_consultation\",\n                \"label\": \"Đang tư vấn nhu cầu\",\n                \"description\": \"Tư vấn viên đang làm rõ mục tiêu tăng trưởng.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"configuring\",\n                \"label\": \"Đang cấu hình Marketing\",\n                \"description\": \"MKT đang cấu hình các công cụ Marketing.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            },\n            {\n                \"code\": \"ready\",\n                \"label\": \"Sẵn sàng sử dụng\",\n                \"description\": \"Doanh nghiệp có thể truy cập CRM MKT.\",\n                \"status\": \"pending\",\n                \"completed_at\": null\n            }\n        ],\n        \"requested_package_code\": \"base\",\n        \"approved_package_code\": null,\n        \"package_code\": \"free\",\n        \"duplicate_check\": [],\n        \"support_ticket_id\": \"tkt_onboarding_abc123\",\n        \"mlhub_user_id\": 1024,\n        \"mlhub_workspace_id\": 512,\n        \"mlhub_business_id\": 256,\n        \"partner_confirmed_at\": null,\n        \"assigned_consultant_id\": null,\n        \"last_synced_at\": null\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
                         },
                         {
                             "name": "200 · ready (cho phép CRM login)",
@@ -1277,7 +1277,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"request_id\": \"req_9f8b2c14\",\n        \"external_business_id\": \"fiza-store-001\",\n        \"external_user_id\": \"fiza-owner-001\",\n        \"username\": \"vankhoa\",\n        \"account_created\": true,\n        \"business_created\": true,\n        \"integration_created\": true,\n        \"already_registered\": false,\n        \"status\": \"ready\",\n        \"current_step\": \"ready\",\n        \"status_label\": \"Sẵn sàng sử dụng\",\n        \"timeline\": [\n            {\n                \"code\": \"account_created\",\n                \"label\": \"Đã tạo tài khoản và cơ sở\",\n                \"description\": \"Tài khoản MLHUB và cơ sở đã được khởi tạo.\",\n                \"status\": \"completed\",\n                \"completed_at\": \"2026-07-21T01:00:00+00:00\"\n            },\n            {\n                \"code\": \"awaiting_consultant\",\n                \"label\": \"Chờ tư vấn viên liên hệ\",\n                \"description\": \"MLHUB đang tiếp nhận và kiểm tra yêu cầu.\",\n                \"status\": \"completed\",\n                \"completed_at\": \"2026-07-21T02:00:00+00:00\"\n            },\n            {\n                \"code\": \"in_consultation\",\n                \"label\": \"Đang tư vấn nhu cầu\",\n                \"description\": \"Tư vấn viên đang làm rõ mục tiêu tăng trưởng.\",\n                \"status\": \"completed\",\n                \"completed_at\": \"2026-07-21T03:00:00+00:00\"\n            },\n            {\n                \"code\": \"configuring\",\n                \"label\": \"Đang cấu hình Marketing\",\n                \"description\": \"MLHUB đang cấu hình các công cụ Marketing.\",\n                \"status\": \"completed\",\n                \"completed_at\": \"2026-07-21T04:00:00+00:00\"\n            },\n            {\n                \"code\": \"ready\",\n                \"label\": \"Sẵn sàng sử dụng\",\n                \"description\": \"Doanh nghiệp có thể truy cập CRM MLHUB.\",\n                \"status\": \"current\",\n                \"completed_at\": null\n            }\n        ],\n        \"requested_package_code\": \"base\",\n        \"approved_package_code\": null,\n        \"package_code\": \"free\",\n        \"duplicate_check\": [],\n        \"support_ticket_id\": \"tkt_onboarding_abc123\",\n        \"mlhub_user_id\": 1024,\n        \"mlhub_workspace_id\": 512,\n        \"mlhub_business_id\": 256,\n        \"partner_confirmed_at\": null,\n        \"assigned_consultant_id\": null,\n        \"last_synced_at\": null\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
+                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"request_id\": \"req_9f8b2c14\",\n        \"external_business_id\": \"fiza-store-001\",\n        \"external_user_id\": \"fiza-owner-001\",\n        \"username\": \"vankhoa\",\n        \"account_created\": true,\n        \"business_created\": true,\n        \"integration_created\": true,\n        \"already_registered\": false,\n        \"status\": \"ready\",\n        \"current_step\": \"ready\",\n        \"status_label\": \"Sẵn sàng sử dụng\",\n        \"timeline\": [\n            {\n                \"code\": \"account_created\",\n                \"label\": \"Đã tạo tài khoản và cơ sở\",\n                \"description\": \"Tài khoản MKT và cơ sở đã được khởi tạo.\",\n                \"status\": \"completed\",\n                \"completed_at\": \"2026-07-21T01:00:00+00:00\"\n            },\n            {\n                \"code\": \"awaiting_consultant\",\n                \"label\": \"Chờ tư vấn viên liên hệ\",\n                \"description\": \"MKT đang tiếp nhận và kiểm tra yêu cầu.\",\n                \"status\": \"completed\",\n                \"completed_at\": \"2026-07-21T02:00:00+00:00\"\n            },\n            {\n                \"code\": \"in_consultation\",\n                \"label\": \"Đang tư vấn nhu cầu\",\n                \"description\": \"Tư vấn viên đang làm rõ mục tiêu tăng trưởng.\",\n                \"status\": \"completed\",\n                \"completed_at\": \"2026-07-21T03:00:00+00:00\"\n            },\n            {\n                \"code\": \"configuring\",\n                \"label\": \"Đang cấu hình Marketing\",\n                \"description\": \"MKT đang cấu hình các công cụ Marketing.\",\n                \"status\": \"completed\",\n                \"completed_at\": \"2026-07-21T04:00:00+00:00\"\n            },\n            {\n                \"code\": \"ready\",\n                \"label\": \"Sẵn sàng sử dụng\",\n                \"description\": \"Doanh nghiệp có thể truy cập CRM MKT.\",\n                \"status\": \"current\",\n                \"completed_at\": null\n            }\n        ],\n        \"requested_package_code\": \"base\",\n        \"approved_package_code\": null,\n        \"package_code\": \"free\",\n        \"duplicate_check\": [],\n        \"support_ticket_id\": \"tkt_onboarding_abc123\",\n        \"mlhub_user_id\": 1024,\n        \"mlhub_workspace_id\": 512,\n        \"mlhub_business_id\": 256,\n        \"partner_confirmed_at\": null,\n        \"assigned_consultant_id\": null,\n        \"last_synced_at\": null\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
                         },
                         {
                             "name": "404 · Không tìm thấy request",
@@ -1338,7 +1338,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -1348,7 +1348,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -1583,7 +1583,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa tìm thấy liên kết doanh nghiệp với MLHUB.\",\n        \"details\": {\n            \"next_action\": \"create_onboarding_request\"\n        }\n    }\n}"
+                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa tìm thấy liên kết doanh nghiệp với MKT.\",\n        \"details\": {\n            \"next_action\": \"create_onboarding_request\"\n        }\n    }\n}"
                         }
                     ]
                 },
@@ -1595,7 +1595,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -1605,7 +1605,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -1780,7 +1780,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa tìm thấy liên kết doanh nghiệp với MLHUB.\",\n        \"details\": {\n            \"next_action\": \"create_onboarding_request\"\n        }\n    }\n}"
+                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa tìm thấy liên kết doanh nghiệp với MKT.\",\n        \"details\": {\n            \"next_action\": \"create_onboarding_request\"\n        }\n    }\n}"
                         },
                         {
                             "name": "422 · Gửi trường cấm",
@@ -1859,7 +1859,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -1869,7 +1869,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -2111,7 +2111,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa tìm thấy liên kết doanh nghiệp với MLHUB.\",\n        \"details\": {\n            \"next_action\": \"create_onboarding_request\"\n        }\n    }\n}"
+                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa tìm thấy liên kết doanh nghiệp với MKT.\",\n        \"details\": {\n            \"next_action\": \"create_onboarding_request\"\n        }\n    }\n}"
                         }
                     ]
                 }
@@ -2129,7 +2129,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -2139,7 +2139,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -2487,7 +2487,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa tìm thấy liên kết doanh nghiệp với MLHUB.\",\n        \"details\": {\n            \"next_action\": \"create_onboarding_request\"\n        }\n    }\n}"
+                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa tìm thấy liên kết doanh nghiệp với MKT.\",\n        \"details\": {\n            \"next_action\": \"create_onboarding_request\"\n        }\n    }\n}"
                         }
                     ]
                 },
@@ -2499,7 +2499,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -2509,7 +2509,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -2689,7 +2689,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa tìm thấy liên kết doanh nghiệp với MLHUB.\",\n        \"details\": {\n            \"next_action\": \"create_onboarding_request\"\n        }\n    }\n}"
+                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa tìm thấy liên kết doanh nghiệp với MKT.\",\n        \"details\": {\n            \"next_action\": \"create_onboarding_request\"\n        }\n    }\n}"
                         }
                     ]
                 },
@@ -2701,7 +2701,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -2711,7 +2711,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -3071,7 +3071,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa tìm thấy liên kết doanh nghiệp với MLHUB.\",\n        \"details\": {\n            \"next_action\": \"create_onboarding_request\"\n        }\n    }\n}"
+                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa tìm thấy liên kết doanh nghiệp với MKT.\",\n        \"details\": {\n            \"next_action\": \"create_onboarding_request\"\n        }\n    }\n}"
                         }
                     ]
                 },
@@ -3083,7 +3083,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -3093,7 +3093,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -3219,7 +3219,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"campaign_id\": 88,\n        \"name\": \"QR Check-in quầy thu ngân\",\n        \"status\": \"active\",\n        \"objective\": \"qr_checkin\",\n        \"period\": {\n            \"from\": \"2026-06-22\",\n            \"to\": \"2026-07-21\",\n            \"timezone\": \"Asia/Ho_Chi_Minh\"\n        },\n        \"metrics\": {\n            \"scans\": 45,\n            \"leads\": 12,\n            \"reviews\": 5,\n            \"coupons\": 4,\n            \"bookings\": 1,\n            \"feedback\": 1,\n            \"conversions\": 20,\n            \"conversion_rate\": 44.44\n        },\n        \"qr_scans\": 45,\n        \"qr_scan_change\": 0,\n        \"valid_leads\": 12,\n        \"conversion_rate\": 44.44,\n        \"last_synced_at\": \"2026-07-21T01:00:00+00:00\",\n        \"recommendations\": [\n            {\n                \"code\": \"campaign_review\",\n                \"label\": \"Yêu cầu điều chỉnh\",\n                \"description\": \"Gửi yêu cầu để MLHUB rà soát và điều chỉnh chiến dịch.\",\n                \"preset_code\": \"campaign_request\",\n                \"campaign_id\": \"88\"\n            }\n        ],\n        \"campaign\": {\n            \"campaign_id\": 88,\n            \"name\": \"QR Check-in quầy thu ngân\",\n            \"status\": \"active\",\n            \"published_at\": \"2026-07-01T00:00:00+00:00\",\n            \"created_at\": \"2026-06-30T00:00:00+00:00\"\n        },\n        \"trend\": [\n            {\n                \"date\": \"2026-07-20\",\n                \"scans\": 3,\n                \"leads\": 1,\n                \"reviews\": 0,\n                \"coupons\": 0,\n                \"bookings\": 0,\n                \"feedback\": 0\n            }\n        ]\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
+                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"campaign_id\": 88,\n        \"name\": \"QR Check-in quầy thu ngân\",\n        \"status\": \"active\",\n        \"objective\": \"qr_checkin\",\n        \"period\": {\n            \"from\": \"2026-06-22\",\n            \"to\": \"2026-07-21\",\n            \"timezone\": \"Asia/Ho_Chi_Minh\"\n        },\n        \"metrics\": {\n            \"scans\": 45,\n            \"leads\": 12,\n            \"reviews\": 5,\n            \"coupons\": 4,\n            \"bookings\": 1,\n            \"feedback\": 1,\n            \"conversions\": 20,\n            \"conversion_rate\": 44.44\n        },\n        \"qr_scans\": 45,\n        \"qr_scan_change\": 0,\n        \"valid_leads\": 12,\n        \"conversion_rate\": 44.44,\n        \"last_synced_at\": \"2026-07-21T01:00:00+00:00\",\n        \"recommendations\": [\n            {\n                \"code\": \"campaign_review\",\n                \"label\": \"Yêu cầu điều chỉnh\",\n                \"description\": \"Gửi yêu cầu để MKT rà soát và điều chỉnh chiến dịch.\",\n                \"preset_code\": \"campaign_request\",\n                \"campaign_id\": \"88\"\n            }\n        ],\n        \"campaign\": {\n            \"campaign_id\": 88,\n            \"name\": \"QR Check-in quầy thu ngân\",\n            \"status\": \"active\",\n            \"published_at\": \"2026-07-01T00:00:00+00:00\",\n            \"created_at\": \"2026-06-30T00:00:00+00:00\"\n        },\n        \"trend\": [\n            {\n                \"date\": \"2026-07-20\",\n                \"scans\": 3,\n                \"leads\": 1,\n                \"reviews\": 0,\n                \"coupons\": 0,\n                \"bookings\": 0,\n                \"feedback\": 0\n            }\n        ]\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
                         },
                         {
                             "name": "404 · Không tìm thấy chiến dịch",
@@ -3302,7 +3302,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -3312,7 +3312,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -3654,7 +3654,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -3664,7 +3664,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -3787,7 +3787,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa tìm thấy liên kết doanh nghiệp với MLHUB.\",\n        \"details\": {\n            \"next_action\": \"create_onboarding_request\"\n        }\n    }\n}"
+                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa tìm thấy liên kết doanh nghiệp với MKT.\",\n        \"details\": {\n            \"next_action\": \"create_onboarding_request\"\n        }\n    }\n}"
                         },
                         {
                             "name": "409 · Mapping hỏng",
@@ -3837,7 +3837,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_broken\",\n        \"message\": \"Liên kết doanh nghiệp bị hỏng, cần hỗ trợ MLHUB.\",\n        \"details\": {\n            \"next_action\": \"contact_support\"\n        }\n    }\n}"
+                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_broken\",\n        \"message\": \"Liên kết doanh nghiệp bị hỏng, cần hỗ trợ MKT.\",\n        \"details\": {\n            \"next_action\": \"contact_support\"\n        }\n    }\n}"
                         }
                     ]
                 }
@@ -3855,7 +3855,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -3865,7 +3865,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -3938,7 +3938,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"items\": [\n            {\n                \"preset_code\": \"qr_scan_not_recorded\",\n                \"subject\": \"QR check-in không ghi nhận lượt quét\",\n                \"subject_locked\": true,\n                \"description\": \"Doanh nghiệp phản ánh mã QR check-in không phát sinh lượt quét nào.\",\n                \"ticket_type\": \"support\",\n                \"required_context\": [\n                    \"related_resource\"\n                ],\n                \"sla_hours\": 24,\n                \"response_channels\": [\n                    \"in_app\",\n                    \"phone\"\n                ],\n                \"requires_campaign\": false\n            },\n            {\n                \"preset_code\": \"growth_recommendation\",\n                \"subject\": \"Yêu cầu hỗ trợ đề xuất tăng trưởng\",\n                \"subject_locked\": true,\n                \"description\": \"Doanh nghiệp muốn MLHUB hỗ trợ triển khai đề xuất tăng trưởng.\",\n                \"ticket_type\": \"support\",\n                \"required_context\": [],\n                \"sla_hours\": 24,\n                \"response_channels\": [\n                    \"in_app\",\n                    \"phone\"\n                ],\n                \"requires_campaign\": false\n            },\n            {\n                \"preset_code\": \"campaign_request\",\n                \"subject\": \"Yêu cầu điều chỉnh chiến dịch\",\n                \"subject_locked\": true,\n                \"description\": \"Yêu cầu MLHUB rà soát một chiến dịch cụ thể.\",\n                \"ticket_type\": \"campaign_request\",\n                \"required_context\": [\n                    \"campaign_id\"\n                ],\n                \"sla_hours\": 24,\n                \"response_channels\": [\n                    \"in_app\",\n                    \"phone\"\n                ],\n                \"requires_campaign\": true\n            },\n            {\n                \"preset_code\": \"package_upgrade\",\n                \"subject\": \"Yêu cầu nâng cấp gói Marketing\",\n                \"subject_locked\": true,\n                \"description\": \"Doanh nghiệp muốn tư vấn nâng cấp gói.\",\n                \"ticket_type\": \"support\",\n                \"required_context\": [],\n                \"sla_hours\": 24,\n                \"response_channels\": [\n                    \"in_app\",\n                    \"phone\"\n                ],\n                \"requires_campaign\": false\n            }\n        ]\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
+                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"items\": [\n            {\n                \"preset_code\": \"qr_scan_not_recorded\",\n                \"subject\": \"QR check-in không ghi nhận lượt quét\",\n                \"subject_locked\": true,\n                \"description\": \"Doanh nghiệp phản ánh mã QR check-in không phát sinh lượt quét nào.\",\n                \"ticket_type\": \"support\",\n                \"required_context\": [\n                    \"related_resource\"\n                ],\n                \"sla_hours\": 24,\n                \"response_channels\": [\n                    \"in_app\",\n                    \"phone\"\n                ],\n                \"requires_campaign\": false\n            },\n            {\n                \"preset_code\": \"growth_recommendation\",\n                \"subject\": \"Yêu cầu hỗ trợ đề xuất tăng trưởng\",\n                \"subject_locked\": true,\n                \"description\": \"Doanh nghiệp muốn MKT hỗ trợ triển khai đề xuất tăng trưởng.\",\n                \"ticket_type\": \"support\",\n                \"required_context\": [],\n                \"sla_hours\": 24,\n                \"response_channels\": [\n                    \"in_app\",\n                    \"phone\"\n                ],\n                \"requires_campaign\": false\n            },\n            {\n                \"preset_code\": \"campaign_request\",\n                \"subject\": \"Yêu cầu điều chỉnh chiến dịch\",\n                \"subject_locked\": true,\n                \"description\": \"Yêu cầu MKT rà soát một chiến dịch cụ thể.\",\n                \"ticket_type\": \"campaign_request\",\n                \"required_context\": [\n                    \"campaign_id\"\n                ],\n                \"sla_hours\": 24,\n                \"response_channels\": [\n                    \"in_app\",\n                    \"phone\"\n                ],\n                \"requires_campaign\": true\n            },\n            {\n                \"preset_code\": \"package_upgrade\",\n                \"subject\": \"Yêu cầu nâng cấp gói Marketing\",\n                \"subject_locked\": true,\n                \"description\": \"Doanh nghiệp muốn tư vấn nâng cấp gói.\",\n                \"ticket_type\": \"support\",\n                \"required_context\": [],\n                \"sla_hours\": 24,\n                \"response_channels\": [\n                    \"in_app\",\n                    \"phone\"\n                ],\n                \"requires_campaign\": false\n            }\n        ]\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
                         },
                         {
                             "name": "404 · Chưa liên kết",
@@ -3988,7 +3988,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa tìm thấy liên kết doanh nghiệp với MLHUB.\",\n        \"details\": {\n            \"next_action\": \"create_onboarding_request\"\n        }\n    }\n}"
+                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa tìm thấy liên kết doanh nghiệp với MKT.\",\n        \"details\": {\n            \"next_action\": \"create_onboarding_request\"\n        }\n    }\n}"
                         }
                     ]
                 },
@@ -4000,7 +4000,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -4010,7 +4010,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -4411,7 +4411,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -4421,7 +4421,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -4635,7 +4635,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa tìm thấy liên kết doanh nghiệp với MLHUB.\",\n        \"details\": {\n            \"next_action\": \"create_onboarding_request\"\n        }\n    }\n}"
+                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa tìm thấy liên kết doanh nghiệp với MKT.\",\n        \"details\": {\n            \"next_action\": \"create_onboarding_request\"\n        }\n    }\n}"
                         }
                     ]
                 },
@@ -4647,7 +4647,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -4657,7 +4657,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -4759,7 +4759,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"ticket_id\": \"tkt_7de1f9a4c0\",\n        \"ticket_type\": \"support\",\n        \"source\": \"fizahub\",\n        \"preset_code\": \"qr_scan_not_recorded\",\n        \"campaign_id\": null,\n        \"subject\": \"QR check-in không ghi nhận lượt quét\",\n        \"status\": \"open\",\n        \"last_message\": \"QR đã đặt tại quầy nhưng dashboard chưa cập nhật lượt quét.\",\n        \"created_at\": \"2026-07-21T01:05:00+00:00\",\n        \"updated_at\": \"2026-07-21T01:05:00+00:00\",\n        \"last_message_at\": \"2026-07-21T01:20:00+00:00\",\n        \"unread_by_business\": false,\n        \"messages\": [\n            {\n                \"message_id\": \"tkt_7de1f9a4c0:initial\",\n                \"sender_type\": \"business\",\n                \"body\": \"QR đã đặt tại quầy nhưng dashboard chưa cập nhật lượt quét.\",\n                \"created_at\": \"2026-07-21T01:05:00+00:00\"\n            },\n            {\n                \"message_id\": \"cmt_1a2b3c\",\n                \"sender_type\": \"admin\",\n                \"body\": \"MLHUB đang kiểm tra, sẽ phản hồi trong 24h.\",\n                \"created_at\": \"2026-07-21T01:20:00+00:00\"\n            }\n        ],\n        \"next_poll_after_seconds\": 15\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
+                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"ticket_id\": \"tkt_7de1f9a4c0\",\n        \"ticket_type\": \"support\",\n        \"source\": \"fizahub\",\n        \"preset_code\": \"qr_scan_not_recorded\",\n        \"campaign_id\": null,\n        \"subject\": \"QR check-in không ghi nhận lượt quét\",\n        \"status\": \"open\",\n        \"last_message\": \"QR đã đặt tại quầy nhưng dashboard chưa cập nhật lượt quét.\",\n        \"created_at\": \"2026-07-21T01:05:00+00:00\",\n        \"updated_at\": \"2026-07-21T01:05:00+00:00\",\n        \"last_message_at\": \"2026-07-21T01:20:00+00:00\",\n        \"unread_by_business\": false,\n        \"messages\": [\n            {\n                \"message_id\": \"tkt_7de1f9a4c0:initial\",\n                \"sender_type\": \"business\",\n                \"body\": \"QR đã đặt tại quầy nhưng dashboard chưa cập nhật lượt quét.\",\n                \"created_at\": \"2026-07-21T01:05:00+00:00\"\n            },\n            {\n                \"message_id\": \"cmt_1a2b3c\",\n                \"sender_type\": \"admin\",\n                \"body\": \"MKT đang kiểm tra, sẽ phản hồi trong 24h.\",\n                \"created_at\": \"2026-07-21T01:20:00+00:00\"\n            }\n        ],\n        \"next_poll_after_seconds\": 15\n    },\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": null\n}"
                         },
                         {
                             "name": "404 · Không tìm thấy ticket",
@@ -4830,7 +4830,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -4840,7 +4840,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -5113,7 +5113,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -5123,7 +5123,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -5396,7 +5396,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -5406,7 +5406,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -5679,7 +5679,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -5689,7 +5689,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -5713,7 +5713,7 @@
                                 "attachments"
                             ]
                         },
-                        "description": "**Màn hình 14 — Tệp đính kèm của ticket.** Danh sách tệp cả hai chiều (business tải lên và admin MLHUB đính kèm khi trả lời).\n\n**Path param:** `ticket_id` (tự lấy từ bước 16/17).\n\n`sender_type`: `business` | `admin`. Dùng `download_url` (hoặc bước 24) để tải tệp (cần Bearer + X-Partner).\n\nMọi item có `extension` (đuôi file, không có dấu chấm — ví dụ `jpg`, `png`, `pdf`).\n\nNếu `mime_type` là ảnh (`image/*`) thì có thêm `image_url`: URL ký tạm, **đuôi thật** (`preview.jpg`…), **không cần** header partner — app đưa thẳng vào `<img>` / ImageView trên màn tư vấn. Hết hạn thì gọi lại List để lấy URL mới. Tệp không phải ảnh → `image_url = null`.\n\n**HTTP:** `200` | `404 ticket_not_found` / `integration_not_found`."
+                        "description": "**Màn hình 14 — Tệp đính kèm của ticket.** Danh sách tệp cả hai chiều (business tải lên và admin MKT đính kèm khi trả lời).\n\n**Path param:** `ticket_id` (tự lấy từ bước 16/17).\n\n`sender_type`: `business` | `admin`. Dùng `download_url` (hoặc bước 24) để tải tệp (cần Bearer + X-Partner).\n\nMọi item có `extension` (đuôi file, không có dấu chấm — ví dụ `jpg`, `png`, `pdf`).\n\nNếu `mime_type` là ảnh (`image/*`) thì có thêm `image_url`: URL ký tạm, **đuôi thật** (`preview.jpg`…), **không cần** header partner — app đưa thẳng vào `<img>` / ImageView trên màn tư vấn. Hết hạn thì gọi lại List để lấy URL mới. Tệp không phải ảnh → `image_url = null`.\n\n**HTTP:** `200` | `404 ticket_not_found` / `integration_not_found`."
                     },
                     "event": [
                         {
@@ -5841,7 +5841,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -5851,7 +5851,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -5891,7 +5891,7 @@
                                 "attachments"
                             ]
                         },
-                        "description": "**Màn hình 14 — Gửi tệp đính kèm vào ticket.** `multipart/form-data`, field `file` (đúng 1 tệp / request).\n\n**Loại được hỗ trợ (3 nhóm):** ảnh `jpg/jpeg/png/webp/gif`; video `mp4/mov/webm`; tài liệu `pdf/doc/docx/xls/xlsx`. **Không** nhận zip / txt / csv / ppt / avi.\n**Dung lượng:** mặc định tối đa 25MB (ảnh/tài liệu) hoặc 100MB (video) — MLHUB có thể chỉnh qua cấu hình server.\nServer tự dò MIME thật theo nội dung file (không tin `Content-Type` client gửi) và đối chiếu song song với đuôi file.\nChỉ gửi được khi ticket đang `open`.\n\n**HTTP:**\n- `201`: tải lên thành công, trả về `attachment_id` + `extension` + `download_url` (+ `image_url` ký tạm nếu là ảnh).\n- `422 attachment_type_not_allowed`: sai định dạng/đuôi file.\n- `422 attachment_too_large`: vượt dung lượng cho phép.\n- `409 ticket_not_open`: ticket đã đóng/đã xử lý.\n- `404 ticket_not_found` / `integration_not_found`.\n- `503 support_attachments_unavailable`: tính năng chưa sẵn sàng trên môi trường này."
+                        "description": "**Màn hình 14 — Gửi tệp đính kèm vào ticket.** `multipart/form-data`, field `file` (đúng 1 tệp / request).\n\n**Loại được hỗ trợ (3 nhóm):** ảnh `jpg/jpeg/png/webp/gif`; video `mp4/mov/webm`; tài liệu `pdf/doc/docx/xls/xlsx`. **Không** nhận zip / txt / csv / ppt / avi.\n**Dung lượng:** mặc định tối đa 25MB (ảnh/tài liệu) hoặc 100MB (video) — MKT có thể chỉnh qua cấu hình server.\nServer tự dò MIME thật theo nội dung file (không tin `Content-Type` client gửi) và đối chiếu song song với đuôi file.\nChỉ gửi được khi ticket đang `open`.\n\n**HTTP:**\n- `201`: tải lên thành công, trả về `attachment_id` + `extension` + `download_url` (+ `image_url` ký tạm nếu là ảnh).\n- `422 attachment_type_not_allowed`: sai định dạng/đuôi file.\n- `422 attachment_too_large`: vượt dung lượng cho phép.\n- `409 ticket_not_open`: ticket đã đóng/đã xử lý.\n- `404 ticket_not_found` / `integration_not_found`.\n- `503 support_attachments_unavailable`: tính năng chưa sẵn sàng trên môi trường này."
                     },
                     "event": [
                         {
@@ -6260,7 +6260,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -6270,7 +6270,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -6378,7 +6378,7 @@
                             {
                                 "key": "Authorization",
                                 "value": "Bearer {{partner_token}}",
-                                "description": "Token đối tác do MLHUB cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
+                                "description": "Token đối tác do MKT cấp. ĐÃ điền sẵn trong collection này, không cần nhập tay."
                             },
                             {
                                 "key": "X-Partner",
@@ -6388,7 +6388,7 @@
                             {
                                 "key": "X-Request-Id",
                                 "value": "{{$guid}}",
-                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MLHUB."
+                                "description": "UUID mới mỗi lần gọi (Postman tự sinh). Dùng để truy vết trong log MKT."
                             },
                             {
                                 "key": "Accept",
@@ -6428,7 +6428,7 @@
                                 "crm-login-links"
                             ]
                         },
-                        "description": "**Màn hình 15 — Truy cập CRM MLHUB.** Tạo link đăng nhập dùng một lần, có hạn (mặc định 5 phút).\n\n**Điều kiện:** onboarding mới nhất phải `ready` hoặc `completed` (`is_ready=true` ở bước 06).\n**Body:** gửi `{}`. Cùng Idempotency-Key trả lại cùng link khi còn hiệu lực / chưa dùng.\n\n**HTTP:**\n- `201`: trả `url`, `expires_at`, `expires_in_seconds`.\n- `409 onboarding_not_ready`: chưa sẵn sàng.\n- `409 crm_login_link_not_reusable`: link đã dùng/hết hạn → cần Idempotency-Key mới (`next_action=new_idempotency_key`).\n- `404 integration_not_found`.\n\n*Collection tự bỏ qua nếu `onboarding_ready` chưa = 1.*"
+                        "description": "**Màn hình 15 — Truy cập CRM MKT.** Tạo link đăng nhập dùng một lần, có hạn (mặc định 5 phút).\n\n**Điều kiện:** onboarding mới nhất phải `ready` hoặc `completed` (`is_ready=true` ở bước 06).\n**Body:** gửi `{}`. Cùng Idempotency-Key trả lại cùng link khi còn hiệu lực / chưa dùng.\n\n**HTTP:**\n- `201`: trả `url`, `expires_at`, `expires_in_seconds`.\n- `409 onboarding_not_ready`: chưa sẵn sàng.\n- `409 crm_login_link_not_reusable`: link đã dùng/hết hạn → cần Idempotency-Key mới (`next_action=new_idempotency_key`).\n- `404 integration_not_found`.\n\n*Collection tự bỏ qua nếu `onboarding_ready` chưa = 1.*"
                     },
                     "event": [
                         {
@@ -6574,7 +6574,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"onboarding_not_ready\",\n        \"message\": \"Tài khoản đang chờ tư vấn viên MLHUB hoàn tất cấu hình.\",\n        \"details\": {\n            \"status\": \"awaiting_consultant\",\n            \"status_label\": \"Chờ tư vấn viên liên hệ\"\n        }\n    }\n}"
+                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"onboarding_not_ready\",\n        \"message\": \"Tài khoản đang chờ tư vấn viên MKT hoàn tất cấu hình.\",\n        \"details\": {\n            \"status\": \"awaiting_consultant\",\n            \"status_label\": \"Chờ tư vấn viên liên hệ\"\n        }\n    }\n}"
                         },
                         {
                             "name": "409 · Link cũ không tái sử dụng",
@@ -6708,7 +6708,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa tìm thấy liên kết doanh nghiệp với MLHUB.\",\n        \"details\": {\n            \"next_action\": \"create_onboarding_request\"\n        }\n    }\n}"
+                            "body": "{\n    \"success\": false,\n    \"data\": null,\n    \"meta\": {\n        \"request_id\": \"9f8b2c14-7d3e-4a51-9c62-1e0a5b6f7d80\"\n    },\n    \"error\": {\n        \"code\": \"integration_not_found\",\n        \"message\": \"Chưa tìm thấy liên kết doanh nghiệp với MKT.\",\n        \"details\": {\n            \"next_action\": \"create_onboarding_request\"\n        }\n    }\n}"
                         }
                     ]
                 }

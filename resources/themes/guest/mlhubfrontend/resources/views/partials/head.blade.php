@@ -9,7 +9,7 @@
     $siteFavicon = url($faviconPath);
     $faviconMimeType = str_ends_with(strtolower($faviconPath), '.svg') ? 'image/svg+xml' : 'image/png';
     $siteTitle = trim((string) $options->get('website_title', ''));
-    $siteTitle = $siteTitle !== '' ? $siteTitle : 'MLHUB';
+    $siteTitle = $siteTitle !== '' ? $siteTitle : 'MKT';
     $cardRadius = theme_setting('card_radius', 'guest', 18);
     $inputRadius = theme_setting('input_radius', 'guest', 14);
     $buttonRadius = theme_setting('button_radius', 'guest', 14);

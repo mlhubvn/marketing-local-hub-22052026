@@ -8,7 +8,7 @@
             <div>
                 <div class="inline-flex items-center gap-2 rounded-md border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]" style="border-color: rgba(var(--theme-border-color-rgb), .62); color: var(--theme-muted-text-color); background-color: color-mix(in srgb, var(--theme-surface-base) 80%, transparent);"><i class="fa-light fa-envelope-open-text"></i>{{ __('Automation') }}</div>
                 <h1 class="mt-4 text-[2.2rem] font-semibold leading-tight tracking-[-0.055em]" style="color: var(--theme-header-text-color);">{{ __('Email Templates') }}</h1>
-                <p class="mt-3 max-w-2xl text-sm leading-7" style="color: var(--theme-muted-text-color);">{{ __('Reusable email copy with MLHUB variables for booking, coupon, lead, review, and feedback follow-up.') }}</p>
+                <p class="mt-3 max-w-2xl text-sm leading-7" style="color: var(--theme-muted-text-color);">{{ __('Reusable email copy with MKT variables for booking, coupon, lead, review, and feedback follow-up.') }}</p>
             </div>
             <x-ui.button type="button" size="lg" x-on:click="createOpen = true"><i class="fa-light fa-plus"></i>{{ __('New template') }}</x-ui.button>
         </div>

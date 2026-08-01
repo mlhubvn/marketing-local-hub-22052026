@@ -119,7 +119,7 @@ class AppAdvancedCustomerCrmServiceProvider extends ServiceProvider
                 'sort' => 170,
                 'parent' => 'features',
                 'tab_id' => 'mlhub',
-                'tab_name' => __('MLHUB AI'),
+                'tab_name' => __('MKT AI'),
                 'key' => 'advanced_crm',
                 'label' => __('Advanced Customer CRM'),
                 'check' => true,

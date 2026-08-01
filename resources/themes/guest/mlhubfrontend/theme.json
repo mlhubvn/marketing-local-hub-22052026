@@ -1,12 +1,12 @@
 {
-    "name": "MLHUB Frontend",
-    "description": "MLHUB marketing theme with MLHUB brand colors.",
+    "name": "MKT Frontend",
+    "description": "MKT marketing theme with MKT brand colors.",
     "version": "1.0.0",
     "order": 10,
-    "author": "MLHUB",
+    "author": "MKT",
     "tags": ["landing", "saas", "qr", "local-marketing", "light", "mlhub"],
     "supports": ["light-mode", "dark-mode", "theme-tokens"],
-    "recommended_for": ["MLHUB marketing site", "pricing", "campaign landing pages"],
+    "recommended_for": ["MKT marketing site", "pricing", "campaign landing pages"],
     "thumbnail": "preview.svg",
     "uses_flux": true,
     "settings": {

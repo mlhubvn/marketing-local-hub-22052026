@@ -7,7 +7,7 @@ return [
     'first_user' => [
         'email' => env('MLHUB_FIRST_USER_EMAIL', ''),
         'password' => env('MLHUB_FIRST_USER_PASSWORD', ''),
-        'name' => env('MLHUB_FIRST_USER_NAME', 'MLHUB Admin'),
+        'name' => env('MLHUB_FIRST_USER_NAME', 'MKT Admin'),
         'username' => env('MLHUB_FIRST_USER_USERNAME', 'mlhubadmin'),
         'locale' => env('MLHUB_FIRST_USER_LOCALE', 'vi'),
     ],

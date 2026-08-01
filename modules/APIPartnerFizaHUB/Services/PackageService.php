@@ -46,7 +46,7 @@ class PackageService
             // the mapping row survived while the mapped user was deleted underneath it.
             throw PartnerApiException::make(
                 'integration_broken',
-                __('Liên kết với MLHUB cho business này bị lỗi. Vui lòng liên hệ MLHUB để được hỗ trợ khôi phục.'),
+                __('Liên kết với MKT cho business này bị lỗi. Vui lòng liên hệ MKT để được hỗ trợ khôi phục.'),
                 409,
                 ['next_action' => 'contact_support']
             );

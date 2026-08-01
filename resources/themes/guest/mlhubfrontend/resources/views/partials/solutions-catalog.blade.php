@@ -152,7 +152,7 @@
 <section id="solutions" class="lb-wrap lb-section lb-about scroll-mt-28">
     <div class="mb-10 text-center">
         <span class="lb-pill inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Solutions') }}</span>
-        <h1 class="lb-serif lb-heading mx-auto mt-5 max-w-3xl">{{ __('MLHUB platform solutions') }}</h1>
+        <h1 class="lb-serif lb-heading mx-auto mt-5 max-w-3xl">{{ __('MKT platform solutions') }}</h1>
         <p class="lb-body mx-auto mt-5 max-w-2xl" style="color: var(--lb-muted);">{{ __('Explore every workspace module—from overview and growth funnels to CRM, AI, assets, Google Business, automation, and account management.') }}</p>
     </div>
 
@@ -201,7 +201,7 @@
     </div>
 
     <div class="lb-window lb-final-cta mt-10 rounded-3xl p-6 text-center sm:p-8">
-        <h2 class="lb-serif lb-heading mx-auto max-w-2xl">{{ __('Ready to open your MLHUB workspace?') }}</h2>
+        <h2 class="lb-serif lb-heading mx-auto max-w-2xl">{{ __('Ready to open your MKT workspace?') }}</h2>
         <p class="lb-body mx-auto mt-4 max-w-xl" style="color: var(--lb-muted);">{{ __('Sign in after registration to use every path listed above inside your tenant.') }}</p>
         <a href="{{ $portalCtaUrl }}" class="lb-button mt-6 inline-flex items-center justify-center px-6 py-3.5 text-sm font-black">{{ __('Start your free trial') }}</a>
     </div>

@@ -131,7 +131,7 @@ function seedLifecycleBusiness(string $externalBusinessId, string $email): array
 {
     $plan = AdminPlan::query()->firstOrCreate(
         ['slug' => 'mlhub-free-da-nang'],
-        ['name' => 'MLHUB Free Da Nang', 'status' => true, 'free_plan' => true, 'price' => 0, 'permissions' => []]
+        ['name' => 'MKT Free Da Nang', 'status' => true, 'free_plan' => true, 'price' => 0, 'permissions' => []]
     );
 
     $user = User::query()->create([

@@ -1,9 +1,9 @@
 {
-    "name": "MLHUB Default",
-    "description": "Light-first marketing theme for MLHUB AI: local campaign pages, AI content, QR codes, customer capture, analytics, and growth workflows.",
+    "name": "MKT Default",
+    "description": "Light-first marketing theme for MKT AI: local campaign pages, AI content, QR codes, customer capture, analytics, and growth workflows.",
     "version": "1.0.0",
     "order": 10,
-    "author": "MLHUB",
+    "author": "MKT",
     "tags": ["landing", "saas", "qr", "local-marketing", "light"],
     "supports": ["light-mode", "dark-mode", "theme-tokens"],
     "recommended_for": ["Local marketing SaaS", "AI campaign builders", "QR-enabled growth tools"],

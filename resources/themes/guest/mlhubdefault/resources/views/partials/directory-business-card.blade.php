@@ -20,7 +20,7 @@
     @if ($stats !== [])
         <section class="mt-5 rounded-xl border px-4 py-4 sm:px-5" style="border-color: var(--lb-line); background: color-mix(in srgb, var(--lb-accent, #ff5f5f) 7%, #ffffff);">
             <div class="flex flex-wrap items-center justify-between gap-2">
-                <p class="text-[10px] font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">{{ __('MLHUB activity overview') }}</p>
+                <p class="text-[10px] font-black uppercase tracking-[0.16em]" style="color: var(--lb-muted);">{{ __('MKT activity overview') }}</p>
                 <span class="lb-pill inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em]">
                     <i class="fa-light fa-chart-line"></i>{{ __('Public totals') }}
                 </span>

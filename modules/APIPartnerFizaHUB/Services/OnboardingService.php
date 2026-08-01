@@ -73,7 +73,7 @@ class OnboardingService
                     if (User::query()->where('email', $ownerEmail)->lockForUpdate()->exists()) {
                         throw PartnerApiException::make(
                             'email_already_registered',
-                            __('Địa chỉ email này đã được đăng ký trên MLHUB.'),
+                            __('Địa chỉ email này đã được đăng ký trên MKT.'),
                             409,
                             ['next_action' => 'use_existing_account_or_contact_support']
                         );
@@ -264,7 +264,7 @@ class OnboardingService
         if (! $user || ! $business || ! $teamExists) {
             throw PartnerApiException::make(
                 'integration_broken',
-                __('Liên kết MLHUB không hợp lệ.'),
+                __('Liên kết MKT không hợp lệ.'),
                 409,
                 ['next_action' => 'contact_support']
             );
@@ -290,7 +290,7 @@ class OnboardingService
         if (! $onboarding) {
             throw PartnerApiException::make(
                 'integration_broken',
-                __('Liên kết MLHUB chưa có hồ sơ onboarding chuẩn.'),
+                __('Liên kết MKT chưa có hồ sơ onboarding chuẩn.'),
                 409,
                 ['next_action' => 'contact_support']
             );
@@ -534,11 +534,11 @@ class OnboardingService
     private function timeline(PartnerOnboardingRequest $onboarding): array
     {
         $steps = [
-            ['code' => 'account_created', 'label' => 'Đã tạo tài khoản và cơ sở', 'description' => 'Tài khoản MLHUB và cơ sở đã được khởi tạo.'],
-            ['code' => OnboardingStatusMachine::AWAITING_CONSULTANT, 'label' => 'Chờ tư vấn viên liên hệ', 'description' => 'MLHUB đang tiếp nhận và kiểm tra yêu cầu.'],
+            ['code' => 'account_created', 'label' => 'Đã tạo tài khoản và cơ sở', 'description' => 'Tài khoản MKT và cơ sở đã được khởi tạo.'],
+            ['code' => OnboardingStatusMachine::AWAITING_CONSULTANT, 'label' => 'Chờ tư vấn viên liên hệ', 'description' => 'MKT đang tiếp nhận và kiểm tra yêu cầu.'],
             ['code' => OnboardingStatusMachine::IN_CONSULTATION, 'label' => 'Đang tư vấn nhu cầu', 'description' => 'Tư vấn viên đang làm rõ mục tiêu tăng trưởng.'],
-            ['code' => OnboardingStatusMachine::CONFIGURING, 'label' => 'Đang cấu hình Marketing', 'description' => 'MLHUB đang cấu hình các công cụ Marketing.'],
-            ['code' => OnboardingStatusMachine::READY, 'label' => 'Sẵn sàng sử dụng', 'description' => 'Doanh nghiệp có thể truy cập CRM MLHUB.'],
+            ['code' => OnboardingStatusMachine::CONFIGURING, 'label' => 'Đang cấu hình Marketing', 'description' => 'MKT đang cấu hình các công cụ Marketing.'],
+            ['code' => OnboardingStatusMachine::READY, 'label' => 'Sẵn sàng sử dụng', 'description' => 'Doanh nghiệp có thể truy cập CRM MKT.'],
         ];
         $publicStatus = $onboarding->publicStatus();
         $currentIndex = match ($publicStatus) {

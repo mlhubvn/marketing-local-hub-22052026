@@ -522,8 +522,8 @@ Phần này liệt kê các việc bảo mật còn lại bằng ngôn ngữ d�
 
 ### 14.8 Branding & casing còn sót (P2 — UI production) 🟠
 
-- **Branding MLHUB:** user-facing và plan permission key đã chuyển sang `mlhub` (alias đọc `localboost` cũ trên DB cho tới khi migration chạy).
-- **Casing sai `Mlhub`:** `modules/AdminPlans/Support/PlanFeatureOrder.php` có `isMlhubAiFeature()` — vi phạm quy tắc thương hiệu (chỉ `MLHUB`/`mlhub`).
-- **Phải làm (task code riêng, không phải task docs):** đổi chuỗi user-facing sang MLHUB + đồng bộ `lang/en.json`/`lang/vi.json`; đổi tên method `isMlhubAiFeature()` → `isMLHUBAiFeature()` (đúng casing thương hiệu) cùng mọi nơi gọi. Vì đụng code nghiệp vụ → cần plan + duyệt.
+- **White-label hiển thị (FizaHUB):** chuỗi user-facing đã đổi `MLHUB` → `MKT` (lang en/vi, PlanSeeder tên gói, marketplace title, `SITE_TITLE`/`APP_NAME`, QR watermark, chat assistant). **Giữ nguyên** slug (`mlhub-*`), env (`MLHUB_*`), class/module (`CustomMLHUB`), domain `mlhub.vn`.
+- **Casing sai `Mlhub`:** `modules/AdminPlans/Support/PlanFeatureOrder.php` có `isMlhubAiFeature()` — vi phạm quy tắc thương hiệu nội bộ (chỉ `MLHUB`/`mlhub` trong code).
+- **Còn lại (không bắt buộc cho white-label Portal):** comment/dev docs, một số mô tả kỹ thuật trong Admin; method rename `isMlhubAiFeature()` → `isMLHUBAiFeature()` nếu đụng file đó.
 
-> Thứ tự gợi ý: **14.1 (captcha growth) → 14.7 (loyalty/landing throttle) → 14.4 (IDOR) → 14.2/14.3 → 14.5/14.6 → 14.8 (branding)**. Mỗi mục một task — prompt mẫu trong `ARCHITECTURE_PROMPT.md`.
+> Thứ tự gợi ý: **14.1 (captcha growth) → 14.7 (loyalty/landing throttle) → 14.4 (IDOR) → 14.2/14.3 → 14.5/14.6 → 14.8 (branding casing method)**. Mỗi mục một task — prompt mẫu trong `ARCHITECTURE_PROMPT.md`.

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
-    <title>{{ __('Signing in to MLHUB…') }}</title>
+    <title>{{ __('Signing in to MKT…') }}</title>
     <link rel="icon" href="{{ asset('img/favicon.svg') }}" type="image/svg+xml">
     <style>
         :root { --ink:#17231e; --muted:#5d6c65; --line:#d9e2dd; --brand:#0f766e; --soft:#eaf7f3; }
@@ -34,7 +34,7 @@
 <body>
     <div class="card">
         <div class="spinner" aria-hidden="true"></div>
-        <h1>{{ __('Signing you in to MLHUB…') }}</h1>
+        <h1>{{ __('Signing you in to MKT…') }}</h1>
         <p>{{ __('Please wait a moment. If the page does not redirect automatically, tap the button below.') }}</p>
         <form id="one-time-login-form" method="POST" action="{{ $actionUrl }}">
             @csrf

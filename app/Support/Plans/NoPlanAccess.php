@@ -11,7 +11,7 @@ class NoPlanAccess
 
     public static function label(): string
     {
-        return (string) config('mlhub.no_plan_access.label', 'MLHUB Free');
+        return (string) config('mlhub.no_plan_access.label', 'MKT Free');
     }
 
     /**

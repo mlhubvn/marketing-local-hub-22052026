@@ -128,7 +128,7 @@
 
                         <x-ui.dialog
                             :title="__('Xóa dữ liệu onboarding')"
-                            :description="__('Hành động này chỉ xóa dữ liệu kết nối và onboarding FizaHUB. Tài khoản MLHUB và dữ liệu độc lập của người dùng sẽ được giữ lại.')"
+                            :description="__('Hành động này chỉ xóa dữ liệu kết nối và onboarding FizaHUB. Tài khoản MKT và dữ liệu độc lập của người dùng sẽ được giữ lại.')"
                             width="sm"
                             dismissible
                         >
@@ -196,7 +196,7 @@
                                 <p><span class="font-semibold">{{ __('User') }}:</span> {{ $deletionPreview['name'] }}</p>
                                 <p><span class="font-semibold">{{ __('Email/username') }}:</span> {{ $deletionPreview['identity'] }}</p>
                                 <p><span class="font-semibold">{{ __('Business') }}:</span> {{ $deletionPreview['business'] }}</p>
-                                <p class="font-semibold text-red-600">{{ __('Confirm that this deletes the entire MLHUB account and all owned data.') }}</p>
+                                <p class="font-semibold text-red-600">{{ __('Confirm that this deletes the entire MKT account and all owned data.') }}</p>
 
                                 @if ($userDeleteConfirmPhrase)
                                     <div class="space-y-2">

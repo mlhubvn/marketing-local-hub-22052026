@@ -47,7 +47,7 @@ class AppLoyaltyStampCardsServiceProvider extends ServiceProvider
                 'sort' => 166,
                 'parent' => 'features',
                 'tab_id' => 'mlhub',
-                'tab_name' => __('MLHUB AI'),
+                'tab_name' => __('MKT AI'),
                 'key' => 'loyalty_stamp_cards',
                 'label' => __('Loyalty & Referral'),
                 'check' => true,

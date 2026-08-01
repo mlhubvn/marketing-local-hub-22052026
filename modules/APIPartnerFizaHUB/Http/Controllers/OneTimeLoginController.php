@@ -27,7 +27,7 @@ class OneTimeLoginController
         if (! $integration->mlhub_business_id) {
             return PartnerApiResponse::error(
                 'integration_not_found',
-                __('Doanh nghiệp này chưa được liên kết với MLHUB.'),
+                __('Doanh nghiệp này chưa được liên kết với MKT.'),
                 404,
                 ['next_action' => 'create_onboarding_request']
             );
@@ -64,7 +64,7 @@ class OneTimeLoginController
         if (! $latest) {
             throw PartnerApiException::make(
                 'onboarding_not_ready',
-                'Tài khoản đang chờ tư vấn viên MLHUB hoàn tất cấu hình.',
+                'Tài khoản đang chờ tư vấn viên MKT hoàn tất cấu hình.',
                 409,
                 ['status' => null]
             );
@@ -73,7 +73,7 @@ class OneTimeLoginController
         if (! OnboardingStatusMachine::allowsOneTimeLogin((string) $latest->status)) {
             throw PartnerApiException::make(
                 'onboarding_not_ready',
-                'Tài khoản đang chờ tư vấn viên MLHUB hoàn tất cấu hình.',
+                'Tài khoản đang chờ tư vấn viên MKT hoàn tất cấu hình.',
                 409,
                 [
                     'status' => $latest->status,

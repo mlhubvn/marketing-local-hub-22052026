@@ -74,7 +74,7 @@
                 </div>
                 <h1 class="mt-4 max-w-3xl text-[2.35rem] font-semibold leading-[1.02] tracking-[-0.055em] sm:text-[3rem]" style="color: var(--theme-header-text-color);">{{ __('Templates') }}</h1>
                 <p class="mt-4 max-w-2xl text-sm leading-7 sm:text-[1rem]" style="color: var(--theme-muted-text-color);">
-                    {{ __('Build campaign, landing page, form, AI content, email, WhatsApp, and automation templates for the whole MLHUB AI workflow.') }}
+                    {{ __('Build campaign, landing page, form, AI content, email, WhatsApp, and automation templates for the whole MKT AI workflow.') }}
                 </p>
                 <div class="mt-6 flex flex-wrap gap-3">
                     <x-ui.button type="button" size="lg" wire:click="openCreateModal" wire:loading.attr="disabled" wire:target="openCreateModal">

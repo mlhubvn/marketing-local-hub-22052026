@@ -8,7 +8,7 @@
     $languages = available_languages();
     $options = app(\Modules\AdminSettings\Support\OptionStore::class);
     $settingsTitle = trim((string) $options->get('website_title', ''));
-    $siteTitle = $settingsTitle !== '' && ! str_contains(strtolower($settingsTitle), 'stackposts') ? $settingsTitle : 'MLHUB AI';
+    $siteTitle = $settingsTitle !== '' && ! str_contains(strtolower($settingsTitle), 'stackposts') ? $settingsTitle : 'MKT AI';
     $siteLogoDark = trim((string) ($options->get('website_logo_brand_dark')
         ?: $options->get('website_logo_dark')
         ?: $options->get('website_logo')
@@ -162,7 +162,7 @@
                     <div>
                         <p class="text-xs font-black uppercase tracking-[0.18em] text-neutral-400">{{ __('Product') }}</p>
                         <div class="mt-4 grid gap-3 text-sm font-bold text-neutral-600">
-                            <a href="{{ route('guest.about') }}" class="hover:text-teal-700">{{ __('About MLHUB') }}</a>
+                            <a href="{{ route('guest.about') }}" class="hover:text-teal-700">{{ __('About MKT') }}</a>
                             <a href="{{ route('guest.solutions') }}" class="hover:text-teal-700">{{ __('All-in-one solutions') }}</a>
                             <a href="{{ $homeUrl }}#features" class="hover:text-teal-700">{{ __('Core features') }}</a>
                             <a href="{{ route('guest.pricing') }}" class="hover:text-teal-700">{{ __('Pricing and services') }}</a>

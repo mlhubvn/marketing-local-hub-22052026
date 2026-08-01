@@ -270,7 +270,7 @@ test('composer adds knowledge footer for guidance-only responses', function (): 
     );
 
     expect($message)
-        ->toContain('Câu trả lời dựa trên tri thức nội bộ và cấu trúc tính năng của MLHUB.')
+        ->toContain('Câu trả lời dựa trên tri thức nội bộ và cấu trúc tính năng của MKT.')
         ->not->toContain('Câu trả lời có sử dụng số liệu thực tế từ tài khoản của bạn.');
 });
 
@@ -282,7 +282,7 @@ test('composer adds account metrics footer for metric responses', function (): v
 
     expect($message)
         ->toContain('Câu trả lời có sử dụng số liệu thực tế từ tài khoản của bạn.')
-        ->not->toContain('Câu trả lời dựa trên tri thức nội bộ và cấu trúc tính năng của MLHUB.');
+        ->not->toContain('Câu trả lời dựa trên tri thức nội bộ và cấu trúc tính năng của MKT.');
 });
 
 test('P1 cta labels are Vietnamese', function (): void {
@@ -312,7 +312,7 @@ test('P1 cta labels are Vietnamese', function (): void {
     }
 
     expect($labels)
-        ->toContain('Mở MLHUB AI')
+        ->toContain('Mở MKT AI')
         ->toContain('Cài đặt AI')
         ->toContain('Mở bảng điều khiển')
         ->toContain('Xem báo cáo')
@@ -331,7 +331,7 @@ test('P1 cta labels are Vietnamese', function (): void {
         ->toContain('Mở lịch sử câu lệnh')
         ->toContain('Mở hỗ trợ')
         ->toContain('Mở đội ngũ')
-        ->not->toContain('Open MLHUB AI')
+        ->not->toContain('Open MKT AI')
         ->not->toContain('Open support')
         ->not->toContain('Thêm business')
         ->not->toContain('Mở dashboard')
@@ -377,7 +377,7 @@ test('composer summarizes long multi-intent questions without rendering every in
 
     expect($message)
         ->toContain('Bạn đang hỏi nhiều nhóm, mình tóm tắt nhanh các nhóm chính trước.')
-        ->toContain('MLHUB AI')
+        ->toContain('MKT AI')
         ->toContain('Bước 1')
         ->toContain('Tóm tắt nhanh')
         ->toContain('Khách hàng')
@@ -395,7 +395,7 @@ test('basic ai responses render exactly one composer footer', function (): void 
 
     foreach ($messages as $message) {
         $footerCount = substr_count($message, 'Câu trả lời có sử dụng số liệu thực tế từ tài khoản của bạn.')
-            + substr_count($message, 'Câu trả lời dựa trên tri thức nội bộ và cấu trúc tính năng của MLHUB.');
+            + substr_count($message, 'Câu trả lời dựa trên tri thức nội bộ và cấu trúc tính năng của MKT.');
 
         expect($footerCount)->toBe(1)
             ->and($message)->not->toContain('Câu trả lời dựa trên số liệu thực tế của tài khoản được AI nội bộ xử lý.');
@@ -568,7 +568,7 @@ test('credit questions merge help and credits into one focused answer', function
         ->and($labels)
         ->toContain('Xem lịch sử tín dụng AI')
         ->toContain('Cài đặt AI')
-        ->not->toContain('Mở MLHUB AI');
+        ->not->toContain('Mở MKT AI');
 });
 
 test('resolver recognizes Vietnamese credit balance wording', function (): void {
@@ -590,7 +590,7 @@ test('plan limit question wins over billing for current plan limits', function (
         mlhubAssistantContext([
             'plan' => [
                 'available' => true,
-                'name' => 'MLHUB Growth',
+                'name' => 'MKT Growth',
                 'status' => 'Active',
                 'usage' => [
                     'campaigns' => [
@@ -659,7 +659,7 @@ test('credits response degrades safely when snapshot is missing', function (): v
         ->toContain('chưa có dữ liệu tín dụng')
         ->toContain('AI Cơ bản')
         ->toContain('không trừ')
-        ->toContain('Câu trả lời dựa trên tri thức nội bộ và cấu trúc tính năng của MLHUB.')
+        ->toContain('Câu trả lời dựa trên tri thức nội bộ và cấu trúc tính năng của MKT.')
         ->not->toContain('Câu trả lời có sử dụng số liệu thực tế từ tài khoản của bạn.');
 });
 
@@ -669,7 +669,7 @@ test('plan limits response uses real snapshot when available', function (): void
         mlhubAssistantContext([
             'plan' => [
                 'available' => true,
-                'name' => 'MLHUB Growth',
+                'name' => 'MKT Growth',
                 'status' => 'Active',
                 'usage' => [
                     'businesses' => [
@@ -694,7 +694,7 @@ test('plan limits response uses real snapshot when available', function (): void
     );
 
     expect($message)
-        ->toContain('MLHUB Growth')
+        ->toContain('MKT Growth')
         ->toContain('Active')
         ->toContain('Cơ sở kinh doanh')
         ->toContain('1/3')
@@ -718,7 +718,7 @@ test('plan limits response degrades safely when snapshot is missing', function (
     expect($message)
         ->toContain('chưa có dữ liệu hạn mức')
         ->toContain('không đoán quota')
-        ->toContain('Câu trả lời dựa trên tri thức nội bộ và cấu trúc tính năng của MLHUB.')
+        ->toContain('Câu trả lời dựa trên tri thức nội bộ và cấu trúc tính năng của MKT.')
         ->not->toContain('Câu trả lời có sử dụng số liệu thực tế từ tài khoản của bạn.');
 });
 
@@ -742,7 +742,7 @@ test('industry recommendation for spa uses booking review crm and coupon', funct
 });
 
 test('industry recommendation for seafood restaurant uses google booking landing review', function (): void {
-    $question = 'Tôi có nhà hàng hải sản, khách du lịch tìm trên Google nhiều nhưng ít đặt bàn, MLHUB giúp gì?';
+    $question = 'Tôi có nhà hàng hải sản, khách du lịch tìm trên Google nhiều nhưng ít đặt bàn, MKT giúp gì?';
     $resolver = new MLHUBAIIntentResolver;
     $intents = array_column($resolver->resolveAll($question), 'intent');
     $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
@@ -797,7 +797,7 @@ test('qr high scan low lead focuses conversion not reviews', function (): void {
 });
 
 test('low rating scenario uses private feedback recovery', function (): void {
-    $question = 'Có khách đánh giá 2 sao, tôi nên xử lý trong MLHUB như thế nào?';
+    $question = 'Có khách đánh giá 2 sao, tôi nên xử lý trong MKT như thế nào?';
     $resolver = new MLHUBAIIntentResolver;
     $intents = array_column($resolver->resolveAll($question), 'intent');
     $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
@@ -916,7 +916,7 @@ test('industry recommendation covers all 18 business groups', function (string $
     expect($intents[0])->toBe('industry_recommendation')
         ->and($message)->toContain($snippet);
 })->with([
-    'food_beverage' => ['Tôi có quán ăn thì nên dùng MLHUB thế nào?', 'QR'],
+    'food_beverage' => ['Tôi có quán ăn thì nên dùng MKT thế nào?', 'QR'],
     'retail_goods' => ['Tôi kinh doanh bán lẻ thời trang thì dùng gì?', 'form khách tiềm năng'],
     'beauty_personal_care' => ['Tôi có spa salon thì nên bắt đầu từ đâu?', 'đặt lịch'],
     'tourism_hospitality_experience' => ['Tôi có homestay du lịch thì dùng gì?', 'Google Business'],
@@ -942,7 +942,7 @@ test('industry alias map aligns with BusinessTypeCatalog group count', function 
 });
 
 test('unknown or mixed industry asks for clarification without falling back badly', function (): void {
-    $question = 'Tôi làm nhiều ngành khác nhau, chưa phân loại được thì MLHUB gợi ý gì?';
+    $question = 'Tôi làm nhiều ngành khác nhau, chưa phân loại được thì MKT gợi ý gì?';
     $intents = array_column((new MLHUBAIIntentResolver)->resolveAll($question), 'intent');
     $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
         'request' => ['question' => $question],
@@ -956,7 +956,7 @@ test('unknown or mixed industry asks for clarification without falling back badl
 });
 
 test('health industry avoids medical overclaim', function (): void {
-    $question = 'Tôi có phòng khám, muốn dùng MLHUB thì nên làm gì?';
+    $question = 'Tôi có phòng khám, muốn dùng MKT thì nên làm gì?';
     $message = (new MLHUBAIResponseComposer)->composeMany(
         ['industry_recommendation'],
         mlhubAssistantContext(['request' => ['question' => $question]]),
@@ -984,7 +984,7 @@ test('creator content request routes to studio instead of writing long copy', fu
 });
 
 test('wholesale and distribution recommends b2b lead and crm', function (): void {
-    $question = 'Tôi làm đại lý phân phối mỹ phẩm thì nên dùng MLHUB thế nào?';
+    $question = 'Tôi làm đại lý phân phối mỹ phẩm thì nên dùng MKT thế nào?';
     $composer = new MLHUBAIResponseComposer;
     $context = mlhubAssistantContext(['request' => ['question' => $question]]);
     $message = $composer->composeMany(['industry_recommendation'], $context);
@@ -1045,7 +1045,7 @@ test('restaurant facebook content request routes to studio not restaurant guidan
 });
 
 test('spa operational question stays industry guidance not studio', function (): void {
-    $question = 'Tôi làm spa, nên dùng MLHUB tính năng nào trước?';
+    $question = 'Tôi làm spa, nên dùng MKT tính năng nào trước?';
     $intents = array_column((new MLHUBAIIntentResolver)->resolveAll($question), 'intent');
     $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
         'request' => ['question' => $question],
@@ -1127,7 +1127,7 @@ test('phase B credit and plan guidance regressions remain stable', function (): 
         mlhubAssistantContext([
             'plan' => [
                 'available' => true,
-                'name' => 'MLHUB Growth',
+                'name' => 'MKT Growth',
                 'status' => 'Active',
                 'usage' => [
                     'campaigns' => [
@@ -1154,7 +1154,7 @@ test('phase C1 eighteen industry groups regression remains stable', function ():
 });
 
 test('batch multi industry question summarizes groups instead of picking one industry', function (): void {
-    $question = 'Tôi vừa mở spa, đại lý phân phối mỹ phẩm, xưởng OCOP và hiệp hội — nên dùng MLHUB thế nào?';
+    $question = 'Tôi vừa mở spa, đại lý phân phối mỹ phẩm, xưởng OCOP và hiệp hội — nên dùng MKT thế nào?';
     $resolver = new MLHUBAIIntentResolver;
     $composer = new MLHUBAIResponseComposer;
     $context = mlhubAssistantContext(['request' => ['question' => $question]]);
@@ -1171,7 +1171,7 @@ test('batch multi industry question summarizes groups instead of picking one ind
 });
 
 test('mentioning ai content as a tool does not trigger studio handoff', function (): void {
-    $question = 'MLHUB nên ưu tiên landing page, QR, CRM, báo cáo, mẫu marketing hay AI Content như thế nào?';
+    $question = 'MKT nên ưu tiên landing page, QR, CRM, báo cáo, mẫu marketing hay AI Content như thế nào?';
     $intents = array_column((new MLHUBAIIntentResolver)->resolveAll($question), 'intent');
 
     expect($intents)->not->toContain('ai_content_writer')
@@ -1279,7 +1279,7 @@ test('phase E2 zero credit balance still states basic ai does not consume credit
 });
 
 test('phase E2 six industry question uses batch summary not single template', function (): void {
-    $question = 'Tôi có quán cà phê, nhà hàng hải sản, spa, bán lẻ mỹ phẩm, khách sạn homestay và phòng khám nha khoa. MLHUB nên ưu tiên gì?';
+    $question = 'Tôi có quán cà phê, nhà hàng hải sản, spa, bán lẻ mỹ phẩm, khách sạn homestay và phòng khám nha khoa. MKT nên ưu tiên gì?';
     $resolver = new MLHUBAIIntentResolver;
     $composer = new MLHUBAIResponseComposer;
     $context = mlhubAssistantContext(['request' => ['question' => $question]]);
@@ -1294,7 +1294,7 @@ test('phase E2 six industry question uses batch summary not single template', fu
 });
 
 test('phase E2 creator operational question stays industry guidance not studio', function (): void {
-    $question = 'Tôi làm creator livestream ecommerce thì nên dùng MLHUB thế nào?';
+    $question = 'Tôi làm creator livestream ecommerce thì nên dùng MKT thế nào?';
     $intents = array_column((new MLHUBAIIntentResolver)->resolveAll($question), 'intent');
     $message = (new MLHUBAIResponseComposer)->composeMany($intents, mlhubAssistantContext([
         'request' => ['question' => $question],

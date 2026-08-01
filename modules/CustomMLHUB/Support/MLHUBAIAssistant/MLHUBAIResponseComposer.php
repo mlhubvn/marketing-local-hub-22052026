@@ -192,7 +192,7 @@ class MLHUBAIResponseComposer
     {
         $notice = $this->usesAccountMetrics($intents, $context)
             ? __('Câu trả lời có sử dụng số liệu thực tế từ tài khoản của bạn.')
-            : __('Câu trả lời dựa trên tri thức nội bộ và cấu trúc tính năng của MLHUB.');
+            : __('Câu trả lời dựa trên tri thức nội bộ và cấu trúc tính năng của MKT.');
 
         return trim($body)."\n\n".$notice;
     }
@@ -318,13 +318,13 @@ class MLHUBAIResponseComposer
         $greeting = $this->timeGreeting($this->now($context));
 
         if ($name !== '') {
-            return __(':greeting :name! Mình là trợ lý MLHUB AI của bạn.', [
+            return __(':greeting :name! Mình là trợ lý MKT AI của bạn.', [
                 'greeting' => $greeting,
                 'name' => $name,
             ]);
         }
 
-        return __(':greeting! Mình là trợ lý MLHUB AI của bạn.', [
+        return __(':greeting! Mình là trợ lý MKT AI của bạn.', [
             'greeting' => $greeting,
         ]);
     }
@@ -341,13 +341,13 @@ class MLHUBAIResponseComposer
         $greeting = $this->timeGreeting($now);
 
         $hello = $name !== ''
-            ? __(':greeting :name! Mình là trợ lý MLHUB AI của bạn. Bây giờ là :time, :date.', [
+            ? __(':greeting :name! Mình là trợ lý MKT AI của bạn. Bây giờ là :time, :date.', [
                 'greeting' => $greeting,
                 'name' => $name,
                 'time' => $now->format('H:i'),
                 'date' => format_date_locale($now),
             ])
-            : __(':greeting! Mình là trợ lý MLHUB AI của bạn. Bây giờ là :time, :date.', [
+            : __(':greeting! Mình là trợ lý MKT AI của bạn. Bây giờ là :time, :date.', [
                 'greeting' => $greeting,
                 'time' => $now->format('H:i'),
                 'date' => format_date_locale($now),
@@ -524,7 +524,7 @@ class MLHUBAIResponseComposer
      */
     protected function composeHelpUsingMLHUBAI(array $context): string
     {
-        return __('AI Cơ bản (Basic AI) đang trả lời bằng dữ liệu nội bộ và ma trận từ khóa MLHUB, nên không gọi OpenAI và không tốn token/tín dụng AI. AI Nâng cao (Advanced AI) chỉ dùng provider khi bạn bật, có API key và còn tín dụng AI. Bạn có thể hỏi về báo cáo hôm nay, chiến dịch, QR, đặt lịch, mã ưu đãi, khách tiềm năng, đánh giá, tín dụng AI, giới hạn gói và việc nên làm tiếp theo.');
+        return __('AI Cơ bản (Basic AI) đang trả lời bằng dữ liệu nội bộ và ma trận từ khóa MKT, nên không gọi OpenAI và không tốn token/tín dụng AI. AI Nâng cao (Advanced AI) chỉ dùng provider khi bạn bật, có API key và còn tín dụng AI. Bạn có thể hỏi về báo cáo hôm nay, chiến dịch, QR, đặt lịch, mã ưu đãi, khách tiềm năng, đánh giá, tín dụng AI, giới hạn gói và việc nên làm tiếp theo.');
     }
 
     /**
@@ -568,11 +568,11 @@ class MLHUBAIResponseComposer
             'food_beverage' => __('Với Food & Beverage (quán cà phê, trà sữa, nhà hàng, quán ăn), nên ưu tiên chiến dịch QR tại quầy/bàn, Review Booster, mã ưu đãi quay lại và Google Business nếu khách tìm trên bản đồ. Bước đầu: tạo cơ sở kinh doanh, đặt QR review, tạo mã ưu đãi; nhà hàng thêm trang đặt bàn hoặc trang đích. Chat gợi ý quy trình — caption/menu dài hãy sang mẫu marketing hoặc AI Content.'),
             'retail_goods' => __('Với bán lẻ (tạp hóa, thời trang, mỹ phẩm lẻ), nên dùng form khách tiềm năng lấy số điện thoại, mã ưu đãi kéo mua lại, CRM phân nhóm khách và QR tại quầy. Bắt đầu bằng một ưu đãi đơn giản, theo dõi báo cáo để biết khách nào quay lại; mẫu tin nhắn dùng Marketing Templates thay vì viết dài trong chat.'),
             'beauty_personal_care' => __('Với spa, salon, nail hoặc gội đầu dưỡng sinh, nên bắt đầu bằng trang đặt lịch, Review Booster sau dịch vụ, CRM nhắc lịch chăm sóc lại và mã ưu đãi quay lại. Mỗi khách sau khi hoàn tất dịch vụ nên được lưu vào CRM, hẹn lần tiếp theo và chỉ xin đánh giá khi trải nghiệm ổn.'),
-            'tourism_hospitality_experience' => __('Với khách sạn, homestay hoặc trải nghiệm du lịch, nên ưu tiên Google Business, trang đích giới thiệu dịch vụ, trang đặt lịch hoặc form khách tiềm năng và Review Booster sau trải nghiệm. Đừng tự tạo link công khai nếu chưa có slug; hãy mở module tương ứng rồi copy link thật từ MLHUB.'),
+            'tourism_hospitality_experience' => __('Với khách sạn, homestay hoặc trải nghiệm du lịch, nên ưu tiên Google Business, trang đích giới thiệu dịch vụ, trang đặt lịch hoặc form khách tiềm năng và Review Booster sau trải nghiệm. Đừng tự tạo link công khai nếu chưa có slug; hãy mở module tương ứng rồi copy link thật từ MKT.'),
             'health_dental_fitness' => __('Với phòng khám, nha khoa, gym hoặc yoga, nên dùng đặt lịch, form tư vấn, góp ý riêng và CRM nhắc lịch. Chat chỉ gợi ý quy trình vận hành — không thay tư vấn y khoa, không hứa chữa khỏi hay kết quả điều trị; ưu tiên phản hồi trung tính và đo hiệu quả bằng báo cáo.'),
             'technical_repair_maintenance' => __('Với sửa chữa, điện lạnh, rửa xe hoặc giặt ủi, nên dùng form khách tiềm năng nhận báo giá, trang đặt lịch chốt khung giờ, Google Business tăng tin cậy và Review Booster sau khi hoàn tất. CRM giúp nhắc gọi lại và chăm sóc khách cũ theo từng yêu cầu dịch vụ.'),
             'education_training_coaching' => __('Với trung tâm, lớp học hoặc đào tạo, nên dùng trang đích giới thiệu khóa học, form khách tiềm năng nhận tư vấn, CRM chăm sóc phụ huynh/học viên và mẫu marketing cho tin nhắn tuyển sinh. Chat gợi ý quy trình; bài viết tuyển sinh dài nên sang AI Content hoặc mẫu marketing.'),
-            'wholesale_distribution' => __('Với đại lý/phân phối/bán sỉ, nên dùng form khách tiềm năng B2B, CRM phân nhóm đại lý theo vùng và trang đích giới thiệu chính sách giá sỉ. MLHUB giúp thu yêu cầu báo giá và theo dõi pipeline — không thay ERP tồn kho. Bước đầu: landing chính sách, form đăng ký đại lý, gắn nhãn CRM.'),
+            'wholesale_distribution' => __('Với đại lý/phân phối/bán sỉ, nên dùng form khách tiềm năng B2B, CRM phân nhóm đại lý theo vùng và trang đích giới thiệu chính sách giá sỉ. MKT giúp thu yêu cầu báo giá và theo dõi pipeline — không thay ERP tồn kho. Bước đầu: landing chính sách, form đăng ký đại lý, gắn nhãn CRM.'),
             'professional_b2b_services' => __('Với agency, tư vấn, kế toán, luật hoặc dịch vụ B2B, nên dùng trang đích trình bày dịch vụ, form khách tiềm năng nhận brief, CRM pipeline theo từng khách và Google Business/review nếu có điểm giao dịch rõ. Ưu tiên đo nguồn lead và tạo việc chăm sóc tiếp theo.'),
             'home_construction_interior' => __('Với nội thất, xây dựng hoặc sửa nhà, nên dùng form báo giá, trang đích dự án/dịch vụ, CRM chăm sóc từng hồ sơ và Review Booster sau bàn giao. Bắt đầu bằng landing mô tả quy trình làm việc và form thu nhu cầu — chat không thay hợp đồng hay bản vẽ kỹ thuật.'),
             'transport_delivery_logistics' => __('Với vận tải, giao hàng hoặc logistics, nên dùng form báo giá/route, trang đích giới thiệu dịch vụ, CRM khách doanh nghiệp và báo cáo theo nguồn lead. Bước đầu: landing dịch vụ, form yêu cầu báo giá, phân nhóm CRM theo loại hàng hoặc khu vực.'),
@@ -653,7 +653,7 @@ class MLHUBAIResponseComposer
         $campaigns = array_slice((array) ($context['top_campaigns'] ?? []), 0, 3);
 
         if ($campaigns === []) {
-            return __('Chưa có bảng xếp hạng chiến dịch. Hãy xuất bản một chiến dịch và chia sẻ QR để MLHUB bắt đầu đo lượt quét, chuyển đổi và chiến dịch tốt nhất.');
+            return __('Chưa có bảng xếp hạng chiến dịch. Hãy xuất bản một chiến dịch và chia sẻ QR để MKT bắt đầu đo lượt quét, chuyển đổi và chiến dịch tốt nhất.');
         }
 
         $details = collect($campaigns)
@@ -817,7 +817,7 @@ class MLHUBAIResponseComposer
         }
 
         if (is_numeric($cost)) {
-            $parts[] = __('Nếu bật AI Nâng cao (Advanced AI), mỗi câu trả lời MLHUB AI Chat dự kiến dùng :cost tín dụng AI theo gói hiện tại.', [
+            $parts[] = __('Nếu bật AI Nâng cao (Advanced AI), mỗi câu trả lời MKT AI Chat dự kiến dùng :cost tín dụng AI theo gói hiện tại.', [
                 'cost' => format_number_locale((int) $cost),
             ]);
         }
@@ -899,7 +899,7 @@ class MLHUBAIResponseComposer
         $hints = (array) ($context['onboarding'] ?? []);
 
         $steps = [
-            __('Bước 1: Tạo cơ sở kinh doanh đầu tiên để MLHUB có hồ sơ chính cho QR, trang đích và dữ liệu khách.'),
+            __('Bước 1: Tạo cơ sở kinh doanh đầu tiên để MKT có hồ sơ chính cho QR, trang đích và dữ liệu khách.'),
             __('Bước 2: Tạo một chiến dịch đầu tiên, thường nên bắt đầu với công cụ xin đánh giá, form khách tiềm năng hoặc mã ưu đãi tùy mục tiêu.'),
             __('Bước 3: Xuất bản chiến dịch rồi chia sẻ/in QR ở quầy, hóa đơn, tin nhắn hoặc kênh xã hội để bắt đầu có dữ liệu.'),
         ];
@@ -1055,7 +1055,7 @@ class MLHUBAIResponseComposer
         $delta = (int) ($customers['delta'] ?? 0);
 
         if ($count === 0 && (int) ($signals['leads'] ?? 0) === 0 && (int) ($signals['bookings'] ?? 0) === 0) {
-            return __('Tuần này chưa có khách hàng mới. Hãy xuất bản chiến dịch và chia sẻ mã QR để MLHUB bắt đầu ghi nhận khách tiềm năng và lượt đặt lịch.');
+            return __('Tuần này chưa có khách hàng mới. Hãy xuất bản chiến dịch và chia sẻ mã QR để MKT bắt đầu ghi nhận khách tiềm năng và lượt đặt lịch.');
         }
 
         $deltaText = match (true) {
@@ -1183,7 +1183,7 @@ class MLHUBAIResponseComposer
         }
 
         if ($suggestions === []) {
-            $suggestions[] = __('Thử mã ưu đãi cuối tuần cho khách quay lại, MLHUB có thể nháp nội dung và trang đích trong AI Studio.');
+            $suggestions[] = __('Thử mã ưu đãi cuối tuần cho khách quay lại, MKT có thể nháp nội dung và trang đích trong AI Studio.');
         }
 
         return implode(' ', $suggestions);

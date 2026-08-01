@@ -16,13 +16,13 @@
                     <td><code>awaiting_consultant</code></td>
                     <td>{{ __('Chờ tư vấn viên liên hệ') }}</td>
                     <td>{{ __('A Free account was created immediately; waiting for a consultant to reach out') }}</td>
-                    <td>{{ __('Wait for MLHUB to contact the owner; do not recreate the request') }}</td>
+                    <td>{{ __('Wait for MKT to contact the owner; do not recreate the request') }}</td>
                 </tr>
                 <tr>
                     <td><code>needs_review</code></td>
                     <td>{{ __('Cần kiểm tra') }}</td>
                     <td>{{ __('Duplicate email / tax code / business license (the account is still created)') }}</td>
-                    <td>{{ __('Do not keep recreating the same request; ask MLHUB to process the ticket') }}</td>
+                    <td>{{ __('Do not keep recreating the same request; ask MKT to process the ticket') }}</td>
                 </tr>
                 <tr>
                     <td><code>ready</code></td>
@@ -131,17 +131,17 @@
                 </tr>
                 <tr>
                     <td><code>integration_not_found</code></td>
-                    <td>{{ __('Chưa có mapping MLHUB cho business này') }}</td>
+                    <td>{{ __('Chưa có mapping MKT cho business này') }}</td>
                     <td>{{ __('Run onboarding first or check external_business_id') }}</td>
                 </tr>
                 <tr>
                     <td><code>integration_broken</code></td>
-                    <td>{{ __('Mapping MLHUB cho business này bị lỗi (tài khoản liên kết đã bị xoá)') }}</td>
-                    <td>{{ __('Contact MLHUB support; do not keep retrying automatically') }}</td>
+                    <td>{{ __('Mapping MKT cho business này bị lỗi (tài khoản liên kết đã bị xoá)') }}</td>
+                    <td>{{ __('Contact MKT support; do not keep retrying automatically') }}</td>
                 </tr>
                 <tr>
                     <td><code>integration_mapping_invalid</code></td>
-                    <td>{{ __('Liên kết tài khoản MLHUB chưa hoàn chỉnh khi tạo ticket onboarding') }}</td>
+                    <td>{{ __('Liên kết tài khoản MKT chưa hoàn chỉnh khi tạo ticket onboarding') }}</td>
                     <td>{{ __('Call POST Onboarding again with the same payload (next_action: retry_onboarding)') }}</td>
                 </tr>
                 <tr>
@@ -186,18 +186,18 @@
                 </tr>
                 <tr>
                     <td><code>onboarding_not_ready</code></td>
-                    <td>{{ __('Tài khoản đang chờ tư vấn viên MLHUB hoàn tất cấu hình.') }}</td>
+                    <td>{{ __('Tài khoản đang chờ tư vấn viên MKT hoàn tất cấu hình.') }}</td>
                     <td>{{ __('Wait for status ready/completed before calling one-time login') }}</td>
                 </tr>
                 <tr>
                     <td><code>default_plan_not_found</code></td>
                     <td>{{ __('Hệ thống chưa sẵn sàng để tạo tài khoản') }}</td>
-                    <td>{{ __('Ask MLHUB to check deploy/seed; this is not a FizaHUB-side error') }}</td>
+                    <td>{{ __('Ask MKT to check deploy/seed; this is not a FizaHUB-side error') }}</td>
                 </tr>
                 <tr>
                     <td><code>partner_schema_not_ready</code></td>
                     <td>{{ __('Hệ thống chưa sẵn sàng (migration chưa chạy đủ)') }}</td>
-                    <td>{{ __('Ask MLHUB to check deploy; this is not a FizaHUB-side error') }}</td>
+                    <td>{{ __('Ask MKT to check deploy; this is not a FizaHUB-side error') }}</td>
                 </tr>
                 <tr>
                     <td><code>rate_limit_exceeded</code></td>
@@ -207,7 +207,7 @@
                 <tr>
                     <td><code>partner_api_error</code></td>
                     <td>{{ __('Lỗi hệ thống API partner') }}</td>
-                    <td>{{ __('Ask MLHUB to check logs') }}</td>
+                    <td>{{ __('Ask MKT to check logs') }}</td>
                 </tr>
             </tbody>
         </table>

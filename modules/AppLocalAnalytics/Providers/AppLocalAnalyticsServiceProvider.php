@@ -26,7 +26,7 @@ class AppLocalAnalyticsServiceProvider extends ServiceProvider
         ]);
 
         register_admin_dashboard_item('mlhub.snapshot', [
-            'title' => __('MLHUB AI'),
+            'title' => __('MKT AI'),
             'view' => 'applocalanalytics::dashboard.mlhub-snapshot',
             'width' => 'full',
             'order' => 35,

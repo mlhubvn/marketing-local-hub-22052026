@@ -206,7 +206,7 @@
                             {{ __('Main business industry') }}
                         </label>
                         <p class="mt-1 text-xs leading-5" style="color: var(--theme-muted-text-color);">
-                            {{ __('Choose the industry that best matches your main activity. MLHUB will suggest the right templates, campaigns, and reports for you.') }}
+                            {{ __('Choose the industry that best matches your main activity. MKT will suggest the right templates, campaigns, and reports for you.') }}
                         </p>
                         @error('industry_category_code')
                             <p class="mt-1 text-xs font-medium" style="color: var(--theme-danger-color);">{{ $message }}</p>
@@ -251,7 +251,7 @@
                             <div class="px-4 py-5 text-center text-sm" style="color: var(--theme-muted-text-color);">
                                 <i class="fa-light fa-circle-question mb-2 block text-2xl" style="color: var(--theme-accent);"></i>
                                 {{ __('No results found') }}
-                                <p class="mt-1 text-xs">{{ __('If unsure, select Other. MLHUB can help you classify later.') }}</p>
+                                <p class="mt-1 text-xs">{{ __('If unsure, select Other. MKT can help you classify later.') }}</p>
                             </div>
                         </template>
                     </div>
@@ -362,7 +362,7 @@
 
                         <div x-show="complianceSensitive" x-cloak class="mt-3 flex items-start gap-2 rounded-xl border px-3 py-2 text-[11px] leading-5" style="border-color: rgba(var(--theme-warning-color-rgb),0.3); background-color: rgba(var(--theme-warning-color-rgb),0.08); color: var(--theme-muted-text-color);">
                             <i class="fa-light fa-shield-halved mt-0.5" style="color: var(--theme-warning-color);"></i>
-                            <span>{{ __('MLHUB avoids medical or treatment claims for this industry.') }}</span>
+                            <span>{{ __('MKT avoids medical or treatment claims for this industry.') }}</span>
                         </div>
 
                         <div class="mt-3 space-y-3" x-show="recommendedGoals.length || recommendedSignals.length">
@@ -386,7 +386,7 @@
                     </div>
 
                     <p class="text-[11px] leading-4" style="color: var(--theme-muted-text-color);">
-                        {{ __('If unsure, select Other. MLHUB can help you classify later.') }}
+                        {{ __('If unsure, select Other. MKT can help you classify later.') }}
                     </p>
                 </div>
             </div>

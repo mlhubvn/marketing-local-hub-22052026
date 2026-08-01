@@ -42,7 +42,7 @@
     ];
 @endphp
 
-{{-- Hero: MLHUB AI chat preview --}}
+{{-- Hero: MKT AI chat preview --}}
 <section id="mlhub-ai-mcp" class="lb-wrap lb-section lb-about scroll-mt-28 pb-4 lg:pb-8">
     <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
         <div class="lb-glow lb-reveal relative" style="--lb-delay: 240ms;">
@@ -55,7 +55,7 @@
                             <span class="lb-dot bg-lime-500"></span>
                         </div>
                         <div class="min-w-0">
-                            <p class="truncate text-sm font-black">{{ __('MLHUB AI') }}</p>
+                            <p class="truncate text-sm font-black">{{ __('MKT AI') }}</p>
                             <p class="truncate text-[11px] font-bold" style="color: var(--lb-muted);">{{ __('Assistant chat preview') }}</p>
                         </div>
                     </div>
@@ -132,9 +132,9 @@
         <div>
             <span class="lb-pill lb-reveal inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">
                 <i class="fa-light fa-robot"></i>
-                {{ __('About MLHUB AI') }}
+                {{ __('About MKT AI') }}
             </span>
-            <h1 class="lb-serif lb-hero-title lb-reveal mt-6" style="--lb-delay: 70ms;">{{ __('Ask MLHUB AI in natural language') }}</h1>
+            <h1 class="lb-serif lb-hero-title lb-reveal mt-6" style="--lb-delay: 70ms;">{{ __('Ask MKT AI in natural language') }}</h1>
             <p class="lb-lead lb-reveal mt-5 max-w-xl" style="--lb-delay: 140ms; color: var(--lb-muted);">
                 {{ __('Talk to your growth data on Portal Dashboard. Ask in plain language — get answers about campaigns, reviews, and bookings. Smart assistant, coming soon.') }}
             </p>
@@ -147,15 +147,15 @@
     </div>
 </section>
 
-{{-- 01 What is MLHUB? --}}
+{{-- 01 What is MKT? --}}
 <section id="about-what" class="lb-wrap lb-section lb-about-panel scroll-mt-28 pt-0">
     <div class="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
         <div>
             <p class="lb-section-index">01</p>
-            <span class="lb-pill mt-4 inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('What is MLHUB?') }}</span>
-            <h2 class="lb-serif lb-heading mt-5">{{ __('What is MLHUB?') }}</h2>
-            <p class="lb-body mt-5" style="color: var(--lb-muted);">{{ __('In today\'s digital economy, most software is too expensive and complex for small shops. MLHUB was built to fill that gap.') }}</p>
-            <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('MLHUB is a Marketing Automation O2O platform tailored for household businesses (SOHO) and SMEs. Instead of feature overload, we deliver the most minimal ecosystem: turn every table-side QR scan into a fully automated search, engagement, and customer care workflow.') }}</p>
+            <span class="lb-pill mt-4 inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('What is MKT?') }}</span>
+            <h2 class="lb-serif lb-heading mt-5">{{ __('What is MKT?') }}</h2>
+            <p class="lb-body mt-5" style="color: var(--lb-muted);">{{ __('In today\'s digital economy, most software is too expensive and complex for small shops. MKT was built to fill that gap.') }}</p>
+            <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('MKT is a Marketing Automation O2O platform tailored for household businesses (SOHO) and SMEs. Instead of feature overload, we deliver the most minimal ecosystem: turn every table-side QR scan into a fully automated search, engagement, and customer care workflow.') }}</p>
             <div class="mt-6 flex flex-wrap gap-2">
                 @foreach ([__('Marketing Automation'), __('Local O2O'), __('Review Booster')] as $badge)
                     <span class="rounded-full border bg-white/90 px-3 py-2 text-xs font-black" style="border-color: var(--lb-line); color: var(--lb-muted);">{{ $badge }}</span>
@@ -263,7 +263,7 @@
             <p class="lb-section-index">04</p>
             <span class="lb-pill mt-4 inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Comprehensive solutions') }}</span>
             <h2 class="lb-serif lb-heading mt-5">{{ __('Comprehensive solutions') }}</h2>
-            <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('MLHUB focuses on solving root problems with three battle-ready tools:') }}</p>
+            <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('MKT focuses on solving root problems with three battle-ready tools:') }}</p>
             <div class="lb-proof-visual mt-8 rounded-2xl border p-5" style="border-color: var(--lb-line);">
                 <div class="grid gap-3">
                     @foreach ($solutions as $node)
@@ -333,8 +333,8 @@
                 <span class="lb-pill mt-4 inline-flex items-center rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">{{ __('Revenue replication') }}</span>
                 <h2 class="lb-serif lb-heading mt-5">{{ __('Revenue replication') }}</h2>
                 <p class="lb-body mt-5" style="color: var(--lb-muted);">{{ __('Digital transformation is not about how much software you buy—it is about how you change the way you operate.') }}</p>
-                <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('MLHUB does not just sell tools—we give you a standard operating process (SOP). Turn walk-in traffic into owned data, strangers into regulars, and regulars into 5-star ambassadors for your store.') }}</p>
-                <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('With MLHUB, your small retail shop becomes a systematic business engine—ready to replicate revenue at any time.') }}</p>
+                <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('MKT does not just sell tools—we give you a standard operating process (SOP). Turn walk-in traffic into owned data, strangers into regulars, and regulars into 5-star ambassadors for your store.') }}</p>
+                <p class="lb-body mt-4" style="color: var(--lb-muted);">{{ __('With MKT, your small retail shop becomes a systematic business engine—ready to replicate revenue at any time.') }}</p>
                 <a href="{{ $demoHref }}" class="mt-8 inline-flex items-center justify-center gap-2 rounded-full px-6 py-4 text-sm font-black text-white transition hover:opacity-90" style="background: var(--lb-red); box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 22px 48px -30px rgba(255,95,95,.9);">
                     <i class="fa-light fa-rocket"></i>
                     {{ __('Start your free trial') }}

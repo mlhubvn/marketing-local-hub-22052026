@@ -6,7 +6,7 @@
     </head>
     @php
         $brandOptions = app(\Modules\AdminSettings\Support\OptionStore::class);
-        $authSiteTitle = trim((string) $brandOptions->get('website_title', config('app.name', 'MLHUB AI')));
+        $authSiteTitle = trim((string) $brandOptions->get('website_title', config('app.name', 'MKT AI')));
         $authDarkLogoPath = (string) ($brandOptions->get('website_logo_brand_dark')
             ?: $brandOptions->get('website_logo_dark')
             ?: $brandOptions->get('website_logo')

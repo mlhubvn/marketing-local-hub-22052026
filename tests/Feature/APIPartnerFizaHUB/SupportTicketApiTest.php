@@ -148,7 +148,7 @@ function seedMappedBusiness(string $externalBusinessId, string $email): array
     $plan = AdminPlan::query()->firstOrCreate(
         ['slug' => 'mlhub-free-da-nang'],
         [
-            'name' => 'MLHUB Free Da Nang',
+            'name' => 'MKT Free Da Nang',
             'status' => true,
             'free_plan' => true,
             'currency' => 'VND',

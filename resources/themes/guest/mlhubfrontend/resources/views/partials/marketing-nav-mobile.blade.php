@@ -13,8 +13,8 @@
         ['label' => __('Launch campaigns'), 'hash' => '#get-started'],
     ];
     $aboutNavSections = [
-        ['label' => __('About MLHUB AI'), 'hash' => '#mlhub-ai-mcp'],
-        ['label' => __('What is MLHUB?'), 'hash' => '#about-what'],
+        ['label' => __('About MKT AI'), 'hash' => '#mlhub-ai-mcp'],
+        ['label' => __('What is MKT?'), 'hash' => '#about-what'],
         ['label' => __('Vision & Mission'), 'hash' => '#about-vision'],
         ['label' => __('Market challenges'), 'hash' => '#about-pain'],
         ['label' => __('Comprehensive solutions'), 'hash' => '#about-solutions'],

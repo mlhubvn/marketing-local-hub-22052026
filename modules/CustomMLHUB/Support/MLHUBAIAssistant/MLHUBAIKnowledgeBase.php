@@ -261,7 +261,7 @@ class MLHUBAIKnowledgeBase
         return [
             'help_using_mlhubai' => [
                 __('AI Cơ bản (Basic AI) khác AI Nâng cao (Advanced AI) thế nào?'),
-                __('Tôi có thể hỏi MLHUB AI những gì?'),
+                __('Tôi có thể hỏi MKT AI những gì?'),
                 __('Khi nào câu hỏi mới dùng tín dụng AI?'),
             ],
             'daily_briefing' => [
@@ -457,7 +457,7 @@ class MLHUBAIKnowledgeBase
     {
         return match ($intent) {
             'help_using_mlhubai' => [
-                ['portal.chatmlhubai', __('Mở MLHUB AI')],
+                ['portal.chatmlhubai', __('Mở MKT AI')],
                 ['portal.ai-studio.settings', __('Cài đặt AI')],
             ],
             'industry_recommendation' => [
@@ -613,7 +613,7 @@ class MLHUBAIKnowledgeBase
     public static function studioHandoffMessage(string $type): string
     {
         return match ($type) {
-            'content_writing' => __('Chat MLHUB AI không viết caption hay bài quảng cáo dài tại đây. Mở AI Content hoặc AI Studio để sinh nội dung, hoặc Marketing Templates nếu muốn mẫu sẵn. AI Cơ bản (Basic AI) không trừ tín dụng AI; tác vụ sinh nội dung trong Studio có thể dùng tín dụng AI theo gói.'),
+            'content_writing' => __('Chat MKT AI không viết caption hay bài quảng cáo dài tại đây. Mở AI Content hoặc AI Studio để sinh nội dung, hoặc Marketing Templates nếu muốn mẫu sẵn. AI Cơ bản (Basic AI) không trừ tín dụng AI; tác vụ sinh nội dung trong Studio có thể dùng tín dụng AI theo gói.'),
             'content_planner' => __('Lập lịch nội dung nên làm trong AI Studio — mở Lập lịch nội dung hoặc AI Studio. Chat chỉ hướng dẫn mở đúng màn hình; AI Cơ bản không trừ tín dụng AI, tác vụ planner trong Studio có thể dùng tín dụng AI theo gói.'),
             'review_reply_writing' => __('Viết/trả lời review bằng AI nên mở Trả lời đánh giá AI trong AI Studio — Chat không soạn phản hồi dài tại đây. AI Cơ bản không trừ tín dụng AI; tác vụ trong Studio có thể dùng tín dụng AI theo gói.'),
             'image_generation' => __('Tạo ảnh/banner AI nên mở Tạo ảnh AI hoặc AI Studio — Chat không render hình tại đây. AI Cơ bản không trừ tín dụng AI; tác vụ tạo ảnh trong Studio có thể dùng tín dụng AI theo gói.'),

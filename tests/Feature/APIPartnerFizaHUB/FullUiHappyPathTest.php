@@ -99,7 +99,7 @@ beforeEach(function (): void {
     config()->set('modules.apipartnerfizahub.one_time_login_ttl_minutes', 5);
     bootProductionLikeSchema();
     AdminPlan::query()->create([
-        'name' => 'MLHUB Free Da Nang',
+        'name' => 'MKT Free Da Nang',
         'slug' => 'mlhub-free-da-nang',
         'status' => true,
         'free_plan' => true,

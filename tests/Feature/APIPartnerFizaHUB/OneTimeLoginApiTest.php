@@ -135,7 +135,7 @@ function seedOneTimeLoginBusiness(string $externalBusinessId, string $email): ar
     $plan = AdminPlan::query()->firstOrCreate(
         ['slug' => 'mlhub-free-da-nang'],
         [
-            'name' => 'MLHUB Free Da Nang',
+            'name' => 'MKT Free Da Nang',
             'status' => true,
             'free_plan' => true,
             'currency' => 'VND',
@@ -293,7 +293,7 @@ test('refuses one-time login while onboarding is still awaiting a consultant', f
     )
         ->assertStatus(409)
         ->assertJsonPath('error.code', 'onboarding_not_ready')
-        ->assertJsonPath('error.message', 'Tài khoản đang chờ tư vấn viên MLHUB hoàn tất cấu hình.');
+        ->assertJsonPath('error.message', 'Tài khoản đang chờ tư vấn viên MKT hoàn tất cấu hình.');
 
     expect(PartnerOneTimeLogin::query()->count())->toBe(0);
 });

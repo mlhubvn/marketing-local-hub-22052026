@@ -9,7 +9,7 @@
                 {{ __('Create workspace') }}
             </span>
             <div class="space-y-3">
-                <h1 class="lb-serif text-5xl leading-none">{{ __('Create your MLHUB account') }}</h1>
+                <h1 class="lb-serif text-5xl leading-none">{{ __('Create your MKT account') }}</h1>
                 <p class="lb-copy mx-auto max-w-2xl text-base">
                     {{ __('Launch local campaign pages, QR codes, AI copy, and growth reporting from one SaaS workspace.') }}
                 </p>

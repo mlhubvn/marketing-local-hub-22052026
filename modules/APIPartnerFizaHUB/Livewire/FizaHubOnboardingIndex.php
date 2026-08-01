@@ -169,7 +169,7 @@ class FizaHubOnboardingIndex extends Component
             unset($this->stageSelections[$row->id], $this->packageSelections[$row->id]);
 
             return null;
-        }, __('Đã xóa dữ liệu onboarding FizaHUB. Tài khoản MLHUB vẫn được giữ lại.'));
+        }, __('Đã xóa dữ liệu onboarding FizaHUB. Tài khoản MKT vẫn được giữ lại.'));
 
         $this->resetOnboardingDeleteConfirmation($id);
     }
@@ -197,7 +197,7 @@ class FizaHubOnboardingIndex extends Component
             $result = app(DeleteUser::class)->execute($user, (int) auth()->id());
 
             if ($result->status === 'already_deleted' || ! $result->deleted) {
-                throw new InvalidArgumentException(__('The MLHUB user was already deleted or could not be found.'));
+                throw new InvalidArgumentException(__('The MKT user was already deleted or could not be found.'));
             }
 
             if ($result->failedVerification()) {
@@ -209,11 +209,11 @@ class FizaHubOnboardingIndex extends Component
             unset($this->stageSelections[$row->id], $this->packageSelections[$row->id]);
 
             return $result->completedWithWarnings()
-                ? __('The MLHUB user and database data were deleted, but :count storage item(s) are pending safe retry.', [
+                ? __('The MKT user and database data were deleted, but :count storage item(s) are pending safe retry.', [
                     'count' => $result->storageFailureCount,
                 ])
                 : null;
-        }, __('The MLHUB user and all owned operational data were deleted.'));
+        }, __('The MKT user and all owned operational data were deleted.'));
 
         $this->resetUserDeleteConfirmation($id);
     }

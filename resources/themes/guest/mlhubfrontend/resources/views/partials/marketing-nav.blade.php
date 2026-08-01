@@ -11,8 +11,8 @@
         ['label' => __('Launch campaigns'), 'hash' => '#get-started', 'icon' => 'fa-rocket-launch'],
     ];
     $aboutNavSections = [
-        ['label' => __('About MLHUB AI'), 'hash' => '#mlhub-ai-mcp', 'icon' => 'fa-robot'],
-        ['label' => __('What is MLHUB?'), 'hash' => '#about-what', 'icon' => 'fa-circle-info'],
+        ['label' => __('About MKT AI'), 'hash' => '#mlhub-ai-mcp', 'icon' => 'fa-robot'],
+        ['label' => __('What is MKT?'), 'hash' => '#about-what', 'icon' => 'fa-circle-info'],
         ['label' => __('Vision & Mission'), 'hash' => '#about-vision', 'icon' => 'fa-compass'],
         ['label' => __('Market challenges'), 'hash' => '#about-pain', 'icon' => 'fa-triangle-exclamation'],
         ['label' => __('Comprehensive solutions'), 'hash' => '#about-solutions', 'icon' => 'fa-lightbulb'],

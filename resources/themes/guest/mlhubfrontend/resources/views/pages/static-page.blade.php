@@ -94,7 +94,7 @@
             <h1 class="mt-6 max-w-4xl text-5xl font-extrabold leading-[1.02] tracking-[-0.07em] text-slate-950 md:text-6xl">{{ $pageTitle }}</h1>
             <p class="mt-5 max-w-3xl text-base leading-8 text-slate-600">
                 {{ $pageType === 'social'
-                    ? __('Public destinations connected to the MLHUB brand.')
+                    ? __('Public destinations connected to the MKT brand.')
                     : __('Clear public information for customers, buyers, and operators reviewing the platform.') }}
             </p>
 

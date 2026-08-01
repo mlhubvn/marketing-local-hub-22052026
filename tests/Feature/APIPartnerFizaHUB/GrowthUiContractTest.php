@@ -96,7 +96,7 @@ function createGrowthUiTables(): void
 function seedGrowthUiBusiness(): array
 {
     $plan = AdminPlan::query()->create([
-        'name' => 'MLHUB Free Da Nang',
+        'name' => 'MKT Free Da Nang',
         'slug' => 'mlhub-free-da-nang',
         'status' => true,
         'free_plan' => true,

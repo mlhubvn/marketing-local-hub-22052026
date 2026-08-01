@@ -1,6 +1,6 @@
 {
     "name": "guest/mlhubdefault",
-    "description": "MLHUB AI guest theme",
+    "description": "MKT AI guest theme",
     "type": "laravel-theme",
     "extra": {
         "laravel-theme": {

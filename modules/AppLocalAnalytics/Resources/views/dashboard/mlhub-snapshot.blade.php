@@ -27,7 +27,7 @@
                             {{ __('Platform overview') }}
                         </span>
                         <span class="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]" style="background: rgba(var(--theme-success-color-rgb),0.10); color: var(--theme-success-color);">
-                            {{ __('MLHUB AI') }}
+                            {{ __('MKT AI') }}
                         </span>
                     </div>
                     <h2 class="mt-3 text-[1.45rem] font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ __('Local marketing activity across every tenant') }}</h2>
@@ -75,7 +75,7 @@
                     <span class="rounded-full px-3 py-1 text-xs font-semibold" style="background: rgba(var(--theme-accent-rgb),0.1); color: var(--theme-accent);">{{ format_number_locale((int) $campaign->scans_count) }} {{ __('visits') }}</span>
                 </div>
             @empty
-                <p class="rounded-[0.9rem] border px-4 py-3 text-sm" style="border-color: rgba(var(--theme-border-color-rgb),0.72); color: var(--theme-muted-text-color);">{{ __('No MLHUB campaigns yet.') }}</p>
+                <p class="rounded-[0.9rem] border px-4 py-3 text-sm" style="border-color: rgba(var(--theme-border-color-rgb),0.72); color: var(--theme-muted-text-color);">{{ __('No MKT campaigns yet.') }}</p>
             @endforelse
         </div>
     </div>

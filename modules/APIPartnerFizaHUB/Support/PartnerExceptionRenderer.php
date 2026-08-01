@@ -125,7 +125,7 @@ class PartnerExceptionRenderer
             ),
             PartnerIntegration::class => PartnerApiResponse::error(
                 'integration_not_found',
-                __('Doanh nghiệp này chưa được liên kết với MLHUB.'),
+                __('Doanh nghiệp này chưa được liên kết với MKT.'),
                 404,
                 ['next_action' => 'create_onboarding_request']
             ),

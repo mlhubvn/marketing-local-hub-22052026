@@ -294,14 +294,14 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
     {
         if ($this->hasActivePlan() && $this->plan) {
             if ((bool) ($this->plan->free_plan ?? false)) {
-                return __('MLHUB Free');
+                return __('MKT Free');
             }
 
             return (string) $this->plan->name;
         }
 
         if ($this->usesNoPlanFreeAccess()) {
-            return __('MLHUB Free');
+            return __('MKT Free');
         }
 
         return __('No plan assigned');

@@ -163,7 +163,7 @@ class SupportTicketBridge
 
         $ticket = $this->create($integration, [
             'subject' => 'Yêu cầu điều chỉnh chiến dịch: '.$campaign->name,
-            'message' => $note ?: 'Doanh nghiệp yêu cầu MLHUB rà soát và điều chỉnh chiến dịch.',
+            'message' => $note ?: 'Doanh nghiệp yêu cầu MKT rà soát và điều chỉnh chiến dịch.',
         ]);
         $this->storeContext(
             $integration,
@@ -238,7 +238,7 @@ class SupportTicketBridge
         array $duplicates = [],
         ?string $auditReason = null
     ): SupportTicket {
-        // Onboarding always provisions a real MLHUB user/team before a review ticket is
+        // Onboarding always provisions a real MKT user/team before a review ticket is
         // ever created (see OnboardingService::provision()), so support_tickets.uid and
         // .open_by — which have a real FK to users.id in production — must reference that
         // provisioned account. Validate the mapping first instead of inserting uid=0/
@@ -436,7 +436,7 @@ class SupportTicketBridge
         if ($userId <= 0 || ! User::query()->whereKey($userId)->exists()) {
             throw PartnerApiException::make(
                 'integration_mapping_invalid',
-                __('Liên kết tài khoản MLHUB chưa hoàn chỉnh.'),
+                __('Liên kết tài khoản MKT chưa hoàn chỉnh.'),
                 409,
                 ['next_action' => 'retry_onboarding']
             );
@@ -447,7 +447,7 @@ class SupportTicketBridge
         if ($teamId !== null && ! Team::query()->whereKey($teamId)->exists()) {
             throw PartnerApiException::make(
                 'integration_mapping_invalid',
-                __('Liên kết tài khoản MLHUB chưa hoàn chỉnh.'),
+                __('Liên kết tài khoản MKT chưa hoàn chỉnh.'),
                 409,
                 ['next_action' => 'retry_onboarding']
             );
@@ -744,7 +744,7 @@ class SupportTicketBridge
     }
 
     /**
-     * Đính kèm tệp khi admin MLHUB trả lời ticket (`/admin/support`). Dùng chung logic kiểm
+     * Đính kèm tệp khi admin MKT trả lời ticket (`/admin/support`). Dùng chung logic kiểm
      * tra loại file/dung lượng với `storeAttachment` để không lệch quy tắc giữa hai chiều.
      */
     public function storeAdminAttachment(SupportTicket $ticket, UploadedFile $file, int $adminUserId): PartnerSupportAttachment
@@ -774,7 +774,7 @@ class SupportTicketBridge
 
     /**
      * Đối chiếu MIME/đuôi/dung lượng và lưu 1 tệp đính kèm ticket. Nguồn kiểm tra dùng chung
-     * cho cả FizaHUB (`storeAttachment`) và admin MLHUB (`storeAdminAttachment`).
+     * cho cả FizaHUB (`storeAttachment`) và admin MKT (`storeAdminAttachment`).
      */
     private function persistAttachment(SupportTicket $ticket, UploadedFile $file, int $uploaderUserId): PartnerSupportAttachment
     {
@@ -1066,7 +1066,7 @@ class SupportTicketBridge
             [
                 'code' => 'growth_recommendation',
                 'name' => 'Tư vấn đề xuất tăng trưởng',
-                'description' => 'Yêu cầu MLHUB hỗ trợ triển khai đề xuất tăng trưởng.',
+                'description' => 'Yêu cầu MKT hỗ trợ triển khai đề xuất tăng trưởng.',
                 'category_id' => null,
                 'type_id' => null,
                 'default_subject' => 'Tư vấn đề xuất tăng trưởng',
@@ -1080,7 +1080,7 @@ class SupportTicketBridge
             [
                 'code' => 'campaign_request',
                 'name' => 'Yêu cầu điều chỉnh chiến dịch',
-                'description' => 'Yêu cầu MLHUB rà soát một chiến dịch cụ thể.',
+                'description' => 'Yêu cầu MKT rà soát một chiến dịch cụ thể.',
                 'category_id' => null,
                 'type_id' => null,
                 'default_subject' => 'Yêu cầu điều chỉnh chiến dịch',

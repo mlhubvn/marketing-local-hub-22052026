@@ -57,7 +57,7 @@ class ApiFizaHubDocsController
     {
         return $this->downloadCollection(
             'FizaHUB-Partner-API.postman_collection.json',
-            'MLHUB-FizaHUB-Partner-API.postman_collection.json'
+            'MKT-FizaHUB-Partner-API.postman_collection.json'
         );
     }
 

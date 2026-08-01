@@ -82,7 +82,7 @@ class LocalAnalyticsIndex extends Component
 
         return response()->streamDownload(function () use ($topCampaigns, $businesses): void {
             $out = fopen('php://output', 'w');
-            fputcsv($out, ['Report', 'MLHUB AI']);
+            fputcsv($out, ['Report', 'MKT AI']);
             fputcsv($out, ['Generated at', now()->toDateTimeString()]);
             fputcsv($out, ['Business filter', $this->businessFilter === 'all' ? 'All businesses' : (string) optional($businesses->firstWhere('id', (int) $this->businessFilter))->name]);
             fputcsv($out, ['Date range', $this->dateRange === 'all' ? 'All time' : 'Last '.$this->dateRange.' days']);

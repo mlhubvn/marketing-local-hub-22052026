@@ -15,10 +15,10 @@
  */
 return [
   // Site & locale
-    ['env' => 'SITE_TITLE', 'option' => 'website_title', 'default' => 'MLHUB.vn'],
-    ['env' => 'SITE_TITLE', 'option' => 'contact_company_name', 'default' => 'MLHUB.vn'],
+    ['env' => 'SITE_TITLE', 'option' => 'website_title', 'default' => 'MKT'],
+    ['env' => 'SITE_TITLE', 'option' => 'contact_company_name', 'default' => 'MKT'],
     ['env' => 'SITE_DESCRIPTION', 'option' => 'website_description', 'default' => 'Nền tảng Marketing Automation hỗ trợ tăng đánh giá, đặt lịch, mã ưu đãi, phản hồi & tạo khách hàng tiềm năng.'],
-    ['env' => 'SITE_KEYWORDS', 'option' => 'website_keyword', 'default' => 'MLHUB, Marketing Automation, đánh giá, đặt lịch, mã ưu đãi, phản hồi, khách hàng tiềm năng, hộ kinh doanh'],
+    ['env' => 'SITE_KEYWORDS', 'option' => 'website_keyword', 'default' => 'MKT, Marketing Automation, đánh giá, đặt lịch, mã ưu đãi, phản hồi, khách hàng tiềm năng, hộ kinh doanh'],
     ['env' => 'THEME_FRONTEND', 'option' => 'frontend_theme', 'default' => 'mlhubfrontend'],
     ['env' => 'THEME_BACKEND', 'option' => 'backend_theme', 'default' => 'mlhubbackend'],
     ['env' => 'MLHUB_CONTACT_EMAIL', 'option' => 'contact_email', 'default' => 'admin@mlhub.vn'],
@@ -36,7 +36,7 @@ return [
     ['env' => 'MAIL_USERNAME', 'option' => 'smtp_username', 'default' => 'emailit'],
     ['env' => 'MAIL_PASSWORD', 'option' => 'smtp_password', 'default' => 'secret_LHzlnBLwXz8ZGV0JztVkvn9mf4VFKE14'],
     ['env' => 'MAIL_FROM_ADDRESS', 'option' => 'mail_sender_email', 'default' => 'noreply@mlhub.vn'],
-    ['env' => 'MAIL_FROM_NAME', 'option' => 'mail_sender_name', 'default' => 'MLHUB.vn'],
+    ['env' => 'MAIL_FROM_NAME', 'option' => 'mail_sender_name', 'default' => 'MKT'],
     ['env' => 'MAIL_SCHEME', 'option' => 'smtp_encryption', 'default' => 'tls', 'transform' => static fn ($v) => match (strtolower((string) $v)) {
         'ssl' => 'ssl',
         'tls' => 'tls',

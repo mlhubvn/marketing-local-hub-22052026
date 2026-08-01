@@ -539,7 +539,7 @@ class LandingPagePublicController extends Controller
         }
 
         return new LocalBusiness([
-            'name' => (string) ($landingPage->title ?: config('app.name', 'MLHUB AI')),
+            'name' => (string) ($landingPage->title ?: config('app.name', 'MKT AI')),
             'address' => '',
             'qr_design' => [],
         ]);

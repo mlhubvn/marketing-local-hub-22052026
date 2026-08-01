@@ -496,7 +496,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                     'name' => $name.' - '.$business->name,
                     'duration_minutes' => $serviceIndex === 0 ? 30 : 75,
                     'price' => $serviceIndex === 0 ? 79000 + ($index * 11000) : 219000 + ($index * 17000),
-                    'description' => 'Dịch vụ mẫu cho trang đặt lịch MLHUB.',
+                    'description' => 'Dịch vụ mẫu cho trang đặt lịch MKT.',
                     'available_days' => [1, 2, 3, 4, 5, 6],
                     'time_slots' => ['08:30', '10:00', '14:15', '16:30'],
                     'max_bookings_per_slot' => 1 + ($index % 2),
@@ -1165,7 +1165,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'custom_phone' => null,
                 'webhook_url' => 'https://example.invalid/mlhub-demo-webhook',
                 'method' => 'POST',
-                'headers_json' => ['X-MLHUB-Demo' => 'true'],
+                'headers_json' => ['X-MKT-Demo' => 'true'],
                 'secret_token' => null,
                 'retry_on_failure' => true,
                 'phone_number_id' => null,
@@ -1379,7 +1379,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'user_id' => $userId,
                 'plan_id' => $planId,
                 'action_key' => ['ai_studio_generate_captions', 'ai_studio_review_reply', 'ai_studio_plan_calendar'][$i % 3],
-                'feature' => 'MLHUB AI demo',
+                'feature' => 'MKT AI demo',
                 'amount' => $amount,
                 'unit_cost' => $amount,
                 'quantity' => 1,
@@ -1480,7 +1480,7 @@ class MLHUBDemoBoardSeeder extends Seeder
         }
 
         $names = [
-            'MLHUB',
+            'MKT',
             'Chuyển đổi số',
             'Google Maps',
             'QR & Review',
@@ -1497,8 +1497,8 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'id_secure' => substr(hash('sha256', 'cat-'.$slug), 0, 64),
                 'name' => $name,
                 'name_translations' => ['vi' => $name, 'en' => $name],
-                'description' => 'Danh mục blog của MLHUB.',
-                'description_translations' => ['vi' => 'Danh mục blog của MLHUB.', 'en' => 'MLHUB blog category.'],
+                'description' => 'Danh mục blog của MKT.',
+                'description_translations' => ['vi' => 'Danh mục blog của MKT.', 'en' => 'MKT blog category.'],
                 'slug' => $slug,
                 'icon' => 'fa-light fa-folder',
                 'color' => ['#0f766e', '#2563eb', '#dc2626', '#9333ea'][$i % 4],
@@ -1534,8 +1534,8 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'id_secure' => substr(hash('sha256', 'tag-'.$slug), 0, 64),
                 'name' => $name,
                 'name_translations' => ['vi' => $name, 'en' => $name],
-                'description' => 'Thẻ blog của MLHUB.',
-                'description_translations' => ['vi' => 'Thẻ blog của MLHUB.', 'en' => 'MLHUB blog tag.'],
+                'description' => 'Thẻ blog của MKT.',
+                'description_translations' => ['vi' => 'Thẻ blog của MKT.', 'en' => 'MKT blog tag.'],
                 'slug' => $slug,
                 'status' => true,
                 'changed' => CarbonImmutable::now()->timestamp,
@@ -1735,7 +1735,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'recipient_email' => $customer?->email ?: 'demo@mlhub.vn',
                 'recipient_phone' => $customer?->phone ?: '0900000000',
                 'recipient_name' => $customer?->name,
-                'subject' => 'Thông báo tự động từ MLHUB',
+                'subject' => 'Thông báo tự động từ MKT',
                 'body' => 'Gửi email cảm ơn sau khi khách để lại thông tin.',
                 'message_type' => 'text',
                 'template_name' => $channel.'_demo_template',
@@ -1743,7 +1743,7 @@ class MLHUBDemoBoardSeeder extends Seeder
                 'action_type' => $channel,
                 'webhook_url' => 'https://example.invalid/mlhub-demo-webhook',
                 'method' => 'POST',
-                'request_headers' => ['X-MLHUB-Demo' => 'true'],
+                'request_headers' => ['X-MKT-Demo' => 'true'],
                 'request_payload' => ['demo' => true, 'customer_id' => $customer?->id],
                 'response_status' => $status === 'failed' ? 503 : 200,
                 'response_body' => ['simulated' => true, 'status' => $status],
@@ -1862,7 +1862,7 @@ class MLHUBDemoBoardSeeder extends Seeder
             return;
         }
 
-        $this->command->info('Đã seed dữ liệu demo MLHUB cho 5 tài khoản.');
+        $this->command->info('Đã seed dữ liệu demo MKT cho 5 tài khoản.');
 
         foreach ($this->summary as $username => $counts) {
             $this->command->line(sprintf(

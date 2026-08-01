@@ -12,7 +12,7 @@
             x-on:mouseleave="open = false"
             class="inline-flex h-7 w-7 items-center justify-center rounded-full transition {{ $tone === 'guest' ? '' : '' }}"
             style="{{ $tone === 'guest' ? 'background: color-mix(in srgb, var(--lb-lime) 28%, #fff); color: #ff5f5f;' : 'background-color: rgba(var(--theme-border-color-rgb),0.12); color: var(--theme-muted-text-color);' }}"
-            aria-label="{{ __('About MLHUB AI') }}"
+            aria-label="{{ __('About MKT AI') }}"
         >
             <i class="fa-light fa-circle-exclamation text-[11px]"></i>
         </button>
@@ -25,7 +25,7 @@
             style="display: none; {{ $tone === 'guest' ? 'border-color: var(--lb-line); background-color: rgba(255,255,255,0.98);' : 'border-color: rgba(var(--theme-border-color-rgb),0.68); background-color: var(--theme-surface-overlay);' }}"
         >
             <p class="text-xs font-bold leading-6" style="{{ $tone === 'guest' ? 'color: var(--lb-ink);' : 'color: var(--theme-header-text-color);' }}">
-                {{ __('MLHUB AI assistant preview (coming soon). On Portal Dashboard you will ask in natural language. Examples:') }}
+                {{ __('MKT AI assistant preview (coming soon). On Portal Dashboard you will ask in natural language. Examples:') }}
             </p>
             <ul class="mt-3 space-y-2 text-xs leading-5" style="{{ $tone === 'guest' ? 'color: var(--lb-muted);' : 'color: var(--theme-muted-text-color);' }}">
                 <li>• {{ __('Any new customers this week?') }}</li>
@@ -38,7 +38,7 @@
                 class="mt-4 inline-flex items-center gap-2 text-xs font-black transition hover:opacity-80"
                 style="{{ $tone === 'guest' ? 'color: #ff5f5f;' : 'color: var(--theme-accent-color, #ff5f5f);' }}"
             >
-                {{ __('See MLHUB AI preview') }}
+                {{ __('See MKT AI preview') }}
                 <i class="fa-light fa-arrow-right text-[10px]"></i>
             </a>
         </div>

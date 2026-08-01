@@ -6,7 +6,7 @@ test('mail configurator always sets smtp transport and symfony dsn scheme', func
     MailServerConfigurator::apply([
         'mail_protocol' => 'smtp',
         'mail_sender_email' => 'noreply@mlhub.vn',
-        'mail_sender_name' => 'MLHUB',
+        'mail_sender_name' => 'MKT',
         'smtp_server' => 'smtp.emailit.com',
         'smtp_username' => 'emailit',
         'smtp_password' => 'secret',
@@ -31,7 +31,7 @@ test('mail configurator maps ssl encryption to smtps dsn scheme', function (): v
     MailServerConfigurator::apply([
         'mail_protocol' => 'smtp',
         'mail_sender_email' => 'noreply@mlhub.vn',
-        'mail_sender_name' => 'MLHUB',
+        'mail_sender_name' => 'MKT',
         'smtp_server' => 'smtp.emailit.com',
         'smtp_username' => 'emailit',
         'smtp_password' => 'secret',

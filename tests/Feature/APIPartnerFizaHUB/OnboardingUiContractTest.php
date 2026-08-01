@@ -71,7 +71,7 @@ beforeEach(function (): void {
     bootProductionLikeSchema();
 
     AdminPlan::query()->create([
-        'name' => 'MLHUB Free Da Nang',
+        'name' => 'MKT Free Da Nang',
         'slug' => 'mlhub-free-da-nang',
         'status' => true,
         'free_plan' => true,
@@ -215,7 +215,7 @@ test('second onboarding with the same mapped email reuses the original request a
         ->and(LocalBusiness::query()->value('email'))->toBe('updated@fizastore.vn');
 });
 
-test('email owned by another MLHUB account returns a typed conflict without provisional resources', function (): void {
+test('email owned by another MKT account returns a typed conflict without provisional resources', function (): void {
     User::query()->create([
         'name' => 'Existing account',
         'username' => 'existingaccount',
@@ -230,7 +230,7 @@ test('email owned by another MLHUB account returns a typed conflict without prov
         onboardingUiHeaders()
     )->assertConflict()
         ->assertJsonPath('error.code', 'email_already_registered')
-        ->assertJsonPath('error.message', 'Địa chỉ email này đã được đăng ký trên MLHUB.')
+        ->assertJsonPath('error.message', 'Địa chỉ email này đã được đăng ký trên MKT.')
         ->assertJsonPath('error.details.next_action', 'use_existing_account_or_contact_support');
 
     expect(onboardingResourceCounts())->toBe($before)

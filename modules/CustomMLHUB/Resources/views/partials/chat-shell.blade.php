@@ -9,8 +9,8 @@
     @unless ($compact)
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-accent);">{{ __('Introducing MLHUB AI') }}</p>
-                <h1 class="mt-2 text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ __('Ask MLHUB AI in natural language') }}</h1>
+                <p class="text-xs font-semibold uppercase tracking-[0.16em]" style="color: var(--theme-accent);">{{ __('Introducing MKT AI') }}</p>
+                <h1 class="mt-2 text-2xl font-semibold tracking-[-0.04em]" style="color: var(--theme-header-text-color);">{{ __('Ask MKT AI in natural language') }}</h1>
                 <p class="mt-2 max-w-2xl text-sm leading-6" style="color: var(--theme-muted-text-color);">
                     {{ __('Talk to your growth data on Portal Dashboard. Ask in plain language — get answers about campaigns, reviews, and bookings.') }}
                 </p>
@@ -28,7 +28,7 @@
                     <i class="fa-light fa-robot" aria-hidden="true"></i>
                 </span>
                 <div class="min-w-0">
-                    <p class="truncate text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('MLHUB AI') }}</p>
+                    <p class="truncate text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('MKT AI') }}</p>
                     <p class="truncate text-xs" style="color: var(--theme-muted-text-color);">{{ __('Growth assistant report') }}</p>
                 </div>
             </div>
@@ -143,7 +143,7 @@
             @empty
                 <div class="rounded-2xl border border-dashed px-4 py-8 text-center" style="border-color: rgba(var(--theme-border-color-rgb),0.62);">
                     <p class="text-sm font-semibold" style="color: var(--theme-header-text-color);">{{ __('Ask about customers, campaigns, reviews, or what to do next.') }}</p>
-                    <p class="mt-2 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ __('MLHUB AI reads your live dashboard metrics and replies in natural language — even without OpenAI.') }}</p>
+                    <p class="mt-2 text-xs leading-5" style="color: var(--theme-muted-text-color);">{{ __('MKT AI reads your live dashboard metrics and replies in natural language — even without OpenAI.') }}</p>
                 </div>
             @endforelse
 

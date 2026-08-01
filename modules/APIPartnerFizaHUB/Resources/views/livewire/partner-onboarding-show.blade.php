@@ -84,7 +84,7 @@
                     <dd class="mt-1 text-sm" style="color: var(--theme-header-text-color);">{{ strtoupper((string) ($onboarding->package_code ?: '—')) }}</dd>
                 </div>
                 <div>
-                    <dt class="text-xs font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('Gói MLHUB hiện tại') }}</dt>
+                    <dt class="text-xs font-semibold uppercase tracking-[0.14em]" style="color: var(--theme-muted-text-color);">{{ __('Gói MKT hiện tại') }}</dt>
                     <dd class="mt-1 text-sm" style="color: var(--theme-header-text-color);">{{ $onboarding->user?->plan?->name ?: __('Chưa có dữ liệu') }}</dd>
                 </div>
                 <div>
@@ -134,7 +134,7 @@
         <p class="text-[15px] font-semibold tracking-[-0.02em]" style="color: var(--theme-header-text-color);">{{ __('Chỉ số hoạt động (30 ngày gần nhất)') }}</p>
 
         @if ($growth === null)
-            <p class="mt-3 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Chưa có dữ liệu — tài khoản MLHUB/HKD chưa được liên kết hoàn chỉnh.') }}</p>
+            <p class="mt-3 text-sm" style="color: var(--theme-muted-text-color);">{{ __('Chưa có dữ liệu — tài khoản MKT/HKD chưa được liên kết hoàn chỉnh.') }}</p>
         @else
             <div class="mt-4 grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
                 @foreach ([
@@ -212,7 +212,7 @@
                             @forelse ($activeTicketDetail['messages'] ?? [] as $message)
                                 <div class="text-sm">
                                     <p class="text-xs font-semibold uppercase tracking-[0.1em]" style="color: var(--theme-muted-text-color);">
-                                        {{ $message['sender_type'] === 'business' ? __('Doanh nghiệp') : __('MLHUB') }}
+                                        {{ $message['sender_type'] === 'business' ? __('Doanh nghiệp') : __('MKT') }}
                                         · {{ $message['created_at'] ? format_date_locale($message['created_at'], 'd/m/Y H:i') : '' }}
                                     </p>
                                     <p class="mt-1" style="color: var(--theme-header-text-color);">{{ $message['body'] }}</p>
@@ -225,7 +225,7 @@
                 </div>
             @empty
                 <div class="px-5 py-10 text-center text-sm" style="color: var(--theme-muted-text-color);">
-                    {{ $integration ? __('HKD này chưa có vé hỗ trợ nào.') : __('Chưa có dữ liệu — tài khoản MLHUB/HKD chưa được liên kết hoàn chỉnh.') }}
+                    {{ $integration ? __('HKD này chưa có vé hỗ trợ nào.') : __('Chưa có dữ liệu — tài khoản MKT/HKD chưa được liên kết hoàn chỉnh.') }}
                 </div>
             @endforelse
         </div>

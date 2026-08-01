@@ -20,7 +20,7 @@ class WelcomeNewUserNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return AuthMailMessageBuilder::forNotifiable($notifiable, fn (): MailMessage => (new MailMessage)
-            ->subject(__('Welcome to :app', ['app' => config('app.name', 'MLHUB')]))
+            ->subject(__('Welcome to :app', ['app' => config('app.name', 'MKT')]))
             ->greeting(__('Welcome, :name!', ['name' => $notifiable->name ?: $notifiable->username ?: __('there')]))
             ->line(__('Your account is ready and you can now start using the platform.'))
             ->action(__('Open dashboard'), route('portal.dashboard'))

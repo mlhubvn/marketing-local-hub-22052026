@@ -23,7 +23,7 @@ class PlanLimitGuard
 
         if (! $user->canUsePlanFeature(PlanFeatureOrder::MLHUB_AI_KEY)) {
             throw ValidationException::withMessages([
-                'plan' => __('Your current plan does not include MLHUB AI.'),
+                'plan' => __('Your current plan does not include MKT AI.'),
             ]);
         }
     }

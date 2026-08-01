@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>FizaHUB Partner API — Hướng dẫn chạy Postman từng bước</title>
-    <meta name="description" content="Hướng dẫn từng bước cho dev FizaHUB: tải Postman, import collection 25 request, chạy thử API MLHUB.">
+    <meta name="description" content="Hướng dẫn từng bước cho dev FizaHUB: tải Postman, import collection 25 request, chạy thử API MKT.">
     <link rel="icon" href="{{ asset('img/favicon.svg') }}" type="image/svg+xml">
     <style>
         :root { --ink:#17231e; --muted:#5d6c65; --line:#d9e2dd; --brand:#0f766e; --soft:#eaf7f3; }
@@ -42,7 +42,7 @@
 <body>
 <main>
     <header class="hero">
-        <h1>Chạy thử API FizaHUB × MLHUB — hướng dẫn từng bước</h1>
+        <h1>Chạy thử API FizaHUB × MKT — hướng dẫn từng bước</h1>
         <p>Viết cho người <strong>chưa từng dùng Postman</strong>. Làm đúng thứ tự bên dưới là gọi được đủ <strong>25 request</strong> bám <strong>15 màn hình Marketing</strong>. Hỗ trợ (Support) có tin nhắn text và <strong>đính kèm 3 nhóm</strong>: ảnh / video / tài liệu (PDF/Office).</p>
         <div class="ok"><strong>Cập nhật mới:</strong> đính kèm chỉ còn <strong>3 nhóm</strong> (ảnh / video / tài liệu PDF-Office). Response có <code>extension</code> + <code>image_url</code> ký tạm cho ảnh. Xóa collection cũ → tải Postman mới → Import → test bước 22–23.</div>
         <p>
@@ -60,7 +60,7 @@
             <a href="#buoc-5">Bước 5 · 25 request nghĩa là gì?</a>
             <a href="#buoc-6">Bước 6 · Tham số đầu vào thường dùng</a>
             <a href="#buoc-7">Bước 7 · Kết quả mong đợi &amp; lỗi thường gặp</a>
-            <a href="#buoc-8">Bước 8 · Checklist gửi cho MLHUB khi kẹt</a>
+            <a href="#buoc-8">Bước 8 · Checklist gửi cho MKT khi kẹt</a>
             @if($reportingPortalUrl)
                 <a href="#buoc-9">Bước 9 · Cổng báo cáo cho lãnh đạo (không cần Postman)</a>
             @endif
@@ -85,11 +85,11 @@
         <h2>Bước 1 · Tải và Import collection</h2>
         <ol class="steps">
             <li>Trên trang này, bấm nút xanh <strong>⬇ 1. Tải file Postman</strong> (đủ 25 request). File tải về tên:
-                <br><code>MLHUB-FizaHUB-Partner-API.postman_collection.json</code></li>
+                <br><code>MKT-FizaHUB-Partner-API.postman_collection.json</code></li>
             <li>Trong Postman, góc trên bên trái, bấm nút <span class="kbd">Import</span>.</li>
             <li>Kéo–thả file vừa tải vào cửa sổ, hoặc bấm <em>Upload Files</em> / <em>Files</em> rồi chọn file.</li>
             <li>Bấm <strong>Import</strong>.</li>
-            <li>Cột trái xuất hiện collection <strong>“MLHUB × FizaHUB Partner API”</strong> với 5 thư mục:
+            <li>Cột trái xuất hiện collection <strong>“MKT × FizaHUB Partner API”</strong> với 5 thư mục:
                 <span class="tag">System</span>
                 <span class="tag">Onboarding</span>
                 <span class="tag">Growth</span>
@@ -102,7 +102,7 @@
 │ [Import]  ← bấm đây                   │
 │                                       │
 │  Sau khi import:                      │
-│  ▸ MLHUB × FizaHUB Partner API        │
+│  ▸ MKT × FizaHUB Partner API        │
 │     ▸ System (2)                      │
 │     ▸ Onboarding (6)                  │
 │     ▸ Growth (6)                      │
@@ -115,7 +115,7 @@
     <article id="buoc-2">
         <h2>Bước 2 · Kiểm tra biến (đã điền sẵn — gần như không cần sửa)</h2>
         <ol class="steps">
-            <li>Bấm vào tên collection <strong>MLHUB × FizaHUB Partner API</strong> (không phải từng request).</li>
+            <li>Bấm vào tên collection <strong>MKT × FizaHUB Partner API</strong> (không phải từng request).</li>
             <li>Chọn tab <span class="kbd">Variables</span>.</li>
             <li>Xác nhận hai dòng sau đã có giá trị (không để trống):</li>
         </ol>
@@ -136,7 +136,7 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
                 <tr><td><code>campaign_approval_ready</code></td><td>Sau bước 11</td><td>Bật bước 13 khi = <code>1</code></td></tr>
             </tbody>
         </table>
-        <div class="note">Bạn <strong>không cần</strong> copy token từ email hay Coolify. Khi MLHUB đổi token chính thức, chỉ cần tải lại file mới và Import đè.</div>
+        <div class="note">Bạn <strong>không cần</strong> copy token từ email hay Coolify. Khi MKT đổi token chính thức, chỉ cần tải lại file mới và Import đè.</div>
     </article>
 
     <article id="buoc-3">
@@ -146,15 +146,15 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
                 <br><span class="muted">(hoặc menu ba chấm <em>…</em> → <em>Run collection</em>).</span></li>
             <li>Giữ nguyên thứ tự request từ trên xuống (01 → 25).</li>
             <li>Nếu thấy tùy chọn <em>Keep variable values</em> — hãy <strong>bật</strong>.</li>
-            <li>Bấm nút lớn <strong>Run MLHUB × FizaHUB Partner API</strong>.</li>
+            <li>Bấm nút lớn <strong>Run MKT × FizaHUB Partner API</strong>.</li>
             <li>Đợi Postman chạy xong. Các bước kiểm tra (Tests) hiện màu xanh là ổn.</li>
         </ol>
         <div class="ui-box">Collection Runner
 ┌─ Run collection ──────────────────────┐
-│  MLHUB × FizaHUB Partner API          │
+│  MKT × FizaHUB Partner API          │
 │  ☑ Keep variable values               │
 │                                       │
-│  [ Run MLHUB × FizaHUB Partner API ] ←│
+│  [ Run MKT × FizaHUB Partner API ] ←│
 └───────────────────────────────────────┘</div>
         <p>Thứ tự nghiệp vụ đã sắp sẵn:</p>
         <table>
@@ -308,7 +308,7 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
             <li><strong>Create Support Ticket</strong>: <code>201</code>, rồi Detail → Message (<code>201</code>) → Close → Reopen dùng chung <code>ticket_id</code></li>
             <li><strong>Upload ảnh (bước 23)</strong>: <code>201</code> có <code>extension</code> (vd <code>jpg</code>) và <code>image_url</code> (URL ký tạm, đuôi <code>.jpg</code>); mở <code>image_url</code> trên trình duyệt <em>không cần</em> header là thấy ảnh</li>
             <li>Gọi lại Onboarding cùng business/email đã map → <code>200</code>, <code>already_registered=true</code> (không tạo trùng)</li>
-            <li>Mọi response có <code>meta.request_id</code> — gửi kèm khi hỏi MLHUB</li>
+            <li>Mọi response có <code>meta.request_id</code> — gửi kèm khi hỏi MKT</li>
         </ul>
 
         <h3>Bảng lỗi tra nhanh</h3>
@@ -319,14 +319,14 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
                 <tr><td><code>400 invalid_partner_header</code></td><td>Sai <code>X-Partner</code> hoặc <code>X-Request-Id</code></td><td>Dùng lại request trong collection (đã đúng sẵn)</td></tr>
                 <tr><td><code>422 validation_failed</code></td><td>Dữ liệu sai</td><td>Xem <code>error.details</code> — trường nào sai</td></tr>
                 <tr><td><code>409 idempotency_conflict</code></td><td>Cùng key nhưng body khác</td><td>Gửi lại (Postman tự sinh Idempotency-Key mới)</td></tr>
-                <tr><td><code>409 onboarding_not_ready</code></td><td>CRM khi chưa ready</td><td>Chờ MLHUB cấu hình xong; request 25 sẽ skip tự động</td></tr>
+                <tr><td><code>409 onboarding_not_ready</code></td><td>CRM khi chưa ready</td><td>Chờ MKT cấu hình xong; request 25 sẽ skip tự động</td></tr>
                 <tr><td><code>409 campaign_invalid_state</code></td><td>Duyệt khi không còn pending</td><td>Bình thường nếu chiến dịch đã active</td></tr>
                 <tr><td><code>409 ticket_not_open</code></td><td>Gửi tin/đính kèm vào ticket đã đóng</td><td>Reopen ticket (bước 21) rồi thử lại</td></tr>
                 <tr><td><code>422 attachment_type_not_allowed</code></td><td>Sai định dạng/đuôi tệp đính kèm</td><td>Xem bảng loại tệp cho phép ở Bước 6</td></tr>
                 <tr><td><code>422 attachment_too_large</code></td><td>Tệp vượt dung lượng cho phép</td><td>Xem <code>error.details.max_size_mb</code></td></tr>
                 <tr><td><code>404 attachment_not_found</code></td><td>Sai <code>attachment_id</code> hoặc file đã bị xóa</td><td>Gọi lại bước 22 List Attachments để lấy id đúng</td></tr>
                 <tr><td><code>404 integration_not_found</code></td><td>Chưa onboarding / sai business id</td><td>Chạy lại từ bước 04 Create Onboarding</td></tr>
-                <tr><td><code>503</code> / degraded</td><td>Máy chủ chưa sẵn sàng</td><td>Chạy lại Health; vẫn lỗi thì gửi <code>meta.request_id</code> cho MLHUB</td></tr>
+                <tr><td><code>503</code> / degraded</td><td>Máy chủ chưa sẵn sàng</td><td>Chạy lại Health; vẫn lỗi thì gửi <code>meta.request_id</code> cho MKT</td></tr>
                 <tr><td><code>429 rate_limit_exceeded</code></td><td>Gọi quá nhanh</td><td>Đợi ~1 phút rồi chạy lại</td></tr>
             </tbody>
         </table>
@@ -334,7 +334,7 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
     </article>
 
     <article id="buoc-8">
-        <h2>Bước 8 · Checklist gửi cho MLHUB khi cần hỗ trợ</h2>
+        <h2>Bước 8 · Checklist gửi cho MKT khi cần hỗ trợ</h2>
         <ol class="steps">
             <li>Copy <code>meta.request_id</code> trong response lỗi.</li>
             <li>Ghi rõ request số mấy (ví dụ <em>04 · Create Onboarding</em>) và giờ gọi (giờ Việt Nam).</li>
@@ -354,8 +354,8 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
             <p>Tất cả nội dung ở trên (Postman, 25 request) là dành cho <strong>đội kỹ thuật</strong> FizaHUB tích hợp app. Nếu chỉ cần <strong>xem báo cáo onboarding/HKD</strong> — không sửa gì cả — thì không cần làm các bước 0–8, chỉ cần:</p>
             <ol class="steps">
                 <li>Mở trình duyệt, vào thẳng: <a href="{{ $reportingPortalUrl }}" target="_blank" rel="noreferrer">{{ $reportingPortalUrl }}</a></li>
-                <li>Đăng nhập bằng <strong>tài khoản MLHUB có sẵn</strong> của bạn (email + mật khẩu như khi vào MLHUB bình thường). Không cần cài gì thêm, không cần Postman.</li>
-                <li>Nếu báo <em>"không có quyền truy cập"</em>: tài khoản của bạn chưa nằm trong danh sách được MLHUB cấp quyền — nhờ người phụ trách bên FizaHUB gửi email/tài khoản MLHUB của bạn cho MLHUB để được thêm vào.</li>
+                <li>Đăng nhập bằng <strong>tài khoản MKT có sẵn</strong> của bạn (email + mật khẩu như khi vào MKT bình thường). Không cần cài gì thêm, không cần Postman.</li>
+                <li>Nếu báo <em>"không có quyền truy cập"</em>: tài khoản của bạn chưa nằm trong danh sách được MKT cấp quyền — nhờ người phụ trách bên FizaHUB gửi email/tài khoản MKT của bạn cho MKT để được thêm vào.</li>
             </ol>
             <div class="ok">Đây là trang <strong>chỉ xem</strong>: tổng số yêu cầu onboarding, tình trạng xử lý, số HKD đã có tài khoản, biểu đồ tăng trưởng theo ngày/tháng, danh sách và chi tiết từng HKD (gói dịch vụ, thời hạn, chỉ số hoạt động, vé hỗ trợ). Không có nút sửa/xóa bất kỳ dữ liệu nào ở đây.</div>
             <div class="note">Cổng này chạy trên một địa chỉ web riêng (<code>{{ $reportingPortalUrl }}</code>), tách biệt hoàn toàn với 25 request API ở các bước trên — không liên quan đến Postman hay <code>partner_token</code>.</div>

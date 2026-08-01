@@ -1,6 +1,6 @@
 @php
     $options = app(\Modules\AdminSettings\Support\OptionStore::class);
-    $companyName = trim((string) $options->get('contact_company_name', config('app.name', 'MLHUB AI')));
+    $companyName = trim((string) $options->get('contact_company_name', config('app.name', 'MKT AI')));
     $companyWebsite = trim((string) $options->get('contact_company_website', 'https://yourcompany.com'));
     $contactEmail = trim((string) $options->get('contact_email', 'support@yourcompany.com'));
     $contactPhone = trim((string) $options->get('contact_phone_number', '+1 234 567 890'));
@@ -70,7 +70,7 @@
                     <span class="lb-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em]">
                         <i class="fa-light fa-message-lines"></i>{{ __('Contact') }}
                     </span>
-                    <h1 class="lb-serif lb-hero-title mt-7">{{ __('Talk to MLHUB AI') }}</h1>
+                    <h1 class="lb-serif lb-hero-title mt-7">{{ __('Talk to MKT AI') }}</h1>
                     <p class="lb-copy mt-6 max-w-2xl text-lg">{{ __('Need help with campaigns, QR pages, reviews, bookings, AI credits, reports, billing or your team workspace? Send us a message and we will help you choose the right path.') }}</p>
                     <div class="mt-8 flex flex-wrap gap-3">
                         <a href="mailto:{{ $contactEmail }}" class="lb-button inline-flex items-center gap-2 px-6 py-4 text-sm font-black"><i class="fa-light fa-envelope"></i>{{ __('Email support') }}</a>

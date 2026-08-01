@@ -128,7 +128,7 @@ test('EVIDENCE: real migrations create the exact schema onboarding needs', funct
 
 test('EVIDENCE: onboarding succeeds with the production payload when the default plan exists', function (): void {
     AdminPlan::query()->create([
-        'name' => 'MLHUB Free Da Nang',
+        'name' => 'MKT Free Da Nang',
         'slug' => 'mlhub-free-da-nang',
         'status' => true,
         'free_plan' => true,
@@ -218,7 +218,7 @@ test('email-derived username collision uses a stable hash suffix instead of fail
     // HTTP 500 partner_api_error. This matches production request_id
     // fef28d55-a74f-4e43-ae96-c172334eb20e.
     AdminPlan::query()->create([
-        'name' => 'MLHUB Free Da Nang',
+        'name' => 'MKT Free Da Nang',
         'slug' => 'mlhub-free-da-nang',
         'status' => true,
         'free_plan' => true,
@@ -279,7 +279,7 @@ test('onboarding creates review ticket using the provisioned user under producti
     // with that exact FK, so this test fails loudly (RED) against the old code instead of
     // silently passing against a simplified schema that hid the bug.
     AdminPlan::query()->create([
-        'name' => 'MLHUB Free Da Nang',
+        'name' => 'MKT Free Da Nang',
         'slug' => 'mlhub-free-da-nang',
         'status' => true,
         'free_plan' => true,
@@ -369,7 +369,7 @@ test('onboarding creates review ticket using the provisioned user under producti
 
 test('ROOT CAUSE: creating the onboarding review ticket with a broken mapping returns a typed 409 integration_mapping_invalid, never a raw FK 500', function (): void {
     AdminPlan::query()->create([
-        'name' => 'MLHUB Free Da Nang',
+        'name' => 'MKT Free Da Nang',
         'slug' => 'mlhub-free-da-nang',
         'status' => true,
         'free_plan' => true,
@@ -422,7 +422,7 @@ test('ROOT CAUSE: creating the onboarding review ticket with a broken mapping re
 
 test('if support ticket creation fails mid-onboarding, the whole transaction rolls back (no orphan user/team/business/integration) and a fresh retry still succeeds', function (): void {
     AdminPlan::query()->create([
-        'name' => 'MLHUB Free Da Nang',
+        'name' => 'MKT Free Da Nang',
         'slug' => 'mlhub-free-da-nang',
         'status' => true,
         'free_plan' => true,
