@@ -134,6 +134,23 @@
         margin-inline: auto;
     }
 
+    /* Auth already has outer horizontal padding — do not subtract another 40px or
+       Turnstile (~300px) and form controls overflow/clip on narrow phones. */
+    .lb-auth-page .lb-wrap {
+        width: 100%;
+        max-width: 1120px;
+    }
+
+    .lb-auth-page .lb-window {
+        max-width: 100%;
+    }
+
+    .lb-auth-page iframe,
+    .lb-auth-page [x-ref="turnstile"],
+    .lb-auth-page [x-ref="recaptcha"] {
+        max-width: 100%;
+    }
+
     @media (min-width: 1024px) {
         .lb-sidebar-panel {
             position: sticky;

@@ -19,11 +19,11 @@
         $resolvedAuthLightLogo = url($authLightLogoPath);
     @endphp
     <body class="lb-auth-page min-h-screen antialiased">
-        <div class="relative min-h-screen overflow-hidden px-4 py-6 sm:px-6 lg:px-8">
+        <div class="relative min-h-screen overflow-x-clip px-3 py-5 sm:px-6 sm:py-6 lg:px-8">
             <div class="pointer-events-none absolute -right-28 top-20 h-80 w-80 rounded-full opacity-40 blur-3xl" style="background: var(--lb-lime);"></div>
 
-            <div class="lb-wrap relative grid min-h-[calc(100vh-3rem)] gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
-                <section class="hidden lg:block">
+            <div class="lb-wrap relative grid min-h-[calc(100vh-2.5rem)] min-w-0 gap-8 lg:min-h-[calc(100vh-3rem)] lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
+                <section class="hidden min-w-0 lg:block">
                     <a href="{{ route('home') }}" class="inline-flex items-center gap-3" wire:navigate>
                         <img src="{{ $resolvedAuthDarkLogo }}" alt="{{ $authSiteTitle }}" class="theme-logo-dark h-9 w-auto max-w-[12rem] object-contain">
                         <img src="{{ $resolvedAuthLightLogo }}" alt="{{ $authSiteTitle }}" class="theme-logo-light h-9 w-auto max-w-[12rem] object-contain">
@@ -45,7 +45,7 @@
                                     <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg" style="background: color-mix(in srgb, var(--lb-lime) 30%, #fff); color:#ff5f5f;">
                                         <i class="fa-light {{ $item[0] }}"></i>
                                     </span>
-                                    <div>
+                                    <div class="min-w-0">
                                         <p class="font-black">{{ $item[1] }}</p>
                                         <p class="lb-copy mt-1 text-sm">{{ $item[2] }}</p>
                                     </div>
@@ -55,20 +55,20 @@
                     </div>
                 </section>
 
-                <section class="flex min-h-[calc(100vh-3rem)] items-center justify-center lg:min-h-0">
-                    <div class="w-full max-w-[38rem]">
-                        <div class="mb-6 flex items-center justify-between gap-4 lg:hidden">
-                            <a href="{{ route('home') }}" class="inline-flex items-center gap-2" wire:navigate>
-                                <img src="{{ $resolvedAuthDarkLogo }}" alt="{{ $authSiteTitle }}" class="theme-logo-dark h-9 w-auto max-w-[12rem] object-contain">
-                                <img src="{{ $resolvedAuthLightLogo }}" alt="{{ $authSiteTitle }}" class="theme-logo-light h-9 w-auto max-w-[12rem] object-contain">
+                <section class="flex min-h-[calc(100vh-2.5rem)] min-w-0 items-center justify-center lg:min-h-0">
+                    <div class="w-full min-w-0 max-w-[38rem]">
+                        <div class="mb-5 flex items-center justify-between gap-3 sm:mb-6 sm:gap-4 lg:hidden">
+                            <a href="{{ route('home') }}" class="inline-flex min-w-0 items-center gap-2" wire:navigate>
+                                <img src="{{ $resolvedAuthDarkLogo }}" alt="{{ $authSiteTitle }}" class="theme-logo-dark h-8 w-auto max-w-[9.5rem] object-contain sm:h-9 sm:max-w-[12rem]">
+                                <img src="{{ $resolvedAuthLightLogo }}" alt="{{ $authSiteTitle }}" class="theme-logo-light h-8 w-auto max-w-[9.5rem] object-contain sm:h-9 sm:max-w-[12rem]">
                             </a>
-                            <div class="flex items-center gap-2">
+                            <div class="flex shrink-0 items-center gap-2">
                                 @include(theme_view('partials.appearance-toggle', 'guest'))
                                 @include(theme_view('partials.auth-language-switcher', 'guest'))
                             </div>
                         </div>
 
-                        <div class="lb-window lb-reveal relative overflow-hidden rounded-xl p-6 sm:p-8 lg:p-10">
+                        <div class="lb-window lb-reveal relative max-w-full overflow-x-clip rounded-xl p-4 sm:p-6 lg:p-10">
                             <div class="mb-7 hidden items-center justify-between gap-4 lg:flex">
                                 <a href="{{ route('home') }}" class="inline-flex items-center text-sm font-bold transition hover:opacity-70" style="color: var(--lb-muted);" wire:navigate>
                                     <i class="fa-light fa-arrow-left mr-2"></i>
@@ -79,7 +79,7 @@
                                     @include(theme_view('partials.auth-language-switcher', 'guest'))
                                 </div>
                             </div>
-                            <div class="mb-7 flex items-center gap-1.5">
+                            <div class="mb-6 flex items-center gap-1.5 sm:mb-7">
                                 <span class="lb-dot bg-red-400"></span>
                                 <span class="lb-dot bg-amber-400"></span>
                                 <span class="lb-dot bg-lime-500"></span>

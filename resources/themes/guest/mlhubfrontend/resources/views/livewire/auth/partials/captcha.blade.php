@@ -54,6 +54,7 @@
 @elseif ($captchaProvider === 'turnstile' && $captchaSiteKey !== '')
     <div
         wire:ignore
+        class="max-w-full overflow-x-clip"
         x-data="{
             widgetId: null,
             init() {
@@ -65,6 +66,7 @@
                     this.$refs.turnstile.innerHTML = '';
                     this.widgetId = window.turnstile.render(this.$refs.turnstile, {
                         sitekey: @js($captchaSiteKey),
+                        size: 'flexible',
                         callback: (token) => $wire.set(@js($model), token),
                         'expired-callback': () => $wire.set(@js($model), ''),
                         'error-callback': () => $wire.set(@js($model), ''),

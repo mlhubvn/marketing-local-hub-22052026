@@ -27,9 +27,9 @@
     ])->where('enabled')->values();
 @endphp
 
-<div class="flex flex-col gap-6">
+<div class="flex min-w-0 flex-col gap-6">
     <div class="space-y-2 text-center">
-        <h1 class="lb-serif text-4xl leading-none">{{ __('Log in to MKT') }}</h1>
+        <h1 class="lb-serif text-3xl leading-tight sm:text-4xl sm:leading-none">{{ __('Log in to MKT') }}</h1>
         <p class="lb-copy text-sm">{{ __('Continue managing reviews, bookings, leads, coupons, QR pages, and reports.') }}</p>
     </div>
 
@@ -39,7 +39,7 @@
         </div>
     @endif
 
-    <form x-data class="flex flex-col gap-6" x-on:submit.prevent="$wire.login()">
+    <form x-data class="flex min-w-0 flex-col gap-6" x-on:submit.prevent="$wire.login()">
         <div class="space-y-2.5">
             <label for="login" class="block text-sm font-medium" style="color: var(--theme-header-text-color);">{{ __('Username or email') }}</label>
             <input
