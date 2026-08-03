@@ -57,9 +57,9 @@ health={{ $healthUrl }}</code></pre>
         <ul>
             <li><code>extension</code> — đuôi file (<code>jpg</code>, <code>pdf</code>…)</li>
             <li><code>image_url</code> — chỉ ảnh: URL ký tạm có đuôi thật, <strong>không cần</strong> header — gắn ImageView. TTL 7 ngày.</li>
-            <li><code>download_url</code> — tải tệp (cần Bearer); dùng cho video/tài liệu, <strong>không</strong> dùng để hiện ảnh.</li>
+            <li><code>download_url</code> — URL ký tạm tải tệp, <strong>không cần</strong> header — nhấp link trình duyệt là tải được (video/tài liệu). TTL 7 ngày. <strong>Không</strong> dùng để hiện ảnh trong chat (dùng <code>image_url</code>).</li>
         </ul>
-        <p><strong>Dev FizaHUB:</strong> <a href="{{ route('partner.fizahub.docs.postman') }}">tải JSON mới</a> → Import đè → Upload ảnh (23) mở <code>image_url</code> trên trình duyệt phải thấy ảnh.</p>
+        <p><strong>Dev FizaHUB:</strong> <a href="{{ route('partner.fizahub.docs.postman') }}">tải JSON mới</a> → Import đè → Upload (23) mở <code>download_url</code> trên trình duyệt phải tải được file; ảnh mở <code>image_url</code> phải thấy ảnh.</p>
     </section>
     @if($reportingPortalUrl)
         <section class="portal-callout">

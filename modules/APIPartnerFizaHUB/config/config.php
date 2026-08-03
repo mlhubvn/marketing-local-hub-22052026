@@ -76,7 +76,7 @@ return [
     'support_max_attachment_size_mb' => (int) env('FIZAHUB_SUPPORT_MAX_ATTACHMENT_SIZE_MB', 25),
     // Trần riêng cho video vì clip quay tại chỗ thường nặng hơn nhiều so với ảnh/PDF.
     'support_max_video_attachment_size_mb' => (int) env('FIZAHUB_SUPPORT_MAX_VIDEO_ATTACHMENT_SIZE_MB', 100),
-    // TTL (ngày) cho image_url ký tạm — app FizaHUB dùng mở ảnh trong chat không cần header partner.
+    // TTL (ngày) cho download_url + image_url ký tạm — nhấp link / mở ảnh trong chat không cần header partner.
     // Mỗi lần list/upload attachments sẽ cấp URL mới; hết hạn thì gọi lại list để lấy URL mới.
     'support_image_preview_ttl_days' => max(1, (int) env('FIZAHUB_SUPPORT_IMAGE_PREVIEW_TTL_DAYS', 7)),
     // 3 nhóm cho HKD hỗ trợ: ảnh (preview trong chat) + video (quay lỗi) + tài liệu (pdf/office).

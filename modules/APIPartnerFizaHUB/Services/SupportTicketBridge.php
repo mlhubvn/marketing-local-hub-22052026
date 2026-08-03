@@ -740,7 +740,7 @@ class SupportTicketBridge
             ],
         ]);
 
-        return $this->serializeAttachment($integration, $ticket, $attachment);
+        return $this->serializeAttachment($ticket, $attachment);
     }
 
     /**
@@ -863,7 +863,7 @@ class SupportTicketBridge
             ->orderBy('created_at')
             ->orderBy('id')
             ->get()
-            ->map(fn (PartnerSupportAttachment $attachment): array => $this->serializeAttachment($integration, $ticket, $attachment))
+            ->map(fn (PartnerSupportAttachment $attachment): array => $this->serializeAttachment($ticket, $attachment))
             ->all();
 
         return ['items' => $items];
@@ -894,17 +894,29 @@ class SupportTicketBridge
      * @return array<string, mixed>
      */
     private function serializeAttachment(
-        PartnerIntegration $integration,
         SupportTicket $ticket,
         PartnerSupportAttachment $attachment
     ): array {
-        $downloadUrl = route('partner.fizahub.businesses.support-tickets.attachments.show', [
-            'external_business_id' => $integration->external_business_id,
-            'ticket_id' => $ticket->id_secure,
-            'attachment_id' => $attachment->id_secure,
-        ]);
-
         $extension = $this->attachmentExtension($attachment);
+        $ttlDays = max(1, (int) config('modules.apipartnerfizahub.support_image_preview_ttl_days', 7));
+        $expiresAt = now()->addDays($ttlDays);
+
+        // Signed download URL (no X-Partner / Bearer): click in browser downloads the file.
+        // Fresh URL on every list/upload; same TTL as image_url. Authenticated API show() still works.
+        $safeBase = Str::slug((string) pathinfo((string) $attachment->original_name, PATHINFO_FILENAME));
+        if ($safeBase === '') {
+            $safeBase = 'file';
+        }
+        $downloadExtension = $extension ?? 'bin';
+        $downloadUrl = URL::temporarySignedRoute(
+            'partner.fizahub.support-attachments.download',
+            $expiresAt,
+            [
+                'attachment_id' => $attachment->id_secure,
+                'filename' => $safeBase.'.'.$downloadExtension,
+            ]
+        );
+
         $isImage = str_starts_with(strtolower((string) $attachment->mime_type), 'image/')
             && $extension !== null
             && in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true);
@@ -913,10 +925,9 @@ class SupportTicketBridge
         // FizaHUB chat can put it straight into <img> / ImageView. Fresh URL on every list/upload.
         $imageUrl = null;
         if ($isImage) {
-            $ttlDays = max(1, (int) config('modules.apipartnerfizahub.support_image_preview_ttl_days', 7));
             $imageUrl = URL::temporarySignedRoute(
                 'partner.fizahub.support-attachments.preview',
-                now()->addDays($ttlDays),
+                $expiresAt,
                 [
                     'attachment_id' => $attachment->id_secure,
                     'filename' => 'preview.'.$extension,

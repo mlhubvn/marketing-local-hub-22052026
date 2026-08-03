@@ -300,10 +300,14 @@ test('attachment upload, list, and download work end-to-end for an open ticket',
     )->assertCreated();
 
     $attachmentId = (string) $upload->json('data.attachment_id');
+    $downloadUrl = (string) $upload->json('data.download_url');
 
     expect($attachmentId)->not->toBe('')
         ->and($upload->json('data.original_name'))->toBe('receipt.pdf')
-        ->and($upload->json('data.download_url'))->toContain($attachmentId)
+        ->and($downloadUrl)->toContain($attachmentId)
+        ->and($downloadUrl)->toContain('/partners/fizahub/support-attachments/'.$attachmentId.'/download/')
+        ->and($downloadUrl)->toContain('signature=')
+        ->and($downloadUrl)->toContain('expires=')
         ->and($upload->json('data.extension'))->toBe('pdf')
         ->and($upload->json('data.image_url'))->toBeNull();
 
@@ -317,6 +321,14 @@ test('attachment upload, list, and download work end-to-end for an open ticket',
         ->assertJsonPath('data.items.0.extension', 'pdf')
         ->assertJsonPath('data.items.0.image_url', null);
 
+    // Browser path: click download_url — no Authorization / X-Partner, only signed query string.
+    $signedDownload = $this->get($downloadUrl);
+
+    $signedDownload->assertOk();
+    expect($signedDownload->headers->get('content-disposition'))->toContain('receipt.pdf')
+        ->and(strtolower((string) $signedDownload->headers->get('content-disposition')))->toContain('attachment');
+
+    // Authenticated API endpoint still works for Postman / backend clients.
     $download = $this->get(
         '/api/v1/partners/fizahub/businesses/biz-attachment/support-tickets/'.$ticketId.'/attachments/'.$attachmentId,
         supportLifecycleHeaders()
@@ -325,6 +337,10 @@ test('attachment upload, list, and download work end-to-end for an open ticket',
     $download->assertOk();
     expect($download->headers->get('content-disposition'))->toContain('receipt.pdf')
         ->and(strtolower((string) $download->headers->get('content-disposition')))->toContain('attachment');
+
+    // Unsigned URL must not serve the file.
+    $this->get('/partners/fizahub/support-attachments/'.$attachmentId.'/download/receipt.pdf')
+        ->assertForbidden();
 });
 
 test('zip and plain-text attachments are rejected for household-business support uploads', function (): void {
@@ -366,6 +382,8 @@ test('image attachments expose extension and a signed image_url that opens witho
         ->and($upload->json('data.extension'))->toBe('jpg')
         ->and($upload->json('data.mime_type'))->toStartWith('image/')
         ->and($imageUrl)->not->toBe($downloadUrl)
+        ->and($downloadUrl)->toContain('/partners/fizahub/support-attachments/'.$attachmentId.'/download/')
+        ->and($downloadUrl)->toContain('signature=')
         ->and($imageUrl)->toContain('/partners/fizahub/support-attachments/'.$attachmentId.'/preview.jpg')
         ->and($imageUrl)->toContain('signature=')
         ->and($imageUrl)->toContain('expires=');

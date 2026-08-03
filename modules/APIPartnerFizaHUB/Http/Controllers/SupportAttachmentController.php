@@ -127,4 +127,35 @@ class SupportAttachmentController
             'inline'
         );
     }
+
+    /**
+     * Public signed download for download_url (pdf/video/docs/images).
+     * No partner headers — click in browser works. Invalid/expired signature → 403.
+     */
+    public function signedDownload(string $attachment_id, string $filename): Response
+    {
+        $attachment = PartnerSupportAttachment::query()
+            ->where('id_secure', $attachment_id)
+            ->first();
+
+        if (
+            ! $attachment
+            || ! filled($attachment->path)
+            || ! Storage::disk($attachment->disk)->exists($attachment->path)
+        ) {
+            abort(404);
+        }
+
+        $mime = (string) ($attachment->mime_type ?: 'application/octet-stream');
+
+        return Storage::disk($attachment->disk)->response(
+            $attachment->path,
+            filled($attachment->original_name) ? (string) $attachment->original_name : $filename,
+            [
+                'Content-Type' => $mime,
+                'Cache-Control' => 'private, max-age=3600',
+            ],
+            'attachment'
+        );
+    }
 }

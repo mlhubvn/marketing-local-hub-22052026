@@ -45,6 +45,13 @@ Route::middleware(['web', 'signed', 'throttle:60,1'])
     ->where('filename', '[A-Za-z0-9._-]+\.(jpe?g|png|gif|webp)')
     ->name('partner.fizahub.support-attachments.preview');
 
+// Signed download for any attachment type: click download_url in browser without Bearer / X-Partner.
+// Keep separate from preview so the chat <img> path stays image-only.
+Route::middleware(['web', 'signed', 'throttle:60,1'])
+    ->get('/partners/fizahub/support-attachments/{attachment_id}/download/{filename}', [SupportAttachmentController::class, 'signedDownload'])
+    ->where('filename', '[A-Za-z0-9._-]+\.(jpe?g|png|gif|webp|mp4|mov|webm|pdf|docx?|xlsx?|bin)')
+    ->name('partner.fizahub.support-attachments.download');
+
 // FizaHUB Partner Reporting Portal — view-only dashboard on its own domain
 // (FIZAHUB_DOMAIN). Reuses the standard MLHUB login (auth/verified) plus a plain user-ID
 // allowlist (partner.fizahub.reporting-access, see EnsureFizaHubPartnerAccess) — no admin

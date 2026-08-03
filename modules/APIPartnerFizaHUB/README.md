@@ -151,9 +151,9 @@ Luồng đầy đủ Create → List → Detail → Message → Close → Reopen
 - Chấp nhận **3 nhóm**: ảnh (`jpg/jpeg/png/webp/gif`), video (`mp4/mov/webm`), tài liệu (`pdf/doc/docx/xls/xlsx`). **Không** nhận zip, txt, csv, ppt/pptx.
 - MIME được server tự dò theo nội dung (`UploadedFile::getMimeType()`) và đối chiếu song song với đuôi file — cả hai phải khớp `support_allowed_attachment_types` / `support_allowed_attachment_extensions` trong `config/config.php`.
 - Trần dung lượng cấu hình qua `FIZAHUB_SUPPORT_MAX_ATTACHMENT_SIZE_MB` (mặc định 25MB, ảnh/tài liệu) và riêng `FIZAHUB_SUPPORT_MAX_VIDEO_ATTACHMENT_SIZE_MB` (mặc định 100MB) cho video.
-- Lưu trên disk `local` (không public) theo từng ticket; tải xuống luôn qua endpoint có xác thực + tenant scope, không có URL đoán được.
-- Response list/upload luôn có `download_url` (cần Bearer + X-Partner) và `extension` (đuôi file không dấu chấm: `jpg`, `png`, `pdf`…).
-- Nếu `mime_type` là ảnh (`image/*`) thì thêm `image_url`: URL ký tạm, path kết thúc bằng đuôi thật (`preview.jpg`…), **không cần** header partner — app FizaHUB gắn thẳng vào `<img>` / ImageView trên màn tư vấn. TTL mặc định 7 ngày (`FIZAHUB_SUPPORT_IMAGE_PREVIEW_TTL_DAYS`); hết hạn thì gọi lại List để lấy URL mới. Tệp không phải ảnh → `image_url = null`.
+- Lưu trên disk `local` (không public) theo từng ticket; tải xuống qua `download_url` ký tạm (click trình duyệt được) hoặc endpoint API có Bearer (bước 24); không có URL đoán được.
+- Response list/upload luôn có `download_url` (URL ký tạm, **không cần** Bearer/X-Partner — nhấp link là tải được) và `extension` (đuôi file không dấu chấm: `jpg`, `png`, `pdf`…). TTL mặc định 7 ngày (`FIZAHUB_SUPPORT_IMAGE_PREVIEW_TTL_DAYS`); hết hạn thì gọi lại List để lấy URL mới. Endpoint API kèm header (bước 24) vẫn dùng được.
+- Nếu `mime_type` là ảnh (`image/*`) thì thêm `image_url`: URL ký tạm, path kết thúc bằng đuôi thật (`preview.jpg`…), **không cần** header partner — app FizaHUB gắn thẳng vào `<img>` / ImageView trên màn tư vấn. TTL cùng với `download_url`. Tệp không phải ảnh → `image_url = null`.
 - Hai chiều: `sender_type` trong response phân biệt `business` (FizaHUB tải lên) và `admin` (MLHUB đính kèm khi trả lời trong `/admin/support`).
 - Sai `attachment_id` hoặc file vật lý không còn trên disk → `404 attachment_not_found` (không phải `route_not_found`).
 - Idempotency-Key cho request tải lên tính theo nội dung tệp thật (SHA-256), không chỉ tên field: gửi 2 tệp khác nhau cùng key → `409 idempotency_conflict` đúng chuẩn, không âm thầm phát lại kết quả tệp đầu tiên.

@@ -117,11 +117,14 @@ qua 3 request `GET/POST attachments` và `GET attachments/{attachment_id}` (`Sup
 - **Giới hạn dung lượng:** mặc định 25MB cho ảnh/tài liệu, 100MB riêng cho video (cấu hình qua
   `FIZAHUB_SUPPORT_MAX_ATTACHMENT_SIZE_MB` / `FIZAHUB_SUPPORT_MAX_VIDEO_ATTACHMENT_SIZE_MB`).
 - **Lưu trữ:** disk `local` (không public), theo thư mục riêng từng ticket
-  (`partner-fizahub/support/{ticket_id}/...`); tải xuống luôn qua endpoint `attachments/{attachment_id}`
-  có xác thực partner token + tenant scope, không có URL public đoán được.
+  (`partner-fizahub/support/{ticket_id}/...`); `download_url` là URL ký tạm
+  (`GET /partners/fizahub/support-attachments/{id}/download/{filename}`) — nhấp trình duyệt
+  tải được, không cần X-Partner/Bearer. Endpoint API `attachments/{attachment_id}` kèm token
+  vẫn dùng được (Postman bước 24). Không có URL public đoán được.
 - **Preview ảnh:** list/upload trả `extension` + `image_url` (URL ký tạm, đuôi `.jpg`/`.png`…,
   không cần X-Partner/Bearer) khi `mime_type` là `image/*`. TTL mặc định 7 ngày
-  (`FIZAHUB_SUPPORT_IMAGE_PREVIEW_TTL_DAYS`). Route: `GET /partners/fizahub/support-attachments/{id}/{filename}`.
+  (`FIZAHUB_SUPPORT_IMAGE_PREVIEW_TTL_DAYS`) — cùng TTL với `download_url`. Route preview:
+  `GET /partners/fizahub/support-attachments/{id}/{filename}`.
 - **Hai chiều:** tệp do FizaHUB tải lên và tệp admin MLHUB đính kèm khi trả lời đều nằm trong cùng
   danh sách `GET attachments`, phân biệt bằng `sender_type` (`business` | `admin`).
 - **Vòng đời:** khi xóa user, ticket support và toàn bộ tệp đính kèm liên quan (kể cả file vật lý

@@ -265,7 +265,7 @@ partner_token = (đã điền sẵn token thử nghiệm — không cần gõ ta
             </tbody>
         </table>
         <div class="note">Đúng <strong>1 tệp / request</strong>. Cần gửi nhiều tệp thì gọi lại request 23 nhiều lần. Server tự dò định dạng thật của tệp (không tin theo phần mở rộng hay Content-Type client khai) — đổi tên tệp nguy hiểm thành đuôi ảnh/văn bản sẽ vẫn bị từ chối.</div>
-        <div class="ok"><strong>Preview ảnh trên app tư vấn:</strong> response có <code>extension</code> (ví dụ <code>jpg</code>). Nếu là ảnh thì có thêm <code>image_url</code> — URL ký tạm kết thúc bằng đuôi thật (<code>preview.jpg</code>), <strong>không cần</strong> Bearer/X-Partner; gắn thẳng vào ImageView. <strong>Không</strong> dùng <code>download_url</code> để hiện ảnh (sẽ lỗi thiếu header). Hết hạn → gọi lại bước 22.</div>
+        <div class="ok"><strong>Preview ảnh trên app tư vấn:</strong> response có <code>extension</code> (ví dụ <code>jpg</code>). Nếu là ảnh thì có thêm <code>image_url</code> — URL ký tạm kết thúc bằng đuôi thật (<code>preview.jpg</code>), <strong>không cần</strong> Bearer/X-Partner; gắn thẳng vào ImageView. <code>download_url</code> cũng là URL ký tạm (nhấp link tải được, không cần header) — dùng cho video/tài liệu; <strong>không</strong> dùng <code>download_url</code> để hiện ảnh trong chat. Hết hạn → gọi lại bước 22.</div>
 
         <h3>Query Dashboard / Insights / Campaigns</h3>
         <table>
