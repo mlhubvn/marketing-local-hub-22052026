@@ -21,6 +21,8 @@ use Throwable;
 
 class OnboardingService
 {
+    private const TRANSACTION_ATTEMPTS = 5;
+
     public function __construct(
         protected PartnerMappingService $mapping,
         protected PartnerIdentityService $identity,
@@ -52,7 +54,7 @@ class OnboardingService
 
         $result = null;
 
-        for ($attempt = 0; $attempt < 2; $attempt++) {
+        for ($attempt = 1; $attempt <= self::TRANSACTION_ATTEMPTS; $attempt++) {
             try {
                 $result = DB::transaction(function () use (
                     $acceptedPayload,
@@ -85,7 +87,7 @@ class OnboardingService
 
                 break;
             } catch (QueryException $exception) {
-                if ($attempt > 0 || ! $this->isRetryableIdentityRace($exception)) {
+                if ($attempt >= self::TRANSACTION_ATTEMPTS || ! $this->isRetryableTransactionRace($exception)) {
                     throw $exception;
                 }
             }
@@ -256,11 +258,19 @@ class OnboardingService
         $user = $integration->mlhub_user_id
             ? User::query()->lockForUpdate()->find($integration->mlhub_user_id)
             : null;
-        $business = $integration->mlhub_business_id
-            ? LocalBusiness::query()->lockForUpdate()->find($integration->mlhub_business_id)
+        $business = $user && $integration->mlhub_business_id
+            ? LocalBusiness::query()
+                ->whereKey($integration->mlhub_business_id)
+                ->where('user_id', $user->id)
+                ->lockForUpdate()
+                ->first()
             : null;
-        $team = $integration->mlhub_workspace_id
-            ? Team::query()->lockForUpdate()->find($integration->mlhub_workspace_id)
+        $team = $user && $integration->mlhub_workspace_id
+            ? Team::query()
+                ->whereKey($integration->mlhub_workspace_id)
+                ->where('owner_user_id', $user->id)
+                ->lockForUpdate()
+                ->first()
             : null;
 
         if (! $user || ! $business || ! $team) {
@@ -647,7 +657,7 @@ class OnboardingService
         return $value !== '' ? $value : null;
     }
 
-    private function isRetryableIdentityRace(QueryException $exception): bool
+    private function isRetryableTransactionRace(QueryException $exception): bool
     {
         $message = Str::lower($exception->getMessage());
 
@@ -658,6 +668,12 @@ class OnboardingService
             'partner_integrations.partner_code, partner_integrations.external_business_id',
             'users.email',
             'users.username',
+            'lb_campaigns_slug_unique',
+            'lb_landing_pages_slug_unique',
+            'lb_loyalty_cards_slug_unique',
+            'lb_campaigns.slug',
+            'lb_landing_pages.slug',
+            'lb_loyalty_cards.slug',
         ])->contains(fn (string $constraint): bool => str_contains($message, $constraint));
     }
 

@@ -385,7 +385,7 @@ function bootProductionLikeSchema(): void
     runRealFizaHubMigrations();
 }
 
-function createFizaHubDefaultDataTables(): void
+function createFizaHubDefaultDataTables(bool $migrateDerivedCopyColumns = true): void
 {
     dropFizaHubDefaultDataTables();
 
@@ -461,6 +461,7 @@ function createFizaHubDefaultDataTables(): void
         $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
         $table->foreignId('business_id')->constrained('lb_businesses')->cascadeOnDelete();
         $table->string('slug')->unique();
+        // Matches the historical production migration before the FizaHUB widening migration.
         $table->string('name');
         $table->string('type', 40);
         $table->string('status', 30)->default('active');
@@ -496,6 +497,7 @@ function createFizaHubDefaultDataTables(): void
         $table->foreignId('business_id')->nullable()->constrained('lb_businesses')->nullOnDelete();
         $table->foreignId('campaign_id')->nullable()->constrained('lb_campaigns')->nullOnDelete();
         $table->string('slug')->unique();
+        // Matches the historical production migration before the FizaHUB widening migration.
         $table->string('title');
         $table->string('type', 40)->default('lead');
         $table->string('template', 80)->default('local_campaign');
@@ -528,6 +530,11 @@ function createFizaHubDefaultDataTables(): void
         $table->string('status')->default('active');
         $table->timestamps();
     });
+
+    if ($migrateDerivedCopyColumns) {
+        $migration = require base_path('database/migrations/2026_08_08_000000_widen_fizahub_derived_copy_columns.php');
+        $migration->up();
+    }
 }
 
 function dropFizaHubDefaultDataTables(): void

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -17,11 +18,14 @@ use Modules\APIPartnerFizaHUB\Models\PartnerApiLog;
 use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
 use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingRequest;
 use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingStatusHistory;
+use Modules\APIPartnerFizaHUB\Models\PartnerPackageAssignment;
 use Modules\APIPartnerFizaHUB\Models\PartnerSupportAttachment;
 use Modules\APIPartnerFizaHUB\Models\PartnerSupportTicketContext;
 use Modules\APIPartnerFizaHUB\Models\PartnerWebhookOutbox;
 use Modules\APIPartnerFizaHUB\Services\OnboardingAdminService;
 use Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine;
+use Modules\AppAdvancedCustomerCrm\Models\CustomerActivity;
+use Modules\AppAffiliate\Models\AffiliateProfile;
 use Modules\AppBookingPages\Models\BookingService;
 use Modules\AppBusinessProfiles\Models\LocalBusiness;
 use Modules\AppCustomers\Models\Customer;
@@ -164,6 +168,21 @@ function adminOnboardingPayload(): array
     ];
 }
 
+function adminUnrelatedOnboardingPayload(): array
+{
+    $payload = adminOnboardingPayload();
+    $payload['external_business_id'] = 'biz-admin-unrelated';
+    $payload['external_user_id'] = 'user-admin-unrelated';
+    $payload['owner']['name'] = 'Unrelated Lifecycle Owner';
+    $payload['owner']['email'] = 'unrelated-lifecycle-owner@example.com';
+    $payload['business']['name'] = 'Unrelated Lifecycle Shop';
+    $payload['business']['email'] = 'unrelated-lifecycle-shop@example.com';
+    $payload['business']['tax_code'] = '0207654321';
+    $payload['business']['business_license_number'] = 'GPKD987';
+
+    return $payload;
+}
+
 function adminSnapshotAttributes(object $model, array $attributes): array
 {
     return collect($model->only($attributes))
@@ -197,7 +216,7 @@ function adminDefaultDataSnapshot(PartnerIntegration $integration): array
     $campaignTypes = $campaigns->mapWithKeys(fn (QrCampaign $campaign): array => [$campaign->id => $campaign->type]);
 
     return [
-        'integration_default_data' => data_get($integration->metadata, '_system.fizahub_default_data'),
+        'integration_metadata' => $integration->metadata,
         'customer' => adminSnapshotAttributes($customer, ['id', 'user_id', 'business_id', 'name', 'phone', 'email', 'tags', 'note', 'metadata', 'first_seen_at', 'last_activity_at']),
         'booking_service' => adminSnapshotAttributes($bookingService, ['id', 'user_id', 'business_id', 'name', 'duration_minutes', 'price', 'description', 'available_days', 'time_slots', 'max_bookings_per_slot', 'use_business_hours', 'slot_interval', 'buffer_before', 'buffer_after', 'service_hours', 'is_active']),
         'loyalty_card' => adminSnapshotAttributes($loyaltyCard, ['id', 'user_id', 'team_id', 'business_id', 'slug', 'name', 'required_stamps', 'stamp_method', 'customer_identifier', 'reward_title', 'reward_type', 'reward_value', 'expiry_days', 'stamp_cooldown_minutes', 'max_stamps_per_day', 'settings', 'status']),
@@ -280,6 +299,9 @@ test('invalid admin transition is rejected', function (): void {
 });
 
 test('Admin status changes are data-neutral and existing user deletion removes every FizaHUB default', function (): void {
+    Queue::fake();
+    config()->set('modules.apipartnerfizahub.webhook_base_url', 'https://fizahub.test');
+
     AdminPlan::query()->create([
         'name' => 'MKT Free Da Nang',
         'slug' => 'mlhub-free-da-nang',
@@ -291,10 +313,11 @@ test('Admin status changes are data-neutral and existing user deletion removes e
         'permissions' => [],
     ]);
 
+    $targetRequestId = (string) str()->uuid();
     $response = $this->postJson(
         '/api/v1/partners/fizahub/onboarding-requests',
         adminOnboardingPayload(),
-        adminOnboardingHeaders()
+        adminOnboardingHeaders(['X-Request-Id' => $targetRequestId])
     )->assertCreated();
 
     $seed = [
@@ -326,6 +349,57 @@ test('Admin status changes are data-neutral and existing user deletion removes e
 
     expect(adminDefaultDataSnapshot($seed['integration']->fresh()))->toBe($snapshot);
 
+    $unrelatedRequestId = (string) str()->uuid();
+    $unrelatedResponse = $this->postJson(
+        '/api/v1/partners/fizahub/onboarding-requests',
+        adminUnrelatedOnboardingPayload(),
+        adminOnboardingHeaders(['X-Request-Id' => $unrelatedRequestId])
+    )->assertCreated();
+    $unrelatedIntegration = PartnerIntegration::query()
+        ->where('external_business_id', 'biz-admin-unrelated')
+        ->firstOrFail();
+    $unrelatedOnboarding = PartnerOnboardingRequest::query()
+        ->where('request_id', $unrelatedResponse->json('data.request_id'))
+        ->firstOrFail();
+    $unrelatedSnapshot = adminDefaultDataSnapshot($unrelatedIntegration);
+
+    $targetOnboarding = $seed['onboarding']->fresh();
+    $targetGraph = [
+        'user_id' => $userId,
+        'team_id' => (int) $seed['integration']->mlhub_workspace_id,
+        'business_id' => $businessId,
+        'affiliate_profile_ids' => AffiliateProfile::query()->where('user_id', $userId)->pluck('id')->all(),
+        'package_assignment_ids' => PartnerPackageAssignment::query()->where('partner_integration_id', $seed['integration']->id)->pluck('id')->all(),
+        'onboarding_ids' => PartnerOnboardingRequest::query()->where('mlhub_user_id', $userId)->pluck('id')->all(),
+        'history_ids' => PartnerOnboardingStatusHistory::query()->where('onboarding_request_id', $targetOnboarding->id)->pluck('id')->all(),
+        'support_ticket_ids' => SupportTicket::query()->where('uid', $userId)->pluck('id')->all(),
+        'support_context_ids' => PartnerSupportTicketContext::query()->where('partner_integration_id', $seed['integration']->id)->pluck('id')->all(),
+        'customer_activity_ids' => CustomerActivity::query()->where('customer_id', $snapshot['customer']['id'])->pluck('id')->all(),
+        'webhook_ids' => PartnerWebhookOutbox::query()->where('dedupe_key', 'like', '%'.$targetRequestId.'%')->pluck('id')->all(),
+        'api_log_ids' => PartnerApiLog::query()->where('request_id', $targetRequestId)->pluck('id')->all(),
+    ];
+    $unrelatedGraph = [
+        'user_id' => (int) $unrelatedIntegration->mlhub_user_id,
+        'team_id' => (int) $unrelatedIntegration->mlhub_workspace_id,
+        'business_id' => (int) $unrelatedIntegration->mlhub_business_id,
+        'affiliate_profile_ids' => AffiliateProfile::query()->where('user_id', $unrelatedIntegration->mlhub_user_id)->pluck('id')->all(),
+        'package_assignment_ids' => PartnerPackageAssignment::query()->where('partner_integration_id', $unrelatedIntegration->id)->pluck('id')->all(),
+        'history_ids' => PartnerOnboardingStatusHistory::query()->where('onboarding_request_id', $unrelatedOnboarding->id)->pluck('id')->all(),
+        'support_ticket_ids' => SupportTicket::query()->where('uid', $unrelatedIntegration->mlhub_user_id)->pluck('id')->all(),
+        'support_context_ids' => PartnerSupportTicketContext::query()->where('partner_integration_id', $unrelatedIntegration->id)->pluck('id')->all(),
+        'customer_activity_ids' => CustomerActivity::query()->where('customer_id', $unrelatedSnapshot['customer']['id'])->pluck('id')->all(),
+        'webhook_ids' => PartnerWebhookOutbox::query()->where('dedupe_key', 'like', '%'.$unrelatedRequestId.'%')->pluck('id')->all(),
+        'api_log_ids' => PartnerApiLog::query()->where('request_id', $unrelatedRequestId)->pluck('id')->all(),
+    ];
+
+    foreach (['affiliate_profile_ids', 'package_assignment_ids', 'onboarding_ids', 'history_ids', 'support_ticket_ids', 'support_context_ids', 'customer_activity_ids', 'webhook_ids', 'api_log_ids'] as $key) {
+        expect($targetGraph[$key])->not->toBeEmpty();
+    }
+
+    foreach (['affiliate_profile_ids', 'package_assignment_ids', 'history_ids', 'support_ticket_ids', 'support_context_ids', 'customer_activity_ids', 'webhook_ids', 'api_log_ids'] as $key) {
+        expect($unrelatedGraph[$key])->not->toBeEmpty();
+    }
+
     $target = User::query()->findOrFail($seed['integration']->mlhub_user_id);
     $admin = User::query()->create([
         'name' => 'Admin',
@@ -337,13 +411,37 @@ test('Admin status changes are data-neutral and existing user deletion removes e
     app(DeleteUser::class)->execute($target, $admin->id);
 
     expect(User::query()->find($target->id))->toBeNull()
+        ->and(Team::query()->whereKey($targetGraph['team_id'])->exists())->toBeFalse()
+        ->and(DB::table('team_user')->where('user_id', $targetGraph['user_id'])->exists())->toBeFalse()
+        ->and(LocalBusiness::query()->whereKey($targetGraph['business_id'])->exists())->toBeFalse()
+        ->and(AffiliateProfile::query()->whereIn('id', $targetGraph['affiliate_profile_ids'])->exists())->toBeFalse()
+        ->and(PartnerPackageAssignment::query()->whereIn('id', $targetGraph['package_assignment_ids'])->exists())->toBeFalse()
+        ->and(PartnerOnboardingStatusHistory::query()->whereIn('id', $targetGraph['history_ids'])->exists())->toBeFalse()
+        ->and(SupportTicket::query()->whereIn('id', $targetGraph['support_ticket_ids'])->exists())->toBeFalse()
+        ->and(PartnerSupportTicketContext::query()->whereIn('id', $targetGraph['support_context_ids'])->exists())->toBeFalse()
+        ->and(CustomerActivity::query()->whereIn('id', $targetGraph['customer_activity_ids'])->exists())->toBeFalse()
+        ->and(PartnerWebhookOutbox::query()->whereIn('id', $targetGraph['webhook_ids'])->exists())->toBeFalse()
+        ->and(PartnerApiLog::query()->whereIn('id', $targetGraph['api_log_ids'])->exists())->toBeFalse()
         ->and(Customer::query()->whereKey($snapshot['customer']['id'])->exists())->toBeFalse()
         ->and(BookingService::query()->whereKey($snapshot['booking_service']['id'])->exists())->toBeFalse()
         ->and(LoyaltyCard::query()->whereKey($snapshot['loyalty_card']['id'])->exists())->toBeFalse()
         ->and(QrCampaign::query()->whereIn('id', array_column($snapshot['campaigns'], 'id'))->exists())->toBeFalse()
         ->and(LandingPage::query()->whereIn('id', array_column($snapshot['landing_pages'], 'id'))->exists())->toBeFalse()
         ->and(PartnerOnboardingRequest::query()->where('external_business_id', 'biz-admin')->exists())->toBeFalse()
-        ->and(PartnerIntegration::query()->where('external_business_id', 'biz-admin')->exists())->toBeFalse();
+        ->and(PartnerIntegration::query()->where('external_business_id', 'biz-admin')->exists())->toBeFalse()
+        ->and(User::query()->whereKey($unrelatedGraph['user_id'])->exists())->toBeTrue()
+        ->and(Team::query()->whereKey($unrelatedGraph['team_id'])->exists())->toBeTrue()
+        ->and(DB::table('team_user')->where('user_id', $unrelatedGraph['user_id'])->where('team_id', $unrelatedGraph['team_id'])->exists())->toBeTrue()
+        ->and(LocalBusiness::query()->whereKey($unrelatedGraph['business_id'])->exists())->toBeTrue()
+        ->and(AffiliateProfile::query()->whereIn('id', $unrelatedGraph['affiliate_profile_ids'])->count())->toBe(count($unrelatedGraph['affiliate_profile_ids']))
+        ->and(PartnerPackageAssignment::query()->whereIn('id', $unrelatedGraph['package_assignment_ids'])->count())->toBe(count($unrelatedGraph['package_assignment_ids']))
+        ->and(PartnerOnboardingStatusHistory::query()->whereIn('id', $unrelatedGraph['history_ids'])->count())->toBe(count($unrelatedGraph['history_ids']))
+        ->and(SupportTicket::query()->whereIn('id', $unrelatedGraph['support_ticket_ids'])->count())->toBe(count($unrelatedGraph['support_ticket_ids']))
+        ->and(PartnerSupportTicketContext::query()->whereIn('id', $unrelatedGraph['support_context_ids'])->count())->toBe(count($unrelatedGraph['support_context_ids']))
+        ->and(CustomerActivity::query()->whereIn('id', $unrelatedGraph['customer_activity_ids'])->count())->toBe(count($unrelatedGraph['customer_activity_ids']))
+        ->and(PartnerWebhookOutbox::query()->whereIn('id', $unrelatedGraph['webhook_ids'])->count())->toBe(count($unrelatedGraph['webhook_ids']))
+        ->and(PartnerApiLog::query()->whereIn('id', $unrelatedGraph['api_log_ids'])->count())->toBe(count($unrelatedGraph['api_log_ids']))
+        ->and(adminDefaultDataSnapshot($unrelatedIntegration->fresh()))->toBe($unrelatedSnapshot);
 });
 
 test('adminSetStatus can reactivate a cancelled onboarding request', function (): void {

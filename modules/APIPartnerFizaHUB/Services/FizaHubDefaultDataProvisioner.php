@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Modules\AdminUser\Models\Team;
 use Modules\AdminUser\Models\User;
 use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
+use Modules\APIPartnerFizaHUB\Support\PartnerApiException;
 use Modules\AppBookingPages\Models\BookingService;
 use Modules\AppBusinessProfiles\Models\LocalBusiness;
 use Modules\AppCustomers\Models\Customer;
@@ -24,6 +25,8 @@ class FizaHubDefaultDataProvisioner
 
     private const CAMPAIGN_TYPES = ['review', 'booking', 'coupon', 'feedback', 'lead'];
 
+    private const SLUG_MAX_LENGTH = 255;
+
     public function __construct(private readonly LandingPageFactory $landingPages) {}
 
     public function provision(
@@ -32,46 +35,85 @@ class FizaHubDefaultDataProvisioner
         Team $team,
         LocalBusiness $business
     ): void {
-        $state = (array) data_get($integration->metadata, self::STATE_PATH, []);
+        $state = $this->state($integration);
         $customer = $this->customer($state['customer_id'] ?? null, $user, $business);
         $bookingService = $this->bookingService($state['booking_service_id'] ?? null, $user, $business);
         $loyaltyCard = $this->loyaltyCard($state['loyalty_card_id'] ?? null, $user, $team, $business);
 
         $campaignIds = [];
+        $landingPageIds = [];
         foreach (self::CAMPAIGN_TYPES as $type) {
+            $trackedCampaignId = data_get($state, 'campaign_ids.'.$type);
             $campaign = $this->campaign(
                 $type,
-                data_get($state, 'campaign_ids.'.$type),
+                $trackedCampaignId,
                 $user,
                 $business
             );
             $campaignIds[$type] = $campaign->id;
-
-            if (! LandingPage::query()->where('campaign_id', $campaign->id)->exists()) {
-                $this->landingPages->syncFromCampaign($campaign);
-            }
+            $landingPageIds[$type] = $this->landingPage(
+                $type,
+                data_get($state, 'landing_page_ids.'.$type),
+                $trackedCampaignId,
+                $campaign,
+                $user,
+                $business,
+                $bookingService
+            )->id;
         }
 
-        $metadata = (array) ($integration->metadata ?? []);
-        data_set($metadata, self::STATE_PATH, [
+        $nextState = array_replace($state, [
             'version' => self::VERSION,
             'customer_id' => $customer->id,
             'booking_service_id' => $bookingService->id,
             'loyalty_card_id' => $loyaltyCard->id,
-            'campaign_ids' => $campaignIds,
         ]);
+        $nextState['campaign_ids'] = array_replace(
+            (array) data_get($state, 'campaign_ids', []),
+            $campaignIds
+        );
+        $nextState['landing_page_ids'] = array_replace(
+            (array) data_get($state, 'landing_page_ids', []),
+            $landingPageIds
+        );
+        $metadata = (array) ($integration->metadata ?? []);
+        data_set($metadata, self::STATE_PATH, $nextState);
         $integration->forceFill(['metadata' => $metadata])->save();
+    }
+
+    /** @return array<string, mixed> */
+    private function state(PartnerIntegration $integration): array
+    {
+        $state = data_get($integration->metadata, self::STATE_PATH);
+
+        if ($state === null) {
+            return [];
+        }
+
+        if (! is_array($state)) {
+            $this->integrationBroken();
+        }
+
+        $version = $state['version'] ?? null;
+
+        if ($version !== null && $version !== self::VERSION) {
+            $this->integrationBroken();
+        }
+
+        return $state;
     }
 
     private function customer(mixed $id, User $user, LocalBusiness $business): Customer
     {
-        $customer = Customer::query()
-            ->whereKey($id)
-            ->where('user_id', $user->id)
-            ->where('business_id', $business->id)
-            ->first();
+        $trackedId = $this->trackedId($id);
+        $customer = $trackedId === null ? null : Customer::query()->find($trackedId);
 
         if ($customer !== null) {
+            if ((int) $customer->user_id !== (int) $user->id
+                || (int) $customer->business_id !== (int) $business->id) {
+                $this->integrationBroken();
+            }
+
             return $customer;
         }
 
@@ -88,13 +130,15 @@ class FizaHubDefaultDataProvisioner
 
     private function bookingService(mixed $id, User $user, LocalBusiness $business): BookingService
     {
-        $bookingService = BookingService::query()
-            ->whereKey($id)
-            ->where('user_id', $user->id)
-            ->where('business_id', $business->id)
-            ->first();
+        $trackedId = $this->trackedId($id);
+        $bookingService = $trackedId === null ? null : BookingService::query()->find($trackedId);
 
         if ($bookingService !== null) {
+            if ((int) $bookingService->user_id !== (int) $user->id
+                || (int) $bookingService->business_id !== (int) $business->id) {
+                $this->integrationBroken();
+            }
+
             return $bookingService;
         }
 
@@ -118,13 +162,16 @@ class FizaHubDefaultDataProvisioner
 
     private function loyaltyCard(mixed $id, User $user, Team $team, LocalBusiness $business): LoyaltyCard
     {
-        $loyaltyCard = LoyaltyCard::query()
-            ->whereKey($id)
-            ->where('user_id', $user->id)
-            ->where('business_id', $business->id)
-            ->first();
+        $trackedId = $this->trackedId($id);
+        $loyaltyCard = $trackedId === null ? null : LoyaltyCard::query()->find($trackedId);
 
         if ($loyaltyCard !== null) {
+            if ((int) $loyaltyCard->user_id !== (int) $user->id
+                || (int) $loyaltyCard->team_id !== (int) $team->id
+                || (int) $loyaltyCard->business_id !== (int) $business->id) {
+                $this->integrationBroken();
+            }
+
             return $loyaltyCard;
         }
 
@@ -150,14 +197,16 @@ class FizaHubDefaultDataProvisioner
 
     private function campaign(string $type, mixed $id, User $user, LocalBusiness $business): QrCampaign
     {
-        $campaign = QrCampaign::query()
-            ->whereKey($id)
-            ->where('user_id', $user->id)
-            ->where('business_id', $business->id)
-            ->where('type', $type)
-            ->first();
+        $trackedId = $this->trackedId($id);
+        $campaign = $trackedId === null ? null : QrCampaign::query()->find($trackedId);
 
         if ($campaign !== null) {
+            if ((int) $campaign->user_id !== (int) $user->id
+                || (int) $campaign->business_id !== (int) $business->id
+                || $campaign->type !== $type) {
+                $this->integrationBroken();
+            }
+
             return $campaign;
         }
 
@@ -173,6 +222,166 @@ class FizaHubDefaultDataProvisioner
             'settings' => array_merge($this->defaultDesignSettingsForType($type), $definition['settings']),
             'published_at' => now(),
         ]);
+    }
+
+    private function landingPage(
+        string $type,
+        mixed $id,
+        mixed $trackedCampaignId,
+        QrCampaign $campaign,
+        User $user,
+        LocalBusiness $business,
+        BookingService $bookingService
+    ): LandingPage {
+        $trackedPageId = $this->trackedId($id);
+        $previousCampaignId = $this->trackedId($trackedCampaignId);
+        $page = $trackedPageId === null ? null : LandingPage::query()->find($trackedPageId);
+
+        if ($page !== null) {
+            $this->assertPageOwnership($page, $type, $user, $business);
+
+            if ((int) $page->campaign_id === (int) $campaign->id) {
+                return $page;
+            }
+
+            $previousCampaignWasDeleted = $page->campaign_id === null
+                && $previousCampaignId !== null
+                && $previousCampaignId !== (int) $campaign->id
+                && ! QrCampaign::query()->whereKey($previousCampaignId)->exists();
+
+            if ($previousCampaignWasDeleted) {
+                $page->forceFill(['campaign_id' => $campaign->id])->save();
+
+                return $page;
+            }
+
+            $this->integrationBroken();
+        }
+
+        $attachedPages = LandingPage::query()
+            ->where('campaign_id', $campaign->id)
+            ->get();
+
+        if ($attachedPages->isNotEmpty()) {
+            if ($attachedPages->count() !== 1) {
+                $this->integrationBroken();
+            }
+
+            $page = $attachedPages->firstOrFail();
+            $this->assertPageOwnership($page, $type, $user, $business);
+
+            return $page;
+        }
+
+        if ($trackedPageId === null
+            && $previousCampaignId !== null
+            && $previousCampaignId !== (int) $campaign->id) {
+            $this->integrationBroken();
+        }
+
+        return $this->landingPages->syncFromCampaign(
+            $campaign,
+            $this->landingPageOverrides($type, $campaign, $bookingService)
+        );
+    }
+
+    private function assertPageOwnership(
+        LandingPage $page,
+        string $type,
+        User $user,
+        LocalBusiness $business
+    ): void {
+        if ((int) $page->user_id !== (int) $user->id
+            || (int) $page->business_id !== (int) $business->id
+            || $page->type !== $type) {
+            $this->integrationBroken();
+        }
+    }
+
+    /** @return array{content: array<string, mixed>, settings: array<string, mixed>} */
+    private function landingPageOverrides(
+        string $type,
+        QrCampaign $campaign,
+        BookingService $bookingService
+    ): array {
+        $settings = (array) $campaign->settings;
+
+        return match ($type) {
+            'review' => [
+                'content' => [
+                    'headline' => $campaign->name,
+                    'subheadline' => 'Hãy chọn mức đánh giá phù hợp với trải nghiệm của bạn.',
+                    'description' => data_get($settings, 'thank_you_message', ''),
+                    'cta' => 'Tiếp tục',
+                    'benefits' => ['Đánh giá nhanh chóng', 'Góp ý riêng tư khi trải nghiệm chưa tốt', 'Chia sẻ đánh giá công khai khi hài lòng'],
+                    'thank_you_message' => data_get($settings, 'thank_you_message', ''),
+                ],
+                'settings' => [
+                    'preferred_destination' => data_get($settings, 'preferred_destination', 'google'),
+                    'positive_threshold' => data_get($settings, 'positive_threshold', 4),
+                    'negative_feedback_message' => data_get($settings, 'negative_feedback_message', ''),
+                ],
+            ],
+            'booking' => [
+                'content' => [
+                    'headline' => data_get($settings, 'headline', $campaign->name),
+                    'subheadline' => 'Chọn dịch vụ, thời gian phù hợp và gửi yêu cầu đặt lịch.',
+                    'description' => (string) $bookingService->description,
+                    'cta' => 'Đặt lịch ngay',
+                    'benefits' => ['Chọn dịch vụ tư vấn', 'Chọn khung giờ phù hợp', 'Nhận xác nhận từ cơ sở'],
+                    'thank_you_message' => 'Cảm ơn bạn. Chúng tôi đã nhận được yêu cầu đặt lịch.',
+                ],
+                'settings' => [
+                    'service' => $bookingService->name,
+                    'duration' => $bookingService->duration_minutes.' phút',
+                    'price' => $bookingService->price,
+                    'available_days' => $bookingService->available_days,
+                    'available_slots' => $bookingService->time_slots,
+                    'use_business_hours' => (bool) $bookingService->use_business_hours,
+                    'slot_interval' => (int) $bookingService->slot_interval,
+                    'buffer_before' => (int) $bookingService->buffer_before,
+                    'buffer_after' => (int) $bookingService->buffer_after,
+                ],
+            ],
+            'coupon' => [
+                'content' => [
+                    'headline' => $campaign->name,
+                    'subheadline' => 'Nhận ưu đãi chào mừng và xuất trình mã khi sử dụng dịch vụ.',
+                    'description' => data_get($settings, 'terms', ''),
+                    'cta' => 'Nhận ưu đãi',
+                    'benefits' => ['Ưu đãi 10%', 'Nhận mã ngay lập tức', 'Dễ dàng sử dụng tại cơ sở'],
+                    'thank_you_message' => 'Mã ưu đãi của bạn đã sẵn sàng.',
+                ],
+                'settings' => [
+                    'discount' => 'Giảm 10%',
+                ],
+            ],
+            'feedback' => [
+                'content' => [
+                    'headline' => data_get($settings, 'headline', $campaign->name),
+                    'subheadline' => 'Chia sẻ góp ý riêng để chúng tôi cải thiện trải nghiệm phục vụ.',
+                    'description' => '',
+                    'cta' => 'Gửi đánh giá',
+                    'benefits' => ['Góp ý riêng tư', 'Đánh giá trải nghiệm', 'Giúp chúng tôi phục vụ tốt hơn'],
+                    'thank_you_message' => data_get($settings, 'thank_you_message', ''),
+                ],
+                'settings' => [
+                    'rating_required' => (bool) data_get($settings, 'rating_required', true),
+                    'contact_required' => (bool) data_get($settings, 'contact_required', false),
+                ],
+            ],
+            default => [
+                'content' => [
+                    'headline' => data_get($settings, 'headline', $campaign->name),
+                    'subheadline' => 'Để lại thông tin để đội ngũ tư vấn liên hệ với bạn.',
+                    'description' => '',
+                    'cta' => 'Gửi yêu cầu tư vấn',
+                    'benefits' => ['Phản hồi nhanh chóng', 'Tư vấn phù hợp với nhu cầu', 'Quy trình đơn giản'],
+                    'thank_you_message' => 'Cảm ơn bạn. Chúng tôi đã nhận được yêu cầu tư vấn.',
+                ],
+                'settings' => [],
+            ],
+        };
     }
 
     private function campaignDefinition(string $type, LocalBusiness $business): array
@@ -243,14 +452,37 @@ class FizaHubDefaultDataProvisioner
     private function uniqueSlug(Builder $query, string $name, string $fallback): string
     {
         $base = Str::slug($name) ?: $fallback;
-        $candidate = $base;
-        $suffix = 2;
+        $counter = 1;
 
-        while ($query->clone()->where('slug', $candidate)->exists()) {
-            $candidate = $base.'-'.$suffix;
-            $suffix++;
-        }
+        do {
+            $suffix = $counter === 1 ? '' : '-'.$counter;
+            $candidate = Str::limit($base, self::SLUG_MAX_LENGTH - strlen($suffix), '').$suffix;
+            $counter++;
+        } while ($query->clone()->where('slug', $candidate)->exists());
 
         return $candidate;
+    }
+
+    private function trackedId(mixed $id): ?int
+    {
+        if ($id === null || $id === '') {
+            return null;
+        }
+
+        if (! is_numeric($id) || (int) $id < 1) {
+            $this->integrationBroken();
+        }
+
+        return (int) $id;
+    }
+
+    private function integrationBroken(): never
+    {
+        throw PartnerApiException::make(
+            'integration_broken',
+            __('Liên kết MKT không hợp lệ.'),
+            409,
+            ['next_action' => 'contact_support']
+        );
     }
 }

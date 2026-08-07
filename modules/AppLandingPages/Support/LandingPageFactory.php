@@ -8,16 +8,22 @@ use Modules\AppQRCampaigns\Models\QrCampaign;
 
 class LandingPageFactory
 {
-    public function syncFromCampaign(QrCampaign $campaign): LandingPage
+    private const SLUG_MAX_LENGTH = 255;
+
+    /** @param array{content?: array<string, mixed>, settings?: array<string, mixed>} $overrides */
+    public function syncFromCampaign(QrCampaign $campaign, array $overrides = []): LandingPage
     {
         $type = $this->normalizeType((string) $campaign->type);
         $settings = $campaign->settings ?: [];
 
+        // Campaign identity is the long-standing contract for generic callers. FizaHUB
+        // performs its stricter tenant/type validation before reaching this factory.
         $page = LandingPage::query()->firstOrNew([
             'campaign_id' => $campaign->id,
         ]);
 
         if (! $page->exists) {
+            $page->campaign_id = $campaign->id;
             $page->slug = $this->uniqueSlug($campaign->name);
             $page->visits_count = 0;
             $page->conversions_count = 0;
@@ -30,8 +36,14 @@ class LandingPageFactory
             'template' => $this->templateFor($type, $settings),
             'title' => $campaign->name,
             'status' => $campaign->published_at ? 'published' : 'draft',
-            'content' => $this->contentFor($campaign, $type, $settings),
-            'settings' => $this->settingsFor($type, $settings),
+            'content' => array_replace_recursive(
+                $this->contentFor($campaign, $type, $settings),
+                (array) ($overrides['content'] ?? [])
+            ),
+            'settings' => array_replace_recursive(
+                $this->settingsFor($type, $settings),
+                (array) ($overrides['settings'] ?? [])
+            ),
             'published_at' => $campaign->published_at,
         ])->save();
 
@@ -145,12 +157,13 @@ class LandingPageFactory
     protected function uniqueSlug(string $title): string
     {
         $base = Str::slug($title) ?: 'landing-page';
-        $slug = $base;
-        $counter = 2;
+        $counter = 1;
 
-        while (LandingPage::query()->where('slug', $slug)->exists()) {
-            $slug = $base.'-'.$counter++;
-        }
+        do {
+            $suffix = $counter === 1 ? '' : '-'.$counter;
+            $slug = Str::limit($base, self::SLUG_MAX_LENGTH - strlen($suffix), '').$suffix;
+            $counter++;
+        } while (LandingPage::query()->where('slug', $slug)->exists());
 
         return $slug;
     }
