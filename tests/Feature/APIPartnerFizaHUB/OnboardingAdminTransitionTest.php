@@ -305,6 +305,13 @@ test('Admin status changes are data-neutral and existing user deletion removes e
             ->where('request_id', $response->json('data.request_id'))
             ->firstOrFail(),
     ];
+    $userId = (int) $seed['integration']->mlhub_user_id;
+    $businessId = (int) $seed['integration']->mlhub_business_id;
+
+    expect(Customer::query()->where('user_id', $userId)->where('business_id', $businessId)->count())->toBe(1)
+        ->and(BookingService::query()->where('user_id', $userId)->where('business_id', $businessId)->count())->toBe(1)
+        ->and(LoyaltyCard::query()->where('user_id', $userId)->where('business_id', $businessId)->count())->toBe(1);
+
     $snapshot = adminDefaultDataSnapshot($seed['integration']);
 
     expect($snapshot['campaigns'])->toHaveCount(5)
