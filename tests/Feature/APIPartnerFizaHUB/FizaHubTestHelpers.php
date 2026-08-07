@@ -384,3 +384,162 @@ function bootProductionLikeSchema(): void
 
     runRealFizaHubMigrations();
 }
+
+function createFizaHubDefaultDataTables(): void
+{
+    dropFizaHubDefaultDataTables();
+
+    Schema::create('lb_customers', function (Blueprint $table): void {
+        $table->id();
+        $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+        $table->foreignId('business_id')->nullable()->constrained('lb_businesses')->nullOnDelete();
+        $table->string('name');
+        $table->string('phone')->nullable();
+        $table->string('email')->nullable();
+        $table->json('tags')->nullable();
+        $table->text('note')->nullable();
+        $table->json('metadata')->nullable();
+        $table->timestamp('first_seen_at')->nullable();
+        $table->timestamp('last_activity_at')->nullable();
+        $table->timestamps();
+    });
+
+    Schema::create('lb_customer_activities', function (Blueprint $table): void {
+        $table->id();
+        $table->unsignedBigInteger('team_id')->nullable()->index();
+        $table->foreignId('owner_user_id')->nullable()->constrained('users')->cascadeOnDelete();
+        $table->foreignId('business_id')->nullable()->constrained('lb_businesses')->nullOnDelete();
+        $table->foreignId('customer_id')->constrained('lb_customers')->cascadeOnDelete();
+        $table->string('type')->index();
+        $table->string('title');
+        $table->text('description')->nullable();
+        $table->string('related_type')->nullable()->index();
+        $table->unsignedBigInteger('related_id')->nullable()->index();
+        $table->string('source_module')->nullable()->index();
+        $table->string('icon')->nullable();
+        $table->string('color', 40)->nullable();
+        $table->json('metadata')->nullable();
+        $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+        $table->timestamp('occurred_at')->nullable()->index();
+        $table->timestamps();
+    });
+
+    Schema::create('lb_crm_automations', function (Blueprint $table): void {
+        $table->id();
+        $table->foreignId('owner_user_id')->nullable()->constrained('users')->cascadeOnDelete();
+        $table->foreignId('business_id')->nullable()->constrained('lb_businesses')->nullOnDelete();
+        $table->string('trigger_event')->index();
+        $table->string('status', 40)->default('active')->index();
+    });
+
+    Schema::create('lb_email_automations', function (Blueprint $table): void {
+        $table->id();
+        $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+        $table->foreignId('business_id')->nullable()->constrained('lb_businesses')->nullOnDelete();
+        $table->string('trigger_event', 80);
+        $table->string('status', 20)->default('draft');
+    });
+
+    Schema::create('lb_webhook_automations', function (Blueprint $table): void {
+        $table->id();
+        $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+        $table->foreignId('business_id')->nullable()->constrained('lb_businesses')->nullOnDelete();
+        $table->string('trigger_event', 80);
+        $table->string('status', 20)->default('draft');
+    });
+
+    Schema::create('lb_whatsapp_notifications', function (Blueprint $table): void {
+        $table->id();
+        $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+        $table->foreignId('business_id')->nullable()->constrained('lb_businesses')->nullOnDelete();
+        $table->string('trigger_event', 80);
+        $table->string('status', 20)->default('draft');
+    });
+
+    Schema::create('lb_campaigns', function (Blueprint $table): void {
+        $table->id();
+        $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+        $table->foreignId('business_id')->constrained('lb_businesses')->cascadeOnDelete();
+        $table->string('slug')->unique();
+        $table->string('name');
+        $table->string('type', 40);
+        $table->string('status', 30)->default('active');
+        $table->text('destination_url')->nullable();
+        $table->json('settings')->nullable();
+        $table->timestamp('published_at')->nullable();
+        $table->timestamps();
+    });
+
+    Schema::create('lb_booking_services', function (Blueprint $table): void {
+        $table->id();
+        $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+        $table->foreignId('business_id')->constrained('lb_businesses')->cascadeOnDelete();
+        $table->string('name');
+        $table->unsignedSmallInteger('duration_minutes')->default(60);
+        $table->decimal('price', 10, 2)->nullable();
+        $table->text('description')->nullable();
+        $table->json('available_days')->nullable();
+        $table->json('time_slots')->nullable();
+        $table->unsignedSmallInteger('max_bookings_per_slot')->default(1);
+        $table->boolean('use_business_hours')->default(true);
+        $table->unsignedSmallInteger('slot_interval')->default(30);
+        $table->unsignedSmallInteger('buffer_before')->default(0);
+        $table->unsignedSmallInteger('buffer_after')->default(0);
+        $table->json('service_hours')->nullable();
+        $table->boolean('is_active')->default(true);
+        $table->timestamps();
+    });
+
+    Schema::create('lb_landing_pages', function (Blueprint $table): void {
+        $table->id();
+        $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+        $table->foreignId('business_id')->nullable()->constrained('lb_businesses')->nullOnDelete();
+        $table->foreignId('campaign_id')->nullable()->constrained('lb_campaigns')->nullOnDelete();
+        $table->string('slug')->unique();
+        $table->string('title');
+        $table->string('type', 40)->default('lead');
+        $table->string('template', 80)->default('local_campaign');
+        $table->string('status', 30)->default('published');
+        $table->json('content')->nullable();
+        $table->json('settings')->nullable();
+        $table->unsignedInteger('visits_count')->default(0);
+        $table->unsignedInteger('conversions_count')->default(0);
+        $table->timestamp('published_at')->nullable();
+        $table->timestamps();
+    });
+
+    Schema::create('lb_loyalty_cards', function (Blueprint $table): void {
+        $table->id();
+        $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+        $table->foreignId('team_id')->nullable()->constrained('teams')->nullOnDelete();
+        $table->foreignId('business_id')->constrained('lb_businesses')->cascadeOnDelete();
+        $table->string('slug')->unique();
+        $table->string('name');
+        $table->unsignedInteger('required_stamps')->default(10);
+        $table->string('stamp_method')->default('qr_scan');
+        $table->string('customer_identifier')->default('phone');
+        $table->string('reward_title');
+        $table->string('reward_type')->default('free_item');
+        $table->string('reward_value')->nullable();
+        $table->unsignedInteger('expiry_days')->nullable();
+        $table->unsignedInteger('stamp_cooldown_minutes')->default(1440);
+        $table->unsignedInteger('max_stamps_per_day')->default(1);
+        $table->json('settings')->nullable();
+        $table->string('status')->default('active');
+        $table->timestamps();
+    });
+}
+
+function dropFizaHubDefaultDataTables(): void
+{
+    Schema::dropIfExists('lb_landing_pages');
+    Schema::dropIfExists('lb_loyalty_cards');
+    Schema::dropIfExists('lb_booking_services');
+    Schema::dropIfExists('lb_campaigns');
+    Schema::dropIfExists('lb_whatsapp_notifications');
+    Schema::dropIfExists('lb_webhook_automations');
+    Schema::dropIfExists('lb_email_automations');
+    Schema::dropIfExists('lb_crm_automations');
+    Schema::dropIfExists('lb_customer_activities');
+    Schema::dropIfExists('lb_customers');
+}
