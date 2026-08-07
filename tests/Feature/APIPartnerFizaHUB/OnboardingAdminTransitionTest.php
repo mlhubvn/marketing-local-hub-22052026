@@ -20,7 +20,6 @@ use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingStatusHistory;
 use Modules\APIPartnerFizaHUB\Models\PartnerSupportAttachment;
 use Modules\APIPartnerFizaHUB\Models\PartnerSupportTicketContext;
 use Modules\APIPartnerFizaHUB\Models\PartnerWebhookOutbox;
-use Modules\APIPartnerFizaHUB\Services\FizaHubDefaultDataProvisioner;
 use Modules\APIPartnerFizaHUB\Services\OnboardingAdminService;
 use Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine;
 use Modules\AppBookingPages\Models\BookingService;
@@ -34,57 +33,15 @@ require_once __DIR__.'/FizaHubTestHelpers.php';
 
 function createAdminTransitionTables(): void
 {
-    dropFizaHubPartnerTables();
     dropFizaHubDefaultDataTables();
+    dropFizaHubPartnerTables();
     Schema::dropIfExists('audit_logs');
-    Schema::dropIfExists('support_tickets');
-    Schema::dropIfExists('lb_businesses');
     Schema::dropIfExists('files');
-    Schema::dropIfExists('team_user');
-    Schema::dropIfExists('teams');
-    Schema::dropIfExists('users');
-    Schema::dropIfExists('plans');
+    bootProductionLikeSchema();
 
-    Schema::create('plans', function (Blueprint $table): void {
-        $table->id();
-        $table->string('name');
-        $table->string('slug')->unique();
-        $table->boolean('status')->default(true);
-        $table->boolean('free_plan')->default(false);
-        $table->json('permissions')->nullable();
-        $table->timestamps();
-    });
-
-    Schema::create('users', function (Blueprint $table): void {
-        $table->id();
-        $table->string('name');
-        $table->string('username')->nullable()->unique();
-        $table->string('email')->unique();
-        $table->unsignedBigInteger('plan_id')->nullable();
-        $table->timestamp('plan_started_at')->nullable();
-        $table->timestamp('plan_expires_at')->nullable();
-        $table->timestamp('email_verified_at')->nullable();
+    Schema::table('users', function (Blueprint $table): void {
         $table->string('avatar_path')->nullable();
         $table->string('avatar_disk')->nullable();
-        $table->string('password');
-        $table->boolean('is_super_admin')->default(false);
-        $table->timestamps();
-    });
-
-    Schema::create('teams', function (Blueprint $table): void {
-        $table->id();
-        $table->string('name');
-        $table->string('slug');
-        $table->unsignedBigInteger('owner_user_id')->nullable();
-        $table->timestamps();
-    });
-
-    Schema::create('lb_businesses', function (Blueprint $table): void {
-        $table->id();
-        $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-        $table->string('name');
-        $table->string('type', 60)->default('other');
-        $table->timestamps();
     });
 
     createFizaHubDefaultDataTables();
@@ -96,19 +53,6 @@ function createAdminTransitionTables(): void
         $table->string('path')->nullable();
         $table->boolean('is_folder')->default(false);
         $table->timestamps();
-    });
-
-    Schema::create('support_tickets', function (Blueprint $table): void {
-        $table->id();
-        $table->string('id_secure', 40)->unique();
-        $table->unsignedBigInteger('uid');
-        $table->unsignedBigInteger('open_by');
-        $table->unsignedBigInteger('team_id')->nullable();
-        $table->string('title', 255);
-        $table->text('content');
-        $table->unsignedTinyInteger('status')->default(1);
-        $table->unsignedInteger('changed')->nullable();
-        $table->unsignedInteger('created')->nullable();
     });
 
     Schema::create('audit_logs', function (Blueprint $table): void {
@@ -126,7 +70,6 @@ function createAdminTransitionTables(): void
         $table->timestamps();
     });
 
-    createFizaHubPartnerTables();
 }
 
 /**
@@ -180,32 +123,116 @@ function seedAdminOnboarding(): array
     return compact('integration', 'onboarding');
 }
 
-function provisionAdminDefaultData(PartnerIntegration $integration): void
+function adminOnboardingHeaders(array $overrides = []): array
 {
-    $user = User::query()->findOrFail($integration->mlhub_user_id);
-    $team = Team::query()->findOrFail($integration->mlhub_workspace_id);
-    $business = LocalBusiness::query()->findOrFail($integration->mlhub_business_id);
+    return array_merge([
+        'Authorization' => 'Bearer test-fizahub-partner-token',
+        'X-Partner' => 'fizahub',
+        'X-Request-Id' => (string) str()->uuid(),
+        'Idempotency-Key' => (string) str()->uuid(),
+        'Accept' => 'application/json',
+    ], $overrides);
+}
 
-    app(FizaHubDefaultDataProvisioner::class)->provision(
-        $integration,
-        $user,
-        $team,
-        $business
-    );
+function adminOnboardingPayload(): array
+{
+    return [
+        'external_business_id' => 'biz-admin',
+        'external_user_id' => 'user-admin',
+        'package_code' => 'base',
+        'marketing_goal_codes' => ['local_presence', 'qr_checkin'],
+        'owner' => [
+            'name' => 'Admin Lifecycle Owner',
+            'phone' => '0901234567',
+            'email' => 'admin-lifecycle-owner@example.com',
+        ],
+        'business' => [
+            'name' => 'Admin Lifecycle Shop',
+            'industry' => 'restaurant_food',
+            'phone' => '0901234567',
+            'email' => 'admin-lifecycle-shop@example.com',
+            'website' => 'https://admin-lifecycle.example.com',
+            'address' => 'Da Nang',
+            'tax_code' => '0101234567',
+            'business_license_number' => 'GPKD123',
+        ],
+        'verification' => [
+            'identity_verified' => true,
+            'verified_at' => '2026-07-13T10:00:00+07:00',
+            'verified_by' => 'fizahub',
+        ],
+    ];
+}
+
+function adminSnapshotAttributes(object $model, array $attributes): array
+{
+    return collect($model->only($attributes))
+        ->map(fn (mixed $value): mixed => $value instanceof \DateTimeInterface
+            ? $value->format('Y-m-d\TH:i:s.uP')
+            : $value)
+        ->all();
+}
+
+function adminDefaultDataSnapshot(PartnerIntegration $integration): array
+{
+    $userId = (int) $integration->mlhub_user_id;
+    $businessId = (int) $integration->mlhub_business_id;
+    $campaigns = QrCampaign::query()
+        ->where('user_id', $userId)
+        ->where('business_id', $businessId)
+        ->orderBy('type')
+        ->get();
+    $customer = Customer::query()
+        ->where('user_id', $userId)
+        ->where('business_id', $businessId)
+        ->firstOrFail();
+    $bookingService = BookingService::query()
+        ->where('user_id', $userId)
+        ->where('business_id', $businessId)
+        ->firstOrFail();
+    $loyaltyCard = LoyaltyCard::query()
+        ->where('user_id', $userId)
+        ->where('business_id', $businessId)
+        ->firstOrFail();
+    $campaignTypes = $campaigns->mapWithKeys(fn (QrCampaign $campaign): array => [$campaign->id => $campaign->type]);
+
+    return [
+        'integration_default_data' => data_get($integration->metadata, '_system.fizahub_default_data'),
+        'customer' => adminSnapshotAttributes($customer, ['id', 'user_id', 'business_id', 'name', 'phone', 'email', 'tags', 'note', 'metadata', 'first_seen_at', 'last_activity_at']),
+        'booking_service' => adminSnapshotAttributes($bookingService, ['id', 'user_id', 'business_id', 'name', 'duration_minutes', 'price', 'description', 'available_days', 'time_slots', 'max_bookings_per_slot', 'use_business_hours', 'slot_interval', 'buffer_before', 'buffer_after', 'service_hours', 'is_active']),
+        'loyalty_card' => adminSnapshotAttributes($loyaltyCard, ['id', 'user_id', 'team_id', 'business_id', 'slug', 'name', 'required_stamps', 'stamp_method', 'customer_identifier', 'reward_title', 'reward_type', 'reward_value', 'expiry_days', 'stamp_cooldown_minutes', 'max_stamps_per_day', 'settings', 'status']),
+        'campaigns' => $campaigns->map(fn (QrCampaign $campaign): array => adminSnapshotAttributes($campaign, [
+            'id', 'user_id', 'business_id', 'slug', 'name', 'type', 'status', 'destination_url', 'settings', 'published_at',
+        ]))->all(),
+        'landing_pages' => LandingPage::query()
+            ->where('user_id', $userId)
+            ->where('business_id', $businessId)
+            ->orderBy('campaign_id')
+            ->get()
+            ->map(fn (LandingPage $page): array => array_merge(
+                ['campaign_type' => $campaignTypes->get($page->campaign_id)],
+                adminSnapshotAttributes($page, ['id', 'user_id', 'business_id', 'campaign_id', 'slug', 'title', 'type', 'template', 'status', 'content', 'settings', 'visits_count', 'conversions_count', 'published_at'])
+            ))
+            ->all(),
+    ];
 }
 
 beforeEach(function (): void {
     config()->set('modules.apipartnerfizahub.webhook_base_url', '');
+    config()->set('modules.apipartnerfizahub.token', 'test-fizahub-partner-token');
+    config()->set('modules.apipartnerfizahub.rate_limit_per_minute', 60);
     createAdminTransitionTables();
 });
 
 afterEach(function (): void {
-    dropFizaHubPartnerTables();
     dropFizaHubDefaultDataTables();
+    dropFizaHubPartnerTables();
     Schema::dropIfExists('audit_logs');
+    Schema::dropIfExists('files');
+    Schema::dropIfExists('affiliate_profiles');
+    Schema::dropIfExists('support_comments');
     Schema::dropIfExists('support_tickets');
     Schema::dropIfExists('lb_businesses');
-    Schema::dropIfExists('files');
     Schema::dropIfExists('team_user');
     Schema::dropIfExists('teams');
     Schema::dropIfExists('users');
@@ -253,31 +280,44 @@ test('invalid admin transition is rejected', function (): void {
 });
 
 test('Admin status changes are data-neutral and existing user deletion removes every FizaHUB default', function (): void {
-    $seed = seedAdminOnboarding();
-    provisionAdminDefaultData($seed['integration']);
+    AdminPlan::query()->create([
+        'name' => 'MKT Free Da Nang',
+        'slug' => 'mlhub-free-da-nang',
+        'status' => true,
+        'free_plan' => true,
+        'default_signup_plan' => true,
+        'currency' => 'VND',
+        'price' => 0,
+        'permissions' => [],
+    ]);
 
-    $counts = [
-        Customer::query()->count(),
-        BookingService::query()->count(),
-        LoyaltyCard::query()->count(),
-        QrCampaign::query()->count(),
-        LandingPage::query()->count(),
+    $response = $this->postJson(
+        '/api/v1/partners/fizahub/onboarding-requests',
+        adminOnboardingPayload(),
+        adminOnboardingHeaders()
+    )->assertCreated();
+
+    $seed = [
+        'integration' => PartnerIntegration::query()
+            ->where('external_business_id', 'biz-admin')
+            ->firstOrFail(),
+        'onboarding' => PartnerOnboardingRequest::query()
+            ->where('request_id', $response->json('data.request_id'))
+            ->firstOrFail(),
     ];
+    $snapshot = adminDefaultDataSnapshot($seed['integration']);
 
-    expect($counts)->toBe([1, 1, 1, 5, 5]);
+    expect($snapshot['campaigns'])->toHaveCount(5)
+        ->and($snapshot['landing_pages'])->toHaveCount(5)
+        ->and(array_column($snapshot['campaigns'], 'type'))->toBe(['booking', 'coupon', 'feedback', 'lead', 'review']);
 
     $service = app(OnboardingAdminService::class);
     $service->transition($seed['onboarding'], OnboardingStatusMachine::CONSULTING, 'admin', 7);
     $service->transition($seed['onboarding']->fresh(), OnboardingStatusMachine::CONFIGURING, 'admin', 7);
     $service->transition($seed['onboarding']->fresh(), OnboardingStatusMachine::READY, 'admin', 7);
+    $service->transition($seed['onboarding']->fresh(), OnboardingStatusMachine::COMPLETED, 'admin', 7);
 
-    expect([
-        Customer::query()->count(),
-        BookingService::query()->count(),
-        LoyaltyCard::query()->count(),
-        QrCampaign::query()->count(),
-        LandingPage::query()->count(),
-    ])->toBe($counts);
+    expect(adminDefaultDataSnapshot($seed['integration']->fresh()))->toBe($snapshot);
 
     $target = User::query()->findOrFail($seed['integration']->mlhub_user_id);
     $admin = User::query()->create([
@@ -289,11 +329,13 @@ test('Admin status changes are data-neutral and existing user deletion removes e
     ]);
     app(DeleteUser::class)->execute($target, $admin->id);
 
-    expect(Customer::query()->count())->toBe(0)
-        ->and(BookingService::query()->count())->toBe(0)
-        ->and(LoyaltyCard::query()->count())->toBe(0)
-        ->and(QrCampaign::query()->count())->toBe(0)
-        ->and(LandingPage::query()->count())->toBe(0)
+    expect(User::query()->find($target->id))->toBeNull()
+        ->and(Customer::query()->whereKey($snapshot['customer']['id'])->exists())->toBeFalse()
+        ->and(BookingService::query()->whereKey($snapshot['booking_service']['id'])->exists())->toBeFalse()
+        ->and(LoyaltyCard::query()->whereKey($snapshot['loyalty_card']['id'])->exists())->toBeFalse()
+        ->and(QrCampaign::query()->whereIn('id', array_column($snapshot['campaigns'], 'id'))->exists())->toBeFalse()
+        ->and(LandingPage::query()->whereIn('id', array_column($snapshot['landing_pages'], 'id'))->exists())->toBeFalse()
+        ->and(PartnerOnboardingRequest::query()->where('external_business_id', 'biz-admin')->exists())->toBeFalse()
         ->and(PartnerIntegration::query()->where('external_business_id', 'biz-admin')->exists())->toBeFalse();
 });
 
