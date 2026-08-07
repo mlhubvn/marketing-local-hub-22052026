@@ -106,6 +106,7 @@ test('FizaHUB provisioner creates the complete published Vietnamese default data
 
     $state = data_get($integration->fresh()->metadata, '_system.fizahub_default_data');
     expect($state['version'])->toBe('v1')
+        ->and(data_get($integration->fresh()->metadata, 'tax_code'))->toBe('0400123456')
         ->and($state['customer_id'])->toBe($customer->id)
         ->and($state['booking_service_id'])->toBe($service->id)
         ->and($state['loyalty_card_id'])->toBe($card->id)
@@ -136,5 +137,6 @@ test('FizaHUB provisioner reuses stable ids preserves edits and repairs only del
         ->and($review->fresh()->name)->toBe('Tên người dùng đã sửa')
         ->and($reviewPage->fresh()->title)->toBe('Trang người dùng đã sửa')
         ->and(data_get($seed['integration']->fresh()->metadata, '_system.fizahub_default_data.campaign_ids.coupon'))
-        ->not->toBe($coupon->id);
+        ->not->toBe($coupon->id)
+        ->and(data_get($seed['integration']->fresh()->metadata, 'tax_code'))->toBe('0400123456');
 });
