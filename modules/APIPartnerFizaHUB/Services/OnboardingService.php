@@ -29,6 +29,7 @@ class OnboardingService
         protected SupportTicketBridge $supportTickets,
         protected PackageAssignmentService $packages,
         protected WebhookOutboxService $webhooks,
+        protected FizaHubDefaultDataProvisioner $defaultData,
     ) {}
 
     /**
@@ -258,10 +259,11 @@ class OnboardingService
         $business = $integration->mlhub_business_id
             ? LocalBusiness::query()->lockForUpdate()->find($integration->mlhub_business_id)
             : null;
-        $teamExists = $integration->mlhub_workspace_id
-            && Team::query()->whereKey($integration->mlhub_workspace_id)->exists();
+        $team = $integration->mlhub_workspace_id
+            ? Team::query()->lockForUpdate()->find($integration->mlhub_workspace_id)
+            : null;
 
-        if (! $user || ! $business || ! $teamExists) {
+        if (! $user || ! $business || ! $team) {
             throw PartnerApiException::make(
                 'integration_broken',
                 __('Liên kết MKT không hợp lệ.'),
@@ -297,6 +299,7 @@ class OnboardingService
         }
 
         $this->updateExistingProfile($user, $business, $acceptedPayload);
+        $this->defaultData->provision($integration, $user, $team, $business);
 
         $storedPayload = (array) ($onboarding->payload ?? []);
         data_set($storedPayload, 'owner.name', data_get($acceptedPayload, 'owner.name'));
@@ -411,6 +414,8 @@ class OnboardingService
             null,
             'Initial Free package on FizaHUB provisioning.'
         );
+
+        $this->defaultData->provision($integration, $user, $team, $business);
 
         $onboarding = PartnerOnboardingRequest::query()->create([
             'partner_code' => $this->mapping->partnerCode(),

@@ -11,8 +11,15 @@ use Modules\APIPartnerFizaHUB\Models\PartnerIntegration;
 use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingRequest;
 use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingStatusHistory;
 use Modules\APIPartnerFizaHUB\Models\PartnerPackageAssignment;
+use Modules\APIPartnerFizaHUB\Services\FizaHubDefaultDataProvisioner;
+use Modules\APIPartnerFizaHUB\Services\OnboardingService;
 use Modules\AppAffiliate\Models\AffiliateProfile;
+use Modules\AppBookingPages\Models\BookingService;
 use Modules\AppBusinessProfiles\Models\LocalBusiness;
+use Modules\AppCustomers\Models\Customer;
+use Modules\AppLandingPages\Models\LandingPage;
+use Modules\AppLoyaltyStampCards\Models\LoyaltyCard;
+use Modules\AppQRCampaigns\Models\QrCampaign;
 
 require_once __DIR__.'/FizaHubTestHelpers.php';
 
@@ -131,6 +138,7 @@ function createOnboardingTestTables(): void
     });
 
     createFizaHubPartnerTables();
+    createFizaHubDefaultDataTables();
 }
 
 function seedOnboardingPlan(): AdminPlan
@@ -196,6 +204,7 @@ beforeEach(function (): void {
 });
 
 afterEach(function (): void {
+    dropFizaHubDefaultDataTables();
     dropFizaHubPartnerTables();
     Schema::dropIfExists('affiliate_profiles');
     Schema::dropIfExists('support_tickets');
@@ -255,7 +264,14 @@ test('onboarding always provisions a free account awaiting consultant with reque
         ->and(PartnerOnboardingRequest::query()->count())->toBe(1)
         ->and(AffiliateProfile::query()->count())->toBe(1)
         ->and(SupportTicket::query()->count())->toBe(1)
-        ->and(PartnerPackageAssignment::query()->count())->toBe(1);
+        ->and(PartnerPackageAssignment::query()->count())->toBe(1)
+        ->and(Customer::query()->count())->toBe(1)
+        ->and(BookingService::query()->count())->toBe(1)
+        ->and(LoyaltyCard::query()->count())->toBe(1)
+        ->and(QrCampaign::query()->count())->toBe(5)
+        ->and(QrCampaign::query()->whereNotNull('published_at')->count())->toBe(5)
+        ->and(LandingPage::query()->count())->toBe(5)
+        ->and(LandingPage::query()->where('status', 'published')->count())->toBe(5);
 
     $user = User::query()->firstOrFail();
     $business = LocalBusiness::query()->firstOrFail();
@@ -292,6 +308,18 @@ test('same mapped business upsert updates permitted fields once and keeps a sing
         onboardingHeaders(['X-Request-Id' => $requestId])
     )->assertCreated();
 
+    $defaultDataCountsBeforeReplay = [
+        'customers' => Customer::query()->count(),
+        'booking_services' => BookingService::query()->count(),
+        'loyalty_cards' => LoyaltyCard::query()->count(),
+        'campaigns' => QrCampaign::query()->count(),
+        'landing_pages' => LandingPage::query()->count(),
+    ];
+    $defaultDataIdsBeforeReplay = data_get(
+        PartnerIntegration::query()->firstOrFail()->metadata,
+        '_system.fizahub_default_data'
+    );
+
     $this->postJson(
         '/api/v1/partners/fizahub/onboarding-requests',
         validOnboardingPayload([
@@ -313,6 +341,20 @@ test('same mapped business upsert updates permitted fields once and keeps a sing
         ->and(PartnerOnboardingRequest::query()->count())->toBe(1)
         ->and(SupportTicket::query()->count())->toBe(1)
         ->and(PartnerPackageAssignment::query()->count())->toBe(1)
+        ->and(Customer::query()->count())->toBe(1)
+        ->and(BookingService::query()->count())->toBe(1)
+        ->and(LoyaltyCard::query()->count())->toBe(1)
+        ->and(QrCampaign::query()->count())->toBe(5)
+        ->and(LandingPage::query()->count())->toBe(5)
+        ->and([
+            'customers' => Customer::query()->count(),
+            'booking_services' => BookingService::query()->count(),
+            'loyalty_cards' => LoyaltyCard::query()->count(),
+            'campaigns' => QrCampaign::query()->count(),
+            'landing_pages' => LandingPage::query()->count(),
+        ])->toBe($defaultDataCountsBeforeReplay)
+        ->and(data_get(PartnerIntegration::query()->firstOrFail()->metadata, '_system.fizahub_default_data'))
+        ->toBe($defaultDataIdsBeforeReplay)
         ->and(User::query()->value('name'))->toBe('Nguyen Van B')
         ->and(LocalBusiness::query()->value('name'))->toBe('Quan Com B');
 });
@@ -404,8 +446,14 @@ test('duplicate tax code on another integration still provisions with needs_revi
         ->assertJsonPath('data.account_created', true)
         ->assertJsonPath('data.duplicate_check.0.type', 'tax_code');
 
-    expect(User::query()->where('email', 'fresh@example.com')->exists())->toBeTrue()
-        ->and(PartnerIntegration::query()->count())->toBe(2);
+    $freshUser = User::query()->where('email', 'fresh@example.com')->firstOrFail();
+
+    expect(PartnerIntegration::query()->count())->toBe(2)
+        ->and(Customer::query()->where('user_id', $freshUser->id)->count())->toBe(1)
+        ->and(BookingService::query()->where('user_id', $freshUser->id)->count())->toBe(1)
+        ->and(LoyaltyCard::query()->where('user_id', $freshUser->id)->count())->toBe(1)
+        ->and(QrCampaign::query()->where('user_id', $freshUser->id)->count())->toBe(5)
+        ->and(LandingPage::query()->where('user_id', $freshUser->id)->count())->toBe(5);
 });
 
 test('unverified identity still provisions an awaiting_consultant account', function (): void {
@@ -432,6 +480,32 @@ test('unverified identity still provisions an awaiting_consultant account', func
     expect(User::query()->count())->toBe(1)
         ->and(SupportTicket::query()->count())->toBe(1)
         ->and($user->email_verified_at)->toBeNull();
+});
+
+test('default-data failure rolls back the complete first onboarding transaction', function (): void {
+    $provisioner = Mockery::mock(FizaHubDefaultDataProvisioner::class);
+    $provisioner->shouldReceive('provision')
+        ->once()
+        ->andThrow(new \RuntimeException('forced default-data failure'));
+    app()->instance(FizaHubDefaultDataProvisioner::class, $provisioner);
+
+    expect(fn () => app(OnboardingService::class)->upsert(
+        validOnboardingPayload(),
+        (string) str()->uuid()
+    ))->toThrow(\RuntimeException::class, 'forced default-data failure');
+
+    expect(User::query()->count())->toBe(0)
+        ->and(Team::query()->count())->toBe(0)
+        ->and(LocalBusiness::query()->count())->toBe(0)
+        ->and(PartnerIntegration::query()->count())->toBe(0)
+        ->and(PartnerOnboardingRequest::query()->count())->toBe(0)
+        ->and(SupportTicket::query()->count())->toBe(0)
+        ->and(PartnerPackageAssignment::query()->count())->toBe(0)
+        ->and(Customer::query()->count())->toBe(0)
+        ->and(BookingService::query()->count())->toBe(0)
+        ->and(LoyaltyCard::query()->count())->toBe(0)
+        ->and(QrCampaign::query()->count())->toBe(0)
+        ->and(LandingPage::query()->count())->toBe(0);
 });
 
 test('onboarding show returns status by request id', function (): void {
