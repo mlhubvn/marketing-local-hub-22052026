@@ -186,7 +186,7 @@ function adminUnrelatedOnboardingPayload(): array
 function adminSnapshotAttributes(object $model, array $attributes): array
 {
     return collect($model->only($attributes))
-        ->map(fn (mixed $value): mixed => $value instanceof \DateTimeInterface
+        ->map(fn (mixed $value): mixed => $value instanceof DateTimeInterface
             ? $value->format('Y-m-d\TH:i:s.uP')
             : $value)
         ->all();
