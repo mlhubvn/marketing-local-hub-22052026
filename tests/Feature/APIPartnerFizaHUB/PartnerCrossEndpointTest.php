@@ -44,7 +44,7 @@ function createCrossEndpointTables(): void
     Schema::dropIfExists('lb_review_feedbacks');
     Schema::dropIfExists('lb_lead_submissions');
     Schema::dropIfExists('lb_qr_scans');
-    Schema::dropIfExists('lb_campaigns');
+    dropFizaHubDefaultDataTables();
     Schema::dropIfExists('lb_businesses');
     Schema::dropIfExists('team_user');
     Schema::dropIfExists('teams');
@@ -127,16 +127,7 @@ function createCrossEndpointTables(): void
         $table->timestamps();
     });
 
-    Schema::create('lb_campaigns', function (Blueprint $table): void {
-        $table->id();
-        $table->unsignedBigInteger('user_id');
-        $table->unsignedBigInteger('business_id')->nullable();
-        $table->string('name');
-        $table->string('slug')->nullable();
-        $table->string('status', 40)->nullable();
-        $table->timestamp('published_at')->nullable();
-        $table->timestamps();
-    });
+    createFizaHubDefaultDataTables();
 
     Schema::create('lb_qr_scans', function (Blueprint $table): void {
         $table->id();
@@ -326,7 +317,7 @@ afterEach(function (): void {
     Schema::dropIfExists('lb_review_feedbacks');
     Schema::dropIfExists('lb_lead_submissions');
     Schema::dropIfExists('lb_qr_scans');
-    Schema::dropIfExists('lb_campaigns');
+    dropFizaHubDefaultDataTables();
     Schema::dropIfExists('lb_businesses');
     Schema::dropIfExists('team_user');
     Schema::dropIfExists('teams');

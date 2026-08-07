@@ -13,6 +13,7 @@ use Modules\APIPartnerFizaHUB\Models\PartnerPackageAssignment;
 use Modules\APIPartnerFizaHUB\Models\PartnerSupportTicketContext;
 use Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine;
 use Modules\AppBusinessProfiles\Models\LocalBusiness;
+use Modules\AppLandingPages\Models\LandingPage;
 use Modules\AppQRCampaigns\Models\QrCampaign;
 
 require_once __DIR__.'/FizaHubTestHelpers.php';
@@ -30,17 +31,10 @@ function fullUiHeaders(array $overrides = []): array
 
 function createFullUiGrowthTables(): void
 {
-    Schema::create('lb_campaigns', function (Blueprint $table): void {
-        $table->id();
-        $table->unsignedBigInteger('user_id');
-        $table->unsignedBigInteger('business_id')->nullable();
-        $table->string('name');
-        $table->string('slug')->nullable();
-        $table->string('status', 40)->nullable();
+    createFizaHubDefaultDataTables();
+
+    Schema::table('lb_campaigns', function (Blueprint $table): void {
         $table->string('objective')->nullable();
-        $table->json('settings')->nullable();
-        $table->timestamp('published_at')->nullable();
-        $table->timestamps();
     });
 
     Schema::create('lb_qr_scans', function (Blueprint $table): void {
@@ -112,9 +106,10 @@ beforeEach(function (): void {
 });
 
 afterEach(function (): void {
-    foreach (['lb_feedback_responses', 'lb_bookings', 'lb_coupon_redemptions', 'lb_review_feedbacks', 'lb_lead_submissions', 'lb_qr_scans', 'lb_campaigns'] as $table) {
+    foreach (['lb_feedback_responses', 'lb_bookings', 'lb_coupon_redemptions', 'lb_review_feedbacks', 'lb_lead_submissions', 'lb_qr_scans'] as $table) {
         Schema::dropIfExists($table);
     }
+    dropFizaHubDefaultDataTables();
     dropFizaHubPartnerTables();
     Schema::dropIfExists('affiliate_profiles');
     Schema::dropIfExists('support_comments');
@@ -172,6 +167,7 @@ test('full 15-screen FizaHUB UI path is sequential and second onboarding creates
         'business_id' => $mlhubBusinessId,
         'name' => 'Fiza Pending Campaign',
         'slug' => 'fiza-pending-campaign',
+        'type' => 'custom',
         'status' => 'pending_approval',
         'objective' => 'Tăng khách quay lại',
         'settings' => [],
@@ -277,6 +273,8 @@ test('full 15-screen FizaHUB UI path is sequential and second onboarding creates
         'onboarding_requests' => PartnerOnboardingRequest::query()->count(),
         'onboarding_tickets' => PartnerSupportTicketContext::query()->where('request_code', 'fizahub_onboarding')->count(),
         'support_tickets' => SupportTicket::query()->count(),
+        'default_campaigns' => QrCampaign::query()->whereIn('type', ['review', 'booking', 'coupon', 'feedback', 'lead'])->count(),
+        'landing_pages' => LandingPage::query()->count(),
     ];
 
     $repeat = $this->postJson($base.'/onboarding-requests', $payload, fullUiHeaders())
@@ -295,6 +293,8 @@ test('full 15-screen FizaHUB UI path is sequential and second onboarding creates
         'onboarding_requests' => PartnerOnboardingRequest::query()->count(),
         'onboarding_tickets' => PartnerSupportTicketContext::query()->where('request_code', 'fizahub_onboarding')->count(),
         'support_tickets' => SupportTicket::query()->count(),
+        'default_campaigns' => QrCampaign::query()->whereIn('type', ['review', 'booking', 'coupon', 'feedback', 'lead'])->count(),
+        'landing_pages' => LandingPage::query()->count(),
     ])->toBe($countsBeforeRepeat)
         ->and($countsBeforeRepeat)->toMatchArray([
             'users' => 1,
@@ -305,5 +305,7 @@ test('full 15-screen FizaHUB UI path is sequential and second onboarding creates
             'onboarding_requests' => 1,
             'onboarding_tickets' => 1,
             'support_tickets' => 2,
+            'default_campaigns' => 5,
+            'landing_pages' => 5,
         ]);
 });

@@ -92,6 +92,7 @@ beforeEach(function (): void {
     config()->set('modules.apipartnerfizahub.token', 'test-fizahub-partner-token');
     config()->set('modules.apipartnerfizahub.rate_limit_per_minute', 60);
     bootProductionLikeSchema();
+    createFizaHubDefaultDataTables();
 });
 
 afterEach(function (): void {
@@ -105,6 +106,7 @@ afterEach(function (): void {
     Schema::dropIfExists('partner_api_logs');
     Schema::dropIfExists('partner_onboarding_requests');
     Schema::dropIfExists('partner_integrations');
+    dropFizaHubDefaultDataTables();
     Schema::dropIfExists('affiliate_profiles');
     Schema::dropIfExists('support_tickets');
     Schema::dropIfExists('lb_businesses');

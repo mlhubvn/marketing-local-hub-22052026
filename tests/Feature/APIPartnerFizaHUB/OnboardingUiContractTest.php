@@ -69,6 +69,7 @@ beforeEach(function (): void {
     config()->set('modules.apipartnerfizahub.rate_limit_per_minute', 60);
 
     bootProductionLikeSchema();
+    createFizaHubDefaultDataTables();
 
     AdminPlan::query()->create([
         'name' => 'MKT Free Da Nang',
@@ -84,6 +85,7 @@ beforeEach(function (): void {
 
 afterEach(function (): void {
     dropFizaHubPartnerTables();
+    dropFizaHubDefaultDataTables();
     Schema::dropIfExists('affiliate_profiles');
     Schema::dropIfExists('support_comments');
     Schema::dropIfExists('support_tickets');
