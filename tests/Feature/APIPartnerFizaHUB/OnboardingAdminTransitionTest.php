@@ -20,18 +20,24 @@ use Modules\APIPartnerFizaHUB\Models\PartnerOnboardingStatusHistory;
 use Modules\APIPartnerFizaHUB\Models\PartnerSupportAttachment;
 use Modules\APIPartnerFizaHUB\Models\PartnerSupportTicketContext;
 use Modules\APIPartnerFizaHUB\Models\PartnerWebhookOutbox;
+use Modules\APIPartnerFizaHUB\Services\FizaHubDefaultDataProvisioner;
 use Modules\APIPartnerFizaHUB\Services\OnboardingAdminService;
 use Modules\APIPartnerFizaHUB\Support\OnboardingStatusMachine;
+use Modules\AppBookingPages\Models\BookingService;
 use Modules\AppBusinessProfiles\Models\LocalBusiness;
+use Modules\AppCustomers\Models\Customer;
+use Modules\AppLandingPages\Models\LandingPage;
+use Modules\AppLoyaltyStampCards\Models\LoyaltyCard;
+use Modules\AppQRCampaigns\Models\QrCampaign;
 
 require_once __DIR__.'/FizaHubTestHelpers.php';
 
 function createAdminTransitionTables(): void
 {
     dropFizaHubPartnerTables();
+    dropFizaHubDefaultDataTables();
     Schema::dropIfExists('audit_logs');
     Schema::dropIfExists('support_tickets');
-    Schema::dropIfExists('lb_customers');
     Schema::dropIfExists('lb_businesses');
     Schema::dropIfExists('files');
     Schema::dropIfExists('team_user');
@@ -81,13 +87,7 @@ function createAdminTransitionTables(): void
         $table->timestamps();
     });
 
-    Schema::create('lb_customers', function (Blueprint $table): void {
-        $table->id();
-        $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-        $table->foreignId('business_id')->nullable()->constrained('lb_businesses')->nullOnDelete();
-        $table->string('name');
-        $table->timestamps();
-    });
+    createFizaHubDefaultDataTables();
 
     Schema::create('files', function (Blueprint $table): void {
         $table->id();
@@ -180,6 +180,20 @@ function seedAdminOnboarding(): array
     return compact('integration', 'onboarding');
 }
 
+function provisionAdminDefaultData(PartnerIntegration $integration): void
+{
+    $user = User::query()->findOrFail($integration->mlhub_user_id);
+    $team = Team::query()->findOrFail($integration->mlhub_workspace_id);
+    $business = LocalBusiness::query()->findOrFail($integration->mlhub_business_id);
+
+    app(FizaHubDefaultDataProvisioner::class)->provision(
+        $integration,
+        $user,
+        $team,
+        $business
+    );
+}
+
 beforeEach(function (): void {
     config()->set('modules.apipartnerfizahub.webhook_base_url', '');
     createAdminTransitionTables();
@@ -187,9 +201,9 @@ beforeEach(function (): void {
 
 afterEach(function (): void {
     dropFizaHubPartnerTables();
+    dropFizaHubDefaultDataTables();
     Schema::dropIfExists('audit_logs');
     Schema::dropIfExists('support_tickets');
-    Schema::dropIfExists('lb_customers');
     Schema::dropIfExists('lb_businesses');
     Schema::dropIfExists('files');
     Schema::dropIfExists('team_user');
@@ -236,6 +250,51 @@ test('invalid admin transition is rejected', function (): void {
 
     expect($seed['onboarding']->fresh()->status)->toBe('awaiting_consultant')
         ->and(PartnerOnboardingStatusHistory::query()->count())->toBe(0);
+});
+
+test('Admin status changes are data-neutral and existing user deletion removes every FizaHUB default', function (): void {
+    $seed = seedAdminOnboarding();
+    provisionAdminDefaultData($seed['integration']);
+
+    $counts = [
+        Customer::query()->count(),
+        BookingService::query()->count(),
+        LoyaltyCard::query()->count(),
+        QrCampaign::query()->count(),
+        LandingPage::query()->count(),
+    ];
+
+    expect($counts)->toBe([1, 1, 1, 5, 5]);
+
+    $service = app(OnboardingAdminService::class);
+    $service->transition($seed['onboarding'], OnboardingStatusMachine::CONSULTING, 'admin', 7);
+    $service->transition($seed['onboarding']->fresh(), OnboardingStatusMachine::CONFIGURING, 'admin', 7);
+    $service->transition($seed['onboarding']->fresh(), OnboardingStatusMachine::READY, 'admin', 7);
+
+    expect([
+        Customer::query()->count(),
+        BookingService::query()->count(),
+        LoyaltyCard::query()->count(),
+        QrCampaign::query()->count(),
+        LandingPage::query()->count(),
+    ])->toBe($counts);
+
+    $target = User::query()->findOrFail($seed['integration']->mlhub_user_id);
+    $admin = User::query()->create([
+        'name' => 'Admin',
+        'username' => 'default_data_delete_admin',
+        'email' => 'default-data-delete-admin@example.com',
+        'password' => 'password-password-password-password-password-password-1234',
+        'is_super_admin' => true,
+    ]);
+    app(DeleteUser::class)->execute($target, $admin->id);
+
+    expect(Customer::query()->count())->toBe(0)
+        ->and(BookingService::query()->count())->toBe(0)
+        ->and(LoyaltyCard::query()->count())->toBe(0)
+        ->and(QrCampaign::query()->count())->toBe(0)
+        ->and(LandingPage::query()->count())->toBe(0)
+        ->and(PartnerIntegration::query()->where('external_business_id', 'biz-admin')->exists())->toBeFalse();
 });
 
 test('adminSetStatus can reactivate a cancelled onboarding request', function (): void {
