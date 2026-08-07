@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-07
 
-**Status:** Approved in conversation; awaiting written-spec review
+**Status:** Approved
 
 ## Goal
 
@@ -29,7 +29,7 @@ Add a FizaHUB-only provisioning service inside `Modules\APIPartnerFizaHUB\Servic
 
 `OnboardingService::reuseExistingRegistration()` also calls the provisioner. This makes an idempotent API replay safe and allows an onboarding record created before this change to receive any missing defaults when FizaHUB submits it again.
 
-The provisioner receives the already-provisioned `User`, `Team`, and `LocalBusiness`. It owns only the creation and reconciliation of FizaHUB default data. Existing portal Livewire components remain responsible for interactive user-created content.
+The provisioner receives the already-provisioned `PartnerIntegration`, `User`, `Team`, and `LocalBusiness`. It owns only the creation and reconciliation of FizaHUB default data. Existing portal Livewire components remain responsible for interactive user-created content.
 
 Interactive `PlanLimitGuard` checks are not applied to these defaults. The defaults are part of the FizaHUB partner entitlement and are provisioned only after the effective FizaHUB package has been assigned.
 
@@ -48,14 +48,31 @@ The provisioner must not catch and hide database or factory failures. `Onboardin
 
 The API already uses partner integration identity and request idempotency. Default-data creation adds entity-level protection so replay cannot produce duplicate templates.
 
-- Campaigns store `_system.fizahub_default = "v1"` in `lb_campaigns.settings`; the functional key is user, business, campaign type, and marker.
-- The first customer stores `_system.fizahub_default = "v1"` in `lb_customers.metadata`.
-- The loyalty card stores `_system.fizahub_default = "v1"` in `lb_loyalty_cards.settings`.
-- The booking service has no metadata column, so it is reconciled by user, business, and its fixed default name. An existing matching service is reused.
-- `LandingPageFactory::syncFromCampaign()` is reused; it reconciles a page by `campaign_id`.
+`PartnerIntegration.metadata._system.fizahub_default_data` stores the version and generated entity IDs:
+
+```json
+{
+  "version": "v1",
+  "customer_id": 101,
+  "booking_service_id": 201,
+  "loyalty_card_id": 301,
+  "campaign_ids": {
+    "review": 401,
+    "booking": 402,
+    "coupon": 403,
+    "feedback": 404,
+    "lead": 405
+  }
+}
+```
+
+- A stored ID is reused only when the row still belongs to the mapped user and business and has the expected entity or campaign type.
+- If a stored ID is missing or stale, only that entity is recreated and the metadata ID is replaced.
+- Existing integrations without this metadata are provisioned once and receive the complete ID map.
+- `LandingPageFactory::syncFromCampaign()` is called when a generated campaign is new or its landing page is missing; an existing landing page is not overwritten during replay.
 - Generated campaign and loyalty slugs remain globally unique by using the established slug-plus-counter convention.
 
-The provisioner fills missing generated entities but does not overwrite user edits on existing entities. If a generated campaign exists, its current name, content, status, and design are preserved. A missing landing page is recreated from the existing generated campaign.
+The provisioner fills missing generated entities but does not overwrite user edits on existing entities. Stable integration-owned IDs remain valid even when a user renames or edits generated content.
 
 ## Default Data Contract
 
@@ -71,7 +88,7 @@ Create one `Customer` linked to the provisioned user and business:
 - `phone`: business phone;
 - `email`: business email, falling back to the owner login email only when the business email is absent;
 - `note`: `Khách hàng đầu tiên được tạo tự động từ thông tin cơ sở kinh doanh.`;
-- `metadata._system.fizahub_default`: `v1`.
+- its generated ID is recorded in the integration metadata map.
 
 ### 3. Review Booster
 
@@ -139,7 +156,7 @@ Create one active `LoyaltyCard` linked to the provisioned user, workspace, and b
 - maximum stamps per day: `1`;
 - status: active;
 - page template and design: the default loyalty template and design;
-- `settings._system.fizahub_default`: `v1`.
+- its generated ID is recorded in the integration metadata map.
 
 ### 7. Feedback Forms
 
