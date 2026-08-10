@@ -179,12 +179,17 @@ final class PartnerBusinessLogMatcher
      * Matches a JSON column at an exact path (never a `%needle%` scan of the whole
      * document). MySQL's `json_unquote(json_extract(...))` always yields plain text,
      * so a JSON string "155" and a JSON number 155 both compare equal to the bound
-     * string value there. SQLite's `json_extract()` does NOT unquote/stringify —
-     * a JSON number is returned with SQLite storage class INTEGER/REAL, which never
-     * compares equal to a bound TEXT value (SQLite orders by storage class, not
-     * value). So when the identifier looks numeric we also bind an int/float
-     * comparison — redundant but harmless on MySQL, required for the numeric case on
-     * SQLite (used by the test suite).
+     * string value there — the plain string comparison below is enough on MySQL.
+     * SQLite's `json_extract()` does NOT unquote/stringify — a JSON number is
+     * returned with SQLite storage class INTEGER/REAL, which never compares equal to
+     * a bound TEXT value (SQLite orders by storage class, not value). So when the
+     * identifier looks numeric we ALSO bind an int/float comparison, but only on
+     * SQLite: on MySQL, comparing `json_unquote(...)` (text) to a bare int literal
+     * makes MySQL try to numeric-cast every row's extracted string — including
+     * unrelated rows whose `external_business_id` is a non-numeric partner value
+     * (e.g. FizaHUB's `fiza-<uuid>` scheme) — which throws
+     * "1292 Truncated incorrect DOUBLE value" under strict SQL mode and aborts the
+     * whole purge query. Never remove this driver guard.
      *
      * @param  list<string>  $path
      */
@@ -200,7 +205,7 @@ final class PartnerBusinessLogMatcher
 
         $query->orWhere($selector, $value);
 
-        if (is_numeric($value)) {
+        if (is_numeric($value) && $query->getConnection()->getDriverName() === 'sqlite') {
             $query->orWhere($selector, str_contains($value, '.') ? (float) $value : (int) $value);
         }
 
